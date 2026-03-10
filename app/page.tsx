@@ -132,7 +132,7 @@ if (!currentSkill) {
 	}
 	function downloadReport() {
 
-  const rows = [];
+  const rows: { skill: string; topic: string; status: string }[] = [];
 
   const addRows = (ids: string[], status: string) => {
     for (const id of ids) {
