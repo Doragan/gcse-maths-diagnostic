@@ -9,6 +9,12 @@ import { skillsById } from "../lib/skillGraph";
 import { getPrerequisiteTree } from "../lib/skillGraph";
 import { getDependentTree } from "../lib/skillGraph";
 
+type ReportRow = {
+  skill: string;
+  topic: string;
+  status: string;
+};
+
 validateSkills();
 
 export default function Home() {
@@ -130,11 +136,7 @@ if (!currentSkill) {
 	  }
 
 	}
-	type ReportRow = {
-	  skill: string;
-	  topic: string;
-	  status: string;
-	};
+
 	function downloadReport() {
 
   const rows: ReportRow[] = [];
