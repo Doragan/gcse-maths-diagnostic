@@ -130,9 +130,14 @@ if (!currentSkill) {
 	  }
 
 	}
+	type ReportRow = {
+	  skill: string;
+	  topic: string;
+	  status: string;
+	};
 	function downloadReport() {
 
-  const rows: { skill: string; topic: string; status: string }[] = [];
+  const rows: ReportRow[] = [];
 
   const addRows = (ids: string[], status: string) => {
     for (const id of ids) {
