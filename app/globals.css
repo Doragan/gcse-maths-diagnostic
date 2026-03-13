@@ -62,11 +62,17 @@ h3 {
 }
 
 button {
-  padding: 12px 20px;
+    padding: 12px 20px;
   font-size: 16px;
-  border: none;
   border-radius: 6px;
+  border: none;
+  background-color: #2563eb;
+  color: white;
   cursor: pointer;
+}
+
+button:hover {
+  background-color: #1d4ed8;
 }
 
 button.yes {
@@ -105,7 +111,27 @@ div.questionCard {
 
 div.progressInfo {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   color: #555;
   font-size: 16px;
+}
+
+div.questionContainer {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+image.questionImage {
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+
+  margin: 15px auto;
+  display: block;
 }

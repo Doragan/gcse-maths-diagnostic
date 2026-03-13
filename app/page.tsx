@@ -304,124 +304,134 @@ function getImagePath(skill: Skill) {
     );
   }
 
-  return (
-    <main style={{
-    padding: "40px",
-    maxWidth: "700px",
-    margin: "0 auto",
-    fontSize: "18px",
-    lineHeight: "1.6",
-	fontFamily: "system-ui"
-  }}>
-      <h1 style={{
-		  fontSize: "32px",
-		  marginTop: "25px",
-		  marginBottom: "10px"
-	  }}>GCSE Maths Diagnostic</h1>
-	  
-	  <div className="progressInfo">
+return (
+  <main
+    style={{
+      padding: "20px",
+      maxWidth: "420px",
+      margin: "0 auto",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      gap: "12px"
+    }}
+  >
+    <h1 style={{ fontSize: "24px", color:"#555", margin: 0 }}>
+      GCSE Maths Diagnostic
+    </h1>
 
-		  <p>Question {questionsAsked + 1}</p>
+    <p style={{ fontSize: "14px", margin: 0 }}>
+      Question {questionsAsked + 1} | Diagnosed: {diagnosedSkills} / {courseSkills.length} | Remaining: {diagnostic.remainingSkills.length}
+    </p>
 
-		  <p>
-			Skills diagnosed: {diagnosedSkills} / {courseSkills.length}
-		  </p>
+    <div
+      style={{
+        background: "#f5f5f5",
+        padding: "16px",
+        borderRadius: "10px",
+		display: "flex",
+		flexDirection: "column",
+        flexGrow: 1,
+        overflowY: "auto"
+      }}
+    >
+      <p style={{ marginTop: 0 }}>
+        <strong>Current Skill:</strong> {currentSkill.name}
+      </p>
 
-		  <p>
-			Remaining skills: {diagnostic.remainingSkills.length}
-		  </p>
-		  <p>
-			  Progress: {progressPercent}%
-			</p>
-
-	</div>
-
-		
-	  <div className="questionCard">
-		  <h2   style={{
-			fontSize: "24px",
-			marginTop: "25px",
-			marginBottom: "10px"
-			}}>
-			<strong>Current Skill: </strong>{currentSkill.name}
-		</h2>
-			{currentSkill.exampleQuestion && (
-			  <>
-			<p>
-				<strong>Example question:</strong>
-			</p>
-			<p style={{ marginBottom: "20px" }}>
-				{currentSkill.exampleQuestion}</p>
-				</>
-			)}
-
-			<img
-			  src={encodeURI(`/questions/${currentSkill.topic}/${currentSkill.id}.png`)}
-			  alt="Example diagram"
-			  style={{
-				maxWidth: "300px",
-				marginTop: "10px",
-				marginBottom: "10px"
-			  }}
-			  onError={(e) => {
-				e.currentTarget.style.display = "none";
-			  }}
-			/>
-
-			{currentSkill.exampleAnswer && (
-			  <>
-				<p>
-				  <strong>Example answer:</strong>
-				</p>
-
-				<p style={{ marginBottom: "20px" }}>
-				  {currentSkill.exampleAnswer}
-				</p>
-			  </>
-			)}
-
-			<p>
-				<strong>Do you know how to solve this type of question?</strong>
-			</p>
-			<div className="buttonRow" style={{ marginTop: "20px"}}>
-			<button
-			  className = "yes"
-			  onClick={() => handleAnswer(true)}
-			  onMouseOver={(e) => e.currentTarget.style.opacity = "0.85"}
-			  onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
-			>
-			  Yes, I know this
-			</button>
-
-			<button
-				className="no"
-			  onClick={() => handleAnswer(false)}
-			  onMouseOver={(e) => e.currentTarget.style.opacity = "0.85"}
-			  onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
-			>
-
-	  No, I need practice
-	</button>
-			</div>	
-		</div>
-	  
-      {questionsAsked > 5 && (
+      {currentSkill.exampleQuestion && (
         <>
-          <p style={{ marginTop: "20px" }}>
-            If you want to end your diagnostic early with{" "}
-            {diagnostic.remainingSkills.length} skills
-            remaining, you can finish now.
+          <p>
+            <strong>Example question:</strong>
           </p>
 
-          <button className="secondary"
-			  onClick={finishDiagnostic}
-			  onMouseOver={(e) => e.currentTarget.style.opacity = "0.85"}
-			  onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
-			>
-			  Finish Diagnostic
-		</button>
+          <p>{currentSkill.exampleQuestion}</p>
         </>
       )}
-    </main>
-  );
+
+      {currentSkill.image && (
+        <img
+          src={encodeURI(`/questions/${currentSkill.topic}/${currentSkill.id}.png`)}
+          alt="Example diagram"
+          style={{
+            maxWidth: "100%",
+            maxHeight: "200px",
+            margin: "10px 0",
+            objectFit: "contain"
+          }}
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      )}
+
+      {currentSkill.exampleAnswer && (
+        <>
+          <p>
+            <strong>Example answer:</strong>
+          </p>
+
+          <p>{currentSkill.exampleAnswer}</p>
+        </>
+      )}
+    </div>
+      <p style={{ margin: 0 }}>
+        <strong>Do you know how to solve this type of question?</strong>
+      </p>
+    <div
+      style={{
+        display: "flex",
+        gap: "10px",
+        justifyContent: "center"
+      }}
+    >
+	
+      <button
+        onClick={() => handleAnswer(true)}
+        style={{
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          padding: "12px 16px",
+          borderRadius: "8px",
+          fontSize: "14px",
+          cursor: "pointer"
+        }}
+      >
+        Yes, I know
+      </button>
+
+      <button
+        onClick={() => handleAnswer(false)}
+        style={{
+          background: "#f44336",
+          color: "white",
+          border: "none",
+          padding: "12px 16px",
+          borderRadius: "8px",
+          fontSize: "14px",
+          cursor: "pointer"
+        }}
+      >
+        No, I need practice
+      </button>
+    </div>
+
+    {questionsAsked > 5 && (
+      <button
+        onClick={finishDiagnostic}
+        style={{
+          marginTop: "10px",
+          padding: "10px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          background: "#eee",
+          cursor: "pointer"
+        }}
+      >
+        Finish Diagnostic
+      </button>
+    )}
+  </main>
+);
 }
