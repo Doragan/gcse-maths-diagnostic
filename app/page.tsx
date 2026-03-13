@@ -11,6 +11,8 @@ import {
   answerSkill,
 } from "../lib/diagnosticEngine";
 import { getPrerequisiteTree } from "../lib/skillGraph";
+import type { Skill } from "../data/skills";
+
 
 type ReportRow = {
   skill: string;
@@ -113,9 +115,10 @@ export default function Home() {
     a.click();
   }
   
-  function getImagePath(skill) {
+function getImagePath(skill: Skill) {
   return `/questions/${skill.topic}/${skill.id}.png`
 }
+
 
 	if (!started) {
   return (
