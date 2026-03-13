@@ -12,7 +12,9 @@ export const skills: Skill[] = [
     "id": "simple_arithmetic",
     "name": "Simple Arithmetic",
     "topic": "Number",
-    "prerequisites": []
+    "prerequisites": [],
+	"exampleQuestion": "Can you perform simple maths operations, such as 3x5 or 104÷2 without a calculator?",
+	"exampleAnswer": "The answers would be 15 and 52" 
   },
   {
     "id": "indices",
@@ -20,13 +22,17 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "What is 4 squared?",
+	"exampleAnswer": "16" 
   },
   {
     "id": "rounding",
     "name": "Rounding",
     "topic": "Number",
-    "prerequisites": []
+    "prerequisites": [],
+	"exampleQuestion": "Round 2.035 to 2dp.",
+	"exampleAnswer": "2.04" 
   },
   {
     "id": "significant_figures",
@@ -34,7 +40,9 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "rounding"
-    ]
+    ],
+	"exampleQuestion": "Round 2.035 to 2sf.",
+	"exampleAnswer": "2.0" 
   },
   {
     "id": "simplifying_expressions",
@@ -42,13 +50,17 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "Simplify 3x + 5 - x + 2y",
+	"exampleAnswer": "2x + 5 + 2y"
   },
   {
     "id": "substitution",
     "name": "Substitution",
     "topic": "Algebra",
-    "prerequisites": []
+    "prerequisites": [],
+	"exampleQuestion": "Calculate 3x + 2 if x = 4",
+	"exampleAnswer": "14" 
   },
   {
     "id": "solving_linear_equations",
@@ -56,7 +68,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "substitution"
-    ]
+    ],
+	"exampleQuestion": "Solve 4y - 2 = 18",
+	"exampleAnswer": "y = 5" 
   },
   {
     "id": "expanding_brackets",
@@ -64,7 +78,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "simplifying_expressions"
-    ]
+    ],
+	"exampleQuestion": "Expand: 4(2x - 5)",
+	"exampleAnswer": "8x - 20" 
   },
   {
     "id": "factorising",
@@ -72,7 +88,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "expanding_brackets"
-    ]
+    ],
+	"exampleQuestion": "Factorise fully: 12z + 4",
+	"exampleAnswer": "4(3z + 1)" 
   },
   {
     "id": "angles_on_lines_and_circles",
@@ -80,7 +98,9 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "What is the missing angle in the diagram, below?",
+	"exampleAnswer": "100°" 
   },
   {
     "id": "measuring_lines_and_angles",
@@ -88,7 +108,8 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "angles_on_lines_and_circles"
-    ]
+    ],
+	"exampleQuestion": "Can you measure an angle with a protractor?"
   },
   {
     "id": "alternate_and_corresponding_angles",
@@ -96,7 +117,9 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "angles_on_lines_and_circles"
-    ]
+    ],
+	"exampleQuestion": "What is the missing angle in the diagram, below?",
+	"exampleAnswer": "48°"
   },
   {
     "id": "bearings",
@@ -104,7 +127,9 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "angles_on_lines_and_circles"
-    ]
+    ],
+	"exampleQuestion": "What is the bearing of the line AB?",
+	"exampleAnswer": "335°"
   },
   {
     "id": "angles_in_polygons",
@@ -112,7 +137,9 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "angles_on_lines_and_circles"
-    ]
+    ],
+	"exampleQuestion": "What is the missing angle in the diagram, below?",
+	"exampleAnswer": "104°"
   },
   {
     "id": "congruence_and_similarity",
@@ -186,6 +213,14 @@ export const skills: Skill[] = [
       "fractions_of_amounts"
     ]
   },
+    {
+    "id": "irregular_and_top_heavy_fractions",
+    "name": "Irregular and Top Heavy Fractions",
+    "topic": "Number",
+    "prerequisites": [
+      "simplifying_fractions"
+    ]
+  },
   {
     "id": "decimals",
     "name": "Decimals",
@@ -248,7 +283,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "converting_fractions_to_decimals",
       "converting_decimals_to_fractions"
-    ]
+    ],
+	"exampleQuestion": "Order the following from smallest to largest:\n 0.1, 1/2, 0.09, 25%",
+	"exampleAnswer": "0.09, 0.1, 25%, 1/2" 
   },
   {
     "id": "exact_calculations",
