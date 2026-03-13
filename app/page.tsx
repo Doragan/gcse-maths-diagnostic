@@ -331,8 +331,8 @@ return (
         borderRadius: "10px",
 		display: "flex",
 		flexDirection: "column",
-        flexGrow: 1,
-        overflowY: "auto"
+        overflowY: "auto",
+		maxHeight: "50vh"
       }}
     >
       <p style={{ marginTop: 0 }}>
@@ -398,7 +398,7 @@ return (
           cursor: "pointer"
         }}
       >
-        Yes, I know
+        Yes, I know this
       </button>
 
       <button
