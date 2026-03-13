@@ -5,6 +5,7 @@ export type Skill = {
   prerequisites: string[]
   exampleQuestion?: string
   exampleAnswer?: string
+  image?: boolean
 }
 
 export const skills: Skill[] = [
