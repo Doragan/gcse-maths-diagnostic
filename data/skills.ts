@@ -148,7 +148,9 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "angles_in_polygons"
-    ]
+    ],
+	"exampleQuestion": "Calculate the length of the side BC in the diagram below:",
+	"exampleAnswer": "9cm"
   },
   {
     "id": "exterior_angles",
@@ -310,7 +312,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "expanding_double_brackets"
-    ]
+    ],
+	"exampleQuestion": "Factorise x² + 7x + 12",
+	"exampleAnswer": "(x + 3)(x + 4)" 
   },
   {
     "id": "difference_of_two_squares",

@@ -12,6 +12,7 @@ import {
 } from "../lib/diagnosticEngine";
 import { getPrerequisiteTree } from "../lib/skillGraph";
 import type { Skill } from "../data/skills";
+import { jsPDF } from "jspdf";
 
 
 type ReportRow = {
@@ -49,14 +50,41 @@ export default function Home() {
     setDiagnostic(updated);
   }
   
-  const diagnosedSkills =
-  diagnostic.testedMastered.length +
-  diagnostic.inferredMastered.length +
-  diagnostic.testedNotMastered.length +
-  diagnostic.inferredNotMastered.length;
+  const diagnosedSkills = new Set([
+	  ...diagnostic.testedMastered,
+	  ...diagnostic.inferredMastered,
+	  ...diagnostic.testedNotMastered,
+	  ...diagnostic.inferredNotMastered
+	]).size;
+	
+		const mastered = new Set([
+	  ...diagnostic.testedMastered,
+	  ...diagnostic.inferredMastered
+	]);
+
+	const needsPractice = new Set([
+	  ...diagnostic.testedNotMastered,
+	  ...diagnostic.inferredNotMastered
+	]);
+
+	const untested = new Set(
+	  courseSkills
+		.map((s) => s.id)
+		.filter((id) => !mastered.has(id) && !needsPractice.has(id))
+	);
   
   const progressPercent =
   Math.round((diagnosedSkills / courseSkills.length) * 100);
+  
+  const totalSkills =
+  mastered.size + needsPractice.size + untested.size;
+
+const masteredCount = mastered.size;
+
+const masteryPercent =
+  totalSkills > 0
+    ? Math.round((masteredCount / totalSkills) * 100)
+    : 0;
 
   function toggleTopic(topic: string) {
     setOpenTopics((prev) => {
@@ -114,6 +142,94 @@ export default function Home() {
     a.download = "diagnostic_results.csv";
     a.click();
   }
+  
+  const recommendations = [...needsPractice]
+  .map((id) => ({
+    id,
+    depth: getPrerequisiteTree(id).length,
+  }))
+  .sort((a, b) => a.depth - b.depth)
+  .slice(0, 3)
+  .map((r) => r.id);
+  
+  const topicSummary: Record<
+  string,
+  { mastered: number; needsPractice: number; untested: number }
+> = {};
+
+courseSkills.forEach((skill) => {
+  const topic = skill.topic;
+
+  if (!topicSummary[topic]) {
+    topicSummary[topic] = {
+      mastered: 0,
+      needsPractice: 0,
+      untested: 0,
+    };
+  }
+
+  if (mastered.has(skill.id)) {
+    topicSummary[topic].mastered++;
+  } else if (needsPractice.has(skill.id)) {
+    topicSummary[topic].needsPractice++;
+  } else {
+    topicSummary[topic].untested++;
+  }
+});
+  
+  function downloadPDF() {
+  const doc = new jsPDF();
+
+  let y = 20;
+
+  doc.setFontSize(18);
+  doc.text("GCSE Maths Diagnostic Report", 20, y);
+
+  y += 12;
+
+  doc.setFontSize(12);
+  doc.text(`Overall Mastery: ${masteryPercent}%`, 20, y);
+
+  y += 8;
+  doc.text(`${masteredCount} of ${totalSkills} skills mastered`, 20, y);
+
+  y += 14;
+
+  // Recommended skills
+  if (recommendations.length > 0) {
+    doc.setFontSize(14);
+    doc.text("Suggested Skills to Practise", 20, y);
+
+    y += 10;
+    doc.setFontSize(11);
+
+    recommendations.forEach((id) => {
+      doc.text(`• ${skillsById[id].name}`, 20, y);
+      y += 7;
+    });
+
+    y += 6;
+  }
+
+  // Topic summary
+  doc.setFontSize(14);
+  doc.text("Topic Summary", 20, y);
+
+  y += 10;
+  doc.setFontSize(11);
+
+  Object.entries(topicSummary).forEach(([topic, data]) => {
+    doc.text(
+      `${topic}: ${data.mastered} mastered | ${data.needsPractice} practice | ${data.untested} untested`,
+      20,
+      y
+    );
+
+    y += 7;
+  });
+
+  doc.save("maths-diagnostic-report.pdf");
+}
   
 function getImagePath(skill: Skill) {
   return `/questions/${skill.topic}/${skill.id}.png`
@@ -222,19 +338,64 @@ function getImagePath(skill: Skill) {
     }
 
     return (
-      <main style={{ padding: "40px" }}>
+      <main style={{ padding: "24px", maxWidth: "700px", margin: "0 auto" }}>
         <h1>Diagnostic Complete</h1>
+		<div
+		  style={{
+			marginTop: "10px",
+			marginBottom: "25px",
+			padding: "12px",
+			borderRadius: "8px",
+			background: "#f5f5f5",
+			border: "1px solid #e0e0e0"
+		  }}
+		>
+		  <div style={{ fontSize: "18px", fontWeight: "bold" }}>
+			Overall Mastery: {masteryPercent}%
+		  </div>
 
-        <button className="secondary" 
-		onClick={downloadReport}
-		onMouseOver={(e) => e.currentTarget.style.opacity = "0.85"}
-	    onMouseOut={(e) => e.currentTarget.style.opacity = "1"}>
-          Download Results (CSV)
-        </button>
+		  <div style={{ fontSize: "14px", marginTop: "4px" }}>
+			{masteredCount} of {totalSkills} skills mastered
+		  </div>
+		</div>
+		
+<div style={{ marginBottom: "20px" }}>
 
+<button
+  className="secondary"
+  onClick={downloadReport}
+  style={{ marginRight: "10px" }}
+>
+  Download Data (CSV)
+</button>
+
+<button
+  onClick={downloadPDF}
+  style={{
+    background: "#1976d2",
+    color: "white",
+    border: "none",
+    padding: "8px 14px",
+    borderRadius: "6px",
+    cursor: "pointer"
+  }}
+>
+  Download Student Report (PDF)
+</button>
+
+</div>
+		<div
+		  style={{
+			background: "#fff7d6",
+			border: "1px solid #f2d675",
+			padding: "12px",
+			borderRadius: "8px",
+			marginTop: "10px"
+		  }}
+		>
         {recommendations.length > 0 && (
           <>
-            <h2>We suggest working on the following skills:</h2>
+            <h2 style={{ marginTop: "0px",fontSize: "18px", fontWeight: "bold" }}>We suggest working on the following skills:</h2>
 
             <ul style={{paddingLeft: 20 }}>
               {recommendations.map((id) => (
@@ -245,6 +406,7 @@ function getImagePath(skill: Skill) {
             </ul>
           </>
         )}
+		</div>
 
         <h2>Topic Mastery</h2>
 
@@ -256,16 +418,54 @@ function getImagePath(skill: Skill) {
           const isOpen = openTopics.includes(topic);
 
           return (
-            <div key={topic} style={{ marginBottom: "10px" }}>
-              <div
-                style={{
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-                onClick={() => toggleTopic(topic)}
-              >
-                {topic}: {data.mastered}/{data.total} ({percent}%)
-              </div>
+			<div
+			  key={topic}
+			  style={{
+				marginBottom: "16px",
+				padding: "12px",
+				borderRadius: "8px",
+				border: "1px solid #e0e0e0",
+				background: "#fafafa"
+			  }}
+			>
+			<div
+			  style={{
+				cursor: "pointer",
+				fontWeight: "bold",
+				display: "flex",
+				justifyContent: "space-between",
+				alignItems: "center"
+			  }}
+			  onClick={() => toggleTopic(topic)}
+			>
+			  <span>{topic}</span>
+			  <span>{isOpen ? "▼" : "▶"}</span>
+			</div>
+
+			<div
+			  style={{
+				fontSize: "14px",
+				marginTop: "4px",
+				marginBottom: "6px"
+			  }}
+			>
+			  <span style={{ color: "#2e7d32", fontWeight: 500 }}>
+				{data.mastered} mastered
+			  </span>
+
+			  <span style={{ margin: "0 6px", color: "#999" }}>•</span>
+
+			  <span style={{ color: "#c62828", fontWeight: 500 }}>
+				{data.needsPractice} needs practice
+			  </span>
+
+			  <span style={{ margin: "0 6px", color: "#999" }}>•</span>
+
+			  <span style={{ color: "#777" }}>
+				{data.untested} untested
+			  </span>
+			</div>
+
 
               {isOpen && (
                 <ul
@@ -287,10 +487,13 @@ function getImagePath(skill: Skill) {
                     }
 
                     return (
-                      <li
-                        key={id}
-                        style={{ marginBottom: "3px" }}
-                      >
+					<li
+					  key={id}
+					  style={{
+						marginBottom: "4px",
+						fontSize: "14px"
+					  }}
+					>
                         {symbol} {skill.name}
                       </li>
                     );
@@ -326,18 +529,22 @@ return (
 
     <div
       style={{
-        background: "#f5f5f5",
+        background: "#ffffff",
         padding: "16px",
         borderRadius: "10px",
 		display: "flex",
 		flexDirection: "column",
         overflowY: "auto",
-		maxHeight: "50vh"
+		maxHeight: "50vh",
+		border: "2px solid #e5e5e5"
       }}
     >
       <p style={{ marginTop: 0 }}>
-        <strong>Current Skill:</strong> {currentSkill.name}
-      </p>
+	  <strong>Current skill being tested:</strong>
+	</p>
+	      <p style={{ marginTop: 0, fontSize: "16px" }}>
+	  {currentSkill.name}
+	</p>
 
       {currentSkill.exampleQuestion && (
         <>
@@ -345,7 +552,9 @@ return (
             <strong>Example question:</strong>
           </p>
 
-          <p>{currentSkill.exampleQuestion}</p>
+          <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
+  {currentSkill.exampleQuestion}
+</p>
         </>
       )}
 
@@ -371,10 +580,27 @@ return (
             <strong>Example answer:</strong>
           </p>
 
-          <p>{currentSkill.exampleAnswer}</p>
+          <p style={{ fontSize: "16px", lineHeight: "1.4" }}>{currentSkill.exampleAnswer}</p>
         </>
       )}
     </div>
+	
+    {questionsAsked > 5 && (
+      <button
+        onClick={finishDiagnostic}
+        style={{
+          marginTop: "10px",
+          padding: "10px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          background: "#eee",
+          cursor: "pointer"
+        }}
+      >
+        Finish Diagnostic
+      </button>
+    )}
+	<div style={{ flexGrow: 1 }} />
       <p style={{ margin: 0 }}>
         <strong>Do you know how to solve this type of question?</strong>
       </p>
@@ -392,10 +618,11 @@ return (
           background: "#4CAF50",
           color: "white",
           border: "none",
-          padding: "12px 16px",
+          padding: "14px 18px",
           borderRadius: "8px",
-          fontSize: "14px",
-          cursor: "pointer"
+          fontSize: "16px",
+          cursor: "pointer",
+		  flex: 1
         }}
       >
         Yes, I know this
@@ -407,31 +634,17 @@ return (
           background: "#f44336",
           color: "white",
           border: "none",
-          padding: "12px 16px",
+          padding: "14px 18px",
           borderRadius: "8px",
-          fontSize: "14px",
-          cursor: "pointer"
+          fontSize: "15px",
+          cursor: "pointer",
+		  flex: 1
         }}
       >
         No, I need practice
       </button>
     </div>
 
-    {questionsAsked > 5 && (
-      <button
-        onClick={finishDiagnostic}
-        style={{
-          marginTop: "10px",
-          padding: "10px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          background: "#eee",
-          cursor: "pointer"
-        }}
-      >
-        Finish Diagnostic
-      </button>
-    )}
   </main>
 );
 }
