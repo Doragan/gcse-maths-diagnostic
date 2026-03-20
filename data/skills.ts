@@ -120,7 +120,8 @@ export const skills: Skill[] = [
       "angles_on_lines_and_circles"
     ],
 	"exampleQuestion": "What is the missing angle in the diagram, below?",
-	"exampleAnswer": "48°"
+	"exampleAnswer": "48°",
+	"image":1
   },
   {
     "id": "bearings",
@@ -130,7 +131,8 @@ export const skills: Skill[] = [
       "angles_on_lines_and_circles"
     ],
 	"exampleQuestion": "What is the bearing of the line AB?",
-	"exampleAnswer": "335°"
+	"exampleAnswer": "335°",
+	"image":1
   },
   {
     "id": "angles_in_polygons",
@@ -140,7 +142,8 @@ export const skills: Skill[] = [
       "angles_on_lines_and_circles"
     ],
 	"exampleQuestion": "What is the missing angle in the diagram, below?",
-	"exampleAnswer": "104°"
+	"exampleAnswer": "104°",
+	"image" : 1
   },
   {
     "id": "congruence_and_similarity",
@@ -150,7 +153,8 @@ export const skills: Skill[] = [
       "angles_in_polygons"
     ],
 	"exampleQuestion": "Calculate the length of the side BC in the diagram below:",
-	"exampleAnswer": "9cm"
+	"exampleAnswer": "9cm",
+	"image":1
   },
   {
     "id": "exterior_angles",
@@ -239,7 +243,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "decimals",
       "fractions_of_amounts"
-    ]
+    ],
+	"exampleQuestion": "Convert 3/20 into a decimal number",
+	"exampleAnswer": "0.15" 
   },
   {
     "id": "converting_decimals_to_fractions",
@@ -249,7 +255,9 @@ export const skills: Skill[] = [
       "decimals",
       "fractions_of_amounts",
       "simplifying_fractions"
-    ]
+    ],
+	"exampleQuestion": "Convert 0.36 into a fraction and simplify fully",
+	"exampleAnswer": "9/25" 
   },
   {
     "id": "adding_and_subtracting_fractions",
@@ -267,7 +275,10 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simplifying_fractions",
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "Calculate and simplify:",
+	"exampleAnswer": "4/3" ,
+	"image":1
   },
   {
     "id": "dividing_fractions",
@@ -277,7 +288,10 @@ export const skills: Skill[] = [
       "simplifying_fractions",
       "simple_arithmetic",
       "multiplying_fractions"
-    ]
+    ],
+	"exampleQuestion": "Calculate and simplify:",
+	"exampleAnswer": "28/45" ,
+	"image":1
   },
   {
     "id": "fractions_decimals_and_percentages",
@@ -296,7 +310,9 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "fractions_decimals_and_percentages"
-    ]
+    ],
+	"exampleQuestion": "Use your calculator to work out (6.1 x 5.4)² ÷ 2.1 and write down all the figures in your calculator display",
+	"exampleAnswer": "516.68742857 (your answer may be to a different amount of decimal places)" 
   },
   {
     "id": "expanding_double_brackets",
@@ -304,7 +320,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "expanding_brackets"
-    ]
+    ],
+	  "exampleQuestion": "Expand and Simplify (2y + 4)(y - 3)",
+	"exampleAnswer": "2y² - 2y - 12" 
   },
   {
     "id": "factorising_quadratics",
@@ -322,7 +340,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "factorising_quadratics"
-    ]
+    ],
+	"exampleQuestion": "Factorise x² - 81",
+	"exampleAnswer": "(x + 9)(x - 9)" 
   },
   {
     "id": "areas_of_squares_and_rectangles",
@@ -365,13 +385,15 @@ export const skills: Skill[] = [
       "areas_of_triangles"
     ]
   },
-  {
+   {
     "id": "calculating_simple_probability",
     "name": "Calculating Simple Probability",
     "topic": "Probability and Data",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+"example question": "There are 3 red balls, 5 blue balls and 7 yellow balls in a bag. A ball is picked from the bag at random. What is the probability of picking a red ball?",
+"example answer": "3/15 or 1/5 or 0.2 (any of these answers would be allowed)."
   },
   {
     "id": "expected_outcomes",
@@ -379,7 +401,9 @@ export const skills: Skill[] = [
     "topic": "Probability and Data",
     "prerequisites": [
       "calculating_simple_probability"
-    ]
+    ],
+"example question": "If a spinner has a 0.15 chance of landing on a 2, how many times would you expect it to land on 2 if it was spun 200 times?",
+"example answer": "30"
   },
   {
     "id": "mutually_exclusive_events",
@@ -387,7 +411,9 @@ export const skills: Skill[] = [
     "topic": "Probability and Data",
     "prerequisites": [
       "calculating_simple_probability"
-    ]
+    ],
+"example question": "There are 3 red balls, 5 blue balls and 7 yellow balls in a bag. A ball is picked from the bag at random. What is the probability of picking a blue or a yellow ball?",
+"example answer": "10/15 or 2/3 (either of these answers would be allowed)."
   },
   {
     "id": "estimating",
@@ -395,7 +421,9 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+"example question": "Estimate: (3.8 x 52) + 6.9",
+"example answer": "207 (200 would also be acceptable)"
   },
   {
     "id": "converting_measurements",
@@ -403,7 +431,10 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+"example question": "A student is 1.6m tall. Calculate their height in mm",
+"example answer": "1600mm"
+
   },
   {
     "id": "solving_quadratic_equations_factorising",
@@ -412,7 +443,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "factorising_quadratics",
       "solving_linear_equations"
-    ]
+    ],
+"example question": "Solve x² + 7x + 12 = 0 through factorisation.",
+"example answer": "x = -3 or x = -4. To get this answer you should factorise the equation into (x + 3)(x + 4) = 0 as part of the solving process."
   },
   {
     "id": "solving_quadratic_equations_quadratic_equation",
@@ -421,7 +454,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "factorising_quadratics",
       "solving_linear_equations"
-    ]
+    ],
+"example question": "Solve x² - 4x - 1 = 0 through use of the quadratic formula.",
+"example answer": "x = -0.236 or x = 4.23 to 3s.f."
   },
   {
     "id": "simultaneous_equations",
@@ -429,7 +464,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "solving_linear_equations"
-    ]
+    ],
+"example question": "Solve: \n3x + y = 21 \n4x - 2y = 8",
+"example answer": "x = 5, y = 6."
   },
   {
     "id": "inequalities",
@@ -437,7 +474,10 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "solving_linear_equations"
-    ]
+    ],
+"example question": "Solve: 5c - 4 < 21",
+"example answer": "c < 5"
+
   },
   {
     "id": "circumfrence_of_a_circle",

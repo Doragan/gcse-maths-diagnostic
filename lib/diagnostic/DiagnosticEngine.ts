@@ -1,33 +1,58 @@
-import { DiagnosticSession } from "./types";
+import { skillsById, getPrerequisiteTree, getDependentTree, selectNextSkill } from "../skills/skillGraph";
 
-export class DiagnosticEngine {
+export type DiagnosticState = {
+  remainingSkills: string[];
+  testedMastered: string[];
+  testedNotMastered: string[];
+  inferredMastered: string[];
+  inferredNotMastered: string[];
+};
 
-  getNextSkill(session: DiagnosticSession) {
+export function createDiagnostic(initialSkills: string[]): DiagnosticState {
+  return {
+    remainingSkills: initialSkills,
+    testedMastered: [],
+    testedNotMastered: [],
+    inferredMastered: [],
+    inferredNotMastered: []
+  };
+}
 
-    const unknownSkills = Object.entries(session.skillStates)
-      .filter(([_, state]) => state === "unknown");
+export function getCurrentSkill(state: DiagnosticState) {
+  const skillId = selectNextSkill(state.remainingSkills);
+  return skillId ? skillsById[skillId] : null;
+}
 
-    if (unknownSkills.length === 0) {
-      return null;
-    }
+export function answerSkill(
+  state: DiagnosticState,
+  skillId: string,
+  knowsSkill: boolean
+): DiagnosticState {
 
-    return unknownSkills[0][0];
+  const prereqs = getPrerequisiteTree(skillId);
+  const dependents = getDependentTree(skillId);
+
+  if (knowsSkill) {
+
+    const remove = new Set([skillId, ...prereqs]);
+
+    return {
+      ...state,
+      remainingSkills: state.remainingSkills.filter(id => !remove.has(id)),
+      testedMastered: [...new Set([...state.testedMastered, skillId])],
+      inferredMastered: [...new Set([...state.inferredMastered, ...prereqs])]
+    };
+
+  } else {
+
+    const remove = new Set([skillId, ...dependents]);
+
+    return {
+      ...state,
+      remainingSkills: state.remainingSkills.filter(id => !remove.has(id)),
+      testedNotMastered: [...new Set([...state.testedNotMastered, skillId])],
+      inferredNotMastered: [...new Set([...state.inferredNotMastered, ...dependents])]
+    };
+
   }
-
-  submitAnswer(
-    session: DiagnosticSession,
-    skillId: string,
-    knowsSkill: boolean
-  ): DiagnosticSession {
-
-    const newSession = { ...session };
-
-    newSession.skillStates[skillId] =
-      knowsSkill ? "mastered" : "not_mastered";
-
-    newSession.askedSkills.push(skillId);
-
-    return newSession;
-  }
-
 }

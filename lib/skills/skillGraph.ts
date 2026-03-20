@@ -1,4 +1,4 @@
-import { skills } from "../data/skills";
+import { skills } from "../../data/skills";
 
 export const skillsById = Object.fromEntries(
   skills.map(skill => [skill.id, skill])
