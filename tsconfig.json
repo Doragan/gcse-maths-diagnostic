@@ -20,7 +20,10 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+	"compilerOptions": {
+    "forceConsistentCasingInFileNames": true
+  }
   },
   "include": [
     "next-env.d.ts",
