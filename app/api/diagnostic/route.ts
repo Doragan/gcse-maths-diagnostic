@@ -1,4 +1,4 @@
-import { DiagnosticEngine } from "@/lib/diagnostic/DiagnosticEngine";
+import { DiagnosticEngine } from "@/lib/diagnostic/diagnosticEngine";
 import { NextResponse } from "next/server";
 
 const engine = new DiagnosticEngine();
