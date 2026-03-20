@@ -1,4 +1,4 @@
-import type { Skill } from "../data/skills";
+import type { Skill } from "../../data/skills";
 
 type Props = {
   currentSkill: Skill;
