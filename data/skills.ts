@@ -392,8 +392,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simple_arithmetic"
     ],
-"example question": "There are 3 red balls, 5 blue balls and 7 yellow balls in a bag. A ball is picked from the bag at random. What is the probability of picking a red ball?",
-"example answer": "3/15 or 1/5 or 0.2 (any of these answers would be allowed)."
+"exampleQuestion": "There are 3 red balls, 5 blue balls and 7 yellow balls in a bag. A ball is picked from the bag at random. What is the probability of picking a red ball?",
+"exampleAnswer": "3/15 or 1/5 or 0.2 (any of these answers would be allowed)."
   },
   {
     "id": "expected_outcomes",
@@ -402,8 +402,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "calculating_simple_probability"
     ],
-"example question": "If a spinner has a 0.15 chance of landing on a 2, how many times would you expect it to land on 2 if it was spun 200 times?",
-"example answer": "30"
+"exampleQuestion": "If a spinner has a 0.15 chance of landing on a 2, how many times would you expect it to land on 2 if it was spun 200 times?",
+"exampleAnswer": "30"
   },
   {
     "id": "mutually_exclusive_events",
@@ -412,8 +412,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "calculating_simple_probability"
     ],
-"example question": "There are 3 red balls, 5 blue balls and 7 yellow balls in a bag. A ball is picked from the bag at random. What is the probability of picking a blue or a yellow ball?",
-"example answer": "10/15 or 2/3 (either of these answers would be allowed)."
+"exampleQuestion": "There are 3 red balls, 5 blue balls and 7 yellow balls in a bag. A ball is picked from the bag at random. What is the probability of picking a blue or a yellow ball?",
+"exampleAnswer": "10/15 or 2/3 (either of these answers would be allowed)."
   },
   {
     "id": "estimating",
@@ -422,8 +422,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simple_arithmetic"
     ],
-"example question": "Estimate: (3.8 x 52) + 6.9",
-"example answer": "207 (200 would also be acceptable)"
+"exampleQuestion": "Estimate: (3.8 x 52) + 6.9",
+"exampleAnswer": "207 (200 would also be acceptable)"
   },
   {
     "id": "converting_measurements",
@@ -432,8 +432,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simple_arithmetic"
     ],
-"example question": "A student is 1.6m tall. Calculate their height in mm",
-"example answer": "1600mm"
+"exampleQuestion": "A student is 1.6m tall. Calculate their height in mm",
+"exampleAnswer": "1600mm"
 
   },
   {
@@ -444,8 +444,8 @@ export const skills: Skill[] = [
       "factorising_quadratics",
       "solving_linear_equations"
     ],
-"example question": "Solve x² + 7x + 12 = 0 through factorisation.",
-"example answer": "x = -3 or x = -4. To get this answer you should factorise the equation into (x + 3)(x + 4) = 0 as part of the solving process."
+"exampleQuestion": "Solve x² + 7x + 12 = 0 through factorisation.",
+"exampleAnswer": "x = -3 or x = -4. To get this answer you should factorise the equation into (x + 3)(x + 4) = 0 as part of the solving process."
   },
   {
     "id": "solving_quadratic_equations_quadratic_equation",
@@ -455,8 +455,8 @@ export const skills: Skill[] = [
       "factorising_quadratics",
       "solving_linear_equations"
     ],
-"example question": "Solve x² - 4x - 1 = 0 through use of the quadratic formula.",
-"example answer": "x = -0.236 or x = 4.23 to 3s.f."
+"exampleQuestion": "Solve x² - 4x - 1 = 0 through use of the quadratic formula.",
+"exampleAnswer": "x = -0.236 or x = 4.23 to 3s.f."
   },
   {
     "id": "simultaneous_equations",
@@ -465,8 +465,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "solving_linear_equations"
     ],
-"example question": "Solve: \n3x + y = 21 \n4x - 2y = 8",
-"example answer": "x = 5, y = 6."
+"exampleQuestion": "Solve: \n3x + y = 21 \n4x - 2y = 8",
+"exampleAnswer": "x = 5, y = 6."
   },
   {
     "id": "inequalities",
@@ -475,8 +475,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "solving_linear_equations"
     ],
-"example question": "Solve: 5c - 4 < 21",
-"example answer": "c < 5"
+"exampleQuestion": "Solve: 5c - 4 < 21",
+"exampleAnswer": "c < 5"
 
   },
   {
