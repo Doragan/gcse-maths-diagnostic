@@ -3,6 +3,16 @@ import { buildTopicGrid } from "./buildTopicGrid";
 import { skillsById } from "../skills/skillGraph";
 import autoTable from "jspdf-autotable";
 
+type GeneratePDFParams = {
+  topicSkills: Record<string, string[]>;
+  mastered: Set<string>;
+  needsPractice: Set<string>;
+  masteryPercent: number;
+  masteredCount: number;
+  totalSkills: number;
+  recommendations: string[];
+};
+
 export function generatePDF({
   topicSkills,
   mastered,
@@ -11,32 +21,32 @@ export function generatePDF({
   masteredCount,
   totalSkills,
   recommendations,
-}) {
+}: GeneratePDFParams) {
   const doc = new jsPDF();
   let y = 20;
 
   const topicGrid = buildTopicGrid(topicSkills, mastered, needsPractice);
 
   const showUntested = topicGrid.some(
-    row => row.untestedSkills.length > 0
+    (row) => row.untestedSkills.length > 0
   );
 
   const headers = showUntested
     ? ["Topic", "Mastered", "Needs Practice", "Not Tested"]
     : ["Topic", "Mastered", "Needs Practice"];
 
-  const tableRows = topicGrid.map(row =>
+  const tableRows = topicGrid.map((row) =>
     showUntested
       ? [
           row.topic,
-          row.masteredSkills.map(id => skillsById[id].name).join("\n"),
-          row.needsPracticeSkills.map(id => skillsById[id].name).join("\n"),
-          row.untestedSkills.map(id => skillsById[id].name).join("\n")
+          row.masteredSkills.map((id) => skillsById[id].name).join("\n"),
+          row.needsPracticeSkills.map((id) => skillsById[id].name).join("\n"),
+          row.untestedSkills.map((id) => skillsById[id].name).join("\n"),
         ]
       : [
           row.topic,
-          row.masteredSkills.map(id => skillsById[id].name).join("\n"),
-          row.needsPracticeSkills.map(id => skillsById[id].name).join("\n")
+          row.masteredSkills.map((id) => skillsById[id].name).join("\n"),
+          row.needsPracticeSkills.map((id) => skillsById[id].name).join("\n"),
         ]
   );
 
@@ -54,7 +64,6 @@ export function generatePDF({
   y += 14;
 
   if (recommendations.length > 0) {
-
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("We suggest working on the following skills:", 20, y);
@@ -80,9 +89,9 @@ export function generatePDF({
     styles: {
       cellPadding: 3,
       fontSize: 10,
-      overflow: "linebreak"
+      overflow: "linebreak",
     },
-    alternateRowStyles: { fillColor: [245, 245, 245] }
+    alternateRowStyles: { fillColor: [245, 245, 245] },
   });
 
   doc.save("maths-diagnostic-report.pdf");
