@@ -121,7 +121,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "What is the missing angle in the diagram, below?",
 	"exampleAnswer": "48°",
-	"image":1
+	"image": true
   },
   {
     "id": "bearings",
@@ -132,7 +132,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "What is the bearing of the line AB?",
 	"exampleAnswer": "335°",
-	"image":1
+	"image": true
   },
   {
     "id": "angles_in_polygons",
@@ -143,7 +143,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "What is the missing angle in the diagram, below?",
 	"exampleAnswer": "104°",
-	"image" : 1
+	"image" : true
   },
   {
     "id": "congruence_and_similarity",
@@ -154,7 +154,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "Calculate the length of the side BC in the diagram below:",
 	"exampleAnswer": "9cm",
-	"image":1
+	"image": true
   },
   {
     "id": "exterior_angles",
@@ -278,7 +278,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "Calculate and simplify:",
 	"exampleAnswer": "4/3" ,
-	"image":1
+	"image": true
   },
   {
     "id": "dividing_fractions",
@@ -291,7 +291,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "Calculate and simplify:",
 	"exampleAnswer": "28/45" ,
-	"image":1
+	"image": true
   },
   {
     "id": "fractions_decimals_and_percentages",
