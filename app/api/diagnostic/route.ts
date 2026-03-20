@@ -1,30 +1,23 @@
-import { DiagnosticEngine } from "@/lib/diagnostic/diagnosticEngine";
+import { createDiagnostic, answerSkill, getCurrentSkill } from "@/lib/diagnostic/diagnosticEngine";
 import { NextResponse } from "next/server";
 
-const engine = new DiagnosticEngine();
-
 export async function GET() {
-
   return NextResponse.json({
-    message: "Diagnostic API running"
+    message: "Diagnostic API running",
   });
-
 }
 
 export async function POST(req: Request) {
-
   const { session, skillId, answer } = await req.json();
 
-  const updatedSession = engine.submitAnswer(
-    session,
-    skillId,
-    answer
-  );
+  // Update the session with the answer
+  const updatedSession = answerSkill(session, skillId, answer);
 
-  const nextSkill = engine.getNextSkill(updatedSession);
+  // Get the next skill
+  const nextSkill = getCurrentSkill(updatedSession);
 
   return NextResponse.json({
     session: updatedSession,
-    nextSkill
+    nextSkill,
   });
 }
