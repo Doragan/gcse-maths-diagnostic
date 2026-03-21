@@ -159,10 +159,15 @@ function toSlug(text: string) {
       <div
         style={{
 			position: "sticky",
-          display: "flex",
-          gap: "10px",
-          justifyContent: "center",
-        }}
+			bottom: 0,
+			display: "flex",
+			gap: "10px",
+			justifyContent: "center",
+			padding: "12px",
+			paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+			background: "#f4f6f8", // match your page background
+			zIndex: 10,
+		  }}
       >
         <button
           onClick={() => handleAnswer(true)}
