@@ -158,6 +158,7 @@ function toSlug(text: string) {
 
       <div
         style={{
+			position: "sticky",
           display: "flex",
           gap: "10px",
           justifyContent: "center",
