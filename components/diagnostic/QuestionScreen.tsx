@@ -43,6 +43,7 @@ function toSlug(text: string) {
         gap: "12px",
       }}
     >
+	<div style={{ flex: 1 }}>
       <h1 style={{ fontSize: "24px", color: "#555", margin: 0 }}>
         Progressa
       </h1>
@@ -133,74 +134,80 @@ function toSlug(text: string) {
           </>
         )}
       </div>
-
+</div>
       <div style={{ flexGrow: 1 }} />
 
-      {questionsAsked > 5 && (
-        <button
-          onClick={finishDiagnostic}
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            background: "#eee",
-            cursor: "pointer",
-          }}
-        >
-          Finish Diagnostic
-        </button>
-      )}
-
-      <p style={{ margin: 0 }}>
-        <strong>Do you know how to solve this type of question?</strong>
-      </p>
-
       <div
-        style={{
-			position: "sticky",
-			bottom: 0,
-			display: "flex",
-			gap: "10px",
-			justifyContent: "center",
-			padding: "12px",
-			paddingBottom: "max(12px, env(safe-area-inset-bottom))",
-			background: "#f4f6f8", // match your page background
-			zIndex: 10,
-		  }}
-      >
-        <button
-          onClick={() => handleAnswer(true)}
-          style={{
-            background: "#4CAF50",
-            color: "white",
-            border: "none",
-            padding: "14px 18px",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-            flex: 1,
-          }}
-        >
-          Yes, I know this
-        </button>
+  style={{
+    position: "sticky",
+    bottom: 0,
+    background: "#f4f6f8",
+    padding: "12px",
+    paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+    zIndex: 10,
+    borderTop: "1px solid #ddd",
+  }}
+>
+  {questionsAsked > 5 && (
+    <button
+      onClick={finishDiagnostic}
+      style={{
+        marginBottom: "10px",
+        padding: "10px",
+        borderRadius: "8px",
+        border: "1px solid #ccc",
+        background: "#eee",
+        cursor: "pointer",
+        width: "100%",
+      }}
+    >
+      Finish Diagnostic
+    </button>
+  )}
 
-        <button
-          onClick={() => handleAnswer(false)}
-          style={{
-            background: "#f44336",
-            color: "white",
-            border: "none",
-            padding: "14px 18px",
-            borderRadius: "8px",
-            fontSize: "15px",
-            cursor: "pointer",
-            flex: 1,
-          }}
-        >
-          No, I need practice
-        </button>
-      </div>
+  <p style={{ margin: "0 0 10px 0" }}>
+    <strong>Do you know how to solve this type of question?</strong>
+  </p>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "10px",
+    }}
+  >
+    <button
+      onClick={() => handleAnswer(true)}
+      style={{
+        background: "#4CAF50",
+        color: "white",
+        border: "none",
+        padding: "14px 18px",
+        borderRadius: "8px",
+        fontSize: "16px",
+        cursor: "pointer",
+        flex: 1,
+      }}
+    >
+      Yes, I know this
+    </button>
+
+    <button
+      onClick={() => handleAnswer(false)}
+      style={{
+        background: "#f44336",
+        color: "white",
+        border: "none",
+        padding: "14px 18px",
+        borderRadius: "8px",
+        fontSize: "15px",
+        cursor: "pointer",
+        flex: 1,
+      }}
+    >
+      No, I need practice
+    </button>
+  </div>
+</div>
     </main>
   );
 }
