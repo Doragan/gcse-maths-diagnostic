@@ -37,7 +37,7 @@ function toSlug(text: string) {
         padding: "20px",
         maxWidth: "420px",
         margin: "0 auto",
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
         gap: "12px",
