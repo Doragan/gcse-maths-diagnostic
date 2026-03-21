@@ -49,28 +49,27 @@ export default function TopicCard({
       </div>
 
       <div
-        style={{
-          fontSize: "14px",
-          marginTop: "4px",
-          marginBottom: "6px",
-        }}
-      >
-        <span style={{ color: "#2e7d32", fontWeight: 500 }}>
-          {data.mastered} mastered
-        </span>
+  style={{
+    fontSize: "14px",
+    marginTop: "4px",
+    marginBottom: "6px",
+    display: "flex",
+    flexDirection: "column", // 👈 stack instead
+    gap: "2px",
+  }}
+>
+  <span style={{ color: "#2e7d32", fontWeight: 500 }}>
+    ✓ {data.mastered} mastered
+  </span>
 
-        <span style={{ margin: "0 6px", color: "#999" }}>•</span>
+  <span style={{ color: "#c62828", fontWeight: 500 }}>
+    ✗ {data.needsPractice} needs practice
+  </span>
 
-        <span style={{ color: "#c62828", fontWeight: 500 }}>
-          {data.needsPractice} needs practice
-        </span>
-
-        <span style={{ margin: "0 6px", color: "#999" }}>•</span>
-
-        <span style={{ color: "#777" }}>
-          {data.untested} untested
-        </span>
-      </div>
+  <span style={{ color: "#777" }}>
+    • {data.untested} untested
+  </span>
+</div>
 
       {isOpen && (
         <ul style={{ marginTop: "5px", listStyle: "none", paddingLeft: 0 }}>

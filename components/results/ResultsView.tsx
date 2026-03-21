@@ -66,7 +66,15 @@ export default function ResultsView({
 );
 
   return (
-    <main style={{ padding: "24px", maxWidth: "700px", margin: "0 auto" }}>
+<main
+  style={{
+    width: "100%",
+    maxWidth: "100%",
+    margin: "0 auto",
+    padding: "16px",
+    boxSizing: "border-box",
+  }}
+>
       <h1>Diagnostic Complete</h1>
 
       <SummaryCard

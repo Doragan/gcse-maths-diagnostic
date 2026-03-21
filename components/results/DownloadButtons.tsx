@@ -17,18 +17,6 @@ export default function DownloadButtons({
       }}
     >
       <button
-        className="secondary"
-        onClick={downloadReport}
-        style={{
-          width: "100%",
-          padding: "10px",
-          borderRadius: "6px",
-        }}
-      >
-        Download Data (CSV)
-      </button>
-
-      <button
         onClick={downloadPDF}
         style={{
           width: "100%",
@@ -42,6 +30,18 @@ export default function DownloadButtons({
         }}
       >
         Download Student Report (PDF)
+      </button>
+	  
+	<button
+        className="secondary"
+        onClick={downloadReport}
+        style={{
+          width: "100%",
+          padding: "10px",
+          borderRadius: "6px",
+        }}
+      >
+        Download Data (CSV)
       </button>
     </div>
   );

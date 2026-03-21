@@ -8,7 +8,7 @@ export default function AdSlot() {
   useEffect(() => {
     if (!adRef.current) return;
 
-    // Prevent re-initialising the same ad
+    // Prevent duplicate initialisation
     if (adRef.current.getAttribute("data-adsbygoogle-status") === "done") {
       return;
     }
@@ -22,13 +22,24 @@ export default function AdSlot() {
   }, []);
 
   return (
-    <div style={{ margin: "20px 0", textAlign: "center" }}>
+    <div
+      style={{
+        width: "100%",
+        overflow: "hidden", // 🔥 critical for mobile overflow
+        display: "flex",
+        justifyContent: "center",
+        margin: "20px 0",
+      }}
+    >
       <ins
-        ref={adRef}
+        ref={adRef} // ✅ THIS WAS MISSING
         className="adsbygoogle"
-        style={{ display: "block" }}
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
-        data-ad-slot="XXXXXXXXXX"
+        style={{
+          display: "block",
+          width: "100%",
+        }}
+        data-ad-client="ca-pub-XXXXXXXX"
+        data-ad-slot="XXXXXXXX"
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
