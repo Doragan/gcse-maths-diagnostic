@@ -131,22 +131,23 @@ export default function ResultsView({
       })}
 
       {/* Actions */}
+	  <ShareButton text={shareText} />
       <button
         onClick={() => window.location.reload()}
         style={{
           width: "100%",
           padding: "10px",
           borderRadius: "6px",
-          background: "#eee",
-          border: "1px solid #ccc",
+          background: "#f3f4f6",
+  color: "#111827",
+  border: "1px solid #d1d5db",
+  fontWeight: "600",
           cursor: "pointer",
           marginTop: "10px",
         }}
       >
         Retake Diagnostic
       </button>
-
-      <ShareButton text={shareText} />
 
       <button
         onClick={() => {
@@ -160,10 +161,10 @@ export default function ResultsView({
           width: "100%",
           padding: "10px",
           borderRadius: "6px",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-          fontWeight: "bold",
+          background: "#f3f4f6",
+  color: "#111827",
+  border: "1px solid #d1d5db",
+  fontWeight: "600",
           cursor: "pointer",
           marginTop: "10px",
         }}

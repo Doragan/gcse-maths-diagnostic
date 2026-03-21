@@ -148,17 +148,19 @@ function toSlug(text: string) {
     borderTop: "1px solid #ddd",
   }}
 >
-  {questionsAsked > 5 && (
+  {questionsAsked > 10 && (
     <button
       onClick={finishDiagnostic}
       style={{
         marginBottom: "10px",
         padding: "10px",
         borderRadius: "8px",
-        border: "1px solid #ccc",
-        background: "#eee",
+        border: "1px solid #d1d5db",
+        background: "#ffffff",
+		color: "#111827",
         cursor: "pointer",
         width: "100%",
+		fontweight: "600",
       }}
     >
       Finish Diagnostic
