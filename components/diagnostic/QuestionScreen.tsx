@@ -160,7 +160,7 @@ function toSlug(text: string) {
 		color: "#111827",
         cursor: "pointer",
         width: "100%",
-		fontweight: "600",
+		fontWeight: "600",
       }}
     >
       Finish Diagnostic
