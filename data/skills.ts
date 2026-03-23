@@ -168,7 +168,10 @@ export const skills: Skill[] = [
     "id": "sampling",
     "name": "Sampling",
     "topic": "Probability and Data",
-    "prerequisites": []
+    "prerequisites": [],
+	"exampleQuestion": "A survey is carried out of students in Years 9, 10 and 11, and 20 students are due to be asked questions. The number of students in each year group is given in the table below. Calculate the number of students from Year 9 who should be questioned if a stratified sample is taken",
+	"exampleAnswer": "7",
+	"image": true
   },
   {
     "id": "gathering_and_organising_data",
@@ -196,13 +199,44 @@ export const skills: Skill[] = [
     ]
   },
   {
-    "id": "averages_and_spread",
-    "name": "Averages and Spread",
+    "id": "mean",
+    "name": "Mean",
     "topic": "Probability and Data",
     "prerequisites": [
-      "simple_arithmetic",
-      "sampling"
-    ]
+      "simple_arithmetic"
+    ],
+	"exampleQuestion": "Calculate the mean of the following values: 3, 6, 1, 2",
+	"exampleAnswer": "3"
+  },
+  {
+    "id": "mode",
+    "name": "Mode",
+    "topic": "Probability and Data",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+	"exampleQuestion": "What is the mode of the following data?: 5, 1, 7, 4, 2, 1, 0",
+	"exampleAnswer": "1"
+  },
+  {
+    "id": "median",
+    "name": "Median",
+    "topic": "Probability and Data",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+	"exampleQuestion": "What is the median of the following data?: 3, 5, 8, 1, 2",
+	"exampleAnswer": "3"
+  },
+  {
+    "id": "range",
+    "name": "Range",
+    "topic": "Probability and Data",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+	"exampleQuestion": "What is the range of the following data?: 3, 5, 8, 1, 2",
+	"exampleAnswer": "7"
   },
   {
     "id": "fractions_of_amounts",
@@ -210,7 +244,9 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "What is 3/10 of 40?",
+	"exampleAnswer": "12"
   },
   {
     "id": "simplifying_fractions",
@@ -218,7 +254,10 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "fractions_of_amounts"
-    ]
+    ],
+	"exampleQuestion": "Simplify Fully:",
+	"exampleAnswer": "4/5",
+	image: true
   },
     {
     "id": "irregular_and_top_heavy_fractions",
@@ -234,7 +273,9 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "Calculate 3.5 + 4.61",
+	"exampleAnswer": "8.11" 
   },
   {
     "id": "converting_fractions_to_decimals",
