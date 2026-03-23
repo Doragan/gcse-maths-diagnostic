@@ -257,7 +257,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "Simplify Fully:",
 	"exampleAnswer": "4/5",
-	image: true
+	"image": true
   },
     {
     "id": "irregular_and_top_heavy_fractions",
