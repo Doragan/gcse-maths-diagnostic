@@ -9,12 +9,13 @@ export default function StartScreen({ startDiagnostic }: Props) {
   return (
     <main
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "flex-start",
         background: "#f5f5f5",
         padding: "20px",
+		boxSizing: "border-box",
       }}
     >
       <div
@@ -27,14 +28,11 @@ export default function StartScreen({ startDiagnostic }: Props) {
           boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
         }}
       >
-        <h1 style={{ marginTop: 0, fontSize: "28px" }}>Progressa</h1>
+        <h1 style={{ marginTop: 0,marginBottom: 0, fontSize: "28px" }}>Mathsense</h1>
+		<h2 style={{ marginTop: 0}}>Know what to learn next.</h2>
 
         <p style={{ lineHeight: "1.6" }}>
-          This diagnostic estimates your strengths and weaknesses across the GCSE maths curriculum.
-        </p>
-
-        <p style={{ lineHeight: "1.6" }}>
-          You will see example questions for each skill and indicate whether you know how to solve them.
+          Identify your strengths and weaknesses across GCSE Maths — and get a clear path to improve.
         </p>
 
         <p style={{ fontWeight: "bold", marginBottom: "20px" }}>
@@ -42,9 +40,6 @@ export default function StartScreen({ startDiagnostic }: Props) {
         </p>
 
         {/* Primary CTA */}
-		<p style={{ fontSize: "12px", color: "#777", textAlign: "center" }}>
-		  No signup required
-		</p>
         <button
           onClick={() => {
             trackEvent("diagnostic_started");
@@ -60,13 +55,30 @@ export default function StartScreen({ startDiagnostic }: Props) {
             fontSize: "16px",
             fontWeight: "bold",
             cursor: "pointer",
-            marginBottom: "12px",
+            marginBottom: "8px",
           }}
         >
-          Start Diagnostic
+          Start Your Diagnostic
         </button>
 
         {/* Secondary actions */}
+		  <Link href="/about" style={{ textDecoration: "none" }}>
+  <button
+    style={{
+      width: "100%",
+      padding: "10px",
+      borderRadius: "6px",
+      background: "#f3f4f6",
+      color: "#111827",
+      border: "1px solid #d1d5db",
+      fontWeight: "600",
+      cursor: "pointer",
+      marginBottom: "8px",
+    }}
+  >
+    Learn more about Mathsense
+  </button>
+</Link>
         <button
           onClick={() => {
             trackEvent("feedback_clicked");
@@ -84,28 +96,11 @@ export default function StartScreen({ startDiagnostic }: Props) {
   border: "1px solid #d1d5db",
   fontWeight: "600",
             cursor: "pointer",
-            marginBottom: "8px",
           }}
         >
           Give Feedback/Get in Touch
         </button>
 
-        <Link href="/about">
-          <button
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "6px",
-              background: "#f3f4f6",
-  color: "#111827",
-  border: "1px solid #d1d5db",
-  fontWeight: "600",
-              cursor: "pointer",
-            }}
-          >
-            About Progressa
-          </button>
-        </Link>
       </div>
     </main>
   );

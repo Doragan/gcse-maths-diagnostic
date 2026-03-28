@@ -66,6 +66,8 @@ export default function ResultsView({
 );
 
   return (
+  <>
+  
 <main
   style={{
     width: "100%",
@@ -172,5 +174,6 @@ export default function ResultsView({
         Give Feedback
       </button>
     </main>
+	</>
   );
 }

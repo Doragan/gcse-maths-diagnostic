@@ -100,7 +100,7 @@ function toSlug(text: string) {
               <strong>Example question:</strong>
             </p>
 
-            <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
+            <p style={{ fontSize: "16px", lineHeight: "1.4", whiteSpace: "pre-line" }}>
               {currentSkill.exampleQuestion}
             </p>
           </>
@@ -128,7 +128,7 @@ function toSlug(text: string) {
               <strong>Example answer:</strong>
             </p>
 
-            <p style={{ fontSize: "16px", lineHeight: "1.4" }}>
+            <p style={{ fontSize: "16px", lineHeight: "1.4", whiteSpace: "pre-line" }}>
               {currentSkill.exampleAnswer}
             </p>
           </>

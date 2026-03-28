@@ -169,9 +169,8 @@ export const skills: Skill[] = [
     "name": "Sampling",
     "topic": "Probability and Data",
     "prerequisites": [],
-	"exampleQuestion": "A survey is carried out of students in Years 9, 10 and 11, and 20 students are due to be asked questions. The number of students in each year group is given in the table below. Calculate the number of students from Year 9 who should be questioned if a stratified sample is taken",
-	"exampleAnswer": "7",
-	"image": true
+	"exampleQuestion": "A student is carrying out a survey of how often people go to see the football. They stand outside of the stadium on match day and asks people to take a survey. Explain why this survey is biased.",
+	"exampleAnswer": "The people answering her survey are likely to be going to the football already, so are more likely to attend matches."
   },
   {
     "id": "gathering_and_organising_data",
@@ -179,7 +178,10 @@ export const skills: Skill[] = [
     "topic": "Probability and Data",
     "prerequisites": [
       "sampling"
-    ]
+    ],
+	"exampleQuestion": "A student is carries out a survey of the number of cars at each house on her street. Calculate the number of houses on her street.",
+	"exampleAnswer": "12",
+	"image": true
   },
   {
     "id": "simple_charts",
@@ -187,7 +189,10 @@ export const skills: Skill[] = [
     "topic": "Probability and Data",
     "prerequisites": [
       "gathering_and_organising_data"
-    ]
+    ],
+	"exampleQuestion": "A student is carries out a survey of the number of times he has chips for tea over a number of weeks and records them in the chart below. How many times did he have chips on a weekend?",
+	"exampleAnswer": "8",
+	"image": true
   },
   {
     "id": "pie_charts",
@@ -260,12 +265,15 @@ export const skills: Skill[] = [
 	"image": true
   },
     {
-    "id": "irregular_and_top_heavy_fractions",
-    "name": "Irregular and Top Heavy Fractions",
+    "id": "irregular_and_improper_fractions",
+    "name": "Irregular and Improper Fractions",
     "topic": "Number",
     "prerequisites": [
       "simplifying_fractions"
-    ]
+    ],
+	"exampleQuestion": "Convert the following into a mixed number:",
+	"exampleAnswer": "",
+	"image": true
   },
   {
     "id": "decimals",
@@ -307,7 +315,10 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simplifying_fractions",
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "Calculate:",
+	"exampleAnswer": "3/4" ,
+	"image": true
   },
   {
     "id": "multiplying_fractions",
@@ -391,7 +402,10 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+	"exampleQuestion": "Calculate the area of the rectangle, below:",
+	"exampleAnswer": "60mm²" ,
+	"image": true
   },
   {
     "id": "areas_of_triangles",
@@ -399,7 +413,10 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "areas_of_squares_and_rectangles"
-    ]
+    ],
+	"exampleQuestion": "Calculate the area of the triangle, below:",
+	"exampleAnswer": "80m²",
+	"image": true
   },
   {
     "id": "area_of_parallelograms",
@@ -407,7 +424,10 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "areas_of_squares_and_rectangles"
-    ]
+    ],
+	"exampleQuestion": "",
+	"exampleAnswer": "50cm²",
+	"image": true
   },
   {
     "id": "area_of_a_trapezium",
@@ -415,7 +435,10 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "areas_of_squares_and_rectangles"
-    ]
+    ],
+	"exampleQuestion": "Calculate the area of the trapezium, below:",
+	"exampleAnswer": "30cm²",
+	"image": true
   },
   {
     "id": "areas_of_compound_shapes",
@@ -424,7 +447,10 @@ export const skills: Skill[] = [
     "prerequisites": [
       "areas_of_squares_and_rectangles",
       "areas_of_triangles"
-    ]
+    ],
+	"exampleQuestion": "Calculate the area of the shape, below:",
+	"exampleAnswer": "67m²",
+	"image": true
   },
    {
     "id": "calculating_simple_probability",
@@ -526,7 +552,10 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+"exampleQuestion": "Calculate the circumfrence of the circle in the image below.",
+"exampleAnswer": "54.04cm (to 2dp)",
+"image": true
   },
   {
     "id": "area_of_a_circle",
@@ -535,7 +564,10 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simple_arithmetic",
       "areas_of_squares_and_rectangles"
-    ]
+    ],
+"exampleQuestion": "Calculate the area of the circle in the image below.",
+"exampleAnswer": "232.35cm² (to 2dp)",
+"image": true
   },
   {
     "id": "sector_calculations",
@@ -546,7 +578,10 @@ export const skills: Skill[] = [
       "area_of_a_circle",
       "angles_on_lines_and_circles",
       "fractions_of_amounts"
-    ]
+    ],
+"exampleQuestion": "Calculate the area of the sector in the image below.",
+"exampleAnswer": "5.03cm² (to 2dp)",
+"image": true
   },
   {
     "id": "proportion",
@@ -555,7 +590,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "fractions_of_amounts",
       "fractions_decimals_and_percentages"
-    ]
+    ],
+"exampleQuestion": "y is proportional to x /nWhen y = 10, x = 3 /nCalculate x when y = 25",
+"exampleAnswer": "x = 7.5"
   },
   {
     "id": "ratio",
@@ -563,7 +600,9 @@ export const skills: Skill[] = [
     "topic": "Ratio and Proportion",
     "prerequisites": [
       "proportion"
-    ]
+    ],
+"exampleQuestion": "Divide £120 in the ratio 5:1:4",
+"exampleAnswer": "£60, £12, £48"
   },
   {
     "id": "percentage_change",
@@ -572,7 +611,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "fractions_of_amounts",
       "fractions_decimals_and_percentages"
-    ]
+    ],
+"exampleQuestion": "Increase 60 by 15%",
+"exampleAnswer": "69"
   },
   {
     "id": "factors_and_multiples",
@@ -580,7 +621,9 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "simple_arithmetic"
-    ]
+    ],
+"exampleQuestion": "List all of the factors of 28",
+"exampleAnswer": "1, 2, 4, 7, 14, 28"
   },
   {
     "id": "prime_factor_decomposition",
@@ -588,7 +631,29 @@ export const skills: Skill[] = [
     "topic": "Number",
     "prerequisites": [
       "factors_and_multiples"
-    ]
+    ],
+"exampleQuestion": "Write 36 as a product of its prime factors",
+"exampleAnswer": "2 x 2 x 3 x 3 or 2² x 3²"
+  },
+    {
+    "id": "lowest_common_multiple",
+    "name": "Lowest Common Multiple",
+    "topic": "Number",
+    "prerequisites": [
+      "prime_factor_decomposition"
+    ],
+"exampleQuestion": "Find the Lowest Common Multiple of 15 and 25",
+"exampleAnswer": "75"
+  },
+    {
+    "id": "highest_common_factor",
+    "name": "Highest Common Factor",
+    "topic": "Number",
+    "prerequisites": [
+      "prime_factor_decomposition"
+    ],
+"exampleQuestion": "Find the Highest Common Factor of 12 and 18",
+"exampleAnswer": "6"
   },
   {
     "id": "plotting_straight_line_graphs",
@@ -596,7 +661,8 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "substitution"
-    ]
+    ],
+"exampleQuestion": "Do you know how to plot a straight line graph like y = 3x - 1 on an axis?"
   },
   {
     "id": "understanding_straight_line_graphs",
@@ -604,7 +670,9 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "plotting_straight_line_graphs"
-    ]
+    ],
+"exampleQuestion": "What is the equation of the graph shown below:",
+"exampleAnswer": "y = 2x + 6"
   },
   {
     "id": "sketching_functions",
@@ -612,7 +680,8 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "understanding_straight_line_graphs"
-    ]
+    ],
+"exampleQuestion": "Do you know how to plot a graph like y = 3x² + 3x - 1 on an axis?"
   },
   {
     "id": "kinematic_graphs",
@@ -620,7 +689,10 @@ export const skills: Skill[] = [
     "topic": "Algebra",
     "prerequisites": [
       "plotting_straight_line_graphs"
-    ]
+    ],
+"exampleQuestion": "What is the speed the object in the graph below is moving at between point A and B",
+"exampleAnswer": "40mph",
+"image": true
   },
   {
     "id": "volume_of_a_prism",
@@ -628,9 +700,11 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "areas_of_squares_and_rectangles",
-      "area_of_a_circle",
-      "area_of_a_trapezium"
-    ]
+      "areas_of_triangles"
+    ],
+"exampleQuestion": "Calculate the volume of the prism in the image below:",
+"exampleAnswer": "120cm³",
+"image": true
   },
   {
     "id": "volume_of_a_pyramid_and_cone",
@@ -640,7 +714,10 @@ export const skills: Skill[] = [
       "volume_of_a_prism",
       "areas_of_squares_and_rectangles",
       "area_of_a_circle"
-    ]
+    ],
+"exampleQuestion": "Calculate the volume of the pyramid in the image below:",
+"exampleAnswer": "192cm³",
+"image": true
   },
   {
     "id": "volume_of_a_sphere",
@@ -649,7 +726,10 @@ export const skills: Skill[] = [
     "prerequisites": [
       "volume_of_a_prism",
       "area_of_a_circle"
-    ]
+    ],
+"exampleQuestion": "Calculate the volume of the sphere in the image below:",
+"exampleAnswer": "904.78cm³ to 2dp",
+"image": true
   },
   {
     "id": "surface_area_of_a_sphere",
@@ -657,7 +737,10 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "area_of_a_circle"
-    ]
+    ],
+"exampleQuestion": "Calculate the surface area of the sphere in the image below:",
+"exampleAnswer": "452.39cm² to 2dp",
+"image": true
   },
   {
     "id": "surface_area_of_a_cone",
@@ -665,15 +748,22 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "volume_of_a_pyramid_and_cone"
-    ]
+    ],
+"exampleQuestion": "Calculate the surface area of the cone in the image below:",
+"exampleAnswer": "373.85cm² to 2dp",
+"image": true
   },
   {
-    "id": "surface_area_of_a_prism",
-    "name": "Surface Area of a Prism",
+    "id": "surface_area_of_a_cylinder",
+    "name": "Surface Area of a Cylinder",
     "topic": "Shape and Space",
     "prerequisites": [
-      "volume_of_a_prism"
-    ]
+      "volume_of_a_prism",
+	  "circumfrence_of_a_circle"
+    ],
+"exampleQuestion": "Calculate the surface area of the cylinder in the image below:",
+"exampleAnswer": "226.19cm² to 2dp",
+"image": true
   },
   {
     "id": "frequency_diagrams",
