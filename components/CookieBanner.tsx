@@ -60,7 +60,7 @@ export default function CookieBanner() {
     }}
   >
     <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.5" }}>
-		📊 We use analytics to improve <strong>Progressa</strong>.
+		📊 We use analytics to improve <strong>Mathsense</strong>.
     </p>
 
     <div
