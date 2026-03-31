@@ -779,7 +779,8 @@ export const skills: Skill[] = [
     "name": "Grouped Frequency Tables",
     "topic": "Probability and Data",
     "prerequisites": [
-      "gathering_and_organising_data"
+      "gathering_and_organising_data",
+	  "simple_charts"
     ]
   },
   {
@@ -813,7 +814,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simple_arithmetic",
       "indices",
-      "decimals"
+      "decimals",
+	  "significant_figures"
     ]
   },
   {
@@ -900,7 +902,8 @@ export const skills: Skill[] = [
     "name": "Finding the nth Term",
     "topic": "Algebra",
     "prerequisites": [
-      "solving_linear_equations"
+      "solving_linear_equations",
+	  "sequences"
     ]
   },
   {

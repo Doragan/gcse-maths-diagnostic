@@ -51,9 +51,6 @@ export default function JoinPage() {
       })
       .select()
       .single()
-	  
-	  console.log('session error:', sessionError)
-console.log('session data:', session)
 
     if (sessionError || !session) {
       setError('Something went wrong. Please try again.')
