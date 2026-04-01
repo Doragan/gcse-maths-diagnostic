@@ -5,6 +5,10 @@ import { useRouter, useParams } from 'next/navigation'
 import { getSession } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import { skillsById } from '../../../lib/skills/skillGraph'
+import {
+  colors, font, radius, card,
+  secondaryButton, sectionTitle,
+} from '../../../lib/styles'
 
 type Student = {
   id: string
@@ -37,50 +41,28 @@ export default function AssessmentResultsPage() {
 
   useEffect(() => {
     getSession().then(session => {
-      if (!session) {
-        router.push('/auth')
-      } else {
-        loadData()
-      }
+      if (!session) router.push('/auth')
+      else loadData()
     })
   }, [])
 
   async function loadData() {
-    // Load assessment
     const { data: assessmentData, error: assessmentError } = await supabase
       .from('assessments')
       .select('*')
       .eq('id', assessmentId)
       .single()
 
-    if (assessmentError || !assessmentData) {
-      router.push('/dashboard')
-      return
-    }
-
+    if (assessmentError || !assessmentData) { router.push('/dashboard'); return }
     setAssessment(assessmentData)
 
-    // Load student sessions with their skill results
     const { data: sessions, error: sessionsError } = await supabase
       .from('student_sessions')
-      .select(`
-        id,
-        student_name,
-        completed_at,
-        questions_asked,
-        skill_results (
-          skill_id,
-          status,
-          source
-        )
-      `)
+      .select(`id, student_name, completed_at, questions_asked, skill_results (skill_id, status, source)`)
       .eq('assessment_id', assessmentId)
       .order('student_name', { ascending: true })
 
-    if (!sessionsError && sessions) {
-      setStudents(sessions as Student[])
-    }
-
+    if (!sessionsError && sessions) setStudents(sessions as Student[])
     setLoading(false)
   }
 
@@ -89,20 +71,14 @@ export default function AssessmentResultsPage() {
   }
 
   if (loading) {
-    return (
-      <main style={styles.container}>
-        <p style={{ color: '#666' }}>Loading...</p>
-      </main>
-    )
+    return <main style={styles.page}><p style={{ color: colors.textSecondary }}>Loading...</p></main>
   }
 
   if (!assessment) return null
 
   const completedStudents = students.filter(s => s.completed_at)
 
-  // Build a class-level skill summary across all completed students
   const skillSummary: Record<string, { mastered: number, needsPractice: number, total: number }> = {}
-
   for (const student of completedStudents) {
     for (const result of student.skill_results) {
       if (!skillSummary[result.skill_id]) {
@@ -114,46 +90,56 @@ export default function AssessmentResultsPage() {
     }
   }
 
-  // Sort skills by needs_practice count descending (most problematic first)
   const sortedSkills = Object.entries(skillSummary)
     .sort((a, b) => b[1].needsPractice - a[1].needsPractice)
 
   return (
-    <main style={styles.container}>
+    <main style={styles.page}>
       <div style={styles.header}>
-        <button onClick={() => router.push('/dashboard')} style={styles.backButton}>
+        <button
+          onClick={() => router.push('/dashboard')}
+          style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+        >
           ← Back
         </button>
         <div>
-          <h1 style={styles.title}>{assessment.title}</h1>
-          <p style={styles.subtitle}>Code: <strong>{assessment.code}</strong> · {completedStudents.length} of {students.length} completed</p>
+          <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
+            {assessment.title}
+          </h1>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '4px 0 0' }}>
+            Code: <strong style={{ color: colors.primary }}>{assessment.code}</strong> · {completedStudents.length} of {students.length} completed
+          </p>
         </div>
       </div>
 
-      {/* Class overview */}
       {completedStudents.length > 0 && (
-        <div style={styles.card}>
-          <h2 style={styles.sectionTitle}>Class skill overview</h2>
-          <p style={styles.hint}>Sorted by most students needing practice</p>
+        <div style={card}>
+          <h2 style={sectionTitle}>Class skill overview</h2>
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
+            Sorted by most students needing practice
+          </p>
           <div style={styles.skillList}>
             {sortedSkills.map(([skillId, summary]) => {
               const skill = skillsById[skillId]
               if (!skill) return null
               const pct = Math.round((summary.mastered / summary.total) * 100)
+              const barColor = pct >= 70 ? colors.success : pct >= 40 ? colors.warning : colors.danger
               return (
                 <div key={skillId} style={styles.skillRow}>
                   <div style={styles.skillInfo}>
-                    <span style={styles.skillName}>{skill.name}</span>
-                    <span style={styles.skillTopic}>{skill.topic}</span>
+                    <span style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary }}>
+                      {skill.name}
+                    </span>
+                    <span style={{ fontSize: '11px', color: colors.textHint }}>
+                      {skill.topic}
+                    </span>
                   </div>
-                  <div style={styles.skillBar}>
-                    <div style={{
-                      ...styles.skillBarFill,
-                      width: `${pct}%`,
-                      background: pct >= 70 ? '#4CAF50' : pct >= 40 ? '#FF9800' : '#f44336',
-                    }} />
+                  <div style={styles.skillBarTrack}>
+                    <div style={{ ...styles.skillBarFill, width: `${pct}%`, background: barColor }} />
                   </div>
-                  <span style={styles.skillPct}>{pct}%</span>
+                  <span style={{ fontSize: font.base, color: colors.textSecondary, width: '36px', textAlign: 'right' as const }}>
+                    {pct}%
+                  </span>
                 </div>
               )
             })}
@@ -161,19 +147,22 @@ export default function AssessmentResultsPage() {
         </div>
       )}
 
-      {/* Student list */}
-      <div style={styles.card}>
-        <h2 style={styles.sectionTitle}>Students</h2>
+      <div style={card}>
+        <h2 style={sectionTitle}>Students</h2>
         {students.length === 0 ? (
-          <p style={styles.hint}>No students have joined yet.</p>
+          <p style={{ fontSize: font.base, color: colors.textHint, margin: 0 }}>
+            No students have joined yet.
+          </p>
         ) : (
           <div style={styles.studentList}>
             {students.map(student => {
-              const mastered = student.skill_results.filter(r => r.status === 'mastered').length
-              const needsPractice = student.skill_results.filter(r => r.status === 'needs_practice').length
-              const total = mastered + needsPractice
-              const pct = total > 0 ? Math.round((mastered / total) * 100) : 0
+              const masteredCount = student.skill_results.filter(r => r.status === 'mastered').length
+              const needsCount = student.skill_results.filter(r => r.status === 'needs_practice').length
+              const total = masteredCount + needsCount
+              const pct = total > 0 ? Math.round((masteredCount / total) * 100) : 0
               const isExpanded = expandedStudent === student.id
+              const badgeBg = pct >= 70 ? colors.successLight : pct >= 40 ? '#fff3e0' : colors.dangerLight
+              const badgeColor = pct >= 70 ? colors.successText : pct >= 40 ? '#e65100' : colors.dangerText
 
               return (
                 <div key={student.id} style={styles.studentCard}>
@@ -182,49 +171,51 @@ export default function AssessmentResultsPage() {
                     onClick={() => student.completed_at && toggleStudent(student.id)}
                   >
                     <div>
-                      <p style={styles.studentName}>{student.student_name}</p>
+                      <p style={{ fontSize: font.md, fontWeight: '500', margin: 0, color: colors.textPrimary }}>
+                        {student.student_name}
+                      </p>
                       {student.completed_at ? (
-                        <p style={styles.studentMeta}>
-                          {mastered} mastered · {needsPractice} need practice · {student.questions_asked} questions
+                        <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0' }}>
+                          {masteredCount} mastered · {needsCount} need practice · {student.questions_asked} questions
                         </p>
                       ) : (
-                        <p style={{ ...styles.studentMeta, color: '#f59e0b' }}>In progress...</p>
+                        <p style={{ fontSize: font.sm, color: colors.warning, margin: '2px 0 0' }}>
+                          In progress...
+                        </p>
                       )}
                     </div>
                     {student.completed_at && (
-                      <div style={styles.studentRight}>
-                        <span style={{
-                          ...styles.pctBadge,
-                          background: pct >= 70 ? '#e8f5e9' : pct >= 40 ? '#fff3e0' : '#ffebee',
-                          color: pct >= 70 ? '#2e7d32' : pct >= 40 ? '#e65100' : '#c62828',
-                        }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: font.base, fontWeight: '600', padding: '4px 10px', borderRadius: radius.full, background: badgeBg, color: badgeColor }}>
                           {pct}%
                         </span>
-                        <span style={styles.chevron}>{isExpanded ? '▲' : '▼'}</span>
+                        <span style={{ fontSize: font.sm, color: colors.textHint }}>
+                          {isExpanded ? '▲' : '▼'}
+                        </span>
                       </div>
                     )}
                   </div>
 
                   {isExpanded && (
                     <div style={styles.studentDetails}>
-                      {['mastered', 'needs_practice'].map(status => {
+                      {(['needs_practice', 'mastered'] as const).map(status => {
                         const skillsInStatus = student.skill_results.filter(r => r.status === status)
                         if (skillsInStatus.length === 0) return null
+                        const isNeeds = status === 'needs_practice'
                         return (
-                          <div key={status} style={styles.statusGroup}>
-                            <p style={{
-                              ...styles.statusLabel,
-                              color: status === 'mastered' ? '#2e7d32' : '#c62828',
-                            }}>
-                              {status === 'mastered' ? '✓ Mastered' : '✗ Needs practice'}
+                          <div key={status} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <p style={{ fontSize: font.base, fontWeight: '600', margin: 0, color: isNeeds ? colors.dangerText : colors.successText }}>
+                              {isNeeds ? '✗ Needs practice' : '✓ Mastered'}
                             </p>
-                            <div style={styles.skillTags}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                               {skillsInStatus.map(r => (
                                 <span key={r.skill_id} style={{
-                                  ...styles.skillTag,
-                                  background: status === 'mastered' ? '#e8f5e9' : '#ffebee',
-                                  color: status === 'mastered' ? '#2e7d32' : '#c62828',
-                                  border: `1px solid ${status === 'mastered' ? '#a5d6a7' : '#ef9a9a'}`,
+                                  fontSize: font.sm,
+                                  padding: '3px 8px',
+                                  borderRadius: radius.sm,
+                                  background: isNeeds ? colors.dangerLight : colors.successLight,
+                                  color: isNeeds ? colors.dangerText : colors.successText,
+                                  border: `1px solid ${isNeeds ? colors.dangerBorder : colors.successBorder}`,
                                 }}>
                                   {skillsById[r.skill_id]?.name ?? r.skill_id}
                                   {r.source === 'inferred' && (
@@ -236,7 +227,9 @@ export default function AssessmentResultsPage() {
                           </div>
                         )
                       })}
-                      <p style={styles.inferredNote}>* inferred from other answers</p>
+                      <p style={{ fontSize: '11px', color: colors.textHint, margin: 0 }}>
+                        * inferred from other answers
+                      </p>
                     </div>
                   )}
                 </div>
@@ -250,7 +243,7 @@ export default function AssessmentResultsPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
+  page: {
     maxWidth: '700px',
     margin: '0 auto',
     padding: '24px 20px',
@@ -262,47 +255,6 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'flex-start',
     gap: '12px',
-  },
-  backButton: {
-    background: 'none',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    padding: '8px 14px',
-    fontSize: '14px',
-    cursor: 'pointer',
-    color: '#555',
-    whiteSpace: 'nowrap' as const,
-  },
-  title: {
-    fontSize: '22px',
-    fontWeight: '600',
-    margin: 0,
-    color: '#111',
-  },
-  subtitle: {
-    fontSize: '14px',
-    color: '#666',
-    margin: '4px 0 0',
-  },
-  card: {
-    background: '#ffffff',
-    borderRadius: '12px',
-    padding: '20px',
-    border: '1px solid #e5e5e5',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-  },
-  sectionTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    margin: 0,
-    color: '#111',
-  },
-  hint: {
-    fontSize: '13px',
-    color: '#888',
-    margin: 0,
   },
   skillList: {
     display: 'flex',
@@ -320,32 +272,17 @@ const styles: Record<string, React.CSSProperties> = {
     width: '180px',
     flexShrink: 0,
   },
-  skillName: {
-    fontSize: '13px',
-    fontWeight: '500',
-    color: '#111',
-  },
-  skillTopic: {
-    fontSize: '11px',
-    color: '#888',
-  },
-  skillBar: {
+  skillBarTrack: {
     flex: 1,
     height: '8px',
-    background: '#eee',
-    borderRadius: '4px',
+    background: colors.border,
+    borderRadius: radius.full,
     overflow: 'hidden',
   },
   skillBarFill: {
     height: '100%',
-    borderRadius: '4px',
+    borderRadius: radius.full,
     transition: 'width 0.3s ease',
-  },
-  skillPct: {
-    fontSize: '13px',
-    color: '#555',
-    width: '36px',
-    textAlign: 'right' as const,
   },
   studentList: {
     display: 'flex',
@@ -353,8 +290,8 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '10px',
   },
   studentCard: {
-    border: '1px solid #e5e5e5',
-    borderRadius: '8px',
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.md,
     overflow: 'hidden',
   },
   studentHeader: {
@@ -362,65 +299,14 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '12px',
-    background: '#fafafa',
+    background: colors.cardAlt,
     cursor: 'pointer',
-  },
-  studentName: {
-    fontSize: '15px',
-    fontWeight: '500',
-    margin: 0,
-    color: '#111',
-  },
-  studentMeta: {
-    fontSize: '12px',
-    color: '#888',
-    margin: '2px 0 0',
-  },
-  studentRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-  },
-  pctBadge: {
-    fontSize: '14px',
-    fontWeight: '600',
-    padding: '4px 10px',
-    borderRadius: '20px',
-  },
-  chevron: {
-    fontSize: '12px',
-    color: '#888',
   },
   studentDetails: {
     padding: '12px',
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    borderTop: '1px solid #e5e5e5',
-  },
-  statusGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  statusLabel: {
-    fontSize: '13px',
-    fontWeight: '600',
-    margin: 0,
-  },
-  skillTags: {
-    display: 'flex',
-    flexWrap: 'wrap' as const,
-    gap: '6px',
-  },
-  skillTag: {
-    fontSize: '12px',
-    padding: '3px 8px',
-    borderRadius: '4px',
-  },
-  inferredNote: {
-    fontSize: '11px',
-    color: '#aaa',
-    margin: 0,
+    borderTop: `1px solid ${colors.border}`,
   },
 }

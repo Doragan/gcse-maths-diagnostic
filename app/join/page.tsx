@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import {
+  colors, font, radius,
+  pageContainer, narrowCard, pageTitle,
+  primaryButton, inputStyle, labelStyle, errorBox,
+} from '../../lib/styles'
 
 export default function JoinPage() {
   const router = useRouter()
@@ -29,7 +34,6 @@ export default function JoinPage() {
       return
     }
 
-    // Look up the assessment by code
     const { data: assessment, error: assessmentError } = await supabase
       .from('assessments')
       .select('id, title, course_id')
@@ -42,13 +46,9 @@ export default function JoinPage() {
       return
     }
 
-    // Create a student session
     const { data: session, error: sessionError } = await supabase
       .from('student_sessions')
-      .insert({
-        assessment_id: assessment.id,
-        student_name: name.trim(),
-      })
+      .insert({ assessment_id: assessment.id, student_name: name.trim() })
       .select()
       .single()
 
@@ -58,7 +58,6 @@ export default function JoinPage() {
       return
     }
 
-    // Store session info in sessionStorage so the diagnostic page can use it
     sessionStorage.setItem('student_session_id', session.id)
     sessionStorage.setItem('student_name', name.trim())
     sessionStorage.setItem('assessment_title', assessment.title)
@@ -68,45 +67,56 @@ export default function JoinPage() {
   }
 
   return (
-    <main style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Mathsense</h1>
-        <p style={styles.subtitle}>Enter your class code to begin</p>
+    <main style={pageContainer}>
+      <div style={narrowCard}>
+        <div>
+          <h1 style={pageTitle}>Mathsense</h1>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '4px 0 0' }}>
+            Enter your class code to begin
+          </p>
+        </div>
 
         <div style={styles.field}>
-          <label style={styles.label}>Class code</label>
+          <label style={labelStyle}>Class code</label>
           <input
             type="text"
             value={code}
             onChange={e => setCode(e.target.value.toUpperCase())}
             placeholder="e.g. MX4T"
             maxLength={4}
-            style={{ ...styles.input, textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '22px', textAlign: 'center' }}
+            style={{
+              ...inputStyle,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.25em',
+              fontSize: '24px',
+              textAlign: 'center' as const,
+              fontWeight: '700',
+            }}
             autoComplete="off"
             autoCapitalize="characters"
           />
         </div>
 
         <div style={styles.field}>
-          <label style={styles.label}>Your name</label>
+          <label style={labelStyle}>Your name</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="e.g. Jamie Smith"
-            style={styles.input}
+            style={inputStyle}
             autoComplete="name"
             onKeyDown={e => e.key === 'Enter' && handleJoin()}
           />
         </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {error && <p style={errorBox}>{error}</p>}
 
         <button
           onClick={handleJoin}
           disabled={loading || !code || !name}
           style={{
-            ...styles.primaryButton,
+            ...primaryButton,
             opacity: loading || !code || !name ? 0.6 : 1,
           }}
         >
@@ -118,73 +128,9 @@ export default function JoinPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100dvh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    background: '#f4f6f8',
-  },
-  card: {
-    background: '#ffffff',
-    borderRadius: '12px',
-    padding: '32px 28px',
-    width: '100%',
-    maxWidth: '400px',
-    border: '1px solid #e5e5e5',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: '600',
-    margin: 0,
-    color: '#111',
-  },
-  subtitle: {
-    fontSize: '14px',
-    color: '#666',
-    margin: 0,
-  },
   field: {
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#333',
-  },
-  input: {
-    padding: '10px 12px',
-    borderRadius: '8px',
-    border: '1px solid #d1d5db',
-    fontSize: '15px',
-    outline: 'none',
-    width: '100%',
-    boxSizing: 'border-box' as const,
-  },
-  error: {
-    fontSize: '14px',
-    color: '#e53e3e',
-    margin: 0,
-    padding: '10px 12px',
-    background: '#fff5f5',
-    borderRadius: '8px',
-    border: '1px solid #fed7d7',
-  },
-  primaryButton: {
-    background: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    padding: '12px',
-    borderRadius: '8px',
-    fontSize: '15px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    width: '100%',
   },
 }

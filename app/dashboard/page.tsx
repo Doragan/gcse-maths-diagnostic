@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession, signOut } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
+import {
+  colors, font, radius, card,
+  primaryButton, secondaryButton, inputStyle, sectionTitle,
+} from '../../lib/styles'
 
 type Assessment = {
   id: string
@@ -21,11 +25,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     getSession().then(session => {
-      if (!session) {
-        router.push('/auth')
-      } else {
-        loadAssessments()
-      }
+      if (!session) router.push('/auth')
+      else loadAssessments()
     })
   }, [])
 
@@ -34,40 +35,34 @@ export default function DashboardPage() {
       .from('assessments')
       .select('*')
       .order('created_at', { ascending: false })
-
     if (!error && data) setAssessments(data)
     setLoading(false)
   }
 
-async function createAssessment() {
-  if (!newTitle.trim()) return
-  setCreating(false)
+  async function createAssessment() {
+    if (!newTitle.trim()) return
+    setCreating(true)
+    const code = generateCode()
+    const session = await getSession()
+    if (!session) return
 
-  const code = generateCode()
-  const session = await getSession()
-  if (!session) return
+    const { data, error } = await supabase
+      .from('assessments')
+      .insert({
+        title: newTitle.trim(),
+        code,
+        teacher_id: session.user.id,
+        course_id: 'gcse_foundation',
+      })
+      .select()
+      .single()
 
-  const { data, error } = await supabase
-    .from('assessments')
-    .insert({
-      title: newTitle.trim(),
-      code,
-      teacher_id: session.user.id,
-      course_id: 'gcse_foundation',
-    })
-    .select()
-    .single()
-
-  console.log('error:', error)
-  console.log('data:', data)
-
-  if (!error && data) {
-    setAssessments(prev => [data, ...prev])
-    setNewTitle('')
+    if (!error && data) {
+      setAssessments(prev => [data, ...prev])
+      setNewTitle('')
+    }
+    setCreating(false)
   }
-
-  setCreating(false)
-}
 
   async function handleSignOut() {
     await signOut()
@@ -76,36 +71,43 @@ async function createAssessment() {
 
   if (loading) {
     return (
-      <main style={styles.container}>
-        <p style={{ color: '#666' }}>Loading...</p>
+      <main style={styles.page}>
+        <p style={{ color: colors.textSecondary }}>Loading...</p>
       </main>
     )
   }
 
   return (
-    <main style={styles.container}>
+    <main style={styles.page}>
       <div style={styles.header}>
-        <h1 style={styles.title}>Mathsense</h1>
-        <button onClick={handleSignOut} style={styles.signOutButton}>Sign out</button>
+        <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
+          Mathsense
+        </h1>
+        <button onClick={handleSignOut} style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}>
+          Sign out
+        </button>
       </div>
 
-      <div style={styles.card}>
-        <h2 style={styles.sectionTitle}>New assessment</h2>
+      <div style={card}>
+        <h2 style={sectionTitle}>New assessment</h2>
         <div style={styles.row}>
           <input
             type="text"
             value={newTitle}
             onChange={e => setNewTitle(e.target.value)}
             placeholder="e.g. Year 10 Set 2 — March"
-            style={styles.input}
+            style={{ ...inputStyle, flex: 1 }}
             onKeyDown={e => e.key === 'Enter' && createAssessment()}
           />
           <button
             onClick={createAssessment}
             disabled={creating || !newTitle.trim()}
             style={{
-              ...styles.primaryButton,
+              ...primaryButton,
+              width: 'auto',
+              padding: '10px 18px',
               opacity: creating || !newTitle.trim() ? 0.6 : 1,
+              whiteSpace: 'nowrap' as const,
             }}
           >
             {creating ? 'Creating...' : 'Create'}
@@ -113,29 +115,37 @@ async function createAssessment() {
         </div>
       </div>
 
-      <div style={styles.card}>
-        <h2 style={styles.sectionTitle}>Your assessments</h2>
+      <div style={card}>
+        <h2 style={sectionTitle}>Your assessments</h2>
         {assessments.length === 0 ? (
-          <p style={styles.empty}>No assessments yet — create one above.</p>
+          <p style={{ fontSize: font.base, color: colors.textHint, margin: 0 }}>
+            No assessments yet — create one above.
+          </p>
         ) : (
           <div style={styles.list}>
             {assessments.map(a => (
               <div
-				  key={a.id}
-				  style={{ ...styles.assessmentRow, cursor: 'pointer' }}
-				  onClick={() => router.push(`/dashboard/${a.id}`)}
-				>
-				  <div>
-					<p style={styles.assessmentTitle}>{a.title}</p>
-					<p style={styles.assessmentDate}>
-					  {new Date(a.created_at).toLocaleDateString('en-GB')}
-					</p>
-				  </div>
-				  <div style={styles.codeBox}>
-					<span style={styles.codeLabel}>Code</span>
-					<span style={styles.code}>{a.code}</span>
-				  </div>
-				</div>
+                key={a.id}
+                style={styles.assessmentRow}
+                onClick={() => router.push(`/dashboard/${a.id}`)}
+              >
+                <div>
+                  <p style={{ fontSize: font.md, fontWeight: '500', margin: 0, color: colors.textPrimary }}>
+                    {a.title}
+                  </p>
+                  <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0' }}>
+                    {new Date(a.created_at).toLocaleDateString('en-GB')}
+                  </p>
+                </div>
+                <div style={styles.codeBox}>
+                  <span style={{ fontSize: '11px', color: colors.textHint, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                    Code
+                  </span>
+                  <span style={{ fontSize: '22px', fontWeight: '700', color: colors.primary, letterSpacing: '0.1em' }}>
+                    {a.code}
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -147,14 +157,12 @@ async function createAssessment() {
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   let code = ''
-  for (let i = 0; i < 4; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)]
-  }
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)]
   return code
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
+  page: {
     maxWidth: '600px',
     margin: '0 auto',
     padding: '24px 20px',
@@ -167,64 +175,9 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  title: {
-    fontSize: '24px',
-    fontWeight: '600',
-    margin: 0,
-    color: '#111',
-  },
-  signOutButton: {
-    background: 'none',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    padding: '8px 14px',
-    fontSize: '14px',
-    cursor: 'pointer',
-    color: '#555',
-  },
-  card: {
-    background: '#ffffff',
-    borderRadius: '12px',
-    padding: '20px',
-    border: '1px solid #e5e5e5',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-  },
-  sectionTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    margin: 0,
-    color: '#111',
-  },
   row: {
     display: 'flex',
     gap: '10px',
-  },
-  input: {
-    flex: 1,
-    padding: '10px 12px',
-    borderRadius: '8px',
-    border: '1px solid #d1d5db',
-    fontSize: '15px',
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  },
-  primaryButton: {
-    background: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    padding: '10px 18px',
-    borderRadius: '8px',
-    fontSize: '15px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap' as const,
-  },
-  empty: {
-    fontSize: '14px',
-    color: '#888',
-    margin: 0,
   },
   list: {
     display: 'flex',
@@ -236,37 +189,15 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '12px',
-    borderRadius: '8px',
-    border: '1px solid #e5e5e5',
-    background: '#fafafa',
-  },
-  assessmentTitle: {
-    fontSize: '15px',
-    fontWeight: '500',
-    margin: 0,
-    color: '#111',
-  },
-  assessmentDate: {
-    fontSize: '12px',
-    color: '#888',
-    margin: '2px 0 0',
+    borderRadius: radius.md,
+    border: `1px solid ${colors.border}`,
+    background: colors.cardAlt,
+    cursor: 'pointer',
   },
   codeBox: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '2px',
-  },
-  codeLabel: {
-    fontSize: '11px',
-    color: '#888',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-  },
-  code: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#4CAF50',
-    letterSpacing: '0.1em',
   },
 }

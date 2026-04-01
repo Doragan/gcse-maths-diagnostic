@@ -1,17 +1,18 @@
-import jsPDF from "jspdf";
-import { buildTopicGrid } from "./buildTopicGrid";
-import { skillsById } from "../skills/skillGraph";
-import autoTable from "jspdf-autotable";
+import jsPDF from 'jspdf'
+import { buildTopicGrid } from './buildTopicGrid'
+import { skillsById } from '../skills/skillGraph'
+import autoTable from 'jspdf-autotable'
 
 type GeneratePDFParams = {
-  topicSkills: Record<string, string[]>;
-  mastered: Set<string>;
-  needsPractice: Set<string>;
-  masteryPercent: number;
-  masteredCount: number;
-  totalSkills: number;
-  recommendations: string[];
-};
+  topicSkills: Record<string, string[]>
+  mastered: Set<string>
+  needsPractice: Set<string>
+  masteryPercent: number
+  masteredCount: number
+  totalSkills: number
+  recommendations: string[]
+  studentName?: string
+}
 
 export function generatePDF({
   topicSkills,
@@ -21,65 +22,68 @@ export function generatePDF({
   masteredCount,
   totalSkills,
   recommendations,
+  studentName,
 }: GeneratePDFParams) {
-  const doc = new jsPDF();
-  let y = 20;
+  const doc = new jsPDF()
+  let y = 20
 
-  const topicGrid = buildTopicGrid(topicSkills, mastered, needsPractice);
+  const topicGrid = buildTopicGrid(topicSkills, mastered, needsPractice)
 
-  const showUntested = topicGrid.some(
-    (row) => row.untestedSkills.length > 0
-  );
+  const showUntested = topicGrid.some(row => row.untestedSkills.length > 0)
 
   const headers = showUntested
-    ? ["Topic", "Mastered", "Needs Practice", "Not Tested"]
-    : ["Topic", "Mastered", "Needs Practice"];
+    ? ['Topic', 'Mastered', 'Needs Practice', 'Not Tested']
+    : ['Topic', 'Mastered', 'Needs Practice']
 
-  const tableRows = topicGrid.map((row) =>
+  const tableRows = topicGrid.map(row =>
     showUntested
       ? [
           row.topic,
-          row.masteredSkills.map((id) => skillsById[id].name).join("\n"),
-          row.needsPracticeSkills.map((id) => skillsById[id].name).join("\n"),
-          row.untestedSkills.map((id) => skillsById[id].name).join("\n"),
+          row.masteredSkills.map(id => skillsById[id].name).join('\n'),
+          row.needsPracticeSkills.map(id => skillsById[id].name).join('\n'),
+          row.untestedSkills.map(id => skillsById[id].name).join('\n'),
         ]
       : [
           row.topic,
-          row.masteredSkills.map((id) => skillsById[id].name).join("\n"),
-          row.needsPracticeSkills.map((id) => skillsById[id].name).join("\n"),
+          row.masteredSkills.map(id => skillsById[id].name).join('\n'),
+          row.needsPracticeSkills.map(id => skillsById[id].name).join('\n'),
         ]
-  );
+  )
 
-  doc.setFontSize(18);
-  doc.text("Progressa Diagnostic Report", 20, y);
+  doc.setFontSize(18)
+  doc.text('Mathsense Diagnostic Report', 20, y)
 
-  y += 12;
+  y += 10
 
-  doc.setFontSize(12);
-  doc.text(`Overall Mastery: ${masteryPercent}%`, 20, y);
+  if (studentName) {
+    doc.setFontSize(13)
+    doc.text(`Student: ${studentName}`, 20, y)
+    y += 8
+  }
 
-  y += 8;
-  doc.text(`${masteredCount} of ${totalSkills} skills mastered`, 20, y);
-
-  y += 14;
+  doc.setFontSize(12)
+  doc.text(`Overall Mastery: ${masteryPercent}%`, 20, y)
+  y += 7
+  doc.text(`${masteredCount} of ${totalSkills} skills mastered`, 20, y)
+  y += 14
 
   if (recommendations.length > 0) {
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("We suggest working on the following skills:", 20, y);
+    doc.setFontSize(13)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Suggested next steps:', 20, y)
+    y += 8
 
-    y += 8;
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(11)
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
+    recommendations.forEach(id => {
+      const skill = skillsById[id]
+      if (!skill) return
+      doc.text(`• ${skill.name}`, 20, y)
+      y += 6
+    })
 
-    recommendations.forEach((id) => {
-      const skill = skillsById[id];
-      doc.text(`• ${skill.name}`, 20, y);
-      y += 6;
-    });
-
-    y += 8;
+    y += 8
   }
 
   autoTable(doc, {
@@ -89,10 +93,10 @@ export function generatePDF({
     styles: {
       cellPadding: 3,
       fontSize: 10,
-      overflow: "linebreak",
+      overflow: 'linebreak',
     },
     alternateRowStyles: { fillColor: [245, 245, 245] },
-  });
+  })
 
-  doc.save("maths-diagnostic-report.pdf");
+  doc.save('mathsense-diagnostic-report.pdf')
 }

@@ -107,24 +107,27 @@ export default function Home() {
   }
 
   if (!currentSkill) {
-	  trackEvent("diagnostic_completed");
-    return (
-      <ResultsView
-        masteryPercent={masteryPercent}
-        masteredCount={masteredCount}
-        totalSkills={totalSkills}
-        recommendations={recommendations}
-        topicSummary={topicSummary}
-        topicSkills={topicSkills}
-        mastered={mastered}
-        needsPractice={needsPractice}
-        openTopics={openTopics}
-        toggleTopic={toggleTopic}
-        downloadReport={downloadReport}
-        downloadPDF={downloadPDF}
-      />
-    );
-  }
+  trackEvent('diagnostic_completed')
+
+  const untestedSet = new Set(
+    courseSkills
+      .map(s => s.id)
+      .filter(id => !mastered.has(id) && !needsPractice.has(id))
+  )
+
+  return (
+    <ResultsView
+      masteryPercent={masteryPercent}
+      masteredCount={masteredCount}
+      totalSkills={totalSkills}
+      mastered={mastered}
+      needsPractice={needsPractice}
+      untested={untestedSet}
+      topicSkills={topicSkills}
+      recommendations={recommendations}
+    />
+  )
+}
 
   return (
     <QuestionScreen

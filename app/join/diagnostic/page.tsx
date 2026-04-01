@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { useDiagnostic } from '../../../lib/diagnostic/useDiagnostic'
+import { colors, font, radius, primaryButton } from '../../../lib/styles'
 
 export default function StudentDiagnosticPage() {
   const router = useRouter()
@@ -28,29 +29,20 @@ export default function StudentDiagnosticPage() {
     const id = sessionStorage.getItem('student_session_id')
     const name = sessionStorage.getItem('student_name')
     const title = sessionStorage.getItem('assessment_title')
-
-    if (!id || !name || !title) {
-      router.push('/join')
-      return
-    }
-
+    if (!id || !name || !title) { router.push('/join'); return }
     setSessionId(id)
     setStudentName(name)
     setAssessmentTitle(title)
   }, [])
 
-  // When the diagnostic finishes, submit results
   useEffect(() => {
-    if (!currentSkill && sessionId && !submitting) {
-      submitResults()
-    }
+    if (!currentSkill && sessionId && !submitting) submitResults()
   }, [currentSkill, sessionId])
 
   async function submitResults() {
     if (!sessionId) return
     setSubmitting(true)
 
-    // Build skill results rows
     const rows = [
       ...Array.from(mastered).map(skillId => ({
         session_id: sessionId,
@@ -66,24 +58,17 @@ export default function StudentDiagnosticPage() {
       })),
     ]
 
-    // Insert skill results
-    const { error: resultsError } = await supabase
-      .from('skill_results')
-      .insert(rows)
-
-    // Mark session as completed
+    const { error: resultsError } = await supabase.from('skill_results').insert(rows)
     await supabase
       .from('student_sessions')
-      .update({
-        completed_at: new Date().toISOString(),
-        questions_asked: questionsAsked,
-      })
+      .update({ completed_at: new Date().toISOString(), questions_asked: questionsAsked })
       .eq('id', sessionId)
 
-    if (resultsError) {
-      console.error('Error saving results:', resultsError)
-    }
+    if (resultsError) console.error('Error saving results:', resultsError)
 
+    sessionStorage.setItem('student_mastered', JSON.stringify(Array.from(mastered)))
+    sessionStorage.setItem('student_needs_practice', JSON.stringify(Array.from(needsPractice)))
+	sessionStorage.setItem('student_name_display', studentName)
     sessionStorage.removeItem('student_session_id')
     sessionStorage.removeItem('student_name')
     sessionStorage.removeItem('assessment_title')
@@ -95,7 +80,7 @@ export default function StudentDiagnosticPage() {
   if (submitting) {
     return (
       <main style={styles.container}>
-        <p style={{ color: '#666' }}>Saving your results...</p>
+        <p style={{ color: colors.textSecondary }}>Saving your results...</p>
       </main>
     )
   }
@@ -103,7 +88,7 @@ export default function StudentDiagnosticPage() {
   if (!sessionId) {
     return (
       <main style={styles.container}>
-        <p style={{ color: '#666' }}>Loading...</p>
+        <p style={{ color: colors.textSecondary }}>Loading...</p>
       </main>
     )
   }
@@ -117,28 +102,36 @@ export default function StudentDiagnosticPage() {
   return (
     <main style={styles.container}>
       <div style={{ flex: 1 }}>
-        <h1 style={styles.heading}>Mathsense</h1>
-        <p style={styles.meta}>
+        <h1 style={{ fontSize: font.xl, fontWeight: '600', color: colors.textSecondary, margin: 0 }}>
+          Mathsense
+        </h1>
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '2px 0 0' }}>
           {assessmentTitle} · {studentName}
         </p>
-        <p style={styles.meta}>
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '2px 0 0' }}>
           Question {questionsAsked + 1} · Diagnosed: {diagnosedSkills}/{courseSkills.length}
         </p>
 
         <div style={styles.progressTrack}>
           <div style={{ ...styles.progressBar, width: `${progressPercent}%` }} />
         </div>
-        <p style={styles.progressLabel}>{progressPercent}% complete</p>
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '4px 0 0' }}>
+          {progressPercent}% complete
+        </p>
 
         {currentSkill && (
           <div style={styles.card}>
             <p style={styles.cardLabel}>Current skill being tested:</p>
-            <p style={styles.skillName}>{currentSkill.name}</p>
+            <p style={{ fontSize: font.lg, margin: '0 0 12px', color: colors.textPrimary, fontWeight: '600' }}>
+              {currentSkill.name}
+            </p>
 
             {currentSkill.exampleQuestion && (
               <>
                 <p style={styles.cardLabel}>Example question:</p>
-                <p style={styles.cardText}>{currentSkill.exampleQuestion}</p>
+                <p style={{ fontSize: font.lg, lineHeight: '1.5', whiteSpace: 'pre-line' as const, margin: '0 0 12px', color: colors.textPrimary }}>
+                  {currentSkill.exampleQuestion}
+                </p>
               </>
             )}
 
@@ -154,7 +147,9 @@ export default function StudentDiagnosticPage() {
             {currentSkill.exampleAnswer && (
               <>
                 <p style={styles.cardLabel}>Example answer:</p>
-                <p style={styles.cardText}>{currentSkill.exampleAnswer}</p>
+                <p style={{ fontSize: font.lg, lineHeight: '1.5', whiteSpace: 'pre-line' as const, margin: 0, color: colors.textPrimary }}>
+                  {currentSkill.exampleAnswer}
+                </p>
               </>
             )}
           </div>
@@ -163,20 +158,40 @@ export default function StudentDiagnosticPage() {
 
       <div style={styles.footer}>
         {questionsAsked > 10 && (
-          <button onClick={finishDiagnostic} style={styles.finishButton}>
+          <button
+            onClick={finishDiagnostic}
+            style={{
+              marginBottom: '10px',
+              padding: '10px',
+              borderRadius: radius.md,
+              border: `1px solid ${colors.borderStrong}`,
+              background: colors.card,
+              color: colors.textPrimary,
+              cursor: 'pointer',
+              width: '100%',
+              fontWeight: '600',
+              fontSize: font.md,
+            }}
+          >
             Finish diagnostic
           </button>
         )}
 
-        <p style={styles.footerQuestion}>
-          <strong>Do you know how to solve this type of question?</strong>
+        <p style={{ margin: '0 0 10px', fontWeight: '600', fontSize: font.md, color: colors.textPrimary }}>
+          Do you know how to solve this type of question?
         </p>
 
         <div style={styles.buttonRow}>
-          <button onClick={() => handleAnswer(true)} style={styles.yesButton}>
+          <button
+            onClick={() => handleAnswer(true)}
+            style={{ ...styles.answerButton, background: colors.success }}
+          >
             Yes, I know this
           </button>
-          <button onClick={() => handleAnswer(false)} style={styles.noButton}>
+          <button
+            onClick={() => handleAnswer(false)}
+            style={{ ...styles.answerButton, background: colors.danger }}
+          >
             No, I need practice
           </button>
         </div>
@@ -188,110 +203,64 @@ export default function StudentDiagnosticPage() {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     padding: '20px',
-    maxWidth: '420px',
+    maxWidth: '480px',
     margin: '0 auto',
     minHeight: '100dvh',
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
   },
-  heading: {
-    fontSize: '24px',
-    color: '#555',
-    margin: 0,
-  },
-  meta: {
-    fontSize: '13px',
-    color: '#666',
-    margin: 0,
-  },
   progressTrack: {
     width: '100%',
-    height: '8px',
-    background: '#eee',
-    borderRadius: '4px',
+    height: '6px',
+    background: colors.border,
+    borderRadius: radius.full,
     overflow: 'hidden',
-    marginTop: '6px',
+    marginTop: '8px',
   },
   progressBar: {
     height: '100%',
-    background: '#4CAF50',
+    background: colors.primary,
+    borderRadius: radius.full,
     transition: 'width 0.3s ease',
   },
-  progressLabel: {
-    fontSize: '12px',
-    color: '#666',
-    marginTop: '4px',
-  },
   card: {
-    background: '#ffffff',
+    background: colors.card,
     padding: '16px',
-    borderRadius: '10px',
-    border: '2px solid #e5e5e5',
+    borderRadius: radius.lg,
+    border: `1px solid ${colors.border}`,
     display: 'flex',
     flexDirection: 'column',
     overflowY: 'auto' as const,
     maxHeight: '50vh',
+    marginTop: '8px',
   },
   cardLabel: {
     fontWeight: 600,
     margin: '0 0 4px',
-    fontSize: '14px',
-  },
-  skillName: {
-    fontSize: '16px',
-    margin: '0 0 12px',
-  },
-  cardText: {
-    fontSize: '16px',
-    lineHeight: '1.4',
-    whiteSpace: 'pre-line' as const,
-    margin: '0 0 12px',
+    fontSize: font.base,
+    color: colors.textSecondary,
   },
   footer: {
     position: 'sticky' as const,
     bottom: 0,
-    background: '#f4f6f8',
+    background: colors.background,
     padding: '12px',
     paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
-    borderTop: '1px solid #ddd',
-  },
-  finishButton: {
-    marginBottom: '10px',
-    padding: '10px',
-    borderRadius: '8px',
-    border: '1px solid #d1d5db',
-    background: '#ffffff',
-    color: '#111827',
-    cursor: 'pointer',
-    width: '100%',
-    fontWeight: 600,
-  },
-  footerQuestion: {
-    margin: '0 0 10px',
+    borderTop: `1px solid ${colors.border}`,
   },
   buttonRow: {
     display: 'flex',
     gap: '10px',
   },
-  yesButton: {
-    background: '#4CAF50',
+  answerButton: {
     color: 'white',
     border: 'none',
     padding: '14px 18px',
-    borderRadius: '8px',
-    fontSize: '16px',
+    borderRadius: radius.md,
+    fontSize: font.lg,
     cursor: 'pointer',
     flex: 1,
-  },
-  noButton: {
-    background: '#f44336',
-    color: 'white',
-    border: 'none',
-    padding: '14px 18px',
-    borderRadius: '8px',
-    fontSize: '15px',
-    cursor: 'pointer',
-    flex: 1,
+    fontWeight: '600',
   },
 }

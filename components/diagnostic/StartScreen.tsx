@@ -1,107 +1,78 @@
-import Link from "next/link";
-import { trackEvent } from "../../lib/analytics";
+import Link from 'next/link'
+import { trackEvent } from '../../lib/analytics'
+import {
+  colors, font, radius,
+  pageContainer, primaryButton, secondaryButton,
+} from '../../lib/styles'
 
 type Props = {
-  startDiagnostic: () => void;
-};
+  startDiagnostic: () => void
+}
 
 export default function StartScreen({ startDiagnostic }: Props) {
   return (
-    <main
-      style={{
-        minHeight: "100dvh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        background: "#f5f5f5",
-        padding: "20px",
-		boxSizing: "border-box",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "32px",
-          borderRadius: "12px",
-          maxWidth: "500px",
-          width: "100%",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-        }}
-      >
-        <h1 style={{ marginTop: 0,marginBottom: 0, fontSize: "28px" }}>Mathsense</h1>
-		<h2 style={{ marginTop: 0}}>Know what to learn next.</h2>
+    <main style={pageContainer}>
+      <div style={styles.card}>
+        <div>
+          <h1 style={{ fontSize: font['3xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
+            Mathsense
+          </h1>
+          <h2 style={{ fontSize: font.xl, fontWeight: '600', margin: '4px 0 0', color: colors.textSecondary }}>
+            Know what to learn next.
+          </h2>
+        </div>
 
-        <p style={{ lineHeight: "1.6" }}>
+        <p style={{ fontSize: font.md, color: colors.textPrimary, margin: 0, lineHeight: '1.6' }}>
           Identify your strengths and weaknesses across GCSE Maths — and get a clear path to improve.
         </p>
 
-        <p style={{ fontWeight: "bold", marginBottom: "20px" }}>
+        <p style={{ fontSize: font.base, fontWeight: '600', color: colors.textSecondary, margin: 0 }}>
           ⏱ Takes about 5–10 minutes
         </p>
 
-        {/* Primary CTA */}
         <button
           onClick={() => {
-            trackEvent("diagnostic_started");
-            startDiagnostic();
+            trackEvent('diagnostic_started')
+            startDiagnostic()
           }}
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "8px",
-            background: "#1976d2",
-            color: "white",
-            border: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            marginBottom: "8px",
-          }}
+          style={primaryButton}
         >
-          Start Your Diagnostic
+          Start your diagnostic
         </button>
 
-        {/* Secondary actions */}
-		  <Link href="/about" style={{ textDecoration: "none" }}>
-  <button
-    style={{
-      width: "100%",
-      padding: "10px",
-      borderRadius: "6px",
-      background: "#f3f4f6",
-      color: "#111827",
-      border: "1px solid #d1d5db",
-      fontWeight: "600",
-      cursor: "pointer",
-      marginBottom: "8px",
-    }}
-  >
-    Learn more about Mathsense
-  </button>
-</Link>
+        <Link href="/about" style={{ textDecoration: 'none' }}>
+          <button style={secondaryButton}>
+            Learn more about Mathsense
+          </button>
+        </Link>
+
         <button
           onClick={() => {
-            trackEvent("feedback_clicked");
+            trackEvent('feedback_clicked')
             window.open(
-              "https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header",
-              "_blank"
-            );
+              'https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header',
+              '_blank'
+            )
           }}
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            background: "#f3f4f6",
-  color: "#111827",
-  border: "1px solid #d1d5db",
-  fontWeight: "600",
-            cursor: "pointer",
-          }}
+          style={secondaryButton}
         >
-          Give Feedback/Get in Touch
+          Give feedback / get in touch
         </button>
-
       </div>
     </main>
-  );
+  )
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  card: {
+    background: colors.card,
+    borderRadius: '12px',
+    padding: '32px 28px',
+    width: '100%',
+    maxWidth: '480px',
+    border: `1px solid ${colors.border}`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
 }
