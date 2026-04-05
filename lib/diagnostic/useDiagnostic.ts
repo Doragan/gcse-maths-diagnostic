@@ -8,8 +8,8 @@ import {
   answerSkill,
 } from "./diagnosticEngine";
 
-export function useDiagnostic() {
-  const course = courses.find((c) => c.id === "gcse_foundation");
+export function useDiagnostic(courseId: string = "gcse_foundation") {
+  const course = courses.find((c) => c.id === courseId);
 
   const courseSkills = skills.filter((skill) =>
     course?.skills.includes(skill.id)
@@ -22,8 +22,7 @@ export function useDiagnostic() {
   const currentSkill = getCurrentSkill(diagnostic);
 
   const questionsAsked =
-    diagnostic.testedMastered.length +
-    diagnostic.testedNotMastered.length;
+    diagnostic.testedMastered.length + diagnostic.testedNotMastered.length;
 
   const diagnosedSkills = new Set([
     ...diagnostic.testedMastered,
@@ -63,10 +62,7 @@ export function useDiagnostic() {
     .slice(0, 3)
     .map((r) => r.id);
 
-  const topicSummary: Record<
-    string,
-    { mastered: number; needsPractice: number; untested: number; total: number }
-  > = {};
+  const topicSummary: Record<string, { mastered: number; needsPractice: number; untested: number; total: number }> = {};
 
   const topicSkills: Record<string, string[]> = {};
 
@@ -81,7 +77,6 @@ export function useDiagnostic() {
         untested: 0,
         total: 0,
       };
-
       topicSkills[topic] = [];
     }
 
@@ -95,21 +90,12 @@ export function useDiagnostic() {
 
   function handleAnswer(knowsSkill: boolean) {
     if (!currentSkill) return;
-
-    const updated = answerSkill(
-      diagnostic,
-      currentSkill.id,
-      knowsSkill
-    );
-
+    const updated = answerSkill(diagnostic, currentSkill.id, knowsSkill);
     setDiagnostic(updated);
   }
 
   function finishDiagnostic() {
-    setDiagnostic({
-      ...diagnostic,
-      remainingSkills: [],
-    });
+    setDiagnostic({ ...diagnostic, remainingSkills: [] });
   }
 
   return {

@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [newCourseId, setNewCourseId] = useState('gcse_foundation')
 
   useEffect(() => {
     getSession().then(session => {
@@ -40,29 +41,30 @@ export default function DashboardPage() {
   }
 
   async function createAssessment() {
-    if (!newTitle.trim()) return
-    setCreating(true)
-    const code = generateCode()
-    const session = await getSession()
-    if (!session) return
+  if (!newTitle.trim()) return
+  setCreating(true)
+  const code = generateCode()
+  const session = await getSession()
+  if (!session) return
 
-    const { data, error } = await supabase
-      .from('assessments')
-      .insert({
-        title: newTitle.trim(),
-        code,
-        teacher_id: session.user.id,
-        course_id: 'gcse_foundation',
-      })
-      .select()
-      .single()
+  const { data, error } = await supabase
+    .from('assessments')
+    .insert({
+      title: newTitle.trim(),
+      code,
+      teacher_id: session.user.id,
+      course_id: newCourseId,
+    })
+    .select()
+    .single()
 
-    if (!error && data) {
-      setAssessments(prev => [data, ...prev])
-      setNewTitle('')
-    }
-    setCreating(false)
+  if (!error && data) {
+    setAssessments(prev => [data, ...prev])
+    setNewTitle('')
+    setNewCourseId('gcse_foundation')
   }
+  setCreating(false)
+}
 
   async function handleSignOut() {
     await signOut()
@@ -116,40 +118,53 @@ export default function DashboardPage() {
       </div>
 
       <div style={card}>
-        <h2 style={sectionTitle}>Your assessments</h2>
-        {assessments.length === 0 ? (
-          <p style={{ fontSize: font.base, color: colors.textHint, margin: 0 }}>
-            No assessments yet — create one above.
-          </p>
-        ) : (
-          <div style={styles.list}>
-            {assessments.map(a => (
-              <div
-                key={a.id}
-                style={styles.assessmentRow}
-                onClick={() => router.push(`/dashboard/${a.id}`)}
-              >
-                <div>
-                  <p style={{ fontSize: font.md, fontWeight: '500', margin: 0, color: colors.textPrimary }}>
-                    {a.title}
-                  </p>
-                  <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0' }}>
-                    {new Date(a.created_at).toLocaleDateString('en-GB')}
-                  </p>
-                </div>
-                <div style={styles.codeBox}>
-                  <span style={{ fontSize: '11px', color: colors.textHint, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
-                    Code
-                  </span>
-                  <span style={{ fontSize: '22px', fontWeight: '700', color: colors.primary, letterSpacing: '0.1em' }}>
-                    {a.code}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+		  <h2 style={sectionTitle}>New assessment</h2>
+		  <div style={styles.row}>
+			<input
+			  type="text"
+			  value={newTitle}
+			  onChange={e => setNewTitle(e.target.value)}
+			  placeholder="e.g. Year 10 Set 2 — March"
+			  style={{ ...inputStyle, flex: 1 }}
+			  onKeyDown={e => e.key === 'Enter' && createAssessment()}
+			/>
+			<button
+			  onClick={createAssessment}
+			  disabled={creating || !newTitle.trim()}
+			  style={{
+				...primaryButton,
+				width: 'auto',
+				padding: '10px 18px',
+				opacity: creating || !newTitle.trim() ? 0.6 : 1,
+				whiteSpace: 'nowrap' as const,
+			  }}
+			>
+			  {creating ? 'Creating...' : 'Create'}
+			</button>
+		  </div>
+		  <div style={styles.toggle}>
+			<button
+			  onClick={() => setNewCourseId('gcse_foundation')}
+			  style={{
+				...styles.toggleButton,
+				background: newCourseId === 'gcse_foundation' ? colors.primary : 'transparent',
+				color: newCourseId === 'gcse_foundation' ? '#ffffff' : colors.textSecondary,
+			  }}
+			>
+			  Foundation
+			</button>
+			<button
+			  onClick={() => setNewCourseId('gcse_higher')}
+			  style={{
+				...styles.toggleButton,
+				background: newCourseId === 'gcse_higher' ? colors.primary : 'transparent',
+				color: newCourseId === 'gcse_higher' ? '#ffffff' : colors.textSecondary,
+			  }}
+			>
+			  Higher
+			</button>
+		  </div>
+		</div>
     </main>
   )
 }
@@ -194,10 +209,25 @@ const styles: Record<string, React.CSSProperties> = {
     background: colors.cardAlt,
     cursor: 'pointer',
   },
-  codeBox: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '2px',
-  },
+	  codeBox: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		gap: '2px',
+	  },
+	  toggle: {
+	  display: 'flex',
+	  borderRadius: radius.md,
+	  overflow: 'hidden',
+	  border: `1px solid ${colors.borderStrong}`,
+	},
+	toggleButton: {
+	  flex: 1,
+	  padding: '8px',
+	  border: 'none',
+	  fontSize: font.base,
+	  fontWeight: '600',
+	  cursor: 'pointer',
+	  background: 'transparent',
+	},
 }

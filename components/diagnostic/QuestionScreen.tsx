@@ -79,7 +79,7 @@ export default function QuestionScreen({
       </div>
 
       <div style={styles.footer}>
-        {questionsAsked > 10 && (
+        {diagnosedSkills > Math.floor(courseSkillsLength / 2) && (
           <button
             onClick={finishDiagnostic}
             style={styles.finishButton}

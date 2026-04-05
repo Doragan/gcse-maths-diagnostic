@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '../../lib/analytics'
 import {
@@ -5,11 +6,14 @@ import {
   pageContainer, primaryButton, secondaryButton,
 } from '../../lib/styles'
 
+
 type Props = {
-  startDiagnostic: () => void
+  startDiagnostic: (courseId: string) => void
 }
 
 export default function StartScreen({ startDiagnostic }: Props) {
+  const [courseId, setCourseId] = useState<'gcse_foundation' | 'gcse_higher'>('gcse_foundation')
+
   return (
     <main style={pageContainer}>
       <div style={styles.card}>
@@ -30,10 +34,40 @@ export default function StartScreen({ startDiagnostic }: Props) {
           ⏱ Takes about 5–10 minutes
         </p>
 
+        <div>
+          <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: '0 0 8px' }}>
+            Which tier are you studying?
+          </p>
+          <div style={styles.toggle}>
+            <button
+              onClick={() => setCourseId('gcse_foundation')}
+              style={{
+                ...styles.toggleButton,
+                background: courseId === 'gcse_foundation' ? colors.primary : 'transparent',
+                color: courseId === 'gcse_foundation' ? '#ffffff' : colors.textSecondary,
+                borderColor: courseId === 'gcse_foundation' ? colors.primary : colors.borderStrong,
+              }}
+            >
+              Foundation
+            </button>
+            <button
+              onClick={() => setCourseId('gcse_higher')}
+              style={{
+                ...styles.toggleButton,
+                background: courseId === 'gcse_higher' ? colors.primary : 'transparent',
+                color: courseId === 'gcse_higher' ? '#ffffff' : colors.textSecondary,
+                borderColor: courseId === 'gcse_higher' ? colors.primary : colors.borderStrong,
+              }}
+            >
+              Higher
+            </button>
+          </div>
+        </div>
+
         <button
           onClick={() => {
             trackEvent('diagnostic_started')
-            startDiagnostic()
+            startDiagnostic(courseId)
           }}
           style={primaryButton}
         >
@@ -66,7 +100,7 @@ export default function StartScreen({ startDiagnostic }: Props) {
 const styles: Record<string, React.CSSProperties> = {
   card: {
     background: colors.card,
-    borderRadius: '12px',
+    borderRadius: radius.lg,
     padding: '32px 28px',
     width: '100%',
     maxWidth: '480px',
@@ -74,5 +108,21 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
+  },
+  toggle: {
+    display: 'flex',
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    border: `1px solid ${colors.borderStrong}`,
+    width: '100%',
+  },
+  toggleButton: {
+    flex: 1,
+    padding: '10px',
+    border: 'none',
+    fontSize: font.md,
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'background 0.15s, color 0.15s',
   },
 }
