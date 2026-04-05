@@ -101,7 +101,8 @@ export const skills: Skill[] = [
       "simple_arithmetic"
     ],
 	"exampleQuestion": "What is the missing angle in the diagram, below?",
-	"exampleAnswer": "100°" 
+	"exampleAnswer": "100°",
+	"image": true
   },
   {
     "id": "measuring_lines_and_angles",
@@ -143,7 +144,7 @@ export const skills: Skill[] = [
     ],
 	"exampleQuestion": "What is the missing angle in the diagram, below?",
 	"exampleAnswer": "104°",
-	"image" : true
+	"image": true
   },
   {
     "id": "congruence_and_similarity",
