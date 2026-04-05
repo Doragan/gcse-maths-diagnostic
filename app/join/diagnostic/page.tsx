@@ -157,7 +157,7 @@ export default function StudentDiagnosticPage() {
       </div>
 
       <div style={styles.footer}>
-        {diagnosedSkills > Math.floor(courseSkillsLength / 2) && (
+        {diagnosedSkills > Math.floor(courseSkills.length / 2) && (
           <button
             onClick={finishDiagnostic}
             style={{
