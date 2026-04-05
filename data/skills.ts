@@ -202,7 +202,9 @@ export const skills: Skill[] = [
     "prerequisites": [
       "simple_charts",
       "angles_on_lines_and_circles"
-    ]
+    ],
+	"exampleQuestion": "A pie chart shows the favourite sports of 60 students. The sector for football has an angle of 120°. How many students chose football?",
+	"exampleAnswer": "20 students (120° ÷ 360° × 60 = 20)"
   },
   {
     "id": "mean",
@@ -1043,6 +1045,7 @@ export const skills: Skill[] = [
       "simple_charts",
 	  "understanding_straight_line_graphs"
     ],
+	"exampleQuestion":"",
     "exampleAnswer": "(-1, 4)",
 	"image": true
   },

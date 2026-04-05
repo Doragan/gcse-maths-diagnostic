@@ -24,28 +24,30 @@ export function useDiagnostic(courseId: string = "gcse_foundation") {
   const questionsAsked =
     diagnostic.testedMastered.length + diagnostic.testedNotMastered.length;
 
-  const diagnosedSkills = new Set([
-    ...diagnostic.testedMastered,
-    ...diagnostic.inferredMastered,
-    ...diagnostic.testedNotMastered,
-    ...diagnostic.inferredNotMastered,
-  ]).size;
+  const courseSkillIdSet = new Set(courseSkills.map(s => s.id))
 
-  const mastered = new Set([
-    ...diagnostic.testedMastered,
-    ...diagnostic.inferredMastered,
-  ]);
+const diagnosedSkills = new Set([
+  ...diagnostic.testedMastered,
+  ...diagnostic.inferredMastered,
+  ...diagnostic.testedNotMastered,
+  ...diagnostic.inferredNotMastered,
+].filter(id => courseSkillIdSet.has(id))).size
 
-  const needsPractice = new Set([
-    ...diagnostic.testedNotMastered,
-    ...diagnostic.inferredNotMastered,
-  ]);
+const mastered = new Set(
+  [...diagnostic.testedMastered, ...diagnostic.inferredMastered]
+    .filter(id => courseSkillIdSet.has(id))
+)
 
-  const untested = new Set(
-    courseSkills
-      .map((s) => s.id)
-      .filter((id) => !mastered.has(id) && !needsPractice.has(id))
-  );
+const needsPractice = new Set(
+  [...diagnostic.testedNotMastered, ...diagnostic.inferredNotMastered]
+    .filter(id => courseSkillIdSet.has(id))
+)
+
+const untested = new Set(
+  courseSkills
+    .map(s => s.id)
+    .filter(id => !mastered.has(id) && !needsPractice.has(id))
+)
 
   const totalSkills = mastered.size + needsPractice.size + untested.size;
   const masteredCount = mastered.size;

@@ -25,7 +25,7 @@ const foundationSkillIds = [
   "angles_on_lines_and_circles", "measuring_lines_and_angles",
   "alternate_and_corresponding_angles", "bearings", "angles_in_polygons",
   "congruence_and_similarity", "exterior_angles", "constructions", "loci",
-  "translations", "rotations", "enlargements",
+  "translations", "rotations", "enlargements","reflections",
   "areas_of_squares_and_rectangles", "areas_of_triangles", "area_of_parallelograms",
   "area_of_a_trapezium", "areas_of_compound_shapes",
   "circumfrence_of_a_circle", "area_of_a_circle", "sector_calculations",

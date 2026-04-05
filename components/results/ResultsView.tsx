@@ -29,11 +29,7 @@ export default function ResultsView({
   recommendations,
   studentName,
 }: Props) {
-  const [openTopics, setOpenTopics] = useState<string[]>(
-    Object.keys(topicSkills).filter(topic =>
-      topicSkills[topic].some(id => needsPractice.has(id))
-    )
-  )
+  const [openTopics, setOpenTopics] = useState<string[]>([])
   const [copyLabel, setCopyLabel] = useState('📋 Copy results')
 
   function toggleTopic(topic: string) {
@@ -161,11 +157,14 @@ export default function ResultsView({
           </div>
         </div>
       )}
+		<div style={styles.actions}>
+		  <button onClick={handleShare} style={styles.actionButton}>📤 Share results</button>
+		  <button onClick={handleCopyResults} style={styles.actionButton}>{copyLabel}</button>
+		</div>
 
-      {/* Topic breakdown */}
-      <h2 style={{ fontSize: font.lg, fontWeight: '600', margin: 0, color: colors.textPrimary }}>
-        Topic mastery
-      </h2>
+		<h2 style={{ fontSize: font.lg, fontWeight: '600', margin: 0, color: colors.textPrimary }}>
+		  Topic mastery
+		</h2>
 
       {allTopics.map(topic => {
         const skillIds = topicSkills[topic] ?? []
@@ -231,8 +230,6 @@ export default function ResultsView({
 
       {/* Actions */}
       <div style={styles.actions}>
-        <button onClick={handleShare} style={styles.actionButton}>📤 Share results</button>
-        <button onClick={handleCopyResults} style={styles.actionButton}>{copyLabel}</button>
         <button onClick={handleDownloadPDF} style={styles.actionButton}>⬇ Download PDF</button>
         <button onClick={handleDownloadCSV} style={styles.actionButton}>⬇ Download CSV</button>
         <button
