@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Progressa",
+  title: "Mathsense",
   description: "GCSE Maths Diagnostic Tool",
 };
 
