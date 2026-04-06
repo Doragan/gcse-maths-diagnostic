@@ -34,17 +34,13 @@ export default function JoinPage() {
       return
     }
 
-    const { data: assessment, error: assessmentError } = await supabase
-      .from('assessments')
-      .select('id, title, course_id')
-      .eq('code', trimmedCode)
-      .single()
-
-    if (assessmentError || !assessment) {
-      setError('Code not found. Please check with your teacher.')
-      setLoading(false)
-      return
-    }
+const response = await fetch(`/api/assessment/lookup?code=${trimmedCode}`)
+if (!response.ok) {
+  setError('Code not found. Please check with your teacher.')
+  setLoading(false)
+  return
+}
+const assessment = await response.json()
 
     const { data: session, error: sessionError } = await supabase
       .from('student_sessions')

@@ -21,3 +21,30 @@ export async function getSession() {
   const { data: { session } } = await supabase.auth.getSession()
   return session
 }
+
+export async function getUser() {
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
+
+export async function sendPasswordResetEmail(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/confirm`,
+  })
+  if (error) throw error
+}
+
+export async function updatePassword(newPassword: string) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) throw error
+}
+
+export async function updateEmail(newEmail: string) {
+  const { error } = await supabase.auth.updateUser({ email: newEmail })
+  if (error) throw error
+}
+
+export async function deleteAccount() {
+  const response = await fetch('/api/account/delete', { method: 'DELETE' })
+  if (!response.ok) throw new Error('Failed to delete account')
+}

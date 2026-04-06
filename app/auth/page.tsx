@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, signUp } from '../../lib/auth'
 import {
   colors, font, radius,
   pageContainer, narrowCard, pageTitle,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
+import { signIn, signUp, getSession } from '../../lib/auth'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -18,6 +18,12 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
+  
+	useEffect(() => {
+	  getSession().then(session => {
+		if (session) router.push('/dashboard')
+	  })
+	}, [])
 
   async function handleSubmit() {
     setError(null)
@@ -131,7 +137,24 @@ export default function AuthPage() {
         >
           {loading ? 'Please wait...' : isSignUp ? 'Create account' : 'Log in'}
         </button>
-
+		
+		{!isSignUp && (
+		  <button
+			onClick={() => router.push('/auth/reset')}
+			style={{
+			  background: 'none',
+			  border: 'none',
+			  color: colors.textSecondary,
+			  fontSize: font.sm,
+			  cursor: 'pointer',
+			  padding: '0',
+			  textAlign: 'center' as const,
+			}}
+		  >
+			Forgot your password?
+		  </button>
+		)}
+		
         <button
           onClick={() => { setIsSignUp(!isSignUp); setError(null); setConfirmPassword('') }}
           style={{
