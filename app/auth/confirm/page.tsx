@@ -19,14 +19,21 @@ export default function ConfirmPage() {
   const [ready, setReady] = useState(false)
   const [done, setDone] = useState(false)
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setReady(true)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+useEffect(() => {
+  // Handle hash-based token (Supabase legacy flow)
+  const hash = window.location.hash
+  if (hash && hash.includes('type=recovery')) {
+    setReady(true)
+    return
+  }
+
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      setReady(true)
+    }
+  })
+  return () => subscription.unsubscribe()
+}, [])
 
   async function handleSubmit() {
     setError(null)

@@ -28,8 +28,12 @@ export async function getUser() {
 }
 
 export async function sendPasswordResetEmail(email: string) {
+  const origin = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : 'https://mathsense.net'
+    
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/confirm`,
+    redirectTo: `${origin}/auth/confirm`,
   })
   if (error) throw error
 }
