@@ -13,6 +13,7 @@ type Assessment = {
   id: string
   title: string
   code: string
+  course_id: string
   created_at: string
 }
 
@@ -27,16 +28,17 @@ export default function DashboardPage() {
   const [userEmail, setUserEmail] = useState('')
   const [isPaid, setIsPaid] = useState(false)
   const [freeAssessmentsUsed, setFreeAssessmentsUsed] = useState(0)
+  
+  const [isAdmin, setIsAdmin] = useState(false)
 
 useEffect(() => {
   getSession().then(async session => {
     if (!session) { router.push('/auth'); return }
     setUserEmail(session.user.email ?? '')
 
-    // Check payment status
     const { data: teacher } = await supabase
       .from('teachers')
-      .select('paid_until, free_assessments_used')
+      .select('paid_until, free_assessments_used, is_admin')
       .eq('id', session.user.id)
       .single()
 
@@ -44,6 +46,7 @@ useEffect(() => {
       const paid = teacher.paid_until && new Date(teacher.paid_until) > new Date()
       setIsPaid(!!paid)
       setFreeAssessmentsUsed(teacher.free_assessments_used ?? 0)
+      setIsAdmin(teacher.is_admin ?? false)
     }
 
     loadAssessments()
@@ -133,6 +136,14 @@ useEffect(() => {
 			>
 			  Sign out
 			</button>
+			{isAdmin && (
+  <button
+    onClick={() => router.push('/admin')}
+    style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+  >
+    Admin
+  </button>
+)}
 		  </div>
 		</div>
 		
@@ -244,13 +255,28 @@ useEffect(() => {
                 onClick={() => router.push(`/dashboard/${a.id}`)}
               >
                 <div>
-                  <p style={{ fontSize: font.md, fontWeight: '500', margin: 0, color: colors.textPrimary }}>
-                    {a.title}
-                  </p>
-                  <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0' }}>
-                    {new Date(a.created_at).toLocaleDateString('en-GB')}
-                  </p>
-                </div>
+  <p style={{ fontSize: font.md, fontWeight: '500', margin: 0, color: colors.textPrimary }}>
+    {a.title}
+  </p>
+  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+    <span style={{
+      fontSize: font.sm,
+      color: colors.textHint,
+    }}>
+      {new Date(a.created_at).toLocaleDateString('en-GB')}
+    </span>
+    <span style={{
+      fontSize: '11px',
+      fontWeight: '600',
+      padding: '1px 6px',
+      borderRadius: '4px',
+      background: a.course_id === 'gcse_higher' ? '#ede9fe' : '#e0f2fe',
+      color: a.course_id === 'gcse_higher' ? '#5b21b6' : '#0369a1',
+    }}>
+      {a.course_id === 'gcse_higher' ? 'Higher' : 'Foundation'}
+    </span>
+  </div>
+</div>
                 <div style={styles.codeBox}>
                   <span style={{ fontSize: '11px', color: colors.textHint, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
                     Code
