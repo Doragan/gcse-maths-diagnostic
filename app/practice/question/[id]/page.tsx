@@ -9,7 +9,7 @@ import { renderQuestion, type RenderedQuestion } from '../../../../lib/questions
 import { checkAnswer } from '../../../../lib/questions/answerChecker'
 import {
   colors, font, radius, card,
-  primaryButton, secondaryButton, inputStyle,
+  primaryButton, secondaryButton,
 } from '../../../../lib/styles'
 import MathInput from '../../../../components/practice/MathInput'
 
@@ -177,22 +177,22 @@ export default function QuestionPage() {
 
       {/* Answer input */}
       {!feedback && (
-		  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-			<MathInput
-			  value={answer}
-			  onChange={setAnswer}
-			  onSubmit={handleSubmit}
-			  placeholder="Type your answer..."
-			/>
-			<button
-			  onClick={handleSubmit}
-			  disabled={!answer.trim()}
-			  style={{ ...primaryButton, opacity: !answer.trim() ? 0.6 : 1 }}
-			>
-			  Submit answer
-			</button>
-		  </div>
-		)}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <MathInput
+            value={answer}
+            onChange={setAnswer}
+            onSubmit={handleSubmit}
+            placeholder="Type your answer..."
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={!answer.trim()}
+            style={{ ...primaryButton, opacity: !answer.trim() ? 0.6 : 1 }}
+          >
+            Submit answer
+          </button>
+        </div>
+      )}
 
       {/* Feedback */}
       {feedback && (
@@ -246,6 +246,19 @@ export default function QuestionPage() {
           </div>
         </div>
       )}
+
+      {/* Ko-fi */}
+      <div style={{ textAlign: 'center' as const, marginTop: '8px' }}>
+        <a
+          href="https://ko-fi.com/mathsense"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: font.sm, color: colors.textHint, textDecoration: 'none' }}
+        >
+          If you find Mathsense useful, consider supporting us on Ko-fi
+        </a>
+      </div>
+
     </main>
   )
 }
