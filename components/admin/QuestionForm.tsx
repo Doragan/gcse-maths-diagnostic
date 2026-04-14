@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabase'
+import { useState } from 'react'
 import { skillsById } from '../../lib/skills/skillGraph'
 import {
   colors, font, radius, card,
@@ -51,11 +49,52 @@ const emptyForm: QuestionFormData = {
   is_published: false,
 }
 
+type SimpleParam = {
+  name: string
+  type: 'integer' | 'decimal'
+  min: string
+  max: string
+  decimalPlaces: string
+  constraintType: string
+  constraintTarget: string
+  constraintTargetType: 'parameter' | 'value'
+}
+
+function parseSimpleParams(parametersJson: string): SimpleParam[] {
+  try {
+    const parsed = JSON.parse(parametersJson)
+    if (Object.keys(parsed).length === 0) return []
+    return Object.entries(parsed).map(([name, config]: any) => ({
+      name,
+      type: config.type === 'decimal' ? 'decimal' : 'integer',
+      min: config.min?.toString() ?? '',
+      max: config.max?.toString() ?? '',
+      decimalPlaces: config.decimal_places?.toString() ?? '1',
+      constraintType: config.constraint?.type ?? '',
+      constraintTarget: config.constraint?.target?.toString() ?? '',
+      constraintTargetType: config.constraint?.target_type ?? 'parameter',
+    }))
+  } catch {
+    return []
+  }
+}
+
 export default function QuestionForm({ initialData, onSave, saving, error }: Props) {
   const [form, setForm] = useState<QuestionFormData>({ ...emptyForm, ...initialData })
-  const [preview, setPreview] = useState<{ question: string, answer: string, traps: { answer: string, response: string }[] } | null>(null)
+  const [preview, setPreview] = useState<{ 
+  question: string
+  answer: string
+  traps: { answer: string, response: string }[]
+  explanation: string
+} | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [skillSearch, setSkillSearch] = useState('')
+  const [paramMode, setParamMode] = useState<'simple' | 'advanced'>('simple')
+  const [simpleParams, setSimpleParams] = useState<SimpleParam[]>(() =>
+    parseSimpleParams(initialData?.parameters ?? '{}')
+  )
+  
+const [validationError, setValidationError] = useState<string | null>(null)
 
   function update(field: keyof QuestionFormData, value: any) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -82,52 +121,126 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
     }
   }
 
-  function generatePreview() {
-    setPreviewError(null)
-    try {
-      const params = JSON.parse(form.parameters)
-      const generated: Record<string, number> = {}
-
-      // Generate parameter values
-      for (const [key, config] of Object.entries(params) as any) {
-        let attempts = 0
-        let value: number
-        do {
-          value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
-          attempts++
-        } while (
-          config.not_equal_to &&
-          generated[config.not_equal_to] !== undefined &&
-          value === generated[config.not_equal_to] &&
-          attempts < 100
-        )
-        generated[key] = value
-      }
-
-      // Evaluate a template expression
-      function evaluate(template: string): string {
-        return template.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
-          try {
-            const fn = new Function(...Object.keys(generated), `return ${expr}`)
-            return fn(...Object.values(generated)).toString()
-          } catch {
-            throw new Error(`Could not evaluate: ${expr}`)
-          }
-        })
-      }
-
-      const question = evaluate(form.question_template)
-      const answer = evaluate(form.answer_template)
-      const traps = form.traps.map(t => ({
-        answer: evaluate(t.answer_template),
-        response: t.response,
-      }))
-
-      setPreview({ question, answer, traps })
-    } catch (e: any) {
-      setPreviewError(e.message)
-    }
+  function addSimpleParam() {
+    setSimpleParams(prev => [...prev, {
+      name: '',
+      type: 'integer',
+      min: '1',
+      max: '10',
+      decimalPlaces: '1',
+      constraintType: '',
+      constraintTarget: '',
+      constraintTargetType: 'parameter',
+    }])
   }
+
+  function removeSimpleParam(index: number) {
+    setSimpleParams(prev => {
+      const updated = prev.filter((_, i) => i !== index)
+      syncParamsToForm(updated)
+      return updated
+    })
+  }
+
+  function updateSimpleParam(index: number, field: keyof SimpleParam, value: string) {
+    setSimpleParams(prev => {
+      const updated = prev.map((p, i) => i === index ? { ...p, [field]: value } : p)
+      syncParamsToForm(updated)
+      return updated
+    })
+  }
+
+  function syncParamsToForm(params: SimpleParam[]) {
+    const json: Record<string, any> = {}
+    for (const p of params) {
+      if (!p.name) continue
+      const entry: Record<string, any> = {
+        type: p.type,
+        min: parseFloat(p.min) || 0,
+        max: parseFloat(p.max) || 10,
+      }
+      if (p.type === 'decimal') {
+        entry.decimal_places = parseInt(p.decimalPlaces) || 1
+      }
+      if (p.constraintType && p.constraintTarget) {
+        entry.constraint = {
+          type: p.constraintType,
+          target: p.constraintTargetType === 'value'
+            ? parseFloat(p.constraintTarget)
+            : p.constraintTarget,
+          target_type: p.constraintTargetType,
+        }
+      }
+      json[p.name] = entry
+    }
+    update('parameters', JSON.stringify(json, null, 2))
+  }
+
+  function generatePreview() {
+  setPreviewError(null)
+  try {
+    const params = JSON.parse(form.parameters)
+    const generated: Record<string, number> = {}
+    for (const [key, config] of Object.entries(params) as any) {
+      let attempts = 0
+      let value: number = 0
+      do {
+        if (config.type === 'decimal') {
+          const places = config.decimal_places ?? 1
+          const factor = Math.pow(10, places)
+          const min = Math.round(config.min * factor)
+          const max = Math.round(config.max * factor)
+          value = Math.floor(Math.random() * (max - min + 1) + min) / factor
+        } else {
+          value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
+        }
+        attempts++
+        if (!config.constraint || attempts >= 100) break
+        const target = config.constraint.target_type === 'parameter'
+          ? generated[config.constraint.target]
+          : config.constraint.target
+        if (target === undefined) break
+        const satisfied = (() => {
+          switch (config.constraint.type) {
+            case 'neq': return value !== target
+            case 'gt': return value > target
+            case 'gte': return value >= target
+            case 'lt': return value < target
+            case 'lte': return value <= target
+            case 'multiple_of': return target !== 0 && value % target === 0
+            case 'factor_of': return value !== 0 && target % value === 0
+            default: return true
+          }
+        })()
+        if (satisfied) break
+      } while (true)
+      generated[key] = value
+    }
+
+    function evaluate(template: string): string {
+      return template.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
+        try {
+          const fn = new Function(...Object.keys(generated), `return ${expr}`)
+          return fn(...Object.values(generated)).toString()
+        } catch {
+          throw new Error(`Could not evaluate: ${expr}`)
+        }
+      })
+    }
+
+    const question = evaluate(form.question_template)
+    const answer = evaluate(form.answer_template)
+    const traps = form.traps.map(t => ({
+      answer: evaluate(t.answer_template),
+      response: evaluate(t.response),
+    }))
+    const explanation = form.explanation ? evaluate(form.explanation) : ''
+
+    setPreview({ question, answer, traps, explanation })
+  } catch (e: any) {
+    setPreviewError(e.message)
+  }
+}
 
   const filteredSkills = Object.entries(skillsById)
     .filter(([id, skill]) =>
@@ -199,41 +312,26 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
       {/* Question details */}
       <div style={card}>
         <h2 style={sectionTitle}>Question details</h2>
-
         <div style={styles.row}>
           <div style={styles.field}>
             <label style={labelStyle}>Question type</label>
-            <select
-              value={form.question_type}
-              onChange={e => update('question_type', e.target.value)}
-              style={inputStyle}
-            >
+            <select value={form.question_type} onChange={e => update('question_type', e.target.value as any)} style={inputStyle}>
               <option value="numeric">Numeric</option>
               <option value="exact">Exact text</option>
               <option value="multiple_choice">Multiple choice</option>
             </select>
           </div>
-
           <div style={styles.field}>
             <label style={labelStyle}>Difficulty</label>
-            <select
-              value={form.difficulty}
-              onChange={e => update('difficulty', parseInt(e.target.value))}
-              style={inputStyle}
-            >
+            <select value={form.difficulty} onChange={e => update('difficulty', parseInt(e.target.value))} style={inputStyle}>
               {[1, 2, 3, 4, 5].map(n => (
                 <option key={n} value={n}>{'★'.repeat(n)}{'☆'.repeat(5 - n)} ({n})</option>
               ))}
             </select>
           </div>
-
           <div style={styles.field}>
             <label style={labelStyle}>Answer type</label>
-            <select
-              value={form.answer_type}
-              onChange={e => update('answer_type', e.target.value)}
-              style={inputStyle}
-            >
+            <select value={form.answer_type} onChange={e => update('answer_type', e.target.value as any)} style={inputStyle}>
               <option value="numeric">Numeric</option>
               <option value="exact">Exact</option>
               <option value="fraction">Fraction</option>
@@ -241,7 +339,6 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             </select>
           </div>
         </div>
-
         {form.answer_type === 'numeric' && (
           <div style={styles.field}>
             <label style={labelStyle}>Tolerance (±)</label>
@@ -261,23 +358,150 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
       <div style={card}>
         <h2 style={sectionTitle}>Parameters</h2>
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
-          Define variables used in the question. Leave as {'{}'} for non-parameterised questions.
+          Define variables used in the question template.
         </p>
-        <div style={styles.field}>
-          <label style={labelStyle}>Parameters (JSON)</label>
-          <textarea
-            value={form.parameters}
-            onChange={e => update('parameters', e.target.value)}
-            style={{ ...inputStyle, fontFamily: 'monospace', minHeight: '120px', resize: 'vertical' as const }}
-            placeholder={`{\n  "a": { "type": "integer", "min": 2, "max": 12 },\n  "b": { "type": "integer", "min": 2, "max": 12, "not_equal_to": "a" }\n}`}
-          />
-        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+  <span style={{ fontSize: font.base, color: colors.textSecondary }}>Input mode:</span>
+  <div style={styles.toggle}>
+    <button
+      onClick={() => setParamMode('simple')}
+      style={{
+        ...styles.toggleButton,
+        background: paramMode === 'simple' ? colors.primary : colors.background,
+        color: paramMode === 'simple' ? '#ffffff' : colors.textSecondary,
+      }}
+    >
+      Simple
+    </button>
+    <button
+      onClick={() => setParamMode('advanced')}
+      style={{
+        ...styles.toggleButton,
+        background: paramMode === 'advanced' ? colors.primary : colors.background,
+        color: paramMode === 'advanced' ? '#ffffff' : colors.textSecondary,
+      }}
+    >
+      Advanced (JSON)
+    </button>
+  </div>
+</div>
+
+        {paramMode === 'simple' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {simpleParams.map((param, i) => (
+              <div key={i} style={styles.trapBox}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={labelStyle}>Parameter {i + 1}</label>
+                  <button
+                    onClick={() => removeSimpleParam(i)}
+                    style={{ ...secondaryButton, width: 'auto', padding: '4px 10px', fontSize: font.sm, color: colors.dangerText, borderColor: colors.dangerBorder }}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div style={styles.row}>
+                  <div style={styles.field}>
+                    <label style={{ ...labelStyle, fontWeight: '400' }}>Name</label>
+                    <input
+                      type="text"
+                      value={param.name}
+                      onChange={e => updateSimpleParam(i, 'name', e.target.value)}
+                      style={inputStyle}
+                      placeholder="a"
+                      maxLength={10}
+                    />
+                  </div>
+                  <div style={styles.field}>
+                    <label style={{ ...labelStyle, fontWeight: '400' }}>Type</label>
+                    <select value={param.type} onChange={e => updateSimpleParam(i, 'type', e.target.value)} style={inputStyle}>
+                      <option value="integer">Integer</option>
+                      <option value="decimal">Decimal</option>
+                    </select>
+                  </div>
+                  <div style={styles.field}>
+                    <label style={{ ...labelStyle, fontWeight: '400' }}>Min</label>
+                    <input type="number" value={param.min} onChange={e => updateSimpleParam(i, 'min', e.target.value)} style={inputStyle} placeholder="1" />
+                  </div>
+                  <div style={styles.field}>
+                    <label style={{ ...labelStyle, fontWeight: '400' }}>Max</label>
+                    <input type="number" value={param.max} onChange={e => updateSimpleParam(i, 'max', e.target.value)} style={inputStyle} placeholder="10" />
+                  </div>
+                  {param.type === 'decimal' && (
+                    <div style={styles.field}>
+                      <label style={{ ...labelStyle, fontWeight: '400' }}>Decimal places</label>
+                      <input type="number" value={param.decimalPlaces} onChange={e => updateSimpleParam(i, 'decimalPlaces', e.target.value)} style={inputStyle} placeholder="1" min="1" max="4" />
+                    </div>
+                  )}
+                </div>
+                <div style={styles.trapBox}>
+                  <label style={{ ...labelStyle, fontWeight: '400' }}>Constraint (optional)</label>
+                  <div style={styles.row}>
+                    <div style={styles.field}>
+                      <select value={param.constraintType} onChange={e => updateSimpleParam(i, 'constraintType', e.target.value)} style={inputStyle}>
+                        <option value="">— none —</option>
+                        <option value="neq">Not equal to</option>
+                        <option value="gt">Greater than</option>
+                        <option value="gte">Greater than or equal to</option>
+                        <option value="lt">Less than</option>
+                        <option value="lte">Less than or equal to</option>
+                        <option value="multiple_of">Multiple of</option>
+                        <option value="factor_of">Factor of</option>
+                      </select>
+                    </div>
+                    {param.constraintType && (
+                      <>
+                        <div style={styles.field}>
+                          <select value={param.constraintTargetType} onChange={e => updateSimpleParam(i, 'constraintTargetType', e.target.value as any)} style={inputStyle}>
+                            <option value="parameter">Another parameter</option>
+                            <option value="value">Fixed value</option>
+                          </select>
+                        </div>
+                        <div style={styles.field}>
+                          {param.constraintTargetType === 'parameter' ? (
+                            <select value={param.constraintTarget} onChange={e => updateSimpleParam(i, 'constraintTarget', e.target.value)} style={inputStyle}>
+                              <option value="">— select —</option>
+                              {simpleParams
+                                .filter((_, j) => j !== i && simpleParams[j].name)
+                                .map((p, j) => (
+                                  <option key={j} value={p.name}>{p.name}</option>
+                                ))}
+                            </select>
+                          ) : (
+                            <input
+                              type="number"
+                              value={param.constraintTarget}
+                              onChange={e => updateSimpleParam(i, 'constraintTarget', e.target.value)}
+                              style={inputStyle}
+                              placeholder="Value"
+                            />
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button onClick={addSimpleParam} style={{ ...secondaryButton, width: 'auto', padding: '8px 16px' }}>
+              + Add parameter
+            </button>
+          </div>
+        ) : (
+          <div style={styles.field}>
+            <label style={labelStyle}>Parameters (JSON)</label>
+            <textarea
+              value={form.parameters}
+              onChange={e => update('parameters', e.target.value)}
+              style={{ ...inputStyle, fontFamily: 'monospace', minHeight: '120px', resize: 'vertical' as const }}
+              placeholder={`{\n  "a": { "type": "integer", "min": 2, "max": 12 },\n  "b": { "type": "integer", "min": 2, "max": 12 }\n}`}
+            />
+          </div>
+        )}
       </div>
 
       {/* Templates */}
       <div style={card}>
         <h2 style={sectionTitle}>Question and answer</h2>
-
         <div style={styles.field}>
           <label style={labelStyle}>Question template (HTML)</label>
           <textarea
@@ -287,7 +511,6 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             placeholder="<p>Find the area of a rectangle with width <strong>{{a}} cm</strong> and height <strong>{{b}} cm</strong>.</p>"
           />
         </div>
-
         <div style={styles.field}>
           <label style={labelStyle}>Answer template</label>
           <input
@@ -298,7 +521,6 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             placeholder="{{a * b}}"
           />
         </div>
-
         <div style={styles.field}>
           <label style={labelStyle}>Explanation (shown after answering)</label>
           <textarea
@@ -317,7 +539,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           Common wrong answers with targeted feedback.
         </p>
         {form.traps.map((trap, i) => (
-          <div key={i} style={{ ...styles.trapBox }}>
+          <div key={i} style={styles.trapBox}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label style={labelStyle}>Trap {i + 1}</label>
               <button
@@ -361,32 +583,52 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         </button>
         {previewError && <p style={errorBox}>{previewError}</p>}
         {preview && (
-          <div style={styles.previewBox}>
-            <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 8px', color: colors.textSecondary }}>
-              Question:
-            </p>
-            <div
-              style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '12px' }}
-              dangerouslySetInnerHTML={{ __html: preview.question }}
-            />
-            <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
-              Correct answer: <span style={{ color: colors.successText }}>{preview.answer}</span>
-            </p>
-            {preview.traps.length > 0 && (
-              <>
-                <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 6px', color: colors.textSecondary }}>
-                  Traps:
-                </p>
-                {preview.traps.map((t, i) => (
-                  <div key={i} style={{ marginBottom: '8px' }}>
-                    <span style={{ color: colors.dangerText, fontWeight: '600' }}>{t.answer}</span>
-                    <span style={{ color: colors.textSecondary, fontSize: font.sm }}> → {t.response}</span>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-        )}
+  <div style={styles.previewBox}>
+    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 8px', color: colors.textSecondary }}>
+      Question:
+    </p>
+    <div
+      style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '12px' }}
+      dangerouslySetInnerHTML={{ __html: preview.question }}
+    />
+    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+      Correct answer: <span
+  style={{ color: colors.successText }}
+  dangerouslySetInnerHTML={{ __html: preview.answer }}
+/>
+    </p>
+    {preview.traps.length > 0 && (
+      <>
+        <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 6px', color: colors.textSecondary }}>
+          Traps:
+        </p>
+        {preview.traps.map((t, i) => (
+         <div key={i} style={{ marginBottom: '8px' }}>
+		  <span
+			style={{ color: colors.dangerText, fontWeight: '600' }}
+			dangerouslySetInnerHTML={{ __html: t.answer }}
+		  />
+		  <span
+			style={{ color: colors.textSecondary, fontSize: font.sm }}
+			dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }}
+		  />
+		</div>
+        ))}
+      </>
+    )}
+    {preview.explanation && (
+      <>
+        <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 4px', color: colors.textSecondary }}>
+          Explanation:
+        </p>
+        <div
+          style={{ fontSize: font.base, color: colors.textPrimary }}
+          dangerouslySetInnerHTML={{ __html: preview.explanation }}
+        />
+      </>
+    )}
+  </div>
+)}
       </div>
 
       {/* Publish */}
@@ -408,18 +650,32 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         </p>
       </div>
 
-      {error && <p style={errorBox}>{error}</p>}
+      {validationError && <p style={errorBox}>{validationError}</p>}
 
-      <button
-        onClick={() => onSave(form)}
-        disabled={saving || form.skill_ids.length === 0 || !form.question_template || !form.answer_template}
-        style={{
-          ...primaryButton,
-          opacity: saving || form.skill_ids.length === 0 || !form.question_template || !form.answer_template ? 0.6 : 1,
-        }}
-      >
-        {saving ? 'Saving...' : 'Save question'}
-      </button>
+{error && <p style={errorBox}>{error}</p>}
+
+<button
+  onClick={() => {
+    setValidationError(null)
+    if (form.skill_ids.length === 0) {
+      setValidationError('Please select at least one skill before saving.')
+      return
+    }
+    if (!form.question_template) {
+      setValidationError('Please enter a question template before saving.')
+      return
+    }
+    if (!form.answer_template) {
+      setValidationError('Please enter an answer template before saving.')
+      return
+    }
+    onSave(form)
+  }}
+  disabled={saving}
+  style={{ ...primaryButton, opacity: saving ? 0.6 : 1 }}
+>
+  {saving ? 'Saving...' : 'Save question'}
+</button>
     </div>
   )
 }
@@ -452,4 +708,20 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: radius.md,
     border: `1px solid ${colors.border}`,
   },
+  toggle: {
+  display: 'flex',
+  borderRadius: radius.md,
+  overflow: 'hidden',
+  border: `1px solid ${colors.borderStrong}`,
+  width: 'fit-content',
+},
+toggleButton: {
+  padding: '6px 20px',
+  border: 'none',
+  fontSize: font.base,
+  fontWeight: '600',
+  cursor: 'pointer',
+  background: 'transparent',
+  whiteSpace: 'nowrap' as const,
+},
 }

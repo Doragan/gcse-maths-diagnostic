@@ -92,6 +92,12 @@ export default function StartScreen({ startDiagnostic }: Props) {
         >
           Give feedback / get in touch
         </button>
+		
+		<Link href="/practice" style={{ textDecoration: 'none' }}>
+		  <button style={primaryButton}>
+			Practice questions
+		  </button>
+		</Link>
       </div>
     </main>
   )

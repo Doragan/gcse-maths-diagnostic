@@ -124,6 +124,12 @@ export default function QuestionsPage() {
         >
           + New question
         </button>
+		<button
+		  onClick={() => router.push('/admin/questions/preview')}
+		  style={{ ...secondaryButton, width: 'auto', padding: '8px 16px' }}
+		>
+		  Preview all
+		</button>
       </div>
 
       {filtered.length === 0 ? (
@@ -221,6 +227,7 @@ export default function QuestionsPage() {
                 >
                   Delete
                 </button>
+				
               </div>
             </div>
           ))}

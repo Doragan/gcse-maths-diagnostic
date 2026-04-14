@@ -13,7 +13,8 @@
     "@supabase/supabase-js": "^2.101.0",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
-    "next": "16.1.6",
+    "katex": "^0.16.45",
+    "next": "^16.2.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "stripe": "^22.0.0",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/katex": "^0.16.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
