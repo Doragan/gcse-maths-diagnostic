@@ -253,7 +253,7 @@ export default function QuestionPage() {
           href="https://ko-fi.com/mathsense"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ fontSize: font.m, color: colors.textHint, textDecoration: 'none' }}
+          style={{ fontSize: font.base, color: colors.textHint, textDecoration: 'none' }}
         >
           If you find Mathsense useful, consider supporting us on Ko-fi
         </a>
