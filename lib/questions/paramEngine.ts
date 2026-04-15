@@ -65,11 +65,11 @@ export function evaluateTemplate(
   template: string,
   generated: Record<string, number>
 ): string {
-  return template.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
+  return template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
     try {
       const fn = new Function(...Object.keys(generated), `return ${expr}`)
       return fn(...Object.values(generated)).toString()
-    } catch {
+    } catch (e) {
       return `[error: ${expr}]`
     }
   })
@@ -80,6 +80,7 @@ export type RenderedQuestion = {
   answer: string
   traps: { answer: string, response: string }[]
   explanation: string
+  generatedValues: Record<string, number>
 }
 
 export function renderQuestion(
@@ -87,9 +88,10 @@ export function renderQuestion(
   answerTemplate: string,
   traps: { answer_template: string, response: string }[],
   explanation: string | null,
-  parameters: Parameters
+  parameters: Parameters,
+  fixedValues?: Record<string, number>
 ): RenderedQuestion {
-  const generated = generateValues(parameters)
+  const generated = fixedValues ?? generateValues(parameters)
   return {
     question: evaluateTemplate(questionTemplate, generated),
     answer: evaluateTemplate(answerTemplate, generated),
@@ -98,5 +100,6 @@ export function renderQuestion(
       response: t.response,
     })),
     explanation: explanation ? evaluateTemplate(explanation, generated) : '',
+    generatedValues: generated,
   }
 }

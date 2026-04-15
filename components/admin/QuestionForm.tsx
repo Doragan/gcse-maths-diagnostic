@@ -6,6 +6,7 @@ import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
 } from '../../lib/styles'
+import { buildOptions } from '../../lib/questions/multipleChoice'
 
 type Trap = {
   answer_template: string
@@ -93,8 +94,9 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   const [simpleParams, setSimpleParams] = useState<SimpleParam[]>(() =>
     parseSimpleParams(initialData?.parameters ?? '{}')
   )
-  
-const [validationError, setValidationError] = useState<string | null>(null)
+  const [useFixedValues, setUseFixedValues] = useState(false)
+  const [fixedValues, setFixedValues] = useState<Record<string, string>>({})
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function update(field: keyof QuestionFormData, value: any) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -180,45 +182,52 @@ const [validationError, setValidationError] = useState<string | null>(null)
   setPreviewError(null)
   try {
     const params = JSON.parse(form.parameters)
-    const generated: Record<string, number> = {}
-    for (const [key, config] of Object.entries(params) as any) {
-      let attempts = 0
-      let value: number = 0
-      do {
-        if (config.type === 'decimal') {
-          const places = config.decimal_places ?? 1
-          const factor = Math.pow(10, places)
-          const min = Math.round(config.min * factor)
-          const max = Math.round(config.max * factor)
-          value = Math.floor(Math.random() * (max - min + 1) + min) / factor
-        } else {
-          value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
-        }
-        attempts++
-        if (!config.constraint || attempts >= 100) break
-        const target = config.constraint.target_type === 'parameter'
-          ? generated[config.constraint.target]
-          : config.constraint.target
-        if (target === undefined) break
-        const satisfied = (() => {
-          switch (config.constraint.type) {
-            case 'neq': return value !== target
-            case 'gt': return value > target
-            case 'gte': return value >= target
-            case 'lt': return value < target
-            case 'lte': return value <= target
-            case 'multiple_of': return target !== 0 && value % target === 0
-            case 'factor_of': return value !== 0 && target % value === 0
-            default: return true
-          }
-        })()
-        if (satisfied) break
-      } while (true)
-      generated[key] = value
-    }
+const generated: Record<string, number> = {}
+
+if (useFixedValues) {
+  for (const [key] of Object.entries(params)) {
+    generated[key] = parseFloat(fixedValues[key] ?? '0')
+	  }
+	} else {
+	  for (const [key, config] of Object.entries(params) as any) {
+		let attempts = 0
+		let value: number = 0
+		do {
+		  if (config.type === 'decimal') {
+			const places = config.decimal_places ?? 1
+			const factor = Math.pow(10, places)
+			const min = Math.round(config.min * factor)
+			const max = Math.round(config.max * factor)
+			value = Math.floor(Math.random() * (max - min + 1) + min) / factor
+		  } else {
+			value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
+		  }
+		  attempts++
+		  if (!config.constraint || attempts >= 100) break
+		  const target = config.constraint.target_type === 'parameter'
+			? generated[config.constraint.target]
+			: config.constraint.target
+		  if (target === undefined) break
+		  const satisfied = (() => {
+			switch (config.constraint.type) {
+			  case 'neq': return value !== target
+			  case 'gt': return value > target
+			  case 'gte': return value >= target
+			  case 'lt': return value < target
+			  case 'lte': return value <= target
+			  case 'multiple_of': return target !== 0 && value % target === 0
+			  case 'factor_of': return value !== 0 && target % value === 0
+			  default: return true
+			}
+		  })()
+		  if (satisfied) break
+		} while (true)
+		generated[key] = value
+	  }
+	}
 
     function evaluate(template: string): string {
-      return template.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
+      return template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
         try {
           const fn = new Function(...Object.keys(generated), `return ${expr}`)
           return fn(...Object.values(generated)).toString()
@@ -235,6 +244,14 @@ const [validationError, setValidationError] = useState<string | null>(null)
       response: evaluate(t.response),
     }))
     const explanation = form.explanation ? evaluate(form.explanation) : ''
+	
+	if (!useFixedValues) {
+	  const newFixed: Record<string, string> = {}
+	  for (const [key, val] of Object.entries(generated)) {
+		newFixed[key] = val.toString()
+	  }
+	  setFixedValues(newFixed)
+	}
 
     setPreview({ question, answer, traps, explanation })
   } catch (e: any) {
@@ -314,13 +331,17 @@ const [validationError, setValidationError] = useState<string | null>(null)
         <h2 style={sectionTitle}>Question details</h2>
         <div style={styles.row}>
           <div style={styles.field}>
-            <label style={labelStyle}>Question type</label>
-            <select value={form.question_type} onChange={e => update('question_type', e.target.value as any)} style={inputStyle}>
-              <option value="numeric">Numeric</option>
-              <option value="exact">Exact text</option>
-              <option value="multiple_choice">Multiple choice</option>
-            </select>
-          </div>
+			  <label style={labelStyle}>Question type</label>
+			  <select
+				value={form.question_type}
+				onChange={e => update('question_type', e.target.value as any)}
+				style={inputStyle}
+			  >
+				<option value="numeric">Numeric</option>
+				<option value="exact">Exact text</option>
+				<option value="multiple_choice">Multiple choice</option>
+			  </select>
+			</div>
           <div style={styles.field}>
             <label style={labelStyle}>Difficulty</label>
             <select value={form.difficulty} onChange={e => update('difficulty', parseInt(e.target.value))} style={inputStyle}>
@@ -576,60 +597,120 @@ const [validationError, setValidationError] = useState<string | null>(null)
       </div>
 
       {/* Preview */}
-      <div style={card}>
-        <h2 style={sectionTitle}>Preview</h2>
-        <button onClick={generatePreview} style={{ ...secondaryButton, width: 'auto', padding: '8px 16px' }}>
-          Generate preview
-        </button>
-        {previewError && <p style={errorBox}>{previewError}</p>}
-        {preview && (
-  <div style={styles.previewBox}>
-    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 8px', color: colors.textSecondary }}>
-      Question:
-    </p>
-    <div
-      style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '12px' }}
-      dangerouslySetInnerHTML={{ __html: preview.question }}
-    />
-    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
-      Correct answer: <span
-  style={{ color: colors.successText }}
-  dangerouslySetInnerHTML={{ __html: preview.answer }}
-/>
-    </p>
-    {preview.traps.length > 0 && (
-      <>
-        <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 6px', color: colors.textSecondary }}>
-          Traps:
-        </p>
-        {preview.traps.map((t, i) => (
-         <div key={i} style={{ marginBottom: '8px' }}>
-		  <span
-			style={{ color: colors.dangerText, fontWeight: '600' }}
-			dangerouslySetInnerHTML={{ __html: t.answer }}
-		  />
-		  <span
-			style={{ color: colors.textSecondary, fontSize: font.sm }}
-			dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }}
-		  />
+	<div style={card}>
+	  <h2 style={sectionTitle}>Preview</h2>
+
+	  {Object.keys(JSON.parse(form.parameters || '{}')).length > 0 && (
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+		  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+			<input
+			  type="checkbox"
+			  id="use_fixed"
+			  checked={useFixedValues}
+			  onChange={e => setUseFixedValues(e.target.checked)}
+			  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+			/>
+			<label htmlFor="use_fixed" style={{ ...labelStyle, cursor: 'pointer', fontWeight: '400' }}>
+			  Use fixed parameter values
+			</label>
+		  </div>
+
+		  {useFixedValues && (
+			<div style={styles.row}>
+			  {Object.entries(JSON.parse(form.parameters || '{}')).map(([key]) => (
+				<div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '80px' }}>
+				  <label style={{ ...labelStyle, fontWeight: '400' }}>{key} =</label>
+				  <input
+					type="number"
+					value={fixedValues[key] ?? ''}
+					onChange={e => setFixedValues(prev => ({ ...prev, [key]: e.target.value }))}
+					style={{ ...inputStyle, padding: '6px 10px' }}
+				  />
+				</div>
+			  ))}
+			</div>
+		  )}
 		</div>
-        ))}
-      </>
-    )}
-    {preview.explanation && (
-      <>
-        <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 4px', color: colors.textSecondary }}>
-          Explanation:
-        </p>
-        <div
-          style={{ fontSize: font.base, color: colors.textPrimary }}
-          dangerouslySetInnerHTML={{ __html: preview.explanation }}
-        />
-      </>
-    )}
-  </div>
-)}
-      </div>
+	  )}
+
+	  <button onClick={generatePreview} style={{ ...secondaryButton, width: 'auto', padding: '8px 16px' }}>
+		Generate preview
+	  </button>
+
+	  {previewError && <p style={errorBox}>{previewError}</p>}
+
+	  {preview && (
+		<div style={styles.previewBox}>
+		  <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 8px', color: colors.textSecondary }}>
+			Question:
+		  </p>
+		  <div
+			style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '12px' }}
+			dangerouslySetInnerHTML={{ __html: preview.question }}
+		  />
+		  <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+			Correct answer:
+		  </p>
+		  <div
+			style={{ fontSize: font.lg, fontWeight: '600', color: colors.successText, marginBottom: '12px' }}
+			dangerouslySetInnerHTML={{ __html: preview.answer }}
+		  />
+		  {form.question_type === 'multiple_choice' && (
+			  <>
+				<p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 6px', color: colors.textSecondary }}>
+				  Options (shuffled):
+				</p>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+				  {buildOptions(preview.answer, preview.traps).map((opt, i) => (
+					<div
+					  key={i}
+					  style={{
+						padding: '10px 14px',
+						borderRadius: radius.md,
+						border: `1px solid ${opt === preview.answer ? colors.successBorder : colors.border}`,
+						background: opt === preview.answer ? colors.successLight : colors.background,
+						fontSize: font.base,
+						color: colors.textPrimary,
+					  }}
+					  dangerouslySetInnerHTML={{ __html: opt }}
+					/>
+				  ))}
+				</div>
+			  </>
+			)}
+		  {preview.traps.length > 0 && (
+			<>
+			  <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 6px', color: colors.textSecondary }}>
+				Traps:
+			  </p>
+			  {preview.traps.map((t, i) => (
+				<div key={i} style={{ marginBottom: '8px' }}>
+				  <span
+					style={{ color: colors.dangerText, fontWeight: '600' }}
+					dangerouslySetInnerHTML={{ __html: t.answer }}
+				  />
+				  <span
+					style={{ color: colors.textSecondary, fontSize: font.sm }}
+					dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }}
+				  />
+				</div>
+			  ))}
+			</>
+		  )}
+		  {preview.explanation && (
+			<>
+			  <p style={{ fontSize: font.base, fontWeight: '600', margin: '12px 0 4px', color: colors.textSecondary }}>
+				Explanation:
+			  </p>
+			  <div
+				style={{ fontSize: font.base, color: colors.textPrimary }}
+				dangerouslySetInnerHTML={{ __html: preview.explanation }}
+			  />
+			</>
+		  )}
+		</div>
+	  )}
+	</div>
 
       {/* Publish */}
       <div style={card}>

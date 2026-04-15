@@ -10,6 +10,7 @@ import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle, errorBox,
 } from '../../../../lib/styles'
+import { buildOptions } from '../../../../lib/questions/multipleChoice'
 
 type Question = {
   id: string
@@ -447,6 +448,29 @@ export default function PreviewPage() {
                           dangerouslySetInnerHTML={{ __html: r.answer }}
                         />
                       </div>
+					  {q.question_type === 'multiple_choice' && r && (
+						  <div>
+							<p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 8px', fontWeight: '600' }}>
+							  Options:
+							</p>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+							  {buildOptions(r.answer, r.traps).map((opt, i) => (
+								<div
+								  key={i}
+								  style={{
+									padding: '10px 14px',
+									borderRadius: radius.md,
+									border: `1px solid ${opt === r.answer ? colors.successBorder : colors.border}`,
+									background: opt === r.answer ? colors.successLight : colors.background,
+									fontSize: font.base,
+									color: colors.textPrimary,
+								  }}
+								  dangerouslySetInnerHTML={{ __html: opt }}
+								/>
+							  ))}
+							</div>
+						  </div>
+						)}
                       {q.tolerance !== null && q.tolerance > 0 && (
                         <div style={styles.answerBox}>
                           <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 4px', fontWeight: '600' }}>Tolerance:</p>

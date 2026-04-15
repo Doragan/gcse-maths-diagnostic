@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import { courses } from '../../../../data/courses'
@@ -12,6 +12,7 @@ import {
   primaryButton, secondaryButton,
 } from '../../../../lib/styles'
 import MathInput from '../../../../components/practice/MathInput'
+import { buildOptions } from '../../../../lib/questions/multipleChoice'
 
 type Question = {
   id: string
@@ -34,10 +35,11 @@ type FeedbackState = {
   explanation: string
 }
 
-export default function QuestionPage() {
+function QuestionPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const searchParams = useSearchParams()
 
   const [question, setQuestion] = useState<Question | null>(null)
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
@@ -45,6 +47,8 @@ export default function QuestionPage() {
   const [feedback, setFeedback] = useState<FeedbackState | null>(null)
   const [loading, setLoading] = useState(true)
   const [tier, setTier] = useState<string>('foundation')
+  const [shareLabel, setShareLabel] = useState('Share this question')
+  const [options, setOptions] = useState<string[]>([])
 
   useEffect(() => {
     const stored = sessionStorage.getItem('practice_tier')
@@ -69,13 +73,32 @@ export default function QuestionPage() {
     }
 
     setQuestion(data)
-    setRendered(renderQuestion(
+
+    // Read fixed values from URL if present
+    const fixedValues: Record<string, number> = {}
+    let hasFixedValues = false
+    if (data.parameters) {
+      for (const key of Object.keys(data.parameters)) {
+        const val = searchParams.get(key)
+        if (val !== null) {
+          fixedValues[key] = parseFloat(val)
+          hasFixedValues = true
+        }
+      }
+    }
+
+    const r = renderQuestion(
       data.question_template,
       data.answer_template,
       data.traps ?? [],
       data.explanation,
-      data.parameters ?? {}
-    ))
+      data.parameters ?? {},
+      hasFixedValues ? fixedValues : undefined
+    )
+    setRendered(r)
+    if (data.question_type === 'multiple_choice') {
+      setOptions(buildOptions(r.answer, r.traps))
+    }
     setLoading(false)
   }
 
@@ -95,6 +118,34 @@ export default function QuestionPage() {
       message: result.message,
       explanation: rendered.explanation,
     })
+  }
+
+  function handleShare() {
+    if (!rendered) return
+    const urlParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(rendered.generatedValues)) {
+      urlParams.set(key, value.toString())
+    }
+    const url = `${window.location.origin}/practice/question/${id}?${urlParams.toString()}`
+
+    const text = feedback?.correct
+      ? 'I just answered this GCSE Maths question correctly on Mathsense — can you?'
+      : 'I got stuck on this GCSE Maths question on Mathsense — can you help?'
+
+    const isMobile = navigator.maxTouchPoints > 0
+
+    if (isMobile && navigator.share) {
+      navigator.share({
+        title: 'GCSE Maths question — Mathsense',
+        text,
+        url,
+      })
+    } else {
+      const shareText = `${text}\n\n${url}`
+      navigator.clipboard.writeText(shareText)
+      setShareLabel('Link copied!')
+      setTimeout(() => setShareLabel('Share this question'), 2000)
+    }
   }
 
   async function nextQuestion() {
@@ -125,13 +176,17 @@ export default function QuestionPage() {
     if (!question) return
     setAnswer('')
     setFeedback(null)
-    setRendered(renderQuestion(
+    const r = renderQuestion(
       question.question_template,
       question.answer_template,
       question.traps ?? [],
       question.explanation,
       question.parameters ?? {}
-    ))
+    )
+    setRendered(r)
+    if (question.question_type === 'multiple_choice') {
+      setOptions(buildOptions(r.answer, r.traps))
+    }
   }
 
   if (loading || !rendered || !question) {
@@ -177,22 +232,57 @@ export default function QuestionPage() {
 
       {/* Answer input */}
       {!feedback && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <MathInput
-            value={answer}
-            onChange={setAnswer}
-            onSubmit={handleSubmit}
-            placeholder="Type your answer..."
-          />
-          <button
-            onClick={handleSubmit}
-            disabled={!answer.trim()}
-            style={{ ...primaryButton, opacity: !answer.trim() ? 0.6 : 1 }}
-          >
-            Submit answer
-          </button>
-        </div>
-      )}
+		  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+			{question.question_type === 'multiple_choice' ? (
+			  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+				{options.map((opt, i) => (
+				  <button
+					key={i}
+					onClick={() => {
+					  const result = checkAnswer(
+						opt,
+						rendered.answer,
+						question.answer_type,
+						question.tolerance,
+						rendered.traps,
+					  )
+					  setAnswer(opt)
+					  setFeedback({
+						correct: result.correct,
+						message: result.message,
+						explanation: rendered.explanation,
+					  })
+					}}
+					style={{
+					  ...secondaryButton,
+					  textAlign: 'left' as const,
+					  padding: '14px 16px',
+					  fontSize: font.base,
+					  lineHeight: '1.5',
+					}}
+					dangerouslySetInnerHTML={{ __html: opt }}
+				  />
+				))}
+			  </div>
+			) : (
+			  <>
+				<MathInput
+				  value={answer}
+				  onChange={setAnswer}
+				  onSubmit={handleSubmit}
+				  placeholder="Type your answer..."
+				/>
+				<button
+				  onClick={handleSubmit}
+				  disabled={!answer.trim()}
+				  style={{ ...primaryButton, opacity: !answer.trim() ? 0.6 : 1 }}
+				>
+				  Submit answer
+				</button>
+			  </>
+			)}
+		  </div>
+		)}
 
       {/* Feedback */}
       {feedback && (
@@ -234,16 +324,19 @@ export default function QuestionPage() {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            {!feedback.correct && (
-              <button onClick={tryAgain} style={{ ...secondaryButton, flex: 1 }}>
-                Try again
-              </button>
-            )}
-            <button onClick={nextQuestion} style={{ ...primaryButton, flex: 1 }}>
-              Next question →
-            </button>
-          </div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+			  {!feedback.correct && (
+				<button onClick={tryAgain} style={{ ...secondaryButton, flex: 1 }}>
+				  Try again
+				</button>
+			  )}
+			  <button onClick={nextQuestion} style={{ ...primaryButton, flex: 1 }}>
+				Next question →
+			  </button>
+			  <button onClick={handleShare} style={{ ...secondaryButton, flex: 1 }}>
+				{shareLabel}
+			  </button>
+			</div>
         </div>
       )}
 
@@ -260,6 +353,14 @@ export default function QuestionPage() {
       </div>
 
     </main>
+  )
+}
+
+export default function QuestionPageWrapper() {
+  return (
+    <Suspense fallback={<main style={{ padding: '24px' }}><p>Loading...</p></main>}>
+      <QuestionPage />
+    </Suspense>
   )
 }
 
