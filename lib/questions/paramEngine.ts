@@ -1,16 +1,54 @@
+export type ConstraintConfig = {
+  type: 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'multiple_of' | 'factor_of' | 'not_zero' | 'is_prime' | 'is_even' | 'is_odd'
+  target?: string | number
+  target_type?: 'parameter' | 'value'
+}
+
 export type ParameterConfig = {
   type: 'integer' | 'decimal'
   min: number
   max: number
   decimal_places?: number
-  constraint?: {
-    type: 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'multiple_of' | 'factor_of'
-    target: string | number
-    target_type: 'parameter' | 'value'
-  }
+  constraint?: ConstraintConfig
+  constraints?: ConstraintConfig[]
 }
 
 export type Parameters = Record<string, ParameterConfig>
+
+export function isPrime(n: number): boolean {
+  if (n < 2) return false
+  if (n === 2) return true
+  if (n % 2 === 0) return false
+  for (let i = 3; i <= Math.sqrt(n); i += 2) {
+    if (n % i === 0) return false
+  }
+  return true
+}
+
+function checkConstraint(
+  constraint: ConstraintConfig,
+  value: number,
+  generated: Record<string, number>
+): boolean {
+  const target = constraint.target_type === 'parameter'
+    ? generated[constraint.target as string]
+    : constraint.target as number
+
+  switch (constraint.type) {
+    case 'neq': return value !== target
+    case 'gt': return value > target
+    case 'gte': return value >= target
+    case 'lt': return value < target
+    case 'lte': return value <= target
+    case 'multiple_of': return target !== 0 && value % target === 0
+    case 'factor_of': return value !== 0 && (target as number) % value === 0
+    case 'not_zero': return value !== 0
+    case 'is_even': return value % 2 === 0
+    case 'is_odd': return value % 2 !== 0
+    case 'is_prime': return isPrime(value)
+    default: return true
+  }
+}
 
 export function generateValues(parameters: Parameters): Record<string, number> {
   const generated: Record<string, number> = {}
@@ -18,6 +56,12 @@ export function generateValues(parameters: Parameters): Record<string, number> {
   for (const [key, config] of Object.entries(parameters)) {
     let attempts = 0
     let value: number = 0
+
+    // Build full list of constraints from both single and array forms
+    const constraintList: ConstraintConfig[] = [
+      ...(config.constraint ? [config.constraint] : []),
+      ...(config.constraints ?? []),
+    ]
 
     do {
       if (config.type === 'decimal') {
@@ -31,28 +75,11 @@ export function generateValues(parameters: Parameters): Record<string, number> {
       }
 
       attempts++
-      if (!config.constraint || attempts >= 100) break
 
-      const target = config.constraint.target_type === 'parameter'
-        ? generated[config.constraint.target as string]
-        : config.constraint.target as number
+      if (constraintList.length === 0 || attempts >= 100) break
 
-      if (target === undefined) break
-
-      const satisfied = (() => {
-        switch (config.constraint!.type) {
-          case 'neq': return value !== target
-          case 'gt': return value > target
-          case 'gte': return value >= target
-          case 'lt': return value < target
-          case 'lte': return value <= target
-          case 'multiple_of': return target !== 0 && value % target === 0
-          case 'factor_of': return value !== 0 && (target as number) % value === 0
-          default: return true
-        }
-      })()
-
-      if (satisfied) break
+      const allSatisfied = constraintList.every(c => checkConstraint(c, value, generated))
+      if (allSatisfied) break
     } while (true)
 
     generated[key] = value
@@ -69,7 +96,7 @@ export function evaluateTemplate(
     try {
       const fn = new Function(...Object.keys(generated), `return ${expr}`)
       return fn(...Object.values(generated)).toString()
-    } catch (e) {
+    } catch {
       return `[error: ${expr}]`
     }
   })

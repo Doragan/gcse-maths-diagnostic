@@ -149,12 +149,12 @@ function QuestionPage() {
   }
 
   async function nextQuestion() {
-    const storedTier = sessionStorage.getItem('practice_tier') ?? 'foundation'
     const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
-    const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
-    const skillIds = storedTier === 'foundation' ? foundation
-      : storedTier === 'higher' ? higher
-      : [...new Set([...foundation, ...higher])]
+	const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
+	const higherOnly = higher.filter(id => !foundation.includes(id))
+	const skillIds = storedTier === 'foundation' ? foundation
+	  : storedTier === 'higher' ? higherOnly
+	  : [...new Set([...foundation, ...higher])]
 
     const { data } = await supabase
       .from('questions')

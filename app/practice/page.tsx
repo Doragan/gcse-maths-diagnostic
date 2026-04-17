@@ -34,13 +34,14 @@ export default function PracticePage() {
     setLoading(false)
   }
 
-  function getSkillIds(t: Tier): string[] {
-    const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
-    const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
-    if (t === 'foundation') return foundation
-    if (t === 'higher') return higher
-    return [...new Set([...foundation, ...higher])]
-  }
+	function getSkillIds(t: Tier): string[] {
+	  const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
+	  const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
+	  const higherOnly = higher.filter(id => !foundation.includes(id))
+	  if (t === 'foundation') return foundation
+	  if (t === 'higher') return higherOnly
+	  return [...new Set([...foundation, ...higher])]
+	}
 
   async function startPractice() {
   sessionStorage.setItem('practice_tier', tier)

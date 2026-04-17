@@ -7,6 +7,7 @@ import {
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
 } from '../../lib/styles'
 import { buildOptions } from '../../lib/questions/multipleChoice'
+import { generateValues, evaluateTemplate } from '../../lib/questions/paramEngine'
 
 type Trap = {
   answer_template: string
@@ -164,15 +165,21 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
       if (p.type === 'decimal') {
         entry.decimal_places = parseInt(p.decimalPlaces) || 1
       }
-      if (p.constraintType && p.constraintTarget) {
-        entry.constraint = {
-          type: p.constraintType,
-          target: p.constraintTargetType === 'value'
-            ? parseFloat(p.constraintTarget)
-            : p.constraintTarget,
-          target_type: p.constraintTargetType,
-        }
-      }
+      const noTargetConstraints = ['not_zero', 'is_prime', 'is_even', 'is_odd']
+
+		if (p.constraintType) {
+		  if (noTargetConstraints.includes(p.constraintType)) {
+			entry.constraint = { type: p.constraintType }
+		  } else if (p.constraintTarget) {
+			entry.constraint = {
+			  type: p.constraintType,
+			  target: p.constraintTargetType === 'value'
+				? parseFloat(p.constraintTarget)
+				: p.constraintTarget,
+			  target_type: p.constraintTargetType,
+			}
+		  }
+		}
       json[p.name] = entry
     }
     update('parameters', JSON.stringify(json, null, 2))
@@ -181,79 +188,28 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   function generatePreview() {
   setPreviewError(null)
   try {
-    const params = JSON.parse(form.parameters)
-const generated: Record<string, number> = {}
+	const params = JSON.parse(form.parameters)
+	const generated: Record<string, number> = useFixedValues
+	  ? Object.fromEntries(
+		  Object.keys(params).map(key => [key, parseFloat(fixedValues[key] ?? '0')])
+		)
+	  : generateValues(params)
 
-if (useFixedValues) {
-  for (const [key] of Object.entries(params)) {
-    generated[key] = parseFloat(fixedValues[key] ?? '0')
-	  }
-	} else {
-	  for (const [key, config] of Object.entries(params) as any) {
-		let attempts = 0
-		let value: number = 0
-		do {
-		  if (config.type === 'decimal') {
-			const places = config.decimal_places ?? 1
-			const factor = Math.pow(10, places)
-			const min = Math.round(config.min * factor)
-			const max = Math.round(config.max * factor)
-			value = Math.floor(Math.random() * (max - min + 1) + min) / factor
-		  } else {
-			value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
-		  }
-		  attempts++
-		  if (!config.constraint || attempts >= 100) break
-		  const target = config.constraint.target_type === 'parameter'
-			? generated[config.constraint.target]
-			: config.constraint.target
-		  if (target === undefined) break
-		  const satisfied = (() => {
-			switch (config.constraint.type) {
-			  case 'neq': return value !== target
-			  case 'gt': return value > target
-			  case 'gte': return value >= target
-			  case 'lt': return value < target
-			  case 'lte': return value <= target
-			  case 'multiple_of': return target !== 0 && value % target === 0
-			  case 'factor_of': return value !== 0 && target % value === 0
-			  default: return true
-			}
-		  })()
-		  if (satisfied) break
-		} while (true)
-		generated[key] = value
-	  }
-	}
+    const question = evaluateTemplate(form.question_template, generated)
+	const answer = evaluateTemplate(form.answer_template, generated)
+	const traps = form.traps.map(t => ({
+	  answer: evaluateTemplate(t.answer_template, generated),
+	  response: evaluateTemplate(t.response, generated),
+	}))
+	const explanation = form.explanation ? evaluateTemplate(form.explanation, generated) : ''
 
-    function evaluate(template: string): string {
-      return template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
-        try {
-          const fn = new Function(...Object.keys(generated), `return ${expr}`)
-          return fn(...Object.values(generated)).toString()
-        } catch {
-          throw new Error(`Could not evaluate: ${expr}`)
-        }
-      })
-    }
-
-    const question = evaluate(form.question_template)
-    const answer = evaluate(form.answer_template)
-    const traps = form.traps.map(t => ({
-      answer: evaluate(t.answer_template),
-      response: evaluate(t.response),
-    }))
-    const explanation = form.explanation ? evaluate(form.explanation) : ''
-	
 	if (!useFixedValues) {
-	  const newFixed: Record<string, string> = {}
-	  for (const [key, val] of Object.entries(generated)) {
-		newFixed[key] = val.toString()
-	  }
-	  setFixedValues(newFixed)
+	  setFixedValues(Object.fromEntries(
+		Object.entries(generated).map(([k, v]) => [k, v.toString()])
+	  ))
 	}
 
-    setPreview({ question, answer, traps, explanation })
+	setPreview({ question, answer, traps, explanation })
   } catch (e: any) {
     setPreviewError(e.message)
   }
@@ -458,47 +414,55 @@ if (useFixedValues) {
                   <label style={{ ...labelStyle, fontWeight: '400' }}>Constraint (optional)</label>
                   <div style={styles.row}>
                     <div style={styles.field}>
-                      <select value={param.constraintType} onChange={e => updateSimpleParam(i, 'constraintType', e.target.value)} style={inputStyle}>
-                        <option value="">— none —</option>
-                        <option value="neq">Not equal to</option>
-                        <option value="gt">Greater than</option>
-                        <option value="gte">Greater than or equal to</option>
-                        <option value="lt">Less than</option>
-                        <option value="lte">Less than or equal to</option>
-                        <option value="multiple_of">Multiple of</option>
-                        <option value="factor_of">Factor of</option>
-                      </select>
+                      <select
+						  value={param.constraintType}
+						  onChange={e => updateSimpleParam(i, 'constraintType', e.target.value)}
+						  style={inputStyle}
+						>
+						  <option value="">— none —</option>
+						  <option value="neq">Not equal to</option>
+						  <option value="gt">Greater than</option>
+						  <option value="gte">Greater than or equal to</option>
+						  <option value="lt">Less than</option>
+						  <option value="lte">Less than or equal to</option>
+						  <option value="multiple_of">Multiple of</option>
+						  <option value="factor_of">Factor of</option>
+						  <option value="not_zero">Not zero</option>
+						  <option value="is_prime">Is prime</option>
+						  <option value="is_even">Is even</option>
+						  <option value="is_odd">Is odd</option>
+						</select>
                     </div>
-                    {param.constraintType && (
-                      <>
-                        <div style={styles.field}>
-                          <select value={param.constraintTargetType} onChange={e => updateSimpleParam(i, 'constraintTargetType', e.target.value as any)} style={inputStyle}>
-                            <option value="parameter">Another parameter</option>
-                            <option value="value">Fixed value</option>
-                          </select>
-                        </div>
-                        <div style={styles.field}>
-                          {param.constraintTargetType === 'parameter' ? (
-                            <select value={param.constraintTarget} onChange={e => updateSimpleParam(i, 'constraintTarget', e.target.value)} style={inputStyle}>
-                              <option value="">— select —</option>
-                              {simpleParams
-                                .filter((_, j) => j !== i && simpleParams[j].name)
-                                .map((p, j) => (
-                                  <option key={j} value={p.name}>{p.name}</option>
-                                ))}
-                            </select>
-                          ) : (
-                            <input
-                              type="number"
-                              value={param.constraintTarget}
-                              onChange={e => updateSimpleParam(i, 'constraintTarget', e.target.value)}
-                              style={inputStyle}
-                              placeholder="Value"
-                            />
-                          )}
-                        </div>
-                      </>
-                    )}
+                    {param.constraintType && !['not_zero', 'is_prime', 'is_even', 'is_odd'].includes(param.constraintType) && (
+					  <>
+						<div style={styles.field}>
+						  <select value={param.constraintTargetType} onChange={e => updateSimpleParam(i, 'constraintTargetType', e.target.value as any)} style={inputStyle}>
+							<option value="parameter">Another parameter</option>
+							<option value="value">Fixed value</option>
+						  </select>
+						</div>
+						<div style={styles.field}>
+						  {param.constraintTargetType === 'parameter' ? (
+							<select value={param.constraintTarget} onChange={e => updateSimpleParam(i, 'constraintTarget', e.target.value)} style={inputStyle}>
+							  <option value="">— select —</option>
+							  {simpleParams
+								.filter((_, j) => j !== i && simpleParams[j].name)
+								.map((p, j) => (
+								  <option key={j} value={p.name}>{p.name}</option>
+								))}
+							</select>
+						  ) : (
+							<input
+							  type="number"
+							  value={param.constraintTarget}
+							  onChange={e => updateSimpleParam(i, 'constraintTarget', e.target.value)}
+							  style={inputStyle}
+							  placeholder="Value"
+							/>
+						  )}
+						</div>
+					  </>
+					)}
                   </div>
                 </div>
               </div>
