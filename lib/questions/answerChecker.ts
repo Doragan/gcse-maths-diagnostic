@@ -4,6 +4,24 @@ export type CheckResult = {
   message: string
 }
 
+function stripUnits(text: string): string {
+  return text
+    .replace(/\bg\/cm[³3]\b/gi, '')
+    .replace(/\b(mph|km\/h|m\/s|g\/ml|kg|km|cm|mm|ml|mg|hr|hrs|min|mins|sec|secs|hours|minutes|seconds|miles|mile|metres|metre|meters|meter|grams|gram|litres|litre|liters|liter)\b/gi, '')
+    .replace(/£/g, '')
+    .replace(/\$/g, '')
+    .replace(/€/g, '')
+    .replace(/%/g, '')
+    .replace(/(\d+(\.\d+)?)\s*(m|g|s)\b/gi, '$1')
+}
+
+const UNIT_PATTERN = /\b(mph|km\/h|m\/s|kg|km|cm|mm|ml|mg|hr|hrs|min|mins|sec|secs|hours|minutes|seconds|miles|mile|metres|metre|meters|meter|grams|gram|litres|litre|liters|liter)\b|g\/cm[³3]|g\/ml|£|\$|€|%|(\d+(\.\d+)?)\s*(m|g|s)\b/gi
+
+function containsUnits(text: string): boolean {
+  const stripped = text.replace(/<[^>]+>/g, '').trim()
+  return UNIT_PATTERN.test(stripped)
+}
+
 function normalise(value: string): string {
   return value
     .trim()
@@ -72,6 +90,34 @@ export function checkAnswer(
 
   if (isCorrect) {
     return { correct: true, trap: null, message: 'Correct!' }
+  }
+
+  // Check if student answer is correct except for missing units
+  const correctHasUnits = containsUnits(correctAnswer)
+  const studentHasUnits = containsUnits(studentAnswer)
+
+  if (correctHasUnits && !studentHasUnits) {
+    const normStudentStripped = normalise(stripUnits(studentAnswer))
+    const normCorrectStripped = normalise(stripUnits(correctAnswer))
+    const matchesWithoutUnits = (() => {
+      switch (answerType) {
+        case 'numeric':
+          return numericMatch(normStudentStripped, normCorrectStripped, tol)
+        case 'fraction':
+          return numericMatch(normStudentStripped, normCorrectStripped, 0.001)
+        case 'expression':
+        case 'exact':
+          return normStudentStripped === normCorrectStripped
+      }
+    })()
+
+    if (matchesWithoutUnits) {
+      return {
+        correct: true,
+        trap: null,
+        message: 'Correct! Remember to include units in your answer — you can lose marks in exams for missing units.',
+      }
+    }
   }
 
   for (const trap of traps) {
