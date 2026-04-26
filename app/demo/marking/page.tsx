@@ -223,7 +223,7 @@ function classFailCounts(students: string[], marks: Record<string, StudentMarks>
   QS.forEach(q => { c[q.id] = 0 })
   students.forEach(n => QS.forEach(q => {
     const v = marks[n]?.[q.id]
-    if ((v === '' || v === undefined ? 0 : v) < q.marks) c[q.id]++
+    if ((Number(v) || 0) < q.marks) c[q.id]++
   }))
   return c
 }
@@ -231,7 +231,7 @@ function classFailCounts(students: string[], marks: Record<string, StudentMarks>
 interface RetryQuestion { skill: string; question: string; topic: string; origLabel: string }
 
 function retryQs(sm: StudentMarks, cfc: Record<string, number>, max = 4): RetryQuestion[] {
-  const failed = QS.filter(q => !q.visual && B_SET[q.id] && (sm[q.id] === '' ? 0 : (sm[q.id] ?? 0)) < q.marks)
+  const failed = QS.filter(q => !q.visual && B_SET[q.id] && (Number(sm[q.id]) || 0) < q.marks)
   failed.sort((a, b) => (cfc[b.id] || 0) - (cfc[a.id] || 0) || b.marks - a.marks)
   return failed.slice(0, max).map(q => ({
     ...B_SET[q.id],
