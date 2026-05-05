@@ -202,40 +202,183 @@ const RECENT_ACTIVITY = [
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function pc(s: number, a: number) { return a > 0 ? Math.round(s / a * 100) : 0 }
-function bCol(p: number) { return p >= 75 ? colors.success : p >= 40 ? colors.warning : colors.danger }
-function bBg(p: number) { return p >= 75 ? colors.successLight : p >= 40 ? colors.warningLight : colors.dangerLight }
-function bTxt(p: number) { return p >= 75 ? colors.successText : p >= 40 ? colors.warningText : colors.dangerText }
-function bBrd(p: number) { return p >= 75 ? colors.successBorder : p >= 40 ? colors.warningBorder : colors.dangerBorder }
+function bCol(p: number) { return p >= 70 ? colors.success : p >= 40 ? colors.warning : colors.danger }
+function bBg(p: number) { return p >= 70 ? colors.successLight : p >= 40 ? colors.warningLight : colors.dangerLight }
+function bTxt(p: number) { return p >= 70 ? colors.successText : p >= 40 ? colors.warningText : colors.dangerText }
+function bBrd(p: number) { return p >= 70 ? colors.successBorder : p >= 40 ? colors.warningBorder : colors.dangerBorder }
+function trendIcon(t: 'up' | 'down' | 'same' | 'new') { return t === 'up' ? '↑' : t === 'down' ? '↓' : t === 'same' ? '→' : '•' }
+function trendCol(t: 'up' | 'down' | 'same' | 'new') { return t === 'up' ? colors.success : t === 'down' ? colors.danger : colors.textHint }
 
-// Get latest % for a topic across all assessments
-function latestTopicPct(topicId: TopicId): number | null {
-  for (const a of ASSESSMENTS) {
-    const d = a.topics[topicId]
-    if (d && d.avail > 0) return pc(d.scored, d.avail)
-  }
-  return null
+// ─── Skill Mastery (aggregated across all assessments, weighted recent) ──────
+interface MasteryPoint {
+  date: string
+  label: string // e.g. "Dec 25", "Feb 26"
+  pct: number
 }
 
-// Get history of a topic (oldest first)
-function topicHistory(topicId: TopicId): { date: string; pct: number }[] {
-  return ASSESSMENTS
-    .filter(a => { const d = a.topics[topicId]; return d && d.avail > 0 })
-    .map(a => { const d = a.topics[topicId]!; return { date: a.date, pct: pc(d.scored, d.avail) } })
-    .reverse()
+const MASTERY_HISTORY: Record<TopicId, MasteryPoint[]> = {
+  number: [
+    { date: '2025-10-01', label: 'Oct 25', pct: 35 },
+    { date: '2025-12-12', label: 'Dec 25', pct: 48 },
+    { date: '2026-02-06', label: 'Feb 26', pct: 56 },
+    { date: '2026-03-20', label: 'Mar 26', pct: 72 },
+  ],
+  algebra: [
+    { date: '2025-10-01', label: 'Oct 25', pct: 18 },
+    { date: '2025-12-12', label: 'Dec 25', pct: 25 },
+    { date: '2026-02-06', label: 'Feb 26', pct: 32 },
+    { date: '2026-03-20', label: 'Mar 26', pct: 38 },
+  ],
+  shape: [
+    { date: '2025-12-12', label: 'Dec 25', pct: 29 },
+    { date: '2026-01-23', label: 'Jan 26', pct: 42 },
+    { date: '2026-02-06', label: 'Feb 26', pct: 45 },
+  ],
+  ratio: [
+    { date: '2025-10-01', label: 'Oct 25', pct: 30 },
+    { date: '2025-12-12', label: 'Dec 25', pct: 31 },
+    { date: '2026-02-06', label: 'Feb 26', pct: 43 },
+    { date: '2026-03-20', label: 'Mar 26', pct: 68 },
+  ],
+  probdata: [
+    { date: '2025-12-12', label: 'Dec 25', pct: 40 },
+    { date: '2026-02-06', label: 'Feb 26', pct: 40 },
+    { date: '2026-03-20', label: 'Mar 26', pct: 62 },
+  ],
 }
 
-function topicTrend(topicId: TopicId): 'up' | 'down' | 'same' | 'new' {
-  const hist = topicHistory(topicId)
+// Overall mastery is the average of the latest point across all topics
+function overallMastery(): number {
+  const latests = TOPICS.map(tp => {
+    const hist = MASTERY_HISTORY[tp.id]
+    return hist.length > 0 ? hist[hist.length - 1].pct : 0
+  })
+  return Math.round(latests.reduce((s, v) => s + v, 0) / latests.length)
+}
+
+function prevOverallMastery(): number | null {
+  const prevs = TOPICS.map(tp => {
+    const hist = MASTERY_HISTORY[tp.id]
+    return hist.length > 1 ? hist[hist.length - 2].pct : null
+  }).filter(v => v !== null) as number[]
+  return prevs.length > 0 ? Math.round(prevs.reduce((s, v) => s + v, 0) / prevs.length) : null
+}
+
+function currentMastery(topicId: TopicId): number {
+  const hist = MASTERY_HISTORY[topicId]
+  return hist.length > 0 ? hist[hist.length - 1].pct : 0
+}
+
+function masteryTrend(topicId: TopicId): 'up' | 'down' | 'same' | 'new' {
+  const hist = MASTERY_HISTORY[topicId]
   if (hist.length < 2) return 'new'
   const latest = hist[hist.length - 1].pct
   const prev = hist[hist.length - 2].pct
-  if (latest > prev + 5) return 'up'
-  if (latest < prev - 5) return 'down'
+  if (latest > prev + 3) return 'up'
+  if (latest < prev - 3) return 'down'
   return 'same'
 }
 
-function trendIcon(t: 'up' | 'down' | 'same' | 'new') { return t === 'up' ? '↑' : t === 'down' ? '↓' : t === 'same' ? '→' : '•' }
-function trendCol(t: 'up' | 'down' | 'same' | 'new') { return t === 'up' ? colors.success : t === 'down' ? colors.danger : colors.textHint }
+function masteryChange(topicId: TopicId): number | null {
+  const hist = MASTERY_HISTORY[topicId]
+  if (hist.length < 2) return null
+  return hist[hist.length - 1].pct - hist[hist.length - 2].pct
+}
+
+// ─── Mastery Chart (single overall mastery line with time axis) ──────────────
+function MasteryChart({ width = 600, height = 220 }: { width?: number; height?: number }) {
+  // Build overall mastery at each unique date by averaging all topics that have data at that point
+  const allDates: string[] = []
+  const allLabels: Record<string, string> = {}
+  TOPICS.forEach(tp => {
+    MASTERY_HISTORY[tp.id].forEach(p => {
+      if (!allDates.includes(p.date)) {
+        allDates.push(p.date)
+        allLabels[p.date] = p.label
+      }
+    })
+  })
+  allDates.sort()
+
+  const overallPoints = allDates.map(date => {
+    const values: number[] = []
+    TOPICS.forEach(tp => {
+      // Find the latest value for this topic at or before this date
+      const hist = MASTERY_HISTORY[tp.id]
+      let latest: number | null = null
+      for (const p of hist) {
+        if (p.date <= date) latest = p.pct
+      }
+      if (latest !== null) values.push(latest)
+    })
+    return { date, label: allLabels[date], pct: values.length > 0 ? Math.round(values.reduce((s, v) => s + v, 0) / values.length) : 0 }
+  })
+
+  const padL = 38
+  const padR = 20
+  const padT = 20
+  const padB = 36
+  const innerW = width - padL - padR
+  const innerH = height - padT - padB
+
+  function dateX(idx: number): number {
+    return padL + (overallPoints.length > 1 ? (idx / (overallPoints.length - 1)) * innerW : innerW / 2)
+  }
+
+  function pctY(pct: number): number {
+    return padT + innerH - (pct / 100) * innerH
+  }
+
+  const yTicks = [0, 25, 50, 75, 100]
+  const coords = overallPoints.map((p, i) => ({ x: dateX(i), y: pctY(p.pct) }))
+  const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ')
+  const areaPath = `${linePath} L ${coords[coords.length - 1].x} ${padT + innerH} L ${coords[0].x} ${padT + innerH} Z`
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block', width: '100%', height: 'auto' }}>
+      <defs>
+        <linearGradient id="mastery-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={colors.primary} stopOpacity="0.15" />
+          <stop offset="100%" stopColor={colors.primary} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+
+      {/* Grid lines */}
+      {yTicks.map(tick => (
+        <g key={tick}>
+          <line x1={padL} y1={pctY(tick)} x2={width - padR} y2={pctY(tick)} stroke={colors.border} strokeWidth="1" strokeDasharray={tick === 0 ? '' : '4 3'} />
+          <text x={padL - 6} y={pctY(tick) + 4} textAnchor="end" fontSize="10" fill={colors.textHint} fontFamily="inherit">{tick}%</text>
+        </g>
+      ))}
+
+      {/* X axis labels and ticks */}
+      {overallPoints.map((p, i) => (
+        <g key={p.date}>
+          <line x1={dateX(i)} y1={padT + innerH} x2={dateX(i)} y2={padT + innerH + 4} stroke={colors.border} strokeWidth="1" />
+          <text x={dateX(i)} y={height - 8} textAnchor="middle" fontSize="10" fill={colors.textSecondary} fontFamily="inherit">
+            {p.label}
+          </text>
+        </g>
+      ))}
+
+      {/* Filled area */}
+      <path d={areaPath} fill="url(#mastery-gradient)" />
+
+      {/* Line */}
+      <path d={linePath} fill="none" stroke={colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+      {/* Data points with labels */}
+      {coords.map((c, i) => (
+        <g key={i}>
+          <circle cx={c.x} cy={c.y} r={i === coords.length - 1 ? 5 : 3.5} fill={i === coords.length - 1 ? colors.primary : '#fff'} stroke={colors.primary} strokeWidth="2" />
+          <text x={c.x} y={c.y - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill={colors.primary} fontFamily="inherit">
+            {overallPoints[i].pct}%
+          </text>
+        </g>
+      ))}
+    </svg>
+  )
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 export default function StudentDashboard() {
@@ -244,13 +387,11 @@ export default function StudentDashboard() {
   const [expandedTopic, setExpandedTopic] = useState<TopicId | null>(null)
   const [assessmentFilter, setAssessmentFilter] = useState<'all' | AssessmentType>('all')
 
-  const latestExam = ASSESSMENTS.find(a => a.type === 'exam')!
-  const latestPct = pc(latestExam.score, latestExam.total)
-  const prevExam = ASSESSMENTS.filter(a => a.type === 'exam')[1]
-  const prevPct = prevExam ? pc(prevExam.score, prevExam.total) : null
-  const improving = prevPct !== null && latestPct > prevPct
+  const currentOverall = overallMastery()
+  const prevOverall = prevOverallMastery()
+  const improving = prevOverall !== null && currentOverall > prevOverall
 
-  const topicScores = TOPICS.map(tp => ({ ...tp, pct: latestTopicPct(tp.id) })).filter(t => t.pct !== null) as (typeof TOPICS[number] & { pct: number })[]
+  const topicScores = TOPICS.map(tp => ({ ...tp, pct: currentMastery(tp.id) }))
   const strongestTopic = [...topicScores].sort((a, b) => b.pct - a.pct)[0]
   const weakestTopic = [...topicScores].sort((a, b) => a.pct - b.pct)[0]
 
@@ -299,10 +440,10 @@ export default function StudentDashboard() {
                 Welcome back, {STUDENT.name} 👋
               </h2>
               <p style={{ fontSize: font.md, color: colors.textSecondary, margin: 0, lineHeight: 1.6 }}>
-                {improving
-                  ? `Your exam score improved from ${prevPct}% to ${latestPct}% — great progress! `
-                  : `You scored ${latestPct}% on your latest exam. `}
-                {strongestTopic && `You're strongest in ${strongestTopic.label}. `}
+                {improving && prevOverall !== null
+                  ? `Your overall mastery has improved from ${prevOverall}% to ${currentOverall}% — great progress! `
+                  : `Your overall mastery is ${currentOverall}%. `}
+                {strongestTopic && `You're strongest in ${strongestTopic.label} (${strongestTopic.pct}%). `}
                 {weakestTopic && weakestTopic.pct < 50 && `Focus your revision on ${weakestTopic.label} to improve.`}
               </p>
               {pendingHomework.length > 0 && (
@@ -313,11 +454,16 @@ export default function StudentDashboard() {
             </div>
             <div style={{
               fontSize: font['2xl'], fontWeight: '700', borderRadius: radius.lg, padding: '8px 20px',
-              background: bBg(latestPct), color: bTxt(latestPct), border: `1px solid ${bBrd(latestPct)}`,
+              background: bBg(currentOverall), color: bTxt(currentOverall), border: `1px solid ${bBrd(currentOverall)}`,
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, marginBottom: 2 }}>Latest Exam</div>
-              {latestPct}%
+              <div style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, marginBottom: 2 }}>Overall Mastery</div>
+              {currentOverall}%
+              {improving && prevOverall !== null && (
+                <div style={{ fontSize: font.sm, fontWeight: '600', color: colors.success, marginTop: 2 }}>
+                  ↑ {currentOverall - prevOverall}%
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -326,15 +472,24 @@ export default function StudentDashboard() {
           {/* ── Left Column ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-            {/* ── Topic Progress ── */}
+            {/* ── Skill Mastery ── */}
             <div style={cardStyle}>
-              <h3 style={{ ...sectionTitle, marginBottom: 14 }}>My Progress by Topic</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <h3 style={{ ...sectionTitle, marginBottom: 4 }}>Skill Mastery</h3>
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 6px' }}>
+                Your mastery level for each topic over time, based on all assessments and practice.
+              </p>
+
+              {/* Chart */}
+              <div style={{ borderRadius: radius.md, border: `1px solid ${colors.border}`, padding: '12px 8px 4px', background: colors.cardAlt, marginBottom: 16 }}>
+                <MasteryChart width={680} height={220} />
+              </div>
+
+              {/* Topic cards (expandable for skill breakdown) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {TOPICS.map(tp => {
-                  const p = latestTopicPct(tp.id)
-                  if (p === null) return null
-                  const trend = topicTrend(tp.id)
-                  const hist = topicHistory(tp.id)
+                  const p = currentMastery(tp.id)
+                  const trend = masteryTrend(tp.id)
+                  const change = masteryChange(tp.id)
                   const isExpanded = expandedTopic === tp.id
                   const skills = TOPIC_SKILLS[tp.id] ?? []
                   return (
@@ -342,46 +497,44 @@ export default function StudentDashboard() {
                       borderRadius: radius.md, border: `1px solid ${isExpanded ? tp.colour + '60' : colors.border}`,
                       overflow: 'hidden', transition: 'border-color .15s',
                     }}>
-                      {/* Topic header — clickable */}
                       <button onClick={() => setExpandedTopic(isExpanded ? null : tp.id)} style={{
-                        padding: '12px 14px', width: '100%', border: 'none', cursor: 'pointer',
+                        padding: '10px 14px', width: '100%', border: 'none', cursor: 'pointer',
                         fontFamily: 'inherit', textAlign: 'left',
                         background: isExpanded ? tp.colour + '08' : colors.card,
-                        display: 'flex', alignItems: 'center', gap: 14,
+                        display: 'flex', alignItems: 'center', gap: 12,
                       }}>
+                        <div style={{ width: 4, height: 28, borderRadius: 2, background: tp.colour, flexShrink: 0 }} />
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: font.md, fontWeight: '700', color: tp.colour }}>{tp.label}</span>
                             <span style={{ fontSize: font.sm, fontWeight: '700', color: trendCol(trend) }}>{trendIcon(trend)}</span>
-                            <span style={{ fontSize: font.sm, color: colors.textHint, marginLeft: 'auto' }}>
-                              {isExpanded ? '▾' : '▸'} {skills.length} skills
-                            </span>
+                            {change !== null && change !== 0 && (
+                              <span style={{ fontSize: font.sm, fontWeight: '600', color: change > 0 ? colors.success : colors.danger }}>
+                                {change > 0 ? '+' : ''}{change}%
+                              </span>
+                            )}
                           </div>
-                          <div style={{ height: 7, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden', marginBottom: 4 }}>
-                            <div style={{ height: '100%', borderRadius: radius.full, width: `${p}%`, background: tp.colour, transition: 'width .3s' }} />
-                          </div>
-                          {hist.length > 1 && (
-                            <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-                              {hist.map((h, i) => (
-                                <div key={i} style={{
-                                  fontSize: '10px', color: i === hist.length - 1 ? colors.textPrimary : colors.textHint,
-                                  fontWeight: i === hist.length - 1 ? '700' : '500',
-                                }}>{h.pct}%{i < hist.length - 1 ? ' →' : ''}</div>
-                              ))}
-                            </div>
-                          )}
                         </div>
-                        <div style={{
-                          fontSize: font.lg, fontWeight: '700', minWidth: 48, textAlign: 'center',
-                          color: bTxt(p), background: bBg(p), borderRadius: radius.md, padding: '4px 8px',
-                          border: `1px solid ${bBrd(p)}`,
-                        }}>{p}%</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          <div style={{ width: 80, height: 6, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', borderRadius: radius.full, width: `${p}%`, background: tp.colour }} />
+                          </div>
+                          <span style={{
+                            fontSize: font.base, fontWeight: '700', minWidth: 40, textAlign: 'right',
+                            color: bTxt(p),
+                          }}>{p}%</span>
+                          <span style={{ fontSize: font.sm, color: colors.textHint }}>
+                            {isExpanded ? '▾' : '▸'}
+                          </span>
+                        </div>
                       </button>
 
-                      {/* Expanded skill breakdown */}
                       {isExpanded && (
                         <div style={{ padding: '0 14px 14px', background: tp.colour + '04' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+                          <div style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 8px', fontWeight: '500' }}>
+                            {skills.length} skills · Click a skill to practise
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {skills.map((sk, si) => {
                               const sp = pc(sk.scored, sk.avail)
                               return (
@@ -395,7 +548,7 @@ export default function StudentDashboard() {
                                       <span style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary }}>{sk.scored}/{sk.avail}</span>
                                     </div>
                                     <div style={{ height: 5, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
-                                      <div style={{ height: '100%', borderRadius: radius.full, width: `${sp}%`, background: sp >= 75 ? colors.success : sp >= 40 ? colors.warning : colors.danger }} />
+                                      <div style={{ height: '100%', borderRadius: radius.full, width: `${sp}%`, background: sp >= 70 ? colors.success : sp >= 40 ? colors.warning : colors.danger }} />
                                     </div>
                                   </div>
                                   <Link href={`/practice/question/${sk.questionId}`} style={{
@@ -661,11 +814,11 @@ export default function StudentDashboard() {
               <h3 style={{ ...sectionTitle, marginBottom: 12 }}>Quick Stats</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
-                  ['Exams taken', String(ASSESSMENTS.filter(a => a.type === 'exam').length), colors.textPrimary],
-                  ['Latest exam', `${latestPct}%`, bCol(latestPct)],
-                  ['Topic tests', String(ASSESSMENTS.filter(a => a.type === 'topic-test').length), colors.textPrimary],
+                  ['Overall mastery', `${currentOverall}%`, bCol(currentOverall)],
+                  ['Assessments taken', String(ASSESSMENTS.length), colors.textPrimary],
                   ['Homework completed', `${HOMEWORK.filter(h => h.status === 'completed').length}/${HOMEWORK.length}`, colors.textPrimary],
                   ['Strongest topic', strongestTopic?.label ?? '—', strongestTopic?.colour ?? colors.textPrimary],
+                  ['Weakest topic', weakestTopic?.label ?? '—', weakestTopic?.colour ?? colors.textPrimary],
                   ['Tasks remaining', String(totalTasks), totalTasks > 0 ? colors.dangerText : colors.successText],
                 ].map(([label, value, colour], i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

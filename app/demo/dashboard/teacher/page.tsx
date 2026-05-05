@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   colors, radius, font,
-  card as cardStyle, primaryButton, secondaryButton,
+  card as cardStyle, primaryButton,
   pageTitle, sectionTitle,
 } from '@/lib/styles'
 
@@ -28,10 +28,42 @@ const TYPE_LABELS: Record<AssessmentType, { label: string; colour: string; bg: s
 
 interface StudentSummary {
   name: string
-  score: number
-  total: number
-  topics: Partial<Record<TopicId, { scored: number; avail: number }>>
-  flag?: 'concern' | 'improving' | 'strong'
+  mastery: number       // current overall mastery %
+  prevMastery: number   // previous overall mastery %
+  topicMastery: Partial<Record<TopicId, number>>  // current mastery per topic
+}
+
+type StudentStatus = 'strong' | 'improving' | 'developing' | 'concern'
+
+function getStatus(s: StudentSummary): StudentStatus {
+  if (s.mastery >= 70) return 'strong'
+  if (s.mastery < 30) return 'concern'
+  if (s.mastery - s.prevMastery >= 8) return 'improving'
+  return 'developing'
+}
+
+function statusLabel(status: StudentStatus) {
+  switch (status) {
+    case 'strong': return { text: 'Strong', desc: '≥ 70% mastery', bg: colors.successLight, colour: colors.successText, border: colors.successBorder }
+    case 'improving': return { text: 'Improving', desc: '≥ 8% gain', bg: '#eff6ff', colour: colors.primary, border: '#bfdbfe' }
+    case 'developing': return { text: 'Developing', desc: '30–69% mastery', bg: colors.warningLight, colour: colors.warningText, border: colors.warningBorder }
+    case 'concern': return { text: 'Needs support', desc: '< 30% mastery', bg: colors.dangerLight, colour: colors.dangerText, border: colors.dangerBorder }
+  }
+}
+
+interface MasteryPoint {
+  label: string
+  pct: number
+}
+
+interface ClassGap {
+  topic: string
+  topicColour: string
+  skill: string
+  classMastery: number    // % of class at or above 50% mastery in this skill
+  studentsBelow: number   // count of students below 50%
+  totalStudents: number
+  priority: 'high' | 'medium'
 }
 
 interface ClassData {
@@ -43,8 +75,11 @@ interface ClassData {
   recentAssessment: string
   recentAssessmentDate: string
   recentAssessmentType: AssessmentType
-  avgPct: number
+  avgMastery: number
+  prevAvgMastery: number
   topicAvgs: Record<TopicId, number>
+  masteryHistory: MasteryPoint[]
+  gaps: ClassGap[]
 }
 
 interface AssessmentRecord {
@@ -77,31 +112,59 @@ const CLASSES: ClassData[] = [
   {
     id: 'y10-set2', name: 'Set 2', yearGroup: 'Year 10', studentCount: 8,
     recentAssessment: 'Paper 3 Calculator (Nov 2024)', recentAssessmentDate: '20 Mar 2026', recentAssessmentType: 'exam',
-    avgPct: 58,
+    avgMastery: 52, prevAvgMastery: 42,
     topicAvgs: { number: 72, algebra: 38, shape: 50, ratio: 68, probdata: 62 },
+    masteryHistory: [
+      { label: 'Oct 25', pct: 28 },
+      { label: 'Dec 25', pct: 35 },
+      { label: 'Feb 26', pct: 42 },
+      { label: 'Mar 26', pct: 52 },
+    ],
     students: [
-      { name: 'Harry Wilson',     score: 33, total: 35, topics: { number: { scored: 6, avail: 6 }, algebra: { scored: 14, avail: 16 }, ratio: { scored: 8, avail: 8 }, probdata: { scored: 5, avail: 5 } }, flag: 'strong' },
-      { name: 'Amira Patel',      score: 32, total: 35, topics: { number: { scored: 6, avail: 6 }, algebra: { scored: 14, avail: 16 }, ratio: { scored: 7, avail: 8 }, probdata: { scored: 5, avail: 5 } }, flag: 'strong' },
-      { name: 'Ben Okonkwo',      score: 24, total: 35, topics: { number: { scored: 5, avail: 6 }, algebra: { scored: 6, avail: 16 }, ratio: { scored: 7, avail: 8 }, probdata: { scored: 4, avail: 5 } }, flag: 'improving' },
-      { name: 'Charlotte Evans',  score: 23, total: 35, topics: { number: { scored: 5, avail: 6 }, algebra: { scored: 7, avail: 16 }, ratio: { scored: 6, avail: 8 }, probdata: { scored: 4, avail: 5 } } },
-      { name: 'Daniel Kim',       score: 20, total: 35, topics: { number: { scored: 4, avail: 6 }, algebra: { scored: 6, avail: 16 }, ratio: { scored: 5, avail: 8 }, probdata: { scored: 5, avail: 5 } } },
-      { name: 'Emily Zhang',      score: 19, total: 35, topics: { number: { scored: 5, avail: 6 }, algebra: { scored: 8, avail: 16 }, ratio: { scored: 2, avail: 8 }, probdata: { scored: 0, avail: 5 } }, flag: 'concern' },
-      { name: 'Finn McCarthy',    score: 10, total: 35, topics: { number: { scored: 3, avail: 6 }, algebra: { scored: 3, avail: 16 }, ratio: { scored: 2, avail: 8 }, probdata: { scored: 2, avail: 5 } }, flag: 'concern' },
-      { name: 'Grace Adeyemi',    score: 8,  total: 35, topics: { number: { scored: 3, avail: 6 }, algebra: { scored: 1, avail: 16 }, ratio: { scored: 1, avail: 8 }, probdata: { scored: 2, avail: 5 } }, flag: 'concern' },
+      { name: 'Harry Wilson',     mastery: 88, prevMastery: 80, topicMastery: { number: 92, algebra: 82, ratio: 90, probdata: 88 } },
+      { name: 'Amira Patel',      mastery: 85, prevMastery: 74, topicMastery: { number: 90, algebra: 78, ratio: 85, probdata: 88 } },
+      { name: 'Ben Okonkwo',      mastery: 57, prevMastery: 41, topicMastery: { number: 72, algebra: 38, ratio: 68, probdata: 62 } },
+      { name: 'Charlotte Evans',  mastery: 54, prevMastery: 48, topicMastery: { number: 68, algebra: 42, ratio: 55, probdata: 58 } },
+      { name: 'Daniel Kim',       mastery: 48, prevMastery: 40, topicMastery: { number: 55, algebra: 35, ratio: 52, probdata: 60 } },
+      { name: 'Emily Zhang',      mastery: 42, prevMastery: 38, topicMastery: { number: 65, algebra: 45, ratio: 22, probdata: 15 } },
+      { name: 'Finn McCarthy',    mastery: 25, prevMastery: 22, topicMastery: { number: 35, algebra: 18, ratio: 20, probdata: 28 } },
+      { name: 'Grace Adeyemi',    mastery: 18, prevMastery: 20, topicMastery: { number: 28, algebra: 8, ratio: 12, probdata: 22 } },
+    ],
+    gaps: [
+      { topic: 'Algebra', topicColour: colors.primary, skill: 'Solving Linear Equations', classMastery: 25, studentsBelow: 6, totalStudents: 8, priority: 'high' },
+      { topic: 'Algebra', topicColour: colors.primary, skill: 'Factorising', classMastery: 18, studentsBelow: 7, totalStudents: 8, priority: 'high' },
+      { topic: 'Algebra', topicColour: colors.primary, skill: 'Expanding Brackets', classMastery: 32, studentsBelow: 5, totalStudents: 8, priority: 'high' },
+      { topic: 'Shape and Space', topicColour: '#ea580c', skill: 'Angles in Polygons', classMastery: 40, studentsBelow: 5, totalStudents: 8, priority: 'medium' },
+      { topic: 'Ratio and Proportion', topicColour: '#0891b2', skill: 'Compound Units', classMastery: 35, studentsBelow: 5, totalStudents: 8, priority: 'medium' },
+      { topic: 'Probability and Data', topicColour: colors.success, skill: 'Pie Charts', classMastery: 42, studentsBelow: 4, totalStudents: 8, priority: 'medium' },
     ],
   },
   {
     id: 'y11-set3', name: 'Set 3', yearGroup: 'Year 11', studentCount: 6,
     recentAssessment: 'Paper 1 Non-Calculator (Jun 2024)', recentAssessmentDate: '28 Feb 2026', recentAssessmentType: 'exam',
-    avgPct: 42,
+    avgMastery: 40, prevAvgMastery: 34,
     topicAvgs: { number: 48, algebra: 30, shape: 38, ratio: 45, probdata: 50 },
+    masteryHistory: [
+      { label: 'Oct 25', pct: 22 },
+      { label: 'Dec 25', pct: 28 },
+      { label: 'Feb 26', pct: 34 },
+      { label: 'Apr 26', pct: 40 },
+    ],
     students: [
-      { name: 'Sophie Turner',    score: 48, total: 80, topics: { number: { scored: 12, avail: 20 }, algebra: { scored: 10, avail: 22 }, shape: { scored: 8, avail: 16 }, ratio: { scored: 9, avail: 14 }, probdata: { scored: 7, avail: 10 } }, flag: 'strong' },
-      { name: 'Jake Robinson',    score: 38, total: 80, topics: { number: { scored: 10, avail: 20 }, algebra: { scored: 8, avail: 22 }, shape: { scored: 6, avail: 16 }, ratio: { scored: 7, avail: 14 }, probdata: { scored: 5, avail: 10 } }, flag: 'improving' },
-      { name: 'Lily Chen',        score: 35, total: 80, topics: { number: { scored: 9, avail: 20 }, algebra: { scored: 7, avail: 22 }, shape: { scored: 6, avail: 16 }, ratio: { scored: 6, avail: 14 }, probdata: { scored: 5, avail: 10 } } },
-      { name: 'Oscar Williams',   score: 30, total: 80, topics: { number: { scored: 8, avail: 20 }, algebra: { scored: 5, avail: 22 }, shape: { scored: 5, avail: 16 }, ratio: { scored: 5, avail: 14 }, probdata: { scored: 5, avail: 10 } } },
-      { name: 'Ruby Ahmed',       score: 26, total: 80, topics: { number: { scored: 7, avail: 20 }, algebra: { scored: 4, avail: 22 }, shape: { scored: 4, avail: 16 }, ratio: { scored: 5, avail: 14 }, probdata: { scored: 4, avail: 10 } }, flag: 'concern' },
-      { name: 'Noah Kowalski',    score: 22, total: 80, topics: { number: { scored: 6, avail: 20 }, algebra: { scored: 3, avail: 22 }, shape: { scored: 3, avail: 16 }, ratio: { scored: 4, avail: 14 }, probdata: { scored: 4, avail: 10 } }, flag: 'concern' },
+      { name: 'Sophie Turner',    mastery: 58, prevMastery: 50, topicMastery: { number: 60, algebra: 45, shape: 50, ratio: 64, probdata: 70 } },
+      { name: 'Jake Robinson',    mastery: 46, prevMastery: 35, topicMastery: { number: 50, algebra: 36, shape: 38, ratio: 50, probdata: 50 } },
+      { name: 'Lily Chen',        mastery: 42, prevMastery: 38, topicMastery: { number: 45, algebra: 32, shape: 38, ratio: 43, probdata: 50 } },
+      { name: 'Oscar Williams',   mastery: 36, prevMastery: 32, topicMastery: { number: 40, algebra: 23, shape: 31, ratio: 36, probdata: 50 } },
+      { name: 'Ruby Ahmed',       mastery: 30, prevMastery: 28, topicMastery: { number: 35, algebra: 18, shape: 25, ratio: 36, probdata: 40 } },
+      { name: 'Noah Kowalski',    mastery: 26, prevMastery: 22, topicMastery: { number: 30, algebra: 14, shape: 19, ratio: 29, probdata: 40 } },
+    ],
+    gaps: [
+      { topic: 'Algebra', topicColour: colors.primary, skill: 'Factorising', classMastery: 12, studentsBelow: 6, totalStudents: 6, priority: 'high' },
+      { topic: 'Algebra', topicColour: colors.primary, skill: 'Inequalities', classMastery: 15, studentsBelow: 6, totalStudents: 6, priority: 'high' },
+      { topic: 'Shape and Space', topicColour: '#ea580c', skill: 'Congruence and Similarity', classMastery: 20, studentsBelow: 5, totalStudents: 6, priority: 'high' },
+      { topic: 'Shape and Space', topicColour: '#ea580c', skill: 'Angles in Polygons', classMastery: 28, studentsBelow: 5, totalStudents: 6, priority: 'high' },
+      { topic: 'Algebra', topicColour: colors.primary, skill: 'Solving Linear Equations', classMastery: 30, studentsBelow: 4, totalStudents: 6, priority: 'medium' },
+      { topic: 'Ratio and Proportion', topicColour: '#0891b2', skill: 'Compound Units', classMastery: 32, studentsBelow: 4, totalStudents: 6, priority: 'medium' },
     ],
   },
 ]
@@ -128,29 +191,332 @@ function bBg(p: number) { return p >= 70 ? colors.successLight : p >= 40 ? color
 function bTxt(p: number) { return p >= 70 ? colors.successText : p >= 40 ? colors.warningText : colors.dangerText }
 function bBrd(p: number) { return p >= 70 ? colors.successBorder : p >= 40 ? colors.warningBorder : colors.dangerBorder }
 
-function flagLabel(flag?: string) {
-  switch (flag) {
-    case 'concern': return { text: 'Needs support', bg: colors.dangerLight, colour: colors.dangerText, border: colors.dangerBorder }
-    case 'improving': return { text: 'Improving', bg: colors.warningLight, colour: colors.warningText, border: colors.warningBorder }
-    case 'strong': return { text: 'Strong', bg: colors.successLight, colour: colors.successText, border: colors.successBorder }
-    default: return null
-  }
+// ─── Class Mastery Chart ─────────────────────────────────────────────────────
+function ClassMasteryChart({ points, width = 500, height = 180 }: { points: MasteryPoint[]; width?: number; height?: number }) {
+  if (points.length < 2) return null
+  const padL = 38; const padR = 20; const padT = 20; const padB = 34
+  const innerW = width - padL - padR; const innerH = height - padT - padB
+
+  const yTicks = [0, 25, 50, 75, 100]
+  const coords = points.map((p, i) => ({
+    x: padL + (i / (points.length - 1)) * innerW,
+    y: padT + innerH - (p.pct / 100) * innerH,
+  }))
+  const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ')
+  const areaPath = `${linePath} L ${coords[coords.length - 1].x} ${padT + innerH} L ${coords[0].x} ${padT + innerH} Z`
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block', width: '100%', height: 'auto' }}>
+      <defs>
+        <linearGradient id="class-mastery-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={colors.primary} stopOpacity="0.15" />
+          <stop offset="100%" stopColor={colors.primary} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      {yTicks.map(tick => (
+        <g key={tick}>
+          <line x1={padL} y1={padT + innerH - (tick / 100) * innerH} x2={width - padR} y2={padT + innerH - (tick / 100) * innerH} stroke={colors.border} strokeWidth="1" strokeDasharray={tick === 0 ? '' : '4 3'} />
+          <text x={padL - 6} y={padT + innerH - (tick / 100) * innerH + 4} textAnchor="end" fontSize="10" fill={colors.textHint} fontFamily="inherit">{tick}%</text>
+        </g>
+      ))}
+      {points.map((p, i) => (
+        <g key={i}>
+          <line x1={coords[i].x} y1={padT + innerH} x2={coords[i].x} y2={padT + innerH + 4} stroke={colors.border} strokeWidth="1" />
+          <text x={coords[i].x} y={height - 6} textAnchor="middle" fontSize="10" fill={colors.textSecondary} fontFamily="inherit">{p.label}</text>
+        </g>
+      ))}
+      <path d={areaPath} fill="url(#class-mastery-grad)" />
+      <path d={linePath} fill="none" stroke={colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {coords.map((c, i) => (
+        <g key={i}>
+          <circle cx={c.x} cy={c.y} r={i === coords.length - 1 ? 5 : 3.5} fill={i === coords.length - 1 ? colors.primary : '#fff'} stroke={colors.primary} strokeWidth="2" />
+          <text x={c.x} y={c.y - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill={colors.primary} fontFamily="inherit">{points[i].pct}%</text>
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+// ─── Ben's detailed profile data (teacher's view) ───────────────────────────
+interface MasteryTimePoint { label: string; pct: number }
+interface AssessmentResult { title: string; date: string; type: AssessmentType; score: number; total: number; www: string[]; ebi: string[] }
+interface TaskItem { skill: string; topic: string; question: string; fromAssessment: string }
+
+const BEN_MASTERY: MasteryTimePoint[] = [
+  { label: 'Oct 25', pct: 30 },
+  { label: 'Dec 25', pct: 37 },
+  { label: 'Feb 26', pct: 41 },
+  { label: 'Mar 26', pct: 57 },
+]
+
+const BEN_TOPIC_MASTERY: Record<TopicId, { current: number; prev: number }> = {
+  number:   { current: 72, prev: 56 },
+  algebra:  { current: 38, prev: 32 },
+  shape:    { current: 45, prev: 42 },
+  ratio:    { current: 68, prev: 43 },
+  probdata: { current: 62, prev: 40 },
+}
+
+const BEN_ASSESSMENTS: AssessmentResult[] = [
+  {
+    title: 'Paper 3 Calculator (Nov 2024)', date: '20 Mar 2026', type: 'exam', score: 24, total: 35,
+    www: ['Strong performance on Number (5/6).', 'Strong on Ratio and Proportion (7/8).', 'Good attempt at Probability and Data (4/5).'],
+    ebi: ['Revise Algebra — only 6/16 marks.', 'Practise solving multi-step equations.', 'Consolidate substitution and expanding brackets.'],
+  },
+  {
+    title: 'Algebra End of Topic Test', date: '7 Mar 2026', type: 'topic-test', score: 9, total: 20,
+    www: ['Correctly expanded single brackets.', 'Good understanding of substitution.'],
+    ebi: ['Practise solving equations with brackets.', 'Revise factorising expressions.'],
+  },
+  {
+    title: 'Paper 1 Non-Calculator (Nov 2024)', date: '6 Feb 2026', type: 'exam', score: 31, total: 80,
+    www: ['Some understanding of Number (10/18).', 'Showed working clearly.'],
+    ebi: ['Revise Algebra — only 7/22 marks.', 'Practise Shape and Space topics.'],
+  },
+]
+
+const BEN_TASKS: TaskItem[] = [
+  { skill: 'Substitution', topic: 'Algebra', question: 'Input → ×3 → +5 → Output. Work out the input when the output is 20.', fromAssessment: 'Paper 3 Calculator' },
+  { skill: 'Solving Linear Equations', topic: 'Algebra', question: 'Solve  3(4e − 2) = 42', fromAssessment: 'Paper 3 Calculator' },
+  { skill: 'Simplifying Expressions', topic: 'Algebra', question: 'Simplify  p + p + p + p + p', fromAssessment: 'Paper 3 Calculator' },
+  { skill: 'Proportion', topic: 'Ratio and Proportion', question: 'The cost of 30 pens and 10 rulers is £16.00. Work out the cost of 3 pens and 1 ruler.', fromAssessment: 'Paper 3 Calculator' },
+]
+
+// ─── Student Profile Mastery Chart ──────────────────────────────────────────
+function ProfileMasteryChart({ points, width = 460, height = 160 }: { points: MasteryTimePoint[]; width?: number; height?: number }) {
+  if (points.length < 2) return null
+  const padL = 36; const padR = 16; const padT = 18; const padB = 30
+  const innerW = width - padL - padR; const innerH = height - padT - padB
+  const yTicks = [0, 25, 50, 75, 100]
+  const coords = points.map((p, i) => ({
+    x: padL + (i / (points.length - 1)) * innerW,
+    y: padT + innerH - (p.pct / 100) * innerH,
+  }))
+  const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ')
+  const areaPath = `${linePath} L ${coords[coords.length - 1].x} ${padT + innerH} L ${coords[0].x} ${padT + innerH} Z`
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block', width: '100%', height: 'auto' }}>
+      <defs>
+        <linearGradient id="profile-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={colors.primary} stopOpacity="0.15" />
+          <stop offset="100%" stopColor={colors.primary} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      {yTicks.map(tick => (
+        <g key={tick}>
+          <line x1={padL} y1={padT + innerH - (tick / 100) * innerH} x2={width - padR} y2={padT + innerH - (tick / 100) * innerH} stroke={colors.border} strokeWidth="1" strokeDasharray={tick === 0 ? '' : '4 3'} />
+          <text x={padL - 5} y={padT + innerH - (tick / 100) * innerH + 3.5} textAnchor="end" fontSize="9" fill={colors.textHint} fontFamily="inherit">{tick}%</text>
+        </g>
+      ))}
+      {points.map((p, i) => (
+        <text key={i} x={coords[i].x} y={height - 6} textAnchor="middle" fontSize="9" fill={colors.textSecondary} fontFamily="inherit">{p.label}</text>
+      ))}
+      <path d={areaPath} fill="url(#profile-grad)" />
+      <path d={linePath} fill="none" stroke={colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {coords.map((c, i) => (
+        <g key={i}>
+          <circle cx={c.x} cy={c.y} r={i === coords.length - 1 ? 4.5 : 3} fill={i === coords.length - 1 ? colors.primary : '#fff'} stroke={colors.primary} strokeWidth="2" />
+          <text x={c.x} y={c.y - 8} textAnchor="middle" fontSize="10" fontWeight="600" fill={colors.primary} fontFamily="inherit">{points[i].pct}%</text>
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+// ─── Student Profile Modal ──────────────────────────────────────────────────
+function StudentProfileModal({ student, onClose }: { student: StudentSummary; onClose: () => void }) {
+  const status = getStatus(student)
+  const sl = statusLabel(status)
+  const change = student.mastery - student.prevMastery
+  const isBen = student.name === 'Ben Okonkwo'
+
+  // Find weakest topic
+  const topicScores = TOPICS.map(tp => {
+    const m = student.topicMastery[tp.id]
+    return m !== undefined ? { ...tp, pct: m } : null
+  }).filter(Boolean) as (typeof TOPICS[number] & { pct: number })[]
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+    }} onClick={onClose}>
+      <div style={{
+        background: colors.card, borderRadius: radius.lg, maxWidth: 680, width: '100%',
+        maxHeight: '90vh', display: 'flex', flexDirection: 'column',
+        border: `1px solid ${colors.border}`, boxShadow: '0 20px 60px rgba(0,0,0,.15)',
+      }} onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '16px 20px', borderBottom: `1px solid ${colors.border}`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <h3 style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary }}>{student.name}</h3>
+            <span style={{
+              fontSize: font.sm, fontWeight: '600', borderRadius: radius.sm, padding: '2px 8px',
+              background: sl.bg, color: sl.colour,
+            }}>{sl.text}</span>
+          </div>
+          <button onClick={onClose} style={{
+            background: 'none', border: 'none', fontSize: font.xl, cursor: 'pointer', color: colors.textSecondary, padding: 4,
+          }}>✕</button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: 20, overflowY: 'auto', flex: 1 }}>
+          {/* Mastery summary */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <div style={{
+              fontSize: font['3xl'], fontWeight: '700', color: bCol(student.mastery),
+              background: bBg(student.mastery), borderRadius: radius.lg, padding: '10px 20px',
+              border: `1px solid ${bBrd(student.mastery)}`, textAlign: 'center', lineHeight: 1.2,
+            }}>
+              {student.mastery}%
+              {change !== 0 && (
+                <div style={{ fontSize: font.sm, fontWeight: '600', color: change > 0 ? colors.success : colors.danger, marginTop: 2 }}>
+                  {change > 0 ? '↑' : '↓'}{Math.abs(change)}%
+                </div>
+              )}
+            </div>
+            <div>
+              <div style={{ fontSize: font.md, fontWeight: '600', color: colors.textPrimary, marginBottom: 2 }}>Overall Mastery</div>
+              <div style={{ fontSize: font.sm, color: colors.textSecondary }}>
+                {change > 0 ? `Up from ${student.prevMastery}%` : change < 0 ? `Down from ${student.prevMastery}%` : `Unchanged at ${student.mastery}%`}
+              </div>
+            </div>
+          </div>
+
+          {/* Mastery chart (Ben only has detailed history) */}
+          {isBen && (
+            <div style={{ borderRadius: radius.md, border: `1px solid ${colors.border}`, padding: '10px 6px 2px', background: colors.cardAlt, marginBottom: 16 }}>
+              <div style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, marginBottom: 2, paddingLeft: 6 }}>Mastery Over Time</div>
+              <ProfileMasteryChart points={BEN_MASTERY} />
+            </div>
+          )}
+
+          {/* Topic mastery */}
+          <div style={{ fontSize: font.md, fontWeight: '700', color: colors.textPrimary, marginBottom: 8 }}>Topic Mastery</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8, marginBottom: 20 }}>
+            {topicScores.map(tp => {
+              const topicChange = isBen ? tp.pct - (BEN_TOPIC_MASTERY[tp.id]?.prev ?? tp.pct) : null
+              return (
+                <div key={tp.id} style={{ padding: '8px 10px', borderRadius: radius.sm, border: `1px solid ${colors.border}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <span style={{ fontSize: font.sm, fontWeight: '600', color: tp.colour }}>{tp.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: font.sm, fontWeight: '700', color: bTxt(tp.pct) }}>{tp.pct}%</span>
+                      {topicChange !== null && topicChange !== 0 && (
+                        <span style={{ fontSize: '10px', fontWeight: '600', color: topicChange > 0 ? colors.success : colors.danger }}>
+                          {topicChange > 0 ? '↑' : '↓'}{Math.abs(topicChange)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ height: 5, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', borderRadius: radius.full, width: `${tp.pct}%`, background: tp.colour }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Ben-specific: recent assessments, WWW/EBI, tasks */}
+          {isBen && (
+            <>
+              {/* Recent assessments */}
+              <div style={{ fontSize: font.md, fontWeight: '700', color: colors.textPrimary, marginBottom: 8 }}>Recent Assessments</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+                {BEN_ASSESSMENTS.map((a, i) => {
+                  const p = pc(a.score, a.total)
+                  const tl = TYPE_LABELS[a.type]
+                  return (
+                    <div key={i} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '8px 10px', borderRadius: radius.sm, border: `1px solid ${colors.border}`,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{
+                          fontSize: '9px', fontWeight: '700', borderRadius: radius.sm, padding: '1px 5px',
+                          background: tl.bg, color: tl.colour, textTransform: 'uppercase',
+                        }}>{tl.label}</span>
+                        <div>
+                          <div style={{ fontSize: font.base, fontWeight: '600', color: colors.textPrimary }}>{a.title}</div>
+                          <div style={{ fontSize: font.sm, color: colors.textSecondary }}>{a.date}</div>
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: font.sm, fontWeight: '700', borderRadius: radius.sm, padding: '2px 6px',
+                        background: bBg(p), color: bTxt(p),
+                      }}>{a.score}/{a.total} ({p}%)</span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Latest WWW/EBI */}
+              <div style={{ fontSize: font.md, fontWeight: '700', color: colors.textPrimary, marginBottom: 8 }}>Latest Feedback</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+                <div style={{ background: colors.successLight, borderRadius: radius.md, padding: '10px 12px', border: `1px solid ${colors.successBorder}` }}>
+                  <div style={{ fontSize: font.sm, fontWeight: '700', color: colors.successText, textTransform: 'uppercase', marginBottom: 5 }}>✓ What Went Well</div>
+                  {BEN_ASSESSMENTS[0].www.map((w, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 5, marginBottom: 3 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: radius.full, background: colors.success, flexShrink: 0, marginTop: 5 }} />
+                      <span style={{ fontSize: font.sm, color: colors.textPrimary, lineHeight: 1.4 }}>{w}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: colors.warningLight, borderRadius: radius.md, padding: '10px 12px', border: `1px solid ${colors.warningBorder}` }}>
+                  <div style={{ fontSize: font.sm, fontWeight: '700', color: colors.warningText, textTransform: 'uppercase', marginBottom: 5 }}>△ Even Better If</div>
+                  {BEN_ASSESSMENTS[0].ebi.map((e, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 5, marginBottom: 3 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: radius.full, background: colors.warning, flexShrink: 0, marginTop: 5 }} />
+                      <span style={{ fontSize: font.sm, color: colors.textPrimary, lineHeight: 1.4 }}>{e}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Outstanding tasks */}
+              <div style={{ fontSize: font.md, fontWeight: '700', color: colors.textPrimary, marginBottom: 8 }}>Outstanding Tasks ({BEN_TASKS.length})</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {BEN_TASKS.map((task, i) => (
+                  <div key={i} style={{
+                    padding: '8px 10px', borderRadius: radius.sm, border: `1px solid ${colors.border}`,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                      <span style={{ fontSize: font.base, fontWeight: '600', color: colors.textPrimary }}>{task.skill}</span>
+                      <span style={{ fontSize: font.sm, fontWeight: '600', color: colors.primary }}>{task.topic}</span>
+                    </div>
+                    <div style={{ fontSize: font.sm, color: colors.textSecondary }}>{task.question}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Non-Ben students: simpler view */}
+          {!isBen && (
+            <div style={{ padding: 16, textAlign: 'center', color: colors.textHint, fontSize: font.base }}>
+              Detailed assessment history and tasks will be available once this student's assessments have been processed through the marking tool.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 export default function TeacherDashboard() {
   const [selectedClass, setSelectedClass] = useState<ClassData>(CLASSES[0])
-  const [assessmentFilter, setAssessmentFilter] = useState<'all' | string>('all')
+  const [selectedStudent, setSelectedStudent] = useState<StudentSummary | null>(null)
 
   const totalStudents = CLASSES.reduce((s, c) => s + c.studentCount, 0)
-  const concernStudents = CLASSES.flatMap(c => c.students).filter(s => s.flag === 'concern')
+  const concernStudents = CLASSES.flatMap(c => c.students).filter(s => getStatus(s) === 'concern')
   const pendingFeedback = ASSESSMENTS.filter(a => !a.feedbackGenerated)
   const activeHomework = HOMEWORK_RECORDS.filter(h => new Date(h.dueDate) >= new Date('2026-04-26'))
   const completedHomework = HOMEWORK_RECORDS.filter(h => new Date(h.dueDate) < new Date('2026-04-26'))
-
-  const filteredAssessments = assessmentFilter === 'all'
-    ? ASSESSMENTS
-    : ASSESSMENTS.filter(a => a.className === assessmentFilter)
 
   return (
     <div style={{ minHeight: '100dvh', background: colors.background }}>
@@ -219,9 +585,6 @@ export default function TeacherDashboard() {
           <Link href="/demo/marking" style={{ ...primaryButton, width: 'auto', textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>
             📝 Marking Tool
           </Link>
-          <button style={{ ...secondaryButton, width: 'auto' }}>➕ Set Homework</button>
-          <button style={{ ...secondaryButton, width: 'auto' }}>📊 New Assessment</button>
-          <button style={{ ...secondaryButton, width: 'auto' }}>👥 Manage Classes</button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20, alignItems: 'start' }}>
@@ -247,11 +610,16 @@ export default function TeacherDashboard() {
                         {cls.studentCount} students · Last: {cls.recentAssessmentDate}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: font.base, fontWeight: '600', color: colors.textSecondary }}>Class avg:</span>
+                        <span style={{ fontSize: font.base, fontWeight: '600', color: colors.textSecondary }}>Class mastery:</span>
                         <span style={{
                           fontSize: font.base, fontWeight: '700', borderRadius: radius.sm, padding: '2px 8px',
-                          background: bBg(cls.avgPct), color: bTxt(cls.avgPct),
-                        }}>{cls.avgPct}%</span>
+                          background: bBg(cls.avgMastery), color: bTxt(cls.avgMastery),
+                        }}>{cls.avgMastery}%</span>
+                        {cls.avgMastery !== cls.prevAvgMastery && (
+                          <span style={{ fontSize: font.sm, fontWeight: '600', color: cls.avgMastery > cls.prevAvgMastery ? colors.success : colors.danger }}>
+                            {cls.avgMastery > cls.prevAvgMastery ? '↑' : '↓'}{Math.abs(cls.avgMastery - cls.prevAvgMastery)}%
+                          </span>
+                        )}
                       </div>
                     </button>
                   )
@@ -268,6 +636,66 @@ export default function TeacherDashboard() {
                     Last assessment: {selectedClass.recentAssessment}
                   </span>
                 </div>
+
+                {/* Class mastery over time */}
+                <div style={{ borderRadius: radius.md, border: `1px solid ${colors.border}`, padding: '12px 8px 4px', background: colors.cardAlt, marginBottom: 16 }}>
+                  <div style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, marginBottom: 4, paddingLeft: 8 }}>Class Average Mastery</div>
+                  <ClassMasteryChart points={selectedClass.masteryHistory} />
+                </div>
+
+                {/* Class gaps — skills to target */}
+                {(selectedClass.gaps?.length ?? 0) > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <h4 style={{ fontSize: font.md, fontWeight: '700', margin: 0, color: colors.textPrimary }}>
+                        Common Gaps
+                      </h4>
+                      <span style={{ fontSize: font.sm, color: colors.textHint }}>Based on assessed topics only</span>
+                    </div>
+                    <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 10px' }}>
+                      Skills where most students are below 50% mastery. Consider revisiting these in upcoming lessons.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {selectedClass.gaps.map((gap, i) => (
+                        <div key={i} style={{
+                          display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: radius.md,
+                          border: `1px solid ${gap.priority === 'high' ? colors.dangerBorder : colors.warningBorder}`,
+                          background: gap.priority === 'high' ? colors.dangerLight : colors.warningLight,
+                        }}>
+                          {/* Mastery bar */}
+                          <div style={{ width: 44, flexShrink: 0, textAlign: 'center' }}>
+                            <div style={{
+                              fontSize: font.md, fontWeight: '700',
+                              color: gap.priority === 'high' ? colors.dangerText : colors.warningText,
+                            }}>{gap.classMastery}%</div>
+                            <div style={{ fontSize: '9px', color: colors.textHint }}>class avg</div>
+                          </div>
+                          {/* Skill info */}
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                              <span style={{ fontSize: font.base, fontWeight: '600', color: colors.textPrimary }}>{gap.skill}</span>
+                              {gap.priority === 'high' && (
+                                <span style={{
+                                  fontSize: '9px', fontWeight: '700', borderRadius: radius.sm, padding: '1px 5px',
+                                  background: colors.danger, color: '#fff', textTransform: 'uppercase',
+                                }}>Priority</span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: font.sm, color: colors.textSecondary }}>
+                              <span style={{ color: gap.topicColour, fontWeight: '600' }}>{gap.topic}</span> · {gap.studentsBelow}/{gap.totalStudents} students below 50%
+                            </div>
+                          </div>
+                          {/* Visual bar */}
+                          <div style={{ width: 80, flexShrink: 0 }}>
+                            <div style={{ height: 6, background: gap.priority === 'high' ? colors.dangerBorder : colors.warningBorder, borderRadius: radius.full, overflow: 'hidden' }}>
+                              <div style={{ height: '100%', borderRadius: radius.full, width: `${gap.classMastery}%`, background: gap.priority === 'high' ? colors.danger : colors.warning }} />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Topic breakdown for class */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8, marginBottom: 16 }}>
@@ -290,54 +718,59 @@ export default function TeacherDashboard() {
                   })}
                 </div>
 
-                {/* Student table */}
+                {/* Student table — mastery based */}
                 <div style={{ overflowX: 'auto', borderRadius: radius.md, border: `1px solid ${colors.border}` }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm }}>
                     <thead>
                       <tr>
                         <th style={{ ...thS, textAlign: 'left', paddingLeft: 12 }}>Student</th>
+                        <th style={thS}>Mastery</th>
+                        <th style={thS}>Change</th>
                         {TOPICS.map(tp => {
-                          const hasData = selectedClass.students.some(s => s.topics[tp.id])
+                          const hasData = selectedClass.students.some(s => s.topicMastery[tp.id] !== undefined)
                           if (!hasData) return null
                           return <th key={tp.id} style={{ ...thS, color: tp.colour }}>{tp.label}</th>
                         })}
-                        <th style={thS}>Total</th>
-                        <th style={thS}>%</th>
                         <th style={{ ...thS, textAlign: 'left' }}>Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {[...selectedClass.students].sort((a, b) => b.score - a.score).map((student, i) => {
-                        const p = pc(student.score, student.total)
-                        const fl = flagLabel(student.flag)
+                      {[...selectedClass.students].sort((a, b) => b.mastery - a.mastery).map((student, i) => {
+                        const change = student.mastery - student.prevMastery
+                        const status = getStatus(student)
+                        const sl = statusLabel(status)
                         return (
-                          <tr key={i}>
-                            <td style={{ ...tdS, textAlign: 'left', paddingLeft: 12, fontWeight: '600', color: colors.textPrimary, whiteSpace: 'nowrap' }}>
+                          <tr key={i} style={{ cursor: 'pointer' }} onClick={() => setSelectedStudent(student)}>
+                            <td style={{ ...tdS, textAlign: 'left', paddingLeft: 12, fontWeight: '600', color: colors.primary, whiteSpace: 'nowrap', textDecoration: 'underline', textDecorationColor: `${colors.primary}40` }}>
                               {student.name}
                             </td>
+                            <td style={{ ...tdS, fontWeight: '700', color: bCol(student.mastery) }}>{student.mastery}%</td>
+                            <td style={{ ...tdS }}>
+                              {change !== 0 && (
+                                <span style={{ fontWeight: '600', color: change > 0 ? colors.success : colors.danger }}>
+                                  {change > 0 ? '↑' : '↓'}{Math.abs(change)}%
+                                </span>
+                              )}
+                              {change === 0 && <span style={{ color: colors.textHint }}>—</span>}
+                            </td>
                             {TOPICS.map(tp => {
-                              const d = student.topics[tp.id]
-                              if (!d) {
-                                const hasCol = selectedClass.students.some(s => s.topics[tp.id])
+                              const m = student.topicMastery[tp.id]
+                              if (m === undefined) {
+                                const hasCol = selectedClass.students.some(s => s.topicMastery[tp.id] !== undefined)
                                 if (!hasCol) return null
                                 return <td key={tp.id} style={{ ...tdS, color: colors.textHint }}>—</td>
                               }
-                              const sp = pc(d.scored, d.avail)
                               return (
-                                <td key={tp.id} style={{ ...tdS, fontWeight: '600', color: bCol(sp) }}>
-                                  {d.scored}/{d.avail}
+                                <td key={tp.id} style={{ ...tdS, fontWeight: '600', color: bCol(m) }}>
+                                  {m}%
                                 </td>
                               )
                             })}
-                            <td style={{ ...tdS, fontWeight: '700' }}>{student.score}/{student.total}</td>
-                            <td style={{ ...tdS, fontWeight: '700', color: bCol(p) }}>{p}%</td>
                             <td style={{ ...tdS, textAlign: 'left' }}>
-                              {fl && (
-                                <span style={{
-                                  fontSize: font.sm, fontWeight: '600', borderRadius: radius.sm, padding: '2px 8px',
-                                  background: fl.bg, color: fl.colour,
-                                }}>{fl.text}</span>
-                              )}
+                              <span style={{
+                                fontSize: font.sm, fontWeight: '600', borderRadius: radius.sm, padding: '2px 8px',
+                                background: sl.bg, color: sl.colour,
+                              }}>{sl.text}</span>
                             </td>
                           </tr>
                         )
@@ -345,26 +778,32 @@ export default function TeacherDashboard() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Status legend */}
+                <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
+                  {(['strong', 'improving', 'developing', 'concern'] as StudentStatus[]).map(status => {
+                    const sl = statusLabel(status)
+                    return (
+                      <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: font.sm }}>
+                        <span style={{
+                          fontWeight: '600', borderRadius: radius.sm, padding: '1px 6px',
+                          background: sl.bg, color: sl.colour, fontSize: font.sm,
+                        }}>{sl.text}</span>
+                        <span style={{ color: colors.textHint }}>{sl.desc}</span>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </div>
 
             {/* ── Recent Assessments ── */}
             <div style={cardStyle}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ marginBottom: 14 }}>
                 <h3 style={sectionTitle}>Recent Assessments</h3>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  {[['all', 'All'], ...CLASSES.map(c => [c.id, `${c.yearGroup} ${c.name}`])].map(([key, label]) => (
-                    <button key={key} onClick={() => setAssessmentFilter(key === 'all' ? 'all' : CLASSES.find(c => c.id === key)?.yearGroup + ' ' + CLASSES.find(c => c.id === key)?.name || '')} style={{
-                      padding: '4px 10px', borderRadius: radius.sm, fontSize: font.sm, fontWeight: '600',
-                      cursor: 'pointer', fontFamily: 'inherit', border: 'none',
-                      background: (assessmentFilter === 'all' && key === 'all') || assessmentFilter === label ? colors.primary : colors.cardAlt,
-                      color: (assessmentFilter === 'all' && key === 'all') || assessmentFilter === label ? '#fff' : colors.textSecondary,
-                    }}>{label}</button>
-                  ))}
-                </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {filteredAssessments.map(a => {
+                {ASSESSMENTS.map(a => {
                   const avgPct = pc(a.avgScore, a.totalMarks)
                   const tl = TYPE_LABELS[a.type]
                   return (
@@ -419,14 +858,14 @@ export default function TeacherDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {CLASSES.flatMap(cls =>
                   cls.students
-                    .filter(s => s.flag === 'concern')
+                    .filter(s => getStatus(s) === 'concern')
                     .map(s => ({ ...s, className: `${cls.yearGroup} ${cls.name}` }))
                 ).map((student, i) => {
-                  const p = pc(student.score, student.total)
+                  const change = student.mastery - student.prevMastery
                   // Find weakest topic
                   const topicScores = TOPICS.map(tp => {
-                    const d = student.topics[tp.id]
-                    return d ? { label: tp.label, pct: pc(d.scored, d.avail) } : null
+                    const m = student.topicMastery[tp.id]
+                    return m !== undefined ? { label: tp.label, pct: m } : null
                   }).filter(Boolean) as { label: string; pct: number }[]
                   const weakest = [...topicScores].sort((a, b) => a.pct - b.pct)[0]
 
@@ -437,10 +876,17 @@ export default function TeacherDashboard() {
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                         <span style={{ fontSize: font.base, fontWeight: '700', color: colors.textPrimary }}>{student.name}</span>
-                        <span style={{
-                          fontSize: font.sm, fontWeight: '700', borderRadius: radius.sm, padding: '2px 8px',
-                          background: bBg(p), color: bTxt(p),
-                        }}>{p}%</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{
+                            fontSize: font.sm, fontWeight: '700', borderRadius: radius.sm, padding: '2px 8px',
+                            background: bBg(student.mastery), color: bTxt(student.mastery),
+                          }}>{student.mastery}%</span>
+                          {change !== 0 && (
+                            <span style={{ fontSize: font.sm, fontWeight: '600', color: change > 0 ? colors.success : colors.danger }}>
+                              {change > 0 ? '↑' : '↓'}{Math.abs(change)}%
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div style={{ fontSize: font.sm, color: colors.textSecondary }}>
                         {student.className} · Weakest: {weakest?.label ?? '—'} ({weakest?.pct ?? 0}%)
@@ -549,6 +995,11 @@ export default function TeacherDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Student profile modal */}
+        {selectedStudent && (
+          <StudentProfileModal student={selectedStudent} onClose={() => setSelectedStudent(null)} />
+        )}
       </div>
     </div>
   )
