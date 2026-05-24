@@ -118,6 +118,11 @@ const assessment = await response.json()
         >
           {loading ? 'Joining...' : 'Start diagnostic'}
         </button>
+
+        <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, textAlign: 'center' as const }}>
+          By joining, you confirm you are aged 13 or over and agree to our{' '}
+          <a href="/privacy" style={{ color: colors.textSecondary, textDecoration: 'underline' }}>Privacy Notice</a>.
+        </p>
       </div>
     </main>
   )

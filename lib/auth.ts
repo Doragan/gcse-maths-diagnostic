@@ -52,3 +52,56 @@ export async function deleteAccount() {
   const response = await fetch('/api/account/delete', { method: 'DELETE' })
   if (!response.ok) throw new Error('Failed to delete account')
 }
+
+export async function signUpStudent(
+  email: string,
+  password: string,
+  displayName: string,
+  yearGroup?: string,
+) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        role: 'student',
+        display_name: displayName,
+        year_group: yearGroup ?? '',
+      },
+    },
+  })
+  if (error) throw error
+  return data
+}
+
+export async function getStudentProfile() {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data } = await supabase
+    .from('students')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+  return data
+}
+
+export async function getUserRole(): Promise<'teacher' | 'student' | null> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: teacher } = await supabase
+    .from('teachers')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+  if (teacher) return 'teacher'
+
+  const { data: student } = await supabase
+    .from('students')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+  if (student) return 'student'
+
+  return null
+}

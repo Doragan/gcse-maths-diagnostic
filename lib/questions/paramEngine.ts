@@ -88,14 +88,41 @@ export function generateValues(parameters: Parameters): Record<string, number> {
   return generated
 }
 
+/**
+ * Robust decimal rounding that avoids IEEE 754 floating point errors.
+ *
+ * The problem: 4.45 is stored in binary as 4.44999999999..., so
+ * Math.round(4.449999... * 10) / 10 = 4.4, not the correct 4.5.
+ *
+ * The fix: JavaScript's number-to-string conversion (toString) is correct —
+ * it knows to print "4.45", not "4.449999...". By building a string like
+ * "4.45e+1" from the number, we get 44.5 exactly (which IS representable),
+ * and from there Math.round works correctly.
+ *
+ * Available as `round(n, places)` inside all question and answer templates.
+ */
+function robustRound(n: number, places: number): number {
+  return Number(Math.round(+(n + 'e+' + places)) + 'e-' + places)
+}
+
+// Helper functions exposed to every template expression.
+// Add new helpers here; they will be available by name in {{...}} blocks.
+const TEMPLATE_HELPERS: Record<string, unknown> = {
+  round: robustRound,
+}
+
 export function evaluateTemplate(
   template: string,
   generated: Record<string, number>
 ): string {
   return template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
     try {
-      const fn = new Function(...Object.keys(generated), `return ${expr}`)
-      return fn(...Object.values(generated)).toString()
+      const fn = new Function(
+        ...Object.keys(generated),
+        ...Object.keys(TEMPLATE_HELPERS),
+        `return ${expr}`,
+      )
+      return fn(...Object.values(generated), ...Object.values(TEMPLATE_HELPERS)).toString()
     } catch {
       return `[error: ${expr}]`
     }
