@@ -69,14 +69,17 @@ export async function POST(req: Request) {
 
   // ── Monthly renewal ────────────────────────────────────────────────────────
   if (event.type === 'invoice.payment_succeeded') {
-    const invoice = event.data.object as Stripe.Invoice
-    const subscriptionId = typeof invoice.subscription === 'string'
-      ? invoice.subscription
-      : invoice.subscription?.id
+    // `subscription` was removed from the Invoice type in Stripe SDK v17 / API 2024-09-30.
+    // Cast via `any` so the code compiles against both old and new SDK versions.
+    // At runtime Stripe still sends the field (or its newer equivalent).
+    const invoice = event.data.object as any
+    const subscriptionId: string | undefined =
+      (typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id)
+      ?? invoice.parent?.subscription_details?.subscription   // API 2024-09-30+ path
     if (!subscriptionId) return NextResponse.json({ received: true })
 
     // Use Stripe's billing period end as the paid_until date
-    const periodEnd = (invoice as any).lines?.data?.[0]?.period?.end
+    const periodEnd = invoice.lines?.data?.[0]?.period?.end
     const paidUntil = periodEnd
       ? new Date(periodEnd * 1000).toISOString()
       : (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d.toISOString() })()
