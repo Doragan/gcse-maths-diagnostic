@@ -27,6 +27,7 @@ type Question = {
   tolerance: number | null
   traps: { answer_template: string, response: string }[]
   explanation: string | null
+  image_url: string | null
   is_published: boolean
 }
 
@@ -417,6 +418,13 @@ function QuestionPage() {
 
       {/* Question */}
       <div style={card}>
+        {question.image_url && (
+          <img
+            src={question.image_url}
+            alt="Question diagram"
+            style={{ maxWidth: '100%', borderRadius: radius.md, marginBottom: '12px', display: 'block' }}
+          />
+        )}
         <div
           style={{ fontSize: font.xl, color: colors.textPrimary, lineHeight: '1.6' }}
           dangerouslySetInnerHTML={{ __html: rendered.question }}

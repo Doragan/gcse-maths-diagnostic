@@ -39,6 +39,7 @@ type Question = {
   tolerance: number | null
   traps: { answer_template: string; response: string }[]
   explanation: string | null
+  image_url: string | null
 }
 
 type DiagnosticItem = {
@@ -122,17 +123,20 @@ export default function StudentDiagnosticPage() {
   const [tier,      setTier]      = useState<Tier>('foundation')
   const [phase,     setPhase]     = useState<Phase>('setup')
 
-  const [items,        setItems]        = useState<DiagnosticItem[]>([])
-  const [index,        setIndex]        = useState(0)
-  const [correctCount, setCorrectCount] = useState(0)
-  const [results,      setResults]      = useState<boolean[]>([])
-  const [answer,       setAnswer]       = useState('')
-  const [feedback,     setFeedback]     = useState<FeedbackState | null>(null)
+  const [items,           setItems]           = useState<DiagnosticItem[]>([])
+  const [index,           setIndex]           = useState(0)
+  const [correctCount,    setCorrectCount]    = useState(0)
+  const [results,         setResults]         = useState<boolean[]>([])
+  const [answer,          setAnswer]          = useState('')
+  const [feedback,        setFeedback]        = useState<FeedbackState | null>(null)
+  const [pendingAttempts, setPendingAttempts] = useState<Array<{question_id: string; skill_ids: string[]; correct: boolean}>>([])
+
 
   useEffect(() => {
     getStudentProfile().then(p => {
-      if (!p) { router.push('/student'); return }
-      setStudentId(p.id)
+      if (p) setStudentId(p.id)
+      // Anonymous users are allowed — their answers are buffered in state and
+      // saved to localStorage at completion, then imported when they sign up.
     })
   }, [])
 
@@ -262,6 +266,13 @@ export default function StudentDiagnosticPage() {
         .then(({ error }) => {
           if (error) console.error('Failed to save diagnostic attempt:', error)
         })
+    } else {
+      // Anonymous user — buffer locally; imported to the database at sign-up/login.
+      setPendingAttempts(prev => [...prev, {
+        question_id: item.question.id,
+        skill_ids:   [item.skillId],
+        correct:     result.correct,
+      }])
     }
   }
 
@@ -272,6 +283,11 @@ export default function StudentDiagnosticPage() {
 
   function handleNext() {
     if (index + 1 >= items.length) {
+      // Persist buffered answers so they survive the sign-up email confirmation
+      // flow (user opens a new tab or closes the browser, then logs in later).
+      if (!studentId && pendingAttempts.length > 0) {
+        localStorage.setItem('pending_diagnostic', JSON.stringify(pendingAttempts))
+      }
       setPhase('complete')
     } else {
       setIndex(i => i + 1)
@@ -282,12 +298,10 @@ export default function StudentDiagnosticPage() {
 
   // ── Render: loading ────────────────────────────────────────────────────────
 
-  if (!studentId || phase === 'loading') {
+  if (phase === 'loading') {
     return (
       <main style={styles.page}>
-        <p style={{ color: colors.textSecondary, margin: 0 }}>
-          {phase === 'loading' ? 'Preparing your diagnostic…' : 'Loading…'}
-        </p>
+        <p style={{ color: colors.textSecondary, margin: 0 }}>Preparing your diagnostic…</p>
       </main>
     )
   }
@@ -297,18 +311,46 @@ export default function StudentDiagnosticPage() {
   if (phase === 'setup') {
     return (
       <main style={styles.page}>
-        <div style={card}>
-          <h1 style={{ fontSize: font['2xl'], fontWeight: '600', color: colors.textPrimary, margin: '0 0 8px' }}>
-            Placement diagnostic
-          </h1>
-          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 20px', lineHeight: '1.6' }}>
-            Answer {QUESTION_COUNT} questions across different topic areas and Mathsense
-            will identify where you are strong and where to focus your practice.
-            Takes around 5 minutes.
-          </p>
+        <div style={{ textAlign: 'center' as const }}>
+          <a href="/" style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, textDecoration: 'none', letterSpacing: '-0.02em' }}>
+            Mathsense
+          </a>
+        </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-            <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: 0 }}>
+        <div style={card}>
+          <div style={{ textAlign: 'center' as const }}>
+            <h1 style={{ fontSize: font['2xl'], fontWeight: '800', color: colors.textPrimary, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+              GCSE Maths Diagnostic
+            </h1>
+            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: '1.6' }}>
+              Answer {QUESTION_COUNT} questions across different topic areas. Mathsense will map
+              where you&apos;re strong and where to focus. Takes around 5 minutes.
+            </p>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column' as const,
+            gap: '10px',
+            padding: '16px',
+            background: colors.cardAlt,
+            borderRadius: radius.md,
+            border: `1px solid ${colors.border}`,
+          }}>
+            {[
+              { icon: '⏱', text: 'Takes 5–10 minutes' },
+              { icon: '📊', text: 'Covers all major GCSE topics' },
+              { icon: '💡', text: 'No revision needed — just give it a go' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '16px' }}>{icon}</span>
+                <span style={{ fontSize: font.base, color: colors.textSecondary }}>{text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <p style={{ fontSize: font.base, fontWeight: '600', color: colors.textPrimary, margin: 0 }}>
               Which tier are you studying?
             </p>
             <div style={styles.toggle}>
@@ -328,15 +370,21 @@ export default function StudentDiagnosticPage() {
             </div>
           </div>
 
-          <button onClick={beginDiagnostic} style={primaryButton}>
-            Begin diagnostic
+          <button onClick={beginDiagnostic} style={{ ...primaryButton, fontWeight: '800', fontSize: font.lg }}>
+            Start diagnostic →
           </button>
-          <button
-            onClick={() => router.back()}
-            style={{ ...secondaryButton, marginTop: '8px' }}
-          >
-            Go back
-          </button>
+
+          {!studentId && (
+            <div style={{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+              <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
+                Already have an account?{' '}
+                <a href="/student" style={{ color: colors.primary, fontWeight: '600', textDecoration: 'underline' }}>
+                  Log in
+                </a>
+                {' '}to save your results automatically.
+              </p>
+            </div>
+          )}
         </div>
       </main>
     )
@@ -411,7 +459,7 @@ export default function StudentDiagnosticPage() {
                 {pct >= 70 ? 'Great work!' : pct >= 40 ? 'Good start!' : 'Keep practising!'}
               </p>
               <p style={{ fontSize: font.sm, color: scoreColor, margin: 0 }}>
-                {pct}% correct · Your dashboard has been updated.
+                {pct}% correct · {studentId ? 'Your dashboard has been updated.' : 'Sign up to save your results.'}
               </p>
             </div>
           </div>
@@ -505,12 +553,42 @@ export default function StudentDiagnosticPage() {
             </div>
           )}
 
-          <button
-            onClick={() => router.push('/student/dashboard')}
-            style={primaryButton}
-          >
-            View my dashboard
-          </button>
+          {studentId ? (
+            <button
+              onClick={() => router.push('/student/dashboard')}
+              style={primaryButton}
+            >
+              View my dashboard →
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{
+                padding: '16px',
+                borderRadius: radius.lg,
+                background: colors.cardAlt,
+                border: `1px solid ${colors.border}`,
+              }}>
+                <p style={{ fontSize: font.md, fontWeight: '700', color: colors.textPrimary, margin: '0 0 6px' }}>
+                  Save your results &amp; track your progress
+                </p>
+                <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: '1.5' }}>
+                  Create a free account to save your skill map, see your full diagnostic breakdown on your dashboard, and start practising the areas you need most.
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/student')}
+                style={primaryButton}
+              >
+                Create free account →
+              </button>
+              <button
+                onClick={() => router.push('/student')}
+                style={{ ...secondaryButton, textAlign: 'center' as const }}
+              >
+                Already have an account? Log in
+              </button>
+            </div>
+          )}
         </div>
       </main>
     )
@@ -551,6 +629,13 @@ export default function StudentDiagnosticPage() {
 
       {/* Question */}
       <div style={card}>
+        {item.question.image_url && (
+          <img
+            src={item.question.image_url}
+            alt="Question diagram"
+            style={{ maxWidth: '100%', borderRadius: radius.md, marginBottom: '12px', display: 'block' }}
+          />
+        )}
         <div
           style={{ fontSize: font.xl, color: colors.textPrimary, lineHeight: '1.6' }}
           dangerouslySetInnerHTML={{ __html: item.rendered.question }}

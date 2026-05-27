@@ -8,6 +8,7 @@ import {
   primaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
 import { signIn, signUpStudent, signOut, getStudentProfile } from '../../lib/auth'
+import { supabase } from '../../lib/supabase'
 
 type Mode = 'login' | 'signup'
 
@@ -29,6 +30,11 @@ export default function StudentAuthPage() {
     getStudentProfile().then(profile => {
       if (profile) router.push('/student/dashboard')
     })
+    // If the student came here after completing an anonymous diagnostic,
+    // nudge them toward creating an account rather than logging in.
+    if (typeof window !== 'undefined' && localStorage.getItem('pending_diagnostic')) {
+      setMode('signup')
+    }
   }, [])
 
   function reset() {
@@ -60,7 +66,34 @@ export default function StudentAuthPage() {
         await signIn(email, password)
         const profile = await getStudentProfile()
         if (profile) {
-          router.push('/student/dashboard')
+          // Import any diagnostic answers the student completed anonymously.
+          // These are stored in localStorage so they survive the email-confirmation
+          // flow (user closes the tab, confirms, then comes back later).
+          const pendingStr = typeof window !== 'undefined' ? localStorage.getItem('pending_diagnostic') : null
+          const pendingAttempts: Array<{question_id: string; skill_ids: string[]; correct: boolean}> =
+            pendingStr ? JSON.parse(pendingStr) : []
+
+          if (pendingAttempts.length > 0) {
+            const rows = pendingAttempts.map(a => ({
+              student_id:  profile.id,
+              question_id: a.question_id,
+              skill_ids:   a.skill_ids,
+              correct:     a.correct,
+            }))
+            const { error: insertErr } = await supabase.from('practice_attempts').insert(rows)
+            if (!insertErr) localStorage.removeItem('pending_diagnostic')
+            // Go straight to dashboard — they just did the diagnostic
+            router.push('/student/dashboard')
+          } else {
+            // Send first-time users to the diagnostic so their profile is built immediately
+            const { data: attempts } = await supabase
+              .from('practice_attempts')
+              .select('id')
+              .eq('student_id', profile.id)
+              .limit(1)
+            const isNewUser = !attempts || attempts.length === 0
+            router.push(isNewUser ? '/student/diagnostic' : '/student/dashboard')
+          }
         } else {
           // Signed in but no student account — likely a teacher using the wrong login
           await signOut()
@@ -75,13 +108,17 @@ export default function StudentAuthPage() {
   }
 
   if (confirmationSent) {
+    const hasPendingDiagnostic = typeof window !== 'undefined' && !!localStorage.getItem('pending_diagnostic')
     return (
       <main style={pageContainer}>
         <div style={narrowCard}>
           <h1 style={pageTitle}>Check your email</h1>
-          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: '1.6' }}>
             We&apos;ve sent a confirmation link to <strong>{email}</strong>.
-            Click it to activate your account, then come back to log in.
+            Click it to activate your account, then log in here —{' '}
+            {hasPendingDiagnostic
+              ? 'your diagnostic results will be saved to your account automatically.'
+              : 'you\'ll go straight to your diagnostic.'}
           </p>
           <button
             onClick={() => { setMode('login'); setConfirmationSent(false) }}

@@ -35,7 +35,7 @@ export default function NewQuestionPage() {
       tolerance: data.answer_type === 'numeric' ? parseFloat(data.tolerance) : null,
       traps: data.traps,
       explanation: data.explanation || null,
-      image: data.image,
+      image_url: data.image_url || null,
       is_published: data.is_published,
     })
 

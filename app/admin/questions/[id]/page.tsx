@@ -37,6 +37,7 @@ export default function EditQuestionPage() {
         parameters: JSON.stringify(data.parameters, null, 2),
         tolerance: data.tolerance?.toString() ?? '0',
         traps: data.traps ?? [],
+        image_url: data.image_url ?? '',
       })
       setLoading(false)
     })
@@ -59,7 +60,7 @@ export default function EditQuestionPage() {
         tolerance: data.answer_type === 'numeric' ? parseFloat(data.tolerance) : null,
         traps: data.traps,
         explanation: data.explanation || null,
-        image: data.image,
+        image_url: data.image_url || null,
         is_published: data.is_published,
       })
       .eq('id', id)

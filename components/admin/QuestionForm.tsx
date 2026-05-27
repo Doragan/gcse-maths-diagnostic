@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { skillsById } from '../../lib/skills/skillGraph'
 import {
   colors, font, radius, card,
@@ -8,6 +8,7 @@ import {
 } from '../../lib/styles'
 import { buildOptions } from '../../lib/questions/multipleChoice'
 import { generateValues, evaluateTemplate } from '../../lib/questions/paramEngine'
+import { supabase } from '../../lib/supabase'
 
 type Trap = {
   answer_template: string
@@ -25,7 +26,7 @@ type QuestionFormData = {
   tolerance: string
   traps: Trap[]
   explanation: string
-  image: boolean
+  image_url: string       // URL of an uploaded image shown above the question
   is_published: boolean
 }
 
@@ -47,7 +48,7 @@ const emptyForm: QuestionFormData = {
   tolerance: '0',
   traps: [],
   explanation: '',
-  image: false,
+  image_url: '',
   is_published: false,
 }
 
@@ -82,13 +83,20 @@ function parseSimpleParams(parametersJson: string): SimpleParam[] {
 }
 
 export default function QuestionForm({ initialData, onSave, saving, error }: Props) {
-  const [form, setForm] = useState<QuestionFormData>({ ...emptyForm, ...initialData })
-  const [preview, setPreview] = useState<{ 
-  question: string
-  answer: string
-  traps: { answer: string, response: string }[]
-  explanation: string
-} | null>(null)
+  const [form, setForm] = useState<QuestionFormData>({
+    ...emptyForm,
+    ...initialData,
+    // Normalise legacy `image: boolean` rows — treat truthy as empty (no URL yet)
+    image_url: typeof (initialData as any)?.image_url === 'string'
+      ? (initialData as any).image_url
+      : '',
+  })
+  const [preview, setPreview] = useState<{
+    question: string
+    answer: string
+    traps: { answer: string, response: string }[]
+    explanation: string
+  } | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [skillSearch, setSkillSearch] = useState('')
   const [paramMode, setParamMode] = useState<'simple' | 'advanced'>('simple')
@@ -98,6 +106,9 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   const [useFixedValues, setUseFixedValues] = useState(false)
   const [fixedValues, setFixedValues] = useState<Record<string, string>>({})
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [imageUploading, setImageUploading] = useState(false)
+  const [imageError, setImageError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function update(field: keyof QuestionFormData, value: any) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -121,6 +132,25 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
       update('skill_ids', form.skill_ids.filter(id => id !== skillId))
     } else {
       update('skill_ids', [...form.skill_ids, skillId])
+    }
+  }
+
+  async function handleImageUpload(file: File) {
+    setImageError(null)
+    setImageUploading(true)
+    try {
+      const ext = file.name.split('.').pop() ?? 'png'
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('question-images')
+        .upload(path, file, { upsert: false, contentType: file.type })
+      if (uploadError) throw uploadError
+      const { data: urlData } = supabase.storage.from('question-images').getPublicUrl(path)
+      update('image_url', urlData.publicUrl)
+    } catch (e: any) {
+      setImageError(e.message ?? 'Upload failed')
+    } finally {
+      setImageUploading(false)
     }
   }
 
@@ -515,6 +545,52 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             placeholder="Area = width × height = {{a}} × {{b}} = {{a * b}} cm²"
           />
         </div>
+      </div>
+
+      {/* Image */}
+      <div style={card}>
+        <h2 style={sectionTitle}>Image (optional)</h2>
+        <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+          Upload a diagram or image to show above the question. For shapes with parameterised
+          dimensions you can embed inline SVG directly in the question template instead.
+        </p>
+
+        {form.image_url && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <img
+              src={form.image_url}
+              alt="Question image"
+              style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'contain', borderRadius: radius.md, border: `1px solid ${colors.border}` }}
+            />
+            <button
+              onClick={() => update('image_url', '')}
+              style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm, color: colors.dangerText, borderColor: colors.dangerBorder }}
+            >
+              Remove image
+            </button>
+          </div>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+          style={{ display: 'none' }}
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) handleImageUpload(file)
+            e.target.value = ''
+          }}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={imageUploading}
+          style={{ ...secondaryButton, width: 'auto', padding: '8px 16px', opacity: imageUploading ? 0.6 : 1 }}
+        >
+          {imageUploading ? 'Uploading…' : form.image_url ? 'Replace image' : 'Upload image'}
+        </button>
+
+        {imageError && <p style={errorBox}>{imageError}</p>}
       </div>
 
       {/* Traps */}
