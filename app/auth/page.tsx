@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   colors, font, radius,
@@ -8,6 +8,7 @@ import {
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
 import { signIn, signUp, getSession } from '../../lib/auth'
+import { trackEvent } from '../../lib/analytics'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -18,7 +19,16 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
-  
+
+  // Track teacher_signup_start once when they first switch to the signup form
+  const signupTracked = useRef(false)
+  useEffect(() => {
+    if (isSignUp && !signupTracked.current) {
+      signupTracked.current = true
+      trackEvent('teacher_signup_start')
+    }
+  }, [isSignUp])
+
 	useEffect(() => {
 	  getSession().then(session => {
 		if (session) router.push('/dashboard')
@@ -42,10 +52,13 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
+        trackEvent('teacher_signup_submit')
         await signUp(email, password)
+        trackEvent('teacher_signup_success')
         setConfirmationSent(true)
       } else {
         await signIn(email, password)
+        trackEvent('teacher_login_success')
         router.push('/dashboard')
       }
     } catch (e: any) {

@@ -11,6 +11,7 @@ import { renderQuestion, type RenderedQuestion } from '../../../lib/questions/pa
 import { checkAnswer } from '../../../lib/questions/answerChecker'
 import { buildOptions } from '../../../lib/questions/multipleChoice'
 import MathInput from '../../../components/practice/MathInput'
+import { trackEvent } from '../../../lib/analytics'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton,
@@ -153,6 +154,7 @@ export default function StudentDiagnosticPage() {
   // ── Begin ──────────────────────────────────────────────────────────────────
 
   async function beginDiagnostic() {
+    trackEvent('diagnostic_start', { tier })
     setPhase('loading')
 
     const tierSkillIds  = getTierSkillIds(tier)
@@ -288,6 +290,7 @@ export default function StudentDiagnosticPage() {
       if (!studentId && pendingAttempts.length > 0) {
         localStorage.setItem('pending_diagnostic', JSON.stringify(pendingAttempts))
       }
+      trackEvent('diagnostic_complete', { correct: correctCount, total: items.length })
       setPhase('complete')
     } else {
       setIndex(i => i + 1)

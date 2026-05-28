@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   colors, font,
@@ -9,6 +9,7 @@ import {
 } from '../../lib/styles'
 import { signIn, signUpStudent, signOut, getStudentProfile } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
+import { trackEvent } from '../../lib/analytics'
 
 type Mode = 'login' | 'signup'
 
@@ -25,6 +26,16 @@ export default function StudentAuthPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
+
+  // Track signup_start once — fires when the user first switches to signup mode,
+  // whether manually or automatically (post-diagnostic nudge).
+  const signupTracked = useRef(false)
+  useEffect(() => {
+    if (mode === 'signup' && !signupTracked.current) {
+      signupTracked.current = true
+      trackEvent('signup_start')
+    }
+  }, [mode])
 
   useEffect(() => {
     getStudentProfile().then(profile => {
@@ -60,7 +71,9 @@ export default function StudentAuthPage() {
     setLoading(true)
     try {
       if (mode === 'signup') {
+        trackEvent('signup_submit')
         await signUpStudent(email, password, displayName.trim())
+        trackEvent('signup_success')
         setConfirmationSent(true)
       } else {
         await signIn(email, password)
@@ -74,6 +87,7 @@ export default function StudentAuthPage() {
             pendingStr ? JSON.parse(pendingStr) : []
 
           if (pendingAttempts.length > 0) {
+            trackEvent('login_success', { had_pending_diagnostic: true })
             const rows = pendingAttempts.map(a => ({
               student_id:  profile.id,
               question_id: a.question_id,
@@ -92,6 +106,7 @@ export default function StudentAuthPage() {
               .eq('student_id', profile.id)
               .limit(1)
             const isNewUser = !attempts || attempts.length === 0
+            trackEvent('login_success', { new_user: isNewUser })
             router.push(isNewUser ? '/student/diagnostic' : '/student/dashboard')
           }
         } else {
