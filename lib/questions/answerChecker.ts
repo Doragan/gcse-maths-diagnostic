@@ -4,6 +4,169 @@ export type CheckResult = {
   message: string
 }
 
+// ── Expression equivalence helpers ───────────────────────────────────────────
+
+/**
+ * Split a string into additive terms at the TOP LEVEL only (depth=0).
+ * Signs are attached to the term that follows them.
+ *
+ * "x+2y"   → ["x", "+2y"]
+ * "3n+5"   → ["3n", "+5"]
+ * "-2y+x"  → ["-2y", "+x"]
+ * "(x+2)(x+3)" → ["(x+2)(x+3)"]   ← '+' is inside brackets, not split
+ */
+function splitTerms(s: string): string[] {
+  const terms: string[] = []
+  let depth = 0
+  let current = ''
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]
+    if (c === '(') { depth++; current += c }
+    else if (c === ')') { depth--; current += c }
+    else if (depth === 0 && (c === '+' || c === '-') && i > 0) {
+      terms.push(current)
+      current = c
+    } else {
+      current += c
+    }
+  }
+  if (current) terms.push(current)
+  return terms
+}
+
+/**
+ * Canonical sort key for an algebraic term: the variable part (letters/^)
+ * after stripping any leading sign and coefficient.
+ * Constants (no letters) sort last via the high-code-point sentinel.
+ *
+ * "3x"  → "x"     "+2y" → "y"    "-5"  → "￿"
+ * "x^2" → "x^2"   "3n"  → "n"
+ */
+function termKey(t: string): string {
+  const vars = t.replace(/^[+-]?\d*\.?\d*/, '').trim()
+  return vars || '￿'
+}
+
+/**
+ * Sort the additive terms of an expression, then rejoin.
+ * "2y+x"  → "x+2y"   "5+3n"  → "3n+5"   "-2y+x" → "x-2y"
+ */
+function sortedTerms(s: string): string {
+  const terms = splitTerms(s)
+  if (terms.length <= 1) return s
+  terms.sort((a, b) => termKey(a).localeCompare(termKey(b)))
+  // Rejoin: first term loses leading '+', subsequent negative terms keep '-'
+  return terms
+    .map((t, i) =>
+      i === 0
+        ? t.startsWith('+') ? t.slice(1) : t
+        : t.startsWith('-') ? t : (t.startsWith('+') ? t : '+' + t)
+    )
+    .join('')
+}
+
+/**
+ * Split a product expression into its multiplicative factors.
+ *
+ * Handles two common GCSE patterns:
+ *   "(x+2)(x+3)"  → ["(x+2)", "(x+3)"]  (adjacent brackets)
+ *   "2^2*3*5"     → ["2^2", "3", "5"]    (explicit * operator)
+ */
+function splitFactors(s: string): string[] {
+  const factors: string[] = []
+  let depth = 0
+  let current = ''
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]
+    if (c === '(') {
+      depth++
+      current += c
+    } else if (c === ')') {
+      depth--
+      current += c
+      // Adjacent-bracket boundary: split between ) and (
+      if (depth === 0 && i + 1 < s.length && s[i + 1] === '(') {
+        factors.push(current)
+        current = ''
+      }
+    } else if (c === '*' && depth === 0) {
+      factors.push(current)
+      current = ''
+    } else {
+      current += c
+    }
+  }
+  if (current) factors.push(current)
+  return factors.filter(f => f.length > 0)
+}
+
+/**
+ * Sort the multiplicative factors of an expression.
+ * "(x+3)(x+2)" → "(x+2)(x+3)"   "3*2^2" → "2^2*3"
+ */
+function sortedFactors(s: string): string {
+  const factors = splitFactors(s)
+  if (factors.length <= 1) return s
+  factors.sort((a, b) => a.localeCompare(b))
+  // Adjacent-bracket products rejoin without separator;
+  // explicit-* products rejoin with *
+  const sep = s.includes('*') && !s.startsWith('(') ? '*' : ''
+  return factors.join(sep)
+}
+
+/**
+ * Sort a list of solutions separated by "and", "or", or "," so that
+ * "x=-3andx=-2" and "x=-2andx=-3" both normalise to the same string.
+ * Also handles simultaneous-equations answers: "y=3,x=2" → "x=2,y=3".
+ */
+function sortedSolutions(s: string): string {
+  for (const sep of ['and', 'or', ',']) {
+    if (s.includes(sep)) {
+      const parts = s.split(sep)
+      if (parts.length > 1) {
+        parts.sort()
+        return parts.join(sep)
+      }
+    }
+  }
+  return s
+}
+
+/**
+ * Try all commutativity-aware equivalence checks in turn.
+ * Used for answer_type === 'expression'.
+ */
+function expressionMatch(a: string, b: string): boolean {
+  if (a === b) return true
+  if (sortedTerms(a)   === sortedTerms(b))   return true
+  if (sortedFactors(a) === sortedFactors(b)) return true
+  if (sortedSolutions(a) === sortedSolutions(b)) return true
+  return false
+}
+
+/**
+ * Normalise an unordered list of values (e.g. factors of a number).
+ * Splits on any combination of commas and whitespace, sorts numerically
+ * (falling back to alphabetical for non-numbers), and rejoins with ",".
+ *
+ * "1, 2, 3, 6"  → "1,2,3,6"
+ * "6 3 1 2"     → "1,2,3,6"
+ * "1,2,3,6"     → "1,2,3,6"
+ */
+function normalisedSet(s: string): string {
+  return s
+    .trim()
+    .split(/[\s,;]+/)
+    .map(t => t.trim())
+    .filter(t => t.length > 0)
+    .sort((a, b) => {
+      const na = parseFloat(a)
+      const nb = parseFloat(b)
+      return !isNaN(na) && !isNaN(nb) ? na - nb : a.localeCompare(b)
+    })
+    .join(',')
+}
+
 // ── Unit detection ────────────────────────────────────────────────────────────
 
 /**
@@ -78,6 +241,9 @@ function normalise(value: string): string {
     .replace(/³/g, '^3').replace(/⁴/g, '^4').replace(/⁵/g, '^5')
     .replace(/⁶/g, '^6').replace(/⁷/g, '^7').replace(/⁸/g, '^8')
     .replace(/⁹/g, '^9')
+    // Unicode minus (U+2212) → ASCII hyphen. Must come before superscript-minus
+    // so that "x − 3" and "x - 3" are treated identically.
+    .replace(/−/g, '-')
     // Superscript minus
     .replace(/⁻/g, '-')
     // Multiplication symbols
@@ -118,7 +284,7 @@ const UNITS_REMINDER =
 export function checkAnswer(
   studentAnswer: string,
   correctAnswer: string,
-  answerType: 'exact' | 'numeric' | 'fraction' | 'expression',
+  answerType: 'exact' | 'numeric' | 'fraction' | 'expression' | 'set',
   tolerance: number | null,
   traps: { answer: string, response: string }[]
 ): CheckResult {
@@ -134,9 +300,15 @@ export function checkAnswer(
         return numericMatch(normStudent, normCorrect, tol)
       case 'fraction':
         return numericMatch(normStudent, normCorrect, 0.001)
-      case 'expression':
       case 'exact':
         return normStudent === normCorrect
+      case 'expression':
+        // Like 'exact' but also accepts commutatively-equivalent forms:
+        // sorted additive terms, sorted multiplicative factors, sorted solutions.
+        return expressionMatch(normStudent, normCorrect)
+      case 'set':
+        // Unordered list of values — order and whitespace/comma style ignored.
+        return normalisedSet(studentAnswer) === normalisedSet(correctAnswer)
     }
   })()
 
@@ -191,9 +363,12 @@ export function checkAnswer(
           return numericMatch(normStudent, normTrap, tol)
         case 'fraction':
           return numericMatch(normStudent, normTrap, 0.001)
-        case 'expression':
         case 'exact':
           return normStudent === normTrap
+        case 'expression':
+          return expressionMatch(normStudent, normTrap)
+        case 'set':
+          return normalisedSet(studentAnswer) === normalisedSet(trap.answer)
       }
     })()
 
