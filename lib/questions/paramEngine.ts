@@ -105,10 +105,22 @@ function robustRound(n: number, places: number): number {
   return Number(Math.round(+(n + 'e+' + places)) + 'e-' + places)
 }
 
+/**
+ * Render a fraction as an HTML superscript/subscript pair, e.g. frac(3, 4)
+ * produces <sup>3</sup>&frasl;<sub>4</sub> which browsers display as ¾.
+ *
+ * Use inside question templates: "What is {{frac(1, a)}} of {{b}}?"
+ * The result is safe to embed in dangerouslySetInnerHTML question HTML.
+ */
+function htmlFrac(numerator: number, denominator: number): string {
+  return `<sup>${numerator}</sup>&frasl;<sub>${denominator}</sub>`
+}
+
 // Helper functions exposed to every template expression.
 // Add new helpers here; they will be available by name in {{...}} blocks.
 const TEMPLATE_HELPERS: Record<string, unknown> = {
   round: robustRound,
+  frac: htmlFrac,
 }
 
 /**

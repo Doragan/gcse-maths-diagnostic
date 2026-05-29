@@ -49,6 +49,8 @@ const SYMBOL_GROUPS: { title: string, buttons: SymbolButton[] }[] = [
 // Convert plain text input to LaTeX for preview
 function toLatex(input: string): string {
   return input
+    // Fractions: -3/4 or 3/4 → \frac{3}{4}  (must come before other replacements)
+    .replace(/(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)/g, '\\frac{$1}{$2}')
     .replace(/\^(\d+)/g, '^{$1}')
     .replace(/\^([a-zA-Z])/g, '^{$1}')
     .replace(/sqrt\(([^)]*)\)/g, '\\sqrt{$1}')
@@ -182,7 +184,7 @@ export default function MathInput({ value, onChange, onSubmit, placeholder }: Pr
             </div>
           ))}
           <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
-            Tip: type ^ for powers, e.g. x^2 for x²
+            Tips: use / for fractions (e.g. 3/4), ^ for powers (e.g. x^2)
           </p>
         </div>
       )}

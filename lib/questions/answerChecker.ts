@@ -276,6 +276,41 @@ function numericMatch(
   return Math.abs(student - correct) <= tolerance
 }
 
+// ── Fraction parsing ──────────────────────────────────────────────────────────
+
+/**
+ * Parse a string that may be an integer, decimal, or fraction (e.g. "3/4", "-1/2").
+ * Returns the numeric value, or NaN if the string is not a recognised number form.
+ *
+ * normalise() strips whitespace before this is called, so we only need to handle
+ * compact forms like "3/4" or "-1/2", not "3 / 4".
+ */
+function parseFraction(s: string): number {
+  const m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/)
+  if (m) {
+    const num = parseFloat(m[1])
+    const den = parseFloat(m[2])
+    return den === 0 ? NaN : num / den
+  }
+  return parseFloat(s)
+}
+
+/**
+ * Compare two answers that may be expressed as fractions (e.g. "3/4" vs "0.75").
+ * Uses parseFraction so that "3/4" and "6/8" and "0.75" are all equivalent
+ * within the given tolerance.
+ */
+function fractionMatch(
+  studentAnswer: string,
+  correctAnswer: string,
+  tolerance: number
+): boolean {
+  const student = parseFraction(studentAnswer)
+  const correct  = parseFraction(correctAnswer)
+  if (isNaN(student) || isNaN(correct)) return false
+  return Math.abs(student - correct) <= tolerance
+}
+
 // ── Main checker ──────────────────────────────────────────────────────────────
 
 const UNITS_REMINDER =
@@ -299,7 +334,7 @@ export function checkAnswer(
         // We handle the units-reminder separately below.
         return numericMatch(normStudent, normCorrect, tol)
       case 'fraction':
-        return numericMatch(normStudent, normCorrect, 0.001)
+        return fractionMatch(normStudent, normCorrect, 0.001)
       case 'exact':
         return normStudent === normCorrect
       case 'expression':
@@ -337,7 +372,7 @@ export function checkAnswer(
     const matchesWithoutUnits = (() => {
       switch (answerType) {
         case 'fraction':
-          return numericMatch(normStudentStripped, normCorrectStripped, 0.001)
+          return fractionMatch(normStudentStripped, normCorrectStripped, 0.001)
         case 'expression':
         case 'exact':
           return normStudentStripped === normCorrectStripped
@@ -362,7 +397,7 @@ export function checkAnswer(
         case 'numeric':
           return numericMatch(normStudent, normTrap, tol)
         case 'fraction':
-          return numericMatch(normStudent, normTrap, 0.001)
+          return fractionMatch(normStudent, normTrap, 0.001)
         case 'exact':
           return normStudent === normTrap
         case 'expression':
