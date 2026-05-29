@@ -111,11 +111,38 @@ const TEMPLATE_HELPERS: Record<string, unknown> = {
   round: robustRound,
 }
 
+/**
+ * Fix two common display problems that arise when negative parameters are
+ * substituted into templates:
+ *
+ *   1. Double-sign collapse
+ *      "2n + -5"  →  "2n - 5"     (positive + negative  → subtract)
+ *      "2n - -5"  →  "2n + 5"     (negative - negative  → add)
+ *
+ *   2. Invisible coefficient of 1
+ *      "1x"  →  "x"               (leading 1 before a variable)
+ *      "-1x" →  "-x"              (leading -1 before a variable)
+ *
+ * Applied to the whole evaluated string so it works regardless of how the
+ * template was written. Safe for HTML question templates — the patterns
+ * only match mathematical notation, not HTML tag syntax.
+ */
+function cleanExpression(s: string): string {
+  return s
+    // Collapse "+" followed by "-" into a single "-" (with tidy spacing)
+    .replace(/\s*\+\s*-\s*/g, ' - ')
+    // Collapse "--" (double negative) into "+" (with tidy spacing)
+    .replace(/\s*-\s*-\s*/g, ' + ')
+    // Remove coefficient of 1 before a letter: "1x" → "x", "-1x" → "-x"
+    // Negative lookbehind (?<![0-9.]) prevents "11x" or "0.1x" from matching.
+    .replace(/(?<![0-9.])1([a-zA-Z])/g, '$1')
+}
+
 export function evaluateTemplate(
   template: string,
   generated: Record<string, number>
 ): string {
-  return template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
+  const evaluated = template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
     try {
       const fn = new Function(
         ...Object.keys(generated),
@@ -127,6 +154,7 @@ export function evaluateTemplate(
       return `[error: ${expr}]`
     }
   })
+  return cleanExpression(evaluated)
 }
 
 export type RenderedQuestion = {
