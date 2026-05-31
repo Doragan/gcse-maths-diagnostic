@@ -173,6 +173,10 @@ const TEMPLATE_HELPERS: Record<string, unknown> = {
  *      "1x"  →  "x"               (leading 1 before a variable)
  *      "-1x" →  "-x"              (leading -1 before a variable)
  *
+ *   3. Redundant zero constant term
+ *      "5n + 0"  →  "5n"          (additive identity)
+ *      "-7n - 0" →  "-7n"
+ *
  * Applied only to text nodes (content between HTML tags) so it never
  * mangles CSS property values (e.g. "1px", "1em") or HTML attributes
  * inside tag definitions.
@@ -190,6 +194,10 @@ function cleanExpression(s: string): string {
       // Remove coefficient of 1 before a letter: "1x" → "x", "-1x" → "-x"
       // Negative lookbehind (?<![0-9.]) prevents "11x" or "0.1x" from matching.
       .replace(/(?<![0-9.])1([a-zA-Z])/g, '$1')
+      // Drop a redundant "+ 0" / "- 0" constant term: "5n + 0" → "5n".
+      // Requires a leading sign (so "10", "100" never match) and a lookahead
+      // (?![0-9.a-zA-Z]) so "+ 05", "+ 0.5" and a "0n" coefficient are left alone.
+      .replace(/\s*[+-]\s*0(?![0-9.a-zA-Z])/g, '')
   })
 }
 
