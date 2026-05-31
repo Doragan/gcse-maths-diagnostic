@@ -3,8 +3,6 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { skills } from '../../../data/skills'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -53,13 +51,20 @@ export async function POST(req: NextRequest) {
 
     // ── 3. Send email notification ────────────────────────────────────────────
     const notifyEmail = process.env.REPORT_NOTIFY_EMAIL
+    const resendKey   = process.env.RESEND_API_KEY
     const fromEmail   = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
     const siteUrl     = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
 
-    if (!notifyEmail) {
-      console.warn('REPORT_NOTIFY_EMAIL not set — skipping email')
+    // The report is already recorded in analytics_events above; email is a
+    // best-effort notification. Skip it (don't error) if it isn't configured.
+    if (!notifyEmail || !resendKey) {
+      console.warn('REPORT_NOTIFY_EMAIL or RESEND_API_KEY not set — skipping email')
       return NextResponse.json({ ok: true })
     }
+
+    // Instantiate Resend here (not at module scope) so a missing key can't throw
+    // during the production build's page-data collection.
+    const resend = new Resend(resendKey)
 
     const questionUrl   = `${siteUrl}/practice/question/${questionId}`
     const publishedFlag = question?.is_published ? 'Published' : '⚠ Draft'
