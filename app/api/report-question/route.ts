@@ -15,6 +15,18 @@ const ISSUE_LABELS: Record<string, string> = {
   other:           'Other',
 }
 
+// Escape user-supplied values before interpolating them into the email HTML.
+// The report fields (description, studentId, issueType, renderedValues, …) are
+// attacker-controllable via the public report endpoint, so any '<', '"', etc.
+// must be neutralised to prevent HTML/markup injection into the notification.
+const escapeHtml = (s: unknown): string =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
 export async function POST(req: NextRequest) {
   try {
     const { questionId, issueType, description, renderedValues, studentId, sessionId } =
@@ -66,18 +78,19 @@ export async function POST(req: NextRequest) {
     // during the production build's page-data collection.
     const resend = new Resend(resendKey)
 
-    const questionUrl   = `${siteUrl}/practice/question/${questionId}`
+    // encodeURIComponent the id so a hostile value can't break out of the href.
+    const questionUrl   = `${siteUrl}/practice/question/${encodeURIComponent(questionId)}`
     const publishedFlag = question?.is_published ? 'Published' : '⚠ Draft'
     const difficultyStr = question ? '★'.repeat(question.difficulty) + '☆'.repeat(5 - question.difficulty) : '—'
 
     const paramsHtml = Object.entries(renderedValues ?? {})
-      .map(([k, v]) => `<tr><td style="padding:3px 10px 3px 0;color:#6b7280;">${k}</td><td style="padding:3px 0;font-weight:600;">${v}</td></tr>`)
+      .map(([k, v]) => `<tr><td style="padding:3px 10px 3px 0;color:#6b7280;">${escapeHtml(k)}</td><td style="padding:3px 0;font-weight:600;">${escapeHtml(v)}</td></tr>`)
       .join('')
 
     const { error: emailError } = await resend.emails.send({
       from:    fromEmail,
       to:      notifyEmail,
-      subject: `[Mathsense] Question report – ${ISSUE_LABELS[issueType] ?? issueType}`,
+      subject: `[Mathsense] Question report – ${(ISSUE_LABELS[issueType] ?? String(issueType)).replace(/[\r\n]+/g, ' ').slice(0, 120)}`,
       html: `
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#111827;">
           <h2 style="margin:0 0 4px;">🚩 Question report</h2>
@@ -86,16 +99,16 @@ export async function POST(req: NextRequest) {
           <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Issue type</td>
-              <td style="padding:6px 0;font-weight:600;">${ISSUE_LABELS[issueType] ?? issueType}</td>
+              <td style="padding:6px 0;font-weight:600;">${escapeHtml(ISSUE_LABELS[issueType] ?? issueType)}</td>
             </tr>
             ${description ? `
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Details</td>
-              <td style="padding:6px 0;">${description}</td>
+              <td style="padding:6px 0;">${escapeHtml(description)}</td>
             </tr>` : ''}
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Skill</td>
-              <td style="padding:6px 0;">${skillNames || '—'}</td>
+              <td style="padding:6px 0;">${escapeHtml(skillNames) || '—'}</td>
             </tr>
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Difficulty</td>
@@ -107,7 +120,7 @@ export async function POST(req: NextRequest) {
             </tr>
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Reporter</td>
-              <td style="padding:6px 0;">${studentId ?? 'Anonymous'}</td>
+              <td style="padding:6px 0;">${escapeHtml(studentId ?? 'Anonymous')}</td>
             </tr>
           </table>
 
@@ -125,7 +138,7 @@ export async function POST(req: NextRequest) {
 
           <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0;">
           <p style="color:#9ca3af;font-size:12px;margin:0;">
-            Question ID: ${questionId}
+            Question ID: ${escapeHtml(questionId)}
           </p>
         </div>
       `,
