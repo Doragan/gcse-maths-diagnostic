@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { skillsById } from '../../lib/skills/skillGraph'
 import {
   colors, font, radius, card,
@@ -109,6 +109,12 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   const [imageUploading, setImageUploading] = useState(false)
   const [imageError, setImageError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }, [])
 
   function update(field: keyof QuestionFormData, value: any) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -505,9 +511,10 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           <div style={styles.field}>
             <label style={labelStyle}>Parameters (JSON)</label>
             <textarea
+              ref={autoResize}
               value={form.parameters}
-              onChange={e => update('parameters', e.target.value)}
-              style={{ ...inputStyle, fontFamily: 'monospace', minHeight: '120px', resize: 'vertical' as const }}
+              onChange={e => { update('parameters', e.target.value); autoResize(e.target) }}
+              style={{ ...inputStyle, fontFamily: 'monospace', minHeight: '120px', resize: 'none' as const }}
               placeholder={`{\n  "a": { "type": "integer", "min": 2, "max": 12 },\n  "b": { "type": "integer", "min": 2, "max": 12 }\n}`}
             />
           </div>
@@ -520,9 +527,10 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         <div style={styles.field}>
           <label style={labelStyle}>Question template (HTML)</label>
           <textarea
+            ref={autoResize}
             value={form.question_template}
-            onChange={e => update('question_template', e.target.value)}
-            style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' as const }}
+            onChange={e => { update('question_template', e.target.value); autoResize(e.target) }}
+            style={{ ...inputStyle, minHeight: '120px', resize: 'none' as const, fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.5' }}
             placeholder="<p>Find the area of a rectangle with width <strong>{{a}} cm</strong> and height <strong>{{b}} cm</strong>.</p>"
           />
         </div>
@@ -539,9 +547,10 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         <div style={styles.field}>
           <label style={labelStyle}>Explanation (shown after answering)</label>
           <textarea
+            ref={autoResize}
             value={form.explanation}
-            onChange={e => update('explanation', e.target.value)}
-            style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' as const }}
+            onChange={e => { update('explanation', e.target.value); autoResize(e.target) }}
+            style={{ ...inputStyle, minHeight: '80px', resize: 'none' as const }}
             placeholder="Area = width × height = {{a}} × {{b}} = {{a * b}} cm²"
           />
         </div>
@@ -623,9 +632,10 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             <div style={styles.field}>
               <label style={{ ...labelStyle, fontWeight: '400' }}>Response to student</label>
               <textarea
+                ref={autoResize}
                 value={trap.response}
-                onChange={e => updateTrap(i, 'response', e.target.value)}
-                style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' as const }}
+                onChange={e => { updateTrap(i, 'response', e.target.value); autoResize(e.target) }}
+                style={{ ...inputStyle, minHeight: '60px', resize: 'none' as const }}
                 placeholder="It looks like you added the dimensions rather than multiplied them. Area = width × height."
               />
             </div>

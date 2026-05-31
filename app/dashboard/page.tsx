@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [newCourseId, setNewCourseId] = useState('gcse_foundation')
 
@@ -72,36 +73,48 @@ useEffect(() => {
   }
 
   setCreating(true)
-  const code = generateCode()
-  const session = await getSession()
-  if (!session) return
+  setCreateError('')
+  try {
+    const session = await getSession()
+    if (!session) { router.push('/auth'); return }
 
-  const { data, error } = await supabase
-    .from('assessments')
-    .insert({
-      title: newTitle.trim(),
-      code,
-      teacher_id: session.user.id,
-      course_id: newCourseId,
+    // Creation, the free-limit check, and the usage counter are all enforced
+    // server-side (app/api/assessments/create). The client no longer writes
+    // teachers.free_assessments_used directly.
+    const res = await fetch('/api/assessments/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ title: newTitle.trim(), courseId: newCourseId }),
     })
-    .select()
-    .single()
 
-  if (!error && data) {
-    setAssessments(prev => [data, ...prev])
+    if (res.status === 402) {
+      // Free limit reached (enforced by the server).
+      router.push('/dashboard/upgrade')
+      return
+    }
+
+    const json = await res.json().catch(() => null)
+    if (!res.ok || !json?.assessment) {
+      setCreateError(
+        json?.error ? `${json.error} (HTTP ${res.status})` : `Couldn't create assessment (HTTP ${res.status})`,
+      )
+      return
+    }
+
+    setAssessments(prev => [json.assessment, ...prev])
     setNewTitle('')
     setNewCourseId('gcse_foundation')
-
-    // Increment free assessments used if not paid
-    if (!isPaid) {
-      await supabase
-        .from('teachers')
-        .update({ free_assessments_used: freeAssessmentsUsed + 1 })
-        .eq('id', session.user.id)
-      setFreeAssessmentsUsed(prev => prev + 1)
+    if (typeof json.freeAssessmentsUsed === 'number') {
+      setFreeAssessmentsUsed(json.freeAssessmentsUsed)
     }
+  } catch (e: any) {
+    setCreateError(`Network error: ${e?.message ?? e}`)
+  } finally {
+    setCreating(false)
   }
-  setCreating(false)
 }
 
   async function handleSignOut() {
@@ -216,6 +229,11 @@ useEffect(() => {
 			  {creating ? 'Creating...' : 'Create'}
 			</button>
 		  </div>
+		  {createError && (
+			<p style={{ fontSize: font.sm, color: colors.dangerText ?? '#b91c1c', margin: '8px 0 0' }}>
+			  {createError}
+			</p>
+		  )}
 		  <div style={styles.toggle}>
 			<button
 			  onClick={() => setNewCourseId('gcse_foundation')}
@@ -292,13 +310,6 @@ useEffect(() => {
       </div>
     </main>
   )
-}
-
-function generateCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)]
-  return code
 }
 
 const styles: Record<string, React.CSSProperties> = {

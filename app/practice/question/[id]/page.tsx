@@ -12,6 +12,7 @@ import {
   primaryButton, secondaryButton,
 } from '../../../../lib/styles'
 import MathInput from '../../../../components/practice/MathInput'
+import ReportIssueButton from '../../../../components/practice/ReportIssueButton'
 import { buildOptions } from '../../../../lib/questions/multipleChoice'
 import { getStudentProfile } from '../../../../lib/auth'
 
@@ -700,6 +701,13 @@ function QuestionPage() {
           </div>
         </div>
       )}
+
+      {/* Report an issue */}
+      <ReportIssueButton
+        questionId={id}
+        renderedValues={rendered.generatedValues}
+        studentId={studentId}
+      />
 
       {/* Ko-fi */}
       <div style={{ textAlign: 'center' as const, marginTop: '8px' }}>

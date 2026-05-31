@@ -1,8 +1,179 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '../lib/analytics'
 import { colors, font, radius } from '../lib/styles'
+
+// ── Demo Question ────────────────────────────────────────────────────────────
+
+const DEMO_VARIANTS = [
+  { price: 80,  pct: 25 },
+  { price: 120, pct: 20 },
+  { price: 150, pct: 40 },
+  { price: 200, pct: 30 },
+] as const
+
+type DemoPhase = 'idle' | 'trap-discount' | 'trap-increase' | 'trap-other' | 'correct'
+
+function DemoQuestion() {
+  const [vi, setVi] = useState(0)
+  const [raw, setRaw] = useState('')
+  const [phase, setPhase] = useState<DemoPhase>('idle')
+
+  const { price, pct } = DEMO_VARIANTS[vi]
+  const saving = price * pct / 100
+  const answer = price - saving
+  const multiplier = (100 - pct) / 100
+
+  function check() {
+    const n = parseFloat(raw.trim().replace(/[£,\s]/g, ''))
+    if (isNaN(n)) return
+    if (Math.abs(n - answer) <= 0.01)                  setPhase('correct')
+    else if (Math.abs(n - saving) <= 0.01)             setPhase('trap-discount')
+    else if (Math.abs(n - (price + saving)) <= 0.01)   setPhase('trap-increase')
+    else                                               setPhase('trap-other')
+  }
+
+  function next()  { setVi((vi + 1) % DEMO_VARIANTS.length); setRaw(''); setPhase('idle') }
+  function retry() { setRaw(''); setPhase('idle') }
+
+  const trapMsg =
+    phase === 'trap-discount'
+      ? <>That&apos;s the <strong>amount saved</strong> (£{saving}), not the sale price. Sale price = £{price} − £{saving} = <strong>£{answer}</strong>.</>
+      : phase === 'trap-increase'
+      ? <>This is a <strong>reduction</strong>, so subtract the {pct}%: £{price} − £{saving} = <strong>£{answer}</strong>.</>
+      : <>Not quite. Sale price = £{price} × (1 − {pct}/100) = £{price} × {multiplier} = <strong>£{answer}</strong>.</>
+
+  return (
+    <div style={{
+      background: '#fff',
+      border: `1.5px solid ${colors.border}`,
+      borderRadius: radius.lg,
+      overflow: 'hidden',
+      maxWidth: 540,
+      margin: '0 auto',
+      boxShadow: '0 6px 28px rgba(0,0,0,0.09)',
+      textAlign: 'left',
+    }}>
+      {/* Card header */}
+      <div style={{
+        background: `${colors.primary}0a`,
+        borderBottom: `1px solid ${colors.border}`,
+        padding: '10px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <span style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
+          Live demo question
+        </span>
+        <span style={{ fontSize: font.sm, color: colors.textHint }}>
+          Ratio &amp; Proportion · Percentage Change
+        </span>
+      </div>
+
+      {/* Question */}
+      <div style={{ padding: '24px 24px 20px' }}>
+        <p style={{ fontSize: font.lg, color: colors.textPrimary, margin: '0 0 22px', lineHeight: '1.65' }}>
+          A jacket was originally priced at <strong>£{price}</strong>. It is reduced by{' '}
+          <strong>{pct}%</strong> in a sale.<br />
+          What is the sale price?
+        </p>
+
+        {/* Answer input */}
+        {phase === 'idle' && (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ position: 'relative' as const, flex: 1 }}>
+              <span style={{
+                position: 'absolute' as const, left: 12, top: '50%', transform: 'translateY(-50%)',
+                color: colors.textSecondary, fontWeight: '600', pointerEvents: 'none' as const,
+              }}>£</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={raw}
+                onChange={e => setRaw(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && check()}
+                placeholder="Your answer"
+                style={{
+                  width: '100%', boxSizing: 'border-box' as const,
+                  padding: '11px 14px 11px 28px',
+                  border: `1.5px solid ${colors.borderStrong}`, borderRadius: radius.md,
+                  fontSize: font.lg, fontFamily: 'inherit', outline: 'none',
+                }}
+              />
+            </div>
+            <button
+              onClick={check}
+              style={{
+                background: colors.primary, color: '#fff', border: 'none',
+                borderRadius: radius.md, padding: '0 22px', fontSize: font.lg,
+                fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' as const,
+                fontFamily: 'inherit', flexShrink: 0,
+              }}
+            >
+              Check →
+            </button>
+          </div>
+        )}
+
+        {/* Correct */}
+        {phase === 'correct' && (
+          <div style={{ background: colors.successLight, border: `1px solid ${colors.successBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
+            <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.successText, margin: '0 0 6px' }}>✓ Correct!</p>
+            <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 14px', lineHeight: 1.6 }}>
+              £{price} × (1 − {pct}/100) = £{price} × {multiplier} = <strong>£{answer}</strong>
+            </p>
+            <button
+              onClick={() => { trackEvent('demo_next_clicked'); next() }}
+              style={{
+                background: colors.primary, color: '#fff', border: 'none',
+                borderRadius: radius.md, padding: '9px 18px', fontSize: font.base,
+                fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              Try another question →
+            </button>
+          </div>
+        )}
+
+        {/* Trap / wrong */}
+        {(phase === 'trap-discount' || phase === 'trap-increase' || phase === 'trap-other') && (
+          <div style={{ background: colors.dangerLight, border: `1px solid ${colors.dangerBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
+            <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.dangerText, margin: '0 0 6px' }}>✗ Not quite</p>
+            <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 14px', lineHeight: 1.6 }}>
+              {trapMsg}
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+              <button
+                onClick={retry}
+                style={{
+                  background: 'transparent', color: colors.textPrimary,
+                  border: `1.5px solid ${colors.borderStrong}`,
+                  borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
+                  fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                Try again
+              </button>
+              <button
+                onClick={() => { trackEvent('demo_next_clicked'); next() }}
+                style={{
+                  background: colors.primary, color: '#fff', border: 'none',
+                  borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
+                  fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                Next question →
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function LandingPage() {
   return (
@@ -283,6 +454,31 @@ export default function LandingPage() {
               Start free diagnostic →
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ── Try it yourself ────────────────────────────────────────────────────── */}
+      <section style={{ padding: 'clamp(48px, 8vw, 80px) 24px', background: '#ffffff', borderTop: `1px solid ${colors.border}` }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' as const }}>
+          <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, margin: '0 0 14px', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
+            Try it yourself
+          </p>
+          <h2 style={{
+            fontSize: 'clamp(24px, 4vw, 36px)',
+            fontWeight: '800',
+            color: colors.textPrimary,
+            margin: '0 0 16px',
+            letterSpacing: '-0.02em',
+          }}>
+            Real questions, targeted feedback
+          </h2>
+          <p style={{ fontSize: font.md, color: colors.textSecondary, margin: '0 0 32px', lineHeight: '1.65', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
+            Every question in Mathsense knows the most common mistakes and gives specific, helpful feedback — not just &ldquo;wrong, try again.&rdquo; See for yourself:
+          </p>
+          <DemoQuestion />
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '16px 0 0' }}>
+            The full diagnostic has questions across all 5 topics and 135 skills.
+          </p>
         </div>
       </section>
 

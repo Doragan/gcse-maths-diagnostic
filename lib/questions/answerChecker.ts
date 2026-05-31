@@ -299,6 +299,13 @@ function parseFraction(s: string): number {
  * Compare two answers that may be expressed as fractions (e.g. "3/4" vs "0.75").
  * Uses parseFraction so that "3/4" and "6/8" and "0.75" are all equivalent
  * within the given tolerance.
+ *
+ * Special rule for decimal input: if the student wrote a decimal (e.g. "0.25")
+ * rather than a fraction, we require an exact IEEE 754 match (tolerance 1e-9)
+ * instead of the normal 0.001 tolerance. This means:
+ *   • "0.25"   for 1/4  → accepted  (0.25 IS 1/4 exactly in float arithmetic)
+ *   • "0.1667" for 1/6  → rejected  (differs from 1/6 by ~3×10⁻⁵, a rounded guess)
+ *   • "1/4"    for 1/4  → accepted  (fraction notation always uses normal tolerance)
  */
 function fractionMatch(
   studentAnswer: string,
@@ -308,13 +315,38 @@ function fractionMatch(
   const student = parseFraction(studentAnswer)
   const correct  = parseFraction(correctAnswer)
   if (isNaN(student) || isNaN(correct)) return false
-  return Math.abs(student - correct) <= tolerance
+  // Detect a decimal answer: has a "." and no "/" (after normalise has run)
+  const isDecimal = studentAnswer.includes('.') && !studentAnswer.includes('/')
+  const effectiveTolerance = isDecimal ? 1e-9 : tolerance
+  return Math.abs(student - correct) <= effectiveTolerance
+}
+
+/**
+ * Return true if the student wrote a fraction that hasn't been fully simplified,
+ * e.g. "6/12" or "-4/8". Returns false for decimals, integers, and fractions
+ * already in lowest terms.
+ *
+ * Only called after the answer has been confirmed numerically correct, so this
+ * is purely a "could be tidier" check rather than a correctness gate.
+ */
+function isUnsimplifiedFraction(s: string): boolean {
+  const m = s.match(/^-?(\d+)\/(\d+)$/)
+  if (!m) return false
+  let a = parseInt(m[1], 10)
+  let b = parseInt(m[2], 10)
+  if (b === 0) return false
+  // Euclidean GCD
+  while (b > 0) { [a, b] = [b, a % b] }
+  return a > 1 // GCD > 1 → common factor remains
 }
 
 // ── Main checker ──────────────────────────────────────────────────────────────
 
 const UNITS_REMINDER =
   'Correct! Remember to include units in your answer — you can lose marks in exams for missing units.'
+
+const SIMPLIFICATION_REMINDER =
+  'Correct! Remember to simplify your fraction fully — you may lose marks in an exam for leaving it unsimplified.'
 
 export function checkAnswer(
   studentAnswer: string,
@@ -355,11 +387,18 @@ export function checkAnswer(
   const studentHasUnits = containsUnits(studentAnswer)
   const missingUnits    = correctHasUnits && !studentHasUnits
 
+  // Check whether the student's fraction answer is correct but not fully reduced.
+  // Only applies to fraction-type questions; decimals and integers are unaffected.
+  const notSimplified =
+    answerType === 'fraction' && isCorrect && isUnsimplifiedFraction(normStudent)
+
   if (isCorrect) {
     return {
       correct: true,
       trap:    null,
-      message: missingUnits ? UNITS_REMINDER : 'Correct!',
+      message: notSimplified ? SIMPLIFICATION_REMINDER
+              : missingUnits  ? UNITS_REMINDER
+              : 'Correct!',
     }
   }
 
@@ -382,7 +421,13 @@ export function checkAnswer(
     })()
 
     if (matchesWithoutUnits) {
-      return { correct: true, trap: null, message: UNITS_REMINDER }
+      const notSimplifiedStripped =
+        answerType === 'fraction' && isUnsimplifiedFraction(normStudentStripped)
+      return {
+        correct: true,
+        trap:    null,
+        message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER : UNITS_REMINDER,
+      }
     }
   }
 

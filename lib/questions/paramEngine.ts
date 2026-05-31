@@ -106,14 +106,50 @@ function robustRound(n: number, places: number): number {
 }
 
 /**
- * Render a fraction as an HTML superscript/subscript pair, e.g. frac(3, 4)
- * produces <sup>3</sup>&frasl;<sub>4</sub> which browsers display as ¾.
+ * Greatest common divisor (Euclidean algorithm).
+ * Used in answer templates to produce fully-simplified fractions,
+ * e.g. {{fracStr(a*c, b*d)}}
+ */
+function gcd(a: number, b: number): number {
+  a = Math.abs(Math.round(a))
+  b = Math.abs(Math.round(b))
+  while (b > 0) { [a, b] = [b, a % b] }
+  return a
+}
+
+/**
+ * Return a fraction as plain text, automatically simplifying and collapsing
+ * whole numbers: fracStr(6, 1) → "6", fracStr(3, 4) → "3/4".
  *
- * Use inside question templates: "What is {{frac(1, a)}} of {{b}}?"
+ * Use in answer_template and trap answer_template so the "correct answer"
+ * shown in feedback is always in its cleanest form.
+ * For HTML display inside questions/explanations, use frac() instead.
+ */
+function fracStr(numerator: number, denominator: number): string {
+  const g = gcd(numerator, denominator)
+  const n = Math.round(numerator / g)
+  const d = Math.round(denominator / g)
+  return d === 1 ? String(n) : `${n}/${d}`
+}
+
+/**
+ * Render a fraction as a vertically-stacked HTML fraction with a horizontal
+ * bar — identical to how fractions appear in textbooks.
+ *
+ *   frac(3, 4)   →  ³⁄₄  (displayed as a proper stacked fraction)
+ *   frac(x+1, 2) →  works for algebraic expressions too (pass strings)
+ *
+ * Uses inline-flex so it flows naturally inside a sentence without extra CSS.
  * The result is safe to embed in dangerouslySetInnerHTML question HTML.
  */
-function htmlFrac(numerator: number, denominator: number): string {
-  return `<sup>${numerator}</sup>&frasl;<sub>${denominator}</sub>`
+function htmlFrac(numerator: number | string, denominator: number | string): string {
+  return (
+    `<span style="display:inline-flex;flex-direction:column;align-items:center;` +
+    `vertical-align:middle;margin:0 3px;font-size:0.9em;line-height:1.3;">` +
+    `<span style="border-bottom:1px solid currentColor;padding:0 4px;text-align:center;">${numerator}</span>` +
+    `<span style="padding:0 4px;text-align:center;">${denominator}</span>` +
+    `</span>`
+  )
 }
 
 // Helper functions exposed to every template expression.
@@ -121,6 +157,8 @@ function htmlFrac(numerator: number, denominator: number): string {
 const TEMPLATE_HELPERS: Record<string, unknown> = {
   round: robustRound,
   frac: htmlFrac,
+  gcd,
+  fracStr,
 }
 
 /**
@@ -135,19 +173,24 @@ const TEMPLATE_HELPERS: Record<string, unknown> = {
  *      "1x"  →  "x"               (leading 1 before a variable)
  *      "-1x" →  "-x"              (leading -1 before a variable)
  *
- * Applied to the whole evaluated string so it works regardless of how the
- * template was written. Safe for HTML question templates — the patterns
- * only match mathematical notation, not HTML tag syntax.
+ * Applied only to text nodes (content between HTML tags) so it never
+ * mangles CSS property values (e.g. "1px", "1em") or HTML attributes
+ * inside tag definitions.
  */
 function cleanExpression(s: string): string {
-  return s
-    // Collapse "+" followed by "-" into a single "-" (with tidy spacing)
-    .replace(/\s*\+\s*-\s*/g, ' - ')
-    // Collapse "--" (double negative) into "+" (with tidy spacing)
-    .replace(/\s*-\s*-\s*/g, ' + ')
-    // Remove coefficient of 1 before a letter: "1x" → "x", "-1x" → "-x"
-    // Negative lookbehind (?<![0-9.]) prevents "11x" or "0.1x" from matching.
-    .replace(/(?<![0-9.])1([a-zA-Z])/g, '$1')
+  // Split into alternating HTML-tag and text-node segments.
+  // Only the text nodes (group 2) are cleaned; tag markup (group 1) passes through.
+  return s.replace(/(<[^>]*>)|([^<]+)/g, (match, tag, text) => {
+    if (tag) return tag // HTML tag — pass through completely unchanged
+    return text
+      // Collapse "+" followed by "-" into a single "-" (with tidy spacing)
+      .replace(/\s*\+\s*-\s*/g, ' - ')
+      // Collapse "--" (double negative) into "+" (with tidy spacing)
+      .replace(/\s*-\s*-\s*/g, ' + ')
+      // Remove coefficient of 1 before a letter: "1x" → "x", "-1x" → "-x"
+      // Negative lookbehind (?<![0-9.]) prevents "11x" or "0.1x" from matching.
+      .replace(/(?<![0-9.])1([a-zA-Z])/g, '$1')
+  })
 }
 
 export function evaluateTemplate(
@@ -191,7 +234,7 @@ export function renderQuestion(
     answer: evaluateTemplate(answerTemplate, generated),
     traps: traps.map(t => ({
       answer: evaluateTemplate(t.answer_template, generated),
-      response: t.response,
+      response: evaluateTemplate(t.response, generated),
     })),
     explanation: explanation ? evaluateTemplate(explanation, generated) : '',
     generatedValues: generated,

@@ -22,7 +22,7 @@ const DEV_KEY     = 'mathsense_dev'
  * Generated on first access, stored in sessionStorage so it resets when the
  * tab closes (unlike localStorage).
  */
-function getSessionId(): string {
+export function getSessionId(): string {
   if (typeof window === 'undefined') return 'ssr'
   let sid = sessionStorage.getItem(SESSION_KEY)
   if (!sid) {
