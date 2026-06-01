@@ -12,7 +12,11 @@ import { skills } from '../data/skills'
 // dump grouped by topic. Makes NO writes to the database.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const SAMPLES = 6 // random parameter sets to render per question
+// Random parameter sets rendered per question. Kept reasonably high so the
+// "trap collides on EVERY render" test (see flagsFor) doesn't mislabel a
+// directional distractor — e.g. the two opposite rounding traps, exactly one of
+// which coincides with the correct answer on any given draw — as always-dead.
+const SAMPLES = 12
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,6 +48,14 @@ function flagsFor(q: QRow): { flags: string[]; samples: any[] } {
   const samples: any[] = []
   const seenAnswers = new Set<string>()
 
+  // Per-trap aggregate, indexed by trap position. A trap is only worth flagging
+  // when it coincides with the correct answer on EVERY render it produced a
+  // value for — that's a genuinely unreachable distractor (e.g. a units-only
+  // trap, or a sub-tolerance "off by 0.01" trap swallowed by a wide tolerance).
+  // A trap that coincides on only SOME renders is the intended directional
+  // pattern (two opposite rounding errors) and is deliberately NOT flagged.
+  const trapStats: { eligible: number; collided: number; example: string }[] = []
+
   for (let i = 0; i < SAMPLES; i++) {
     let r
     try {
@@ -74,14 +86,27 @@ function flagsFor(q: QRow): { flags: string[]; samples: any[] } {
         !/[0-9]/.test(r.answer))
       flags.push(`${q.answer_type} answer has no digits: "${r.answer}"`)
 
-    // 4. Trap collisions — does any trap's answer get marked CORRECT?
+    // 4. Trap collisions — tally (don't flag yet) whether each trap's answer is
+    //    marked CORRECT. We decide after all renders, so a directional trap that
+    //    only sometimes coincides isn't reported (see trapStats note above).
     r.traps.forEach((t, ti) => {
+      const st = (trapStats[ti] ??= { eligible: 0, collided: 0, example: '' })
       if (t.answer.trim() === '') return
+      st.eligible++
       const res = checkAnswer(t.answer, r.answer, q.answer_type, q.tolerance, [])
-      if (res.correct)
-        flags.push(`trap #${ti + 1} answer "${t.answer}" is accepted as CORRECT (== "${r.answer}")`)
+      if (res.correct) {
+        st.collided++
+        st.example = `"${t.answer}" == "${r.answer}"`
+      }
     })
   }
+
+  // Flag only traps that coincided on EVERY render they were eligible for
+  // (and rendered a value in all SAMPLES) — i.e. genuinely unreachable.
+  trapStats.forEach((st, ti) => {
+    if (st && st.eligible === SAMPLES && st.collided === SAMPLES)
+      flags.push(`trap #${ti + 1} ALWAYS accepted as CORRECT across all ${SAMPLES} renders (${st.example}) — unreachable distractor`)
+  })
 
   // 5. Question never varies (all renders identical) — possibly missing params
   if (seenAnswers.size === 1 && SAMPLES > 1 && Object.keys(q.parameters ?? {}).length > 0)
