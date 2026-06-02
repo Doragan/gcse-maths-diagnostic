@@ -72,6 +72,7 @@ export default function StudentDashboardPage() {
   const [correctAttempts, setCorrectAttempts] = useState(0)
   const [masteredCount, setMasteredCount] = useState(0)
   const [needsPracticeCount, setNeedsPracticeCount] = useState(0)
+  const [weakSpots, setWeakSpots] = useState<{ id: string; name: string }[]>([])
   const [streak, setStreak] = useState(0)
   const [hideUntested, setHideUntested] = useState(false)
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set())
@@ -97,6 +98,11 @@ export default function StudentDashboardPage() {
 
         setMasteredCount(Object.values(augmented).filter(m => m.status === 'mastered').length)
         setNeedsPracticeCount(Object.values(augmented).filter(m => m.status === 'needs_practice').length)
+        setWeakSpots(
+          Object.values(augmented)
+            .filter(m => m.status === 'needs_practice')
+            .map(m => ({ id: m.skillId, name: skillsById[m.skillId]?.name ?? m.skillId }))
+        )
 
         // Build groups from ALL skills (not just attempted), preserving skills.ts order
         const groupMap: Record<string, SkillWithMastery[]> = {}
@@ -136,6 +142,17 @@ export default function StudentDashboardPage() {
   if (!profile) return null
 
   const isPaid = isPaidStudent(profile)
+
+  // Locked paid actions: free users are routed to upgrade; paid users deep-link
+  // into the Practice page pre-targeted (see the deep-link handler there).
+  function drillSkill(skillId: string) {
+    if (!isPaid) { router.push('/student/upgrade'); return }
+    router.push(`/practice?skillId=${encodeURIComponent(skillId)}`)
+  }
+  function blitzWeakSpots() {
+    if (!isPaid) { router.push('/student/upgrade'); return }
+    router.push('/practice?focus=weakspots')
+  }
 
   const accuracy = totalAttempts > 0
     ? Math.round((correctAttempts / totalAttempts) * 100)
@@ -252,18 +269,28 @@ export default function StudentDashboardPage() {
         Welcome back, <strong>{profile.display_name}</strong>
       </p>
 
-      {/* Upgrade prompt — free users with skills to work on */}
-      {!isPaid && needsPracticeCount > 0 && (
-        <div style={styles.upgradeBanner}>
-          <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>
-            You have {needsPracticeCount} skill{needsPracticeCount !== 1 ? 's' : ''} to work on.
-            Upgrade to practise them automatically.
+      {/* Weak spots — paid: one-tap blitz of needs_practice skills.
+          Free: same card, shown locked (blurred list) as an upgrade nudge. */}
+      {needsPracticeCount > 0 && (
+        <div style={card}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
+            <h2 style={{ ...sectionTitle, margin: 0 }}>Weak spots</h2>
+            {!isPaid && <LockBadge />}
+          </div>
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 12px' }}>
+            {needsPracticeCount} skill{needsPracticeCount !== 1 ? 's' : ''} need{needsPracticeCount === 1 ? 's' : ''} practice
+            {isPaid ? '. Practise them all in one session.' : '. Upgrade to drill them in one targeted session.'}
           </p>
-          <button
-            onClick={() => router.push('/student/upgrade')}
-            style={{ ...primaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base, whiteSpace: 'nowrap' as const }}
-          >
-            Upgrade
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px',
+            ...(isPaid ? {} : { filter: 'blur(4px)', userSelect: 'none' as const, pointerEvents: 'none' as const }),
+          }}>
+            {weakSpots.slice(0, 8).map(w => (
+              <span key={w.id} style={styles.chip}>{w.name}</span>
+            ))}
+          </div>
+          <button onClick={blitzWeakSpots} style={primaryButton}>
+            {isPaid ? 'Blitz weak spots' : '🔒 Upgrade to blitz these'}
           </button>
         </div>
       )}
@@ -422,6 +449,13 @@ export default function StudentDashboardPage() {
                               }}>
                                 {s.label}
                               </span>
+                              <button
+                                onClick={() => drillSkill(skillId)}
+                                title={isPaid ? `Practise ${skill.name}` : 'Upgrade to drill this skill'}
+                                style={styles.drillButton}
+                              >
+                                {isPaid ? '▶' : '🔒'}
+                              </button>
                             </div>
                           </div>
                         )
@@ -433,6 +467,30 @@ export default function StudentDashboardPage() {
             )
           })}
         </div>
+      </div>
+
+      {/* Progress-over-time — premium feature in development.
+          Free: locked upgrade nudge. Paid: honest "coming soon" (no fake chart). */}
+      <div style={card}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <h2 style={{ ...sectionTitle, margin: 0 }}>Progress over time</h2>
+          {!isPaid
+            ? <LockBadge />
+            : <span style={styles.comingSoon}>Coming soon</span>}
+        </div>
+        <p style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 0' }}>
+          {isPaid
+            ? 'Charts of your mastery and accuracy week by week are on the way for your premium account.'
+            : 'See how your mastery and accuracy improve week by week.'}
+        </p>
+        {!isPaid && (
+          <button
+            onClick={() => router.push('/student/upgrade')}
+            style={{ ...primaryButton, marginTop: '14px' }}
+          >
+            🔒 Upgrade to unlock
+          </button>
+        )}
       </div>
 
       {/* Dev-only reset — never visible in production */}
@@ -510,6 +568,22 @@ function ProgressDots({ correct, mastered }: { correct: number; mastered: boolea
   )
 }
 
+function LockBadge() {
+  return (
+    <span style={{
+      fontSize: '11px',
+      fontWeight: '700',
+      padding: '2px 8px',
+      borderRadius: radius.full,
+      background: colors.cardAlt,
+      color: colors.textHint,
+      whiteSpace: 'nowrap' as const,
+    }}>
+      🔒 Premium
+    </span>
+  )
+}
+
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
@@ -576,15 +650,36 @@ const styles: Record<string, React.CSSProperties> = {
     gridTemplateColumns: '1fr 1fr',
     gap: '10px',
   },
-  upgradeBanner: {
-    padding: '12px 16px',
-    borderRadius: radius.md,
-    background: colors.background,
+  chip: {
+    fontSize: font.sm,
+    fontWeight: '600',
+    padding: '4px 10px',
+    borderRadius: radius.full,
+    background: colors.dangerLight,
+    color: colors.dangerText,
+    border: `1px solid ${colors.dangerBorder}`,
+    whiteSpace: 'nowrap' as const,
+  },
+  drillButton: {
+    fontSize: '12px',
+    lineHeight: 1,
+    padding: '5px 8px',
+    borderRadius: radius.sm,
     border: `1px solid ${colors.border}`,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '12px',
+    background: colors.card,
+    color: colors.textSecondary,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    flexShrink: 0,
+  },
+  comingSoon: {
+    fontSize: '11px',
+    fontWeight: '700',
+    padding: '2px 8px',
+    borderRadius: radius.full,
+    background: colors.cardAlt,
+    color: colors.textHint,
+    whiteSpace: 'nowrap' as const,
   },
   statsGrid: {
     display: 'grid',
