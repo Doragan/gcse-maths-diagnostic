@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { courses } from '../../data/courses'
 import { getStudentProfile } from '../../lib/auth'
-import { calculateMastery, getWeightedSkillPool, getAccessibleSkillIds } from '../../lib/skills/masteryEngine'
+import { calculateMastery, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
+import { isPaidStudent } from '../../lib/entitlements'
+import { skills } from '../../data/skills'
 
 import {
   colors, font, radius,
@@ -14,6 +16,22 @@ import {
 } from '../../lib/styles'
 
 type Tier = 'foundation' | 'higher' | 'both'
+
+/**
+ * Practice targeting mode.
+ *  - auto      → algorithm chooses (free: full pool; paid: weighted to weak skills)
+ *  - skill     → drill one chosen skill                    (paid only)
+ *  - topic     → drill one chosen topic                    (paid only)
+ *  - weakspots → session built only from needs_practice    (paid only)
+ */
+type FocusMode = 'auto' | 'skill' | 'topic' | 'weakspots'
+
+const FOCUS_OPTIONS: { id: FocusMode; label: string }[] = [
+  { id: 'auto', label: 'Auto' },
+  { id: 'skill', label: 'This skill' },
+  { id: 'topic', label: 'This topic' },
+  { id: 'weakspots', label: 'Weak spots' },
+]
 
 type StudentProfile = {
   id: string
@@ -29,6 +47,9 @@ export default function PracticePage() {
   const [loading, setLoading] = useState(true)
   const [student, setStudent] = useState<StudentProfile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
+  const [focusMode, setFocusMode] = useState<FocusMode>('auto')
+  const [focusSkillId, setFocusSkillId] = useState<string>('')
+  const [focusTopic, setFocusTopic] = useState<string>('')
 
   useEffect(() => {
     getStudentProfile().then(p => {
@@ -66,9 +87,7 @@ export default function PracticePage() {
     sessionStorage.setItem('practice_tier', tier)
     const allSkillIds = getSkillIds(tier)
 
-    const isPaid = student?.subscription_tier === 'paid' &&
-      student?.paid_until != null &&
-      new Date(student.paid_until) > new Date()
+    const isPaid = student ? isPaidStudent(student) : false
 
     let targetSkillIds = allSkillIds
 
@@ -94,16 +113,48 @@ export default function PracticePage() {
       // with a well-formed curriculum that has root skills), use the full tier pool.
       const pool = accessible.length > 0 ? accessible : allSkillIds
 
-      if (isPaid && attempts && attempts.length > 0) {
-        // Paid: weighted selection — needs_practice skills appear 3× more often
-        // than in_progress/untested, mastered skills are excluded until everything
-        // else is done. This targeting only applies within the accessible pool.
-        const weightedPool = getWeightedSkillPool(mastery, pool)
-        const pickedSkill = weightedPool[Math.floor(Math.random() * weightedPool.length)]
-        targetSkillIds = [pickedSkill]
-      } else {
-        // Free: random question from the accessible pool
-        targetSkillIds = pool
+      // Paid focus override (skill / topic / weak-spot blitz). Only paid users
+      // can steer targeting; the UI locks these for free users, and this guard
+      // enforces it server-of-record-side too. An invalid/empty selection leaves
+      // focusApplied false and we fall through to the default behaviour below.
+      let focusApplied = false
+      if (isPaid) {
+        if (focusMode === 'skill' && focusSkillId && allSkillIds.includes(focusSkillId)) {
+          targetSkillIds = [focusSkillId]
+          focusApplied = true
+        } else if (focusMode === 'topic' && focusTopic) {
+          const topicSkills = skills
+            .filter(s => s.topic === focusTopic && allSkillIds.includes(s.id))
+            .map(s => s.id)
+          if (topicSkills.length > 0) {
+            // Deliberate choice: if prereqs aren't met (intersection with pool is
+            // empty) we still honour the topic rather than silently overriding it.
+            const inPool = topicSkills.filter(id => pool.includes(id))
+            targetSkillIds = inPool.length > 0 ? inPool : topicSkills
+            focusApplied = true
+          }
+        } else if (focusMode === 'weakspots') {
+          const weak = getNeedsPracticeSkillIds(mastery, allSkillIds)
+          if (weak.length > 0) {
+            targetSkillIds = weak
+            focusApplied = true
+          }
+          // No weak spots yet → fall through to weighted auto below.
+        }
+      }
+
+      if (!focusApplied) {
+        if (isPaid && attempts && attempts.length > 0) {
+          // Paid auto: weighted selection — needs_practice skills appear 3× more
+          // often than in_progress/untested, mastered skills are excluded until
+          // everything else is done. Targeting stays within the accessible pool.
+          const weightedPool = getWeightedSkillPool(mastery, pool)
+          const pickedSkill = weightedPool[Math.floor(Math.random() * weightedPool.length)]
+          targetSkillIds = [pickedSkill]
+        } else {
+          // Free: random question from the accessible pool
+          targetSkillIds = pool
+        }
       }
     }
     // Anonymous users: targetSkillIds remains allSkillIds — no attempt data,
@@ -132,6 +183,16 @@ export default function PracticePage() {
     router.push(`/practice/question/${random.id}`)
   }
 
+  function selectFocus(mode: FocusMode) {
+    if (mode === 'auto') { setFocusMode('auto'); return }
+    if (!isPaid) {
+      // Show-but-locked: send free users to upgrade, anonymous users to login.
+      router.push(student ? '/student/upgrade' : '/student')
+      return
+    }
+    setFocusMode(mode)
+  }
+
   if (profileLoading) {
     return (
       <main style={pageContainer}>
@@ -142,9 +203,17 @@ export default function PracticePage() {
     )
   }
 
-  const isPaid = student?.subscription_tier === 'paid' &&
-    student?.paid_until != null &&
-    new Date(student.paid_until) > new Date()
+  const isPaid = student ? isPaidStudent(student) : false
+
+  // Skills/topics available in the chosen tier, for the focus pickers.
+  const tierSkillIds = getSkillIds(tier)
+  const tierSkills = skills.filter(s => tierSkillIds.includes(s.id))
+  const tierTopics = [...new Set(tierSkills.map(s => s.topic))]
+
+  // Block Start when a focus mode is selected but its target isn't chosen yet.
+  const focusIncomplete =
+    (focusMode === 'skill' && !focusSkillId) ||
+    (focusMode === 'topic' && !focusTopic)
 
   return (
     <main style={pageContainer}>
@@ -181,7 +250,12 @@ export default function PracticePage() {
             {(['foundation', 'higher', 'both'] as Tier[]).map(t => (
               <button
                 key={t}
-                onClick={() => setTier(t)}
+                onClick={() => {
+                  setTier(t)
+                  // Clear focus targets that may no longer exist in the new tier.
+                  setFocusSkillId('')
+                  setFocusTopic('')
+                }}
                 style={{
                   ...styles.toggleButton,
                   background: tier === t ? colors.primary : 'transparent',
@@ -194,16 +268,89 @@ export default function PracticePage() {
           </div>
         </div>
 
+        {/* Focus selector — premium. Shown to everyone (locked for free users). */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 8px' }}>
+            <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: 0 }}>
+              What do you want to focus on?
+            </p>
+            {!isPaid && (
+              <span style={{
+                fontSize: '11px', fontWeight: '700', padding: '2px 8px',
+                borderRadius: radius.full, background: colors.cardAlt, color: colors.textHint,
+              }}>
+                Premium
+              </span>
+            )}
+          </div>
+
+          <div style={styles.focusGrid}>
+            {FOCUS_OPTIONS.map(opt => {
+              // Free users are always on 'auto' (they can't change focusMode),
+              // so this naturally highlights only Auto for them.
+              const selected = focusMode === opt.id
+              const locked = !isPaid && opt.id !== 'auto'
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => selectFocus(opt.id)}
+                  style={{
+                    ...styles.focusButton,
+                    border: `1px solid ${selected ? colors.primary : colors.border}`,
+                    background: selected ? '#eff6ff' : colors.card,
+                    color: locked ? colors.textHint : colors.textPrimary,
+                  }}
+                >
+                  {locked && <span aria-hidden="true" style={{ marginRight: 5 }}>🔒</span>}
+                  {opt.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Skill picker */}
+          {isPaid && focusMode === 'skill' && (
+            <select
+              value={focusSkillId}
+              onChange={e => setFocusSkillId(e.target.value)}
+              style={styles.select}
+            >
+              <option value="">Choose a skill…</option>
+              {tierTopics.map(topic => (
+                <optgroup key={topic} label={topic}>
+                  {tierSkills.filter(s => s.topic === topic).map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          )}
+
+          {/* Topic picker */}
+          {isPaid && focusMode === 'topic' && (
+            <select
+              value={focusTopic}
+              onChange={e => setFocusTopic(e.target.value)}
+              style={styles.select}
+            >
+              <option value="">Choose a topic…</option>
+              {tierTopics.map(topic => (
+                <option key={topic} value={topic}>{topic}</option>
+              ))}
+            </select>
+          )}
+        </div>
+
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
           {loading ? 'Loading...' : `${questionCount} questions available`}
         </p>
 
         <button
           onClick={startPractice}
-          disabled={loading || !questionCount}
+          disabled={loading || !questionCount || focusIncomplete}
           style={{
             ...primaryButton,
-            opacity: loading || !questionCount ? 0.6 : 1,
+            opacity: loading || !questionCount || focusIncomplete ? 0.6 : 1,
           }}
         >
           Start practising
@@ -266,5 +413,29 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '600',
     cursor: 'pointer',
     whiteSpace: 'nowrap' as const,
+  },
+  focusGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '8px',
+  },
+  focusButton: {
+    padding: '10px',
+    borderRadius: radius.md,
+    fontSize: font.sm,
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
+  select: {
+    width: '100%',
+    marginTop: '10px',
+    padding: '10px',
+    borderRadius: radius.md,
+    border: `1px solid ${colors.borderStrong}`,
+    fontSize: font.base,
+    fontFamily: 'inherit',
+    background: colors.card,
+    color: colors.textPrimary,
   },
 }

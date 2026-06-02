@@ -133,6 +133,22 @@ export function getAccessibleSkillIds(
 }
 
 /**
+ * Returns only the skills currently marked needs_practice, for the paid
+ * "weak-spot blitz" focus mode (a session built entirely from weak skills,
+ * rather than the gentle 3× weighting getWeightedSkillPool applies).
+ *
+ * These skills have all been attempted (needs_practice requires ≥5 attempts),
+ * so their prerequisites are inherently satisfied — no accessible-pool filtering
+ * is needed.
+ */
+export function getNeedsPracticeSkillIds(
+  mastery: Record<string, SkillMastery>,
+  allSkillIds: string[],
+): string[] {
+  return allSkillIds.filter(id => mastery[id]?.status === 'needs_practice')
+}
+
+/**
  * Returns skill IDs weighted towards needs_practice, for use in targeted practice.
  * Skills needing practice appear proportionally more often than in_progress,
  * which appear more often than mastered.
