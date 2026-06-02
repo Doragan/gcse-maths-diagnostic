@@ -389,7 +389,7 @@ export default function PracticePage() {
         {/* Context note */}
         {isPaid ? (
           <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, textAlign: 'center' as const }}>
-            Questions follow your learning path and target your weakest skills first.
+            On Auto, questions target your weakest skills first — or use the focus options above to drill a specific skill, topic, or your weak spots.
           </p>
         ) : student ? (
           <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, textAlign: 'center' as const }}>
