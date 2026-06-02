@@ -55,6 +55,25 @@ export default function PracticePage() {
     getStudentProfile().then(p => {
       setStudent(p)
       setProfileLoading(false)
+
+      // Deep links from the dashboard (paid only): pre-select a focus target.
+      //   /practice?skillId=<id>   → drill that skill
+      //   /practice?focus=weakspots → weak-spot blitz
+      // Tier is forced to 'both' so the target is guaranteed to be in the pool
+      // regardless of which tier it belongs to.
+      if (p && isPaidStudent(p) && typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        const skillId = params.get('skillId')
+        const focus = params.get('focus')
+        if (skillId) {
+          setTier('both')
+          setFocusMode('skill')
+          setFocusSkillId(skillId)
+        } else if (focus === 'weakspots') {
+          setTier('both')
+          setFocusMode('weakspots')
+        }
+      }
     })
   }, [])
 
@@ -85,6 +104,10 @@ export default function PracticePage() {
 
   async function startPractice() {
     sessionStorage.setItem('practice_tier', tier)
+    // Clear any focus from a previous session; re-set below only if a focus
+    // mode actually resolves a target. This is what keeps "Next question"
+    // on-target for the whole session (read in the question page).
+    sessionStorage.removeItem('practice_focus_skills')
     const allSkillIds = getSkillIds(tier)
 
     const isPaid = student ? isPaidStudent(student) : false
@@ -155,6 +178,13 @@ export default function PracticePage() {
           // Free: random question from the accessible pool
           targetSkillIds = pool
         }
+      } else {
+        // A focus mode resolved a concrete target set. Persist it so that
+        // "Next question" on the question page stays on-target for the whole
+        // session (skill → same skill, topic/weakspots → varies within the set).
+        // Auto mode deliberately leaves this unset, so it falls back to the
+        // tier-random behaviour on the question page.
+        sessionStorage.setItem('practice_focus_skills', JSON.stringify(targetSkillIds))
       }
     }
     // Anonymous users: targetSkillIds remains allSkillIds — no attempt data,

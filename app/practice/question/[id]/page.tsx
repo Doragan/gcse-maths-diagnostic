@@ -331,24 +331,82 @@ function QuestionPage() {
     const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
 	const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
 	const higherOnly = higher.filter(id => !foundation.includes(id))
-	const skillIds = storedTier === 'foundation' ? foundation
+	let skillIds = storedTier === 'foundation' ? foundation
 	  : storedTier === 'higher' ? higherOnly
 	  : [...new Set([...foundation, ...higher])]
+
+    // If a focus mode is active (skill / topic / weak-spot blitz), the practice
+    // page persisted the resolved target set. Honour it so the whole session
+    // stays on-target instead of reverting to a tier-random question after Q1.
+    // Auto mode leaves this key unset → falls through to the tier pool above.
+    try {
+      const focusRaw = sessionStorage.getItem('practice_focus_skills')
+      if (focusRaw) {
+        const focusSkills = JSON.parse(focusRaw) as string[]
+        if (Array.isArray(focusSkills) && focusSkills.length > 0) {
+          skillIds = focusSkills
+        }
+      }
+    } catch { /* malformed storage — ignore and use the tier pool */ }
 
     const { data } = await supabase
       .from('questions')
       .select('id')
       .eq('is_published', true)
       .overlaps('skill_ids', skillIds)
-      .neq('id', id)
 
-    if (!data || data.length === 0) {
-      router.push('/practice')
+    // Prefer a question other than the current one for variety.
+    const others = (data ?? []).filter(q => q.id !== id)
+    if (others.length > 0) {
+      const random = others[Math.floor(Math.random() * others.length)]
+      router.push(`/practice/question/${random.id}`)
       return
     }
 
-    const random = data[Math.floor(Math.random() * data.length)]
-    router.push(`/practice/question/${random.id}`)
+    // Only the current question is in scope (common when drilling a skill that
+    // has a single question). Rather than dumping the student back to /practice,
+    // re-serve it with fresh parameters — questions are parametric, so the same
+    // template keeps the drill varied. Falls back to /practice only if the pool
+    // is genuinely empty.
+    if ((data ?? []).length > 0) {
+      reparametriseCurrent()
+      return
+    }
+
+    router.push('/practice')
+  }
+
+  // Re-renders the CURRENT question with new random parameter values, in place.
+  // Used when a skill drill has exhausted its distinct questions: the parametric
+  // engine produces fresh numbers each call, so the student keeps practising the
+  // same skill instead of being bounced out. Mirrors loadQuestion's resets, and
+  // refreshes the mastery window (the id-keyed effect won't refire on same id).
+  async function reparametriseCurrent() {
+    if (!question) { router.push('/practice'); return }
+    setAnswer('')
+    setFeedback(null)
+    setNewlyMasteredSkill(null)
+    const r = renderQuestion(
+      question.question_template,
+      question.answer_template,
+      question.traps ?? [],
+      question.explanation,
+      question.parameters ?? {}
+    )
+    setRendered(r)
+    if (question.question_type === 'multiple_choice') {
+      setOptions(buildOptions(r.answer, r.traps))
+    }
+    if (studentId && question.skill_ids.length > 0) {
+      const { data: recent } = await supabase
+        .from('practice_attempts')
+        .select('correct')
+        .eq('student_id', studentId)
+        .contains('skill_ids', [question.skill_ids[0]])
+        .order('attempted_at', { ascending: false })
+        .limit(5)
+      setPriorSkillAttempts(recent ?? [])
+    }
   }
 
   function tryAgain() {
