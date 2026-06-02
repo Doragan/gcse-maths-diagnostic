@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase'
 import { calculateMastery, inferPrerequisiteMastery, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { skills } from '../../../data/skills'
+import { isPaidStudent } from '../../../lib/entitlements'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle,
@@ -134,9 +135,7 @@ export default function StudentDashboardPage() {
 
   if (!profile) return null
 
-  const isPaid = profile.subscription_tier === 'paid' &&
-    profile.paid_until != null &&
-    new Date(profile.paid_until) > new Date()
+  const isPaid = isPaidStudent(profile)
 
   const accuracy = totalAttempts > 0
     ? Math.round((correctAttempts / totalAttempts) * 100)
