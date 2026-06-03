@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { getSession } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import { skillsById } from '../../../lib/skills/skillGraph'
+import FeedbackWidget from '../../../components/FeedbackWidget'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
@@ -238,6 +239,9 @@ export default function AssessmentResultsPage() {
           </div>
         )}
       </div>
+
+      {/* General feedback */}
+      <FeedbackWidget context="teacher_assessment" />
     </main>
   )
 }

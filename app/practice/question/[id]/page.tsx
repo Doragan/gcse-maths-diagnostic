@@ -13,6 +13,7 @@ import {
 } from '../../../../lib/styles'
 import MathInput from '../../../../components/practice/MathInput'
 import ReportIssueButton from '../../../../components/practice/ReportIssueButton'
+import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions } from '../../../../lib/questions/multipleChoice'
 import { getStudentProfile } from '../../../../lib/auth'
 
@@ -766,6 +767,9 @@ function QuestionPage() {
         renderedValues={rendered.generatedValues}
         studentId={studentId}
       />
+
+      {/* General feedback */}
+      <FeedbackWidget context="question_page" userId={studentId} />
 
       {/* Ko-fi */}
       <div style={{ textAlign: 'center' as const, marginTop: '8px' }}>

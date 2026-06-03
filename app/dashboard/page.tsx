@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession, signOut } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
+import FeedbackWidget from '../../components/FeedbackWidget'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, sectionTitle,
@@ -308,6 +309,9 @@ useEffect(() => {
           </div>
         )}
       </div>
+
+      {/* General feedback */}
+      <FeedbackWidget context="teacher_dashboard" defaultEmail={userEmail} />
     </main>
   )
 }

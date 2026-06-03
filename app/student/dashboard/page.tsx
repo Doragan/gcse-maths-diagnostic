@@ -6,8 +6,11 @@ import { getStudentProfile, signOut } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import { calculateMastery, inferPrerequisiteMastery, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
+import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
 import { skills } from '../../../data/skills'
 import { isPaidStudent } from '../../../lib/entitlements'
+import FeedbackWidget from '../../../components/FeedbackWidget'
+import ProgressChart from '../../../components/ProgressChart'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle,
@@ -75,6 +78,7 @@ export default function StudentDashboardPage() {
   const [masteredCount, setMasteredCount] = useState(0)
   const [needsPracticeCount, setNeedsPracticeCount] = useState(0)
   const [weakSpots, setWeakSpots] = useState<{ id: string; name: string }[]>([])
+  const [progressSeries, setProgressSeries] = useState<ProgressSeries | null>(null)
   const [streak, setStreak] = useState(0)
   const [hideUntested, setHideUntested] = useState(false)
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set())
@@ -94,6 +98,7 @@ export default function StudentDashboardPage() {
         setTotalAttempts(attempts.length)
         setCorrectAttempts(attempts.filter((a: any) => a.correct).length)
         setStreak(computeStreak(attempts))
+        setProgressSeries(buildProgressSeries(attempts, getPrerequisiteTree))
 
         const masteryMap = calculateMastery(attempts)
         const augmented = inferPrerequisiteMastery(masteryMap, getPrerequisiteTree)
@@ -252,6 +257,9 @@ export default function StudentDashboardPage() {
             />
           </div>
         </div>
+
+        {/* General feedback */}
+        <FeedbackWidget context="student_dashboard" userId={profile.id} />
 
       </main>
     )
@@ -486,27 +494,40 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* Progress-over-time — premium feature in development.
-          Free: locked upgrade nudge. Paid: honest "coming soon" (no fake chart). */}
+      {/* Progress-over-time — every student gets the mastered-skills line.
+          Premium adds the cumulative accuracy line and activity bars. */}
       <div style={card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
           <h2 style={{ ...sectionTitle, margin: 0 }}>Progress over time</h2>
-          {!isPaid
-            ? <LockBadge />
-            : <span style={styles.comingSoon}>Coming soon</span>}
+          {!isPaid && <LockBadge />}
         </div>
-        <p style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 0' }}>
-          {isPaid
-            ? 'Charts of your mastery and accuracy week by week are on the way for your premium account.'
-            : 'See how your mastery and accuracy improve week by week.'}
-        </p>
-        {!isPaid && (
-          <button
-            onClick={() => router.push('/student/upgrade')}
-            style={{ ...primaryButton, marginTop: '14px' }}
-          >
-            🔒 Upgrade to unlock
-          </button>
+
+        {progressSeries ? (
+          <>
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: '0 0 14px' }}>
+              {isPaid
+                ? 'How your mastered skills, accuracy and activity have changed over time.'
+                : 'How your mastered skills have grown over time.'}
+            </p>
+            <ProgressChart
+              series={progressSeries}
+              showAccuracy={isPaid}
+              showActivity={isPaid}
+            />
+            {!isPaid && (
+              <button
+                onClick={() => router.push('/student/upgrade')}
+                style={{ ...primaryButton, marginTop: '16px' }}
+              >
+                🔒 Unlock accuracy &amp; activity trends
+              </button>
+            )}
+          </>
+        ) : (
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 0' }}>
+            Your progress chart appears once you&apos;ve practised on a couple of
+            different days. Keep going!
+          </p>
         )}
       </div>
 
@@ -531,6 +552,9 @@ export default function StudentDashboardPage() {
           </button>
         </div>
       )}
+
+      {/* General feedback */}
+      <FeedbackWidget context="student_dashboard" userId={profile.id} />
 
       {/* Dev-only reset — never visible in production */}
       {process.env.NODE_ENV === 'development' && profile && (
@@ -710,15 +734,6 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     fontFamily: 'inherit',
     flexShrink: 0,
-  },
-  comingSoon: {
-    fontSize: '11px',
-    fontWeight: '700',
-    padding: '2px 8px',
-    borderRadius: radius.full,
-    background: colors.cardAlt,
-    color: colors.textHint,
-    whiteSpace: 'nowrap' as const,
   },
   statsGrid: {
     display: 'grid',
