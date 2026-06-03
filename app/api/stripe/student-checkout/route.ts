@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-    const isSubscription = plan === 'monthly'
+    const isSubscription = plan === 'monthly' || plan === 'annual'
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

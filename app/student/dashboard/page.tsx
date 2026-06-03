@@ -20,6 +20,8 @@ type StudentProfile = {
   display_name: string
   subscription_tier: 'free' | 'paid'
   paid_until: string | null
+  /** Set only for monthly subscribers — used to gate the "Manage subscription" link. */
+  stripe_customer_id: string | null
 }
 
 type ExtendedStatus = MasteryStatus | 'not_started'
@@ -152,6 +154,21 @@ export default function StudentDashboardPage() {
   function blitzWeakSpots() {
     if (!isPaid) { router.push('/student/upgrade'); return }
     router.push('/practice?focus=weakspots')
+  }
+
+  // Opens the Stripe billing portal (update card / cancel) for monthly subscribers.
+  async function manageSubscription() {
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/stripe/portal', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session?.access_token}` },
+    })
+    const data = await res.json()
+    if (data.url) {
+      window.location.href = data.url
+    } else {
+      alert(data.error ?? 'Could not open the billing portal. Please try again.')
+    }
   }
 
   const accuracy = totalAttempts > 0
@@ -492,6 +509,28 @@ export default function StudentDashboardPage() {
           </button>
         )}
       </div>
+
+      {/* Manage subscription — monthly subscribers only (one-off buyers have
+          nothing recurring to cancel, so no stripe_customer_id is stored). */}
+      {isPaid && profile.stripe_customer_id && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4px' }}>
+          <button
+            onClick={manageSubscription}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: colors.textSecondary,
+              fontSize: font.sm,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: 0,
+              fontFamily: 'inherit',
+            }}
+          >
+            Manage subscription
+          </button>
+        </div>
+      )}
 
       {/* Dev-only reset — never visible in production */}
       {process.env.NODE_ENV === 'development' && profile && (

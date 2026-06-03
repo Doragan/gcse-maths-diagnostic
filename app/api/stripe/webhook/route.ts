@@ -44,8 +44,9 @@ export async function POST(req: Request) {
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     } else if (studentId && plan) {
-      if (plan === 'monthly') {
-        // Store Stripe IDs — paid_until will be set by invoice.payment_succeeded
+      if (plan === 'monthly' || plan === 'annual') {
+        // Recurring subscription — store Stripe IDs; paid_until is set by
+        // invoice.payment_succeeded (works for any billing interval).
         await adminClient
           .from('students')
           .update({
@@ -55,10 +56,8 @@ export async function POST(req: Request) {
           })
           .eq('id', studentId)
       } else {
-        // One-off payment (annual or exam)
-        const paidUntil = plan === 'exam'
-          ? new Date('2027-07-31T23:59:59Z').toISOString()
-          : (() => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString() })()
+        // One-off payment (exam season pass — fixed expiry, no renewal)
+        const paidUntil = new Date('2027-07-31T23:59:59Z').toISOString()
         await adminClient
           .from('students')
           .update({ subscription_tier: 'paid', paid_until: paidUntil })

@@ -33,7 +33,7 @@ const PLANS: {
     price: '£11.99',
     period: 'per year',
     badge: 'Best value',
-    description: 'One payment for a full year. Saves £5.89 vs monthly.',
+    description: 'Renews yearly — cancel any time. Saves £5.89 vs monthly.',
   },
   {
     id: 'exam',
@@ -46,10 +46,10 @@ const PLANS: {
 ]
 
 const FEATURES = [
-  'Targeted practice — questions focus on your weakest skills',
-  'Full skill-by-skill progress tracking',
-  'Mastery history across all your sessions',
-  'Foundation and Higher tier support',
+  'Drill any single skill or whole topic on demand',
+  'One-tap "weak spots" sessions built from the skills you keep missing',
+  'Smart practice that automatically targets your weakest skills first',
+  'Priority access to new premium features as they launch',
 ]
 
 export default function StudentUpgradePage() {
@@ -129,7 +129,7 @@ export default function StudentUpgradePage() {
             Upgrade Mathsense
           </h1>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '4px 0 0' }}>
-            Unlock targeted practice and detailed progress tracking.
+            Unlock targeted practice — drill the exact skills you need to improve.
           </p>
         </div>
 
@@ -199,7 +199,9 @@ export default function StudentUpgradePage() {
           disabled={loading}
           style={{ ...primaryButton, opacity: loading ? 0.6 : 1 }}
         >
-          {loading ? 'Redirecting to payment...' : `Subscribe — ${PLANS.find(p => p.id === selectedPlan)?.price}`}
+          {loading
+            ? 'Redirecting to payment...'
+            : `${selectedPlan === 'exam' ? 'Get access' : 'Subscribe'} — ${PLANS.find(p => p.id === selectedPlan)?.price}`}
         </button>
 
         <button
