@@ -13,6 +13,9 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  // Clear the per-session student-id cache so a subsequent sign-in (e.g. a
+  // different account in the same tab) doesn't read a stale id.
+  if (typeof window !== 'undefined') sessionStorage.removeItem(STUDENT_ID_CACHE_KEY)
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
@@ -83,6 +86,31 @@ export async function getStudentProfile() {
     .eq('id', user.id)
     .single()
   return data
+}
+
+const STUDENT_ID_CACHE_KEY = 'cached_student_id'
+
+/**
+ * Returns the signed-in student's id, cached for the browser session.
+ *
+ * The practice flow navigates to a fresh `/practice/question/[id]` page per
+ * question, and previously re-ran getStudentProfile() (an auth.getUser() + a
+ * students-table fetch) on every navigation. The id is stable for the session,
+ * so we resolve it once and cache it — empty string is stored to mean
+ * "resolved, but anonymous" so anonymous users don't re-hit the network either.
+ * Cleared on signOut().
+ */
+export async function getCachedStudentId(): Promise<string | null> {
+  if (typeof window !== 'undefined') {
+    const cached = sessionStorage.getItem(STUDENT_ID_CACHE_KEY)
+    if (cached !== null) return cached === '' ? null : cached
+  }
+  const profile = await getStudentProfile()
+  const id = profile?.id ?? null
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(STUDENT_ID_CACHE_KEY, id ?? '')
+  }
+  return id
 }
 
 export async function getUserRole(): Promise<'teacher' | 'student' | null> {

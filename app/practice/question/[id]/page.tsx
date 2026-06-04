@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 import { skillsById } from '../../../../lib/skills/skillGraph'
@@ -15,7 +15,7 @@ import MathInput from '../../../../components/practice/MathInput'
 import ReportIssueButton from '../../../../components/practice/ReportIssueButton'
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions } from '../../../../lib/questions/multipleChoice'
-import { getStudentProfile } from '../../../../lib/auth'
+import { getCachedStudentId } from '../../../../lib/auth'
 
 type Question = {
   id: string
@@ -37,6 +37,59 @@ type FeedbackState = {
   correct: boolean
   message: string
   explanation: string
+}
+
+// ── Session-lived caches (module scope survives client-side navigations) ──────
+// The practice flow loads a fresh page per question. These caches stop us from
+// re-querying things that don't change between questions:
+//   • questionCache — full question rows by id (warmed by prefetch on load)
+//   • poolCache     — the set of published question ids for a given skill set
+const questionCache = new Map<string, Question>()
+const poolCache = new Map<string, string[]>()
+
+/** Random element of a non-empty array. */
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+/** Resolves the active skill pool from the stored tier + any focus override. */
+function resolveSkillIds(): string[] {
+  const storedTier = sessionStorage.getItem('practice_tier') ?? 'foundation'
+  const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
+  const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
+  const higherOnly = higher.filter(hid => !foundation.includes(hid))
+  let skillIds = storedTier === 'foundation' ? foundation
+    : storedTier === 'higher' ? higherOnly
+    : [...new Set([...foundation, ...higher])]
+
+  // Honour an active focus mode (skill / topic / weak-spot blitz) so the whole
+  // session stays on-target. Auto mode leaves this key unset.
+  try {
+    const focusRaw = sessionStorage.getItem('practice_focus_skills')
+    if (focusRaw) {
+      const focusSkills = JSON.parse(focusRaw) as string[]
+      if (Array.isArray(focusSkills) && focusSkills.length > 0) skillIds = focusSkills
+    }
+  } catch { /* malformed storage — fall back to the tier pool */ }
+
+  return skillIds
+}
+
+/** Fetches (and caches for the session) the published question-id pool. */
+async function fetchQuestionPool(skillIds: string[]): Promise<string[]> {
+  const key = [...skillIds].sort().join(',')
+  const cached = poolCache.get(key)
+  if (cached) return cached
+
+  const { data } = await supabase
+    .from('questions')
+    .select('id')
+    .eq('is_published', true)
+    .overlaps('skill_ids', skillIds)
+
+  const ids = (data ?? []).map(q => q.id as string)
+  poolCache.set(key, ids)
+  return ids
 }
 
 // Shows a before → after dot row for one skill in the session summary
@@ -111,13 +164,16 @@ function QuestionPage() {
   }>>({})
   const [showSessionSummary, setShowSessionSummary] = useState(false)
 
+  // The question we've already prefetched (route + data warmed) for instant Next.
+  const nextPick = useRef<string | null>(null)
+
   useEffect(() => {
     const stored = sessionStorage.getItem('practice_tier')
     if (stored) setTier(stored)
     loadQuestion()
-    getStudentProfile().then(p => {
-      if (p) setStudentId(p.id)
-    })
+    // Resolve studentId once per session (cached) instead of re-running an
+    // auth.getUser() + students fetch on every question navigation.
+    getCachedStudentId().then(id => setStudentId(id))
   }, [id])
 
   // Fetch the student's 5 most recent attempts for this question's primary skill,
@@ -159,15 +215,20 @@ function QuestionPage() {
     setNewlyMasteredSkill(null)
     setPriorSkillAttempts([])
 
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error || !data) {
-      router.push('/practice')
-      return
+    // Use the prefetched/cached row when available (instant); otherwise fetch it.
+    let data = questionCache.get(id) ?? null
+    if (!data) {
+      const res = await supabase
+        .from('questions')
+        .select('*')
+        .eq('id', id)
+        .single()
+      if (res.error || !res.data) {
+        router.push('/practice')
+        return
+      }
+      data = res.data as Question
+      questionCache.set(id, data)
     }
 
     setQuestion(data)
@@ -198,6 +259,33 @@ function QuestionPage() {
       setOptions(buildOptions(r.answer, r.traps))
     }
     setLoading(false)
+
+    // Warm the next question in the background while the student answers this one.
+    prepareNext(id)
+  }
+
+  // Picks the next question now and warms it (route + full row) so that pressing
+  // "Next question" navigates instantly. Stored in nextPick so nextQuestion()
+  // uses the exact question we prefetched. Fire-and-forget; failures are silent.
+  async function prepareNext(currentId: string) {
+    try {
+      const pool = await fetchQuestionPool(resolveSkillIds())
+      const others = pool.filter(qid => qid !== currentId)
+      if (others.length === 0) { nextPick.current = null; return }
+
+      const pick = pickRandom(others)
+      nextPick.current = pick
+      router.prefetch(`/practice/question/${pick}`)
+
+      if (!questionCache.has(pick)) {
+        const { data } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('id', pick)
+          .single()
+        if (data) questionCache.set(pick, data as Question)
+      }
+    } catch { /* prefetch is best-effort */ }
   }
 
   async function recordAttempt(correct: boolean) {
@@ -328,39 +416,17 @@ function QuestionPage() {
   }
 
   async function nextQuestion() {
-	const storedTier = sessionStorage.getItem('practice_tier') ?? 'foundation'
-    const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
-	const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
-	const higherOnly = higher.filter(id => !foundation.includes(id))
-	let skillIds = storedTier === 'foundation' ? foundation
-	  : storedTier === 'higher' ? higherOnly
-	  : [...new Set([...foundation, ...higher])]
+    // The pool is cached for the session, so this is usually instant.
+    const pool = await fetchQuestionPool(resolveSkillIds())
 
-    // If a focus mode is active (skill / topic / weak-spot blitz), the practice
-    // page persisted the resolved target set. Honour it so the whole session
-    // stays on-target instead of reverting to a tier-random question after Q1.
-    // Auto mode leaves this key unset → falls through to the tier pool above.
-    try {
-      const focusRaw = sessionStorage.getItem('practice_focus_skills')
-      if (focusRaw) {
-        const focusSkills = JSON.parse(focusRaw) as string[]
-        if (Array.isArray(focusSkills) && focusSkills.length > 0) {
-          skillIds = focusSkills
-        }
-      }
-    } catch { /* malformed storage — ignore and use the tier pool */ }
-
-    const { data } = await supabase
-      .from('questions')
-      .select('id')
-      .eq('is_published', true)
-      .overlaps('skill_ids', skillIds)
-
-    // Prefer a question other than the current one for variety.
-    const others = (data ?? []).filter(q => q.id !== id)
+    // Prefer a question other than the current one for variety. Use the
+    // already-prefetched pick when it's still valid so navigation is instant.
+    const others = pool.filter(qid => qid !== id)
     if (others.length > 0) {
-      const random = others[Math.floor(Math.random() * others.length)]
-      router.push(`/practice/question/${random.id}`)
+      const pick = nextPick.current && others.includes(nextPick.current)
+        ? nextPick.current
+        : pickRandom(others)
+      router.push(`/practice/question/${pick}`)
       return
     }
 
@@ -369,7 +435,7 @@ function QuestionPage() {
     // re-serve it with fresh parameters — questions are parametric, so the same
     // template keeps the drill varied. Falls back to /practice only if the pool
     // is genuinely empty.
-    if ((data ?? []).length > 0) {
+    if (pool.length > 0) {
       reparametriseCurrent()
       return
     }
