@@ -63,16 +63,23 @@ export async function POST(req: NextRequest) {
     const fromEmail   = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
     // The feedback is already recorded above; skip email (don't error) if it
-    // isn't configured.
+    // isn't configured. We return a coarse `email` status so a missing/broken
+    // config is observable from the response (the raw Resend error is logged
+    // server-side only, never returned, to avoid leaking config details on this
+    // public endpoint).
     if (!notifyEmail || !resendKey) {
-      console.warn('REPORT_NOTIFY_EMAIL or RESEND_API_KEY not set — skipping feedback email')
-      return NextResponse.json({ ok: true })
+      console.warn(
+        `[feedback] email skipped — missing config: ` +
+        `REPORT_NOTIFY_EMAIL=${notifyEmail ? 'set' : 'MISSING'}, ` +
+        `RESEND_API_KEY=${resendKey ? 'set' : 'MISSING'}`,
+      )
+      return NextResponse.json({ ok: true, email: 'skipped_no_config' })
     }
 
     const resend = new Resend(resendKey)
     const categoryLabel = CATEGORY_LABELS[category] ?? (category ? String(category) : 'Feedback')
 
-    const { error: emailError } = await resend.emails.send({
+    const { data: emailData, error: emailError } = await resend.emails.send({
       from:    fromEmail,
       to:      notifyEmail,
       replyTo: safeEmail || undefined,
@@ -108,13 +115,19 @@ export async function POST(req: NextRequest) {
     })
 
     if (emailError) {
-      console.error('Resend error (feedback):', emailError)
+      // Log the full error server-side (visible in Vercel function logs) but
+      // never return it — the message can reveal sender/recipient config.
+      console.error('[feedback] Resend send failed:', emailError)
       if (process.env.NODE_ENV !== 'production') {
-        return NextResponse.json({ ok: false, emailError }, { status: 500 })
+        return NextResponse.json({ ok: false, email: 'error', emailError }, { status: 500 })
       }
+      // In production the feedback is already saved; report a coarse failure
+      // status (no detail) so the email problem is observable without leaking.
+      return NextResponse.json({ ok: true, email: 'error' })
     }
 
-    return NextResponse.json({ ok: true })
+    console.log(`[feedback] email sent ok (id=${emailData?.id ?? 'unknown'}, from=${fromEmail})`)
+    return NextResponse.json({ ok: true, email: 'sent' })
   } catch (err) {
     console.error('feedback route error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
