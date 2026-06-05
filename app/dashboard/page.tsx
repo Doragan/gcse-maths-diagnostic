@@ -139,6 +139,12 @@ useEffect(() => {
 		  </h1>
 		  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 			<button
+			  onClick={() => router.push('/dashboard/classes')}
+			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+			>
+			  Classes
+			</button>
+			<button
 			  onClick={() => router.push('/account')}
 			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
 			>

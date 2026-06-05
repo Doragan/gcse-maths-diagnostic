@@ -205,12 +205,20 @@ export default function StudentDashboardPage() {
           <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
             Mathsense
           </h1>
-          <button
-            onClick={handleSignOut}
-            style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
-          >
-            Sign out
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => router.push('/student/classes')}
+              style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+            >
+              My classes
+            </button>
+            <button
+              onClick={handleSignOut}
+              style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+            >
+              Sign out
+            </button>
+          </div>
         </div>
 
         {/* Welcome + CTA card */}
@@ -293,6 +301,12 @@ export default function StudentDashboardPage() {
             style={{ ...primaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
           >
             Practice
+          </button>
+          <button
+            onClick={() => router.push('/student/classes')}
+            style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+          >
+            Classes
           </button>
           <button
             onClick={handleSignOut}
