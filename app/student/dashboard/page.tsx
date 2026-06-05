@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getStudentProfile, signOut } from '../../../lib/auth'
+import { signOut, primeStudentIdCache } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import { calculateMastery, inferPrerequisiteMastery, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
@@ -85,14 +85,27 @@ export default function StudentDashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getStudentProfile().then(async p => {
+    (async () => {
+      // Resolve the auth user once, then fetch the profile and the attempts in
+      // parallel. They're independent — practice_attempts keys on the auth uid,
+      // which is also the students PK — so there's no need to await the profile
+      // before starting the attempts query (turns 3 sequential round trips into 2).
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/student'); return }
+
+      const [{ data: p }, { data: attempts }] = await Promise.all([
+        supabase.from('students').select('*').eq('id', user.id).single(),
+        supabase
+          .from('practice_attempts')
+          .select('skill_ids, correct, attempted_at')
+          .eq('student_id', user.id),
+      ])
+
       if (!p) { router.push('/student'); return }
       setProfile(p)
-
-      const { data: attempts } = await supabase
-        .from('practice_attempts')
-        .select('skill_ids, correct, attempted_at')
-        .eq('student_id', p.id)
+      // Seed the session student-id cache so a later dashboard → practice →
+      // question hop skips its own auth.getUser() + students fetch.
+      primeStudentIdCache(p.id)
 
       if (attempts && attempts.length > 0) {
         setTotalAttempts(attempts.length)
@@ -121,7 +134,7 @@ export default function StudentDashboardPage() {
       }
 
       setLoading(false)
-    })
+    })()
   }, [])
 
   function toggleTopic(topic: string) {

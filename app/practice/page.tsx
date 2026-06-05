@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { courses } from '../../data/courses'
@@ -105,7 +105,17 @@ export default function PracticePage() {
     return () => { cancelled = true }
   }, [router])
 
+  // Per-tier count cache — flipping the tier toggle shouldn't re-query (and
+  // re-flash "Loading…") for a tier we've already counted this session.
+  const countCache = useRef<Map<Tier, number>>(new Map())
+
   async function loadQuestionCount() {
+    const cached = countCache.current.get(tier)
+    if (cached !== undefined) {
+      setQuestionCount(cached)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     const skillIds = getSkillIds(tier)
     const { count } = await supabase
@@ -113,7 +123,9 @@ export default function PracticePage() {
       .select('id', { count: 'exact', head: true })
       .eq('is_published', true)
       .overlaps('skill_ids', skillIds)
-    setQuestionCount(count ?? 0)
+    const c = count ?? 0
+    countCache.current.set(tier, c)
+    setQuestionCount(c)
     setLoading(false)
   }
 
