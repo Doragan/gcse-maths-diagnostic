@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { courses } from '../../data/courses'
-import { getStudentProfile } from '../../lib/auth'
+import { getStudentProfile, primeStudentIdCache } from '../../lib/auth'
 import { calculateMastery, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { isPaidStudent } from '../../lib/entitlements'
@@ -56,6 +56,11 @@ export default function PracticePage() {
       setStudent(p)
       setProfileLoading(false)
 
+      // Seed the session student-id cache so the first question page skips its
+      // own auth.getUser() + students fetch (it would otherwise be a cache miss
+      // on first load). null = resolved-but-anonymous.
+      primeStudentIdCache(p?.id ?? null)
+
       // Deep links from the dashboard (paid only): pre-select a focus target.
       //   /practice?skillId=<id>   → drill that skill
       //   /practice?focus=weakspots → weak-spot blitz
@@ -80,6 +85,25 @@ export default function PracticePage() {
   useEffect(() => {
     loadQuestionCount()
   }, [tier])
+
+  // Warm the question-page route bundle while the student is still choosing
+  // their tier/focus, so the Start → first-question navigation only waits on
+  // data, not on loading the route's JS. The bundle is shared across all ids,
+  // so prefetching any one published id warms it for whichever is picked.
+  useEffect(() => {
+    let cancelled = false
+    supabase
+      .from('questions')
+      .select('id')
+      .eq('is_published', true)
+      .limit(1)
+      .then(({ data }) => {
+        if (!cancelled && data && data[0]) {
+          router.prefetch(`/practice/question/${data[0].id}`)
+        }
+      })
+    return () => { cancelled = true }
+  }, [router])
 
   async function loadQuestionCount() {
     setLoading(true)

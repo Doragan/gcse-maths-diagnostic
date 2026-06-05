@@ -113,6 +113,21 @@ export async function getCachedStudentId(): Promise<string | null> {
   return id
 }
 
+/**
+ * Seeds the session student-id cache from an already-resolved profile.
+ *
+ * The /practice page fetches the full student profile on mount; without this,
+ * the first question page would hit getCachedStudentId() as a cache miss and
+ * repeat the auth.getUser() + students fetch. Calling this once the practice
+ * page's profile has loaded lets that first question skip the round trip.
+ * Pass null to mean "resolved, but anonymous" (mirrors getCachedStudentId).
+ */
+export function primeStudentIdCache(id: string | null) {
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(STUDENT_ID_CACHE_KEY, id ?? '')
+  }
+}
+
 export async function getUserRole(): Promise<'teacher' | 'student' | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
