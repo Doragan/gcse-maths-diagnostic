@@ -928,7 +928,8 @@ export const skills: Skill[] = [
     "name": "Tree Diagrams",
     "topic": "Probability and Data",
     "prerequisites": [
-      "combined_events"
+      "combined_events",
+      "frequency_trees"
     ],
     "exampleQuestion": "A bag contains 4 red and 6 blue balls. A ball is picked at random and not replaced. A second ball is then picked. Draw a tree diagram and find the probability of picking two red balls.",
     "exampleAnswer": "P(red, red) = 4/10 × 3/9 = 12/90 = 2/15",
@@ -1541,5 +1542,63 @@ export const skills: Skill[] = [
     ],
     "exampleQuestion": "Rearrange y = w − 1 to make w the subject.",
     "exampleAnswer": "w = y + 1"
+  },
+  {
+    "id": "systematic_listing",
+    "name": "Systematic Listing",
+    "topic": "Probability and Data",
+    "prerequisites": [],
+    "exampleQuestion": "A pizza is made by choosing 3 different toppings from: ham (H), sweetcorn (S), onion (O), mushroom (M). List all the possible combinations of 3 toppings.",
+    "exampleAnswer": "HSO, HSM, HOM, SOM (4 combinations)"
+  },
+  {
+    "id": "frequency_trees",
+    "name": "Frequency Trees",
+    "topic": "Probability and Data",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+    "exampleQuestion": "120 children and 80 adults walk through a maze. 45 of the children and 75 of the adults turn left first. Complete a frequency tree showing how many turn left and right.",
+    "exampleAnswer": "Children: 45 left, 75 right. Adults: 75 left, 5 right."
+  },
+  {
+    "id": "time_calculations",
+    "name": "Time Calculations",
+    "topic": "Number",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+    "exampleQuestion": "A race time is 1 minute 28 seconds less than 2 hours. What is the race time?",
+    "exampleAnswer": "1 hour 58 minutes 32 seconds"
+  },
+  {
+    "id": "exact_trig_values",
+    "name": "Exact Trigonometric Values",
+    "topic": "Shape and Space",
+    "prerequisites": [
+      "trigonometry_missing_sides"
+    ],
+    "exampleQuestion": "Write down the exact value of sin 90°.",
+    "exampleAnswer": "1"
+  },
+  {
+    "id": "reciprocals",
+    "name": "Reciprocals",
+    "topic": "Number",
+    "prerequisites": [
+      "fractions_of_amounts"
+    ],
+    "exampleQuestion": "Work out the reciprocal of 10/3. Give your answer as a decimal.",
+    "exampleAnswer": "0.3"
+  },
+  {
+    "id": "trig_graphs",
+    "name": "Trigonometric Graphs",
+    "topic": "Algebra",
+    "prerequisites": [
+      "exact_trig_values"
+    ],
+    "exampleQuestion": "You are given that tan 78.69° = 5. Use the graph of y = tan x to find the other value of x in the range 0° ≤ x ≤ 360° for which tan x = 5.",
+    "exampleAnswer": "258.69°"
   },
 ];
