@@ -59,7 +59,9 @@ export const skills: Skill[] = [
     "id": "substitution",
     "name": "Substitution",
     "topic": "Algebra",
-    "prerequisites": [],
+    "prerequisites": [
+      "function_machines"
+    ],
 	"exampleQuestion": "Calculate 3x + 2 if x = 4",
 	"exampleAnswer": "14" 
   },
@@ -663,7 +665,8 @@ export const skills: Skill[] = [
     "name": "Plotting Straight Line Graphs",
     "topic": "Algebra",
     "prerequisites": [
-      "substitution"
+      "substitution",
+      "coordinates"
     ],
 "exampleQuestion": "Do you know how to plot a straight line graph like y = 3x - 1 on an axis?"
   },
@@ -1018,8 +1021,7 @@ export const skills: Skill[] = [
     "name": "Translations",
     "topic": "Shape and Space",
     "prerequisites": [
-      "simple_charts",
-	  "vectors"
+      "vectors"
     ],
     "exampleQuestion": "What is the vector that maps shape A onto shape B?",
     "exampleAnswer": "(4,-6) although this should be written as a vector, with the 4 above the -6.",
@@ -1030,8 +1032,8 @@ export const skills: Skill[] = [
     "name": "Rotations",
     "topic": "Shape and Space",
     "prerequisites": [
-      "simple_charts",
-      "angles_on_lines_and_circles"
+      "angles_on_lines_and_circles",
+      "symmetry"
     ],
     "exampleQuestion": "Describe the rotation shown in the diagram below:",
     "exampleAnswer": "Rotate 90 degrees clockwise about (1,1).",
@@ -1042,8 +1044,8 @@ export const skills: Skill[] = [
     "name": "Reflections",
     "topic": "Shape and Space",
     "prerequisites": [
-      "simple_charts",
-	  "understanding_straight_line_graphs"
+      "understanding_straight_line_graphs",
+      "symmetry"
     ],
 	"exampleQuestion":"",
     "exampleAnswer": "(-1, 4)",
@@ -1054,7 +1056,6 @@ export const skills: Skill[] = [
     "name": "Enlargements",
     "topic": "Shape and Space",
     "prerequisites": [
-      "simple_charts",
       "congruence_and_similarity"
     ],
     "exampleQuestion": "What is the scale factor shown in the enlargement below?",
@@ -1470,5 +1471,75 @@ export const skills: Skill[] = [
     ],
     "exampleQuestion": "y is proportional to x². When x = 3, y = 36. Find y when x = 5.",
     "exampleAnswer": "100"
+  },
+  {
+    "id": "properties_of_3d_solids",
+    "name": "Properties of 3D Solids",
+    "topic": "Shape and Space",
+    "prerequisites": [],
+    "exampleQuestion": "How many faces, edges and vertices does a triangular prism have?",
+    "exampleAnswer": "5 faces, 9 edges, 6 vertices"
+  },
+  {
+    "id": "plans_and_elevations",
+    "name": "Plans and Elevations",
+    "topic": "Shape and Space",
+    "prerequisites": [
+      "properties_of_3d_solids"
+    ],
+    "exampleQuestion": "A cylinder has diameter 40 m and height 55 m. Using a scale of 1 cm to 10 m, what are the dimensions of its plan and front elevation?",
+    "exampleAnswer": "Plan: a circle of diameter 4 cm. Front elevation: a 4 cm by 5.5 cm rectangle."
+  },
+  {
+    "id": "symmetry",
+    "name": "Symmetry (Line and Rotational)",
+    "topic": "Shape and Space",
+    "prerequisites": [],
+    "exampleQuestion": "How many lines of symmetry does a regular pentagon have, and what is its order of rotational symmetry?",
+    "exampleAnswer": "5 lines of symmetry, rotational symmetry of order 5"
+  },
+  {
+    "id": "coordinates",
+    "name": "Coordinates",
+    "topic": "Shape and Space",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+    "exampleQuestion": "On a coordinate grid, point P is 4 units along the x-axis and 3 units up the y-axis. Write down the coordinates of P.",
+    "exampleAnswer": "(4, 3)"
+  },
+  {
+    "id": "function_machines",
+    "name": "Function Machines",
+    "topic": "Algebra",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+    "exampleQuestion": "A number machine multiplies the input by 4 then adds 5. What is the output when the input is 3?",
+    "exampleAnswer": "17"
+  },
+  {
+    "id": "forming_expressions_and_formulae",
+    "name": "Forming Expressions and Formulae",
+    "topic": "Algebra",
+    "prerequisites": [
+      "function_machines"
+    ],
+    "exampleQuestion": "A taxi charges a fixed £4 plus £2 per mile. Write a formula for the total cost £C of a journey of m miles.",
+    "exampleAnswer": "C = 4 + 2m"
+  },
+  {
+    "id": "rearranging_formulae",
+    "name": "Rearranging Formulae (Changing the Subject)",
+    "topic": "Algebra",
+    "prerequisites": [
+      "substitution",
+      "simplifying_expressions",
+      "expanding_brackets",
+      "factorising",
+      "simplifying_fractions"
+    ],
+    "exampleQuestion": "Rearrange y = w − 1 to make w the subject.",
+    "exampleAnswer": "w = y + 1"
   },
 ];
