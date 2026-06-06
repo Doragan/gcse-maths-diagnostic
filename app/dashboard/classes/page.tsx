@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSession, signOut } from '../../../lib/auth'
+import { getSession, signOut, requireTeacher } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import {
   createClass, getTeacherClasses, type TeacherClass,
@@ -24,6 +24,7 @@ export default function TeacherClassesPage() {
   useEffect(() => {
     getSession().then(async session => {
       if (!session) { router.push('/auth'); return }
+      if (!(await requireTeacher())) { router.push('/student/dashboard'); return }
       await load()
     })
   }, [])

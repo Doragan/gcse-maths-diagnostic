@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { getSession, requireTeacher } from '../../../lib/auth'
 import {
   colors, font, radius,
   pageContainer, narrowCard, pageTitle,
@@ -12,6 +13,17 @@ export default function UpgradePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checking, setChecking] = useState(true)
+
+  // Teacher-only page (it starts a paid checkout). Hold rendering until we've
+  // confirmed the role so a signed-in student never sees the payment UI.
+  useEffect(() => {
+    getSession().then(async session => {
+      if (!session) { router.push('/auth'); return }
+      if (!(await requireTeacher())) { router.push('/student/dashboard'); return }
+      setChecking(false)
+    })
+  }, [])
 
   async function handleUpgrade() {
   setLoading(true)
@@ -38,6 +50,14 @@ export default function UpgradePage() {
     setLoading(false)
   }
 }
+
+  if (checking) {
+    return (
+      <main style={pageContainer}>
+        <p style={{ color: colors.textSecondary }}>Loading...</p>
+      </main>
+    )
+  }
 
   return (
     <main style={pageContainer}>

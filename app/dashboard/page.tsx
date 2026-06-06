@@ -44,12 +44,19 @@ useEffect(() => {
       .eq('id', session.user.id)
       .single()
 
-    if (teacher) {
-      const paid = teacher.paid_until && new Date(teacher.paid_until) > new Date()
-      setIsPaid(!!paid)
-      setFreeAssessmentsUsed(teacher.free_assessments_used ?? 0)
-      setIsAdmin(teacher.is_admin ?? false)
+    if (!teacher) {
+      // No teachers row — a signed-in student (or non-teacher) landed on the
+      // teacher dashboard. It isn't theirs to see; send them to their own
+      // dashboard. (Data was never exposed: the assessments list is RLS-scoped
+      // to the owning teacher_id, and creation is blocked server-side.)
+      router.push('/student/dashboard')
+      return
     }
+
+    const paid = teacher.paid_until && new Date(teacher.paid_until) > new Date()
+    setIsPaid(!!paid)
+    setFreeAssessmentsUsed(teacher.free_assessments_used ?? 0)
+    setIsAdmin(teacher.is_admin ?? false)
 
     loadAssessments()
   })

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { getSession } from '../../../lib/auth'
+import { getSession, requireTeacher } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import { skillsById } from '../../../lib/skills/skillGraph'
 import FeedbackWidget from '../../../components/FeedbackWidget'
@@ -41,9 +41,10 @@ export default function AssessmentResultsPage() {
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null)
 
   useEffect(() => {
-    getSession().then(session => {
-      if (!session) router.push('/auth')
-      else loadData()
+    getSession().then(async session => {
+      if (!session) { router.push('/auth'); return }
+      if (!(await requireTeacher())) { router.push('/student/dashboard'); return }
+      loadData()
     })
   }, [])
 

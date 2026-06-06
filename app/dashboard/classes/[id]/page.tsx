@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { getSession } from '../../../../lib/auth'
+import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
 import { getClassMembers, type ClassMember } from '../../../../lib/classes'
 import {
@@ -24,6 +24,7 @@ export default function ClassRosterPage() {
   useEffect(() => {
     getSession().then(async session => {
       if (!session) { router.push('/auth'); return }
+      if (!(await requireTeacher())) { router.push('/student/dashboard'); return }
       // The class row is readable via RLS only if the teacher owns it.
       const { data: cls } = await supabase
         .from('classes')

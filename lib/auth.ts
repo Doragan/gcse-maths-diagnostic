@@ -148,3 +148,17 @@ export async function getUserRole(): Promise<'teacher' | 'student' | null> {
 
   return null
 }
+
+/**
+ * Client-side route guard: resolves true only if the signed-in user is a
+ * teacher (has a `teachers` row). The teacher dashboard pages call this and
+ * redirect non-teachers, so a signed-in *student* can't render the teacher UI.
+ *
+ * This is a UX/navigation guard only — actual data access is still enforced by
+ * RLS (assessments/classes are scoped to the owning teacher_id) and by the
+ * teachers-row checks in the privileged API routes. The guard just stops the
+ * wrong UI from showing.
+ */
+export async function requireTeacher(): Promise<boolean> {
+  return (await getUserRole()) === 'teacher'
+}
