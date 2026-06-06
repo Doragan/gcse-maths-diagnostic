@@ -34,3 +34,17 @@ button {
   font-family: inherit;
   cursor: pointer;
 }
+
+/* ── Responsive dashboard nav strip ───────────────────────────────────────── */
+/* Applied to the button row inside dashboard headers. Wraps buttons on small  */
+/* screens and shrinks their padding/font so they don't overflow.              */
+.dash-nav {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 540px) {
+  .dash-nav button {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+}

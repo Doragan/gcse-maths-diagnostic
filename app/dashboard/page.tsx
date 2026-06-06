@@ -144,12 +144,18 @@ useEffect(() => {
 		  <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
 			Mathsense
 		  </h1>
-		  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+		  <div className="dash-nav" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 			<button
 			  onClick={() => router.push('/dashboard/classes')}
 			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
 			>
 			  Classes
+			</button>
+			<button
+			  onClick={() => router.push('/dashboard/assignments')}
+			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+			>
+			  Assignments
 			</button>
 			<button
 			  onClick={() => router.push('/account')}
@@ -342,6 +348,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap' as const,
+    gap: '10px',
   },
   row: {
     display: 'flex',

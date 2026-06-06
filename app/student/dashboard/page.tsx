@@ -83,6 +83,7 @@ export default function StudentDashboardPage() {
   const [hideUntested, setHideUntested] = useState(false)
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
+  const [pendingAssignments, setPendingAssignments] = useState(0)
 
   useEffect(() => {
     (async () => {
@@ -132,6 +133,19 @@ export default function StudentDashboardPage() {
         }
         setTopicGroups(Object.entries(groupMap).map(([topic, skillList]) => ({ topic, skills: skillList })))
       }
+
+      // Pending assignments badge — count targeted assignments with 0 attempts.
+      // Silently ignored if the assignments table doesn't exist yet.
+      try {
+        const [{ data: asgns }, { data: aa }] = await Promise.all([
+          supabase.from('assignments').select('id'),
+          supabase.from('assignment_attempts').select('assignment_id').eq('student_id', user.id),
+        ])
+        if (asgns) {
+          const startedIds = new Set((aa ?? []).map((a: any) => a.assignment_id as string))
+          setPendingAssignments(asgns.filter((a: any) => !startedIds.has(a.id as string)).length)
+        }
+      } catch { /* assignments table not yet created — skip */ }
 
       setLoading(false)
     })()
@@ -205,13 +219,14 @@ export default function StudentDashboardPage() {
           <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
             Mathsense
           </h1>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="dash-nav" style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={() => router.push('/student/classes')}
               style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
             >
               My classes
             </button>
+            <AssignmentsButton count={pendingAssignments} onClick={() => router.push('/student/assignments')} />
             <button
               onClick={handleSignOut}
               style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
@@ -295,7 +310,7 @@ export default function StudentDashboardPage() {
         <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
           Mathsense
         </h1>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="dash-nav" style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => router.push('/practice')}
             style={{ ...primaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
@@ -308,6 +323,7 @@ export default function StudentDashboardPage() {
           >
             Classes
           </button>
+          <AssignmentsButton count={pendingAssignments} onClick={() => router.push('/student/assignments')} />
           <button
             onClick={handleSignOut}
             style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
@@ -687,6 +703,41 @@ function Stat({ label, value, color }: { label: string; value: string; color?: s
   )
 }
 
+function AssignmentsButton({ count, onClick }: { count: number; onClick: () => void }) {
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        onClick={onClick}
+        style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+      >
+        Assignments
+      </button>
+      {count > 0 && (
+        <span style={{
+          position: 'absolute',
+          top: '-7px',
+          right: '-7px',
+          background: colors.danger,
+          color: '#fff',
+          fontSize: '10px',
+          fontWeight: '700',
+          borderRadius: '9999px',
+          minWidth: '18px',
+          height: '18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 4px',
+          lineHeight: '1',
+          pointerEvents: 'none',
+        }}>
+          {count}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function Feature({ label, description }: { label: string; description: string }) {
   return (
     <div style={{
@@ -723,6 +774,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap' as const,
+    gap: '10px',
   },
   welcomeCard: {
     background: colors.card,

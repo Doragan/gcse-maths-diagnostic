@@ -141,6 +141,10 @@ function QuestionPage() {
   const id = params.id as string
   const searchParams = useSearchParams()
 
+  // When ?assignment_id= is present this question is part of an assignment.
+  // Back and Next navigate to the assignment page rather than free practice.
+  const assignmentId = searchParams.get('assignment_id')
+
   const [question, setQuestion] = useState<Question | null>(null)
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
   const [answer, setAnswer] = useState('')
@@ -337,6 +341,8 @@ function QuestionPage() {
     sessionStorage.setItem('practice_questions_answered', count.toString())
     if (!studentId && count >= 5) setShowSignUpPrompt(true)
     if (!studentId) return
+
+    // Always record to practice_attempts for mastery / skill tracking.
     await supabase
       .from('practice_attempts')
       .insert({
@@ -345,6 +351,20 @@ function QuestionPage() {
         skill_ids: question.skill_ids,
         correct,
       })
+
+    // If this question is part of an assignment, also record it there.
+    // The teacher can read assignment_attempts (class-context work); they cannot
+    // read private practice_attempts (engagement-vs-detail boundary).
+    if (assignmentId) {
+      await supabase
+        .from('assignment_attempts')
+        .insert({
+          assignment_id: assignmentId,
+          student_id:    studentId,
+          question_id:   question.id,
+          correct,
+        })
+    }
   }
 
   // Detects whether this correct answer tips the skill into mastered status for
@@ -415,7 +435,68 @@ function QuestionPage() {
     }
   }
 
+  // In assignment (picked) mode: find the next question that still needs attention
+  // and navigate to it directly, skipping the list page entirely.
+  async function nextAssignmentQuestion() {
+    if (!assignmentId || !studentId) {
+      router.push(`/student/assignments/${assignmentId}`)
+      return
+    }
+
+    const [aqRes, aaRes, aRes] = await Promise.all([
+      supabase
+        .from('assignment_questions')
+        .select('question_id, position')
+        .eq('assignment_id', assignmentId)
+        .order('position', { ascending: true }),
+      supabase
+        .from('assignment_attempts')
+        .select('question_id, correct')
+        .eq('assignment_id', assignmentId)
+        .eq('student_id', studentId),
+      supabase
+        .from('assignments')
+        .select('completion_mode, selection_mode')
+        .eq('id', assignmentId)
+        .single(),
+    ])
+
+    // Pool mode or fetch problem → fall back to assignment page
+    if (!aRes.data || aRes.data.selection_mode !== 'picked') {
+      router.push(`/student/assignments/${assignmentId}`)
+      return
+    }
+
+    const questions  = (aqRes.data ?? []).map(q => q.question_id as string)
+    const attempts   = aaRes.data ?? []
+    const mode       = aRes.data.completion_mode as string
+
+    const attemptedIds = new Set(attempts.map((a: any) => a.question_id as string))
+    const correctIds   = new Set(attempts.filter((a: any) => a.correct).map((a: any) => a.question_id as string))
+
+    // Rotate so we start searching after the current question
+    const currentIdx = questions.indexOf(id)
+    const rotated = currentIdx >= 0
+      ? [...questions.slice(currentIdx + 1), ...questions.slice(0, currentIdx + 1)]
+      : questions
+
+    const isDone = (qId: string) =>
+      mode === 'until_correct' ? correctIds.has(qId) : attemptedIds.has(qId)
+
+    const next = rotated.find(qId => !isDone(qId))
+
+    if (next) {
+      router.push(`/practice/question/${next}?assignment_id=${assignmentId}`)
+    } else {
+      // All questions done — back to the assignment summary
+      router.push(`/student/assignments/${assignmentId}`)
+    }
+  }
+
   async function nextQuestion() {
+    // In assignment context, navigate directly to the next unanswered question.
+    if (assignmentId) { await nextAssignmentQuestion(); return }
+
     // The pool is cached for the session, so this is usually instant.
     const pool = await fetchQuestionPool(resolveSkillIds())
 
@@ -511,7 +592,7 @@ function QuestionPage() {
       {/* Header */}
       <div style={styles.header}>
         <button
-          onClick={() => router.push(studentId ? '/student/dashboard' : '/practice')}
+          onClick={() => router.push(assignmentId ? `/student/assignments/${assignmentId}` : studentId ? '/student/dashboard' : '/practice')}
           style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
         >
           ← Back
