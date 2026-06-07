@@ -7,13 +7,15 @@ import {
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
 } from '../../lib/styles'
 import { buildOptions } from '../../lib/questions/multipleChoice'
-import { generateValues, evaluateTemplate } from '../../lib/questions/paramEngine'
+import { generateValues, evaluateTemplate, renderMultiPartQuestion } from '../../lib/questions/paramEngine'
 import {
   CalculatorMode, CALCULATOR_MODES, CALCULATOR_LABELS, DEFAULT_CALCULATOR_MODE,
 } from '../../lib/questions/calculator'
 import {
   QuestionKind, QUESTION_KINDS, QUESTION_KIND_LABELS, DEFAULT_QUESTION_KIND,
 } from '../../lib/questions/kind'
+import { PartInput, emptyPart, computeSkillUnion } from '../../lib/questions/parts'
+import PartEditor from './PartEditor'
 import { supabase } from '../../lib/supabase'
 
 type Trap = {
@@ -36,6 +38,8 @@ type QuestionFormData = {
   explanation: string
   image_url: string       // URL of an uploaded image shown above the question
   is_published: boolean
+  multiPart: boolean      // when true, the question decomposes into independently-graded parts
+  parts: PartInput[]      // editable part list (only meaningful when multiPart)
 }
 
 type Props = {
@@ -60,6 +64,8 @@ const emptyForm: QuestionFormData = {
   explanation: '',
   image_url: '',
   is_published: false,
+  multiPart: false,
+  parts: [],
 }
 
 type SimpleParam = {
@@ -100,12 +106,20 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
     image_url: typeof (initialData as any)?.image_url === 'string'
       ? (initialData as any).image_url
       : '',
+    // Hydrate the parts model from a jsonb `parts` column (QuestionPart[] is
+    // assignment-compatible with PartInput); derive the toggle from its presence.
+    parts: Array.isArray((initialData as any)?.parts) ? (initialData as any).parts : [],
+    multiPart: Array.isArray((initialData as any)?.parts) && (initialData as any).parts.length > 0,
   })
   const [preview, setPreview] = useState<{
     question: string
     answer: string
     traps: { answer: string, response: string }[]
     explanation: string
+  } | null>(null)
+  const [partsPreview, setPartsPreview] = useState<{
+    stem: string
+    parts: { prompt: string, answer: string, traps: { answer: string, response: string }[], explanation: string }[]
   } | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [skillSearch, setSkillSearch] = useState('')
@@ -149,6 +163,18 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
     } else {
       update('skill_ids', [...form.skill_ids, skillId])
     }
+  }
+
+  function addPart() {
+    update('parts', [...form.parts, emptyPart() as PartInput])
+  }
+
+  function updatePart(index: number, next: PartInput) {
+    update('parts', form.parts.map((p, i) => i === index ? next : p))
+  }
+
+  function removePart(index: number) {
+    update('parts', form.parts.filter((_, i) => i !== index))
   }
 
   async function handleImageUpload(file: File) {
@@ -241,6 +267,29 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 		)
 	  : generateValues(params)
 
+    // Multi-part: render the shared stem and every part against one value set.
+    if (form.multiPart) {
+      const rendered = renderMultiPartQuestion(
+        form.question_template,
+        form.parts.map(p => ({
+          prompt: p.prompt,
+          answer_template: p.answer_template,
+          traps: p.traps,
+          explanation: p.explanation,
+        })),
+        params,
+        generated,
+      )
+      if (!useFixedValues) {
+        setFixedValues(Object.fromEntries(
+          Object.entries(rendered.generatedValues).map(([k, v]) => [k, v.toString()])
+        ))
+      }
+      setPartsPreview({ stem: rendered.stem, parts: rendered.parts })
+      setPreview(null)
+      return
+    }
+
     const question = evaluateTemplate(form.question_template, generated)
 	const answer = evaluateTemplate(form.answer_template, generated)
 	const traps = form.traps.map(t => ({
@@ -255,6 +304,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 	  ))
 	}
 
+	setPartsPreview(null)
 	setPreview({ question, answer, traps, explanation })
   } catch (e: any) {
     setPreviewError(e.message)
@@ -272,7 +322,37 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      {/* Skills */}
+      {/* Question structure */}
+      <div style={card}>
+        <h2 style={sectionTitle}>Question structure</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <input
+            type="checkbox"
+            id="multi_part"
+            checked={form.multiPart}
+            onChange={e => {
+              const on = e.target.checked
+              // Seed one empty part the first time multi-part is switched on.
+              if (on && form.parts.length === 0) {
+                setForm(prev => ({ ...prev, multiPart: true, parts: [emptyPart() as PartInput] }))
+              } else {
+                update('multiPart', on)
+              }
+            }}
+            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+          />
+          <label htmlFor="multi_part" style={{ ...labelStyle, cursor: 'pointer' }}>
+            Multi-part question (parts a, b, c…)
+          </label>
+        </div>
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+          Each part is graded and attributed independently — its own skills, answer, traps and kind.
+          The skills, answer, traps and explanation below move into the parts.
+        </p>
+      </div>
+
+      {/* Skills (single-question mode) */}
+      {!form.multiPart && (
       <div style={card}>
         <h2 style={sectionTitle}>Skills</h2>
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
@@ -327,11 +407,45 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           ))}
         </div>
       </div>
+      )}
+
+      {/* Skills summary (multi-part mode) — auto-computed union, read-only */}
+      {form.multiPart && (
+        <div style={card}>
+          <h2 style={sectionTitle}>Skills covered (auto)</h2>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+            Combined from the parts below — set each part’s skills in its own card.
+          </p>
+          {(() => {
+            const union = computeSkillUnion(form.parts)
+            return union.length > 0 ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+                {union.map(id => (
+                  <span
+                    key={id}
+                    style={{
+                      fontSize: font.sm, padding: '3px 8px', borderRadius: radius.sm,
+                      background: '#f1f5f9', color: '#475569', border: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    {skillsById[id]?.name ?? id}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, fontStyle: 'italic' }}>
+                No skills yet — add them inside the parts.
+              </p>
+            )
+          })()}
+        </div>
+      )}
 
       {/* Question details */}
       <div style={card}>
         <h2 style={sectionTitle}>Question details</h2>
         <div style={styles.row}>
+          {!form.multiPart && (
           <div style={styles.field}>
 			  <label style={labelStyle}>Question type</label>
 			  <select
@@ -344,6 +458,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 				<option value="multiple_choice">Multiple choice</option>
 			  </select>
 			</div>
+          )}
           <div style={styles.field}>
             <label style={labelStyle}>Difficulty</label>
             <select value={form.difficulty} onChange={e => update('difficulty', parseInt(e.target.value))} style={inputStyle}>
@@ -352,6 +467,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               ))}
             </select>
           </div>
+          {!form.multiPart && (
           <div style={styles.field}>
             <label style={labelStyle}>Answer type</label>
             <select value={form.answer_type} onChange={e => update('answer_type', e.target.value as any)} style={inputStyle}>
@@ -361,8 +477,9 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               <option value="expression">Expression</option>
             </select>
           </div>
+          )}
         </div>
-        {form.answer_type === 'numeric' && (
+        {!form.multiPart && form.answer_type === 'numeric' && (
           <div style={styles.field}>
             <label style={labelStyle}>Tolerance (±)</label>
             <input
@@ -390,6 +507,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             A “Calculator required” question is only ever served on calculator papers.
           </p>
         </div>
+        {!form.multiPart && (
         <div style={styles.field}>
           <label style={labelStyle}>Kind</label>
           <select
@@ -405,6 +523,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             “Exam” = an irreducible multi-skill question; a wrong answer never lowers mastery (it only routes to revision). Use “Mastery” for everything that cleanly tests one skill.
           </p>
         </div>
+        )}
       </div>
 
       {/* Parameters */}
@@ -563,17 +682,27 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 
       {/* Templates */}
       <div style={card}>
-        <h2 style={sectionTitle}>Question and answer</h2>
+        <h2 style={sectionTitle}>{form.multiPart ? 'Shared stem' : 'Question and answer'}</h2>
         <div style={styles.field}>
-          <label style={labelStyle}>Question template (HTML)</label>
+          <label style={labelStyle}>
+            {form.multiPart ? 'Shared stem template (HTML) — shown above every part' : 'Question template (HTML)'}
+          </label>
           <textarea
             ref={autoResize}
             value={form.question_template}
             onChange={e => { update('question_template', e.target.value); autoResize(e.target) }}
             style={{ ...inputStyle, minHeight: '120px', resize: 'none' as const, fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.5' }}
-            placeholder="<p>Find the area of a rectangle with width <strong>{{a}} cm</strong> and height <strong>{{b}} cm</strong>.</p>"
+            placeholder={form.multiPart
+              ? '<p>The table shows... Use it to answer the parts below.</p>'
+              : '<p>Find the area of a rectangle with width <strong>{{a}} cm</strong> and height <strong>{{b}} cm</strong>.</p>'}
           />
+          {form.multiPart && (
+            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+              Optional shared context. May be left blank if each part is self-contained.
+            </p>
+          )}
         </div>
+        {!form.multiPart && (
         <div style={styles.field}>
           <label style={labelStyle}>Answer template</label>
           <input
@@ -584,6 +713,8 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             placeholder="{{a * b}}"
           />
         </div>
+        )}
+        {!form.multiPart && (
         <div style={styles.field}>
           <label style={labelStyle}>Explanation (shown after answering)</label>
           <textarea
@@ -594,7 +725,31 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             placeholder="Area = width × height = {{a}} × {{b}} = {{a * b}} cm²"
           />
         </div>
+        )}
       </div>
+
+      {/* Parts (multi-part mode) */}
+      {form.multiPart && (
+        <div style={card}>
+          <h2 style={sectionTitle}>Parts</h2>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+            Each part is answered, graded and attributed on its own. Parts share the stem’s parameters.
+          </p>
+          {form.parts.map((part, i) => (
+            <PartEditor
+              key={i}
+              index={i}
+              part={part}
+              onChange={next => updatePart(i, next)}
+              onRemove={() => removePart(i)}
+              autoResize={autoResize}
+            />
+          ))}
+          <button onClick={addPart} style={{ ...secondaryButton, width: 'auto', padding: '8px 16px' }}>
+            + Add part
+          </button>
+        </div>
+      )}
 
       {/* Image */}
       <div style={card}>
@@ -642,7 +797,8 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         {imageError && <p style={errorBox}>{imageError}</p>}
       </div>
 
-      {/* Traps */}
+      {/* Traps (single-question mode; multi-part traps live per part) */}
+      {!form.multiPart && (
       <div style={card}>
         <h2 style={sectionTitle}>Traps</h2>
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
@@ -685,6 +841,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           + Add trap
         </button>
       </div>
+      )}
 
       {/* Preview */}
 	<div style={card}>
@@ -728,6 +885,47 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 	  </button>
 
 	  {previewError && <p style={errorBox}>{previewError}</p>}
+
+	  {partsPreview && (
+		<div style={styles.previewBox}>
+		  {partsPreview.stem && (
+			<div
+			  style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '16px' }}
+			  dangerouslySetInnerHTML={{ __html: partsPreview.stem }}
+			/>
+		  )}
+		  {partsPreview.parts.map((p, pi) => (
+			<div key={pi} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: pi < partsPreview.parts.length - 1 ? `1px solid ${colors.border}` : 'none' }}>
+			  <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 6px', color: colors.textSecondary }}>
+				Part ({'abcdefghijklmnopqrstuvwxyz'[pi] ?? pi + 1})
+			  </p>
+			  <div
+				style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '8px' }}
+				dangerouslySetInnerHTML={{ __html: p.prompt }}
+			  />
+			  <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+				Correct answer:
+			  </p>
+			  <div
+				style={{ fontSize: font.base, fontWeight: '600', color: colors.successText, marginBottom: p.traps.length || p.explanation ? '8px' : 0 }}
+				dangerouslySetInnerHTML={{ __html: p.answer }}
+			  />
+			  {p.traps.length > 0 && p.traps.map((t, ti) => (
+				<div key={ti} style={{ marginBottom: '4px' }}>
+				  <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
+				  <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
+				</div>
+			  ))}
+			  {p.explanation && (
+				<div
+				  style={{ fontSize: font.base, color: colors.textPrimary, marginTop: '6px' }}
+				  dangerouslySetInnerHTML={{ __html: p.explanation }}
+				/>
+			  )}
+			</div>
+		  ))}
+		</div>
+	  )}
 
 	  {preview && (
 		<div style={styles.previewBox}>
@@ -828,6 +1026,30 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 <button
   onClick={() => {
     setValidationError(null)
+    if (form.multiPart) {
+      if (form.parts.length === 0) {
+        setValidationError('Add at least one part before saving.')
+        return
+      }
+      for (let i = 0; i < form.parts.length; i++) {
+        const p = form.parts[i]
+        const letter = 'abcdefghijklmnopqrstuvwxyz'[i] ?? String(i + 1)
+        if (p.skill_ids.length === 0) {
+          setValidationError(`Part (${letter}) needs at least one skill.`)
+          return
+        }
+        if (!p.prompt.trim()) {
+          setValidationError(`Part (${letter}) needs a prompt.`)
+          return
+        }
+        if (!p.answer_template.trim()) {
+          setValidationError(`Part (${letter}) needs an answer template.`)
+          return
+        }
+      }
+      onSave(form)
+      return
+    }
     if (form.skill_ids.length === 0) {
       setValidationError('Please select at least one skill before saving.')
       return

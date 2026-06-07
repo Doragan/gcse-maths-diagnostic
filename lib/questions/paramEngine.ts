@@ -248,3 +248,53 @@ export function renderQuestion(
     generatedValues: generated,
   }
 }
+
+export type RenderedPart = {
+  prompt: string
+  answer: string
+  traps: { answer: string, response: string }[]
+  explanation: string
+}
+
+export type RenderedMultiPartQuestion = {
+  stem: string
+  parts: RenderedPart[]
+  generatedValues: Record<string, number>
+}
+
+/**
+ * Render a multi-part question: the shared stem plus every part, all against
+ * ONE shared generated value set so a later part can reference values (and
+ * therefore working) from an earlier part — e.g. part (b)'s template using
+ * {{a}}. Pass `fixedValues` to re-render an existing attempt deterministically.
+ *
+ * `parts` is intentionally loosely typed here (the canonical QuestionPart lives
+ * in lib/questions/parts.ts) so this engine module stays free of higher-level
+ * type imports; only the template-bearing fields are read.
+ */
+export function renderMultiPartQuestion(
+  stemTemplate: string,
+  parts: {
+    prompt: string
+    answer_template: string
+    traps: { answer_template: string, response: string }[]
+    explanation: string | null
+  }[],
+  parameters: Parameters,
+  fixedValues?: Record<string, number>
+): RenderedMultiPartQuestion {
+  const generated = fixedValues ?? generateValues(parameters)
+  return {
+    stem: evaluateTemplate(stemTemplate, generated),
+    parts: parts.map(part => ({
+      prompt: evaluateTemplate(part.prompt, generated),
+      answer: evaluateTemplate(part.answer_template, generated),
+      traps: part.traps.map(t => ({
+        answer: evaluateTemplate(t.answer_template, generated),
+        response: evaluateTemplate(t.response, generated),
+      })),
+      explanation: part.explanation ? evaluateTemplate(part.explanation, generated) : '',
+    })),
+    generatedValues: generated,
+  }
+}

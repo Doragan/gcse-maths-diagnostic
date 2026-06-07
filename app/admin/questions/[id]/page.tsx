@@ -6,6 +6,7 @@ import { checkIsAdmin } from '../../../../lib/admin'
 import { supabase } from '../../../../lib/supabase'
 import { colors, font, secondaryButton } from '../../../../lib/styles'
 import QuestionForm from '../../../../components/admin/QuestionForm'
+import { normalizePart, computeSkillUnion } from '../../../../lib/questions/parts'
 
 export default function EditQuestionPage() {
   const router = useRouter()
@@ -47,23 +48,28 @@ export default function EditQuestionPage() {
     setSaving(true)
     setError(null)
 
+    const isMulti = data.multiPart && data.parts.length > 0
+    const normalizedParts = isMulti ? data.parts.map(normalizePart) : null
+    const skillIds = isMulti ? computeSkillUnion(normalizedParts) : data.skill_ids
+
     const { error } = await supabase
       .from('questions')
       .update({
-        skill_ids: data.skill_ids,
+        skill_ids: skillIds,
         difficulty: data.difficulty,
         question_type: data.question_type,
         question_template: data.question_template,
         parameters: JSON.parse(data.parameters),
-        answer_template: data.answer_template,
+        answer_template: isMulti ? '' : data.answer_template,
         answer_type: data.answer_type,
-        tolerance: data.answer_type === 'numeric' ? parseFloat(data.tolerance) : null,
+        tolerance: !isMulti && data.answer_type === 'numeric' ? parseFloat(data.tolerance) : null,
         calculator: data.calculator,
         kind: data.kind,
-        traps: data.traps,
-        explanation: data.explanation || null,
+        traps: isMulti ? [] : data.traps,
+        explanation: isMulti ? null : (data.explanation || null),
         image_url: data.image_url || null,
         is_published: data.is_published,
+        parts: normalizedParts,
       })
       .eq('id', id)
 
