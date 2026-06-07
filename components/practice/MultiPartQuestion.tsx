@@ -1,0 +1,351 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '../../lib/supabase'
+import { skillsById } from '../../lib/skills/skillGraph'
+import { renderMultiPartQuestion } from '../../lib/questions/paramEngine'
+import { checkAnswer } from '../../lib/questions/answerChecker'
+import type { QuestionPart } from '../../lib/questions/parts'
+import {
+  colors, font, radius, card, primaryButton, secondaryButton,
+} from '../../lib/styles'
+import MathInput from './MathInput'
+import ReportIssueButton from './ReportIssueButton'
+import FeedbackWidget from '../FeedbackWidget'
+
+type MultiPartQuestionData = {
+  id: string
+  skill_ids: string[]
+  difficulty: number
+  question_template: string
+  parameters: any
+  image_url: string | null
+  parts: QuestionPart[]
+}
+
+type PartOutcome = { answer: string, correct: boolean, message: string }
+
+type Props = {
+  question: MultiPartQuestionData
+  studentId: string | null
+  assignmentId: string | null
+  /** Bumps the parent page's live session counter + sessionStorage. */
+  onSessionAttempt: (correct: boolean) => void
+  /** Advance to the next question (free practice) or assignment flow. */
+  onNextQuestion: () => void
+}
+
+const PART_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
+
+export default function MultiPartQuestion({
+  question, studentId, assignmentId, onSessionAttempt, onNextQuestion,
+}: Props) {
+  const router = useRouter()
+
+  // Render the stem + every part ONCE against a single shared value set, so a
+  // later part can reference earlier working (e.g. {{a}}). Recomputed only when
+  // the question id changes.
+  const rendered = useMemo(
+    () => renderMultiPartQuestion(
+      question.question_template,
+      question.parts.map(p => ({
+        prompt: p.prompt,
+        answer_template: p.answer_template,
+        traps: p.traps,
+        explanation: p.explanation,
+      })),
+      question.parameters ?? {},
+    ),
+    [question.id], // eslint-disable-line react-hooks/exhaustive-deps
+  )
+
+  const [current, setCurrent] = useState(0)
+  const [answer, setAnswer] = useState('')
+  // One slot per part; null until that part is answered. Keeps each part's
+  // submitted answer on screen so later parts can refer back to it.
+  const [outcomes, setOutcomes] = useState<(PartOutcome | null)[]>(
+    () => question.parts.map(() => null),
+  )
+
+  const isLastPart = current === question.parts.length - 1
+  const currentAnswered = outcomes[current] !== null
+  const correctCount = outcomes.filter(o => o?.correct).length
+  const allAnswered = outcomes.every(o => o !== null)
+
+  async function recordPartAttempt(part: QuestionPart, correct: boolean) {
+    onSessionAttempt(correct)
+    if (!studentId) return
+
+    // One practice_attempts row per PART, carrying that part's own skill_ids
+    // and kind — this is the unit of attribution the mastery engine consumes.
+    await supabase.from('practice_attempts').insert({
+      student_id: studentId,
+      question_id: question.id,
+      skill_ids: part.skill_ids,
+      correct,
+      kind: part.kind ?? 'mastery',
+    })
+  }
+
+  async function recordAssignmentRollup(allCorrect: boolean) {
+    // Assignment attempts are keyed by question_id, so a multi-part question
+    // contributes one row recorded when the final part is answered.
+    if (!assignmentId || !studentId) return
+    await supabase.from('assignment_attempts').insert({
+      assignment_id: assignmentId,
+      student_id: studentId,
+      question_id: question.id,
+      correct: allCorrect,
+    })
+  }
+
+  function submit() {
+    const part = question.parts[current]
+    const renderedPart = rendered.parts[current]
+    if (!answer.trim() || outcomes[current]) return
+
+    const result = checkAnswer(
+      answer,
+      renderedPart.answer,
+      part.answer_type,
+      part.tolerance,
+      renderedPart.traps,
+    )
+    const next = [...outcomes]
+    next[current] = { answer, correct: result.correct, message: result.message }
+    setOutcomes(next)
+    recordPartAttempt(part, result.correct)
+    if (isLastPart) {
+      recordAssignmentRollup(next.every(o => o?.correct === true))
+    }
+  }
+
+  function nextPart() {
+    setAnswer('')
+    setCurrent(c => c + 1)
+  }
+
+  const stemSkillNames = question.skill_ids
+    .map(id => skillsById[id]?.name ?? id)
+    .join(', ')
+
+  return (
+    <main style={styles.page}>
+      {/* Header */}
+      <div style={styles.header}>
+        <button
+          onClick={() => router.push(assignmentId ? `/student/assignments/${assignmentId}` : studentId ? '/student/dashboard' : '/practice')}
+          style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+        >
+          ← Back
+        </button>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>{stemSkillNames}</p>
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0' }}>
+            {'★'.repeat(question.difficulty)}{'☆'.repeat(5 - question.difficulty)}
+            {' · '}{question.parts.length}-part question
+          </p>
+        </div>
+      </div>
+
+      {/* Part progress */}
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+        {question.parts.map((_, i) => {
+          const o = outcomes[i]
+          const isCurrent = i === current
+          return (
+            <div
+              key={i}
+              title={`Part (${PART_LETTERS[i] ?? i + 1})`}
+              style={{
+                flex: 1,
+                height: '6px',
+                borderRadius: radius.full,
+                background: o
+                  ? (o.correct ? colors.success : colors.danger)
+                  : isCurrent ? colors.primary : colors.border,
+                opacity: o || isCurrent ? 1 : 0.5,
+                transition: 'background-color 0.3s ease',
+              }}
+            />
+          )
+        })}
+      </div>
+
+      {/* Shared stem */}
+      {(question.image_url || rendered.stem) && (
+        <div style={card}>
+          {question.image_url && (
+            <img
+              src={question.image_url}
+              alt="Question diagram"
+              style={{ maxWidth: '100%', borderRadius: radius.md, marginBottom: '12px', display: 'block' }}
+            />
+          )}
+          {rendered.stem && (
+            <div
+              style={{ fontSize: font.lg, color: colors.textPrimary, lineHeight: '1.6' }}
+              dangerouslySetInnerHTML={{ __html: rendered.stem }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* All parts — prompts always visible so you can read ahead; only the
+          current part is answerable, and answered parts keep your answer. */}
+      {question.parts.map((part, i) => {
+        const renderedPart = rendered.parts[i]
+        const o = outcomes[i]
+        const isCurrent = i === current
+        const isFuture = i > current
+        const letter = PART_LETTERS[i] ?? String(i + 1)
+        const partSkillNames = part.skill_ids
+          .map(id => skillsById[id]?.name ?? id)
+          .join(', ')
+
+        return (
+          <div key={i} style={{ ...card, opacity: isFuture ? 0.6 : 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
+              <p style={{ fontSize: font.sm, fontWeight: '700', color: isCurrent ? colors.primary : colors.textSecondary, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                Part ({letter}) · {partSkillNames}
+              </p>
+              <span style={{ fontSize: font.sm, color: colors.textHint, whiteSpace: 'nowrap' as const }}>
+                {part.marks} {part.marks === 1 ? 'mark' : 'marks'}
+              </span>
+            </div>
+
+            <div
+              style={{ fontSize: font.lg, color: colors.textPrimary, lineHeight: '1.6' }}
+              dangerouslySetInnerHTML={{ __html: renderedPart.prompt }}
+            />
+
+            {/* Answered: keep the student's answer (and the right one, if wrong)
+                plus any reminder/trap feedback on screen for every part. */}
+            {o && (
+              <div style={{
+                marginTop: '12px',
+                padding: '10px 14px',
+                borderRadius: radius.md,
+                background: o.correct ? colors.successLight : colors.dangerLight,
+                border: `1px solid ${o.correct ? colors.successBorder : colors.dangerBorder}`,
+                display: 'flex',
+                flexDirection: 'column' as const,
+                gap: '6px',
+              }}>
+                <p style={{ fontSize: font.sm, margin: 0, color: o.correct ? colors.successText : colors.dangerText, fontWeight: '600' }}>
+                  {o.correct ? '✓ Correct' : '✗ Not quite'}
+                </p>
+                {/* Reminder / trap feedback (units, simplification, etc.) — suppress
+                    the bare "Correct!" since the ✓ header already says it. */}
+                {o.message && o.message !== 'Correct!' && (
+                  <div
+                    style={{ fontSize: font.sm, color: o.correct ? colors.successText : colors.dangerText }}
+                    dangerouslySetInnerHTML={{ __html: o.message }}
+                  />
+                )}
+                <p style={{ fontSize: font.sm, margin: 0, color: o.correct ? colors.successText : colors.dangerText }}>
+                  Your answer:{' '}
+                  <strong><span dangerouslySetInnerHTML={{ __html: o.answer }} /></strong>
+                </p>
+                {!o.correct && (
+                  <p style={{ fontSize: font.sm, margin: 0, color: colors.dangerText }}>
+                    Correct answer:{' '}
+                    <strong><span dangerouslySetInnerHTML={{ __html: renderedPart.answer }} /></strong>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Current part, not yet answered → active input */}
+            {isCurrent && !o && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+                <MathInput
+                  value={answer}
+                  onChange={setAnswer}
+                  onSubmit={submit}
+                  placeholder="Type your answer..."
+                />
+                <button
+                  onClick={submit}
+                  disabled={!answer.trim()}
+                  style={{ ...primaryButton, opacity: !answer.trim() ? 0.6 : 1 }}
+                >
+                  Submit answer
+                </button>
+              </div>
+            )}
+
+            {/* Current part, just answered → explanation + advance.
+                The feedback message (including the units reminder) lives in the
+                answered-summary box above, so it isn't repeated here. */}
+            {isCurrent && o && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+                {renderedPart.explanation && (
+                  <div style={{
+                    padding: '14px 16px',
+                    borderRadius: radius.lg,
+                    background: colors.warningLight,
+                    border: `1px solid ${colors.warningBorder}`,
+                  }}>
+                    <p style={{ fontSize: font.sm, fontWeight: '600', margin: '0 0 4px', color: colors.warningText }}>
+                      Explanation:
+                    </p>
+                    <div
+                      style={{ fontSize: font.base, color: colors.textPrimary }}
+                      dangerouslySetInnerHTML={{ __html: renderedPart.explanation }}
+                    />
+                  </div>
+                )}
+                {!isLastPart && (
+                  <button onClick={nextPart} style={primaryButton}>
+                    Next part →
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      {/* Whole-question wrap-up, once every part is answered */}
+      {allAnswered && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, textAlign: 'center' as const }}>
+            You got <strong>{correctCount} of {question.parts.length}</strong> parts correct.
+          </p>
+          <button onClick={onNextQuestion} style={primaryButton}>
+            Next question →
+          </button>
+        </div>
+      )}
+
+      {/* Report an issue */}
+      <ReportIssueButton
+        questionId={question.id}
+        renderedValues={rendered.generatedValues}
+        studentId={studentId}
+      />
+
+      {/* General feedback */}
+      <FeedbackWidget context="question_page" userId={studentId} />
+    </main>
+  )
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    maxWidth: '520px',
+    margin: '0 auto',
+    padding: '24px 20px 48px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    minHeight: '100dvh',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '12px',
+  },
+}

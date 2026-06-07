@@ -16,6 +16,8 @@ import ReportIssueButton from '../../../../components/practice/ReportIssueButton
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
+import type { QuestionPart } from '../../../../lib/questions/parts'
+import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
 
 type Question = {
   id: string
@@ -32,6 +34,7 @@ type Question = {
   image_url: string | null
   is_published: boolean
   kind?: 'mastery' | 'exam'
+  parts?: QuestionPart[] | null
 }
 
 type FeedbackState = {
@@ -576,11 +579,45 @@ function QuestionPage() {
     }
   }
 
+  // Bumps only the session correct/total counters (used by the multi-part flow,
+  // which records its own per-part practice_attempts and skips the single-skill
+  // mastery-dot machinery).
+  function bumpSessionCounter(correct: boolean) {
+    const prevTotal   = parseInt(sessionStorage.getItem('session_total')   ?? '0')
+    const prevCorrect = parseInt(sessionStorage.getItem('session_correct') ?? '0')
+    const newTotal    = prevTotal + 1
+    const newCorrect  = prevCorrect + (correct ? 1 : 0)
+    sessionStorage.setItem('session_total',   newTotal.toString())
+    sessionStorage.setItem('session_correct', newCorrect.toString())
+    setSessionStats({ correct: newCorrect, total: newTotal })
+  }
+
   if (loading || !rendered || !question) {
     return (
       <main style={styles.page}>
         <p style={{ color: colors.textSecondary }}>Loading question...</p>
       </main>
+    )
+  }
+
+  // Multi-part questions get a dedicated sequential per-part flow.
+  if (question.parts && question.parts.length > 0) {
+    return (
+      <MultiPartQuestion
+        question={{
+          id: question.id,
+          skill_ids: question.skill_ids,
+          difficulty: question.difficulty,
+          question_template: question.question_template,
+          parameters: question.parameters,
+          image_url: question.image_url,
+          parts: question.parts,
+        }}
+        studentId={studentId}
+        assignmentId={assignmentId}
+        onSessionAttempt={bumpSessionCounter}
+        onNextQuestion={nextQuestion}
+      />
     )
   }
 
