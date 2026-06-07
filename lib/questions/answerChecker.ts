@@ -265,13 +265,28 @@ function normalise(value: string): string {
 
 // ── Numeric comparison ────────────────────────────────────────────────────────
 
+/**
+ * Extract the numeric value from an answer that may carry a unit.
+ *
+ * Takes the FIRST number (optionally signed, with comma thousands separators
+ * and a decimal part) and ignores everything after it. This is unit-safe:
+ * "33cm^2" → 33, not 332 — critical because normalise() turns area/volume
+ * units like "cm²"/"cm³" into "cm^2"/"cm^3", whose trailing digit would
+ * otherwise be glued onto the number. Thousands separators are preserved:
+ * "1,000" → 1000.
+ */
+function extractNumber(s: string): number {
+  const m = s.match(/-?[\d,]+(?:\.\d+)?/)
+  return m ? parseFloat(m[0].replace(/,/g, '')) : NaN
+}
+
 function numericMatch(
   studentAnswer: string,
   correctAnswer: string,
   tolerance: number
 ): boolean {
-  const student = parseFloat(studentAnswer.replace(/[^0-9.\-]/g, ''))
-  const correct  = parseFloat(correctAnswer.replace(/[^0-9.\-]/g, ''))
+  const student = extractNumber(studentAnswer)
+  const correct  = extractNumber(correctAnswer)
   if (isNaN(student) || isNaN(correct)) return false
   return Math.abs(student - correct) <= tolerance
 }
