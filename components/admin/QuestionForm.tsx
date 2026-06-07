@@ -8,6 +8,9 @@ import {
 } from '../../lib/styles'
 import { buildOptions } from '../../lib/questions/multipleChoice'
 import { generateValues, evaluateTemplate } from '../../lib/questions/paramEngine'
+import {
+  CalculatorMode, CALCULATOR_MODES, CALCULATOR_LABELS, DEFAULT_CALCULATOR_MODE,
+} from '../../lib/questions/calculator'
 import { supabase } from '../../lib/supabase'
 
 type Trap = {
@@ -24,6 +27,7 @@ type QuestionFormData = {
   answer_template: string
   answer_type: 'exact' | 'numeric' | 'fraction' | 'expression'
   tolerance: string
+  calculator: CalculatorMode   // relationship to a calculator (drives paper assembly)
   traps: Trap[]
   explanation: string
   image_url: string       // URL of an uploaded image shown above the question
@@ -46,6 +50,7 @@ const emptyForm: QuestionFormData = {
   answer_template: '',
   answer_type: 'numeric',
   tolerance: '0',
+  calculator: DEFAULT_CALCULATOR_MODE,
   traps: [],
   explanation: '',
   image_url: '',
@@ -365,6 +370,21 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             />
           </div>
         )}
+        <div style={styles.field}>
+          <label style={labelStyle}>Calculator</label>
+          <select
+            value={form.calculator}
+            onChange={e => update('calculator', e.target.value as CalculatorMode)}
+            style={inputStyle}
+          >
+            {CALCULATOR_MODES.map(mode => (
+              <option key={mode} value={mode}>{CALCULATOR_LABELS[mode]}</option>
+            ))}
+          </select>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            A “Calculator required” question is only ever served on calculator papers.
+          </p>
+        </div>
       </div>
 
       {/* Parameters */}
