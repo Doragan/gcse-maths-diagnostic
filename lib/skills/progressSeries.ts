@@ -10,6 +10,7 @@ type Attempt = {
   skill_ids: string[]
   correct: boolean
   attempted_at: string
+  kind?: 'mastery' | 'exam'   // passed through to calculateMastery (positive-only for 'exam')
 }
 
 export type ProgressPoint = {

@@ -13,6 +13,12 @@ type Attempt = {
   skill_ids: string[]
   correct: boolean
   attempted_at: string
+  /**
+   * Two-kind model. 'exam' answers are positive-only: a wrong one is a no-op
+   * (it never lowers mastery), while a correct one credits normally. Absent or
+   * 'mastery' → today's behaviour (credit on success, penalise on failure).
+   */
+  kind?: 'mastery' | 'exam'
 }
 
 /**
@@ -28,6 +34,11 @@ export function calculateMastery(attempts: Attempt[]): Record<string, SkillMaste
   const bySkill: Record<string, { correct: boolean; attempted_at: string }[]> = {}
 
   for (const attempt of attempts) {
+    // Positive-only attribution for exam-kind synthesis questions: a wrong
+    // answer never enters the window (so it can't lower any skill); a correct
+    // answer is recorded normally and credits every constituent skill.
+    if (attempt.kind === 'exam' && !attempt.correct) continue
+
     for (const skillId of attempt.skill_ids) {
       if (!bySkill[skillId]) bySkill[skillId] = []
       bySkill[skillId].push({ correct: attempt.correct, attempted_at: attempt.attempted_at })

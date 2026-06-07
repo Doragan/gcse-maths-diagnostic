@@ -11,6 +11,9 @@ import { generateValues, evaluateTemplate } from '../../lib/questions/paramEngin
 import {
   CalculatorMode, CALCULATOR_MODES, CALCULATOR_LABELS, DEFAULT_CALCULATOR_MODE,
 } from '../../lib/questions/calculator'
+import {
+  QuestionKind, QUESTION_KINDS, QUESTION_KIND_LABELS, DEFAULT_QUESTION_KIND,
+} from '../../lib/questions/kind'
 import { supabase } from '../../lib/supabase'
 
 type Trap = {
@@ -28,6 +31,7 @@ type QuestionFormData = {
   answer_type: 'exact' | 'numeric' | 'fraction' | 'expression'
   tolerance: string
   calculator: CalculatorMode   // relationship to a calculator (drives paper assembly)
+  kind: QuestionKind           // two-kind model: 'mastery' penalises on failure, 'exam' is positive-only
   traps: Trap[]
   explanation: string
   image_url: string       // URL of an uploaded image shown above the question
@@ -51,6 +55,7 @@ const emptyForm: QuestionFormData = {
   answer_type: 'numeric',
   tolerance: '0',
   calculator: DEFAULT_CALCULATOR_MODE,
+  kind: DEFAULT_QUESTION_KIND,
   traps: [],
   explanation: '',
   image_url: '',
@@ -383,6 +388,21 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           </select>
           <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
             A “Calculator required” question is only ever served on calculator papers.
+          </p>
+        </div>
+        <div style={styles.field}>
+          <label style={labelStyle}>Kind</label>
+          <select
+            value={form.kind}
+            onChange={e => update('kind', e.target.value as QuestionKind)}
+            style={inputStyle}
+          >
+            {QUESTION_KINDS.map(k => (
+              <option key={k} value={k}>{QUESTION_KIND_LABELS[k]}</option>
+            ))}
+          </select>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            “Exam” = an irreducible multi-skill question; a wrong answer never lowers mastery (it only routes to revision). Use “Mastery” for everything that cleanly tests one skill.
           </p>
         </div>
       </div>

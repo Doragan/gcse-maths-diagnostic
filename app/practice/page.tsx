@@ -156,7 +156,7 @@ export default function PracticePage() {
       // so we need this data even for free users.
       const { data: attempts } = await supabase
         .from('practice_attempts')
-        .select('skill_ids, correct, attempted_at')
+        .select('skill_ids, correct, attempted_at, kind')
         .eq('student_id', student.id)
 
       const mastery = attempts && attempts.length > 0

@@ -31,6 +31,7 @@ type Question = {
   explanation: string | null
   image_url: string | null
   is_published: boolean
+  kind?: 'mastery' | 'exam'
 }
 
 type FeedbackState = {
@@ -350,6 +351,7 @@ function QuestionPage() {
         question_id: question.id,
         skill_ids: question.skill_ids,
         correct,
+        kind: question.kind ?? 'mastery',
       })
 
     // If this question is part of an assignment, also record it there.

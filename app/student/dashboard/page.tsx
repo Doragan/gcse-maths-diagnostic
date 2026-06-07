@@ -98,7 +98,7 @@ export default function StudentDashboardPage() {
         supabase.from('students').select('*').eq('id', user.id).single(),
         supabase
           .from('practice_attempts')
-          .select('skill_ids, correct, attempted_at')
+          .select('skill_ids, correct, attempted_at, kind')
           .eq('student_id', user.id),
       ])
 

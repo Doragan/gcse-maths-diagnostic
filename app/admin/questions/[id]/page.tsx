@@ -59,6 +59,7 @@ export default function EditQuestionPage() {
         answer_type: data.answer_type,
         tolerance: data.answer_type === 'numeric' ? parseFloat(data.tolerance) : null,
         calculator: data.calculator,
+        kind: data.kind,
         traps: data.traps,
         explanation: data.explanation || null,
         image_url: data.image_url || null,
