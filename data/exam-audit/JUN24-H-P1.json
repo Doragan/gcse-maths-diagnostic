@@ -1,0 +1,296 @@
+{
+  "paper_id": "JUN24-H-P1",
+  "meta": {
+    "board": "AQA",
+    "qualification": "GCSE Mathematics (8300)",
+    "tier": "Higher",
+    "paper": 1,
+    "calculator": false,
+    "session": "June 2024",
+    "max_marks": 80,
+    "n_questions": 25,
+    "n_rows": 34,
+    "note": "Derived metadata only — codes, skill mappings, mark splits and trap categories. No exam question text transcribed (copyright-safe). One row per part. Static diagrams are app-supported via image_url, so image-only gating counts as 'yes'. answer_form 'exact_surd' covers exact symbolic answers (surds AND 'in terms of pi').",
+    "vocab": {
+      "answer_form": ["numeric", "exact_surd", "fraction", "ratio", "expression", "coordinate", "multiple_choice", "set_select", "show_that", "draw_plot", "draw_shape", "table_complete", "free_text"],
+      "framing": ["bare", "real_world", "given_formula", "multi_route", "consequence", "inverse_operand", "decision_justify"],
+      "calc": ["calc", "non_calc", "na"],
+      "kind": ["mastery", "exam"],
+      "app_supported": ["yes", "partial", "no"]
+    }
+  },
+  "rows": [
+    {
+      "q": "1", "part": null, "marks": 3,
+      "skill_ids": ["indices", "simple_arithmetic"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "M1 M1dep A1", "traps": ["sign_error_negative_root", "SC_288_order"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "2", "part": null, "marks": 1,
+      "skill_ids": ["measuring_lines_and_angles"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": [],
+      "app_supported": "no", "app_gap_note": "physical ruler measurement off a printed line — unsupported"
+    },
+    {
+      "q": "3", "part": null, "marks": 1,
+      "skill_ids": ["vectors", "translations"], "skill_gap": null,
+      "answer_form": "coordinate", "framing": ["bare"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["vector_written_as_coordinate"],
+      "app_supported": "partial", "app_gap_note": "grid supplied via image_url (supported); column-vector answer entry, must distinguish from coordinate"
+    },
+    {
+      "q": "4", "part": "a", "marks": 1,
+      "skill_ids": ["upper_and_lower_bounds", "rounding"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world"], "calc": "na",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "B1", "traps": ["bound_off_by_one"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "4", "part": "b", "marks": 1,
+      "skill_ids": ["upper_and_lower_bounds", "rounding"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world"], "calc": "na",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1", "traps": ["upper_bound_boundary_8450"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "5", "part": "a", "marks": 3,
+      "skill_ids": ["venn_diagrams"], "skill_gap": null,
+      "answer_form": "table_complete", "framing": ["consequence"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "B3", "traps": ["fraction_of_subset_error", "percent_of_non_glasses"],
+      "app_supported": "no", "app_gap_note": "completing a Venn-diagram region structure — unsupported"
+    },
+    {
+      "q": "5", "part": "b", "marks": 1,
+      "skill_ids": ["conditional_probability"], "skill_gap": null,
+      "answer_form": "fraction", "framing": ["consequence"], "calc": "non_calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1ft", "traps": ["wrong_denominator_uses_total"],
+      "app_supported": "yes", "app_gap_note": "ft on part (a) lost — app would mark against true value"
+    },
+    {
+      "q": "6", "part": "a", "marks": 2,
+      "skill_ids": ["time_series"], "skill_gap": null,
+      "answer_form": "draw_plot", "framing": ["bare"], "calc": "na",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "M1 A1", "traps": [],
+      "app_supported": "no", "app_gap_note": "plotting points and joining on a time-series grid — unsupported"
+    },
+    {
+      "q": "6", "part": "b", "marks": 1,
+      "skill_ids": ["time_series"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["consequence"], "calc": "na",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1", "traps": ["extrapolation_misread"],
+      "app_supported": "yes", "app_gap_note": "graph via image_url; open estimate accepted as numeric range [82,90]"
+    },
+    {
+      "q": "7", "part": "a", "marks": 1,
+      "skill_ids": ["surface_area_of_a_cone"], "skill_gap": null,
+      "answer_form": "free_text", "framing": ["decision_justify"], "calc": "na",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "B1", "traps": ["slant_vs_vertical_height"],
+      "app_supported": "no", "app_gap_note": "identify-the-error worded explanation — unsupported"
+    },
+    {
+      "q": "7", "part": "b", "marks": 2,
+      "skill_ids": ["area_of_a_circle"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["given_formula"], "calc": "non_calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "M1 A1", "traps": ["uses_pi_3_estimate"],
+      "app_supported": "yes", "app_gap_note": "cone diagram via image_url (supported)"
+    },
+    {
+      "q": "7", "part": "c", "marks": 1,
+      "skill_ids": ["area_of_a_circle", "estimating"], "skill_gap": null,
+      "answer_form": "free_text", "framing": ["decision_justify"], "calc": "na",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1", "traps": ["pi_value_comparison_reason"],
+      "app_supported": "no", "app_gap_note": "More/Less tick is incidental; mark is in the worded reason"
+    },
+    {
+      "q": "8", "part": null, "marks": 3,
+      "skill_ids": ["solving_linear_equations"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 A1 A1ft", "traps": ["sign_error_collecting_terms"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "9", "part": null, "marks": 3,
+      "skill_ids": ["simplifying_fractions", "decimals"], "skill_gap": null,
+      "answer_form": "fraction", "framing": ["real_world"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 A1 B1ft", "traps": ["denominator_total_area", "not_fully_simplified"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "10", "part": "a", "marks": 1,
+      "skill_ids": ["inequalities"], "skill_gap": null,
+      "answer_form": "draw_plot", "framing": ["bare"], "calc": "na",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["closed_vs_open_circle"],
+      "app_supported": "no", "app_gap_note": "representing an inequality on a number line — drawing unsupported"
+    },
+    {
+      "q": "10", "part": "b", "marks": 2,
+      "skill_ids": ["inequalities"], "skill_gap": null,
+      "answer_form": "expression", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "M1 A1", "traps": ["inequality_sign_flip"],
+      "app_supported": "partial", "app_gap_note": "inequality answer (y >= -3/5) — sign + equivalent-form checking"
+    },
+    {
+      "q": "11", "part": null, "marks": 3,
+      "skill_ids": ["enlargements"], "skill_gap": null,
+      "answer_form": "free_text", "framing": ["decision_justify"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "B1 B1 B1", "traps": ["multiple_transformations_stated", "missing_centre", "uses_halved_not_sf"],
+      "app_supported": "no", "app_gap_note": "'describe fully' — 3 separate components (type/SF/centre) graded from prose"
+    },
+    {
+      "q": "12", "part": null, "marks": 3,
+      "skill_ids": ["sector_calculations"], "skill_gap": null,
+      "answer_form": "exact_surd", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["uses_area_not_arc", "drops_pi"],
+      "app_supported": "partial", "app_gap_note": "diagram via image_url; answer 'in terms of pi' (4pi) — exact-symbolic checking"
+    },
+    {
+      "q": "13", "part": null, "marks": 4,
+      "skill_ids": ["areas_of_compound_shapes", "symmetry"], "skill_gap": null,
+      "answer_form": "draw_shape", "framing": ["consequence"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "B4", "traps": ["not_a_pentagon", "wrong_area", "no_line_of_symmetry"],
+      "app_supported": "no", "app_gap_note": "construct a pentagon meeting 6 geometric constraints — drawing unsupported"
+    },
+    {
+      "q": "14", "part": null, "marks": 4,
+      "skill_ids": ["simultaneous_equations"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep M1dep A1", "traps": ["arithmetic_in_elimination", "money_notation"],
+      "app_supported": "yes", "app_gap_note": "two-value answer (bar 80p, mints 50p)"
+    },
+    {
+      "q": "15", "part": "a", "marks": 1,
+      "skill_ids": ["estimating", "surds_simplifying"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["squares_not_consecutive"],
+      "app_supported": "yes", "app_gap_note": "two consecutive integers (14 and 15)"
+    },
+    {
+      "q": "15", "part": "b", "marks": 3,
+      "skill_ids": ["estimating", "indices"], "skill_gap": null,
+      "answer_form": "show_that", "framing": ["multi_route"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 A1 A1", "traps": ["approximation_wrong_direction"],
+      "app_supported": "no", "app_gap_note": "show that A < B via approximation — graded working"
+    },
+    {
+      "q": "16", "part": null, "marks": 2,
+      "skill_ids": ["median", "interquartile_range"], "skill_gap": null,
+      "answer_form": "free_text", "framing": ["decision_justify"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "B1 B1", "traps": ["statements_reversed", "not_a_comparison"],
+      "app_supported": "no", "app_gap_note": "two worded comparisons (average + consistency) — graded prose"
+    },
+    {
+      "q": "17", "part": null, "marks": 4,
+      "skill_ids": ["rearranging_formulae", "algebraic_fractions"], "skill_gap": null,
+      "answer_form": "expression", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep M1dep A1", "traps": ["partial_factorisation", "sign_error"],
+      "app_supported": "partial", "app_gap_note": "rearranged expression x = 7/(y-3) — multiple equivalent forms"
+    },
+    {
+      "q": "18", "part": null, "marks": 1,
+      "skill_ids": ["equation_of_a_circle"], "skill_gap": null,
+      "answer_form": "expression", "framing": ["bare"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["radius_not_squared"],
+      "app_supported": "partial", "app_gap_note": "equation answer (x^2+y^2=36) — equivalent-form checking; graph via image_url"
+    },
+    {
+      "q": "19", "part": null, "marks": 4,
+      "skill_ids": ["percentage_change", "ratio"], "skill_gap": null,
+      "answer_form": "fraction", "framing": ["multi_route"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep M1dep A1", "traps": ["150pct_as_1.5x_not_2.5x", "wrong_fraction_orientation"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "20", "part": null, "marks": 3,
+      "skill_ids": ["simplifying_expressions"], "skill_gap": "no 'identities / equating coefficients' skill node (3-term cubic identity)",
+      "answer_form": "numeric", "framing": ["bare", "consequence"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "B1 B1ft B1ft", "traps": ["coefficient_mismatch", "ft_chain_error"],
+      "app_supported": "yes", "app_gap_note": "three chained values a,b,c (each feeds the next)"
+    },
+    {
+      "q": "21", "part": null, "marks": 3,
+      "skill_ids": ["recurring_decimals_to_fractions"], "skill_gap": null,
+      "answer_form": "fraction", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["wrong_power_of_10", "includes_non_recurring_digit"],
+      "app_supported": "yes", "app_gap_note": "prove algebraically, but the assessable output is the fraction 56/55"
+    },
+    {
+      "q": "22", "part": null, "marks": 3,
+      "skill_ids": ["circle_theorem_tangent", "angles_in_polygons"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["tangent_radius_not_90", "wrong_angle_sum"],
+      "app_supported": "yes", "app_gap_note": "angle in degrees; circle diagram via image_url"
+    },
+    {
+      "q": "23", "part": "a", "marks": 1,
+      "skill_ids": ["sequences"], "skill_gap": null,
+      "answer_form": "fraction", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["surd_or_index_form_not_simplified"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "23", "part": "b", "marks": 3,
+      "skill_ids": ["surds_expanding_and_rationalising", "expanding_double_brackets"], "skill_gap": null,
+      "answer_form": "show_that", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["surd_square_error", "incomplete_expansion"],
+      "app_supported": "no", "app_gap_note": "show that (2+sqrt3)^3 = 26+15sqrt3 — graded working (answer given)"
+    },
+    {
+      "q": "24", "part": "a", "marks": 5,
+      "skill_ids": ["solving_quadratic_equations_factorising", "forming_expressions_and_formulae"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["consequence"], "calc": "non_calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 A1 M1 A1ft A1", "traps": ["quadratic_factor_error", "wrong_root_choice", "forgets_next_integer_step"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "24", "part": "b", "marks": 2,
+      "skill_ids": ["algebraic_proof", "surds_simplifying"], "skill_gap": null,
+      "answer_form": "show_that", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "M1 A1", "traps": ["uses_specific_number_not_general"],
+      "app_supported": "no", "app_gap_note": "show next square = x + 2sqrt(x) + 1 — algebraic proof (answer given)"
+    },
+    {
+      "q": "25", "part": null, "marks": 4,
+      "skill_ids": ["exact_trig_values"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "non_calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep M1dep A1", "traps": ["order_of_operations", "wrong_exact_value"],
+      "app_supported": "yes", "app_gap_note": "exact trig values combined; clean integer result (7)"
+    }
+  ]
+}

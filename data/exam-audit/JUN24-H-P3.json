@@ -1,0 +1,280 @@
+{
+  "paper_id": "JUN24-H-P3",
+  "meta": {
+    "board": "AQA",
+    "qualification": "GCSE Mathematics (8300)",
+    "tier": "Higher",
+    "paper": 3,
+    "calculator": true,
+    "session": "June 2024",
+    "max_marks": 80,
+    "n_questions": 24,
+    "n_rows": 32,
+    "note": "Derived metadata only — codes, skill mappings, mark splits and trap categories. No exam question text is transcribed (copyright-safe). One row per part.",
+    "vocab": {
+      "answer_form": ["numeric", "exact_surd", "fraction", "ratio", "expression", "coordinate", "multiple_choice", "set_select", "show_that", "draw_plot", "draw_shape", "table_complete", "free_text"],
+      "framing": ["bare", "real_world", "given_formula", "multi_route", "consequence", "inverse_operand", "decision_justify"],
+      "calc": ["calc", "non_calc", "na"],
+      "kind": ["mastery", "exam"],
+      "app_supported": ["yes", "partial", "no"]
+    }
+  },
+  "rows": [
+    {
+      "q": "1", "part": "a", "marks": 1,
+      "skill_ids": ["sequences"], "skill_gap": null,
+      "answer_form": "draw_shape", "framing": ["bare"], "calc": "na",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": [],
+      "app_supported": "no", "app_gap_note": "draw next pattern on a grid — visual/grid input unsupported"
+    },
+    {
+      "q": "1", "part": "b", "marks": 1,
+      "skill_ids": ["substitution", "inequalities"], "skill_gap": "no clean single-skill for 'least n where a quadratic expression exceeds a bound' (trial/inequality with n^2 term)",
+      "answer_form": "numeric", "framing": ["given_formula"], "calc": "calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1", "traps": ["off_by_one_boundary"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "2", "part": null, "marks": 3,
+      "skill_ids": ["pythagoras_theorem"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare", "multi_route"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["subtract_not_add", "method_substitution_trig_or_cosine", "premature_rounding"],
+      "app_supported": "yes", "app_gap_note": "figure supplied via image_url (supported); two-stage Pythagoras"
+    },
+    {
+      "q": "3", "part": null, "marks": 1,
+      "skill_ids": ["sampling"], "skill_gap": null,
+      "answer_form": "free_text", "framing": ["real_world", "decision_justify"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "B1", "traps": ["vague_insufficient_reason"],
+      "app_supported": "no", "app_gap_note": "open worded justification — needs marking judgement"
+    },
+    {
+      "q": "4", "part": null, "marks": 1,
+      "skill_ids": ["expanding_brackets"], "skill_gap": null,
+      "answer_form": "multiple_choice", "framing": ["bare", "decision_justify"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["confuse_identity_vs_equation"],
+      "app_supported": "yes", "app_gap_note": "clean explicit-MC fit (all/some/no values)"
+    },
+    {
+      "q": "5", "part": null, "marks": 2,
+      "skill_ids": ["plans_and_elevations", "volume_of_a_prism"], "skill_gap": null,
+      "answer_form": "draw_shape", "framing": ["consequence"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 A1", "traps": ["3d_instead_of_2d"],
+      "app_supported": "no", "app_gap_note": "deduce depth from volume then draw elevation on grid"
+    },
+    {
+      "q": "6", "part": "a", "marks": 5,
+      "skill_ids": ["compound_units", "converting_measurements"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world", "multi_route"], "calc": "calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "B1 M2 M1dep A1ft", "traps": ["unit_confusion_km_m", "premature_rounding"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "6", "part": "b", "marks": 1,
+      "skill_ids": ["compound_units"], "skill_gap": null,
+      "answer_form": "multiple_choice", "framing": ["consequence", "decision_justify"], "calc": "na",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1", "traps": ["inverse_relationship_misread"],
+      "app_supported": "yes", "app_gap_note": "MC options reference 'answer to part (a)' — expressible as explicit MC"
+    },
+    {
+      "q": "7", "part": null, "marks": 3,
+      "skill_ids": ["plotting_straight_line_graphs"], "skill_gap": null,
+      "answer_form": "draw_plot", "framing": ["given_formula"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "M1 M1 A1", "traps": ["gradient_sign_error"],
+      "app_supported": "no", "app_gap_note": "plot a straight line on axes — graph plotting unsupported"
+    },
+    {
+      "q": "8", "part": null, "marks": 4,
+      "skill_ids": ["mean", "pie_charts"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world", "given_formula", "multi_route"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1 M1dep A1", "traps": ["pie_chart_misread", "formula_misapply"],
+      "app_supported": "yes", "app_gap_note": "pie chart supplied via image_url (supported)"
+    },
+    {
+      "q": "9", "part": null, "marks": 3,
+      "skill_ids": ["compound_units", "converting_measurements", "proportion"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world", "decision_justify"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M2 A1", "traps": ["area_unit_conversion_direction", "compare_without_conversion"],
+      "app_supported": "no", "app_gap_note": "Town A/B tick is incidental; the 3 marks are the comparative density working — a numeric-only variant (e.g. 'find Town A density') would be serveable"
+    },
+    {
+      "q": "10", "part": null, "marks": 3,
+      "skill_ids": ["expected_outcomes"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["consequence"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["forgot_complement"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "11", "part": null, "marks": 2,
+      "skill_ids": ["indices", "solving_linear_equations"], "skill_gap": "involves keeping pi exact in a fill-in-box; no skill captures 'pi-exact symbolic manipulation'",
+      "answer_form": "numeric", "framing": ["bare", "inverse_operand"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "B1 B1", "traps": ["numeric_pi_not_exact"],
+      "app_supported": "partial", "app_gap_note": "two separate box inputs incl. pi-exact value; non-standard answer entry"
+    },
+    {
+      "q": "12", "part": "a", "marks": 2,
+      "skill_ids": ["tree_diagrams"], "skill_gap": null,
+      "answer_form": "table_complete", "framing": ["bare"], "calc": "na",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "B2", "traps": ["complement_error"],
+      "app_supported": "no", "app_gap_note": "fill probabilities into a given tree diagram structure"
+    },
+    {
+      "q": "12", "part": "b", "marks": 3,
+      "skill_ids": ["tree_diagrams", "combined_events"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["consequence"], "calc": "calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "M1 M1dep A1ft", "traps": ["at_least_one_complement"],
+      "app_supported": "yes", "app_gap_note": "answer accepts equivalent fraction/decimal (39/400 = 0.0975)"
+    },
+    {
+      "q": "13", "part": null, "marks": 2,
+      "skill_ids": ["quadratic_functions"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "B2", "traps": ["roots_as_coordinates", "y_intercept_confusion"],
+      "app_supported": "yes", "app_gap_note": "graph supplied via image_url (supported); two-root answer entry"
+    },
+    {
+      "q": "14", "part": null, "marks": 3,
+      "skill_ids": ["ratio", "proportion"], "skill_gap": null,
+      "answer_form": "show_that", "framing": ["multi_route", "consequence"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["ratio_not_simplified", "ratio_direction"],
+      "app_supported": "no", "app_gap_note": "show-that — requires graded chain of working"
+    },
+    {
+      "q": "15", "part": "a", "marks": 3,
+      "skill_ids": ["ratio", "coordinates"], "skill_gap": null,
+      "answer_form": "coordinate", "framing": ["multi_route"], "calc": "calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["partial_coordinate", "ratio_split_wrong"],
+      "app_supported": "partial", "app_gap_note": "coordinate-pair answer entry"
+    },
+    {
+      "q": "15", "part": "b", "marks": 4,
+      "skill_ids": ["understanding_straight_line_graphs"], "skill_gap": "no explicit perpendicular-gradient / negative-reciprocal skill node",
+      "answer_form": "expression", "framing": ["multi_route", "consequence"], "calc": "calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "M1 M1 M1dep A1", "traps": ["forgot_negative_reciprocal", "intercept_sign"],
+      "app_supported": "partial", "app_gap_note": "linear-equation answer with multiple equivalent forms (y=1/2x-8.5 vs 2y=x-17)"
+    },
+    {
+      "q": "16", "part": null, "marks": 3,
+      "skill_ids": ["calculating_simple_probability"], "skill_gap": "relative-frequency vs theoretical-probability comparison not its own node",
+      "answer_form": "numeric", "framing": ["decision_justify", "consequence"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1 A1", "traps": ["non_comparable_formats"],
+      "app_supported": "no", "app_gap_note": "Yes/No tick is incidental; the 3 marks are computing relative freq vs theoretical prob in comparable form — working-gated"
+    },
+    {
+      "q": "17", "part": "a", "marks": 3,
+      "skill_ids": ["prime_factor_decomposition", "indices"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare", "consequence"], "calc": "calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "B3", "traps": ["prime_assignment_swap"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "17", "part": "b", "marks": 1,
+      "skill_ids": ["indices", "prime_factor_decomposition"], "skill_gap": null,
+      "answer_form": "multiple_choice", "framing": ["bare"], "calc": "na",
+      "multi_part": true, "back_ref": true, "kind": "mastery",
+      "mark_split": "B1", "traps": ["cube_index_misjudge"],
+      "app_supported": "yes", "app_gap_note": "explicit-MC fit with expression options (e=cd, e=c^2d, ...)"
+    },
+    {
+      "q": "18", "part": "a", "marks": 3,
+      "skill_ids": ["sine_rule"], "skill_gap": null,
+      "answer_form": "show_that", "framing": ["given_formula", "consequence"], "calc": "calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["circular_use_of_given_answer", "rearrange_error"],
+      "app_supported": "no", "app_gap_note": "show-that with diagram — circular use of x=64 scores M0"
+    },
+    {
+      "q": "18", "part": "b", "marks": 1,
+      "skill_ids": ["congruence_and_similarity"], "skill_gap": null,
+      "answer_form": "free_text", "framing": ["decision_justify"], "calc": "na",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "B1", "traps": ["incomplete_congruence_reason_SSA_vs_SAS"],
+      "app_supported": "no", "app_gap_note": "Yes/No tick is incidental; the mark is in the worded reason (fine SSA-vs-SAS distinctions B1 vs B0)"
+    },
+    {
+      "q": "19", "part": "a", "marks": 2,
+      "skill_ids": ["composite_functions", "functions_notation"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["bare"], "calc": "calc",
+      "multi_part": true, "back_ref": false, "kind": "mastery",
+      "mark_split": "M1 A1", "traps": ["composite_order_swap"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "19", "part": "b", "marks": 4,
+      "skill_ids": ["solving_quadratic_equations_factorising", "functions_notation", "expanding_double_brackets"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["consequence", "multi_route"], "calc": "calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "M1 M1dep M1 A1", "traps": ["square_binomial_error", "one_root_only"],
+      "app_supported": "yes", "app_gap_note": "two-solution answer (x=2 and x=8)"
+    },
+    {
+      "q": "20", "part": null, "marks": 5,
+      "skill_ids": ["direct_proportion", "inverse_proportion", "proportion_with_powers"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["multi_route", "consequence"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1 M1 A1ft", "traps": ["proportion_power_error_Q_not_Q2", "constant_mixup"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "21", "part": "a", "marks": 3,
+      "skill_ids": ["volume_of_a_prism", "volume_of_a_sphere", "ratio"], "skill_gap": null,
+      "answer_form": "ratio", "framing": ["given_formula", "multi_route"], "calc": "calc",
+      "multi_part": true, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 M1dep A1", "traps": ["ratio_inverted", "pi_not_cancelled"],
+      "app_supported": "partial", "app_gap_note": "ratio answer entry / equivalence (3:4 = 3/4 = 1.33)"
+    },
+    {
+      "q": "21", "part": "b", "marks": 2,
+      "skill_ids": ["volume_of_a_prism", "proportion_with_powers"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["consequence"], "calc": "calc",
+      "multi_part": true, "back_ref": true, "kind": "exam",
+      "mark_split": "M1 A1", "traps": ["scale_factor_not_squared", "rounding_decimal"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "22", "part": null, "marks": 2,
+      "skill_ids": ["systematic_listing"], "skill_gap": null,
+      "answer_form": "numeric", "framing": ["real_world", "consequence"], "calc": "calc",
+      "multi_part": false, "back_ref": false, "kind": "exam",
+      "mark_split": "M1 A1", "traps": ["allowed_repeats_625", "wrong_digit_count"],
+      "app_supported": "yes", "app_gap_note": null
+    },
+    {
+      "q": "23", "part": null, "marks": 1,
+      "skill_ids": ["reflections", "symmetry"], "skill_gap": null,
+      "answer_form": "multiple_choice", "framing": ["bare"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "B1", "traps": ["invariant_point_miscount"],
+      "app_supported": "yes", "app_gap_note": "diagram supplied via image_url (supported); clean circle-one MC"
+    },
+    {
+      "q": "24", "part": null, "marks": 3,
+      "skill_ids": ["completing_the_square"], "skill_gap": null,
+      "answer_form": "expression", "framing": ["bare"], "calc": "na",
+      "multi_part": false, "back_ref": false, "kind": "mastery",
+      "mark_split": "M1 M1dep A1", "traps": ["coefficient_not_factored_first", "complete_square_sign"],
+      "app_supported": "partial", "app_gap_note": "completed-square expression — equivalence checking of d(x+e)^2+f form"
+    }
+  ]
+}
