@@ -9,7 +9,7 @@ import { skillsById, getPrerequisiteTree, getDependentTree } from '../../../lib/
 import { inferPrerequisiteMastery, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { renderQuestion, type RenderedQuestion } from '../../../lib/questions/paramEngine'
 import { checkAnswer } from '../../../lib/questions/answerChecker'
-import { buildOptions } from '../../../lib/questions/multipleChoice'
+import { buildOptions, renderMcOptions } from '../../../lib/questions/multipleChoice'
 import MathInput from '../../../components/practice/MathInput'
 import { trackEvent } from '../../../lib/analytics'
 import {
@@ -41,6 +41,7 @@ type Question = {
   traps: { answer_template: string; response: string }[]
   explanation: string | null
   image_url: string | null
+  mc_options?: string[] | null
 }
 
 type DiagnosticItem = {
@@ -217,7 +218,7 @@ export default function StudentDiagnosticPage() {
         skillId,
         question: q,
         rendered: r,
-        options: q.question_type === 'multiple_choice' ? buildOptions(r.answer, r.traps) : [],
+        options: q.question_type === 'multiple_choice' ? buildOptions(r.answer, r.traps, renderMcOptions(q.mc_options, r.generatedValues)) : [],
       })
     }
 

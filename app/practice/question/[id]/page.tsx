@@ -14,7 +14,7 @@ import {
 import MathInput from '../../../../components/practice/MathInput'
 import ReportIssueButton from '../../../../components/practice/ReportIssueButton'
 import FeedbackWidget from '../../../../components/FeedbackWidget'
-import { buildOptions } from '../../../../lib/questions/multipleChoice'
+import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
@@ -35,6 +35,7 @@ type Question = {
   is_published: boolean
   kind?: 'mastery' | 'exam'
   parts?: QuestionPart[] | null
+  mc_options?: string[] | null
 }
 
 type FeedbackState = {
@@ -264,7 +265,7 @@ function QuestionPage() {
     )
     setRendered(r)
     if (data.question_type === 'multiple_choice') {
-      setOptions(buildOptions(r.answer, r.traps))
+      setOptions(buildOptions(r.answer, r.traps, renderMcOptions(data.mc_options, r.generatedValues)))
     }
     setLoading(false)
 
@@ -548,7 +549,7 @@ function QuestionPage() {
     )
     setRendered(r)
     if (question.question_type === 'multiple_choice') {
-      setOptions(buildOptions(r.answer, r.traps))
+      setOptions(buildOptions(r.answer, r.traps, renderMcOptions(question.mc_options, r.generatedValues)))
     }
     if (studentId && question.skill_ids.length > 0) {
       const { data: recent } = await supabase
@@ -575,7 +576,7 @@ function QuestionPage() {
     )
     setRendered(r)
     if (question.question_type === 'multiple_choice') {
-      setOptions(buildOptions(r.answer, r.traps))
+      setOptions(buildOptions(r.answer, r.traps, renderMcOptions(question.mc_options, r.generatedValues)))
     }
   }
 

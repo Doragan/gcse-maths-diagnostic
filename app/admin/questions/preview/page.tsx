@@ -25,6 +25,7 @@ type Question = {
   traps: { answer_template: string, response: string }[]
   explanation: string | null
   is_published: boolean
+  mc_options?: string[] | null
 }
 
 type Rendered = {
@@ -32,6 +33,7 @@ type Rendered = {
   answer: string
   traps: { answer: string, response: string }[]
   explanation: string
+  mcOptions: string[] | null
 }
 
 const TOPICS = ['Number', 'Algebra', 'Shape and Space', 'Probability and Data', 'Ratio and Proportion']
@@ -108,6 +110,9 @@ function renderQuestion(q: Question): Rendered | null {
         response: t.response,
       })),
       explanation: q.explanation ? evaluate(q.explanation, generated) : '',
+      mcOptions: Array.isArray(q.mc_options) && q.mc_options.length >= 2
+        ? q.mc_options.map(t => evaluate(t, generated))
+        : null,
     }
   } catch {
     return null
@@ -454,7 +459,7 @@ export default function PreviewPage() {
 							  Options:
 							</p>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-							  {buildOptions(r.answer, r.traps).map((opt, i) => (
+							  {buildOptions(r.answer, r.traps, r.mcOptions).map((opt, i) => (
 								<div
 								  key={i}
 								  style={{

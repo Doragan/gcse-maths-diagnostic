@@ -6,7 +6,7 @@ import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
 } from '../../lib/styles'
-import { buildOptions } from '../../lib/questions/multipleChoice'
+import { buildOptions, renderMcOptions } from '../../lib/questions/multipleChoice'
 import { generateValues, evaluateTemplate, renderMultiPartQuestion } from '../../lib/questions/paramEngine'
 import {
   CalculatorMode, CALCULATOR_MODES, CALCULATOR_LABELS, DEFAULT_CALCULATOR_MODE,
@@ -34,6 +34,10 @@ type QuestionFormData = {
   tolerance: string
   calculator: CalculatorMode   // relationship to a calculator (drives paper assembly)
   kind: QuestionKind           // two-kind model: 'mastery' penalises on failure, 'exam' is positive-only
+  // Author-supplied explicit MC option templates. When 2+ are present they are
+  // used verbatim (categorical sets, fixed expression lists); empty → fall back
+  // to derived distractors from the answer + traps. Only meaningful for MC.
+  mc_options: string[]
   traps: Trap[]
   explanation: string
   image_url: string       // URL of an uploaded image shown above the question
@@ -60,6 +64,7 @@ const emptyForm: QuestionFormData = {
   tolerance: '0',
   calculator: DEFAULT_CALCULATOR_MODE,
   kind: DEFAULT_QUESTION_KIND,
+  mc_options: [],
   traps: [],
   explanation: '',
   image_url: '',
@@ -110,12 +115,15 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
     // assignment-compatible with PartInput); derive the toggle from its presence.
     parts: Array.isArray((initialData as any)?.parts) ? (initialData as any).parts : [],
     multiPart: Array.isArray((initialData as any)?.parts) && (initialData as any).parts.length > 0,
+    // Legacy rows store mc_options as null; the editor wants a (possibly empty) array.
+    mc_options: Array.isArray((initialData as any)?.mc_options) ? (initialData as any).mc_options : [],
   })
   const [preview, setPreview] = useState<{
     question: string
     answer: string
     traps: { answer: string, response: string }[]
     explanation: string
+    mcOptions: string[] | null
   } | null>(null)
   const [partsPreview, setPartsPreview] = useState<{
     stem: string
@@ -155,6 +163,18 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 
   function removeTrap(index: number) {
     update('traps', form.traps.filter((_, i) => i !== index))
+  }
+
+  function addMcOption() {
+    update('mc_options', [...form.mc_options, ''])
+  }
+
+  function updateMcOption(index: number, value: string) {
+    update('mc_options', form.mc_options.map((o, i) => i === index ? value : o))
+  }
+
+  function removeMcOption(index: number) {
+    update('mc_options', form.mc_options.filter((_, i) => i !== index))
   }
 
   function toggleSkill(skillId: string) {
@@ -297,6 +317,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 	  response: evaluateTemplate(t.response, generated),
 	}))
 	const explanation = form.explanation ? evaluateTemplate(form.explanation, generated) : ''
+	const mcOptions = renderMcOptions(form.mc_options, generated)
 
 	if (!useFixedValues) {
 	  setFixedValues(Object.fromEntries(
@@ -305,7 +326,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 	}
 
 	setPartsPreview(null)
-	setPreview({ question, answer, traps, explanation })
+	setPreview({ question, answer, traps, explanation, mcOptions })
   } catch (e: any) {
     setPreviewError(e.message)
   }
@@ -797,6 +818,48 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         {imageError && <p style={errorBox}>{imageError}</p>}
       </div>
 
+      {/* Explicit multiple-choice options (single-question mode only).
+          When 2+ are supplied they are used verbatim — for categorical sets
+          (all/some/no, yes/no) or fixed expression lists where derived
+          distractors don't make sense. Leave empty to derive options from the
+          correct answer + traps as before. */}
+      {!form.multiPart && form.question_type === 'multiple_choice' && (
+      <div style={card}>
+        <h2 style={sectionTitle}>Multiple-choice options</h2>
+        <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+          Optional. Supply 2–4 explicit options (templates allowed, e.g. <code>{'{{a+b}}'}</code>)
+          to use them verbatim — for sets like <em>all / some / no</em> or fixed expression
+          lists. One option must match the correct answer. Leave empty to auto-generate
+          distractors from the answer and traps.
+        </p>
+        {form.mc_options.map((opt, i) => (
+          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
+            <input
+              type="text"
+              value={opt}
+              onChange={e => updateMcOption(i, e.target.value)}
+              style={{ ...inputStyle, flex: 1 }}
+              placeholder="e.g. Some  or  {{a*b}}"
+            />
+            <button
+              onClick={() => removeMcOption(i)}
+              style={{ ...secondaryButton, width: 'auto', padding: '4px 10px', fontSize: font.sm, color: colors.dangerText, borderColor: colors.dangerBorder }}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+        {form.mc_options.filter(o => o.trim() !== '').length === 1 && (
+          <p style={{ fontSize: font.sm, color: colors.dangerText, margin: '8px 0 0' }}>
+            Add at least 2 options, or remove the single one to fall back to auto-generated distractors.
+          </p>
+        )}
+        <button onClick={addMcOption} style={{ ...secondaryButton, width: 'auto', padding: '8px 16px', marginTop: '8px' }}>
+          + Add option
+        </button>
+      </div>
+      )}
+
       {/* Traps (single-question mode; multi-part traps live per part) */}
       {!form.multiPart && (
       <div style={card}>
@@ -949,7 +1012,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 				  Options (shuffled):
 				</p>
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-				  {buildOptions(preview.answer, preview.traps).map((opt, i) => (
+				  {buildOptions(preview.answer, preview.traps, preview.mcOptions).map((opt, i) => (
 					<div
 					  key={i}
 					  style={{

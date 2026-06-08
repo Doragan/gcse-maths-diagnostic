@@ -1,7 +1,27 @@
+import { evaluateTemplate } from './paramEngine'
+
+/**
+ * Produce the option list for a multiple-choice question.
+ *
+ * Two modes:
+ *  - EXPLICIT (author-supplied): when `explicit` holds 2+ rendered options,
+ *    they are used verbatim — shuffled only, never padded or trimmed. This is
+ *    how categorical sets (all/some/no, yes/no) and fixed 4-expression lists
+ *    are expressed. The correct answer is guaranteed present (prepended if the
+ *    author's list happens not to contain it, so the question stays answerable).
+ *  - DERIVED (default / legacy): when no explicit options are given, build from
+ *    the correct answer + trap answers, padding to 4 with generated near-misses.
+ */
 export function buildOptions(
   correct: string,
-  traps: { answer: string }[]
+  traps: { answer: string }[],
+  explicit?: string[] | null
 ): string[] {
+  if (explicit && explicit.length >= 2) {
+    const opts = explicit.includes(correct) ? [...explicit] : [correct, ...explicit]
+    return shuffle(opts)
+  }
+
   const trapAnswers = traps
     .map(t => t.answer)
     .filter(a => a !== correct)
@@ -18,13 +38,50 @@ export function buildOptions(
   }
 
   // Trim to 4 and shuffle
-  const final = options.slice(0, 4)
-  for (let i = final.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [final[i], final[j]] = [final[j], final[i]]
-  }
+  return shuffle(options.slice(0, 4))
+}
 
-  return final
+/** Fisher–Yates shuffle, returning a new array (does not mutate the input). */
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/**
+ * Normalise the editable MC-option list from the authoring form into the value
+ * persisted in the `mc_options` column: a trimmed array of 2+ templates, or
+ * null (making buildOptions fall back to derived distractors at render time).
+ * Returns null for multi-part questions — they have no question-level MC
+ * presentation — and for any non-MC question type.
+ */
+export function cleanMcOptions(
+  isMulti: boolean,
+  data: { question_type?: string, mc_options?: string[] | null }
+): string[] | null {
+  if (isMulti || data.question_type !== 'multiple_choice') return null
+  const cleaned = (data.mc_options ?? []).map(o => o.trim()).filter(o => o !== '')
+  return cleaned.length >= 2 ? cleaned : null
+}
+
+/**
+ * Render author-supplied explicit MC option templates against a generated
+ * value set (the same `{{...}}` engine used for the question/answer/traps, so
+ * options can carry parameters). Returns null when there are no explicit
+ * options, signalling callers to fall back to buildOptions' derived path.
+ */
+export function renderMcOptions(
+  templates: string[] | null | undefined,
+  values: Record<string, number>
+): string[] | null {
+  if (!templates || templates.length === 0) return null
+  const rendered = templates
+    .map(t => evaluateTemplate(t, values))
+    .filter(o => o.trim() !== '')
+  return rendered.length >= 2 ? rendered : null
 }
 
 function generatePadding(correct: string, existing: string[]): string[] {

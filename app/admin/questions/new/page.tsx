@@ -7,6 +7,7 @@ import { supabase } from '../../../../lib/supabase'
 import { colors, font, secondaryButton } from '../../../../lib/styles'
 import QuestionForm from '../../../../components/admin/QuestionForm'
 import { normalizePart, computeSkillUnion } from '../../../../lib/questions/parts'
+import { cleanMcOptions } from '../../../../lib/questions/multipleChoice'
 
 export default function NewQuestionPage() {
   const router = useRouter()
@@ -47,6 +48,9 @@ export default function NewQuestionPage() {
       image_url: data.image_url || null,
       is_published: data.is_published,
       parts: normalizedParts,
+      // Explicit MC options: persist only for single-question MC, and only when
+      // 2+ non-empty are given; otherwise null → derived distractors at render.
+      mc_options: cleanMcOptions(isMulti, data),
     })
 
     if (error) {
