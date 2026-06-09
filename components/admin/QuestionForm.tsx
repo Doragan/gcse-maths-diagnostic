@@ -30,8 +30,9 @@ type QuestionFormData = {
   question_template: string
   parameters: string
   answer_template: string
-  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression'
+  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
   tolerance: string
+  requires_simplest: boolean   // did the question demand simplest form? (drives the fraction/ratio nudge)
   calculator: CalculatorMode   // relationship to a calculator (drives paper assembly)
   kind: QuestionKind           // two-kind model: 'mastery' penalises on failure, 'exam' is positive-only
   // Author-supplied explicit MC option templates. When 2+ are present they are
@@ -62,6 +63,7 @@ const emptyForm: QuestionFormData = {
   answer_template: '',
   answer_type: 'numeric',
   tolerance: '0',
+  requires_simplest: true,
   calculator: DEFAULT_CALCULATOR_MODE,
   kind: DEFAULT_QUESTION_KIND,
   mc_options: [],
@@ -496,6 +498,8 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               <option value="exact">Exact</option>
               <option value="fraction">Fraction</option>
               <option value="expression">Expression</option>
+              <option value="ratio">Ratio</option>
+              <option value="coordinate">Coordinate</option>
             </select>
           </div>
           )}
@@ -511,6 +515,21 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               placeholder="0.01"
               step="0.01"
             />
+          </div>
+        )}
+        {!form.multiPart && (form.answer_type === 'fraction' || form.answer_type === 'ratio') && (
+          <div style={styles.field}>
+            <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={form.requires_simplest}
+                onChange={e => update('requires_simplest', e.target.checked)}
+              />
+              Requires simplest form
+            </label>
+            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+              When on, a correct but unsimplified answer is accepted with a “simplify fully” reminder.
+            </p>
           </div>
         )}
         <div style={styles.field}>

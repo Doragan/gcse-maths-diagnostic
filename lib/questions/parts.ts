@@ -22,8 +22,10 @@ export type QuestionPart = {
   prompt: string
   skill_ids: string[]
   answer_template: string
-  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression'
+  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
   tolerance: number | null
+  // Whether the part demanded simplest form (drives the fraction/ratio nudge).
+  requires_simplest: boolean
   traps: PartTrap[]
   marks: number
   kind: QuestionKind
@@ -76,6 +78,7 @@ export function emptyPart(): QuestionPart {
     answer_template: '',
     answer_type: 'numeric',
     tolerance: 0,
+    requires_simplest: true,
     traps: [],
     marks: 1,
     kind: 'mastery',
@@ -95,6 +98,7 @@ export type PartInput = {
   answer_template: string
   answer_type: QuestionPart['answer_type']
   tolerance: string | number | null
+  requires_simplest: boolean
   traps: PartTrap[]
   marks: string | number
   kind: QuestionKind
@@ -110,6 +114,8 @@ export function normalizePart(p: PartInput): QuestionPart {
     tolerance: p.answer_type === 'numeric'
       ? (p.tolerance === '' || p.tolerance == null ? 0 : Number(p.tolerance))
       : null,
+    // Default true for legacy parts that predate this field.
+    requires_simplest: p.requires_simplest ?? true,
     // Drop wholly-empty trap rows (no wrong-answer template).
     traps: p.traps.filter(t => t.answer_template.trim() !== ''),
     marks: p.marks === '' || p.marks == null ? 1 : Number(p.marks),

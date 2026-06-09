@@ -64,6 +64,7 @@ export default function EditQuestionPage() {
         answer_template: isMulti ? '' : data.answer_template,
         answer_type: data.answer_type,
         tolerance: !isMulti && data.answer_type === 'numeric' ? parseFloat(data.tolerance) : null,
+        requires_simplest: data.requires_simplest,
         calculator: data.calculator,
         kind: data.kind,
         traps: isMulti ? [] : data.traps,

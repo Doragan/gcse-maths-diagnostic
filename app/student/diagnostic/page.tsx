@@ -36,8 +36,9 @@ type Question = {
   question_template: string
   parameters: any
   answer_template: string
-  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression'
+  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
   tolerance: number | null
+  requires_simplest?: boolean
   traps: { answer_template: string; response: string }[]
   explanation: string | null
   image_url: string | null
@@ -244,6 +245,7 @@ export default function StudentDiagnosticPage() {
       item.question.answer_type,
       item.question.tolerance,
       item.rendered.traps,
+      item.question.requires_simplest ?? true,
     )
 
     setAnswer(chosen)

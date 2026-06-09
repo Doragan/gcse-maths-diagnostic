@@ -111,6 +111,7 @@ export default function MultiPartQuestion({
       part.answer_type,
       part.tolerance,
       renderedPart.traps,
+      part.requires_simplest ?? true,
     )
     const next = [...outcomes]
     next[current] = { answer, correct: result.correct, message: result.message }

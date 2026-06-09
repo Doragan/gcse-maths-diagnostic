@@ -163,6 +163,8 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             <option value="exact">Exact</option>
             <option value="fraction">Fraction</option>
             <option value="expression">Expression</option>
+            <option value="ratio">Ratio</option>
+            <option value="coordinate">Coordinate</option>
           </select>
         </div>
         {part.answer_type === 'numeric' && (
@@ -190,6 +192,19 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
           />
         </div>
       </div>
+
+      {(part.answer_type === 'fraction' || part.answer_type === 'ratio') && (
+        <div style={styles.field}>
+          <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={part.requires_simplest ?? true}
+              onChange={e => set('requires_simplest', e.target.checked)}
+            />
+            Requires simplest form
+          </label>
+        </div>
+      )}
 
       <div style={styles.field}>
         <label style={labelStyle}>Kind</label>
