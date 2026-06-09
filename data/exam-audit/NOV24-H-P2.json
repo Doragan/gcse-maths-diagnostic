@@ -122,8 +122,8 @@
     },
     {
       "q": "7", "part": "b", "marks": 1,
-      "skill_ids": ["calculating_simple_probability"],
-      "skill_gap": "no dedicated 'relative frequency reliability / number of trials' node",
+      "skill_ids": ["calculating_simple_probability", "relative_frequency"],
+      "skill_gap": null,
       "answer_form": "free_text",
       "framing": ["decision_justify"],
       "calc": "na", "multi_part": true, "back_ref": false, "kind": "exam",
@@ -242,8 +242,8 @@
     },
     {
       "q": "17", "part": null, "marks": 2,
-      "skill_ids": ["understanding_straight_line_graphs"],
-      "skill_gap": "no dedicated 'perpendicular gradients / negative reciprocal' skill node",
+      "skill_ids": ["understanding_straight_line_graphs", "perpendicular_gradients"],
+      "skill_gap": null,
       "answer_form": "free_text",
       "framing": ["decision_justify"],
       "calc": "calc", "multi_part": false, "back_ref": false, "kind": "exam",

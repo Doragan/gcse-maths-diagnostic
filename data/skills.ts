@@ -478,6 +478,16 @@ export const skills: Skill[] = [
 "exampleAnswer": "30"
   },
   {
+    "id": "relative_frequency",
+    "name": "Relative Frequency",
+    "topic": "Probability and Data",
+    "prerequisites": [
+      "calculating_simple_probability"
+    ],
+"exampleQuestion": "A spinner is spun 200 times and lands on red 52 times. Use this to estimate the probability of red.",
+"exampleAnswer": "52/200 = 0.26 — and the best estimate uses the trial with the most spins"
+  },
+  {
     "id": "mutually_exclusive_events",
     "name": "Mutually Exclusive Events",
     "topic": "Probability and Data",
@@ -680,6 +690,16 @@ export const skills: Skill[] = [
 "exampleQuestion": "What is the equation of the graph shown below:",
 "exampleAnswer": "y = 2x + 6",
 "image": true
+  },
+  {
+    "id": "perpendicular_gradients",
+    "name": "Perpendicular Gradients",
+    "topic": "Algebra",
+    "prerequisites": [
+      "understanding_straight_line_graphs"
+    ],
+"exampleQuestion": "A line has gradient 2. What is the gradient of a line perpendicular to it?",
+"exampleAnswer": "-1/2 (the negative reciprocal)"
   },
   {
     "id": "sketching_functions",

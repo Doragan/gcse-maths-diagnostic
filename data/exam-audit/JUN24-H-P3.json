@@ -166,7 +166,7 @@
     },
     {
       "q": "15", "part": "b", "marks": 4,
-      "skill_ids": ["understanding_straight_line_graphs"], "skill_gap": "no explicit perpendicular-gradient / negative-reciprocal skill node",
+      "skill_ids": ["understanding_straight_line_graphs", "perpendicular_gradients"], "skill_gap": null,
       "answer_form": "expression", "framing": ["multi_route", "consequence"], "calc": "calc",
       "multi_part": true, "back_ref": true, "kind": "exam",
       "mark_split": "M1 M1 M1dep A1", "traps": ["forgot_negative_reciprocal", "intercept_sign"],
@@ -174,7 +174,7 @@
     },
     {
       "q": "16", "part": null, "marks": 3,
-      "skill_ids": ["calculating_simple_probability"], "skill_gap": "relative-frequency vs theoretical-probability comparison not its own node",
+      "skill_ids": ["calculating_simple_probability", "relative_frequency"], "skill_gap": null,
       "answer_form": "numeric", "framing": ["decision_justify", "consequence"], "calc": "calc",
       "multi_part": false, "back_ref": false, "kind": "exam",
       "mark_split": "M1 M1 A1", "traps": ["non_comparable_formats"],
