@@ -78,7 +78,7 @@ export function emptyPart(): QuestionPart {
     answer_template: '',
     answer_type: 'numeric',
     tolerance: 0,
-    requires_simplest: true,
+    requires_simplest: false,
     traps: [],
     marks: 1,
     kind: 'mastery',
@@ -114,8 +114,9 @@ export function normalizePart(p: PartInput): QuestionPart {
     tolerance: p.answer_type === 'numeric'
       ? (p.tolerance === '' || p.tolerance == null ? 0 : Number(p.tolerance))
       : null,
-    // Default true for legacy parts that predate this field.
-    requires_simplest: p.requires_simplest ?? true,
+    // Default false for legacy parts that predate this field (lenient: a missing
+    // flag must never cause a correct answer to be rejected).
+    requires_simplest: p.requires_simplest ?? false,
     // Drop wholly-empty trap rows (no wrong-answer template).
     traps: p.traps.filter(t => t.answer_template.trim() !== ''),
     marks: p.marks === '' || p.marks == null ? 1 : Number(p.marks),

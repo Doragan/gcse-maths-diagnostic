@@ -198,7 +198,7 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
           <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <input
               type="checkbox"
-              checked={part.requires_simplest ?? true}
+              checked={part.requires_simplest ?? false}
               onChange={e => set('requires_simplest', e.target.checked)}
             />
             Requires simplest form

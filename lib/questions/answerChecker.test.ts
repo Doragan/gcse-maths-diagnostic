@@ -40,8 +40,13 @@ describe('characterisation: fraction', () => {
   it('accepts the same fraction', () => {
     expect(check('3/4', '3/4', 'fraction').correct).toBe(true)
   })
-  it('accepts an equivalent unsimplified fraction but nudges', () => {
+  it('rejects an unsimplified fraction when simplest form is required (default)', () => {
     const r = check('6/8', '3/4', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/simplest/i)
+  })
+  it('accepts an unsimplified fraction with a reminder when simplest not required', () => {
+    const r = checkAnswer('6/8', '3/4', 'fraction', null, [], false)
     expect(r.correct).toBe(true)
     expect(r.message).toMatch(/simplif/i)
   })
@@ -105,27 +110,32 @@ describe('ratio', () => {
   it('matches identical ratios', () => {
     expect(check('2:3', '2:3', 'ratio').correct).toBe(true)
   })
-  it('accepts an equivalent unsimplified ratio with a nudge', () => {
+  it('rejects an unsimplified ratio when simplest form is required (default)', () => {
     const r = check('4:6', '2:3', 'ratio')
-    expect(r.correct).toBe(true)
-    expect(r.message).toMatch(/simplif/i)
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/simplest/i)
   })
   it('ignores spaces around the colon', () => {
     expect(check('2 : 3', '2:3', 'ratio').correct).toBe(true)
   })
-  it('accepts a decimal-scaled equivalent (1:1.5 = 2:3)', () => {
-    expect(check('1:1.5', '2:3', 'ratio').correct).toBe(true)
+  it('accepts a decimal-scaled equivalent (1:1.5 = 2:3) when simplest not required', () => {
+    expect(checkAnswer('1:1.5', '2:3', 'ratio', null, [], false).correct).toBe(true)
   })
-  it('handles three-part ratios', () => {
-    expect(check('2:4:6', '1:2:3', 'ratio').correct).toBe(true)
+  it('matches three-part ratios when simplest not required (2:4:6 = 1:2:3)', () => {
+    expect(checkAnswer('2:4:6', '1:2:3', 'ratio', null, [], false).correct).toBe(true)
   })
   it('rejects a genuinely different ratio', () => {
     expect(check('3:2', '2:3', 'ratio').correct).toBe(false)
   })
-  it('does not nudge when simplest form is not required', () => {
+  it('accepts an unsimplified ratio with a reminder when simplest not required', () => {
     const r = checkAnswer('4:6', '2:3', 'ratio', null, [], false)
     expect(r.correct).toBe(true)
-    expect(r.message).not.toMatch(/simplif/i)
+    expect(r.message).toMatch(/simplif/i)
+  })
+  it('accepts the simplified ratio cleanly (no reminder)', () => {
+    const r = check('2:3', '2:3', 'ratio')
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
   })
 })
 

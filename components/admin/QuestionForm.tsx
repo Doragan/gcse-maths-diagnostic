@@ -63,7 +63,7 @@ const emptyForm: QuestionFormData = {
   answer_template: '',
   answer_type: 'numeric',
   tolerance: '0',
-  requires_simplest: true,
+  requires_simplest: false,   // author opts in for "give your answer in its simplest form" questions
   calculator: DEFAULT_CALCULATOR_MODE,
   kind: DEFAULT_QUESTION_KIND,
   mc_options: [],

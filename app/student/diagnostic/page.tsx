@@ -245,7 +245,7 @@ export default function StudentDiagnosticPage() {
       item.question.answer_type,
       item.question.tolerance,
       item.rendered.traps,
-      item.question.requires_simplest ?? true,
+      item.question.requires_simplest ?? false,
     )
 
     setAnswer(chosen)

@@ -403,7 +403,7 @@ function QuestionPage() {
       question.answer_type,
       question.tolerance,
       rendered.traps,
-      question.requires_simplest ?? true,
+      question.requires_simplest ?? false,
     )
 
     setFeedback({
@@ -695,7 +695,7 @@ function QuestionPage() {
 						question.answer_type,
 						question.tolerance,
 						rendered.traps,
-						question.requires_simplest ?? true,
+						question.requires_simplest ?? false,
 					  )
 					  setAnswer(opt)
 					  setFeedback({

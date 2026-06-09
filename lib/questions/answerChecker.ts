@@ -505,18 +505,30 @@ export function checkAnswer(
 
   // Check whether the student's fraction answer is correct but not fully reduced.
   // Only applies to fraction-type questions; decimals and integers are unaffected.
-  const notSimplified =
-    isCorrect && requireSimplest && (
+  // Right value but not in lowest terms (only meaningful for fraction/ratio).
+  const isUnsimplified =
+    isCorrect && (
       (answerType === 'fraction' && isUnsimplifiedFraction(normStudent)) ||
       (answerType === 'ratio'    && isUnsimplifiedRatio(normStudent))
     )
+
+  // When the question demanded simplest form, the simplification IS the assessed
+  // skill, so an unsimplified equivalent is NOT accepted. Otherwise accept it but
+  // remind the student to simplify (good exam habit).
+  if (isUnsimplified && requireSimplest) {
+    return {
+      correct: false,
+      trap:    null,
+      message: 'Almost — that’s the right value, but give your answer in its simplest form.',
+    }
+  }
 
   if (isCorrect) {
     return {
       correct: true,
       trap:    null,
-      message: notSimplified ? SIMPLIFICATION_REMINDER
-              : missingUnits  ? UNITS_REMINDER
+      message: isUnsimplified ? SIMPLIFICATION_REMINDER
+              : missingUnits   ? UNITS_REMINDER
               : 'Correct!',
     }
   }
