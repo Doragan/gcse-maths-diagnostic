@@ -610,11 +610,22 @@ export const skills: Skill[] = [
 "exampleAnswer": "x = 7.5"
   },
   {
+    "id": "simplifying_ratio",
+    "name": "Simplifying Ratio",
+    "topic": "Ratio and Proportion",
+    "prerequisites": [
+      "simplifying_fractions"
+    ],
+"exampleQuestion": "Write the ratio 12 : 18 in its simplest form.",
+"exampleAnswer": "2 : 3"
+  },
+  {
     "id": "ratio",
     "name": "Ratio",
     "topic": "Ratio and Proportion",
     "prerequisites": [
-      "proportion"
+      "proportion",
+      "simplifying_ratio"
     ],
 "exampleQuestion": "Divide £120 in the ratio 5:1:4",
 "exampleAnswer": "£60, £12, £48"
