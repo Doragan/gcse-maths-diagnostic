@@ -138,6 +138,10 @@ function sortedSolutions(s: string): string {
  */
 function expressionMatch(a: string, b: string): boolean {
   if (a === b) return true
+  // Inequalities have their own equivalence (operand-flip, fraction/decimal bound).
+  // Don't run the term/factor sorters on them — the leading '-' of a bound would be
+  // mis-split as an additive term.
+  if (INEQUALITY_OP.test(a) || INEQUALITY_OP.test(b)) return inequalityMatch(a, b)
   if (sortedTerms(a)   === sortedTerms(b))   return true
   if (sortedFactors(a) === sortedFactors(b)) return true
   if (sortedSolutions(a) === sortedSolutions(b)) return true
@@ -261,6 +265,13 @@ function normalise(value: string): string {
     .replace(/!=/g, '≠')
     // Remove all whitespace
     .replace(/\s+/g, '')
+    // Strip redundant brackets around a numeric surd radicand: √(2) → √2
+    .replace(/√\((\d+)\)/g, '√$1')
+    // Collapse explicit multiplication that GCSE notation writes implicitly:
+    //   135*π → 135π   3*√2 → 3√2   3*x → 3x   2*(x+3) → 2(x+3)   (x+2)*(x+3) → (x+2)(x+3)
+    // Only fires when the right side begins a letter / π / √ / '(' so that
+    // numeric products like 2^2*3*5 keep their '*' (needed for factor splitting).
+    .replace(/([\d)πa-z])\*(?=[a-zπ√(])/g, '$1')
 }
 
 // ── Numeric comparison ────────────────────────────────────────────────────────
@@ -355,20 +366,100 @@ function isUnsimplifiedFraction(s: string): boolean {
   return a > 1 // GCD > 1 → common factor remains
 }
 
+// ── Ratio, coordinate & inequality equivalence ────────────────────────────────
+
+function gcd(a: number, b: number): number {
+  a = Math.abs(a); b = Math.abs(b)
+  while (b) { [a, b] = [b, a % b] }
+  return a
+}
+
+/** Parse "a:b[:c...]" into numeric parts (each an integer, decimal or fraction). */
+function parseRatio(s: string): number[] | null {
+  if (!s.includes(':')) return null
+  const parts = s.split(':').map(p => parseFraction(p))
+  if (parts.length < 2 || parts.some(isNaN)) return null
+  return parts
+}
+
+/** Two ratios are equal iff their parts are proportional (adjacent cross-products match). */
+function ratiosEqual(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 1; i < a.length; i++) {
+    const lhs = a[i - 1] * b[i]
+    const rhs = a[i] * b[i - 1]
+    if (Math.abs(lhs - rhs) > 1e-9 * Math.max(1, Math.abs(lhs), Math.abs(rhs))) return false
+  }
+  return true
+}
+
+/** A ratio is unsimplified if any part is non-integer or the integer parts share a factor. */
+function isUnsimplifiedRatio(s: string): boolean {
+  const parts = parseRatio(s)
+  if (!parts) return false
+  if (parts.some(p => !Number.isInteger(p))) return true
+  return parts.map(p => Math.abs(p)).reduce((g, n) => gcd(g, n)) > 1
+}
+
+/** Parse a coordinate like "(2,1)", "2,1" or "x=2,y=1" into ordered numeric components. */
+function parseCoordinate(s: string): number[] | null {
+  const cleaned = s.replace(/[()]/g, '').replace(/[a-z]=/g, '')
+  const parts = cleaned.split(',').map(p => parseFraction(p))
+  if (parts.length < 2 || parts.some(isNaN)) return null
+  return parts
+}
+
+function coordinatesEqual(a: number[], b: number[], tol: number): boolean {
+  if (a.length !== b.length) return false
+  return a.every((v, i) => Math.abs(v - b[i]) <= tol)
+}
+
+const INEQUALITY_OP = /[≤≥<>]/
+
+function flipInequality(op: string): string {
+  return op === '<' ? '>' : op === '>' ? '<' : op === '≤' ? '≥' : '≤'
+}
+
+/** Parse a single-operator inequality, canonicalised to "variable OP value". */
+function parseInequality(s: string): { varName: string, op: string, value: number } | null {
+  const ops = s.match(/[≤≥<>]/g)
+  if (!ops || ops.length !== 1) return null
+  const op = ops[0]
+  const [lhs, rhs] = s.split(op)
+  const lhsNum = parseFraction(lhs)
+  const rhsNum = parseFraction(rhs)
+  const lhsHasVar = /[a-z]/.test(lhs)
+  const rhsHasVar = /[a-z]/.test(rhs)
+  if (lhsHasVar && !isNaN(rhsNum)) return { varName: lhs, op, value: rhsNum }
+  if (rhsHasVar && !isNaN(lhsNum)) return { varName: rhs, op: flipInequality(op), value: lhsNum }
+  return null
+}
+
+/** Accept inequalities that are equal up to operand-flip and fraction/decimal bound form. */
+function inequalityMatch(a: string, b: string): boolean {
+  const pa = parseInequality(a)
+  const pb = parseInequality(b)
+  if (!pa || !pb) return false
+  return pa.varName === pb.varName && pa.op === pb.op && Math.abs(pa.value - pb.value) <= 1e-9
+}
+
 // ── Main checker ──────────────────────────────────────────────────────────────
 
 const UNITS_REMINDER =
   'Correct! Remember to include units in your answer — you can lose marks in exams for missing units.'
 
 const SIMPLIFICATION_REMINDER =
-  'Correct! Remember to simplify your fraction fully — you may lose marks in an exam for leaving it unsimplified.'
+  'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
 
 export function checkAnswer(
   studentAnswer: string,
   correctAnswer: string,
-  answerType: 'exact' | 'numeric' | 'fraction' | 'expression' | 'set',
+  answerType: 'exact' | 'numeric' | 'fraction' | 'expression' | 'set' | 'ratio' | 'coordinate',
   tolerance: number | null,
-  traps: { answer: string, response: string }[]
+  traps: { answer: string, response: string }[],
+  // Whether the question demanded simplest form. Drives the "not simplified"
+  // nudge for fraction/ratio answers. Defaults true → current behaviour preserved.
+  requireSimplest: boolean = true
 ): CheckResult {
   const tol         = tolerance ?? 0
   const normStudent = normalise(studentAnswer)
@@ -391,6 +482,16 @@ export function checkAnswer(
       case 'set':
         // Unordered list of values — order and whitespace/comma style ignored.
         return normalisedSet(studentAnswer) === normalisedSet(correctAnswer)
+      case 'ratio': {
+        const rs = parseRatio(normStudent)
+        const rc = parseRatio(normCorrect)
+        return rs !== null && rc !== null && ratiosEqual(rs, rc)
+      }
+      case 'coordinate': {
+        const cs = parseCoordinate(normStudent)
+        const cc = parseCoordinate(normCorrect)
+        return cs !== null && cc !== null && coordinatesEqual(cs, cc, Math.max(tol, 1e-9))
+      }
     }
   })()
 
@@ -405,7 +506,10 @@ export function checkAnswer(
   // Check whether the student's fraction answer is correct but not fully reduced.
   // Only applies to fraction-type questions; decimals and integers are unaffected.
   const notSimplified =
-    answerType === 'fraction' && isCorrect && isUnsimplifiedFraction(normStudent)
+    isCorrect && requireSimplest && (
+      (answerType === 'fraction' && isUnsimplifiedFraction(normStudent)) ||
+      (answerType === 'ratio'    && isUnsimplifiedRatio(normStudent))
+    )
 
   if (isCorrect) {
     return {
@@ -464,6 +568,16 @@ export function checkAnswer(
           return expressionMatch(normStudent, normTrap)
         case 'set':
           return normalisedSet(studentAnswer) === normalisedSet(trap.answer)
+        case 'ratio': {
+          const rs = parseRatio(normStudent)
+          const rt = parseRatio(normTrap)
+          return rs !== null && rt !== null && ratiosEqual(rs, rt)
+        }
+        case 'coordinate': {
+          const cs = parseCoordinate(normStudent)
+          const ct = parseCoordinate(normTrap)
+          return cs !== null && ct !== null && coordinatesEqual(cs, ct, Math.max(tol, 1e-9))
+        }
       }
     })()
 
