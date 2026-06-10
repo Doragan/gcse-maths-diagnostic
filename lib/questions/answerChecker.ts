@@ -501,7 +501,8 @@ export function checkAnswer(
   // would pass isCorrect against "25 cm²" without ever hitting the reminder.
   const correctHasUnits = containsUnits(correctAnswer)
   const studentHasUnits = containsUnits(studentAnswer)
-  const missingUnits    = correctHasUnits && !studentHasUnits
+  const missingUnits    = correctHasUnits && !studentHasUnits   // expected units omitted
+  const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
 
   // Check whether the student's fraction answer is correct but not fully reduced.
   // Only applies to fraction-type questions; decimals and integers are unaffected.
@@ -533,10 +534,12 @@ export function checkAnswer(
     }
   }
 
-  // For non-numeric answer types the main comparison includes units, so a
-  // missing-units answer fails `isCorrect`. Check here whether the answer is
-  // correct when units are stripped from both sides.
-  if (missingUnits && answerType !== 'numeric') {
+  // For non-numeric answer types the main comparison includes units, so any
+  // units mismatch fails `isCorrect` — whether the student OMITTED expected
+  // units, or ADDED units where the canonical answer carries none (e.g. a
+  // unit-less "36π" answer vs a student's correct "36π cm²"). Retry with units
+  // stripped from both sides so the value is what's assessed.
+  if ((missingUnits || extraUnits) && answerType !== 'numeric') {
     const normStudentStripped = normalise(stripUnits(studentAnswer))
     const normCorrectStripped = normalise(stripUnits(correctAnswer))
     const matchesWithoutUnits = (() => {
@@ -544,6 +547,7 @@ export function checkAnswer(
         case 'fraction':
           return fractionMatch(normStudentStripped, normCorrectStripped, 0.001)
         case 'expression':
+          return expressionMatch(normStudentStripped, normCorrectStripped)
         case 'exact':
           return normStudentStripped === normCorrectStripped
         default:
@@ -557,7 +561,11 @@ export function checkAnswer(
       return {
         correct: true,
         trap:    null,
-        message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER : UNITS_REMINDER,
+        // Only nudge when expected units were OMITTED. Adding units where none
+        // were required is fine and needs no reminder.
+        message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
+               : missingUnits          ? UNITS_REMINDER
+               : 'Correct!',
       }
     }
   }
@@ -595,6 +603,22 @@ export function checkAnswer(
 
     if (trapMatch) {
       return { correct: false, trap, message: trap.response }
+    }
+
+    // Units-tolerant retry: a student who adds or omits units relative to the
+    // trap (e.g. "12π cm²" against a trap written as "12π") should still get
+    // the trap's targeted feedback. Only fires for non-numeric types, where
+    // units are part of the compared string.
+    if (answerType === 'exact' || answerType === 'expression' || answerType === 'fraction') {
+      const sStripped = normalise(stripUnits(studentAnswer))
+      const tStripped = normalise(stripUnits(trap.answer))
+      const strippedMatch =
+        answerType === 'fraction'   ? fractionMatch(sStripped, tStripped, 0.001)
+        : answerType === 'expression' ? expressionMatch(sStripped, tStripped)
+        :                               sStripped === tStripped
+      if (strippedMatch) {
+        return { correct: false, trap, message: trap.response }
+      }
     }
   }
 

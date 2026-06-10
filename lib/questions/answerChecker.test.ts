@@ -178,6 +178,33 @@ describe('implied multiplication / π / surds', () => {
   })
 })
 
+describe('units handling (exact / expression)', () => {
+  it('accepts a unit-less exact answer with correct units added (36π cm² for 36π)', () => {
+    const r = check('36π cm²', '36π', 'exact')
+    expect(r.correct).toBe(true)
+    // Adding units where none were required needs no reminder.
+    expect(r.message).toBe('Correct!')
+  })
+  it('accepts the bare value when the answer carries units, with a reminder (36π for 36π cm²)', () => {
+    const r = check('36π', '36π cm²', 'exact')
+    expect(r.correct).toBe(true)
+    expect(r.message).toMatch(/units/i)
+  })
+  it('still accepts an exact match that includes the same units', () => {
+    expect(check('36π cm²', '36π cm²', 'exact').correct).toBe(true)
+  })
+  it('triggers a trap written without units when the student adds units', () => {
+    const r = check('12π cm²', '36π', 'exact', null, [
+      { answer: '12π', response: 'That is the circumference.' },
+    ])
+    expect(r.correct).toBe(false)
+    expect(r.trap?.response).toBe('That is the circumference.')
+  })
+  it('does not falsely accept a genuinely wrong value because of units', () => {
+    expect(check('40π cm²', '36π', 'exact').correct).toBe(false)
+  })
+})
+
 describe('inequality equivalence', () => {
   it('matches identical inequalities', () => {
     expect(check('x≤-3/5', 'x≤-3/5', 'expression').correct).toBe(true)
