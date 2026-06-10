@@ -163,6 +163,7 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             <option value="exact">Exact</option>
             <option value="fraction">Fraction</option>
             <option value="expression">Expression</option>
+            <option value="set">Set</option>
             <option value="ratio">Ratio</option>
             <option value="coordinate">Coordinate</option>
           </select>
