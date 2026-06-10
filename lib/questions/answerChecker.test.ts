@@ -199,6 +199,13 @@ describe('pi word form ("pi" → π)', () => {
     expect(check('pink', 'pink', 'set').correct).toBe(true)
     expect(check('pink', 'πnk', 'exact').correct).toBe(false)
   })
+  it('accepts "pi" glued straight onto a unit — "9picm^2" for "9π cm²"', () => {
+    // Exactly what the π keypad button produces: 9 → "pi" → "cm^2".
+    expect(check('9picm^2', '9π cm²', 'exact').correct).toBe(true)
+  })
+  it('accepts "9pi cm^2" (spaced) for "9π cm²"', () => {
+    expect(check('9pi cm^2', '9π cm²', 'exact').correct).toBe(true)
+  })
 })
 
 describe('units handling (exact / expression)', () => {

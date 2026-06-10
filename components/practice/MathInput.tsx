@@ -33,7 +33,7 @@ const SYMBOL_GROUPS: { title: string, buttons: SymbolButton[] }[] = [
       { label: '×', insert: '*', display: '×' },
       { label: '÷', insert: '/', display: '÷' },
       { label: '±', insert: '±', display: '±' },
-      { label: 'π', insert: 'pi', display: 'π' },
+      { label: 'π', insert: 'π', display: 'π' },
     ],
   },
   {
@@ -56,7 +56,10 @@ function toLatex(input: string): string {
     .replace(/sqrt\(([^)]*)\)/g, '\\sqrt{$1}')
     .replace(/cbrt\(([^)]*)\)/g, '\\sqrt[3]{$1}')
     .replace(/\*/g, '\\times ')
-    .replace(/pi/g, '\\pi ')
+    // Render both the π character (from the keypad button) and the typed "pi"
+    // word. Global replace doesn't re-scan its own output, so the "pi" inside
+    // the emitted "\pi" is safe.
+    .replace(/π|pi/g, '\\pi ')
     .replace(/<=/g, '\\leq ')
     .replace(/>=/g, '\\geq ')
     .replace(/!=/g, '\\neq ')

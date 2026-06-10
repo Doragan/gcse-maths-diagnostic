@@ -257,11 +257,14 @@ function normalise(value: string): string {
     // Common word forms
     .replace(/sqrt\(/g, '√(')
     .replace(/cbrt\(/g, '∛(')
-    // Greek letters — the "pi" word form → π. Catches it standalone ("pi"),
-    // glued to a number ("36pi" → "36π", as the π keypad button produces), and
-    // next to operators ("2*pi"). The leading [^a-z]/^ guard and trailing
-    // not-a-letter lookahead stop it touching "pi" inside a longer word.
-    .replace(/([^a-z]|^)pi(?![a-z])/g, '$1π')
+    // Greek letters — the "pi" word form → π.
+    //  • After a digit it is unambiguously π whatever follows, so this also
+    //    catches a unit glued straight on: "9pi" → "9π", "9picm" → "9πcm"
+    //    (no English word is "<digit>pi…").
+    //  • Otherwise (standalone "pi", "2*pi", "(pi)") require a trailing
+    //    not-a-letter so it never touches "pi" inside a word (pile, pink).
+    .replace(/(\d)\s*pi/g, '$1π')
+    .replace(/([^a-z0-9]|^)pi(?![a-z])/g, '$1π')
     // Inequality operators
     .replace(/<=/g, '≤')
     .replace(/>=/g, '≥')
