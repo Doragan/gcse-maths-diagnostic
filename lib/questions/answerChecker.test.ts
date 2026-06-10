@@ -178,6 +178,29 @@ describe('implied multiplication / π / surds', () => {
   })
 })
 
+describe('pi word form ("pi" → π)', () => {
+  it('accepts standalone "pi" for π', () => {
+    expect(check('pi', 'π', 'exact').correct).toBe(true)
+  })
+  it('accepts "pi" glued to a number — the π keypad button produces "36pi"', () => {
+    expect(check('36pi', '36π', 'exact').correct).toBe(true)
+  })
+  it('accepts "2pi" for 2π', () => {
+    expect(check('2pi', '2π', 'exact').correct).toBe(true)
+  })
+  it('accepts "pi" next to an operator (2*pi = 2π)', () => {
+    expect(check('2*pi', '2π', 'exact').correct).toBe(true)
+  })
+  it('accepts uppercase "PI"', () => {
+    expect(check('36PI', '36π', 'exact').correct).toBe(true)
+  })
+  it('does not convert "pi" embedded in a word (set answer "pink")', () => {
+    // "pink" must survive untouched — would mismatch "πnk" if over-eager.
+    expect(check('pink', 'pink', 'set').correct).toBe(true)
+    expect(check('pink', 'πnk', 'exact').correct).toBe(false)
+  })
+})
+
 describe('units handling (exact / expression)', () => {
   it('accepts a unit-less exact answer with correct units added (36π cm² for 36π)', () => {
     const r = check('36π cm²', '36π', 'exact')
