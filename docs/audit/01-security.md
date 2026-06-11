@@ -220,3 +220,29 @@ After applying, re-run query 4: the revoked columns must vanish from the
 The introspection did its job: S1 was a real, **exploitable** gap, not just a
 documentation one. Remaining Half-2 work (capture the *full* policy set as
 migrations) still stands, but the REVOKE fix is the urgent piece.
+
+## Phase 0 — fix correction (2026-06-11) — first REVOKE was a no-op
+
+The first fix used **column-level** REVOKEs. Verified ineffective: an anon UPDATE
+setting each "revoked" column still returned no privilege error. Root cause is a
+PostgreSQL rule — **a table-level `GRANT UPDATE ON <table>` confers UPDATE on every
+column; a column-level `REVOKE UPDATE (col)` cannot subtract from it.** Query 3
+showed the table-level UPDATE grant present, so the column REVOKEs were no-ops.
+
+**Corrected fix (re-run required):** revoke the *table-level* UPDATE from the
+client roles —
+```sql
+revoke update on students from anon, authenticated;
+revoke update on teachers from anon, authenticated;
+```
+Safe with no code change: a codebase grep found **zero**
+`.from('students'|'teachers').update(...)` calls — every legitimate write is
+service-role (Stripe webhook, the `free_assessments_used` counter, manual admin),
+which bypasses grants. Confirmed by `app/api/assessments/create/route.ts`'s own
+header ("client no longer writes teachers.free_assessments_used"). The latent
+self-row UPDATE policies become unreachable (grant checked before policy).
+
+**Verify after re-running:** the anon-UPDATE probe must now return `42501` for any
+column on `students`/`teachers` (table grant gone), while reads still work.
+Lesson reinforced: verification is mandatory — the "fix" looked right and was
+inert until probed.

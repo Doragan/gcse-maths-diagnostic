@@ -1,31 +1,36 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Lock sensitive columns against client-role UPDATE (SEC-CRIT-1 / SEC-CRIT-2).
+-- Lock client-role UPDATE on students/teachers (SEC-CRIT-1 / SEC-CRIT-2).
 --
--- WHY: both `students` and `teachers` have a self-row UPDATE policy
--- (USING auth.uid() = id). RLS is ROW-granular — it cannot stop that UPDATE from
--- touching individual columns. With the column UPDATE grant open, a signed-in
--- student could set their own subscription_tier/paid_until (free premium) and any
--- teacher could set their own is_admin (→ question authoring → arbitrary JS in
--- every student's browser).
+-- ⚠ SUPERSEDES a first attempt that used column-level REVOKEs — those were a
+-- NO-OP and verified ineffective. PostgreSQL rule: a table-level
+-- `GRANT UPDATE ON <table>` confers UPDATE on every column, and a column-level
+-- `REVOKE UPDATE (col)` cannot subtract from it. Query 3 of the introspection
+-- showed the table-level UPDATE grant present, so the column REVOKEs did nothing.
 --
--- SAFE TO APPLY WITH NO CODE CHANGE: the only legitimate writers of these columns
--- are the Stripe webhook and manual admin actions, both of which use the SERVICE
--- ROLE — which bypasses column grants entirely. Revoking from anon/authenticated
--- removes only the attack surface. Student profile edits (display_name,
--- year_group) keep their UPDATE grant and continue to work.
+-- CORRECT FIX: revoke the blanket table-level UPDATE from the client roles.
 --
--- Apply via the Supabase SQL Editor (DDL constraint). After applying, re-run
--- query 4 of scripts/rls-introspect.sql: the revoked columns must NOT appear with
--- privilege_type = 'UPDATE' for 'authenticated'.
+-- WHY IT'S EXPLOITABLE: both tables have a self-row UPDATE policy
+-- (USING auth.uid() = id). RLS is row-granular and cannot stop that UPDATE from
+-- touching is_admin / subscription_tier / paid_until on the caller's OWN row.
+--
+-- WHY THIS IS SAFE WITH NO CODE CHANGE: there are ZERO
+-- `.from('students'|'teachers').update(...)` calls anywhere in app/lib/scripts.
+-- Every legitimate write (Stripe webhook, the free_assessments_used counter in
+-- app/api/assessments/create, manual admin) goes through the SERVICE ROLE, which
+-- bypasses these grants. The "Students can update own record" / "teachers: update
+-- own row" RLS policies are latent (no client uses them); after this they're
+-- simply unreachable (grant is checked before the policy).
+--
+-- Apply via the Supabase SQL Editor (DDL constraint). After applying, re-run the
+-- anon-UPDATE probe: setting any column on these tables must return 42501.
+--
+-- If a profile-edit feature is ever added, re-grant only those columns, e.g.:
+--   grant update (display_name, year_group) on students to authenticated;
 -- ─────────────────────────────────────────────────────────────────────────────
 
-revoke update (subscription_tier, paid_until, stripe_customer_id, stripe_subscription_id)
-  on students from anon, authenticated;
+revoke update on students from anon, authenticated;
+revoke update on teachers from anon, authenticated;
 
-revoke update (is_admin, paid_until, free_assessments_used)
-  on teachers from anon, authenticated;
-
--- NOTE (not fixed here — tracked as SEC-2b): student_sessions has a
--- "public update" policy USING true / CHECK true, letting anon update any
--- assessment session. Re-scope that policy separately to the owning session
--- before relying on the legacy assessment feature.
+-- SEC-2b (separate, not fixed here): student_sessions has a "public update"
+-- policy USING true / CHECK true — anon can update any legacy assessment session.
+-- Re-scope that policy to the owning session before relying on that feature.
