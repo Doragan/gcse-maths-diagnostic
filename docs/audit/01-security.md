@@ -246,3 +246,12 @@ self-row UPDATE policies become unreachable (grant checked before policy).
 column on `students`/`teachers` (table grant gone), while reads still work.
 Lesson reinforced: verification is mandatory — the "fix" looked right and was
 inert until probed.
+
+## ✅ RESOLVED & VERIFIED (2026-06-11)
+Corrected table-level REVOKE applied. Probe confirms anon UPDATE of
+`students.{subscription_tier, paid_until, display_name}` and
+`teachers.{is_admin, paid_until}` all return `42501`; SELECT still works.
+**SEC-CRIT-1 and SEC-CRIT-2 are closed** (`authenticated` revoked in the same
+statement as `anon`). Remaining Phase-0 tail: **SEC-2b** (`student_sessions`
+public-update) and **Half 2** — capture the full policy/grant set as
+version-controlled migrations now that the live state is known and corrected.

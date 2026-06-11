@@ -21,9 +21,9 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 ## Severity-ranked finding index
 | ID | Severity | Finding |
 |----|----------|---------|
-| SEC-CRIT-1 | 🔴🔴 Critical | **CONFIRMED EXPLOIT** — any signed-in student can self-grant premium (`students` self-row UPDATE policy + no column REVOKE on billing cols). Fix staged: `20260611_lock_sensitive_columns.sql` |
-| SEC-CRIT-2 | 🔴🔴 Critical | **CONFIRMED EXPLOIT** — any signed-in teacher can self-grant `is_admin` → question authoring → arbitrary JS on every student. Same fix migration |
-| SEC-2b | 🟠 Med | `student_sessions` "public update" policy `USING true` — anon can tamper any legacy assessment session |
+| SEC-CRIT-1 | ✅ FIXED | _(was Critical)_ student self-grant premium — table-level UPDATE REVOKE'd from anon+authenticated; verified `42501`. `20260611_lock_sensitive_columns.sql` applied |
+| SEC-CRIT-2 | ✅ FIXED | _(was Critical)_ teacher self-grant `is_admin` — same REVOKE; verified blocked |
+| SEC-2b | 🟠 Med | `student_sessions` "public update" policy `USING true` — anon can tamper any legacy assessment session (still open) |
 | S1 | 🔴 High | _(resolved into the above by Phase 0 introspection)_ — RLS posture still not in version control; capture full policy set as migrations (Half 2) |
 | S2 | 🟠 Med | Stripe webhook swallows entitlement-write failures; no idempotency; hardcoded expiries |
 | ③-test | 🟠 Med-High | 1 test file; paramEngine/entitlements/masteryEngine/results untested |
@@ -61,12 +61,10 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 - _Outcome: we actually know what's enforced, and it's in git._
 
 ### Phase 1 — Lock the live escalations FIRST, then the money leak + bugs
-- **SEC-CRIT-1 / SEC-CRIT-2 (do immediately):** apply
-  `supabase/migrations/20260611_lock_sensitive_columns.sql` via the SQL Editor —
-  column REVOKEs on `students` billing cols + `teachers.is_admin`. Pure tightening,
-  no code change (service-role writers unaffected). Re-run query 4 to confirm.
-- **SEC-2b:** re-scope the `student_sessions` public-update policy to the owning
-  session.
+- ✅ **SEC-CRIT-1 / SEC-CRIT-2 — DONE 2026-06-11.** Table-level `REVOKE UPDATE` on
+  `students`/`teachers` from anon+authenticated applied & verified (`42501`).
+- **SEC-2b (still open):** re-scope the `student_sessions` public-update policy to
+  the owning session.
 - S2: check every webhook write, return 500 on failure (so Stripe retries); add an
   idempotency guard on `event.id`; replace hardcoded expiries with config.
 - Add a test for the entitlement grant/renew/cancel paths.
