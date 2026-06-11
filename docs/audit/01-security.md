@@ -137,3 +137,40 @@ them** without an authenticated student session (which the agent may not create)
 **Half 1b (user-run):** `scripts/rls-introspect.sql` answers this — query 4 is the
 decisive one (billing/admin columns must be ABSENT from the `authenticated` UPDATE
 grants). Its output also provides the policy text needed for the Half-2 migration.
+
+---
+
+## Phase 0 — Half 1b results (column grants, 2026-06-11) — ⛔ ASSUMPTION FALSIFIED
+
+Query 4 output: **no column REVOKEs exist.** Every sensitive column is INSERT +
+UPDATE for BOTH `anon` and `authenticated`:
+
+- `students.{subscription_tier, paid_until, stripe_customer_id, stripe_subscription_id}` → UPDATE granted
+- `teachers.{is_admin, paid_until, free_assessments_used, email}` → UPDATE granted
+
+This **contradicts the recorded security model** ("sensitive columns locked via
+column-level REVOKEs"). That protection is not present on the live DB.
+
+### S1 → escalated to **🔴🔴 Critical (pending one confirmation)**
+RLS is row-granular and **cannot** restrict which columns an UPDATE touches — column
+REVOKEs are the *only* column defence, and they're absent. So IF a self-row UPDATE
+policy exists on these tables, then:
+- **Student self-grant premium:** `update students set subscription_tier='paid',
+  paid_until='2099-01-01' where id=auth.uid()` → free forever (revenue-critical).
+- **Teacher self-grant admin:** `update teachers set is_admin=true where
+  id=auth.uid()` → admin → question authoring → arbitrary client-side JS on every
+  student (makes S5 live).
+- **Self-insert teacher row** with `is_admin=true` is a parallel path (INSERT also
+  granted) if an INSERT policy permits `id=auth.uid()`.
+
+### The one remaining gate
+Need query 2 (`pg_policies`) for `students` + `teachers`: does a permissive
+UPDATE/INSERT policy match `auth.uid() = id`?
+- **Yes** → confirmed exploit; **Phase 1 must add the column REVOKEs immediately**
+  (a few `REVOKE UPDATE (col) … FROM authenticated, anon` statements — small fix,
+  highest priority in the whole audit).
+- **No client write path / no such policy** → not exploitable; still add the REVOKEs
+  as defence-in-depth and capture in the migration.
+
+_No remediation attempted (report-first). The fix is small and well-understood;
+it's the confirmation + sequencing that matters._
