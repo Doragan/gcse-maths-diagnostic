@@ -166,11 +166,57 @@ policy exists on these tables, then:
 ### The one remaining gate
 Need query 2 (`pg_policies`) for `students` + `teachers`: does a permissive
 UPDATE/INSERT policy match `auth.uid() = id`?
-- **Yes** → confirmed exploit; **Phase 1 must add the column REVOKEs immediately**
-  (a few `REVOKE UPDATE (col) … FROM authenticated, anon` statements — small fix,
-  highest priority in the whole audit).
-- **No client write path / no such policy** → not exploitable; still add the REVOKEs
-  as defence-in-depth and capture in the migration.
 
-_No remediation attempted (report-first). The fix is small and well-understood;
-it's the confirmation + sequencing that matters._
+## Phase 0 — Half 1b VERDICT (policies, 2026-06-11) — ⛔⛔ CONFIRMED EXPLOITABLE
+
+Query 1: RLS is **enabled** on all 14 tables ✓. Query 2 confirms the self-row
+policies exist with **no column protection**:
+
+| table | policy | cmd | USING | WITH CHECK |
+|---|---|---|---|---|
+| students | Students can update own record | UPDATE | `auth.uid() = id` | _null_ |
+| teachers | teachers: update own row | UPDATE | `auth.uid() = id` | — |
+| teachers | teachers: own row | ALL | `auth.uid() = id` | — |
+
+Combined with the open column UPDATE grants (Half 1b) and RLS being row-granular:
+
+### 🔴🔴 SEC-CRIT-1 — student self-grants premium _(Critical, revenue)_
+A signed-in student: `update students set subscription_tier='paid',
+paid_until='2099-01-01' where id=auth.uid()` → permanent free premium. Exploitable
+from the browser with the public anon key. **Confirmed.**
+
+### 🔴🔴 SEC-CRIT-2 — teacher self-grants admin → XSS on all students _(Critical, full compromise)_
+A signed-in teacher: `update teachers set is_admin=true where id=auth.uid()` →
+admin → `questions: admin full access` → write questions that execute as JS
+(`new Function` + `dangerouslySetInnerHTML`) in every student's browser. Makes S5
+live. A plain student can't reach it directly (`INSERT` on `teachers` not granted
+to `authenticated`), but any teacher account can self-elevate. **Confirmed.**
+
+### 🟠 SEC-2b — `student_sessions` public UPDATE _(Medium, legacy)_
+`student_sessions: public update` is `USING true / CHECK true` for `{public}` —
+anon can update **any** assessment session row. Legacy self-report feature; lower
+stakes than the two above but unrestricted tampering. Re-scope its policy to the
+owning session.
+
+### Root cause (single)
+Open column UPDATE grants + self-row UPDATE policies + RLS can't restrict columns.
+The recorded model's "column REVOKEs" were **never applied** to `students`/`teachers`.
+
+### Fix — staged in `supabase/migrations/20260611_lock_sensitive_columns.sql`
+Pure tightening; the webhook + manual admin writes use the **service role**
+(bypasses grants), so no legitimate path breaks:
+```sql
+revoke update (subscription_tier, paid_until, stripe_customer_id,
+               stripe_subscription_id) on students from anon, authenticated;
+revoke update (is_admin, paid_until, free_assessments_used)
+  on teachers from anon, authenticated;
+```
+INSERT paths are already closed (no table-level INSERT grant + no INSERT policy on
+either table). **This jumps to the TOP of Phase 1 — apply via SQL Editor ASAP.**
+After applying, re-run query 4: the revoked columns must vanish from the
+`authenticated` UPDATE list.
+
+### S1 outcome
+The introspection did its job: S1 was a real, **exploitable** gap, not just a
+documentation one. Remaining Half-2 work (capture the *full* policy set as
+migrations) still stands, but the REVOKE fix is the urgent piece.
