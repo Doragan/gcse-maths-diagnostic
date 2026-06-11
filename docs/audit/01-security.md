@@ -83,3 +83,57 @@ authoritative (entitlements, teacher-visible proof). Needs a deliberate ruling.
 Run a read-only introspection of `pg_policies` + `relrowsecurity` + column grants
 on `students` / `teachers` / `questions` / `practice_attempts`. Result either
 closes S1 or escalates it.
+
+---
+
+## Phase 0 — Half 1 results (behavioural probe, 2026-06-11)
+
+Ran a read-only behavioural probe against the **anonymous** role (the public
+surface every visitor has via the anon key). No direct Postgres connection is in
+env, so `pg_policies` can't be read via REST — the probe tests *enforcement*, not
+policy text.
+
+### ✅ Anon READ surface is fully locked
+Every sensitive table returns **0 rows to anon despite holding real data** — RLS
+is enabled and filtering on all of them:
+
+| table | rows exist | anon sees |
+|---|---|---|
+| students | 6 | 0 🔒 |
+| teachers | 2 | 0 🔒 |
+| practice_attempts | 244 | 0 🔒 |
+| analytics_events | 1178 | 0 🔒 |
+| assignments / assignment_* / classes / class_memberships | 1–3 | 0 🔒 |
+
+- Draft questions: 2 exist, **anon sees 0** (L8 closed for the anon path). The 133
+  published questions are anon-visible as intended.
+- Sensitive columns on `students`/`teachers` unreachable (table filters all rows
+  first).
+
+### ✅ Anon cannot escalate (the first probe's "ALLOWED" was a framing trap)
+A zero-row UPDATE probe initially read as "allowed at grant layer." Verified: the
+anon **UPDATE grant is open on every table** (no `42501`), but an anonymous caller
+has `auth.uid() = null`, so no `auth.uid() = id` policy can ever match a real row —
+**anon can't actually write anything.** Confirmed the grant layer IS used
+selectively: `anon INSERT classes → 42501` (grant-revoked), matching the
+documented posture.
+
+### ⚠ RLS is the sole UPDATE gate → column REVOKEs are load-bearing & UNVERIFIED
+Because table-level UPDATE is granted to the client roles across the board (the
+documented "RLS-only, no grant-layer defence" model), the **only** thing stopping
+a logged-in student from `update students set subscription_tier='paid' where
+id = auth.uid()` is a **column-level REVOKE** on the billing columns (and on
+`teachers.is_admin`). Memory says these REVOKEs exist; the probe **cannot confirm
+them** without an authenticated student session (which the agent may not create).
+
+### Sharpened S1 → one decisive question
+> Do `students.{subscription_tier, paid_until, stripe_*}` and `teachers.is_admin`
+> have UPDATE **revoked** for the `authenticated` role?
+> - **Yes** → S1 downgrades to "correct, just not in version control"; capture as
+>   a migration (Half 2).
+> - **No** → a logged-in student can self-grant premium / admin = the most serious
+>   finding of the audit.
+
+**Half 1b (user-run):** `scripts/rls-introspect.sql` answers this — query 4 is the
+decisive one (billing/admin columns must be ABSENT from the `authenticated` UPDATE
+grants). Its output also provides the policy text needed for the Half-2 migration.
