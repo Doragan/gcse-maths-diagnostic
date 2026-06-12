@@ -16,7 +16,13 @@ if (fs.existsSync(envPath)) {
     const eqIdx = trimmed.indexOf('=')
     if (eqIdx === -1) continue
     const key = trimmed.slice(0, eqIdx).trim()
-    const val = trimmed.slice(eqIdx + 1).trim()
+    let val = trimmed.slice(eqIdx + 1).trim()
+    // Strip surrounding quotes, matching how Next.js / dotenv load .env.local
+    // (values from `vercel env pull` are quoted). Without this, scripts saw the
+    // quote characters as part of the value.
+    if (val.length >= 2 && ((val[0] === '"' && val.at(-1) === '"') || (val[0] === "'" && val.at(-1) === "'"))) {
+      val = val.slice(1, -1)
+    }
     if (key && process.env[key] === undefined) {
       process.env[key] = val
     }

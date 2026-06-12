@@ -7,12 +7,14 @@ import { Redis } from '@upstash/redis'
 // not set, every check returns ok=true (a one-time warning is logged), so the
 // routes keep working before/without provisioning.
 //
-// Setup to activate: create an Upstash Redis database (free tier) and set
-// UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN in the environment
-// (locally in .env.local, and in the Vercel project settings).
+// Setup to activate: provision an Upstash Redis database (free tier). The Vercel
+// Marketplace integration injects KV_REST_API_URL + KV_REST_API_TOKEN; a manual
+// Upstash setup gives UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN. We read
+// either pair. NB: use the read-WRITE token (KV_REST_API_TOKEN) — the limiter
+// increments counters — NOT KV_REST_API_READ_ONLY_TOKEN.
 
-const url = process.env.UPSTASH_REDIS_REST_URL
-const token = process.env.UPSTASH_REDIS_REST_TOKEN
+const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL
+const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN
 
 type Window = `${number} s` | `${number} m` | `${number} h`
 
@@ -36,7 +38,7 @@ const lookupLimiter = makeLimiter(20, '1 m')
 let warned = false
 function warnOnce() {
   if (!warned) {
-    console.warn('[rateLimit] UPSTASH_REDIS_REST_URL/TOKEN not set — rate limiting disabled')
+    console.warn('[rateLimit] KV_REST_API_* / UPSTASH_REDIS_REST_* not set — rate limiting disabled')
     warned = true
   }
 }
