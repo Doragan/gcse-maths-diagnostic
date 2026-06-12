@@ -172,12 +172,12 @@ create policy "student_sessions: teacher read" on student_sessions
     )
   );
 
--- ⚠ SEC-2b: captured as-is. USING(true) lets anon update ANY session row.
--- Fix tracked separately (needs a scoping identity; student_sessions is the
--- anonymous typed-name model with no auth.uid()).
+-- SEC-2b FIXED (see 20260612_sec2b_lock_sessions.sql): only an unsubmitted
+-- session is updatable, so submitted results are immutable. The single legit
+-- update (setting completed_at at completion) targets a still-NULL row.
 drop policy if exists "student_sessions: public update" on student_sessions;
 create policy "student_sessions: public update" on student_sessions
-  for update to public using (true) with check (true);
+  for update to public using (completed_at is null) with check (true);
 
 -- ── students / teachers (account rows) ────────────────────────────────────────
 -- NB: column UPDATE for client roles is REVOKE'd in
