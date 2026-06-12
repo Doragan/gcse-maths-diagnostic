@@ -1,11 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { rateLimitLookup } from '../../../../lib/rateLimit'
 
 // Resolve a class join code → { id, name } so a logged-in student can join.
 // Uses the service role because there is no anon SELECT policy on `classes`
 // (students should not be able to enumerate classes). Returns the class name
 // only — no roster, no teacher identity. Mirrors app/api/assessment/lookup.
 export async function GET(req: Request) {
+  if (!(await rateLimitLookup(req)).ok) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
 

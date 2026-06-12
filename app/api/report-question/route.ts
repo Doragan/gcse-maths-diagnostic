@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { skills } from '../../../data/skills'
+import { rateLimitEmail } from '../../../lib/rateLimit'
 
 const ISSUE_LABELS: Record<string, string> = {
   wrong_answer:    'Wrong answer',
@@ -24,6 +25,10 @@ const escapeHtml = (s: unknown): string =>
 
 export async function POST(req: NextRequest) {
   try {
+    if (!(await rateLimitEmail(req)).ok) {
+      return NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 })
+    }
+
     const { questionId, issueType, description, renderedValues, studentId, sessionId } =
       await req.json()
 

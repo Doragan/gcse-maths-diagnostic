@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { rateLimitLookup } from '../../../../lib/rateLimit'
 
 export async function GET(req: Request) {
+  if (!(await rateLimitLookup(req)).ok) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
 

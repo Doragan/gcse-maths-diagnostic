@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimitEmail } from '../../../lib/rateLimit'
 
 // General product feedback (distinct from the per-question report flow in
 // /api/report-question). Sent from the dashboards and question page via the
@@ -26,6 +27,10 @@ const escapeHtml = (s: unknown): string =>
 
 export async function POST(req: NextRequest) {
   try {
+    if (!(await rateLimitEmail(req)).ok) {
+      return NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 })
+    }
+
     const { message, category, context, email, userId, sessionId } = await req.json()
 
     const trimmed = typeof message === 'string' ? message.trim() : ''
