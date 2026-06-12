@@ -30,7 +30,7 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | S3 | 🟠 Med | No rate limiting on public endpoints; 4-char codes brute-forceable |
 | L1 | ✅ FIXED | Multi-part questions excluded from diagnostic selection |
 | L2 | 🟠 Med | Prerequisite inference overrides direct needs_practice evidence on 1 correct answer (design ruling needed) |
-| D1 | 🟠 Med | 12 broken traps that never fire (feedback-quality, not mis-grading) |
+| D1 | ✅ 9/12 FIXED | Deleted 9 broken traps; `round(x±0.01)` replaced by a grader rounding check. 3 remain = Bucket C (left for user investigation) |
 | E1 | 🟠 Med | 33 exam-tested skills with zero questions (~280 marks of 2024 traffic); 18 authorable today, rest blocked by app gaps — supersedes ②-cov with exam weighting |
 | E2 | 🟠 Med | ~40 heavy exam skills at one question (`simple_arithmetic` touches 75 marks); top skills overall at 1–3 (`proportion` 55→2, `ratio` 46→2) |
 | ④-lint | ✅ DONE | 146 → 0 errors; pragmatic rules → warnings; CI lint now blocking |
@@ -40,8 +40,8 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | S4 | ✅ FIXED | `report-question` service-role client moved into the handler (was breaking the CI build — the exact footgun S4 predicted) |
 | S5 | 🟡 Deferred | Admin template = client code-exec (escalation path closed by the `is_admin` lock). CSP deferred — needs browser-tested rollout + can't bound `new Function`; see Phase 3 |
 | ⑤-n+1 | ✅ FIXED | Assignment results route batches target resolution into two `in` queries |
-| D2 | 🟡 Low | 47 coincidental trap collisions |
-| L6 | 🟡 Low | MC options not value-deduped (duplicate options possible) |
+| D2 | ✅ FIXED (clean cases) | Constrained the 3 high-frequency colliders (k≠a, n≥2, a≥2/c≥3) → 0; low-freq remainder left (user relaxed) |
+| L6 | ✅ FIXED | `buildOptions` dedupes by normalised value |
 | L7 | ✅ FIXED | `getMyAttempts` adds an explicit `student_id` filter (defence-in-depth) |
 | L8 | ✅ RESOLVED | Phase 0 verified RLS: `questions: public read published` (`is_published = true`) already hides drafts from non-admins — no client filter needed |
 | S6 | 🟡 Low | `diagnostic` trusts client-held session |
@@ -110,15 +110,23 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 - **L2 design ruling**: how much should one correct answer on a dependent skill
   override direct needs_practice evidence on its prerequisites?
 
-### Phase 4 — Bank quality & polish
-- D1: fix the 12 broken traps; ban the `round(x±0.01)` pattern; re-parameterise the
-  high-frequency D2 collisions. Recreate the bank-sweep as a permanent
-  `scripts/audit-bank.ts` (trap-collision classifier + coverage check) and run it
-  after every authoring batch.
-- L6: dedupe MC options by normalised value (pairs naturally with the D1 fix).
-- ⑥ SVG text alternatives + icon-button labels.
-- ④ housekeeping: `git rm git`, archive one-off scripts, relocate root files,
-  optionally split `answerChecker.ts`.
+### Phase 4 — Bank quality & polish ✅ core DONE 2026-06-12
+- ✅ **D1 (Bucket A+B):** deleted 9 of the 12 broken traps (3 units-reminder, now
+  superseded by the grader's units handling; 6 `round(x±0.01)` rounding traps).
+  The `round(x±0.01)` anti-pattern is replaced by a **generic grader rounding
+  check** (off-by-one → reject w/ "check your rounding"; over-precise → accept w/
+  "round to N dp"; gated to 1–4 dp so inert on integers/irrationals). 3 broken
+  traps remain — the **Bucket C** set (`a653ffa7`, `3c72b3a4`, `5636b618`),
+  **left at the user's request for separate investigation.**
+- ✅ **D2:** added parameter constraints to the clean high-frequency colliders
+  (`cb37e981` k≠a; `b1f3d882` n≥2; `c179e489` a≥2, c≥3) → 0 collisions. Remaining
+  coincidental collisions are low-frequency / floor-truncation traps now
+  complemented by the grader rounding check; left as-is (user is relaxed on them).
+- ✅ **L6:** `buildOptions` dedupes by normalised value.
+- ✅ **`scripts/audit-bank.ts`** committed (render-sweep, trap classifier,
+  coverage, + unrounded-answer flag — found 0).
+- **Remaining (polish, optional):** ⑥ SVG text alternatives + icon-button labels;
+  ④ housekeeping (`git rm git`, archive one-off scripts).
 
 ### Phase 5 — Content build, exam-weighted _(from `05-exam-coverage.md`; this IS the Direction A on-ramp)_
 Ordering principle: marks of 2024 exam traffic per unit of authoring effort.

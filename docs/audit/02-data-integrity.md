@@ -43,6 +43,22 @@ re-parameterising:
 always vs sometimes), fix the 12 broken traps, re-parameterise the high-frequency
 coincidental ones, and add a guard so the `round(x±0.01)` pattern isn't reused.
 
+### RESOLVED 2026-06-12 (Phase 4)
+- **9 of 12 broken traps deleted** — 3 units-reminder (the grader's units handling
+  supersedes them) + 6 `round(x±0.01)` rounding traps. The `round(x±0.01)`
+  anti-pattern is **replaced by a generic grader rounding check** in
+  `answerChecker.ts` (off-by-one-in-last-place → reject with "check your rounding";
+  over-precise value → accept with "round to N dp"; gated to 1–4 dp). 3 broken
+  traps remain — `a653ffa7`, `3c72b3a4`, `5636b618` (**Bucket C**, left for the
+  user to investigate individually).
+- **D2:** parameter constraints added to the clean colliders (`cb37e981` k≠a,
+  `b1f3d882` n≥2, `c179e489` a≥2/c≥3) → 0 collisions. Low-frequency remainder
+  left as-is (user is relaxed; floor-truncation ones are now complemented by the
+  grader rounding check).
+- **The sweep script is now committed as `scripts/audit-bank.ts`** (render-sweep,
+  trap classifier, coverage, + an unrounded-numeric-answer flag → found 0).
+  Re-run after any authoring batch.
+
 ## ③ Coverage — 38 / 151 skills have no published question _(Medium, product)_
 Notable gaps (full list in script output): `areas_of_compound_shapes` (the draft
 we just gave a diagram is unpublished), `relative_frequency`,
