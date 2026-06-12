@@ -24,17 +24,17 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | SEC-CRIT-1 | ✅ FIXED | _(was Critical)_ student self-grant premium — table-level UPDATE REVOKE'd from anon+authenticated; verified `42501`. `20260611_lock_sensitive_columns.sql` applied |
 | SEC-CRIT-2 | ✅ FIXED | _(was Critical)_ teacher self-grant `is_admin` — same REVOKE; verified blocked |
 | SEC-2b | 🟠 Med | `student_sessions` "public update" policy `USING true` — anon can tamper any legacy assessment session (still open) |
-| S1 | 🔴 High | _(resolved into the above by Phase 0 introspection)_ — RLS posture still not in version control; capture full policy set as migrations (Half 2) |
-| S2 | 🟠 Med | Stripe webhook swallows entitlement-write failures; no idempotency; hardcoded expiries |
+| S1 | ✅ FIXED | RLS posture now in version control — `20260611_rls_baseline.sql` captures all policies (Half 2 done) |
+| S2 | ✅ FIXED | Webhook hardened — writes checked (500→retry), idempotency ledger, named expiries |
 | ③-test | 🟠 Med-High | 1 test file; paramEngine/entitlements/masteryEngine/results untested |
 | S3 | 🟠 Med | No rate limiting on public endpoints; 4-char codes brute-forceable |
-| L1 | 🟠 Med | Diagnostic can serve a multi-part question as single-part → unanswerable (confirmed reachable) |
+| L1 | ✅ FIXED | Multi-part questions excluded from diagnostic selection |
 | L2 | 🟠 Med | Prerequisite inference overrides direct needs_practice evidence on 1 correct answer (design ruling needed) |
 | D1 | 🟠 Med | 12 broken traps that never fire (feedback-quality, not mis-grading) |
 | E1 | 🟠 Med | 33 exam-tested skills with zero questions (~280 marks of 2024 traffic); 18 authorable today, rest blocked by app gaps — supersedes ②-cov with exam weighting |
 | E2 | 🟠 Med | ~40 heavy exam skills at one question (`simple_arithmetic` touches 75 marks); top skills overall at 1–3 (`proportion` 55→2, `ratio` 46→2) |
 | ④-lint | 🟡 Med | 131 lint errors in app/lib; not gated |
-| L3 | 🟡 Low-Med | `tryAgain` stale mastery window → wrong dots / possible false "Mastered!" celebration |
+| L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
 | L4 | 🟡 Low-Med | Multi-part question stuck when sole question in a drill pool ("Next" does nothing) |
 | L5 | 🟡 Low-Med | Practice/assignment attempt inserts fail silently (data loss invisible) |
 | S4 | 🟡 Low-Med | `report-question` service-role client at module scope |
@@ -51,26 +51,26 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 
 ## Phased plan
 
-### Phase 0 — Verify & capture the security baseline _(do first; mostly read-only)_
-- **Live RLS introspection** (read-only): dump `pg_policies`, `relrowsecurity`,
-  and column grants for the core tables. This either closes S1 or escalates it.
-- **Commit the current security posture as migrations** (RLS enable + policies +
-  REVOKEs) so there's a reviewable source of truth. _Code/migration only — no live
-  DB change; it documents what's already there._
-- Confirm `teachers.is_admin` is REVOKE-locked (closes the S5 dependency).
-- _Outcome: we actually know what's enforced, and it's in git._
+### Phase 0 — Verify & capture the security baseline ✅ DONE 2026-06-11 (tail: SEC-2b)
+- ✅ **Live RLS introspection** (behavioural probe + SQL-Editor `pg_policies`):
+  found two confirmed escalations (SEC-CRIT-1/2), now fixed & verified.
+- ✅ **Security posture committed as migrations** — `20260611_rls_baseline.sql`
+  (all policies) + `20260611_lock_sensitive_columns.sql` (the REVOKE fix). S1's
+  "only in the SQL Editor" gap is closed.
+- ✅ `teachers.is_admin` client UPDATE revoked (closes the S5 reachability path).
+- **Still open — SEC-2b:** re-scope the `student_sessions` public-update policy
+  (`USING true`). Needs design — that table is the anonymous typed-name model
+  with no `auth.uid()` to scope to.
 
-### Phase 1 — Lock the live escalations FIRST, then the money leak + bugs
-- ✅ **SEC-CRIT-1 / SEC-CRIT-2 — DONE 2026-06-11.** Table-level `REVOKE UPDATE` on
-  `students`/`teachers` from anon+authenticated applied & verified (`42501`).
-- **SEC-2b (still open):** re-scope the `student_sessions` public-update policy to
-  the owning session.
-- S2: check every webhook write, return 500 on failure (so Stripe retries); add an
-  idempotency guard on `event.id`; replace hardcoded expiries with config.
-- Add a test for the entitlement grant/renew/cancel paths.
-- **L1**: exclude multi-part questions from diagnostic selection (one-line filter;
-  a student can hit an unanswerable question today).
-- **L3**: fix the stale mastery window in `tryAgain` (false-celebration bug).
+### Phase 1 — Money leak + live student-facing bugs ✅ core DONE 2026-06-11
+- ✅ **S2 — webhook hardened.** Every entitlement write returns 500 on failure
+  (Stripe retries); idempotency ledger (`stripe_events`, graceful-degrade);
+  expiries lifted to named constants. _Migration `20260611_stripe_events.sql`
+  staged (optional — code degrades without it)._
+- ✅ **L1** — multi-part questions excluded from diagnostic selection.
+- ✅ **L3** — stale mastery window in `tryAgain` fixed (no false celebration).
+- **Remaining:** add a test for the entitlement grant/renew/cancel paths
+  (rolls into Phase 2).
 
 ### Phase 2 — Build the safety net _(unblocks everything after)_
 - Characterisation tests for `paramEngine`, `entitlements`, `masteryEngine`,
