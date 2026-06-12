@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   calculateMastery, inferPrerequisiteMastery, getAccessibleSkillIds,
-  getNeedsPracticeSkillIds, getWeightedSkillPool,
+  getNeedsPracticeSkillIds, getWeightedSkillPool, applyPrerequisiteCredit,
 } from './masteryEngine'
 
 // Helper to build attempts with increasing timestamps (oldest first).
@@ -86,6 +86,44 @@ describe('inferPrerequisiteMastery', () => {
     ])
     const out = inferPrerequisiteMastery(base, tree)
     expect(out.mid.inferred).toBeUndefined() // stayed real-mastered, not flagged inferred
+  })
+})
+
+describe('applyPrerequisiteCredit (practice-context, L2)', () => {
+  const prereqs: Record<string, string[]> = { hard: ['mid', 'easy'], mid: ['easy'], easy: [] }
+  const tree = (id: string) => prereqs[id] ?? []
+  const mastery = (attempts: any[]) => calculateMastery(applyPrerequisiteCredit(attempts, tree))
+
+  it('does nothing when there are no correct answers', () => {
+    const attempts = [at(['hard'], false)]
+    expect(applyPrerequisiteCredit(attempts, tree)).toBe(attempts) // same array
+  })
+
+  it('credits an UNTESTED prerequisite to in_progress only (3 of 5), never mastered', () => {
+    const m = mastery([at(['hard'], true)])
+    expect(m.mid.status).toBe('in_progress')
+    expect(m.mid.recentCorrect).toBe(3)
+    expect(m.easy.status).toBe('in_progress')
+  })
+
+  it('blends with a struggling prerequisite rather than overriding it', () => {
+    // easy has a real history of 1/5 (needs_practice). A correct `hard` adds 3
+    // synthetic correct as the most-recent slots → window 4/5 → mastered.
+    const m = mastery([
+      at(['easy'], false), at(['easy'], false), at(['easy'], false), at(['easy'], false), at(['easy'], true),
+      at(['hard'], true),
+    ])
+    expect(m.easy.status).toBe('mastered')
+  })
+
+  it('does NOT rescue a prerequisite the student keeps getting wrong recently', () => {
+    // easy: 5 recent wrong (after the hard credit, window = 3 synth-correct + 2
+    // most-recent real wrong = 3/5 → not mastered). Direct struggle is respected.
+    const m = mastery([
+      at(['easy'], false), at(['easy'], false), at(['easy'], false), at(['easy'], false), at(['easy'], false),
+      at(['hard'], true),
+    ])
+    expect(m.easy.status).not.toBe('mastered')
   })
 })
 

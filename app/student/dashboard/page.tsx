@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut, primeStudentIdCache } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
-import { calculateMastery, inferPrerequisiteMastery, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
+import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
 import { skills } from '../../../data/skills'
@@ -114,8 +114,10 @@ export default function StudentDashboardPage() {
         setStreak(computeStreak(attempts))
         setProgressSeries(buildProgressSeries(attempts, getPrerequisiteTree))
 
-        const masteryMap = calculateMastery(attempts)
-        const augmented = inferPrerequisiteMastery(masteryMap, getPrerequisiteTree)
+        // Practice-context inference: credit each prerequisite 3 attempts-worth
+        // and let the 5-attempt window blend it with real evidence (audit L2).
+        // The diagnostic still uses the stronger binary inferPrerequisiteMastery.
+        const augmented = calculateMastery(applyPrerequisiteCredit(attempts, getPrerequisiteTree))
 
         setMasteredCount(Object.values(augmented).filter(m => m.status === 'mastered').length)
         setNeedsPracticeCount(Object.values(augmented).filter(m => m.status === 'needs_practice').length)

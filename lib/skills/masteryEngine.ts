@@ -114,6 +114,62 @@ export function inferPrerequisiteMastery(
 }
 
 /**
+ * Practice-context prerequisite inference (audit L2 — the user's ruling).
+ *
+ * When a student answers a skill correctly, each of its transitive prerequisites
+ * is credited with `creditPerPrerequisite` synthetic correct attempts ("3 answers
+ * worth of mastery"), timestamped after every real attempt so they occupy the
+ * most-recent slots of the 5-attempt window. Feed the result through
+ * calculateMastery.
+ *
+ * Unlike the DIAGNOSTIC's binary `inferPrerequisiteMastery` (which marks every
+ * prerequisite mastered outright), this BLENDS with the prerequisite's real
+ * history rather than overriding it:
+ *   - a prerequisite the student has directly struggled with is not instantly
+ *     mastered — the 3 credits combine with its real recent attempts;
+ *   - an untested prerequisite reaches only `in_progress` (3 of the 5 needed),
+ *     never `mastered`, from inference alone.
+ * The diagnostic keeps the stronger binary inference; ongoing practice uses this.
+ */
+export function applyPrerequisiteCredit(
+  attempts: Attempt[],
+  getTransitivePrerequisites: (skillId: string) => string[],
+  creditPerPrerequisite = 3,
+): Attempt[] {
+  const demonstrated = new Set<string>()
+  let latestMs = 0
+  for (const a of attempts) {
+    const t = new Date(a.attempted_at).getTime()
+    if (Number.isFinite(t) && t > latestMs) latestMs = t
+    // A correct answer (any kind) demonstrates each tagged skill.
+    if (a.correct) for (const s of a.skill_ids) demonstrated.add(s)
+  }
+  if (demonstrated.size === 0) return attempts
+
+  // Each transitive prerequisite of a demonstrated skill is credited once.
+  const credited = new Set<string>()
+  for (const skillId of demonstrated) {
+    for (const prereq of getTransitivePrerequisites(skillId)) credited.add(prereq)
+  }
+  if (credited.size === 0) return attempts
+
+  const synthetic: Attempt[] = []
+  let ts = latestMs
+  for (const prereqId of credited) {
+    for (let i = 0; i < creditPerPrerequisite; i++) {
+      ts += 1000
+      synthetic.push({
+        skill_ids: [prereqId],
+        correct: true,
+        attempted_at: new Date(ts).toISOString(),
+        kind: 'mastery',
+      })
+    }
+  }
+  return [...attempts, ...synthetic]
+}
+
+/**
  * Filters a list of skill IDs to those whose full prerequisite tree is either
  * mastered or in_progress (i.e. the student has engaged with them without being
  * blocked). Skills whose prerequisites are untested or needs_practice are

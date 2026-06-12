@@ -1,4 +1,4 @@
-import { calculateMastery, inferPrerequisiteMastery } from './masteryEngine'
+import { calculateMastery, applyPrerequisiteCredit } from './masteryEngine'
 
 // Turns a flat list of practice attempts into a time-bucketed series for the
 // dashboard "Progress over time" chart. For each bucket boundary we replay the
@@ -89,7 +89,7 @@ export function buildProgressSeries(
     })
     prevBoundaryMs = boundaryMs
 
-    const mastery = inferPrerequisiteMastery(calculateMastery(upToHere), getPrerequisiteTree)
+    const mastery = calculateMastery(applyPrerequisiteCredit(upToHere, getPrerequisiteTree))
     const mastered = Object.values(mastery).filter(m => m.status === 'mastered').length
 
     const correct = upToHere.filter(a => a.correct).length
