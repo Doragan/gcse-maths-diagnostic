@@ -167,13 +167,23 @@ export default function StudentDiagnosticPage() {
     // before running the impact-scored selection. Without this step, the selector
     // picks from the full curriculum and most chosen skills silently have no
     // questions, leaving the diagnostic short.
-    const { data: allQuestions } = await supabase
+    const { data: allQuestionsRaw } = await supabase
       .from('questions')
       .select('*')
       .eq('is_published', true)
       .overlaps('skill_ids', tierSkillIds)
 
-    if (!allQuestions || allQuestions.length === 0) {
+    // The diagnostic serves ONE question per skill through the single-part
+    // renderer (renderQuestion against q.answer_template). A multi-part question
+    // (parts jsonb) has an empty top-level answer_template, so it would render
+    // with no correct answer and every response would be graded wrong. Exclude
+    // them here — the practice flow handles parts properly; the diagnostic does
+    // not. (audit L1)
+    const allQuestions = (allQuestionsRaw ?? []).filter(
+      q => !(Array.isArray(q.parts) && q.parts.length > 0)
+    )
+
+    if (allQuestions.length === 0) {
       router.push('/practice')
       return
     }

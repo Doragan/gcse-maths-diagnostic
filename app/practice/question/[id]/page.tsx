@@ -567,6 +567,15 @@ function QuestionPage() {
 
   function tryAgain() {
     if (!question) return
+    // Fold the attempt the student just made into the prior-attempts window
+    // before clearing feedback. recordAttempt() already wrote it to the DB;
+    // without this, tryAgain leaves priorSkillAttempts stale (it's only
+    // refetched on a question-id change), so the mastery dots and detectMastery
+    // recompute over a window missing that attempt → wrong dots and a possible
+    // false "Skill mastered!" celebration on the next answer. (audit L3)
+    if (feedback && question.skill_ids.length > 0) {
+      setPriorSkillAttempts(prev => [{ correct: feedback.correct }, ...prev].slice(0, 5))
+    }
     setAnswer('')
     setFeedback(null)
     const r = renderQuestion(
