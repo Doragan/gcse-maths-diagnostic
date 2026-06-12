@@ -3,11 +3,6 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { skills } from '../../../data/skills'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 const ISSUE_LABELS: Record<string, string> = {
   wrong_answer:    'Wrong answer',
   unclear_wording: 'Confusing wording',
@@ -35,6 +30,13 @@ export async function POST(req: NextRequest) {
     if (!questionId || !issueType) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
+
+    // Instantiate the admin client per-request (not at module scope) so a missing
+    // key can't throw during the production build's page-data collection. (S4)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
 
     // ── 1. Record in analytics_events ─────────────────────────────────────────
     await supabase.from('analytics_events').insert({
