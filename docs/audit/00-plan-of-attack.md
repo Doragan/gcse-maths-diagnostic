@@ -38,7 +38,7 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | L4 | ✅ FIXED | Multi-part drill question remounts via a reparam nonce ("Next" now re-serves it) |
 | L5 | ✅ FIXED | Attempt inserts (practice/assignment/part) now check `.error` and log |
 | S4 | ✅ FIXED | `report-question` service-role client moved into the handler (was breaking the CI build — the exact footgun S4 predicted) |
-| S5 | 🟡 Low-Med | Admin template = client code-exec on students (by design; now hinges on the verified `is_admin` lock). Optional: add a CSP |
+| S5 | 🟡 Deferred | Admin template = client code-exec (escalation path closed by the `is_admin` lock). CSP deferred — needs browser-tested rollout + can't bound `new Function`; see Phase 3 |
 | ⑤-n+1 | ✅ FIXED | Assignment results route batches target resolution into two `in` queries |
 | D2 | 🟡 Low | 47 coincidental trap collisions |
 | L6 | 🟡 Low | MC options not value-deduped (duplicate options possible) |
@@ -86,15 +86,27 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
   revenue webhook for testability adds churn risk to the money path. Revisit if
   the webhook changes again.
 
-**→ Phase 2 complete. Next: Phase 3 (harden the edges).**
+**→ Phase 2 complete.**
 
-### Phase 3 — Harden the edges
-- S3 rate limiting (public email + lookup routes) + consider longer codes.
-- ✅ **S4 DONE** (pulled forward — CI surfaced it): `report-question` client moved
-  into the handler. S6 explicit ruling; S5 add a CSP.
-- ⑤ batch the N+1 results query.
-- L5 surface attempt-insert failures; L7 client-side `student_id` filter;
-  L8 published check for non-admins; L4 multi-part remount nonce.
+### Phase 3 — Harden the edges ✅ DONE 2026-06-12 (S5 a documented deferral)
+- ✅ **S3** — Upstash rate limiting on the 4 public endpoints (graceful degrade).
+- ✅ **S4** — `report-question` client moved into the handler (CI surfaced it).
+- ✅ **S6** — deleted the dead unauthenticated `/api/diagnostic` route.
+- ✅ **SEC-2b** — `student_sessions` UPDATE gated on `completed_at IS NULL`.
+- ✅ **⑤** — assignment results route batched (no more N+1).
+- ✅ **L2** — practice-context prerequisite credit (3 attempts-worth, blends).
+- ✅ **L4 / L5 / L7 / L8** — multi-part remount; attempt-insert error logging;
+  explicit `student_id` filter; L8 resolved-by-RLS.
+- **S5 — DEFERRED (documented).** A CSP can't strictly bound the core risk: the
+  param engine relies on client-side `new Function`, so `script-src` must keep
+  `'unsafe-eval'`. A CSP would still block inline event-handler XSS (the real
+  admin-HTML vector) — worth having as defence-in-depth — but the escalation path
+  is **already closed** (S1 locked `is_admin`, so only a deliberately-granted
+  admin can author), and a correct CSP needs `'unsafe-inline'` styles + every
+  external origin (Supabase, GA, jsdelivr/KaTeX, Stripe, Upstash) and
+  **browser-testing of every page** to avoid breaking the live site. Shipping it
+  blind is riskier than the low-probability threat it mitigates. Do it as its own
+  browser-tested task (consider `Content-Security-Policy-Report-Only` first).
 - **L2 design ruling**: how much should one correct answer on a dependent skill
   override direct needs_practice evidence on its prerequisites?
 
