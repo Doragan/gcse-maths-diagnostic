@@ -173,6 +173,11 @@ function QuestionPage() {
     totalInWindow: number
   }>>({})
   const [showSessionSummary, setShowSessionSummary] = useState(false)
+  // Bumped when re-serving the CURRENT question with fresh params. The MultiPart
+  // component is keyed on it so it remounts (its render useMemo keys on the
+  // question id, which doesn't change on a reparametrise). Without this, "Next
+  // question" on a sole multi-part drill question silently does nothing. (audit L4)
+  const [reparamNonce, setReparamNonce] = useState(0)
 
   // The question we've already prefetched (route + data warmed) for instant Next.
   const nextPick = useRef<string | null>(null)
@@ -349,7 +354,7 @@ function QuestionPage() {
     if (!studentId) return
 
     // Always record to practice_attempts for mastery / skill tracking.
-    await supabase
+    const { error: paError } = await supabase
       .from('practice_attempts')
       .insert({
         student_id: studentId,
@@ -358,12 +363,13 @@ function QuestionPage() {
         correct,
         kind: question.kind ?? 'mastery',
       })
+    if (paError) console.error('Failed to record practice attempt:', paError.message) // audit L5
 
     // If this question is part of an assignment, also record it there.
     // The teacher can read assignment_attempts (class-context work); they cannot
     // read private practice_attempts (engagement-vs-detail boundary).
     if (assignmentId) {
-      await supabase
+      const { error: aaError } = await supabase
         .from('assignment_attempts')
         .insert({
           assignment_id: assignmentId,
@@ -371,6 +377,7 @@ function QuestionPage() {
           question_id:   question.id,
           correct,
         })
+      if (aaError) console.error('Failed to record assignment attempt:', aaError.message) // audit L5
     }
   }
 
@@ -539,6 +546,9 @@ function QuestionPage() {
   // refreshes the mastery window (the id-keyed effect won't refire on same id).
   async function reparametriseCurrent() {
     if (!question) { router.push('/practice'); return }
+    // Remount a multi-part question (keyed on this nonce) so it re-renders with
+    // fresh params; harmless no-op for the single-part path below. (audit L4)
+    setReparamNonce(n => n + 1)
     setAnswer('')
     setFeedback(null)
     setNewlyMasteredSkill(null)
@@ -616,6 +626,7 @@ function QuestionPage() {
   if (question.parts && question.parts.length > 0) {
     return (
       <MultiPartQuestion
+        key={`${question.id}-${reparamNonce}`}
         question={{
           id: question.id,
           skill_ids: question.skill_ids,

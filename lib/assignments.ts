@@ -141,10 +141,15 @@ export async function getStudentAssignments(): Promise<Assignment[]> {
 
 /** Returns this student's attempts for a given assignment. */
 export async function getMyAttempts(assignmentId: string): Promise<AssignmentAttempt[]> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+  // Scope to the caller's own rows explicitly (defence-in-depth — RLS already
+  // enforces auth.uid() = student_id, but don't rely on it alone). (audit L7)
   const { data } = await supabase
     .from('assignment_attempts')
     .select('*')
     .eq('assignment_id', assignmentId)
+    .eq('student_id', user.id)
     .order('attempted_at', { ascending: true })
   return (data ?? []) as AssignmentAttempt[]
 }
@@ -163,10 +168,12 @@ export async function recordAssignmentAttempt(params: {
 }): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return // anonymous — can't record
-  await supabase.from('assignment_attempts').insert({
+  const { error } = await supabase.from('assignment_attempts').insert({
     assignment_id: params.assignmentId,
     student_id:    user.id,
     question_id:   params.questionId,
     correct:       params.correct,
   })
+  // Don't fail the UI on a lost write, but surface it (audit L5).
+  if (error) console.error('Failed to record assignment attempt:', error.message)
 }

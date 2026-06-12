@@ -79,25 +79,27 @@ export default function MultiPartQuestion({
 
     // One practice_attempts row per PART, carrying that part's own skill_ids
     // and kind — this is the unit of attribution the mastery engine consumes.
-    await supabase.from('practice_attempts').insert({
+    const { error } = await supabase.from('practice_attempts').insert({
       student_id: studentId,
       question_id: question.id,
       skill_ids: part.skill_ids,
       correct,
       kind: part.kind ?? 'mastery',
     })
+    if (error) console.error('Failed to record part attempt:', error.message) // audit L5
   }
 
   async function recordAssignmentRollup(allCorrect: boolean) {
     // Assignment attempts are keyed by question_id, so a multi-part question
     // contributes one row recorded when the final part is answered.
     if (!assignmentId || !studentId) return
-    await supabase.from('assignment_attempts').insert({
+    const { error } = await supabase.from('assignment_attempts').insert({
       assignment_id: assignmentId,
       student_id: studentId,
       question_id: question.id,
       correct: allCorrect,
     })
+    if (error) console.error('Failed to record assignment rollup:', error.message) // audit L5
   }
 
   function submit() {

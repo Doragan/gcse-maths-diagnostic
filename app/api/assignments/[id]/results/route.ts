@@ -45,35 +45,43 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .eq('assignment_id', id)
 
     // Resolve targets → student info map (dedup so a student targeted both
-    // directly and via a class appears only once)
+    // directly and via a class appears only once). Batched into two `in`
+    // queries instead of one query per target (audit ⑤ — was N+1).
     const studentMap = new Map<string, { display_name: string; year_group: string | null }>()
+    const classIds         = (targets ?? []).filter(t => t.class_id).map(t => t.class_id)
+    const directStudentIds = (targets ?? []).filter(t => t.student_id && !t.class_id).map(t => t.student_id)
 
-    for (const target of targets ?? []) {
-      if (target.class_id) {
-        const { data: members } = await service
-          .from('class_memberships')
-          .select('student_id, students(display_name, year_group)')
-          .eq('class_id', target.class_id)
-          .eq('status', 'active')
-        for (const m of members ?? []) {
-          if (!studentMap.has(m.student_id)) {
-            const s = (m as any).students
-            studentMap.set(m.student_id, {
-              display_name: s?.display_name ?? 'Unknown',
-              year_group:   s?.year_group   ?? null,
-            })
-          }
+    // All members of all targeted classes, one query.
+    if (classIds.length > 0) {
+      const { data: members } = await service
+        .from('class_memberships')
+        .select('student_id, students(display_name, year_group)')
+        .in('class_id', classIds)
+        .eq('status', 'active')
+      for (const m of members ?? []) {
+        if (!studentMap.has(m.student_id)) {
+          const s = (m as any).students
+          studentMap.set(m.student_id, {
+            display_name: s?.display_name ?? 'Unknown',
+            year_group:   s?.year_group   ?? null,
+          })
         }
-      } else if (target.student_id && !studentMap.has(target.student_id)) {
-        const { data: s } = await service
-          .from('students')
-          .select('display_name, year_group')
-          .eq('id', target.student_id)
-          .single()
-        studentMap.set(target.student_id, {
-          display_name: s?.display_name ?? 'Unknown',
-          year_group:   s?.year_group   ?? null,
-        })
+      }
+    }
+
+    // All directly-targeted students, one query.
+    if (directStudentIds.length > 0) {
+      const { data: directStudents } = await service
+        .from('students')
+        .select('id, display_name, year_group')
+        .in('id', directStudentIds)
+      for (const s of directStudents ?? []) {
+        if (!studentMap.has(s.id)) {
+          studentMap.set(s.id, {
+            display_name: s.display_name ?? 'Unknown',
+            year_group:   s.year_group   ?? null,
+          })
+        }
       }
     }
 
