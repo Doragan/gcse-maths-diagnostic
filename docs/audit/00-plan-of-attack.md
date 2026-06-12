@@ -37,7 +37,7 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
 | L4 | 🟡 Low-Med | Multi-part question stuck when sole question in a drill pool ("Next" does nothing) |
 | L5 | 🟡 Low-Med | Practice/assignment attempt inserts fail silently (data loss invisible) |
-| S4 | 🟡 Low-Med | `report-question` service-role client at module scope |
+| S4 | ✅ FIXED | `report-question` service-role client moved into the handler (was breaking the CI build — the exact footgun S4 predicted) |
 | S5 | 🟡 Low-Med | Admin template = client code-exec on students (by design; hinges on S1) |
 | ⑤-n+1 | 🟡 Low-Med | N+1 in assignments results route |
 | D2 | 🟡 Low | 47 coincidental trap collisions |
@@ -90,7 +90,8 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 
 ### Phase 3 — Harden the edges
 - S3 rate limiting (public email + lookup routes) + consider longer codes.
-- S4 module-scope client refactor; S6 explicit ruling; S5 add a CSP.
+- ✅ **S4 DONE** (pulled forward — CI surfaced it): `report-question` client moved
+  into the handler. S6 explicit ruling; S5 add a CSP.
 - ⑤ batch the N+1 results query.
 - L5 surface attempt-insert failures; L7 client-side `student_id` filter;
   L8 published check for non-admins; L4 multi-part remount nonce.
