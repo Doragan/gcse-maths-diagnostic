@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useCallback, useRef } from 'react'
 import {
   colors, radius, font,
@@ -594,11 +595,11 @@ export default function DemoMarkingPage() {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <a href="/" style={{
+          <Link href="/" style={{
             width: 36, height: 36, borderRadius: radius.md, background: colors.primary, color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 800, fontSize: font.xl, letterSpacing: -1, textDecoration: 'none', flexShrink: 0,
-          }}>M</a>
+          }}>M</Link>
           <div>
             <h1 style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary }}>
               Assessment Marking Tool
@@ -606,9 +607,9 @@ export default function DemoMarkingPage() {
             <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>{SUBTITLE}</p>
           </div>
         </div>
-        <a href="/" style={{
+        <Link href="/" style={{
           fontSize: font.base, color: colors.primary, textDecoration: 'none', fontWeight: '600',
-        }}>← Back to Mathsense</a>
+        }}>← Back to Mathsense</Link>
       </header>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px 64px' }}>

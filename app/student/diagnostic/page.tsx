@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { getStudentProfile } from '../../../lib/auth'
@@ -328,9 +329,9 @@ export default function StudentDiagnosticPage() {
     return (
       <main style={styles.page}>
         <div style={{ textAlign: 'center' as const }}>
-          <a href="/" style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, textDecoration: 'none', letterSpacing: '-0.02em' }}>
+          <Link href="/" style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, textDecoration: 'none', letterSpacing: '-0.02em' }}>
             Mathsense
-          </a>
+          </Link>
         </div>
 
         <div style={card}>

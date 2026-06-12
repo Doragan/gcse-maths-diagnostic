@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Header from "@/components/Header";
 
 export default function AboutPage() {
@@ -12,7 +13,7 @@ export default function AboutPage() {
 		marginBottom: "24px",
 	  }}
 	>
-	  <a
+	  <Link
 		href="/"
 		style={{
 		  textDecoration: "none",
@@ -22,7 +23,7 @@ export default function AboutPage() {
 		}}
 	  >
 		Mathsense
-	  </a>
+	  </Link>
 	</header>
 	
     <main

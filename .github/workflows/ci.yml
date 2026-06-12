@@ -35,10 +35,9 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
           NEXT_PUBLIC_SITE_URL: https://example.test
 
-      # ── Non-blocking until the lint backlog is triaged (audit ④-lint) ───────
-      # ~146 errors, mostly no-explicit-any and largely in scripts/. Reported
-      # for visibility; flip `continue-on-error` to false once triaged to make
-      # lint a hard gate too.
-      - name: Lint (report only)
+      # ── Blocking: lint triaged to 0 errors (audit ④-lint). Pragmatic rules
+      # (no-explicit-any, no-unused-vars, the React-Compiler hooks family) are
+      # WARNINGS — visible, non-failing — for incremental cleanup; genuine
+      # errors (rules-of-hooks, no-html-link-for-pages, parse errors) block.
+      - name: Lint
         run: npm run lint
-        continue-on-error: true
