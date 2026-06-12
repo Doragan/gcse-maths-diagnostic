@@ -35,15 +35,15 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | E2 | 🟠 Med | ~40 heavy exam skills at one question (`simple_arithmetic` touches 75 marks); top skills overall at 1–3 (`proportion` 55→2, `ratio` 46→2) |
 | ④-lint | ✅ DONE | 146 → 0 errors; pragmatic rules → warnings; CI lint now blocking |
 | L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
-| L4 | 🟡 Low-Med | Multi-part question stuck when sole question in a drill pool ("Next" does nothing) |
-| L5 | 🟡 Low-Med | Practice/assignment attempt inserts fail silently (data loss invisible) |
+| L4 | ✅ FIXED | Multi-part drill question remounts via a reparam nonce ("Next" now re-serves it) |
+| L5 | ✅ FIXED | Attempt inserts (practice/assignment/part) now check `.error` and log |
 | S4 | ✅ FIXED | `report-question` service-role client moved into the handler (was breaking the CI build — the exact footgun S4 predicted) |
-| S5 | 🟡 Low-Med | Admin template = client code-exec on students (by design; hinges on S1) |
-| ⑤-n+1 | 🟡 Low-Med | N+1 in assignments results route |
+| S5 | 🟡 Low-Med | Admin template = client code-exec on students (by design; now hinges on the verified `is_admin` lock). Optional: add a CSP |
+| ⑤-n+1 | ✅ FIXED | Assignment results route batches target resolution into two `in` queries |
 | D2 | 🟡 Low | 47 coincidental trap collisions |
 | L6 | 🟡 Low | MC options not value-deduped (duplicate options possible) |
-| L7 | 🟡 Low | `getMyAttempts` scoping relies entirely on unverified RLS |
-| L8 | 🟡 Low | Practice page fetches drafts by id; visibility depends on RLS (ties to S1) |
+| L7 | ✅ FIXED | `getMyAttempts` adds an explicit `student_id` filter (defence-in-depth) |
+| L8 | ✅ RESOLVED | Phase 0 verified RLS: `questions: public read published` (`is_published = true`) already hides drafts from non-admins — no client filter needed |
 | S6 | 🟡 Low | `diagnostic` trusts client-held session |
 | ⑥-a11y | 🟡 Low | Question SVGs `aria-hidden`, no text alternative |
 | ④-junk | 🟡 Low | Empty `git` file committed; scripts sprawl; root one-offs |
