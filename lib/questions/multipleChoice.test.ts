@@ -27,6 +27,12 @@ describe('buildOptions — derived distractors', () => {
     expect(opts).toContain('10')
     expect(new Set(opts).size).toBe(4) // all distinct
   })
+  it('dedupes options that are value-equal but differently formatted (L6)', () => {
+    // A trap that renders equal-in-value to the answer must not appear twice.
+    const opts = buildOptions('12', [{ answer: '12' }, { answer: '7' }, { answer: '12 ' }], null)
+    const values = opts.map(o => o.trim())
+    expect(values.filter(v => v === '12')).toHaveLength(1)
+  })
 })
 
 describe('cleanMcOptions', () => {

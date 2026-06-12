@@ -235,6 +235,50 @@ describe('units handling (exact / expression)', () => {
   })
 })
 
+describe('rounding feedback (numeric, Bucket B)', () => {
+  it('rejects a one-place-out answer with a rounding hint', () => {
+    const r = check('157.07', '157.08', 'numeric', 0)
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/rounded/i)
+  })
+  it('also catches one-place-out on the high side', () => {
+    expect(check('157.09', '157.08', 'numeric', 0).correct).toBe(false)
+  })
+  it('accepts the full unrounded value with a "round to N dp" reminder', () => {
+    const r = check('157.0796', '157.08', 'numeric', 0)
+    expect(r.correct).toBe(true)
+    expect(r.message).toMatch(/2 decimal places/i)
+  })
+  it('uses singular "place" for 1 dp', () => {
+    const r = check('3.14159', '3.1', 'numeric', 0)
+    expect(r.correct).toBe(true)
+    expect(r.message).toMatch(/1 decimal place\b/)
+  })
+  it('does not fire on integer answers', () => {
+    const r = check('41', '42', 'numeric', 0)
+    expect(r.correct).toBe(false)
+    expect(r.message).not.toMatch(/rounded/i)
+    expect(r.message).toMatch(/correct answer is 42/i)
+  })
+  it('stays inert on an irrational/over-precise canonical (dp > 4)', () => {
+    // A near-miss against a 6-dp canonical is just wrong, no rounding hint.
+    const r = check('3.141500', '3.141593', 'numeric', 0)
+    expect(r.correct).toBe(false)
+    expect(r.message).not.toMatch(/rounded/i)
+  })
+  it('a genuine miss bigger than one place is plain wrong', () => {
+    const r = check('150.00', '157.08', 'numeric', 0)
+    expect(r.message).not.toMatch(/rounded/i)
+  })
+  it('never overrides a within-tolerance answer', () => {
+    expect(check('157.07', '157.08', 'numeric', 0.5).correct).toBe(true) // tol covers it
+  })
+  it('an authored trap still wins over the rounding hint', () => {
+    const r = check('157.07', '157.08', 'numeric', 0, [{ answer: '157.07', response: 'You truncated.' }])
+    expect(r.trap?.response).toBe('You truncated.')
+  })
+})
+
 describe('inequality equivalence', () => {
   it('matches identical inequalities', () => {
     expect(check('x≤-3/5', 'x≤-3/5', 'expression').correct).toBe(true)

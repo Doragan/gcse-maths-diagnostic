@@ -1,4 +1,21 @@
 import { evaluateTemplate } from './paramEngine'
+import { normalise } from './answerChecker'
+
+/**
+ * Dedupe options by NORMALISED value, preserving first-seen order (audit L6).
+ * Stops two options that are value-equal but differ in format/whitespace (or a
+ * trap that coincides with the answer on some draw) appearing as "duplicate"
+ * choices. The correct answer is passed first, so it always survives.
+ */
+function dedupeByValue(opts: string[]): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const o of opts) {
+    const key = normalise(o)
+    if (!seen.has(key)) { seen.add(key); out.push(o) }
+  }
+  return out
+}
 
 /**
  * Produce the option list for a multiple-choice question.
@@ -18,22 +35,22 @@ export function buildOptions(
   explicit?: string[] | null
 ): string[] {
   if (explicit && explicit.length >= 2) {
-    const opts = explicit.includes(correct) ? [...explicit] : [correct, ...explicit]
-    return shuffle(opts)
+    const hasCorrect = explicit.some(o => normalise(o) === normalise(correct))
+    const opts = hasCorrect ? explicit : [correct, ...explicit]
+    return shuffle(dedupeByValue(opts))
   }
 
-  const trapAnswers = traps
-    .map(t => t.answer)
-    .filter(a => a !== correct)
+  // Correct first, then traps — deduped by value so a trap equal to the answer
+  // (or to another trap) can't show up twice.
+  const options = dedupeByValue([correct, ...traps.map(t => t.answer)])
 
-  const options = [correct, ...trapAnswers]
-
-  // Pad to 4 if needed
+  // Pad to 4 if needed, skipping any padding value that duplicates an existing one.
   if (options.length < 4) {
-    const padding = generatePadding(correct, options)
-    for (const p of padding) {
+    const seen = new Set(options.map(normalise))
+    for (const p of generatePadding(correct, options)) {
       if (options.length >= 4) break
-      if (!options.includes(p)) options.push(p)
+      const key = normalise(p)
+      if (!seen.has(key)) { seen.add(key); options.push(p) }
     }
   }
 

@@ -232,7 +232,7 @@ function containsUnits(text: string): boolean {
 
 // ── Answer normalisation ──────────────────────────────────────────────────────
 
-function normalise(value: string): string {
+export function normalise(value: string): string {
   return value
     .trim()
     .toLowerCase()
@@ -306,6 +306,46 @@ function numericMatch(
   const correct  = extractNumber(correctAnswer)
   if (isNaN(student) || isNaN(correct)) return false
   return Math.abs(student - correct) <= tolerance
+}
+
+// ── Rounding-mistake detection (audit Bucket B) ───────────────────────────────
+// Replaces the fragile per-question `round(x±0.01)` traps with one generic check.
+
+/** Decimal places in a rendered answer's FIRST number ("157.08 cm³" → 2, "157" → 0). */
+function decimalPlaces(s: string): number {
+  const m = s.match(/-?\d+(?:\.(\d+))?/)
+  return m && m[1] ? m[1].length : 0
+}
+
+type RoundingRelation = 'unrounded' | 'off_by_one' | 'none'
+
+/**
+ * Classify a numeric near-miss against a canonical answer rounded to 1–4 dp.
+ * Only meaningful once the value has already FAILED the tolerance check, so it
+ * never overrides a correct answer — it only refines the feedback on a value
+ * that already missed:
+ *   - 'unrounded'  — the student value rounds to the canonical (gave the full /
+ *                    over-precise value).
+ *   - 'off_by_one' — rounded to the canonical's places, the student value is
+ *                    exactly one unit out (rounded the wrong way / truncated).
+ * Returns 'none' for integers (dp 0), irrational/over-precise canonicals (dp > 4,
+ * e.g. an unrounded π·r²), or misses bigger than one place. The dp gate is what
+ * keeps it inert on irrational answers — their last-place unit is microscopic.
+ */
+function roundingRelation(studentStr: string, correctStr: string): { rel: RoundingRelation; dp: number } {
+  const dp = decimalPlaces(correctStr)
+  if (dp < 1 || dp > 4) return { rel: 'none', dp }
+  const s = extractNumber(studentStr)
+  const c = extractNumber(correctStr)
+  if (isNaN(s) || isNaN(c)) return { rel: 'none', dp }
+  const u = Math.pow(10, -dp)
+  const factor = Math.pow(10, dp)
+  const roundedS = Math.round(s * factor) / factor
+  if (Math.abs(roundedS - c) < u / 2) {
+    return { rel: s === c ? 'none' : 'unrounded', dp }
+  }
+  const k = Math.round((roundedS - c) / u)
+  return { rel: Math.abs(k) === 1 ? 'off_by_one' : 'none', dp }
 }
 
 // ── Fraction parsing ──────────────────────────────────────────────────────────
@@ -457,6 +497,12 @@ const UNITS_REMINDER =
 const SIMPLIFICATION_REMINDER =
   'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
 
+const ROUNDING_REMINDER = (dp: number) =>
+  `Correct — but remember to round your answer to ${dp} decimal place${dp === 1 ? '' : 's'}.`
+
+const ROUNDING_ERROR =
+  'Not quite — your answer is one out in the last decimal place. Check which way you rounded.'
+
 export function checkAnswer(
   studentAnswer: string,
   correctAnswer: string,
@@ -538,6 +584,19 @@ export function checkAnswer(
               : missingUnits   ? UNITS_REMINDER
               : 'Correct!',
     }
+  }
+
+  // Numeric rounding feedback (audit Bucket B). Computed only now — we're past
+  // the `isCorrect` return, so this never marks a correct answer wrong; it only
+  // refines the message on a value that already missed the tolerance. A student
+  // who gave the full / over-precise value (rounds to the canonical) is accepted
+  // with a "round to N dp" nudge; the one-place-out case is handled after traps.
+  const rounding = answerType === 'numeric'
+    ? roundingRelation(studentAnswer, correctAnswer)
+    : { rel: 'none' as RoundingRelation, dp: 0 }
+
+  if (rounding.rel === 'unrounded') {
+    return { correct: true, trap: null, message: ROUNDING_REMINDER(rounding.dp) }
   }
 
   // For non-numeric answer types the main comparison includes units, so any
@@ -626,6 +685,11 @@ export function checkAnswer(
         return { correct: false, trap, message: trap.response }
       }
     }
+  }
+
+  // One-place-out rounding miss (authored traps already had their chance above).
+  if (rounding.rel === 'off_by_one') {
+    return { correct: false, trap: null, message: ROUNDING_ERROR }
   }
 
   return {
