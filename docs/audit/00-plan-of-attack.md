@@ -26,7 +26,7 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | SEC-2b | 🟠 Med | `student_sessions` "public update" policy `USING true` — anon can tamper any legacy assessment session (still open) |
 | S1 | ✅ FIXED | RLS posture now in version control — `20260611_rls_baseline.sql` captures all policies (Half 2 done) |
 | S2 | ✅ FIXED | Webhook hardened — writes checked (500→retry), idempotency ledger, named expiries |
-| ③-test | 🟠 Med-High | 1 test file; paramEngine/entitlements/masteryEngine/results untested |
+| ③-test | ✅ DONE | 115 tests across 8 files — entitlements, masteryEngine, paramEngine, multipleChoice, parts, buildTopicGrid, progressSeries; CI gates typecheck+test+build |
 | S3 | 🟠 Med | No rate limiting on public endpoints; 4-char codes brute-forceable |
 | L1 | ✅ FIXED | Multi-part questions excluded from diagnostic selection |
 | L2 | 🟠 Med | Prerequisite inference overrides direct needs_practice evidence on 1 correct answer (design ruling needed) |
@@ -72,10 +72,14 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 - **Remaining:** add a test for the entitlement grant/renew/cancel paths
   (rolls into Phase 2).
 
-### Phase 2 — Build the safety net _(unblocks everything after)_
-- Characterisation tests for `paramEngine`, `entitlements`, `masteryEngine`,
-  `deriveResults`/`buildTopicGrid`, `multipleChoice`, `parts`.
-- Triage lint `any`s in app/lib; make `lint` + `test` a pre-push/CI gate.
+### Phase 2 — Build the safety net ✅ core DONE 2026-06-11
+- ✅ Characterisation tests added (115 total): `entitlements`, `masteryEngine`,
+  `paramEngine`, `multipleChoice`, `parts`, `buildTopicGrid`, `progressSeries`.
+- ✅ CI gate (`.github/workflows/ci.yml`) on typecheck + test + build; `npm run
+  verify` script. Lint runs **non-blocking** for now.
+- **Remaining (④-lint):** triage the ~146 `no-explicit-any` errors (mostly in
+  `scripts/` — consider eslint-ignoring `scripts/**` as dev tooling), then flip
+  CI lint to blocking. Add a webhook entitlement-path test (S2 follow-up).
 
 ### Phase 3 — Harden the edges
 - S3 rate limiting (public email + lookup routes) + consider longer codes.
