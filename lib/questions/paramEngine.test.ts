@@ -51,6 +51,16 @@ describe('generateValues — ranges & constraints (invariants over many draws)',
       b: { type: 'integer', min: 1, max: 4, constraint: { type: 'neq', target: 'a', target_type: 'parameter' } },
     })) expect(v.b).not.toBe(v.a)
   })
+
+  it('honours a constraint that references a LATER-generated parameter (jsonb key reorder)', () => {
+    // Postgres jsonb sorts object keys, so a stored constraint can be evaluated
+    // before its target parameter exists. Here `c` is generated first but is
+    // constrained `c < n`; generation must still satisfy it over every draw.
+    for (const v of draws({
+      c: { type: 'integer', min: 2, max: 15, constraint: { type: 'lt', target: 'n', target_type: 'parameter' } },
+      n: { type: 'integer', min: 8, max: 16 },
+    })) expect(v.c).toBeLessThan(v.n)
+  })
 })
 
 describe('evaluateTemplate — substitution, helpers, cleanup', () => {

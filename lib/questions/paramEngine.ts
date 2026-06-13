@@ -50,42 +50,55 @@ function checkConstraint(
   }
 }
 
+const constraintsOf = (config: ParameterConfig): ConstraintConfig[] => [
+  ...(config.constraint ? [config.constraint] : []),
+  ...(config.constraints ?? []),
+]
+
 export function generateValues(parameters: Parameters): Record<string, number> {
-  const generated: Record<string, number> = {}
+  const entries = Object.entries(parameters)
 
-  for (const [key, config] of Object.entries(parameters)) {
-    let attempts = 0
-    let value: number = 0
+  // OUTER loop: generate the whole set, then validate EVERY constraint against
+  // the COMPLETE set, regenerating if any fails. This makes generation
+  // order-independent — essential because a parameter's constraint can reference
+  // another parameter that is generated later (Postgres jsonb does not preserve
+  // object-key insertion order; it sorts keys, so `c`'s `c < n` constraint can
+  // run before `n` exists). The per-parameter pass below still satisfies
+  // backward references quickly; the outer pass catches forward references.
+  let last: Record<string, number> = {}
+  for (let pass = 0; pass < 80; pass++) {
+    const generated: Record<string, number> = {}
 
-    // Build full list of constraints from both single and array forms
-    const constraintList: ConstraintConfig[] = [
-      ...(config.constraint ? [config.constraint] : []),
-      ...(config.constraints ?? []),
-    ]
+    for (const [key, config] of entries) {
+      const constraintList = constraintsOf(config)
+      let attempts = 0
+      let value = 0
+      do {
+        if (config.type === 'decimal') {
+          const places = config.decimal_places ?? 1
+          const factor = Math.pow(10, places)
+          const min = Math.round(config.min * factor)
+          const max = Math.round(config.max * factor)
+          value = Math.floor(Math.random() * (max - min + 1) + min) / factor
+        } else {
+          value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
+        }
+        attempts++
+        if (constraintList.length === 0 || attempts >= 100) break
+        if (constraintList.every(c => checkConstraint(c, value, generated))) break
+      } while (true)
+      generated[key] = value
+    }
 
-    do {
-      if (config.type === 'decimal') {
-        const places = config.decimal_places ?? 1
-        const factor = Math.pow(10, places)
-        const min = Math.round(config.min * factor)
-        const max = Math.round(config.max * factor)
-        value = Math.floor(Math.random() * (max - min + 1) + min) / factor
-      } else {
-        value = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
-      }
-
-      attempts++
-
-      if (constraintList.length === 0 || attempts >= 100) break
-
-      const allSatisfied = constraintList.every(c => checkConstraint(c, value, generated))
-      if (allSatisfied) break
-    } while (true)
-
-    generated[key] = value
+    last = generated
+    const allOk = entries.every(([key, config]) =>
+      constraintsOf(config).every(c => checkConstraint(c, generated[key], generated)))
+    if (allOk) return generated
   }
 
-  return generated
+  // Couldn't satisfy every constraint (e.g. an unsatisfiable spec) — return the
+  // last attempt rather than hanging, matching the old give-up behaviour.
+  return last
 }
 
 /**
