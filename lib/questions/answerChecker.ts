@@ -149,19 +149,20 @@ function expressionMatch(a: string, b: string): boolean {
 }
 
 /**
- * Normalise an unordered list of values (e.g. factors of a number).
- * Splits on any combination of commas and whitespace, sorts numerically
- * (falling back to alphabetical for non-numbers), and rejoins with ",".
+ * Normalise an unordered list of values (e.g. factors of a number, or letter
+ * codes for combinations). Splits on any combination of commas and whitespace,
+ * lower-cases tokens (so "SC" and "sc" match), sorts numerically (falling back
+ * to alphabetical for non-numbers), and rejoins with ",".
  *
  * "1, 2, 3, 6"  → "1,2,3,6"
  * "6 3 1 2"     → "1,2,3,6"
- * "1,2,3,6"     → "1,2,3,6"
+ * "SC, sf, GC"  → "gc,sc,sf"
  */
 function normalisedSet(s: string): string {
   return s
     .trim()
     .split(/[\s,;]+/)
-    .map(t => t.trim())
+    .map(t => t.trim().toLowerCase())
     .filter(t => t.length > 0)
     .sort((a, b) => {
       const na = parseFloat(a)

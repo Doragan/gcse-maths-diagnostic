@@ -86,6 +86,12 @@ describe('characterisation: set', () => {
   it('ignores order and separator style', () => {
     expect(check('20 10 5 4 2 1', '1,2,4,5,10,20', 'set').correct).toBe(true)
   })
+  it('ignores case (letter-code combinations)', () => {
+    // systematic_listing: "sc, sf, gc" should match "SC, SF, GC"
+    expect(check('sc, sf, gc', 'SC, SF, GC', 'set').correct).toBe(true)
+    expect(check('Sc Gc sF', 'SC, SF, GC', 'set').correct).toBe(true)
+    expect(check('SC, SF', 'SC, SF, GC', 'set').correct).toBe(false) // incomplete still fails
+  })
 })
 
 describe('characterisation: traps', () => {
