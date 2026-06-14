@@ -241,6 +241,10 @@ export function normalise(value: string): string {
     .replace(/<sup>([^<]*)<\/sup>/g, '^$1')
     // Strip remaining HTML tags
     .replace(/<[^>]+>/g, '')
+    // Currency symbols carry no mathematical value. A question asked "in pounds"
+    // (and showing £ in its wording) may lead a student to write "£3+£2m" or
+    // "£5"; strip the symbol so the answer is judged on the maths alone.
+    .replace(/[£$€¢]/g, '')
     // Superscript digits to caret notation
     .replace(/⁰/g, '^0').replace(/¹/g, '^1').replace(/²/g, '^2')
     .replace(/³/g, '^3').replace(/⁴/g, '^4').replace(/⁵/g, '^5')

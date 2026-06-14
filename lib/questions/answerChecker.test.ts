@@ -94,6 +94,21 @@ describe('characterisation: set', () => {
   })
 })
 
+describe('currency symbols are ignored', () => {
+  it('accepts £ in an expression answer asked "in pounds"', () => {
+    expect(check('£3+£2m', '3+2m', 'expression').correct).toBe(true)
+    expect(check('£3+2m', '3+2m', 'expression').correct).toBe(true)
+    expect(check('3+2m', '3+2m', 'expression').correct).toBe(true)
+  })
+  it('accepts a currency symbol on a numeric answer', () => {
+    expect(check('£5', '5', 'numeric').correct).toBe(true)
+    expect(check('$5', '5', 'numeric').correct).toBe(true)
+  })
+  it('still marks a wrong money expression wrong', () => {
+    expect(check('£2+£3m', '3+2m', 'expression').correct).toBe(false)
+  })
+})
+
 describe('characterisation: traps', () => {
   it('returns the trap response on a known wrong answer', () => {
     const r = check('5', '6', 'numeric', 0, [
