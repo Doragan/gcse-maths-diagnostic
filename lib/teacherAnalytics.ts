@@ -18,15 +18,29 @@ export const TOPICS = ['Number', 'Algebra', 'Shape and Space', 'Ratio and Propor
 export type Topic = (typeof TOPICS)[number]
 const TOPIC_SET = new Set<string>(TOPICS)
 
+// Denominator = the WHOLE curriculum (user decision 2026-06-15): mastery % is
+// "of all skills in the topic/course", not just attempted skills — so it shows
+// progress through the whole course (low early on, growing over time), giving
+// the full picture rather than flattering a student who's only tried a few.
+export const TOPIC_TOTAL: Record<Topic, number> = (() => {
+  const counts = Object.fromEntries(TOPICS.map(t => [t, 0])) as Record<Topic, number>
+  for (const s of Object.values(skillsById)) {
+    const topic = s?.topic
+    if (topic && TOPIC_SET.has(topic)) counts[topic as Topic]++
+  }
+  return counts
+})()
+export const CURRICULUM_TOTAL = Object.values(TOPIC_TOTAL).reduce((a, b) => a + b, 0)
+
 export type StudentAnalytics = {
   studentId: string
   displayName: string
   yearGroup: string | null
   attemptedSkills: number
   masteredSkills: number
-  /** % of attempted skills that are mastered; null when nothing attempted yet. */
+  /** % of the WHOLE curriculum mastered; null when nothing attempted yet. */
   overallMastery: number | null
-  /** Per-topic % mastered (of attempted-in-topic); only topics with ≥1 attempt. */
+  /** Per-topic % mastered (of ALL skills in the topic); all 5 topics once active. */
   topicMastery: Partial<Record<Topic, number>>
 }
 
@@ -106,11 +120,13 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     }
 
     const attemptedSkills = entries.length
-    const overallMastery = attemptedSkills > 0 ? round((mastered / attemptedSkills) * 100) : null
+    // Denominator is the whole curriculum / whole topic, not just attempted skills.
+    const overallMastery = attemptedSkills > 0 ? round((mastered / CURRICULUM_TOTAL) * 100) : null
     const topicMastery: Partial<Record<Topic, number>> = {}
-    for (const topic of TOPICS) {
-      const t = topicTally[topic]
-      if (t && t.total > 0) topicMastery[topic] = round((t.mastered / t.total) * 100)
+    if (attemptedSkills > 0) {
+      for (const topic of TOPICS) {
+        topicMastery[topic] = round(((topicTally[topic]?.mastered ?? 0) / TOPIC_TOTAL[topic]) * 100)
+      }
     }
 
     return {

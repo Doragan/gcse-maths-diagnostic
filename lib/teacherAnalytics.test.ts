@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeClassAnalytics, type MasteryAttemptRow } from './teacherAnalytics'
+import { computeClassAnalytics, CURRICULUM_TOTAL, TOPIC_TOTAL, type MasteryAttemptRow } from './teacherAnalytics'
 
 // Helper: build N attempts on a skill, `nCorrect` of them correct, recent.
 function attempts(studentId: string, skillId: string, n: number, nCorrect: number): MasteryAttemptRow[] {
@@ -39,17 +39,19 @@ describe('computeClassAnalytics', () => {
     const res = computeClassAnalytics(rows, members)
     const alice = res.students.find(s => s.studentId === 'a')!
     const bob = res.students.find(s => s.studentId === 'b')!
+    // denominator = whole curriculum / whole topic, not attempted skills
     expect(alice.masteredSkills).toBe(1)
-    expect(alice.overallMastery).toBe(100)
-    expect(alice.topicMastery['Number']).toBe(100)
+    expect(alice.overallMastery).toBe(Math.round((1 / CURRICULUM_TOTAL) * 100))
+    expect(alice.topicMastery['Number']).toBe(Math.round((1 / TOPIC_TOTAL['Number']) * 100))
+    expect(alice.topicMastery['Algebra']).toBe(0) // active but nothing mastered in Algebra
     expect(bob.masteredSkills).toBe(0)
     expect(bob.overallMastery).toBe(0)
     // no status descriptor exists on the result
     expect((alice as Record<string, unknown>).status).toBeUndefined()
     // Cara has no data
     expect(res.students.find(s => s.studentId === 'c')!.overallMastery).toBeNull()
-    // class avg = mean of the two with data (100, 0) = 50
-    expect(res.avgMastery).toBe(50)
+    // class avg = mean of the two with data (alice%, 0)
+    expect(res.avgMastery).toBe(Math.round((alice.overallMastery! + 0) / 2))
     expect(res.studentsWithData).toBe(2)
   })
 

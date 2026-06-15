@@ -158,7 +158,7 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
           </div>
 
           <p style={{ fontSize: '11px', color: colors.textHint, margin: '12px 0 0', lineHeight: 1.5 }}>
-            Mastery = % of attempted skills mastered (4+ correct in the last 5 attempts), across practice and assignments.
+            Mastery = % of all skills in the topic / course mastered (4+ correct in the last 5 attempts), across practice and assignments. Low early in the course is expected — it climbs as topics are covered.
           </p>
         </>
       )}
