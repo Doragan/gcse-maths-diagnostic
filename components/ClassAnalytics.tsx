@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import {
   getClassAnalytics, TOPICS,
-  type ClassAnalytics, type StudentStatus, type Topic,
+  type ClassAnalytics, type Topic,
 } from '../lib/teacherAnalytics'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 
@@ -13,18 +13,6 @@ const TOPIC_COLOUR: Record<Topic, string> = {
   'Shape and Space': '#ea580c',
   'Ratio and Proportion': '#0891b2',
   'Probability and Data': colors.success,
-}
-
-// % → traffic-light colours (≥70 green, ≥40 amber, else red)
-const bCol = (p: number) => (p >= 70 ? colors.success : p >= 40 ? colors.warning : colors.danger)
-const bBg  = (p: number) => (p >= 70 ? colors.successLight : p >= 40 ? colors.warningLight : colors.dangerLight)
-const bTxt = (p: number) => (p >= 70 ? colors.successText : p >= 40 ? colors.warningText : colors.dangerText)
-
-const STATUS_META: Record<StudentStatus, { text: string; bg: string; colour: string }> = {
-  strong:     { text: 'Strong',        bg: colors.successLight, colour: colors.successText },
-  developing: { text: 'Developing',    bg: colors.warningLight, colour: colors.warningText },
-  concern:    { text: 'Needs support', bg: colors.dangerLight,  colour: colors.dangerText },
-  no_data:    { text: 'No data',        bg: colors.cardAlt,      colour: colors.textHint },
 }
 
 export default function ClassAnalytics({ classId }: { classId: string }) {
@@ -41,7 +29,7 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
   }, [classId])
 
   if (state === 'loading') {
-    return <div style={card}><h2 style={sectionTitle}>Class mastery</h2><p style={hint}>Loading analytics…</p></div>
+    return <div style={card}><h2 style={sectionTitle}>Class mastery</h2><p style={hint}>Loading…</p></div>
   }
   if (state === 'error') {
     return (
@@ -53,9 +41,11 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
   }
   if (!data) return null
 
-  // topics that at least one student has data in (drives table columns)
-  const liveTopics = TOPICS.filter(t => data.students.some(s => s.topicMastery[t] !== undefined))
-  const ranked = [...data.students].sort((a, b) => (b.overallMastery ?? -1) - (a.overallMastery ?? -1))
+  const liveTopics = TOPICS.filter(t => data.topics[t] !== undefined)
+  // most mastered first, then most active
+  const ranked = [...data.students].sort(
+    (a, b) => (b.mastered - a.mastered) || (b.mastered + b.needsPractice - a.mastered - a.needsPractice),
+  )
 
   return (
     <div style={card}>
@@ -68,40 +58,26 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
 
       {data.studentsWithData === 0 ? (
         <p style={hint}>
-          No mastery data yet. Once students practise or complete assignments, their skill mastery will roll up here.
+          No skills with evidence yet. Once students practise or complete assignments, the skills they&apos;ve mastered or need practice on will appear here.
         </p>
       ) : (
         <>
-          {/* ── Summary: average + per-topic bars ── */}
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', margin: '14px 0 4px' }}>
-            <div style={{
-              textAlign: 'center', padding: '8px 16px', borderRadius: radius.md,
-              background: data.avgMastery !== null ? bBg(data.avgMastery) : colors.cardAlt,
-              border: `1px solid ${colors.border}`, minWidth: 92,
-            }}>
-              <div style={{ fontSize: font['2xl'], fontWeight: 700, color: data.avgMastery !== null ? bTxt(data.avgMastery) : colors.textHint }}>
-                {data.avgMastery !== null ? `${data.avgMastery}%` : '—'}
-              </div>
-              <div style={{ fontSize: '11px', color: colors.textSecondary }}>avg mastery</div>
-            </div>
-            <div style={{ flex: 1, minWidth: 240, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
-              {TOPICS.map(t => {
-                const p = data.topicAvgs[t]
-                return (
-                  <div key={t} style={{ padding: '6px 8px', borderRadius: radius.sm, border: `1px solid ${colors.border}` }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                      <span style={{ fontSize: '11px', fontWeight: 600, color: TOPIC_COLOUR[t] }}>{t}</span>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: p !== undefined ? bTxt(p) : colors.textHint }}>
-                        {p !== undefined ? `${p}%` : '—'}
-                      </span>
-                    </div>
-                    <div style={{ height: 4, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', borderRadius: radius.full, width: `${p ?? 0}%`, background: TOPIC_COLOUR[t] }} />
-                    </div>
+          {/* ── Class totals per topic (counts, not %) ── */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '14px 0 4px' }}>
+            {liveTopics.map(t => {
+              const c = data.topics[t]!
+              return (
+                <div key={t} style={{ flex: '1 1 150px', minWidth: 150, padding: '8px 10px', borderRadius: radius.md, border: `1px solid ${colors.border}` }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: TOPIC_COLOUR[t], marginBottom: 4 }}>{t}</div>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'baseline' }}>
+                    <span style={{ fontSize: font.lg, fontWeight: 700, color: colors.successText }}>{c.mastered}<span style={countLabel}> mastered</span></span>
+                    {c.needsPractice > 0 && (
+                      <span style={{ fontSize: font.lg, fontWeight: 700, color: colors.warningText }}>{c.needsPractice}<span style={countLabel}> to practise</span></span>
+                    )}
                   </div>
-                )
-              })}
-            </div>
+                </div>
+              )
+            })}
           </div>
 
           {/* ── Common gaps ── */}
@@ -131,50 +107,47 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
             </div>
           )}
 
-          {/* ── Per-student table ── */}
+          {/* ── Per-student table (counts per topic) ── */}
           <div style={{ marginTop: 18, overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm }}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
                   <th style={{ ...th, textAlign: 'left' }}>Student</th>
-                  <th style={th}>Mastery</th>
                   {liveTopics.map(t => <th key={t} style={{ ...th, color: TOPIC_COLOUR[t] }}>{t.split(' ')[0]}</th>)}
-                  <th style={{ ...th, textAlign: 'left' }}>Status</th>
+                  <th style={th}>Mastered</th>
                 </tr>
               </thead>
               <tbody>
-                {ranked.map(s => {
-                  const sm = STATUS_META[s.status]
-                  return (
-                    <tr key={s.studentId} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                      <td style={{ ...td, textAlign: 'left', fontWeight: 500, color: colors.textPrimary, whiteSpace: 'nowrap' }}>
-                        {s.displayName}{s.yearGroup && <span style={{ color: colors.textHint, fontWeight: 400 }}> · {s.yearGroup}</span>}
-                      </td>
-                      <td style={{ ...td, fontWeight: 700, color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint }}>
-                        {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
-                      </td>
-                      {liveTopics.map(t => {
-                        const m = s.topicMastery[t]
-                        return (
-                          <td key={t} style={{ ...td, fontWeight: 600, color: m !== undefined ? bCol(m) : colors.textHint }}>
-                            {m !== undefined ? `${m}%` : '—'}
-                          </td>
-                        )
-                      })}
-                      <td style={{ ...td, textAlign: 'left' }}>
-                        <span style={{ fontSize: font.sm, fontWeight: 600, borderRadius: radius.sm, padding: '2px 8px', background: sm.bg, color: sm.colour }}>
-                          {sm.text}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
+                {ranked.map(s => (
+                  <tr key={s.studentId} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ ...td, textAlign: 'left', fontWeight: 500, color: colors.textPrimary, whiteSpace: 'nowrap' }}>
+                      {s.displayName}{s.yearGroup && <span style={{ color: colors.textHint, fontWeight: 400 }}> · {s.yearGroup}</span>}
+                      {!s.hasData && <span style={{ color: colors.textHint, fontWeight: 400, fontStyle: 'italic' }}> — no activity yet</span>}
+                    </td>
+                    {liveTopics.map(t => {
+                      const c = s.topics[t]
+                      return (
+                        <td key={t} style={td}>
+                          {c ? (
+                            <span>
+                              <span style={{ color: colors.successText, fontWeight: 700 }}>{c.mastered}</span>
+                              {c.needsPractice > 0 && <span style={{ color: colors.warningText, fontWeight: 600 }}> · {c.needsPractice}</span>}
+                            </span>
+                          ) : <span style={{ color: colors.textHint }}>—</span>}
+                        </td>
+                      )
+                    })}
+                    <td style={{ ...td, fontWeight: 700, color: s.mastered > 0 ? colors.successText : colors.textHint }}>{s.mastered}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
           <p style={{ fontSize: '11px', color: colors.textHint, margin: '12px 0 0', lineHeight: 1.5 }}>
-            Mastery = % of attempted skills mastered (4+ correct in the last 5 attempts), across practice and assignments.
+            Counts of skills with practice or assignment evidence:{' '}
+            <span style={{ color: colors.successText, fontWeight: 600 }}>mastered</span> (4+ correct in the last 5) and{' '}
+            <span style={{ color: colors.warningText, fontWeight: 600 }}>needing practice</span>. Topics the class hasn&apos;t worked on don&apos;t appear — there&apos;s no overall score.
           </p>
         </>
       )}
@@ -183,6 +156,7 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
 }
 
 const hint: React.CSSProperties = { fontSize: font.base, color: colors.textHint, margin: '8px 0 0', lineHeight: 1.6 }
+const countLabel: React.CSSProperties = { fontSize: '11px', fontWeight: 400, color: colors.textSecondary }
 const th: React.CSSProperties = {
   padding: '8px 8px', textAlign: 'center', fontWeight: 600, color: colors.textSecondary,
   fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap',
