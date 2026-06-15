@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import CookieBanner from "../components/CookieBanner";
 import Analytics from "../components/Analytics";
@@ -39,8 +38,6 @@ export const metadata: Metadata = {
   },
 };
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -50,28 +47,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 
-        {/* ── Google Analytics 4 ───────────────────────────────────────────────
-            Only loaded when NEXT_PUBLIC_GA_ID is set in .env.local.
-            send_page_view is disabled here — the Analytics component handles
-            all page views (including the initial load) so SPA navigations
-            are tracked correctly.
-        ─────────────────────────────────────────────────────────────────────── */}
-        {GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}', { send_page_view: false });
-              `}
-            </Script>
-          </>
-        )}
+        {/* Google Analytics 4 is loaded by CookieBanner AFTER consent — the
+            single GA loader. Page views + events go through lib/analytics. */}
 
         {children}
 

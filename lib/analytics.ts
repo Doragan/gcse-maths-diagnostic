@@ -12,8 +12,17 @@
 
 import { supabase } from './supabase'
 
+/**
+ * GA4 measurement ID — the single source of truth (loaded by CookieBanner after
+ * consent). Prefer the env var; fall back to the known production property so
+ * analytics keep working even if the env var isn't set in an environment.
+ * (Measurement IDs are public — they ship in the client either way.)
+ */
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-7FCDN55EVJ'
+
 const SESSION_KEY = 'mathsense_sid'
 const DEV_KEY     = 'mathsense_dev'
+const ATTRIBUTION_KEY = 'mathsense_attr'
 
 // ── Session ID ────────────────────────────────────────────────────────────────
 
@@ -51,6 +60,38 @@ export function toggleDevMode(): boolean {
   return next
 }
 
+// ── Campaign attribution (first-touch) ─────────────────────────────────────────
+
+const ATTRIBUTION_FIELDS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'] as const
+
+/**
+ * Capture campaign attribution from the landing URL (utm_* / gclid), first-touch:
+ * the first hit of the session wins, so a later internal navigation can't
+ * overwrite the ad click that brought them in. Stored in sessionStorage and
+ * attached to every tracked event (see trackEvent), so a signup can be tied back
+ * to its campaign in our own analytics_events — independent of GA, which
+ * ad-blockers and consent declines can drop. No-op for organic visits (no params).
+ */
+export function captureAttribution(): void {
+  if (typeof window === 'undefined') return
+  if (sessionStorage.getItem(ATTRIBUTION_KEY)) return // first touch already recorded
+  const params = new URLSearchParams(window.location.search)
+  const attr: Record<string, string> = {}
+  for (const f of ATTRIBUTION_FIELDS) {
+    const v = params.get(f)
+    if (v) attr[f] = v
+  }
+  if (Object.keys(attr).length > 0) {
+    attr.landing_page = window.location.pathname
+    sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attr))
+  }
+}
+
+function getAttribution(): Record<string, string> {
+  if (typeof window === 'undefined') return {}
+  try { return JSON.parse(sessionStorage.getItem(ATTRIBUTION_KEY) || '{}') } catch { return {} }
+}
+
 // ── Main tracking function ────────────────────────────────────────────────────
 
 export function trackEvent(
@@ -61,21 +102,24 @@ export function trackEvent(
   if (isDevMode())                   return   // skip when testing
 
   const sessionId = getSessionId()
+  // Attach first-touch campaign attribution to every event (explicit properties
+  // win on any key collision). Empty for organic visits.
+  const enriched = { ...getAttribution(), ...properties }
 
   // 1. Supabase — fire and forget (don't block the UI)
   supabase.from('analytics_events').insert({
     event:      name,
     path:       window.location.pathname,
     session_id: sessionId,
-    properties,
+    properties: enriched,
   }).then()
 
-  // 2. Google Analytics 4 (only if the script is loaded)
+  // 2. Google Analytics 4 (only if the script is loaded — i.e. after consent)
   const gtag = (window as any).gtag
   if (gtag) {
     gtag('event', name, {
       page_path: window.location.pathname,
-      ...properties,
+      ...enriched,
     })
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GA_MEASUREMENT_ID } from "../lib/analytics";
 
 export default function CookieBanner() {
   const [consent, setConsent] = useState(false);
@@ -16,20 +17,21 @@ export default function CookieBanner() {
   }, []);
 
   const loadGA = () => {
-    // Load GA script
+    // The single GA loader (after consent). send_page_view is disabled — the
+    // Analytics component sends every page_view manually (initial + SPA routes),
+    // so leaving auto page_view on would double-count.
     const script1 = document.createElement("script");
-    script1.src = "https://www.googletagmanager.com/gtag/js?id=G-7FCDN55EVJ";
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
     script1.async = true;
     document.head.appendChild(script1);
 
-    // Init GA
     const script2 = document.createElement("script");
     script2.innerHTML = `
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       window.gtag = gtag;
       gtag('js', new Date());
-      gtag('config', 'G-7FCDN55EVJ');
+      gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
     `;
     document.head.appendChild(script2);
   };
