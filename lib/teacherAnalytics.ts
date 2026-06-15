@@ -53,6 +53,9 @@ export type SkillGap = {
   priority: 'high' | 'medium'
 }
 
+/** One weekly checkpoint of the class's average curriculum-mastery %. */
+export type TimelinePoint = { weekEnding: string; masteryPct: number; activeStudents: number }
+
 export type ClassAnalytics = {
   studentCount: number       // total active members
   studentsWithData: number   // members with ≥1 attempt
@@ -60,6 +63,7 @@ export type ClassAnalytics = {
   topicAvgs: Partial<Record<Topic, number>>
   students: StudentAnalytics[]
   gaps: SkillGap[]
+  timeline: TimelinePoint[]  // weekly class-mastery trend
 }
 
 export type MasteryAttemptRow = {
@@ -77,6 +81,58 @@ function topicOf(skillId: string): Topic | null {
 }
 
 function round(n: number): number { return Math.round(n) }
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+
+/** Skills currently mastered, from a student's attempt rows. */
+function masteredCount(attempts: MasteryAttemptRow[]): number {
+  const mastery = calculateMastery(
+    attempts.map(a => ({ skill_ids: a.skill_ids, correct: a.correct, attempted_at: a.attempted_at, kind: a.kind === 'exam' ? 'exam' : 'mastery' }))
+  )
+  let n = 0
+  for (const m of Object.values(mastery)) if (m.status === 'mastered') n++
+  return n
+}
+
+/**
+ * Weekly class-mastery trend: at each of the last `weeks` week-end checkpoints,
+ * the class's AVERAGE curriculum-mastery % computed from attempts up to that
+ * date. Staggered individual timing is absorbed by the weekly aggregation —
+ * each point is the class average over members active by then, so more students
+ * smooth the line, not noise it. "Current mastery" semantics (live last-5
+ * window), so a point can dip if recent attempts slipped — honest, and matches
+ * the panel's headline number.
+ */
+export function computeClassMasteryTimeline(
+  rows: MasteryAttemptRow[],
+  members: MemberLite[],
+  weeks = 10,
+  now: Date = new Date(),
+): TimelinePoint[] {
+  const byStudent = new Map<string, MasteryAttemptRow[]>()
+  for (const r of rows) {
+    if (!byStudent.has(r.student_id)) byStudent.set(r.student_id, [])
+    byStudent.get(r.student_id)!.push(r)
+  }
+  const end = now.getTime()
+  const series: TimelinePoint[] = []
+  for (let i = weeks - 1; i >= 0; i--) {
+    const cutoff = end - i * WEEK_MS
+    let sum = 0, active = 0
+    for (const m of members) {
+      const upTo = (byStudent.get(m.student_id) ?? []).filter(a => new Date(a.attempted_at).getTime() <= cutoff)
+      if (upTo.length === 0) continue // not active by this date
+      sum += (masteredCount(upTo) / CURRICULUM_TOTAL) * 100
+      active++
+    }
+    series.push({
+      weekEnding: new Date(cutoff).toISOString().slice(0, 10),
+      masteryPct: active > 0 ? round(sum / active) : 0,
+      activeStudents: active,
+    })
+  }
+  return series
+}
 
 /**
  * Pure aggregation: attempt rows (across all members) + the roster → class
@@ -176,6 +232,7 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     topicAvgs,
     students,
     gaps,
+    timeline: computeClassMasteryTimeline(rows, members),
   }
 }
 

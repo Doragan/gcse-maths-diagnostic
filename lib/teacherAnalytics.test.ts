@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeClassAnalytics, CURRICULUM_TOTAL, TOPIC_TOTAL, type MasteryAttemptRow } from './teacherAnalytics'
+import { computeClassAnalytics, computeClassMasteryTimeline, CURRICULUM_TOTAL, TOPIC_TOTAL, type MasteryAttemptRow } from './teacherAnalytics'
 
 // Helper: build N attempts on a skill, `nCorrect` of them correct, recent.
 function attempts(studentId: string, skillId: string, n: number, nCorrect: number): MasteryAttemptRow[] {
@@ -77,6 +77,29 @@ describe('computeClassAnalytics', () => {
     ]
     const res = computeClassAnalytics(rows, members)
     expect(res.gaps).toEqual([])
+  })
+
+  it('builds a weekly timeline where mastery climbs as skills are mastered over time', () => {
+    const now = new Date('2026-06-15T12:00:00Z')
+    // Alice masters simple_arithmetic ~5 weeks ago, fractions_of_amounts ~1 week ago.
+    const fiveWk = '2026-05-11T10:00:00Z'  // ~5 weeks before now
+    const oneWk  = '2026-06-09T10:00:00Z'  // ~1 week before now
+    const rows: MasteryAttemptRow[] = [
+      ...Array.from({ length: 5 }, () => ({ student_id: 'a', skill_ids: ['simple_arithmetic'], correct: true, attempted_at: fiveWk, kind: 'mastery' as const })),
+      ...Array.from({ length: 5 }, () => ({ student_id: 'a', skill_ids: ['fractions_of_amounts'], correct: true, attempted_at: oneWk, kind: 'mastery' as const })),
+    ]
+    const series = computeClassMasteryTimeline(rows, members, 8, now)
+    expect(series).toHaveLength(8)
+    // last point = now: 2 skills mastered
+    expect(series[7].masteryPct).toBe(Math.round((2 / CURRICULUM_TOTAL) * 100))
+    expect(series[7].activeStudents).toBe(1)
+    // earliest point (≈7 weeks ago): nothing mastered yet → 0, no active students
+    expect(series[0].masteryPct).toBe(0)
+    expect(series[0].activeStudents).toBe(0)
+    // non-decreasing across the series (this seed never regresses)
+    for (let i = 1; i < series.length; i++) {
+      expect(series[i].masteryPct).toBeGreaterThanOrEqual(series[i - 1].masteryPct)
+    }
   })
 
   it('treats in_progress (<5 attempts) as neither mastered nor weak', () => {

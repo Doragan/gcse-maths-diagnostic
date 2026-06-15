@@ -5,6 +5,7 @@ import {
   getClassAnalytics, TOPICS,
   type ClassAnalytics, type Topic,
 } from '../lib/teacherAnalytics'
+import ClassMasteryTrend from './ClassMasteryTrend'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 
 const TOPIC_COLOUR: Record<Topic, string> = {
@@ -96,6 +97,9 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
               })}
             </div>
           </div>
+
+          {/* ── Mastery over time ── */}
+          <ClassMasteryTrend points={data.timeline} />
 
           {/* ── Common gaps ── */}
           {data.gaps.length > 0 && (
