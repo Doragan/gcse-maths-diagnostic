@@ -18,23 +18,16 @@ export const TOPICS = ['Number', 'Algebra', 'Shape and Space', 'Ratio and Propor
 export type Topic = (typeof TOPICS)[number]
 const TOPIC_SET = new Set<string>(TOPICS)
 
-// Counts, deliberately NOT a percentage or an overall rating: a class is only
-// part-way through the curriculum, so a "% mastered" over attempted skills (let
-// alone the whole graph) misreads not-yet-covered as failure. We show only the
-// skills that have evidence, as plain counts; topics with no evidence don't
-// appear. (Scoping the dashboard to teacher-covered material is a future step.)
-export type TopicCounts = { mastered: number; needsPractice: number; inProgress: number }
-
 export type StudentAnalytics = {
   studentId: string
   displayName: string
   yearGroup: string | null
-  hasData: boolean
-  mastered: number
-  needsPractice: number
-  inProgress: number
-  /** Per-topic counts; only topics the student has evidence in. */
-  topics: Partial<Record<Topic, TopicCounts>>
+  attemptedSkills: number
+  masteredSkills: number
+  /** % of attempted skills that are mastered; null when nothing attempted yet. */
+  overallMastery: number | null
+  /** Per-topic % mastered (of attempted-in-topic); only topics with ≥1 attempt. */
+  topicMastery: Partial<Record<Topic, number>>
 }
 
 export type SkillGap = {
@@ -49,8 +42,8 @@ export type SkillGap = {
 export type ClassAnalytics = {
   studentCount: number       // total active members
   studentsWithData: number   // members with ≥1 attempt
-  /** Class-wide counts per topic (summed across members); only topics with evidence. */
-  topics: Partial<Record<Topic, TopicCounts>>
+  avgMastery: number | null  // mean overallMastery across members with data
+  topicAvgs: Partial<Record<Topic, number>>
   students: StudentAnalytics[]
   gaps: SkillGap[]
 }
@@ -69,9 +62,11 @@ function topicOf(skillId: string): Topic | null {
   return t && TOPIC_SET.has(t) ? (t as Topic) : null
 }
 
+function round(n: number): number { return Math.round(n) }
+
 /**
  * Pure aggregation: attempt rows (across all members) + the roster → class
- * analytics. Members with no attempts appear with hasData=false and zero counts.
+ * analytics. Members with no attempts appear with overallMastery null.
  */
 export function computeClassAnalytics(rows: MasteryAttemptRow[], members: MemberLite[]): ClassAnalytics {
   const byStudent = new Map<string, MasteryAttemptRow[]>()
@@ -90,13 +85,11 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     )
     const entries = Object.values(mastery)
 
-    const topics: Partial<Record<Topic, TopicCounts>> = {}
-    let mastered = 0, needsPractice = 0, inProgress = 0
+    // per-topic tallies
+    const topicTally: Partial<Record<Topic, { mastered: number; total: number }>> = {}
+    let mastered = 0
     for (const e of entries) {
       if (e.status === 'mastered') mastered++
-      else if (e.status === 'needs_practice') needsPractice++
-      else inProgress++
-
       // gaps tally (only needs_practice counts as "weak"; in_progress is neutral)
       const sw = skillWeak.get(e.skillId) ?? { weak: 0, withData: 0 }
       sw.withData++
@@ -105,38 +98,42 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
 
       const topic = topicOf(e.skillId)
       if (topic) {
-        const t = topics[topic] ?? { mastered: 0, needsPractice: 0, inProgress: 0 }
+        const t = topicTally[topic] ?? { mastered: 0, total: 0 }
+        t.total++
         if (e.status === 'mastered') t.mastered++
-        else if (e.status === 'needs_practice') t.needsPractice++
-        else t.inProgress++
-        topics[topic] = t
+        topicTally[topic] = t
       }
+    }
+
+    const attemptedSkills = entries.length
+    const overallMastery = attemptedSkills > 0 ? round((mastered / attemptedSkills) * 100) : null
+    const topicMastery: Partial<Record<Topic, number>> = {}
+    for (const topic of TOPICS) {
+      const t = topicTally[topic]
+      if (t && t.total > 0) topicMastery[topic] = round((t.mastered / t.total) * 100)
     }
 
     return {
       studentId: m.student_id,
       displayName: m.display_name,
       yearGroup: m.year_group,
-      hasData: entries.length > 0,
-      mastered,
-      needsPractice,
-      inProgress,
-      topics,
+      attemptedSkills,
+      masteredSkills: mastered,
+      overallMastery,
+      topicMastery,
     }
   })
 
-  const withData = students.filter(s => s.hasData)
+  const withData = students.filter(s => s.overallMastery !== null)
+  const avgMastery = withData.length > 0
+    ? round(withData.reduce((sum, s) => sum + (s.overallMastery ?? 0), 0) / withData.length)
+    : null
 
-  // class-wide topic counts: sum across members; only topics with evidence
-  const topics: Partial<Record<Topic, TopicCounts>> = {}
-  for (const s of students) {
-    for (const topic of TOPICS) {
-      const st = s.topics[topic]
-      if (!st) continue
-      const t = topics[topic] ?? { mastered: 0, needsPractice: 0, inProgress: 0 }
-      t.mastered += st.mastered; t.needsPractice += st.needsPractice; t.inProgress += st.inProgress
-      topics[topic] = t
-    }
+  // class topic averages: mean of student topic %s among students who have that topic
+  const topicAvgs: Partial<Record<Topic, number>> = {}
+  for (const topic of TOPICS) {
+    const vals = students.map(s => s.topicMastery[topic]).filter((v): v is number => v !== undefined)
+    if (vals.length > 0) topicAvgs[topic] = round(vals.reduce((a, b) => a + b, 0) / vals.length)
   }
 
   // common gaps: skills where a meaningful share of those who tried it are weak
@@ -159,7 +156,8 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
   return {
     studentCount: members.length,
     studentsWithData: withData.length,
-    topics,
+    avgMastery,
+    topicAvgs,
     students,
     gaps,
   }

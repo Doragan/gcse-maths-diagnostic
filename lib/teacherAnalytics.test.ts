@@ -21,18 +21,17 @@ const members = [
 ]
 
 describe('computeClassAnalytics', () => {
-  it('marks members with no attempts as hasData=false and zero counts', () => {
+  it('marks members with no attempts as no_data and excludes them from averages', () => {
     const res = computeClassAnalytics([], members)
     expect(res.studentCount).toBe(3)
     expect(res.studentsWithData).toBe(0)
-    expect(res.students.every(s => s.hasData === false)).toBe(true)
-    expect(res.students.every(s => s.mastered === 0 && s.needsPractice === 0)).toBe(true)
-    expect(res.topics).toEqual({})
+    expect(res.avgMastery).toBeNull()
+    expect(res.students.every(s => s.overallMastery === null)).toBe(true)
     expect(res.gaps).toEqual([])
   })
 
-  it('counts mastered / needs-practice per student and per topic (no percentages)', () => {
-    // Alice mastered simple_arithmetic (5/5); Bob needs practice (1/5)
+  it('computes per-student mastery from the 5-window (4/5 = mastered)', () => {
+    // Alice: mastered simple_arithmetic (5/5); Bob: needs_practice (1/5)
     const rows = [
       ...attempts('a', 'simple_arithmetic', 5, 5),
       ...attempts('b', 'simple_arithmetic', 5, 1),
@@ -40,24 +39,22 @@ describe('computeClassAnalytics', () => {
     const res = computeClassAnalytics(rows, members)
     const alice = res.students.find(s => s.studentId === 'a')!
     const bob = res.students.find(s => s.studentId === 'b')!
-    expect(alice.hasData).toBe(true)
-    expect(alice.mastered).toBe(1)
-    expect(alice.needsPractice).toBe(0)
-    expect(alice.topics['Number']).toEqual({ mastered: 1, needsPractice: 0, inProgress: 0 })
-    expect(bob.mastered).toBe(0)
-    expect(bob.needsPractice).toBe(1)
-    expect(bob.topics['Number']).toEqual({ mastered: 0, needsPractice: 1, inProgress: 0 })
-    // Cara has no data
-    expect(res.students.find(s => s.studentId === 'c')!.hasData).toBe(false)
-    expect(res.studentsWithData).toBe(2)
-    // class-wide topic counts (summed): 1 mastered + 1 needs-practice in Number
-    expect(res.topics['Number']).toEqual({ mastered: 1, needsPractice: 1, inProgress: 0 })
-    // no overall percentage or status descriptor exists on the result
-    expect((res as Record<string, unknown>).avgMastery).toBeUndefined()
+    expect(alice.masteredSkills).toBe(1)
+    expect(alice.overallMastery).toBe(100)
+    expect(alice.topicMastery['Number']).toBe(100)
+    expect(bob.masteredSkills).toBe(0)
+    expect(bob.overallMastery).toBe(0)
+    // no status descriptor exists on the result
     expect((alice as Record<string, unknown>).status).toBeUndefined()
+    // Cara has no data
+    expect(res.students.find(s => s.studentId === 'c')!.overallMastery).toBeNull()
+    // class avg = mean of the two with data (100, 0) = 50
+    expect(res.avgMastery).toBe(50)
+    expect(res.studentsWithData).toBe(2)
   })
 
   it('flags a common gap when ≥2 members (and ≥half with data) are weak on a skill', () => {
+    // Bob + Cara both needs_practice on solving_linear_equations; Alice mastered it
     const rows = [
       ...attempts('a', 'solving_linear_equations', 5, 5),
       ...attempts('b', 'solving_linear_equations', 5, 1),
@@ -74,20 +71,19 @@ describe('computeClassAnalytics', () => {
   it('does not flag a gap when only one member is weak', () => {
     const rows = [
       ...attempts('a', 'simple_arithmetic', 5, 5),
-      ...attempts('b', 'simple_arithmetic', 5, 1),
+      ...attempts('b', 'simple_arithmetic', 5, 1), // only Bob weak
     ]
     const res = computeClassAnalytics(rows, members)
     expect(res.gaps).toEqual([])
   })
 
   it('treats in_progress (<5 attempts) as neither mastered nor weak', () => {
-    const rows = attempts('a', 'simple_arithmetic', 3, 3)
+    const rows = attempts('a', 'simple_arithmetic', 3, 3) // only 3 attempts
     const res = computeClassAnalytics(rows, members)
     const alice = res.students.find(s => s.studentId === 'a')!
-    expect(alice.hasData).toBe(true)
-    expect(alice.mastered).toBe(0)
-    expect(alice.inProgress).toBe(1)
-    expect(alice.topics['Number']).toEqual({ mastered: 0, needsPractice: 0, inProgress: 1 })
-    expect(res.gaps).toEqual([])
+    expect(alice.attemptedSkills).toBe(1)
+    expect(alice.masteredSkills).toBe(0)        // in_progress, not mastered
+    expect(alice.overallMastery).toBe(0)
+    expect(res.gaps).toEqual([])                // in_progress is not "weak"
   })
 })
