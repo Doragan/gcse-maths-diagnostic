@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
 import { getClassMembers, type ClassMember } from '../../../../lib/classes'
+import ClassAnalytics from '../../../../components/ClassAnalytics'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
@@ -141,13 +142,16 @@ export default function ClassRosterPage() {
           </div>
         )}
       </div>
+
+      {/* Aggregated skill mastery across the class (practice + assignments) */}
+      <ClassAnalytics classId={classId} />
     </main>
   )
 }
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '600px',
+    maxWidth: '780px',
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',
