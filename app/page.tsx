@@ -362,7 +362,7 @@ export default function LandingPage() {
         }}>
           {[
             { number: '135', label: 'GCSE Maths skills' },
-            { number: '5–10', label: 'minute diagnostic' },
+            { number: '5–10', label: 'minute sessions' },
             { number: '100%', label: 'free to start' },
           ].map(({ number, label }) => (
             <div key={label} style={{ textAlign: 'center' as const }}>
@@ -389,9 +389,9 @@ export default function LandingPage() {
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const }}>
             {[
               {
-                emoji: '📊',
-                title: 'Instant skill map',
-                body: 'Answer 20 carefully chosen questions and instantly see where your strengths and gaps are — across every GCSE Maths topic.',
+                emoji: '🧠',
+                title: 'Feedback that spots your mistake',
+                body: 'Every question knows the common errors and tells you exactly where you went wrong — so you actually learn, not just score.',
               },
               {
                 emoji: '🎯',
@@ -439,18 +439,18 @@ export default function LandingPage() {
             {[
               {
                 n: '1',
-                title: 'Take the free diagnostic',
-                body: '10 questions spanning all of GCSE Maths — takes about 5 minutes. No sign-up required.',
+                title: 'Try real questions — free',
+                body: 'Jump straight into GCSE Maths questions with instant feedback. No sign-up needed to start.',
               },
               {
                 n: '2',
-                title: 'See your personalised skill map',
-                body: 'Instantly see where you\'re strong and where the gaps are, across every major topic.',
+                title: 'Learn from every mistake',
+                body: 'Each question pinpoints the exact error and explains the method — so the next one sticks.',
               },
               {
                 n: '3',
-                title: 'Create your account and practise',
-                body: 'Save your results, then get targeted questions with step-by-step explanations. Watch your skills go green one by one.',
+                title: 'Create a free account to keep going',
+                body: 'Save your progress and get questions targeted at your weak skills. Watch 135 skills go from \'not started\' to \'mastered\'.',
               },
             ].map(({ n, title, body }, i) => (
               <div key={n} style={{ display: 'flex', gap: '20px' }}>
@@ -475,8 +475,8 @@ export default function LandingPage() {
 
           <div style={{ textAlign: 'center' as const, marginTop: '48px' }}>
             <Link
-              href="/student/diagnostic"
-              onClick={() => trackEvent('howitworks_cta_clicked')}
+              href="/practice"
+              onClick={() => trackEvent('howitworks_practice_clicked')}
               style={{
                 background: colors.primary,
                 color: '#fff',
@@ -489,7 +489,7 @@ export default function LandingPage() {
                 letterSpacing: '-0.01em',
               }}
             >
-              Start free diagnostic →
+              Start practising free →
             </Link>
           </div>
         </div>
