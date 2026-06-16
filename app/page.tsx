@@ -1,61 +1,111 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '../lib/analytics'
+import { supabase } from '../lib/supabase'
+import { renderQuestion, type Parameters } from '../lib/questions/paramEngine'
+import { checkAnswer } from '../lib/questions/answerChecker'
+import { skillsById } from '../lib/skills/skillGraph'
 import { colors, font, radius } from '../lib/styles'
 
-// ── Demo Question ────────────────────────────────────────────────────────────
+// ── Demo Question — real engine, varied questions from the live bank ──────────
 
-const DEMO_VARIANTS = [
-  { price: 80,  pct: 25 },
-  { price: 120, pct: 20 },
-  { price: 150, pct: 40 },
-  { price: 200, pct: 30 },
-] as const
+type DemoQ = {
+  id: string
+  question_template: string
+  answer_template: string
+  answer_type: 'numeric' | 'fraction' | 'exact'
+  tolerance: number | null
+  traps: { answer_template: string; response: string }[]
+  parameters: Parameters
+  explanation: string | null
+  requires_simplest: boolean | null
+  skill_ids: string[]
+}
 
-type DemoPhase = 'idle' | 'trap-discount' | 'trap-increase' | 'trap-other' | 'correct'
+type Rendered = {
+  q: DemoQ
+  questionHtml: string
+  answer: string
+  traps: { answer: string; response: string }[]
+  explanationHtml: string
+}
+
+function renderOne(q: DemoQ): Rendered {
+  const r = renderQuestion(q.question_template, q.answer_template, q.traps ?? [], q.explanation, q.parameters ?? {})
+  return { q, questionHtml: r.question, answer: r.answer, traps: r.traps, explanationHtml: r.explanation }
+}
+
+const feedbackHtml: React.CSSProperties = { fontSize: font.base, color: colors.textPrimary, margin: '0 0 14px', lineHeight: 1.6 }
 
 function DemoQuestion() {
-  const [vi, setVi] = useState(0)
+  const [pool, setPool] = useState<DemoQ[]>([])
+  const [cursor, setCursor] = useState(0)
+  const [current, setCurrent] = useState<Rendered | null>(null)
   const [raw, setRaw] = useState('')
-  const [phase, setPhase] = useState<DemoPhase>('idle')
+  const [result, setResult] = useState<{ correct: boolean; html: string } | null>(null)
   const [answered, setAnswered] = useState(0)
 
-  const { price, pct } = DEMO_VARIANTS[vi]
-  const saving = price * pct / 100
-  const answer = price - saving
-  const multiplier = (100 - pct) / 100
+  // Pull a curated pool of demo-friendly questions: single-answer, has a trap,
+  // numeric/fraction answer (easy to type), no diagram. Each one renders with
+  // fresh random parameters via the real engine — exactly like practice.
+  useEffect(() => {
+    let live = true
+    supabase
+      .from('questions')
+      .select('id, question_template, answer_template, answer_type, tolerance, traps, parameters, explanation, requires_simplest, skill_ids')
+      .eq('is_published', true)
+      .is('parts', null)
+      .in('answer_type', ['numeric', 'fraction'])
+      .not('question_template', 'ilike', '%<svg%')
+      .limit(60)
+      .then(({ data }) => {
+        if (!live || !data) return
+        const clean = (data as DemoQ[]).filter(
+          q => Array.isArray(q.traps) && q.traps.length > 0 && !/<table/i.test(q.question_template),
+        )
+        if (clean.length === 0) return
+        clean.sort(() => Math.random() - 0.5)
+        setPool(clean)
+        setCurrent(renderOne(clean[0]))
+      })
+    return () => { live = false }
+  }, [])
 
   function check() {
-    const n = parseFloat(raw.trim().replace(/[£,\s]/g, ''))
-    if (isNaN(n)) return
-    if (Math.abs(n - answer) <= 0.01)                  setPhase('correct')
-    else if (Math.abs(n - saving) <= 0.01)             setPhase('trap-discount')
-    else if (Math.abs(n - (price + saving)) <= 0.01)   setPhase('trap-increase')
-    else                                               setPhase('trap-other')
+    if (!current || !raw.trim()) return
+    const res = checkAnswer(raw, current.answer, current.q.answer_type, current.q.tolerance, current.traps, current.q.requires_simplest ?? false)
+    setResult({
+      correct: res.correct,
+      html: res.correct
+        ? (current.explanationHtml || `The answer is <strong>${current.answer}</strong>.`)
+        : (res.trap?.response || `Not quite — the correct answer is <strong>${current.answer}</strong>.`),
+    })
     setAnswered(a => a + 1)
   }
 
-  function next()  { setVi((vi + 1) % DEMO_VARIANTS.length); setRaw(''); setPhase('idle') }
-  function retry() { setRaw(''); setPhase('idle') }
+  function next() {
+    if (pool.length === 0) return
+    const nc = (cursor + 1) % pool.length
+    setCursor(nc)
+    setCurrent(renderOne(pool[nc]))
+    setRaw(''); setResult(null)
+  }
+  function retry() { setRaw(''); setResult(null) }
 
-  const trapMsg =
-    phase === 'trap-discount'
-      ? <>That&apos;s the <strong>amount saved</strong> (£{saving}), not the sale price. Sale price = £{price} − £{saving} = <strong>£{answer}</strong>.</>
-      : phase === 'trap-increase'
-      ? <>This is a <strong>reduction</strong>, so subtract the {pct}%: £{price} − £{saving} = <strong>£{answer}</strong>.</>
-      : <>Not quite. Sale price = £{price} × (1 − {pct}/100) = £{price} × {multiplier} = <strong>£{answer}</strong>.</>
+  const skill = current ? skillsById[current.q.skill_ids?.[0]] : null
 
   return (
     <div style={{
       background: '#fff',
-      border: `1.5px solid ${colors.border}`,
+      border: 'none',
       borderRadius: radius.lg,
       overflow: 'hidden',
-      maxWidth: 540,
+      maxWidth: 560,
       margin: '0 auto',
-      boxShadow: '0 6px 28px rgba(0,0,0,0.09)',
+      // Deep elevation + a soft halo so the card clearly floats above the blue.
+      boxShadow: '0 28px 60px -14px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.7), 0 0 0 8px rgba(255,255,255,0.12)',
       textAlign: 'left',
     }}>
       {/* Card header */}
@@ -66,131 +116,131 @@ function DemoQuestion() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: 12,
       }}>
-        <span style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
-          Live demo question
+        <span style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' as const, letterSpacing: '0.06em', whiteSpace: 'nowrap' as const }}>
+          Live practice question
         </span>
-        <span style={{ fontSize: font.sm, color: colors.textHint }}>
-          Ratio &amp; Proportion · Percentage Change
+        <span style={{ fontSize: font.sm, color: colors.textHint, textAlign: 'right' as const }}>
+          {skill ? `${skill.topic} · ${skill.name}` : 'GCSE Maths'}
         </span>
       </div>
 
-      {/* Question */}
       <div style={{ padding: '24px 24px 20px' }}>
-        <p style={{ fontSize: font.lg, color: colors.textPrimary, margin: '0 0 22px', lineHeight: '1.65' }}>
-          A jacket was originally priced at <strong>£{price}</strong>. It is reduced by{' '}
-          <strong>{pct}%</strong> in a sale.<br />
-          What is the sale price?
-        </p>
-
-        {/* Answer input */}
-        {phase === 'idle' && (
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ position: 'relative' as const, flex: 1 }}>
-              <span style={{
-                position: 'absolute' as const, left: 12, top: '50%', transform: 'translateY(-50%)',
-                color: colors.textSecondary, fontWeight: '600', pointerEvents: 'none' as const,
-              }}>£</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={raw}
-                onChange={e => setRaw(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && check()}
-                placeholder="Your answer"
-                style={{
-                  width: '100%', boxSizing: 'border-box' as const,
-                  padding: '11px 14px 11px 28px',
-                  border: `1.5px solid ${colors.borderStrong}`, borderRadius: radius.md,
-                  fontSize: font.lg, fontFamily: 'inherit', outline: 'none',
-                }}
-              />
-            </div>
-            <button
-              onClick={check}
-              style={{
-                background: colors.primary, color: '#fff', border: 'none',
-                borderRadius: radius.md, padding: '0 22px', fontSize: font.lg,
-                fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' as const,
-                fontFamily: 'inherit', flexShrink: 0,
-              }}
-            >
-              Check →
-            </button>
+        {!current ? (
+          /* Skeleton while the pool loads */
+          <div>
+            <div style={{ height: 15, background: colors.cardAlt, borderRadius: 4, margin: '2px 0 10px', width: '88%' }} />
+            <div style={{ height: 15, background: colors.cardAlt, borderRadius: 4, margin: '0 0 24px', width: '52%' }} />
+            <div style={{ height: 46, background: colors.cardAlt, borderRadius: radius.md }} />
           </div>
-        )}
+        ) : (
+          <>
+            {/* Question (rendered HTML from the engine) */}
+            <div
+              style={{ fontSize: font.lg, color: colors.textPrimary, margin: '0 0 22px', lineHeight: '1.65' }}
+              dangerouslySetInnerHTML={{ __html: current.questionHtml }}
+            />
 
-        {/* Correct */}
-        {phase === 'correct' && (
-          <div style={{ background: colors.successLight, border: `1px solid ${colors.successBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
-            <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.successText, margin: '0 0 6px' }}>✓ Correct!</p>
-            <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 14px', lineHeight: 1.6 }}>
-              £{price} × (1 − {pct}/100) = £{price} × {multiplier} = <strong>£{answer}</strong>
-            </p>
-            <button
-              onClick={() => { trackEvent('demo_next_clicked'); next() }}
-              style={{
-                background: colors.primary, color: '#fff', border: 'none',
-                borderRadius: radius.md, padding: '9px 18px', fontSize: font.base,
-                fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              Try another question →
-            </button>
-          </div>
-        )}
+            {/* Answer input */}
+            {!result && (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input
+                  type="text"
+                  value={raw}
+                  onChange={e => setRaw(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && check()}
+                  placeholder="Type your answer"
+                  style={{
+                    flex: 1, width: '100%', boxSizing: 'border-box' as const,
+                    padding: '11px 14px',
+                    border: `1.5px solid ${colors.borderStrong}`, borderRadius: radius.md,
+                    fontSize: font.lg, fontFamily: 'inherit', outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={check}
+                  style={{
+                    background: colors.primary, color: '#fff', border: 'none',
+                    borderRadius: radius.md, padding: '0 22px', fontSize: font.lg,
+                    fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' as const,
+                    fontFamily: 'inherit', flexShrink: 0,
+                  }}
+                >
+                  Check →
+                </button>
+              </div>
+            )}
 
-        {/* Trap / wrong */}
-        {(phase === 'trap-discount' || phase === 'trap-increase' || phase === 'trap-other') && (
-          <div style={{ background: colors.dangerLight, border: `1px solid ${colors.dangerBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
-            <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.dangerText, margin: '0 0 6px' }}>✗ Not quite</p>
-            <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 14px', lineHeight: 1.6 }}>
-              {trapMsg}
-            </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
-              <button
-                onClick={retry}
-                style={{
-                  background: 'transparent', color: colors.textPrimary,
-                  border: `1.5px solid ${colors.borderStrong}`,
-                  borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
-                  fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                Try again
-              </button>
-              <button
-                onClick={() => { trackEvent('demo_next_clicked'); next() }}
-                style={{
-                  background: colors.primary, color: '#fff', border: 'none',
-                  borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
-                  fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                Next question →
-              </button>
-            </div>
-          </div>
-        )}
+            {/* Correct */}
+            {result?.correct && (
+              <div style={{ background: colors.successLight, border: `1px solid ${colors.successBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
+                <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.successText, margin: '0 0 6px' }}>✓ Correct!</p>
+                <div style={feedbackHtml} dangerouslySetInnerHTML={{ __html: result.html }} />
+                <button
+                  onClick={() => { trackEvent('demo_next_clicked'); next() }}
+                  style={{
+                    background: colors.primary, color: '#fff', border: 'none',
+                    borderRadius: radius.md, padding: '9px 18px', fontSize: font.base,
+                    fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  Try another →
+                </button>
+              </div>
+            )}
 
-        {/* Conversion nudge — after a couple of answers, hand off to real practice */}
-        {answered >= 2 && phase !== 'idle' && (
-          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
-            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
-              👏 You&apos;ve got the hang of it — and this is just <strong>one</strong> skill. Practise all 135 with the same instant feedback.
-            </p>
-            <Link
-              href="/practice"
-              onClick={() => trackEvent('demo_to_practice_clicked')}
-              style={{
-                display: 'inline-block', background: colors.primary, color: '#fff',
-                padding: '11px 22px', borderRadius: radius.md, fontSize: font.base,
-                fontWeight: '700', textDecoration: 'none',
-              }}
-            >
-              Start practising free →
-            </Link>
-          </div>
+            {/* Wrong / trap */}
+            {result && !result.correct && (
+              <div style={{ background: colors.dangerLight, border: `1px solid ${colors.dangerBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
+                <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.dangerText, margin: '0 0 6px' }}>✗ Not quite</p>
+                <div style={feedbackHtml} dangerouslySetInnerHTML={{ __html: result.html }} />
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+                  <button
+                    onClick={retry}
+                    style={{
+                      background: 'transparent', color: colors.textPrimary,
+                      border: `1.5px solid ${colors.borderStrong}`,
+                      borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
+                      fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    Try again
+                  </button>
+                  <button
+                    onClick={() => { trackEvent('demo_next_clicked'); next() }}
+                    style={{
+                      background: colors.primary, color: '#fff', border: 'none',
+                      borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
+                      fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    Next question →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Conversion nudge — after a couple of answers, hand off to practice */}
+            {answered >= 2 && result && (
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
+                <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
+                  👏 You&apos;ve got the hang of it. Keep going — practise all 135 skills with the same instant feedback.
+                </p>
+                <Link
+                  href="/practice"
+                  onClick={() => trackEvent('demo_to_practice_clicked')}
+                  style={{
+                    display: 'inline-block', background: colors.primary, color: '#fff',
+                    padding: '11px 22px', borderRadius: radius.md, fontSize: font.base,
+                    fontWeight: '700', textDecoration: 'none',
+                  }}
+                >
+                  Start practising free →
+                </Link>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
