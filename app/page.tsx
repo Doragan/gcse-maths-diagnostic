@@ -20,6 +20,7 @@ function DemoQuestion() {
   const [vi, setVi] = useState(0)
   const [raw, setRaw] = useState('')
   const [phase, setPhase] = useState<DemoPhase>('idle')
+  const [answered, setAnswered] = useState(0)
 
   const { price, pct } = DEMO_VARIANTS[vi]
   const saving = price * pct / 100
@@ -33,6 +34,7 @@ function DemoQuestion() {
     else if (Math.abs(n - saving) <= 0.01)             setPhase('trap-discount')
     else if (Math.abs(n - (price + saving)) <= 0.01)   setPhase('trap-increase')
     else                                               setPhase('trap-other')
+    setAnswered(a => a + 1)
   }
 
   function next()  { setVi((vi + 1) % DEMO_VARIANTS.length); setRaw(''); setPhase('idle') }
@@ -170,6 +172,26 @@ function DemoQuestion() {
             </div>
           </div>
         )}
+
+        {/* Conversion nudge — after a couple of answers, hand off to real practice */}
+        {answered >= 2 && phase !== 'idle' && (
+          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
+            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
+              👏 You&apos;ve got the hang of it — and this is just <strong>one</strong> skill. Practise all 135 with the same instant feedback.
+            </p>
+            <Link
+              href="/practice"
+              onClick={() => trackEvent('demo_to_practice_clicked')}
+              style={{
+                display: 'inline-block', background: colors.primary, color: '#fff',
+                padding: '11px 22px', borderRadius: radius.md, fontSize: font.base,
+                fontWeight: '700', textDecoration: 'none',
+              }}
+            >
+              Start practising free →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -204,8 +226,8 @@ export default function LandingPage() {
             Log in
           </Link>
           <Link
-            href="/student/diagnostic"
-            onClick={() => trackEvent('nav_diagnostic_clicked')}
+            href="/practice"
+            onClick={() => trackEvent('nav_practice_clicked')}
             style={{
               background: colors.primary,
               color: '#fff',
@@ -216,7 +238,7 @@ export default function LandingPage() {
               textDecoration: 'none',
             }}
           >
-            Start free diagnostic
+            Start practising free
           </Link>
         </div>
       </nav>
@@ -275,8 +297,8 @@ export default function LandingPage() {
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const, marginBottom: '28px' }}>
             <Link
-              href="/student/diagnostic"
-              onClick={() => trackEvent('hero_diagnostic_clicked')}
+              href="/practice"
+              onClick={() => trackEvent('hero_practice_clicked')}
               style={{
                 background: '#ffffff',
                 color: colors.primary,
@@ -290,7 +312,7 @@ export default function LandingPage() {
                 letterSpacing: '-0.01em',
               }}
             >
-              Start free diagnostic →
+              Start practising free →
             </Link>
             <Link
               href="/student"
@@ -307,9 +329,20 @@ export default function LandingPage() {
                 display: 'inline-block',
               }}
             >
-              Log in to your account
+              Log in
             </Link>
           </div>
+
+          {/* Diagnostic demoted to a quiet secondary option */}
+          <p style={{ margin: '0 0 24px' }}>
+            <Link
+              href="/student/diagnostic"
+              onClick={() => trackEvent('hero_diagnostic_clicked')}
+              style={{ fontSize: font.sm, color: 'rgba(255,255,255,0.7)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+            >
+              Or take the 5-minute skill check →
+            </Link>
+          </p>
 
           <p style={{ fontSize: font.sm, color: 'rgba(255,255,255,0.5)', margin: 0, letterSpacing: '0.02em' }}>
             Free to start &nbsp;·&nbsp; No card required &nbsp;·&nbsp; 5-minute setup
