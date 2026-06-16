@@ -32,6 +32,9 @@ export const TOPIC_TOTAL: Record<Topic, number> = (() => {
 })()
 export const CURRICULUM_TOTAL = Object.values(TOPIC_TOTAL).reduce((a, b) => a + b, 0)
 
+export type SkillStatus = 'mastered' | 'needs_practice' | 'in_progress'
+export type SkillDetail = { skillId: string; name: string; topic: Topic | null; status: SkillStatus }
+
 export type StudentAnalytics = {
   studentId: string
   displayName: string
@@ -42,6 +45,12 @@ export type StudentAnalytics = {
   overallMastery: number | null
   /** Per-topic % mastered (of ALL skills in the topic); all 5 topics once active. */
   topicMastery: Partial<Record<Topic, number>>
+  /** Per-skill mastery detail for the drill-down (skills with ≥1 attempt). */
+  skillDetail: SkillDetail[]
+  // ── engagement (shareable aggregate) ──
+  totalQuestions: number      // total recorded attempts (practice + assignments)
+  questionsThisWeek: number   // attempts in the last 7 days
+  lastActive: string | null   // ISO timestamp of most recent attempt
 }
 
 export type SkillGap = {
@@ -64,6 +73,7 @@ export type ClassAnalytics = {
   students: StudentAnalytics[]
   gaps: SkillGap[]
   timeline: TimelinePoint[]  // weekly class-mastery trend
+  questionsThisWeek: number  // class-wide engagement: attempts in the last 7 days
 }
 
 export type MasteryAttemptRow = {
@@ -138,12 +148,13 @@ export function computeClassMasteryTimeline(
  * Pure aggregation: attempt rows (across all members) + the roster → class
  * analytics. Members with no attempts appear with overallMastery null.
  */
-export function computeClassAnalytics(rows: MasteryAttemptRow[], members: MemberLite[]): ClassAnalytics {
+export function computeClassAnalytics(rows: MasteryAttemptRow[], members: MemberLite[], now: Date = new Date()): ClassAnalytics {
   const byStudent = new Map<string, MasteryAttemptRow[]>()
   for (const r of rows) {
     if (!byStudent.has(r.student_id)) byStudent.set(r.student_id, [])
     byStudent.get(r.student_id)!.push(r)
   }
+  const weekAgo = now.getTime() - WEEK_MS
 
   // Per-skill weakness tally across members, for the gaps section.
   const skillWeak = new Map<string, { weak: number; withData: number }>()
@@ -155,8 +166,9 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     )
     const entries = Object.values(mastery)
 
-    // per-topic tallies
+    // per-topic tallies + per-skill detail for the drill-down
     const topicTally: Partial<Record<Topic, { mastered: number; total: number }>> = {}
+    const skillDetail: SkillDetail[] = []
     let mastered = 0
     for (const e of entries) {
       if (e.status === 'mastered') mastered++
@@ -173,7 +185,11 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
         if (e.status === 'mastered') t.mastered++
         topicTally[topic] = t
       }
+      skillDetail.push({ skillId: e.skillId, name: skillsById[e.skillId]?.name ?? e.skillId, topic, status: e.status as SkillStatus })
     }
+    // stable order: mastered → needs_practice → in_progress, then alphabetical
+    const ORDER: Record<SkillStatus, number> = { mastered: 0, needs_practice: 1, in_progress: 2 }
+    skillDetail.sort((a, b) => ORDER[a.status] - ORDER[b.status] || a.name.localeCompare(b.name))
 
     const attemptedSkills = entries.length
     // Denominator is the whole curriculum / whole topic, not just attempted skills.
@@ -185,6 +201,14 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
       }
     }
 
+    // engagement
+    let lastActive: string | null = null
+    let questionsThisWeek = 0
+    for (const a of attempts) {
+      if (lastActive === null || a.attempted_at > lastActive) lastActive = a.attempted_at
+      if (new Date(a.attempted_at).getTime() >= weekAgo) questionsThisWeek++
+    }
+
     return {
       studentId: m.student_id,
       displayName: m.display_name,
@@ -193,6 +217,10 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
       masteredSkills: mastered,
       overallMastery,
       topicMastery,
+      skillDetail,
+      totalQuestions: attempts.length,
+      questionsThisWeek,
+      lastActive,
     }
   })
 
@@ -233,6 +261,7 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     students,
     gaps,
     timeline: computeClassMasteryTimeline(rows, members),
+    questionsThisWeek: students.reduce((sum, s) => sum + s.questionsThisWeek, 0),
   }
 }
 

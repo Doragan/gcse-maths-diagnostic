@@ -78,7 +78,12 @@ export async function signUpStudent(
 }
 
 export async function getStudentProfile() {
-  const { data: { user } } = await supabase.auth.getUser()
+  // getSession() reads the JWT locally (no network round-trip), unlike getUser()
+  // which revalidates against the auth server. The students fetch below is still
+  // RLS-protected — the server validates the token regardless — so this just
+  // keeps the slow auth call off the critical path on first load (e.g. /practice).
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) return null
   const { data } = await supabase
     .from('students')

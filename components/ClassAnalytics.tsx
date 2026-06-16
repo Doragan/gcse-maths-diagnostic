@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import {
   getClassAnalytics, TOPICS,
-  type ClassAnalytics, type Topic,
+  type ClassAnalytics, type Topic, type StudentAnalytics, type SkillStatus,
 } from '../lib/teacherAnalytics'
 import ClassMasteryTrend from './ClassMasteryTrend'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
@@ -24,6 +24,7 @@ const bTxt = (p: number) => (p >= 70 ? colors.successText : p >= 40 ? colors.war
 export default function ClassAnalytics({ classId }: { classId: string }) {
   const [data, setData] = useState<ClassAnalytics | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
     let live = true
@@ -56,7 +57,7 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
         <h2 style={sectionTitle}>Class mastery</h2>
         <span style={{ fontSize: font.sm, color: colors.textHint }}>
-          {data.studentsWithData} of {data.studentCount} active
+          {data.studentsWithData} of {data.studentCount} active{data.questionsThisWeek > 0 && ` · ${data.questionsThisWeek} answered this week`}
         </span>
       </div>
 
@@ -128,44 +129,126 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
             </div>
           )}
 
-          {/* ── Per-student table ── */}
+          {/* ── Per-student table (rows expand to a drill-down) ── */}
           <div style={{ marginTop: 18, overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm, tableLayout: 'fixed', minWidth: 380 }}>
+              {/* fixed layout → even, predictable columns (the numeric cols share equally) */}
+              <colgroup>
+                <col style={{ width: '30%' }} />
+                <col />
+                {liveTopics.map(t => <col key={t} />)}
+                <col style={{ width: '34px' }} />
+              </colgroup>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
                   <th style={{ ...th, textAlign: 'left' }}>Student</th>
                   <th style={th}>Mastery</th>
                   {liveTopics.map(t => <th key={t} style={{ ...th, color: TOPIC_COLOUR[t] }}>{t.split(' ')[0]}</th>)}
+                  <th style={th} aria-label="expand" />
                 </tr>
               </thead>
               <tbody>
-                {ranked.map(s => (
-                  <tr key={s.studentId} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={{ ...td, textAlign: 'left', fontWeight: 500, color: colors.textPrimary, whiteSpace: 'nowrap' }}>
-                      {s.displayName}{s.yearGroup && <span style={{ color: colors.textHint, fontWeight: 400 }}> · {s.yearGroup}</span>}
-                    </td>
-                    <td style={{ ...td, fontWeight: 700, color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint }}>
-                      {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
-                    </td>
-                    {liveTopics.map(t => {
-                      const m = s.topicMastery[t]
-                      return (
-                        <td key={t} style={{ ...td, fontWeight: 600, color: m !== undefined ? bCol(m) : colors.textHint }}>
-                          {m !== undefined ? `${m}%` : '—'}
+                {ranked.map(s => {
+                  const open = expandedId === s.studentId
+                  return (
+                    <Fragment key={s.studentId}>
+                      <tr
+                        onClick={() => setExpandedId(open ? null : s.studentId)}
+                        style={{ borderBottom: `1px solid ${colors.border}`, cursor: 'pointer', background: open ? colors.cardAlt : undefined }}
+                      >
+                        <td style={{ ...td, textAlign: 'left', fontWeight: 500, color: colors.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {s.displayName}{s.yearGroup && <span style={{ color: colors.textHint, fontWeight: 400 }}> · {s.yearGroup}</span>}
                         </td>
-                      )
-                    })}
-                  </tr>
-                ))}
+                        <td style={{ ...td, fontWeight: 700, color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint }}>
+                          {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
+                        </td>
+                        {liveTopics.map(t => {
+                          const m = s.topicMastery[t]
+                          return (
+                            <td key={t} style={{ ...td, fontWeight: 600, color: m !== undefined ? bCol(m) : colors.textHint }}>
+                              {m !== undefined ? `${m}%` : '—'}
+                            </td>
+                          )
+                        })}
+                        <td style={{ ...td, color: colors.textHint, fontSize: font.sm }}>{open ? '▾' : '▸'}</td>
+                      </tr>
+                      {open && (
+                        <tr style={{ background: colors.cardAlt, borderBottom: `1px solid ${colors.border}` }}>
+                          <td colSpan={3 + liveTopics.length} style={{ padding: '4px 12px 14px' }}>
+                            <StudentDrillDown s={s} />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  )
+                })}
               </tbody>
             </table>
           </div>
 
           <p style={{ fontSize: '11px', color: colors.textHint, margin: '12px 0 0', lineHeight: 1.5 }}>
-            Mastery = % of all skills in the topic / course mastered (4+ correct in the last 5 attempts), across practice and assignments. Low early in the course is expected — it climbs as topics are covered.
+            Mastery = % of all skills in the topic / course mastered (4+ correct in the last 5 attempts), across practice and assignments. Low early in the course is expected — it climbs as topics are covered. Tap a row for the per-skill breakdown.
           </p>
         </>
       )}
+    </div>
+  )
+}
+
+// ── Drill-down: engagement + per-skill mastery for one student ────────────────
+
+const STATUS_META: Record<SkillStatus, { label: string; bg: string; colour: string }> = {
+  mastered:       { label: 'Mastered',      bg: colors.successLight, colour: colors.successText },
+  needs_practice: { label: 'Needs practice', bg: colors.warningLight, colour: colors.warningText },
+  in_progress:    { label: 'In progress',    bg: colors.cardAlt,      colour: colors.textSecondary },
+}
+const STATUS_ORDER: SkillStatus[] = ['mastered', 'needs_practice', 'in_progress']
+
+function ago(iso: string | null): string {
+  if (!iso) return '—'
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
+  if (days <= 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 7) return `${days} days ago`
+  const w = Math.floor(days / 7)
+  return w === 1 ? 'last week' : `${w} weeks ago`
+}
+
+function StudentDrillDown({ s }: { s: StudentAnalytics }) {
+  return (
+    <div>
+      {/* engagement line */}
+      <div style={{ fontSize: font.sm, color: colors.textSecondary, margin: '6px 0 10px' }}>
+        <strong style={{ color: colors.textPrimary }}>{s.questionsThisWeek}</strong> answered this week
+        {' · '}<strong style={{ color: colors.textPrimary }}>{s.totalQuestions}</strong> total
+        {' · '}last active {ago(s.lastActive)}
+      </div>
+      {/* per-skill, grouped by status */}
+      {s.skillDetail.length === 0 ? (
+        <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>No skills attempted yet.</p>
+      ) : STATUS_ORDER.map(status => {
+        const group = s.skillDetail.filter(d => d.status === status)
+        if (group.length === 0) return null
+        const meta = STATUS_META[status]
+        return (
+          <div key={status} style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: meta.colour, marginBottom: 4 }}>
+              {meta.label} ({group.length})
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {group.map(d => (
+                <span key={d.skillId} style={{
+                  fontSize: font.sm, padding: '2px 8px', borderRadius: radius.sm,
+                  background: meta.bg, color: meta.colour,
+                  borderLeft: d.topic ? `3px solid ${TOPIC_COLOUR[d.topic]}` : undefined,
+                }}>
+                  {d.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

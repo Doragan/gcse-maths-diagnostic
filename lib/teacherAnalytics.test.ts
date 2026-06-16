@@ -55,6 +55,27 @@ describe('computeClassAnalytics', () => {
     expect(res.studentsWithData).toBe(2)
   })
 
+  it('exposes per-skill detail and engagement (questions this week, last active)', () => {
+    const now = new Date('2026-06-15T12:00:00Z')
+    const recent = '2026-06-14T10:00:00Z' // within last 7 days
+    const old = '2026-05-01T10:00:00Z'    // older than a week
+    const rows: MasteryAttemptRow[] = [
+      ...attempts('a', 'simple_arithmetic', 5, 5).map(r => ({ ...r, attempted_at: recent })),
+      ...attempts('a', 'solving_linear_equations', 5, 1).map(r => ({ ...r, attempted_at: old })),
+    ]
+    const res = computeClassAnalytics(rows, members, now)
+    const alice = res.students.find(s => s.studentId === 'a')!
+    expect(alice.totalQuestions).toBe(10)
+    expect(alice.questionsThisWeek).toBe(5)       // only the 5 recent ones
+    expect(alice.lastActive).toBe(recent)
+    expect(res.questionsThisWeek).toBe(5)          // class-wide
+    const sa = alice.skillDetail.find(d => d.skillId === 'simple_arithmetic')!
+    expect(sa.status).toBe('mastered')
+    expect(sa.topic).toBe('Number')
+    expect(alice.skillDetail.find(d => d.skillId === 'solving_linear_equations')!.status).toBe('needs_practice')
+    expect(alice.skillDetail[0].status).toBe('mastered') // mastered sorts first
+  })
+
   it('flags a common gap when ≥2 members (and ≥half with data) are weak on a skill', () => {
     // Bob + Cara both needs_practice on solving_linear_equations; Alice mastered it
     const rows = [
