@@ -14,7 +14,15 @@ function fmt(d: string): string {
  * curriculum-mastery %. Hidden until there are ≥2 weeks with active students
  * (a trend needs history).
  */
-export default function ClassMasteryTrend({ points }: { points: TimelinePoint[] }) {
+export default function ClassMasteryTrend({
+  points,
+  title = 'Mastery over time',
+  caption = 'Class average % of the curriculum mastered, by week. Fills out as the class builds up history.',
+}: {
+  points: TimelinePoint[]
+  title?: string
+  caption?: string
+}) {
   if (points.filter(p => p.activeStudents > 0).length < 2) return null
 
   const W = 360, H = 96, padL = 30, padR = 10, padT = 10, padB = 18
@@ -27,7 +35,7 @@ export default function ClassMasteryTrend({ points }: { points: TimelinePoint[] 
   return (
     <div style={{ marginTop: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <h3 style={{ fontSize: font.md, fontWeight: 700, margin: 0, color: colors.textPrimary }}>Mastery over time</h3>
+        <h3 style={{ fontSize: font.md, fontWeight: 700, margin: 0, color: colors.textPrimary }}>{title}</h3>
         <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
           now <strong style={{ color: colors.primary }}>{last.masteryPct}%</strong>
         </span>
@@ -46,9 +54,7 @@ export default function ClassMasteryTrend({ points }: { points: TimelinePoint[] 
         <text x={padL} y={H - 5} textAnchor="start" fontSize="9" fill={colors.textHint}>{fmt(points[0].weekEnding)}</text>
         <text x={W - padR} y={H - 5} textAnchor="end" fontSize="9" fill={colors.textHint}>{fmt(last.weekEnding)}</text>
       </svg>
-      <p style={{ fontSize: '11px', color: colors.textHint, margin: '2px 0 0' }}>
-        Class average % of the curriculum mastered, by week. Fills out as the class builds up history.
-      </p>
+      <p style={{ fontSize: '11px', color: colors.textHint, margin: '2px 0 0' }}>{caption}</p>
     </div>
   )
 }

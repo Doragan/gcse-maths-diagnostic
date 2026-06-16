@@ -47,6 +47,8 @@ export type StudentAnalytics = {
   topicMastery: Partial<Record<Topic, number>>
   /** Per-skill mastery detail for the drill-down (skills with ≥1 attempt). */
   skillDetail: SkillDetail[]
+  /** This student's own weekly mastery trend (for the detail view). */
+  timeline: TimelinePoint[]
   // ── engagement (shareable aggregate) ──
   totalQuestions: number      // total recorded attempts (practice + assignments)
   questionsThisWeek: number   // attempts in the last 7 days
@@ -218,6 +220,7 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
       overallMastery,
       topicMastery,
       skillDetail,
+      timeline: computeClassMasteryTimeline(attempts, [m], 10, now),
       totalQuestions: attempts.length,
       questionsThisWeek,
       lastActive,
