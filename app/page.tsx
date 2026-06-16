@@ -227,7 +227,7 @@ export default function LandingPage() {
         padding: 'clamp(56px, 10vw, 96px) 24px',
         textAlign: 'center' as const,
       }}>
-        <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
 
           <div style={{
             display: 'inline-block',
@@ -258,15 +258,20 @@ export default function LandingPage() {
 
           <p style={{
             fontSize: 'clamp(16px, 2.5vw, 20px)',
-            color: 'rgba(255,255,255,0.82)',
-            margin: '0 0 40px',
+            color: 'rgba(255,255,255,0.85)',
+            margin: '0 0 28px',
             lineHeight: '1.65',
-            maxWidth: '520px',
+            maxWidth: '560px',
             marginLeft: 'auto',
             marginRight: 'auto',
           }}>
-            Take a free 5-minute diagnostic, see exactly where your strengths and gaps are, and get a personalised revision plan across all 135 GCSE Maths skills. No sign-up needed to start.
+            Every question pinpoints the exact mistake you made and explains it — not just &ldquo;wrong, try again.&rdquo; <strong style={{ color: '#fff' }}>Try one now</strong> — no sign-up needed.
           </p>
+
+          {/* Live, interactive demo — leads with doing, not reading */}
+          <div style={{ marginBottom: '28px' }}>
+            <DemoQuestion />
+          </div>
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const, marginBottom: '28px' }}>
             <Link
@@ -454,31 +459,6 @@ export default function LandingPage() {
               Start free diagnostic →
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* ── Try it yourself ────────────────────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(48px, 8vw, 80px) 24px', background: '#ffffff', borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' as const }}>
-          <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, margin: '0 0 14px', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
-            Try it yourself
-          </p>
-          <h2 style={{
-            fontSize: 'clamp(24px, 4vw, 36px)',
-            fontWeight: '800',
-            color: colors.textPrimary,
-            margin: '0 0 16px',
-            letterSpacing: '-0.02em',
-          }}>
-            Real questions, targeted feedback
-          </h2>
-          <p style={{ fontSize: font.md, color: colors.textSecondary, margin: '0 0 32px', lineHeight: '1.65', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-            Every question in Mathsense knows the most common mistakes and gives specific, helpful feedback — not just &ldquo;wrong, try again.&rdquo; See for yourself:
-          </p>
-          <DemoQuestion />
-          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '16px 0 0' }}>
-            The full diagnostic has questions across all 5 topics and 135 skills.
-          </p>
         </div>
       </section>
 
