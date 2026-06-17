@@ -63,6 +63,7 @@ function DemoQuestion() {
       .is('parts', null)
       .in('answer_type', ['numeric', 'fraction'])
       .not('question_template', 'ilike', '%<svg%')
+      .lte('difficulty', 3) // keep the front-page demo approachable — no hard Higher-tier questions
       .limit(60)
       .then(({ data }) => {
         if (!live || !data) return
