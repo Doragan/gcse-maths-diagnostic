@@ -48,6 +48,8 @@ function DemoQuestion() {
   const [answered, setAnswered] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [skillsSeen, setSkillsSeen] = useState<Set<string>>(new Set())
+  const [showSignupModal, setShowSignupModal] = useState(false)
+  const [signupModalShown, setSignupModalShown] = useState(false)
 
   // Pull a curated pool of demo-friendly questions: single-answer, has a trap,
   // numeric/fraction answer (easy to type), no diagram. Each one renders with
@@ -88,6 +90,11 @@ function DemoQuestion() {
     if (res.correct) setCorrectCount(c => c + 1)
     const sk = current.q.skill_ids?.[0]
     if (sk) setSkillsSeen(prev => (prev.has(sk) ? prev : new Set(prev).add(sk)))
+    // Pop the progress-evidence sign-up box once they've really had a go.
+    if (answered + 1 >= 5 && !signupModalShown) {
+      setShowSignupModal(true)
+      setSignupModalShown(true)
+    }
   }
 
   function next() {
@@ -108,6 +115,7 @@ function DemoQuestion() {
   const skill = current ? skillsById[current.q.skill_ids?.[0]] : null
 
   return (
+    <>
     <div style={{
       background: '#fff',
       border: 'none',
@@ -234,29 +242,9 @@ function DemoQuestion() {
               </div>
             )}
 
-            {/* Conversion nudge — escalates with engagement */}
-            {answered >= 5 && result ? (
-              // Stronger prompt once they've really had a go: show the progress
-              // they've built as the reason to make an account.
-              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
-                <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
-                  📈 <strong style={{ color: colors.textPrimary }}>{correctCount}/{answered}</strong> correct across{' '}
-                  <strong style={{ color: colors.textPrimary }}>{skillsSeen.size}</strong> skill{skillsSeen.size === 1 ? '' : 's'} so far — nice work.
-                  Create a free account to save your progress and build your full skill map.
-                </p>
-                <Link
-                  href="/student"
-                  onClick={() => trackEvent('demo_signup_prompt_clicked')}
-                  style={{
-                    display: 'inline-block', background: colors.primary, color: '#fff',
-                    padding: '11px 22px', borderRadius: radius.md, fontSize: font.base,
-                    fontWeight: '700', textDecoration: 'none',
-                  }}
-                >
-                  Create a free account →
-                </Link>
-              </div>
-            ) : answered >= 2 && result ? (
+            {/* Gentle inline nudge after a couple of answers (the stronger
+                progress prompt pops as a modal at 5 — see below). */}
+            {answered >= 2 && result && (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
                 <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
                   👏 You&apos;ve got the hang of it. Keep going — practise all 135 skills with the same instant feedback.
@@ -273,11 +261,44 @@ function DemoQuestion() {
                   Start practising free →
                 </Link>
               </div>
-            ) : null}
+            )}
           </>
         )}
       </div>
     </div>
+
+    {/* Progress-evidence sign-up box — a pop-up over the page (same window) */}
+    {showSignupModal && (
+      <div
+        onClick={() => setShowSignupModal(false)}
+        style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.55)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      >
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{ background: '#fff', borderRadius: radius.lg, maxWidth: 420, width: '100%', padding: '30px 26px 22px', textAlign: 'center' as const, boxShadow: '0 24px 60px rgba(0,0,0,0.32)', position: 'relative' as const }}
+        >
+          <button onClick={() => setShowSignupModal(false)} aria-label="Close" style={{ position: 'absolute' as const, top: 12, right: 14, background: 'none', border: 'none', fontSize: font.xl, color: colors.textSecondary, cursor: 'pointer', lineHeight: 1 }}>✕</button>
+          <div style={{ fontSize: 38, marginBottom: 6 }}>📈</div>
+          <h3 style={{ fontSize: font.xl, fontWeight: '800', color: colors.textPrimary, margin: '0 0 8px' }}>You&apos;re making progress!</h3>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 20px', lineHeight: 1.6 }}>
+            <strong style={{ color: colors.textPrimary }}>{correctCount}/{answered}</strong> correct across{' '}
+            <strong style={{ color: colors.textPrimary }}>{skillsSeen.size}</strong> skill{skillsSeen.size === 1 ? '' : 's'} so far.
+            Create a free account to save your progress and build your full skill map across all 135 GCSE Maths skills.
+          </p>
+          <Link
+            href="/student"
+            onClick={() => trackEvent('demo_signup_prompt_clicked')}
+            style={{ display: 'block', background: colors.primary, color: '#fff', padding: '13px', borderRadius: radius.md, fontSize: font.lg, fontWeight: '800', textDecoration: 'none', marginBottom: 10 }}
+          >
+            Create a free account →
+          </Link>
+          <button onClick={() => setShowSignupModal(false)} style={{ background: 'none', border: 'none', color: colors.textSecondary, fontSize: font.sm, cursor: 'pointer', fontWeight: '600' }}>
+            Keep practising
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 
