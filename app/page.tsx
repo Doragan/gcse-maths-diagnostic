@@ -46,6 +46,8 @@ function DemoQuestion() {
   const [raw, setRaw] = useState('')
   const [result, setResult] = useState<{ correct: boolean; html: string } | null>(null)
   const [answered, setAnswered] = useState(0)
+  const [correctCount, setCorrectCount] = useState(0)
+  const [skillsSeen, setSkillsSeen] = useState<Set<string>>(new Set())
 
   // Pull a curated pool of demo-friendly questions: single-answer, has a trap,
   // numeric/fraction answer (easy to type), no diagram. Each one renders with
@@ -83,6 +85,9 @@ function DemoQuestion() {
         : (res.trap?.response || `Not quite — the correct answer is <strong>${current.answer}</strong>.`),
     })
     setAnswered(a => a + 1)
+    if (res.correct) setCorrectCount(c => c + 1)
+    const sk = current.q.skill_ids?.[0]
+    if (sk) setSkillsSeen(prev => (prev.has(sk) ? prev : new Set(prev).add(sk)))
   }
 
   function next() {
@@ -92,7 +97,13 @@ function DemoQuestion() {
     setCurrent(renderOne(pool[nc]))
     setRaw(''); setResult(null)
   }
-  function retry() { setRaw(''); setResult(null) }
+  // "Try again" re-rolls the SAME skill with fresh numbers (matches /practice),
+  // so it's a genuine second go rather than the identical question.
+  function retry() {
+    if (!current) return
+    setCurrent(renderOne(current.q))
+    setRaw(''); setResult(null)
+  }
 
   const skill = current ? skillsById[current.q.skill_ids?.[0]] : null
 
@@ -104,13 +115,15 @@ function DemoQuestion() {
       overflow: 'hidden',
       maxWidth: 560,
       margin: '0 auto',
-      // Deep elevation + a soft halo so the card clearly floats above the blue.
-      boxShadow: '0 28px 60px -14px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.7), 0 0 0 8px rgba(255,255,255,0.12)',
+      // Big elevation + bright halo so the card clearly floats above the blue hero.
+      boxShadow: '0 34px 70px -12px rgba(0,0,0,0.58), 0 0 0 1px rgba(255,255,255,0.9), 0 0 0 10px rgba(255,255,255,0.14)',
       textAlign: 'left',
     }}>
+      {/* Accent cap — a vivid top edge so the card reads as its own object */}
+      <div style={{ height: 5, background: `linear-gradient(90deg, ${colors.primary}, #60a5fa, ${colors.primary})` }} />
       {/* Card header */}
       <div style={{
-        background: `${colors.primary}0a`,
+        background: `${colors.primary}12`,
         borderBottom: `1px solid ${colors.border}`,
         padding: '10px 20px',
         display: 'flex',
@@ -221,8 +234,29 @@ function DemoQuestion() {
               </div>
             )}
 
-            {/* Conversion nudge — after a couple of answers, hand off to practice */}
-            {answered >= 2 && result && (
+            {/* Conversion nudge — escalates with engagement */}
+            {answered >= 5 && result ? (
+              // Stronger prompt once they've really had a go: show the progress
+              // they've built as the reason to make an account.
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
+                <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
+                  📈 <strong style={{ color: colors.textPrimary }}>{correctCount}/{answered}</strong> correct across{' '}
+                  <strong style={{ color: colors.textPrimary }}>{skillsSeen.size}</strong> skill{skillsSeen.size === 1 ? '' : 's'} so far — nice work.
+                  Create a free account to save your progress and build your full skill map.
+                </p>
+                <Link
+                  href="/student"
+                  onClick={() => trackEvent('demo_signup_prompt_clicked')}
+                  style={{
+                    display: 'inline-block', background: colors.primary, color: '#fff',
+                    padding: '11px 22px', borderRadius: radius.md, fontSize: font.base,
+                    fontWeight: '700', textDecoration: 'none',
+                  }}
+                >
+                  Create a free account →
+                </Link>
+              </div>
+            ) : answered >= 2 && result ? (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
                 <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
                   👏 You&apos;ve got the hang of it. Keep going — practise all 135 skills with the same instant feedback.
@@ -239,7 +273,7 @@ function DemoQuestion() {
                   Start practising free →
                 </Link>
               </div>
-            )}
+            ) : null}
           </>
         )}
       </div>
