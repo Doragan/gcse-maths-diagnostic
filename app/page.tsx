@@ -393,7 +393,7 @@ export default function LandingPage() {
             marginLeft: 'auto',
             marginRight: 'auto',
           }}>
-            Every question pinpoints the exact mistake you made and explains it — not just &ldquo;wrong, try again.&rdquo; <strong style={{ color: '#fff' }}>Try one now</strong> — no sign-up needed.
+            When you slip on a common mistake, it tells you exactly what went wrong — not just &ldquo;wrong, try again.&rdquo; <strong style={{ color: '#fff' }}>Try one now</strong> — no sign-up needed.
           </p>
 
           {/* Live, interactive demo — leads with doing, not reading */}
