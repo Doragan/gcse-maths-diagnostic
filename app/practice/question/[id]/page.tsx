@@ -359,7 +359,18 @@ function QuestionPage() {
       setShowSignUpPrompt(true)
       trackEvent('practice_signup_prompt_shown', { questions: count })
     }
-    if (!studentId) return
+    if (!studentId) {
+      // Anonymous: persist the attempt to localStorage so it migrates into the
+      // account on signup/login (see migratePendingPractice in app/student/page).
+      // localStorage (not sessionStorage) survives the email-confirmation round-trip;
+      // capped so a long anonymous run can't bloat storage.
+      try {
+        const pending = JSON.parse(localStorage.getItem('pending_practice') ?? '[]')
+        pending.push({ question_id: question.id, skill_ids: question.skill_ids, correct, kind: question.kind ?? 'mastery' })
+        localStorage.setItem('pending_practice', JSON.stringify(pending.slice(-200)))
+      } catch { /* best-effort — storage may be full or disabled */ }
+      return
+    }
 
     // Always record to practice_attempts for mastery / skill tracking.
     const { error: paError } = await supabase
