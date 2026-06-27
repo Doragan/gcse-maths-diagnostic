@@ -153,6 +153,7 @@ export const skills: Skill[] = [
     "name": "Congruence and Similarity",
     "topic": "Shape and Space",
     "prerequisites": [
+      "lengths_and_perimeters",
       "angles_in_polygons"
     ],
 	"exampleQuestion": "Calculate the length of the side BC in the diagram below:",
@@ -402,11 +403,22 @@ export const skills: Skill[] = [
 	"exampleAnswer": "(x + 9)(x - 9)" 
   },
   {
+    "id": "lengths_and_perimeters",
+    "name": "Lengths and Perimeters",
+    "topic": "Shape and Space",
+    "prerequisites": [
+      "simple_arithmetic"
+    ],
+    "exampleQuestion": "A rectangle has a length of 8 cm and a width of 5 cm. Work out its perimeter.",
+    "exampleAnswer": "26 cm (perimeter = 2 × (8 + 5) = 2 × 13 = 26 cm)"
+  },
+  {
     "id": "areas_of_squares_and_rectangles",
     "name": "Areas of Squares and Rectangles",
     "topic": "Shape and Space",
     "prerequisites": [
-      "simple_arithmetic"
+      "simple_arithmetic",
+      "lengths_and_perimeters"
     ],
 	"exampleQuestion": "Calculate the area of the rectangle, below:",
 	"exampleAnswer": "60mm²" ,
@@ -566,7 +578,8 @@ export const skills: Skill[] = [
     "name": "Circumfrence of a Circle",
     "topic": "Shape and Space",
     "prerequisites": [
-      "simple_arithmetic"
+      "simple_arithmetic",
+      "lengths_and_perimeters"
     ],
 "exampleQuestion": "Calculate the circumfrence of the circle in the image below.",
 "exampleAnswer": "54.04cm (to 2dp)",
@@ -889,6 +902,7 @@ export const skills: Skill[] = [
     "topic": "Shape and Space",
     "prerequisites": [
       "simple_arithmetic",
+      "lengths_and_perimeters",
       "angles_on_lines_and_circles",
       "indices",
       "areas_of_squares_and_rectangles",
@@ -903,6 +917,7 @@ export const skills: Skill[] = [
     "name": "Trigonometry (missing sides)",
     "topic": "Shape and Space",
     "prerequisites": [
+      "lengths_and_perimeters",
       "angles_on_lines_and_circles",
       "angles_in_polygons"
     ],

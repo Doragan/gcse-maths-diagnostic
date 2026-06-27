@@ -248,7 +248,7 @@ function DemoQuestion() {
             {answered >= 2 && result && (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
                 <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
-                  👏 You&apos;ve got the hang of it. Keep going — practise all 135 skills with the same instant feedback.
+                  👏 You&apos;ve got the hang of it. Keep going — practise all 152 skills with the same instant feedback.
                 </p>
                 <Link
                   href="/practice"
@@ -467,7 +467,7 @@ export default function LandingPage() {
           flexWrap: 'wrap' as const,
         }}>
           {[
-            { number: '135', label: 'GCSE Maths skills' },
+            { number: '152', label: 'GCSE Maths skills' },
             { number: '5–10', label: 'minute sessions' },
             { number: '100%', label: 'free to start' },
           ].map(({ number, label }) => (
@@ -507,7 +507,7 @@ export default function LandingPage() {
               {
                 emoji: '📈',
                 title: 'Track your mastery',
-                body: "Watch 135 skills move from 'not started' to 'mastered'. See your progress build question by question, session by session.",
+                body: "Watch 152 skills move from 'not started' to 'mastered'. See your progress build question by question, session by session.",
               },
             ].map(({ emoji, title, body }) => (
               <div key={title} style={{
@@ -556,7 +556,7 @@ export default function LandingPage() {
               {
                 n: '3',
                 title: 'Create a free account to keep going',
-                body: 'Save your progress and get questions targeted at your weak skills. Watch 135 skills go from \'not started\' to \'mastered\'.',
+                body: 'Save your progress and get questions targeted at your weak skills. Watch 152 skills go from \'not started\' to \'mastered\'.',
               },
             ].map(({ n, title, body }, i) => (
               <div key={n} style={{ display: 'flex', gap: '20px' }}>
