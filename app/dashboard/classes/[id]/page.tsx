@@ -6,6 +6,7 @@ import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
 import { getClassMembers, type ClassMember } from '../../../../lib/classes'
 import ClassAnalytics from '../../../../components/ClassAnalytics'
+import ClassCoverage from '../../../../components/ClassCoverage'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
@@ -21,6 +22,8 @@ export default function ClassRosterPage() {
   const [members, setMembers] = useState<ClassMember[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  // Bumped when coverage edits are committed → remounts ClassAnalytics to refetch.
+  const [coverageVersion, setCoverageVersion] = useState(0)
 
   useEffect(() => {
     getSession().then(async session => {
@@ -143,8 +146,11 @@ export default function ClassRosterPage() {
         )}
       </div>
 
+      {/* Teacher-marked coverage — scopes the mastery % to what's been taught */}
+      <ClassCoverage classId={classId} onChange={() => setCoverageVersion(v => v + 1)} />
+
       {/* Aggregated skill mastery across the class (practice + assignments) */}
-      <ClassAnalytics classId={classId} />
+      <ClassAnalytics key={coverageVersion} classId={classId} />
     </main>
   )
 }

@@ -177,7 +177,11 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
           </div>
 
           <p style={{ fontSize: '11px', color: colors.textHint, margin: '12px 0 0', lineHeight: 1.5 }}>
-            Mastery = % of all skills in the topic / course mastered (4+ correct in the last 5 attempts), across practice and assignments. Low early in the course is expected — it climbs as topics are covered. Tap a student to open their breakdown.
+            {data.scoped ? (
+              <>Mastery = % of the {data.coveredCount} skill{data.coveredCount === 1 ? '' : 's'} you&apos;ve marked as covered that are mastered (4+ correct in the last 5 attempts), across practice and assignments. Adjust what counts in <strong>Topics covered</strong> above. Tap a student to open their breakdown.</>
+            ) : (
+              <>Mastery = % of all skills in the topic / course mastered (4+ correct in the last 5 attempts), across practice and assignments. Low early in the course is expected — it climbs as topics are covered. Mark what you&apos;ve taught in <strong>Topics covered</strong> above to measure against that instead. Tap a student to open their breakdown.</>
+            )}
           </p>
         </>
       )}

@@ -76,6 +76,8 @@ export type ClassAnalytics = {
   gaps: SkillGap[]
   timeline: TimelinePoint[]  // weekly class-mastery trend
   questionsThisWeek: number  // class-wide engagement: attempts in the last 7 days
+  scoped: boolean            // true when % is over teacher-marked coverage, not the whole course
+  coveredCount: number       // number of skills marked covered (0 when unscoped)
 }
 
 export type MasteryAttemptRow = {
@@ -96,13 +98,41 @@ function round(n: number): number { return Math.round(n) }
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
-/** Skills currently mastered, from a student's attempt rows. */
-function masteredCount(attempts: MasteryAttemptRow[]): number {
+// ── Coverage scoping ─────────────────────────────────────────────────────────
+// When a teacher has marked which skills the class has been taught (see
+// class_skill_coverage), the denominator becomes that covered set instead of the
+// whole curriculum, and the numerator only counts mastered skills WITHIN it — so
+// not-yet-taught skills don't read as failure. An empty/absent covered set means
+// "not scoped" → whole-curriculum behaviour exactly as before.
+type CoveredCtx = {
+  total: number
+  topicTotal: Record<Topic, number>
+  has: (skillId: string) => boolean
+}
+
+function buildCovered(covered?: string[] | Set<string> | null): CoveredCtx | null {
+  if (!covered) return null
+  const set = covered instanceof Set ? covered : new Set(covered)
+  if (set.size === 0) return null
+  const topicTotal = Object.fromEntries(TOPICS.map(t => [t, 0])) as Record<Topic, number>
+  for (const id of set) {
+    const t = topicOf(id)
+    if (t) topicTotal[t]++
+  }
+  return { total: set.size, topicTotal, has: id => set.has(id) }
+}
+
+/** Skills currently mastered, optionally restricted to the covered set. */
+function masteredCount(attempts: MasteryAttemptRow[], ctx: CoveredCtx | null): number {
   const mastery = calculateMastery(
     attempts.map(a => ({ skill_ids: a.skill_ids, correct: a.correct, attempted_at: a.attempted_at, kind: a.kind === 'exam' ? 'exam' : 'mastery' }))
   )
   let n = 0
-  for (const m of Object.values(mastery)) if (m.status === 'mastered') n++
+  for (const m of Object.values(mastery)) {
+    if (m.status !== 'mastered') continue
+    if (ctx && !ctx.has(m.skillId)) continue
+    n++
+  }
   return n
 }
 
@@ -120,7 +150,10 @@ export function computeClassMasteryTimeline(
   members: MemberLite[],
   weeks = 10,
   now: Date = new Date(),
+  covered?: string[] | Set<string> | null,
 ): TimelinePoint[] {
+  const ctx = buildCovered(covered)
+  const total = ctx ? ctx.total : CURRICULUM_TOTAL
   const byStudent = new Map<string, MasteryAttemptRow[]>()
   for (const r of rows) {
     if (!byStudent.has(r.student_id)) byStudent.set(r.student_id, [])
@@ -134,7 +167,7 @@ export function computeClassMasteryTimeline(
     for (const m of members) {
       const upTo = (byStudent.get(m.student_id) ?? []).filter(a => new Date(a.attempted_at).getTime() <= cutoff)
       if (upTo.length === 0) continue // not active by this date
-      sum += (masteredCount(upTo) / CURRICULUM_TOTAL) * 100
+      sum += (masteredCount(upTo, ctx) / total) * 100
       active++
     }
     series.push({
@@ -150,7 +183,14 @@ export function computeClassMasteryTimeline(
  * Pure aggregation: attempt rows (across all members) + the roster → class
  * analytics. Members with no attempts appear with overallMastery null.
  */
-export function computeClassAnalytics(rows: MasteryAttemptRow[], members: MemberLite[], now: Date = new Date()): ClassAnalytics {
+export function computeClassAnalytics(
+  rows: MasteryAttemptRow[],
+  members: MemberLite[],
+  now: Date = new Date(),
+  covered?: string[] | Set<string> | null,
+): ClassAnalytics {
+  const ctx = buildCovered(covered)
+  const overallTotal = ctx ? ctx.total : CURRICULUM_TOTAL
   const byStudent = new Map<string, MasteryAttemptRow[]>()
   for (const r of rows) {
     if (!byStudent.has(r.student_id)) byStudent.set(r.student_id, [])
@@ -173,33 +213,42 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     const skillDetail: SkillDetail[] = []
     let mastered = 0
     for (const e of entries) {
-      if (e.status === 'mastered') mastered++
-      // gaps tally (only needs_practice counts as "weak"; in_progress is neutral)
-      const sw = skillWeak.get(e.skillId) ?? { weak: 0, withData: 0 }
-      sw.withData++
-      if (e.status === 'needs_practice') sw.weak++
-      skillWeak.set(e.skillId, sw)
+      // When scoped, only skills the class has been taught feed the headline
+      // %s, the per-topic bars, and the common-gaps tally. The skill detail
+      // list below still shows everything the student has touched.
+      const inScope = !ctx || ctx.has(e.skillId)
+      if (inScope) {
+        if (e.status === 'mastered') mastered++
+        // gaps tally (only needs_practice counts as "weak"; in_progress is neutral)
+        const sw = skillWeak.get(e.skillId) ?? { weak: 0, withData: 0 }
+        sw.withData++
+        if (e.status === 'needs_practice') sw.weak++
+        skillWeak.set(e.skillId, sw)
 
-      const topic = topicOf(e.skillId)
-      if (topic) {
-        const t = topicTally[topic] ?? { mastered: 0, total: 0 }
-        t.total++
-        if (e.status === 'mastered') t.mastered++
-        topicTally[topic] = t
+        const topic = topicOf(e.skillId)
+        if (topic) {
+          const t = topicTally[topic] ?? { mastered: 0, total: 0 }
+          t.total++
+          if (e.status === 'mastered') t.mastered++
+          topicTally[topic] = t
+        }
       }
-      skillDetail.push({ skillId: e.skillId, name: skillsById[e.skillId]?.name ?? e.skillId, topic, status: e.status as SkillStatus })
+      skillDetail.push({ skillId: e.skillId, name: skillsById[e.skillId]?.name ?? e.skillId, topic: topicOf(e.skillId), status: e.status as SkillStatus })
     }
     // stable order: mastered → needs_practice → in_progress, then alphabetical
     const ORDER: Record<SkillStatus, number> = { mastered: 0, needs_practice: 1, in_progress: 2 }
     skillDetail.sort((a, b) => ORDER[a.status] - ORDER[b.status] || a.name.localeCompare(b.name))
 
     const attemptedSkills = entries.length
-    // Denominator is the whole curriculum / whole topic, not just attempted skills.
-    const overallMastery = attemptedSkills > 0 ? round((mastered / CURRICULUM_TOTAL) * 100) : null
+    // Denominator = covered skills when the class has marked coverage, else the
+    // whole curriculum / whole topic (not just attempted skills).
+    const overallMastery = attemptedSkills > 0 ? round((mastered / overallTotal) * 100) : null
     const topicMastery: Partial<Record<Topic, number>> = {}
     if (attemptedSkills > 0) {
       for (const topic of TOPICS) {
-        topicMastery[topic] = round(((topicTally[topic]?.mastered ?? 0) / TOPIC_TOTAL[topic]) * 100)
+        const topicTotal = ctx ? ctx.topicTotal[topic] : TOPIC_TOTAL[topic]
+        // Scoped + nothing taught in this topic → omit it (UI shows '—').
+        if (topicTotal > 0) topicMastery[topic] = round(((topicTally[topic]?.mastered ?? 0) / topicTotal) * 100)
       }
     }
 
@@ -220,7 +269,7 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
       overallMastery,
       topicMastery,
       skillDetail,
-      timeline: computeClassMasteryTimeline(attempts, [m], 10, now),
+      timeline: computeClassMasteryTimeline(attempts, [m], 10, now, covered),
       totalQuestions: attempts.length,
       questionsThisWeek,
       lastActive,
@@ -263,8 +312,10 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
     topicAvgs,
     students,
     gaps,
-    timeline: computeClassMasteryTimeline(rows, members),
+    timeline: computeClassMasteryTimeline(rows, members, 10, now, covered),
     questionsThisWeek: students.reduce((sum, s) => sum + s.questionsThisWeek, 0),
+    scoped: ctx !== null,
+    coveredCount: ctx?.total ?? 0,
   }
 }
 
@@ -275,18 +326,21 @@ export function computeClassAnalytics(rows: MasteryAttemptRow[], members: Member
  * can show a graceful fallback.
  */
 export async function getClassAnalytics(classId: string): Promise<ClassAnalytics> {
-  const [{ supabase }, { getClassMembers }] = await Promise.all([
+  const [{ supabase }, { getClassMembers, getClassCoverage }] = await Promise.all([
     import('./supabase'),
     import('./classes'),
   ])
-  const [members, rpc] = await Promise.all([
+  const [members, rpc, covered] = await Promise.all([
     getClassMembers(classId),
     supabase.rpc('get_class_skill_mastery', { _class_id: classId }),
+    getClassCoverage(classId),
   ])
   if (rpc.error) throw rpc.error
   const rows = (rpc.data ?? []) as MasteryAttemptRow[]
   return computeClassAnalytics(
     rows,
     members.map(m => ({ student_id: m.student_id, display_name: m.display_name, year_group: m.year_group })),
+    new Date(),
+    covered,
   )
 }

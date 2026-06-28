@@ -121,6 +121,49 @@ export async function leaveClass(classId: string): Promise<void> {
   if (error) throw error
 }
 
+// ── Coverage (teacher-marked: which skills a class has been taught) ───────────
+// Drives the dashboard's "of covered material" denominator. RLS scopes every
+// read/write to classes the signed-in teacher owns (csc_teacher_* policies).
+
+/**
+ * Skill ids the teacher has marked as taught for this class. Returns [] (→ the
+ * analytics falls back to the whole-curriculum denominator) if the table isn't
+ * there yet — so deploying the code before applying the migration is safe.
+ */
+export async function getClassCoverage(classId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('class_skill_coverage')
+    .select('skill_id')
+    .eq('class_id', classId)
+  if (error) return [] // migration not applied yet, or not the owner — no scope
+  return (data ?? []).map((r: { skill_id: string }) => r.skill_id)
+}
+
+/** Marks (covered=true) or unmarks (covered=false) a set of skills for a class. */
+export async function setClassCoverage(
+  classId: string,
+  skillIds: string[],
+  covered: boolean,
+): Promise<void> {
+  if (skillIds.length === 0) return
+  if (covered) {
+    const { error } = await supabase
+      .from('class_skill_coverage')
+      .upsert(
+        skillIds.map(skill_id => ({ class_id: classId, skill_id })),
+        { onConflict: 'class_id,skill_id', ignoreDuplicates: true },
+      )
+    if (error) throw error
+  } else {
+    const { error } = await supabase
+      .from('class_skill_coverage')
+      .delete()
+      .eq('class_id', classId)
+      .in('skill_id', skillIds)
+    if (error) throw error
+  }
+}
+
 export async function getStudentClasses(): Promise<StudentClass[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []

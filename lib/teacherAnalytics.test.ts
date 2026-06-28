@@ -132,4 +132,58 @@ describe('computeClassAnalytics', () => {
     expect(alice.overallMastery).toBe(0)
     expect(res.gaps).toEqual([])                // in_progress is not "weak"
   })
+
+  it('is unscoped (whole-curriculum denominator) when no coverage is given', () => {
+    const res = computeClassAnalytics([], members)
+    expect(res.scoped).toBe(false)
+    expect(res.coveredCount).toBe(0)
+    // an empty covered array is also treated as unscoped
+    expect(computeClassAnalytics([], members, undefined, []).scoped).toBe(false)
+  })
+})
+
+describe('computeClassAnalytics with teacher-marked coverage', () => {
+  // Alice mastered one covered skill (simple_arithmetic) and one NOT covered
+  // (solving_linear_equations). Coverage = two Number skills.
+  const covered = ['simple_arithmetic', 'fractions_of_amounts'] // both Number
+  const rows = [
+    ...attempts('a', 'simple_arithmetic', 5, 5),        // mastered, covered
+    ...attempts('a', 'solving_linear_equations', 5, 5), // mastered, NOT covered
+  ]
+
+  it('uses the covered set as the denominator and ignores out-of-scope masteries', () => {
+    const res = computeClassAnalytics(rows, members, undefined, covered)
+    const alice = res.students.find(s => s.studentId === 'a')!
+    expect(res.scoped).toBe(true)
+    expect(res.coveredCount).toBe(2)
+    // 1 of the 2 covered skills mastered (the linear-equations mastery is out of scope)
+    expect(alice.masteredSkills).toBe(1)
+    expect(alice.overallMastery).toBe(Math.round((1 / 2) * 100)) // 50%
+    // Number has both covered skills, 1 mastered → 50%
+    expect(alice.topicMastery['Number']).toBe(50)
+    // Algebra has no covered skills → omitted entirely
+    expect(alice.topicMastery['Algebra']).toBeUndefined()
+    // skill detail still lists everything the student touched, in or out of scope
+    expect(alice.skillDetail.some(d => d.skillId === 'solving_linear_equations')).toBe(true)
+  })
+
+  it('restricts common gaps to covered skills', () => {
+    // Two students weak on an out-of-scope skill → not a gap when scoped.
+    const gapRows = [
+      ...attempts('a', 'solving_linear_equations', 5, 1),
+      ...attempts('b', 'solving_linear_equations', 5, 1),
+    ]
+    const scoped = computeClassAnalytics(gapRows, members, undefined, covered)
+    expect(scoped.gaps.find(g => g.skillId === 'solving_linear_equations')).toBeUndefined()
+    // Same data, unscoped → it IS a gap.
+    const unscoped = computeClassAnalytics(gapRows, members)
+    expect(unscoped.gaps.find(g => g.skillId === 'solving_linear_equations')).toBeDefined()
+  })
+
+  it('scopes the mastery timeline denominator to the covered set', () => {
+    const now = new Date('2026-06-15T12:00:00Z')
+    const series = computeClassMasteryTimeline(rows, members, 4, now, covered)
+    // 1 of 2 covered skills mastered at the final checkpoint → 50%
+    expect(series[series.length - 1].masteryPct).toBe(50)
+  })
 })
