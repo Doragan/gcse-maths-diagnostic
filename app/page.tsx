@@ -87,12 +87,18 @@ function DemoQuestion() {
         ? (current.explanationHtml || `The answer is <strong>${current.answer}</strong>.`)
         : (res.trap?.response || `Not quite — the correct answer is <strong>${current.answer}</strong>.`),
     })
-    setAnswered(a => a + 1)
+    const answeredNow = answered + 1
+    setAnswered(answeredNow)
     if (res.correct) setCorrectCount(c => c + 1)
     const sk = current.q.skill_ids?.[0]
     if (sk) setSkillsSeen(prev => (prev.has(sk) ? prev : new Set(prev).add(sk)))
-    // Pop the progress-evidence sign-up box once they've really had a go.
-    if (answered + 1 >= 5 && !signupModalShown) {
+    // Measure how many landing visitors actually attempt a demo question (not just
+    // how many click "next"). Reports the running count + whether they got it right.
+    trackEvent('demo_question_answered', { answered: answeredNow, correct: res.correct, skill_id: sk ?? null })
+    // Pop the progress-evidence sign-up box once they've had a few real goes. Lowered
+    // from 5 → 3: the June cohort averaged ~14 q/session but rarely returned, so catch
+    // engaged visitors earlier while intent is high.
+    if (answeredNow >= 3 && !signupModalShown) {
       setShowSignupModal(true)
       setSignupModalShown(true)
     }

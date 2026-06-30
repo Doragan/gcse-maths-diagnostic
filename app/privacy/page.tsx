@@ -58,8 +58,9 @@ export default function PrivacyNoticePage() {
           <Ul items={[
             'Contract performance — to deliver the diagnostic assessment service to you',
             'Legitimate interests — to enable teachers to view class results and to maintain the integrity of assessments',
+            'Consent — to send you optional practice-reminder emails, only if you opt in. You can withdraw this consent at any time, either from your dashboard settings or via the unsubscribe link in any reminder email.',
           ]} />
-          <P>We do not use student data for advertising, marketing, or any commercial purpose beyond delivering the core service.</P>
+          <P>We do not use student data for advertising or for any commercial purpose beyond delivering the core service. The only non-essential emails we send are practice reminders, and only to students who have actively opted in; we never share your data for marketing.</P>
         </Section>
 
         <Section title="5. How we use your data">
@@ -68,6 +69,7 @@ export default function PrivacyNoticePage() {
             'To allow teachers to view class and individual results',
             'To maintain your account across sessions',
             'To send password reset emails if requested',
+            'To send occasional practice-reminder emails — only if you have opted in, and you can turn these off at any time',
             'To improve the diagnostic algorithm (using anonymised, aggregated data only)',
           ]} />
           <P>We will never sell your personal data to third parties.</P>

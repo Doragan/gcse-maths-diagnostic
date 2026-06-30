@@ -60,6 +60,7 @@ export async function signUpStudent(
   email: string,
   password: string,
   displayName: string,
+  emailReminders: boolean = false,
   yearGroup?: string,
 ) {
   const { data, error } = await supabase.auth.signUp({
@@ -70,6 +71,11 @@ export async function signUpStudent(
         role: 'student',
         display_name: displayName,
         year_group: yearGroup ?? '',
+        // Opt-in consent for practice-reminder emails. Stored in the auth user's
+        // metadata — the lawful basis the re-engagement cron checks
+        // (app/api/cron/reengagement). Defaults to false: never email someone who
+        // didn't actively tick the box.
+        email_reminders: emailReminders,
       },
     },
   })

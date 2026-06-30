@@ -46,6 +46,7 @@ export default function StudentAuthPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [confirmed13, setConfirmed13] = useState(false)
+  const [emailReminders, setEmailReminders] = useState(false)
 
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -81,6 +82,7 @@ export default function StudentAuthPage() {
     setPassword('')
     setConfirmPassword('')
     setConfirmed13(false)
+    setEmailReminders(false)
   }
 
   async function handleSubmit() {
@@ -98,8 +100,8 @@ export default function StudentAuthPage() {
     setLoading(true)
     try {
       if (mode === 'signup') {
-        trackEvent('signup_submit')
-        await signUpStudent(email, password, displayName.trim())
+        trackEvent('signup_submit', { email_reminders: emailReminders })
+        await signUpStudent(email, password, displayName.trim(), emailReminders)
         trackEvent('signup_success')
         setConfirmationSent(true)
       } else {
@@ -250,6 +252,21 @@ export default function StudentAuthPage() {
                 I confirm I am aged 13 or over. By creating an account I agree to the{' '}
                 <a href="/terms" style={styles.link}>Terms of Service</a> and{' '}
                 <a href="/privacy" style={styles.link}>Privacy Notice</a>.
+              </span>
+            </label>
+
+            {/* Opt-in (unticked by default) — practice-reminder emails. Separate
+                from the 13+ consent so it's a genuine, granular opt-in. */}
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={emailReminders}
+                onChange={e => setEmailReminders(e.target.checked)}
+                style={{ marginRight: '8px', flexShrink: 0 }}
+              />
+              <span style={{ fontSize: font.base, color: colors.textSecondary, lineHeight: '1.5' }}>
+                Email me occasional reminders to keep practising. You can turn these
+                off any time.
               </span>
             </label>
           </>

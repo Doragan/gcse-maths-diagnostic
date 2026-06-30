@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GA_MEASUREMENT_ID } from "../lib/analytics";
+import { GA_MEASUREMENT_ID, trackEvent } from "../lib/analytics";
 
 export default function CookieBanner() {
   const [consent, setConsent] = useState(false);
@@ -40,6 +40,17 @@ export default function CookieBanner() {
     localStorage.setItem("cookie-consent", "true");
     setConsent(true);
     loadGA(); // ✅ load GA AFTER consent
+    // Record the decision in our own (consent-independent) store so we can
+    // measure the true accept rate — i.e. how much of our traffic GA is blind to.
+    // Fired after loadGA so this very event also reaches GA on accept.
+    trackEvent("cookie_consent", { decision: "accept" });
+  };
+
+  const declineCookies = () => {
+    // GA never loads, so this only lands in Supabase — which is exactly the point:
+    // it lets us count declines that GA can't see.
+    trackEvent("cookie_consent", { decision: "decline" });
+    setConsent(true);
   };
 
   if (!loaded || consent) return null;
@@ -89,7 +100,7 @@ export default function CookieBanner() {
       </button>
 
       <button
-        onClick={() => setConsent(true)}
+        onClick={declineCookies}
         style={{
           flex: 1,
           padding: "10px",

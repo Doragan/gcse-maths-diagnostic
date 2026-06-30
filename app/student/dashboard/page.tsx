@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut, primeStudentIdCache } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
+import { trackEvent } from '../../../lib/analytics'
 import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
@@ -84,6 +85,11 @@ export default function StudentDashboardPage() {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [pendingAssignments, setPendingAssignments] = useState(0)
+  // Practice-reminder email opt-in (lives in auth user_metadata). Read once on
+  // load, toggled here — the off-switch matching the signup checkbox + the
+  // unsubscribe link.
+  const [emailReminders, setEmailReminders] = useState(false)
+  const [savingReminders, setSavingReminders] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -93,6 +99,7 @@ export default function StudentDashboardPage() {
       // before starting the attempts query (turns 3 sequential round trips into 2).
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/student'); return }
+      setEmailReminders(Boolean(user.user_metadata?.email_reminders))
 
       const [{ data: p }, { data: attempts }] = await Promise.all([
         supabase.from('students').select('*').eq('id', user.id).single(),
@@ -165,6 +172,21 @@ export default function StudentDashboardPage() {
   async function handleSignOut() {
     await signOut()
     router.push('/student')
+  }
+
+  // Flip the practice-reminder opt-in. Stored in the auth user's metadata — the
+  // same flag the re-engagement cron reads and the unsubscribe link clears.
+  async function toggleEmailReminders() {
+    const next = !emailReminders
+    setSavingReminders(true)
+    setEmailReminders(next) // optimistic
+    const { error } = await supabase.auth.updateUser({ data: { email_reminders: next } })
+    if (error) {
+      setEmailReminders(!next) // revert on failure
+    } else {
+      trackEvent('email_reminders_toggled', { on: next })
+    }
+    setSavingReminders(false)
   }
 
   if (loading) {
@@ -597,6 +619,45 @@ export default function StudentDashboardPage() {
           </button>
         </div>
       )}
+
+      {/* Email-reminder preference — opt-in/out of practice-reminder emails */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '12px 16px',
+        borderRadius: radius.md,
+        border: `1px solid ${colors.border}`,
+        background: colors.cardAlt,
+      }}>
+        <div>
+          <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0, fontWeight: '500' }}>
+            Practice-reminder emails
+          </p>
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0' }}>
+            {emailReminders
+              ? 'On — we’ll occasionally nudge you to keep practising.'
+              : 'Off — we won’t email you reminders.'}
+          </p>
+        </div>
+        <button
+          onClick={toggleEmailReminders}
+          disabled={savingReminders}
+          aria-pressed={emailReminders}
+          style={{
+            ...secondaryButton,
+            width: 'auto',
+            padding: '8px 16px',
+            fontSize: font.base,
+            opacity: savingReminders ? 0.6 : 1,
+            color: emailReminders ? colors.dangerText : colors.primary,
+            borderColor: emailReminders ? colors.dangerBorder : colors.primary,
+          }}
+        >
+          {emailReminders ? 'Turn off' : 'Turn on'}
+        </button>
+      </div>
 
       {/* General feedback */}
       <FeedbackWidget context="student_dashboard" userId={profile.id} />
