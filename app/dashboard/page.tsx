@@ -158,6 +158,12 @@ useEffect(() => {
 			  Assignments
 			</button>
 			<button
+			  onClick={() => router.push('/dashboard/exam')}
+			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+			>
+			  Mini-exam
+			</button>
+			<button
 			  onClick={() => router.push('/account')}
 			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
 			>

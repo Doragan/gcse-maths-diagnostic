@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { getCachedStudentId } from '../../../lib/auth'
+import { getSession } from '../../../lib/auth'
 import { skillsById } from '../../../lib/skills/skillGraph'
 import { renderQuestion, renderMultiPartQuestion, type Parameters } from '../../../lib/questions/paramEngine'
 import { checkAnswer } from '../../../lib/questions/answerChecker'
@@ -109,8 +109,11 @@ function buildItem(q: QuestionRow, number: number): Item {
   }
 }
 
-export default function ExamPage() {
+export default function ExamPreviewPage() {
   const router = useRouter()
+  // Teacher-only for now: this is a preview surface. Students don't self-serve
+  // mini-exams yet — that will arrive via teacher-instigated assignment later.
+  const [gate, setGate] = useState<'checking' | 'ok'>('checking')
   const [phase, setPhase] = useState<'config' | 'loading' | 'running' | 'review'>('config')
   const [mode, setMode] = useState<CalculatorMode>('non_calc')
   const [items, setItems] = useState<Item[]>([])
@@ -118,6 +121,15 @@ export default function ExamPage() {
   const [results, setResults] = useState<Record<string, UnitResult>>({})
   const [score, setScore] = useState<{ earned: number; total: number }>({ earned: 0, total: 0 })
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    getSession().then(async session => {
+      if (!session) { router.push('/auth'); return }
+      const { data: teacher } = await supabase.from('teachers').select('id').eq('id', session.user.id).single()
+      if (!teacher) { router.push('/student/dashboard'); return }
+      setGate('ok')
+    })
+  }, [])
 
   const allUnits = items.flatMap(it => it.units)
   const totalMarks = allUnits.reduce((s, u) => s + u.marks, 0)
@@ -151,63 +163,51 @@ export default function ExamPage() {
     window.scrollTo(0, 0)
   }
 
-  async function submitExam() {
+  function submitExam() {
     const res: Record<string, UnitResult> = {}
     let earned = 0
-    const attempts: { skill_ids: string[]; correct: boolean; kind: string; question_id: string }[] = []
 
     for (const item of items) {
       for (const u of item.units) {
         const raw = (answers[u.key] ?? '').trim()
         if (raw === '') {
-          // Left blank — 0 marks, and not recorded as a mastery attempt (a skip
-          // shouldn't penalise the skill).
           res[u.key] = { correct: false, message: 'Not answered.', studentAnswer: '', correctAnswer: u.correctAnswer, explanation: u.explanation }
           continue
         }
         const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest)
         if (check.correct) earned += u.marks
         res[u.key] = { correct: check.correct, message: check.message, studentAnswer: raw, correctAnswer: u.correctAnswer, explanation: u.explanation }
-        attempts.push({ question_id: item.questionId, skill_ids: u.skillIds, correct: check.correct, kind: u.kind })
       }
     }
 
-    // Commit mastery in a batch (exam-conditions semantics). The mastery engine
-    // handles kind: `exam`-kind wrong answers are positive-only, so a slip on the
-    // synthesis tail never lowers a skill.
-    const studentId = await getCachedStudentId()
-    if (studentId && attempts.length > 0) {
-      const { error: paErr } = await supabase.from('practice_attempts').insert(
-        attempts.map(a => ({ student_id: studentId, question_id: a.question_id, skill_ids: a.skill_ids, correct: a.correct, kind: a.kind })),
-      )
-      if (paErr) console.error('Failed to record exam attempts:', paErr.message)
-    } else if (!studentId && attempts.length > 0) {
-      // Anonymous — stash for migration into the account on sign-up (mirrors practice).
-      try {
-        const pending = JSON.parse(localStorage.getItem('pending_practice') ?? '[]')
-        for (const a of attempts) pending.push({ question_id: a.question_id, skill_ids: a.skill_ids, correct: a.correct, kind: a.kind })
-        localStorage.setItem('pending_practice', JSON.stringify(pending.slice(-200)))
-      } catch { /* best-effort */ }
-    }
-
+    // Teacher preview: nothing is recorded to practice_attempts (a teacher isn't
+    // building skill mastery). When this becomes student-facing, the batch
+    // mastery commit happens here.
     setResults(res)
     setScore({ earned, total: totalMarks })
     setPhase('review')
     window.scrollTo(0, 0)
   }
 
+  if (gate === 'checking') {
+    return <main style={styles.page}><p style={{ color: colors.textSecondary }}>Loading…</p></main>
+  }
+
   // ── Config ─────────────────────────────────────────────────────────────────
   if (phase === 'config' || phase === 'loading') {
     return (
       <main style={styles.page}>
-        <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>Mini-exam</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+          <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>Mini-exam</h1>
+          <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: radius.full, background: colors.cardAlt, color: colors.textHint }}>Preview</span>
+        </div>
         <div style={card}>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 4px', lineHeight: 1.6 }}>
-            A short (~25-mark) mixed paper drawn from across the course. You&apos;ll work through every question with
-            <strong> no feedback until you submit</strong> — then you get your score and a full review with the mistake-spotting feedback.
+            Preview the mini-exam your students will take: a short (~25-mark) mixed paper from across the course, worked through with
+            <strong> no feedback until submit</strong> — then a score and a full review with the mistake-spotting feedback.
           </p>
           <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 16px', lineHeight: 1.6 }}>
-            Your answers still update your skill mastery, just like practice. Choose a paper:
+            This is a teacher preview — nothing is recorded. Assigning mini-exams to a class is coming next. Choose a paper:
           </p>
           {error && <p style={{ ...hint, color: colors.dangerText }}>{error}</p>}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -219,7 +219,7 @@ export default function ExamPage() {
             </button>
           </div>
         </div>
-        <button onClick={() => router.push('/practice')} style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}>← Back to practice</button>
+        <button onClick={() => router.push('/dashboard')} style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}>← Back to dashboard</button>
       </main>
     )
   }
@@ -278,7 +278,7 @@ export default function ExamPage() {
 
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button onClick={() => { setPhase('config'); setItems([]) }} style={{ ...primaryButton, flex: 1 }}>New mini-exam</button>
-          <button onClick={() => router.push('/student/dashboard')} style={{ ...secondaryButton, flex: 1 }}>Dashboard</button>
+          <button onClick={() => router.push('/dashboard')} style={{ ...secondaryButton, flex: 1 }}>Dashboard</button>
         </div>
       </main>
     )
