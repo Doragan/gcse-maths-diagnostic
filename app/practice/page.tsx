@@ -422,6 +422,15 @@ export default function PracticePage() {
           Start practising
         </button>
 
+        {/* Mini-exam entry — a timed-feel mixed paper under exam conditions */}
+        <button
+          onClick={() => router.push('/student/exam')}
+          style={{ ...secondaryButton, display: 'flex', flexDirection: 'column', gap: 2, padding: '12px 14px', height: 'auto' }}
+        >
+          <span style={{ fontWeight: 700, fontSize: font.base, color: colors.textPrimary }}>🎓 Try a mini-exam</span>
+          <span style={{ fontSize: font.sm, fontWeight: 400, color: colors.textHint }}>A short mixed paper — no feedback until you submit, then a full review.</span>
+        </button>
+
         {/* Context note */}
         {isPaid ? (
           <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, textAlign: 'center' as const }}>
