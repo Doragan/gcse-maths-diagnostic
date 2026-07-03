@@ -77,7 +77,7 @@ export default function ParentPayPage() {
           <div style={notice(colors.successLight, colors.successBorder)}>
             <p style={{ fontSize: font.lg, fontWeight: 600, margin: '0 0 4px', color: colors.successText }}>✓ Payment successful</p>
             <p style={{ fontSize: font.base, color: colors.successText, margin: 0 }}>
-              Thank you — {who} Mathsense account is now upgraded. They can keep practising straight away. A receipt has been emailed to you by Stripe.
+              Thank you — {who}{' '}Mathsense account is now upgraded. They can keep practising straight away. A receipt has been emailed to you by Stripe.
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function ParentPayPage() {
           <div style={notice(colors.successLight, colors.successBorder)}>
             <p style={{ fontSize: font.lg, fontWeight: 600, margin: '0 0 4px', color: colors.successText }}>Already subscribed</p>
             <p style={{ fontSize: font.base, color: colors.successText, margin: 0 }}>
-              Good news — {who} Mathsense account already has full access, so there&apos;s nothing to pay. No charge has been made.
+              Good news — {who}{' '}Mathsense account already has full access, so there&apos;s nothing to pay. No charge has been made.
             </p>
           </div>
         </div>
@@ -118,9 +118,9 @@ export default function ParentPayPage() {
     <main style={pageContainer}>
       <div style={card}>
         <div>
-          <h1 style={heading}>Pay for {who} Mathsense</h1>
+          <h1 style={heading}>Pay for {who}{' '}Mathsense</h1>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '4px 0 0' }}>
-            {firstName ? `${firstName} asked you to help` : 'Your child asked you to help'} unlock targeted GCSE Maths practice. Choose a plan below — secure payment is handled by Stripe.
+            {firstName ? `${firstName} asked you to help` : 'Your child asked you to help'}{' '}unlock targeted GCSE Maths practice. Choose a plan below — secure payment is handled by Stripe.
           </p>
         </div>
 
