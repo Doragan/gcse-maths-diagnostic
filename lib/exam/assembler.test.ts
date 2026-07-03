@@ -6,7 +6,7 @@ import type { ExamSlot } from './blueprint'
 const firstRng = () => 0
 
 function cand(id: string, difficulty: number, over: Partial<Candidate> = {}): Candidate {
-  return { id, difficulty, calculator: 'na', kind: 'mastery', strand: 'Number', marks: 1, ...over }
+  return { id, difficulty, calculator: 'na', kind: 'mastery', strand: 'Number', marks: 1, skillIds: [], ...over }
 }
 
 describe('assembleExam', () => {
@@ -86,6 +86,21 @@ describe('assembleExam', () => {
     const blueprint: ExamSlot[] = [{ band: 2, kind: 'any' }, { band: 2, kind: 'any' }]
     const res = assembleExam(candidates, blueprint, { calculatorMode: 'calc', rng: firstRng })
     expect(res.questionIds).toContain('a1') // the distinct strand is always included
+  })
+
+  it('drops candidates touching a blocked (Higher-only) skill from a Foundation paper', () => {
+    const candidates = [
+      cand('found', 2, { skillIds: ['ratio'], strand: 'A' }),
+      cand('mixed', 2, { skillIds: ['ratio', 'surds_simplifying'], strand: 'B' }),
+      cand('high', 2, { skillIds: ['surds_simplifying'], strand: 'C' }),
+    ]
+    const blueprint: ExamSlot[] = [{ band: 2, kind: 'any' }, { band: 2, kind: 'any' }, { band: 2, kind: 'any' }]
+    const res = assembleExam(candidates, blueprint, {
+      calculatorMode: 'calc',
+      blockedSkillIds: new Set(['surds_simplifying']),
+      rng: firstRng,
+    })
+    expect(res.questionIds).toEqual(['found']) // mixed & high both touch a blocked skill
   })
 
   it('skips a slot (shorter paper) rather than failing when the pool is exhausted', () => {

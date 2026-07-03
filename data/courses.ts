@@ -6,7 +6,7 @@ export interface Course {
   skills: string[]
 }
 
-const foundationSkillIds = [
+export const foundationSkillIds = [
   "simple_arithmetic", "indices", "rounding", "significant_figures",
   "estimating", "converting_measurements", "factors_and_multiples",
   "prime_factor_decomposition", "lowest_common_multiple", "highest_common_factor",
@@ -42,7 +42,7 @@ const foundationSkillIds = [
   "inverse_proportion", "growth_and_decay",
 ]
 
-const higherOnlySkillIds = [
+export const higherOnlySkillIds = [
   "recurring_decimals_to_fractions", "fractional_and_negative_indices",
   "surds_simplifying", "surds_expanding_and_rationalising", "upper_and_lower_bounds",
   "algebraic_fractions", "completing_the_square", "quadratic_inequalities",

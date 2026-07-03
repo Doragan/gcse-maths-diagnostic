@@ -18,6 +18,7 @@ export type Candidate = {
   kind: 'mastery' | 'exam'
   strand: string
   marks: number
+  skillIds: string[]
 }
 
 export type AssembledExam = {
@@ -49,11 +50,27 @@ function calcEligible(c: Candidate, mode: CalculatorMode): boolean {
 export function assembleExam(
   candidates: Candidate[],
   blueprint: ExamSlot[],
-  opts: { calculatorMode: CalculatorMode; exclude?: Set<string>; rng?: () => number },
+  opts: {
+    calculatorMode: CalculatorMode
+    exclude?: Set<string>
+    /**
+     * Skills that disqualify a candidate from this paper. For a Foundation
+     * paper this is the Higher-only skill set: any question touching one of
+     * these is dropped, so Foundation stays within its curriculum. A Higher
+     * paper passes nothing here (every Foundation question is also Higher).
+     */
+    blockedSkillIds?: Set<string>
+    rng?: () => number
+  },
 ): AssembledExam {
   const rng = opts.rng ?? Math.random
   const exclude = opts.exclude ?? new Set<string>()
-  const pool = candidates.filter(c => calcEligible(c, opts.calculatorMode) && !exclude.has(c.id))
+  const blocked = opts.blockedSkillIds
+  const pool = candidates.filter(c =>
+    calcEligible(c, opts.calculatorMode) &&
+    !exclude.has(c.id) &&
+    (!blocked || c.skillIds.every(id => !blocked.has(id))),
+  )
 
   const used = new Set<string>()
   const strandCount = new Map<string, number>()
@@ -116,5 +133,6 @@ export function candidateOf(q: CandidateSource): Candidate | null {
     kind: q.kind === 'exam' ? 'exam' : 'mastery',
     strand: skillsById[q.skill_ids?.[0]]?.topic ?? 'Other',
     marks,
+    skillIds: q.skill_ids ?? [],
   }
 }

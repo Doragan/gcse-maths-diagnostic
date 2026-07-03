@@ -9,11 +9,15 @@ import { renderQuestion, renderMultiPartQuestion, type Parameters } from '../../
 import { checkAnswer } from '../../../lib/questions/answerChecker'
 import { assembleExam, candidateOf, type CalculatorMode } from '../../../lib/exam/assembler'
 import { DEFAULT_BLUEPRINT, NOMINAL_MARKS } from '../../../lib/exam/blueprint'
+import { higherOnlySkillIds } from '../../../data/courses'
 import type { QuestionPart } from '../../../lib/questions/parts'
 import MathInput from '../../../components/practice/MathInput'
 import { colors, font, radius, card, primaryButton, secondaryButton } from '../../../lib/styles'
 
 type AnswerType = 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
+type Tier = 'foundation' | 'higher'
+
+const HIGHER_ONLY = new Set(higherOnlySkillIds)
 
 type Unit = {
   key: string
@@ -115,6 +119,7 @@ export default function ExamPreviewPage() {
   // mini-exams yet — that will arrive via teacher-instigated assignment later.
   const [gate, setGate] = useState<'checking' | 'ok'>('checking')
   const [phase, setPhase] = useState<'config' | 'loading' | 'running' | 'review'>('config')
+  const [tier, setTier] = useState<Tier>('foundation')
   const [mode, setMode] = useState<CalculatorMode>('non_calc')
   const [items, setItems] = useState<Item[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
@@ -148,7 +153,12 @@ export default function ExamPreviewPage() {
     const rows = data as QuestionRow[]
     const byId = new Map(rows.map(r => [r.id, r]))
     const candidates = rows.map(candidateOf).filter((c): c is NonNullable<typeof c> => c !== null)
-    const assembled = assembleExam(candidates, DEFAULT_BLUEPRINT, { calculatorMode: calcMode })
+    // Foundation papers exclude questions that touch a Higher-only skill; Higher
+    // draws from the whole pool (every Foundation skill is also on Higher).
+    const assembled = assembleExam(candidates, DEFAULT_BLUEPRINT, {
+      calculatorMode: calcMode,
+      blockedSkillIds: tier === 'foundation' ? HIGHER_ONLY : undefined,
+    })
     if (assembled.questionIds.length === 0) { setError('No questions available for this paper yet.'); setPhase('config'); return }
 
     const built = assembled.questionIds
@@ -210,6 +220,25 @@ export default function ExamPreviewPage() {
             This is a teacher preview — nothing is recorded. Assigning mini-exams to a class is coming next. Choose a paper:
           </p>
           {error && <p style={{ ...hint, color: colors.dangerText }}>{error}</p>}
+
+          <label style={{ display: 'block', fontSize: font.sm, fontWeight: 700, color: colors.textSecondary, marginBottom: 6 }}>Tier</label>
+          <div style={{ display: 'inline-flex', gap: 0, marginBottom: 16, border: `1px solid ${colors.border}`, borderRadius: radius.md, overflow: 'hidden' }}>
+            {(['foundation', 'higher'] as Tier[]).map(t => (
+              <button
+                key={t}
+                disabled={phase === 'loading'}
+                onClick={() => setTier(t)}
+                style={{
+                  padding: '8px 18px', fontSize: font.base, fontWeight: 600, cursor: 'pointer', border: 'none',
+                  background: tier === t ? colors.primary : 'transparent',
+                  color: tier === t ? '#ffffff' : colors.textSecondary,
+                }}
+              >
+                {t === 'foundation' ? 'Foundation' : 'Higher'}
+              </button>
+            ))}
+          </div>
+
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button disabled={phase === 'loading'} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: phase === 'loading' ? 0.6 : 1 }}>
               {phase === 'loading' && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
@@ -229,19 +258,74 @@ export default function ExamPreviewPage() {
     const pct = score.total > 0 ? Math.round((score.earned / score.total) * 100) : 0
     const accent = pct >= 70 ? colors.successText : pct >= 40 ? colors.warning : colors.dangerText
     const bar = pct >= 70 ? colors.success : pct >= 40 ? colors.warning : colors.danger
+
+    // A question counts as fully correct only if every one of its units is right.
+    const questionsCorrect = items.filter(it => it.units.every(u => results[u.key]?.correct)).length
+
+    // Aggregate marks per skill across every unit — this is the substrate that
+    // will update each student's mastery map once mini-exams are assigned.
+    const skillAgg = new Map<string, { earned: number; total: number }>()
+    for (const item of items) {
+      for (const u of item.units) {
+        const r = results[u.key]
+        if (!r) continue
+        for (const sid of u.skillIds) {
+          const cur = skillAgg.get(sid) ?? { earned: 0, total: 0 }
+          cur.total += u.marks
+          if (r.correct) cur.earned += u.marks
+          skillAgg.set(sid, cur)
+        }
+      }
+    }
+    const skillRows = [...skillAgg.entries()]
+      .map(([sid, v]) => ({ name: skillsById[sid]?.name ?? sid, ...v }))
+      .sort((a, b) => a.earned / a.total - b.earned / b.total || a.name.localeCompare(b.name))
+
     return (
       <main style={styles.page}>
         <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>Exam review</h1>
         <div style={{ ...card, textAlign: 'center' }}>
+          <p style={{ fontSize: font.sm, fontWeight: 700, color: colors.textHint, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            {tier === 'higher' ? 'Higher' : 'Foundation'} · {mode === 'calc' ? 'Calculator' : 'Non-calculator'}
+          </p>
           <p style={{ fontSize: 48, fontWeight: 800, margin: '0 0 2px', color: accent, lineHeight: 1 }}>{score.earned} / {score.total}</p>
           <p style={{ fontSize: font.lg, color: colors.textSecondary, margin: '0 0 12px' }}>marks · {pct}%</p>
           <div style={{ background: colors.border, borderRadius: radius.full, height: 8, overflow: 'hidden' }}>
             <div style={{ background: bar, height: 8, borderRadius: radius.full, width: `${pct}%` }} />
           </div>
-          <p style={{ fontSize: '11px', color: colors.textHint, margin: '10px 0 0' }}>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '12px 0 0' }}>
+            {questionsCorrect} of {items.length} question{items.length === 1 ? '' : 's'} fully correct
+          </p>
+          <p style={{ fontSize: '11px', color: colors.textHint, margin: '4px 0 0' }}>
             A practice score across the paper — not a predicted grade.
           </p>
         </div>
+
+        {skillRows.length > 0 && (
+          <div style={card}>
+            <h2 style={{ fontSize: font.lg, fontWeight: 700, margin: '0 0 4px', color: colors.textPrimary }}>Skills assessed</h2>
+            <p style={{ fontSize: '11px', color: colors.textHint, margin: '0 0 14px', lineHeight: 1.6 }}>
+              How this paper landed per skill. When you assign a mini-exam to a class, these results update each student&apos;s mastery map.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {skillRows.map(s => {
+                const p = Math.round((s.earned / s.total) * 100)
+                const c = p >= 70 ? colors.success : p >= 40 ? colors.warning : colors.danger
+                return (
+                  <div key={s.name}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                      <span style={{ fontSize: font.sm, color: colors.textPrimary }}>{s.name}</span>
+                      <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{s.earned}/{s.total}</span>
+                    </div>
+                    <div style={{ background: colors.border, borderRadius: radius.full, height: 6, overflow: 'hidden' }}>
+                      <div style={{ background: c, height: 6, borderRadius: radius.full, width: `${p}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {items.map(item => (
           <div key={item.questionId} style={card}>
@@ -290,7 +374,7 @@ export default function ExamPreviewPage() {
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: colors.background, padding: '10px 0', borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <h1 style={{ fontSize: font.xl, fontWeight: 700, margin: 0, color: colors.textPrimary }}>
-            Mini-exam <span style={{ fontSize: font.sm, fontWeight: 400, color: colors.textHint }}>· {mode === 'calc' ? 'Calculator' : 'Non-calculator'}</span>
+            Mini-exam <span style={{ fontSize: font.sm, fontWeight: 400, color: colors.textHint }}>· {tier === 'higher' ? 'Higher' : 'Foundation'} · {mode === 'calc' ? 'Calculator' : 'Non-calculator'}</span>
           </h1>
           <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{answeredCount}/{allUnits.length} answered · {totalMarks} marks</span>
         </div>
