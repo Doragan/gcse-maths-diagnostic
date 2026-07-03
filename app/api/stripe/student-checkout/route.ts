@@ -1,12 +1,7 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-
-const PRICE_IDS: Record<string, string> = {
-  monthly: process.env.STRIPE_STUDENT_MONTHLY_PRICE_ID!,
-  annual:  process.env.STRIPE_STUDENT_ANNUAL_PRICE_ID!,
-  exam:    process.env.STRIPE_STUDENT_EXAM_PRICE_ID!,
-}
+import { PRICE_IDS, isSubscriptionPlan, toPlan } from '../../../../lib/stripePlans'
 
 export async function POST(req: Request) {
   try {
@@ -16,9 +11,9 @@ export async function POST(req: Request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { plan } = await req.json()
+    const plan = toPlan((await req.json()).plan)
 
-    if (!plan || !PRICE_IDS[plan]) {
+    if (!plan) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
@@ -34,7 +29,7 @@ export async function POST(req: Request) {
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-    const isSubscription = plan === 'monthly' || plan === 'annual'
+    const isSubscription = isSubscriptionPlan(plan)
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

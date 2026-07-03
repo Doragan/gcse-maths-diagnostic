@@ -8,49 +8,8 @@ import {
   colors, font, radius,
   primaryButton, secondaryButton, pageContainer,
 } from '../../../lib/styles'
-
-type Plan = 'monthly' | 'annual' | 'exam'
-
-const PLANS: {
-  id: Plan
-  label: string
-  price: string
-  period: string
-  badge: string | null
-  description: string
-}[] = [
-  {
-    id: 'monthly',
-    label: 'Monthly',
-    price: '£1.49',
-    period: 'per month',
-    badge: null,
-    description: 'Renews monthly. Cancel any time.',
-  },
-  {
-    id: 'annual',
-    label: 'Annual',
-    price: '£11.99',
-    period: 'per year',
-    badge: 'Best value',
-    description: 'Renews yearly — cancel any time. Saves £5.89 vs monthly.',
-  },
-  {
-    id: 'exam',
-    label: 'Exam Season 2027',
-    price: '£9.99',
-    period: 'until 31 July 2027',
-    badge: 'Early access',
-    description: 'One payment covering now until after your summer 2027 exams.',
-  },
-]
-
-const FEATURES = [
-  'Drill any single skill or whole topic on demand',
-  'One-tap "weak spots" sessions built from the skills you keep missing',
-  'Smart practice that automatically targets your weakest skills first',
-  'Priority access to new premium features as they launch',
-]
+import { PLANS, FEATURES, type Plan } from '../../../lib/studentPlans'
+import { trackEvent } from '../../../lib/analytics'
 
 export default function StudentUpgradePage() {
   const router = useRouter()
@@ -58,6 +17,11 @@ export default function StudentUpgradePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [upgraded, setUpgraded] = useState(false)
+
+  // "Ask a parent to pay" — a shareable link the student forwards.
+  const [parentLink, setParentLink] = useState<string | null>(null)
+  const [linkLoading, setLinkLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     getStudentProfile().then(p => {
@@ -93,6 +57,59 @@ export default function StudentUpgradePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  async function getParentLink() {
+    setLinkLoading(true)
+    setError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/parent-pay/link', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session?.access_token}` },
+      })
+      const data = await res.json()
+      if (data.url) {
+        setParentLink(data.url)
+        trackEvent('parent_pay_link_created')
+      } else {
+        setError(data.error ?? 'Could not create a link. Please try again.')
+      }
+    } catch {
+      setError('Could not create a link. Please try again.')
+    } finally {
+      setLinkLoading(false)
+    }
+  }
+
+  async function copyParentLink() {
+    if (!parentLink) return
+    try {
+      await navigator.clipboard.writeText(parentLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setError('Could not copy — select and copy the link manually.')
+    }
+  }
+
+  function shareParentLink() {
+    if (!parentLink) return
+    const text = `Please could you help pay for my Mathsense GCSE Maths subscription? You can pay securely here: ${parentLink}`
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ title: 'Mathsense subscription', text, url: parentLink }).catch(() => {})
+    } else {
+      copyParentLink()
+    }
+  }
+
+  function emailParentLink() {
+    if (!parentLink) return
+    const subject = encodeURIComponent('Please help pay for my Mathsense subscription')
+    const body = encodeURIComponent(
+      `Hi,\n\nPlease could you help pay for my Mathsense GCSE Maths subscription? You can choose a plan and pay securely here:\n\n${parentLink}\n\nThank you!`,
+    )
+    window.location.href = `mailto:?subject=${subject}&body=${body}`
   }
 
   if (upgraded) {
@@ -204,6 +221,40 @@ export default function StudentUpgradePage() {
             : `${selectedPlan === 'exam' ? 'Get access' : 'Subscribe'} — ${PLANS.find(p => p.id === selectedPlan)?.price}`}
         </button>
 
+        {/* Ask a parent / guardian to pay */}
+        <div style={styles.parentBox}>
+          <p style={{ fontSize: font.base, fontWeight: 600, color: colors.textPrimary, margin: 0 }}>
+            Can&apos;t pay yourself?
+          </p>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '4px 0 12px' }}>
+            Send a secure link to a parent or guardian so they can pay for your account. They don&apos;t need a Mathsense login.
+          </p>
+
+          {!parentLink ? (
+            <button
+              onClick={getParentLink}
+              disabled={linkLoading}
+              style={{ ...secondaryButton, opacity: linkLoading ? 0.6 : 1 }}
+            >
+              {linkLoading ? 'Creating link…' : 'Get a link to send'}
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={styles.linkChip}>{parentLink}</div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button onClick={copyParentLink} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>
+                  {copied ? '✓ Copied' : 'Copy'}
+                </button>
+                <button onClick={emailParentLink} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>Email</button>
+                <button onClick={shareParentLink} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>Share</button>
+              </div>
+              <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
+                The link works for 30 days and stops once your account is paid for.
+              </p>
+            </div>
+          )}
+        </div>
+
         <button
           onClick={() => router.push('/student/dashboard')}
           style={secondaryButton}
@@ -252,5 +303,20 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '16px',
     background: colors.background,
     borderRadius: radius.md,
+  },
+  parentBox: {
+    padding: '16px',
+    borderRadius: radius.md,
+    border: `1px dashed ${colors.border}`,
+    background: colors.background,
+  },
+  linkChip: {
+    fontSize: '13px',
+    color: colors.textSecondary,
+    background: colors.card,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    padding: '10px 12px',
+    wordBreak: 'break-all' as const,
   },
 }

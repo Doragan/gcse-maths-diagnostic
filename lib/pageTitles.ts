@@ -45,6 +45,9 @@ const RULES: [RegExp, string][] = [
   [/^\/diagnostic$/, 'Diagnostic'],
   [/^\/account$/, 'Account'],
 
+  // Parent-pay (public, token link)
+  [/^\/pay\/[^/]+$/, 'Pay for a subscription'],
+
   // Student
   [/^\/student\/diagnostic$/, 'Diagnostic'],
   [/^\/student\/dashboard$/, 'Student dashboard'],
