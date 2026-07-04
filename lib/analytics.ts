@@ -11,6 +11,7 @@
  */
 
 import { supabase } from './supabase'
+import { normalizePath } from './pageTitles'
 
 /**
  * GA4 measurement ID — the single source of truth (loaded by CookieBanner after
@@ -82,7 +83,7 @@ export function captureAttribution(): void {
     if (v) attr[f] = v
   }
   if (Object.keys(attr).length > 0) {
-    attr.landing_page = window.location.pathname
+    attr.landing_page = normalizePath(window.location.pathname)
     sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attr))
   }
 }
@@ -105,11 +106,14 @@ export function trackEvent(
   // Attach first-touch campaign attribution to every event (explicit properties
   // win on any key collision). Empty for organic visits.
   const enriched = { ...getAttribution(), ...properties }
+  // Normalise the path so dynamic segments (parent-pay tokens, ids) never reach
+  // analytics — applies to EVERY event, not just page_view.
+  const path = normalizePath(window.location.pathname)
 
   // 1. Supabase — fire and forget (don't block the UI)
   supabase.from('analytics_events').insert({
     event:      name,
-    path:       window.location.pathname,
+    path,
     session_id: sessionId,
     properties: enriched,
   }).then()
@@ -118,7 +122,7 @@ export function trackEvent(
   const gtag = (window as any).gtag
   if (gtag) {
     gtag('event', name, {
-      page_path: window.location.pathname,
+      page_path: path,
       ...enriched,
     })
   }

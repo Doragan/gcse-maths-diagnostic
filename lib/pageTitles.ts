@@ -11,6 +11,11 @@
  * sends it to GA4 as an explicit `page_title` (so the report is right regardless
  * of when the tab title updates).
  *
+ * `normalizePath` reuses the same rules to collapse a concrete pathname to its
+ * route pattern (e.g. `/pay/<token>` → `/pay/[token]`) so dynamic segments —
+ * capability tokens especially — never reach analytics. The third tuple element
+ * is that canonical path; it's only set on dynamic routes.
+ *
  * Rules are matched top-to-bottom — put a more specific path BEFORE its parent
  * (e.g. `/dashboard/exam` before the `/dashboard/[id]` catch-all), or the
  * catch-all will swallow it.
@@ -20,7 +25,7 @@ const BRAND = 'Mathsense'
 /** Matches the `default` in app/layout.tsx — used for `/` and any unmapped route. */
 export const DEFAULT_TITLE = 'Mathsense — GCSE Maths practice with instant feedback'
 
-const RULES: [RegExp, string][] = [
+const RULES: [RegExp, string, string?][] = [
   // Marketing / legal
   [/^\/about$/, 'About'],
   [/^\/for-teachers$/, 'For teachers'],
@@ -40,38 +45,38 @@ const RULES: [RegExp, string][] = [
   [/^\/join$/, 'Join a class'],
 
   // Practice & diagnostic
-  [/^\/practice\/question\/[^/]+$/, 'Practice question'],
+  [/^\/practice\/question\/[^/]+$/, 'Practice question', '/practice/question/[id]'],
   [/^\/practice$/, 'Practise GCSE Maths'],
   [/^\/diagnostic$/, 'Diagnostic'],
   [/^\/account$/, 'Account'],
 
   // Parent-pay (public, token link)
-  [/^\/pay\/[^/]+$/, 'Pay for a subscription'],
+  [/^\/pay\/[^/]+$/, 'Pay for a subscription', '/pay/[token]'],
 
   // Student
   [/^\/student\/diagnostic$/, 'Diagnostic'],
   [/^\/student\/dashboard$/, 'Student dashboard'],
-  [/^\/student\/assignments\/[^/]+$/, 'Assignment'],
+  [/^\/student\/assignments\/[^/]+$/, 'Assignment', '/student/assignments/[id]'],
   [/^\/student\/assignments$/, 'My assignments'],
   [/^\/student\/classes$/, 'My classes'],
   [/^\/student\/upgrade$/, 'Upgrade'],
   [/^\/student$/, 'Student sign in'],
 
   // Teacher dashboard (named routes before the /dashboard/[id] catch-all)
-  [/^\/dashboard\/classes\/[^/]+$/, 'Class'],
+  [/^\/dashboard\/classes\/[^/]+$/, 'Class', '/dashboard/classes/[id]'],
   [/^\/dashboard\/classes$/, 'Classes'],
   [/^\/dashboard\/assignments\/create$/, 'Create assignment'],
-  [/^\/dashboard\/assignments\/[^/]+$/, 'Assignment'],
+  [/^\/dashboard\/assignments\/[^/]+$/, 'Assignment', '/dashboard/assignments/[id]'],
   [/^\/dashboard\/assignments$/, 'Assignments'],
   [/^\/dashboard\/exam$/, 'Mini-exam'],
   [/^\/dashboard\/upgrade$/, 'Upgrade'],
-  [/^\/dashboard\/[^/]+$/, 'Student overview'],
+  [/^\/dashboard\/[^/]+$/, 'Student overview', '/dashboard/[id]'],
   [/^\/dashboard$/, 'Teacher dashboard'],
 
   // Admin (prefixed so they group together in analytics)
   [/^\/admin\/questions\/new$/, 'Admin – new question'],
   [/^\/admin\/questions\/preview$/, 'Admin – question preview'],
-  [/^\/admin\/questions\/[^/]+$/, 'Admin – edit question'],
+  [/^\/admin\/questions\/[^/]+$/, 'Admin – edit question', '/admin/questions/[id]'],
   [/^\/admin\/questions$/, 'Admin – questions'],
   [/^\/admin$/, 'Admin'],
 
@@ -87,4 +92,17 @@ export function titleForPath(pathname: string): string {
   const clean = pathname.replace(/\/+$/, '') || '/'
   for (const [re, label] of RULES) if (re.test(clean)) return `${label} — ${BRAND}`
   return DEFAULT_TITLE
+}
+
+/**
+ * Collapse a concrete pathname to its route pattern for analytics, so dynamic
+ * segments (capability tokens, ids) never leave the browser. Dynamic routes map
+ * to their canonical form (`/pay/<token>` → `/pay/[token]`); static routes and
+ * unmatched paths are returned as-is (a static route has no dynamic segment to
+ * leak). Reuses the ordered RULES so it can't drift from titleForPath.
+ */
+export function normalizePath(pathname: string): string {
+  const clean = pathname.replace(/\/+$/, '') || '/'
+  for (const [re, , canonical] of RULES) if (re.test(clean)) return canonical ?? clean
+  return clean
 }

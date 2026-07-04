@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { titleForPath, DEFAULT_TITLE } from './pageTitles'
+import { titleForPath, normalizePath, DEFAULT_TITLE } from './pageTitles'
 
 describe('titleForPath', () => {
   it('uses the brand default for home and unmapped routes', () => {
@@ -31,5 +31,33 @@ describe('titleForPath', () => {
 
   it('ignores a trailing slash', () => {
     expect(titleForPath('/practice/')).toBe('Practise GCSE Maths — Mathsense')
+  })
+})
+
+describe('normalizePath', () => {
+  it('collapses the sensitive parent-pay token', () => {
+    expect(normalizePath('/pay/eyJhbGciOi.SECRET-TOKEN')).toBe('/pay/[token]')
+  })
+
+  it('collapses dynamic id segments', () => {
+    expect(normalizePath('/practice/question/abc-123')).toBe('/practice/question/[id]')
+    expect(normalizePath('/dashboard/assignments/9f3a')).toBe('/dashboard/assignments/[id]')
+    expect(normalizePath('/dashboard/classes/9f3a')).toBe('/dashboard/classes/[id]')
+    expect(normalizePath('/dashboard/8f3a-uuid')).toBe('/dashboard/[id]')
+    expect(normalizePath('/student/assignments/xyz')).toBe('/student/assignments/[id]')
+    expect(normalizePath('/admin/questions/xyz')).toBe('/admin/questions/[id]')
+  })
+
+  it('leaves static routes untouched (incl. ones sharing a dynamic prefix)', () => {
+    expect(normalizePath('/dashboard/exam')).toBe('/dashboard/exam')
+    expect(normalizePath('/dashboard/classes')).toBe('/dashboard/classes')
+    expect(normalizePath('/dashboard/assignments/create')).toBe('/dashboard/assignments/create')
+    expect(normalizePath('/admin/questions/new')).toBe('/admin/questions/new')
+    expect(normalizePath('/student/dashboard')).toBe('/student/dashboard')
+    expect(normalizePath('/')).toBe('/')
+  })
+
+  it('ignores a trailing slash', () => {
+    expect(normalizePath('/pay/token123/')).toBe('/pay/[token]')
   })
 })

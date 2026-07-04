@@ -8,7 +8,7 @@
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { trackEvent, captureAttribution } from '../lib/analytics'
-import { titleForPath } from '../lib/pageTitles'
+import { titleForPath, normalizePath } from '../lib/pageTitles'
 
 export default function Analytics() {
   const pathname = usePathname()
@@ -23,7 +23,9 @@ export default function Analytics() {
     // First-touch campaign capture (idempotent — first hit of the session wins),
     // so the landing utm_*/gclid is recorded before the page_view fires.
     captureAttribution()
-    trackEvent('page_view', { path: pathname, page_title: title })
+    // Send the normalised route, never the raw path — a parent-pay token in
+    // `/pay/<token>` must not land in GA4 or analytics_events.
+    trackEvent('page_view', { path: normalizePath(pathname), page_title: title })
   }, [pathname])
 
   return null
