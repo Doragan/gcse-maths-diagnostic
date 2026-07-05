@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { getSession } from '../../../lib/auth'
-import { skillsById } from '../../../lib/skills/skillGraph'
+import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
+import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus } from '../../../lib/skills/masteryEngine'
 import { renderQuestion, renderMultiPartQuestion, type Parameters } from '../../../lib/questions/paramEngine'
 import { checkAnswer } from '../../../lib/questions/answerChecker'
 import { assembleExam, candidateOf, type CalculatorMode } from '../../../lib/exam/assembler'
@@ -262,24 +263,37 @@ export default function ExamPreviewPage() {
     // A question counts as fully correct only if every one of its units is right.
     const questionsCorrect = items.filter(it => it.units.every(u => results[u.key]?.correct)).length
 
-    // Aggregate marks per skill across every unit — this is the substrate that
-    // will update each student's mastery map once mini-exams are assigned.
-    const skillAgg = new Map<string, { earned: number; total: number }>()
-    for (const item of items) {
-      for (const u of item.units) {
-        const r = results[u.key]
-        if (!r) continue
-        for (const sid of u.skillIds) {
-          const cur = skillAgg.get(sid) ?? { earned: 0, total: 0 }
-          cur.total += u.marks
-          if (r.correct) cur.earned += u.marks
-          skillAgg.set(sid, cur)
-        }
-      }
+    // Projected skill mastery — run this paper's answered units through the SAME
+    // engine a student's practice attempts use, from a blank slate, to show what
+    // completing the mini-exam would do to a student's skill map. One paper gives
+    // ≤1 attempt/skill, so direct skills land at "in progress" (the 5-attempt
+    // window needs repeated practice to confirm mastery); correct answers also
+    // credit prerequisite skills (exam-kind is positive-only, handled by the engine).
+    const STATUS_META: Record<MasteryStatus, { label: string; bg: string; color: string; border: string }> = {
+      mastered:       { label: 'Mastered',       bg: colors.successLight, color: colors.successText, border: colors.successBorder },
+      in_progress:    { label: 'In progress',    bg: colors.warningLight, color: colors.warningText, border: colors.warningBorder },
+      needs_practice: { label: 'Needs practice', bg: colors.dangerLight,  color: colors.dangerText,  border: colors.dangerBorder },
     }
-    const skillRows = [...skillAgg.entries()]
-      .map(([sid, v]) => ({ name: skillsById[sid]?.name ?? sid, ...v }))
-      .sort((a, b) => a.earned / a.total - b.earned / b.total || a.name.localeCompare(b.name))
+    const STATUS_RANK: Record<MasteryStatus, number> = { mastered: 0, in_progress: 1, needs_practice: 2 }
+
+    // Attempts from ANSWERED units only (a blank is never recorded, so it never
+    // penalises); increasing timestamps for the engine's recency window.
+    const examAttempts = items.flatMap(it => it.units).flatMap((u, i) => {
+      const r = results[u.key]
+      if (!r || r.studentAnswer.trim() === '') return []
+      return [{ skill_ids: u.skillIds, correct: r.correct, attempted_at: new Date(Date.now() + i * 1000).toISOString(), kind: u.kind }]
+    })
+    const directMastery = calculateMastery(examAttempts)
+    const projectedRows = Object.values(directMastery)
+      .map(m => ({ ...m, name: skillsById[m.skillId]?.name ?? m.skillId }))
+      .sort((a, b) =>
+        STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
+        (b.recentCorrect / b.recentAttempts) - (a.recentCorrect / a.recentAttempts) ||
+        a.name.localeCompare(b.name))
+    // Prerequisite skills a correct answer additionally reinforces (credited but
+    // not directly tested) — the inference engine's positive spillover.
+    const withCredit = calculateMastery(applyPrerequisiteCredit(examAttempts, getPrerequisiteTree))
+    const reinforcedCount = Object.keys(withCredit).filter(id => !directMastery[id]).length
 
     return (
       <main style={styles.page}>
@@ -301,29 +315,31 @@ export default function ExamPreviewPage() {
           </p>
         </div>
 
-        {skillRows.length > 0 && (
+        {projectedRows.length > 0 && (
           <div style={card}>
-            <h2 style={{ fontSize: font.lg, fontWeight: 700, margin: '0 0 4px', color: colors.textPrimary }}>Skills assessed</h2>
+            <h2 style={{ fontSize: font.lg, fontWeight: 700, margin: '0 0 4px', color: colors.textPrimary }}>Projected skill mastery</h2>
             <p style={{ fontSize: '11px', color: colors.textHint, margin: '0 0 14px', lineHeight: 1.6 }}>
-              How this paper landed per skill. When you assign a mini-exam to a class, these results update each student&apos;s mastery map.
+              What completing this paper would do to a student&apos;s skill map, from no prior practice. One paper mostly moves skills to <em>in progress</em> — mastery is confirmed over repeated sessions.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {skillRows.map(s => {
-                const p = Math.round((s.earned / s.total) * 100)
-                const c = p >= 70 ? colors.success : p >= 40 ? colors.warning : colors.danger
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {projectedRows.map(s => {
+                const meta = STATUS_META[s.status]
                 return (
-                  <div key={s.name}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-                      <span style={{ fontSize: font.sm, color: colors.textPrimary }}>{s.name}</span>
-                      <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{s.earned}/{s.total}</span>
-                    </div>
-                    <div style={{ background: colors.border, borderRadius: radius.full, height: 6, overflow: 'hidden' }}>
-                      <div style={{ background: c, height: 6, borderRadius: radius.full, width: `${p}%` }} />
-                    </div>
+                  <div key={s.skillId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: font.sm, color: colors.textPrimary }}>{s.name}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      <span style={{ fontSize: '11px', color: colors.textHint }}>{s.recentCorrect}/{s.recentAttempts} correct</span>
+                      <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: radius.full, background: meta.bg, color: meta.color, border: `1px solid ${meta.border}` }}>{meta.label}</span>
+                    </span>
                   </div>
                 )
               })}
             </div>
+            {reinforcedCount > 0 && (
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '12px 0 0' }}>
+                + {reinforcedCount} prerequisite skill{reinforcedCount === 1 ? '' : 's'} reinforced by correct answers.
+              </p>
+            )}
           </div>
         )}
 
