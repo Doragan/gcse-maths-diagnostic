@@ -102,6 +102,20 @@ export function generateValues(parameters: Parameters): Record<string, number> {
 }
 
 /**
+ * True when a COMPLETE value set satisfies every constraint on every parameter.
+ * Used by the authoring verification harness (scripts/verify-question.ts) to
+ * filter an exhaustive enumeration of the parameter space down to the value
+ * sets that generateValues could actually produce.
+ */
+export function satisfiesAllConstraints(
+  parameters: Parameters,
+  values: Record<string, number>,
+): boolean {
+  return Object.entries(parameters).every(([key, config]) =>
+    constraintsOf(config).every(c => checkConstraint(c, values[key], values)))
+}
+
+/**
  * Robust decimal rounding that avoids IEEE 754 floating point errors.
  *
  * The problem: 4.45 is stored in binary as 4.44999999999..., so
