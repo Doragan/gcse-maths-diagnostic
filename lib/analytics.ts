@@ -23,6 +23,7 @@ export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-7FCDN55EVJ'
 
 const SESSION_KEY = 'mathsense_sid'
 const DEV_KEY     = 'mathsense_dev'
+const INTERNAL_KEY = 'mathsense_internal'
 const ATTRIBUTION_KEY = 'mathsense_attr'
 
 // ── Session ID ────────────────────────────────────────────────────────────────
@@ -59,6 +60,26 @@ export function toggleDevMode(): boolean {
   if (next) localStorage.setItem(DEV_KEY, '1')
   else      localStorage.removeItem(DEV_KEY)
   return next
+}
+
+// ── Internal traffic flag ───────────────────────────────────────────────────────
+
+/**
+ * Whether this browser is flagged as internal (the maintainer's own testing).
+ * Unlike dev mode, this does NOT skip tracking — events still fire so the pipeline
+ * can be tested — but they're stamped `internal: true` so queries can exclude them
+ * (`and properties->>'internal' is null`) for a clean external-traffic baseline.
+ *
+ * Persistent and per-browser (localStorage), so it covers every tab — the
+ * long-lived admin tab and any fresh public-site testing tab alike, without
+ * relying on hitting an /admin path. Set once per browser you test in:
+ *   localStorage.setItem('mathsense_internal', '1')   // flag this browser
+ *   localStorage.removeItem('mathsense_internal')      // unflag
+ * Won't carry into incognito, another browser, or another device.
+ */
+export function isInternal(): boolean {
+  if (typeof window === 'undefined') return false
+  return localStorage.getItem(INTERNAL_KEY) === '1'
 }
 
 // ── Campaign attribution (first-touch) ─────────────────────────────────────────
@@ -104,8 +125,10 @@ export function trackEvent(
 
   const sessionId = getSessionId()
   // Attach first-touch campaign attribution to every event (explicit properties
-  // win on any key collision). Empty for organic visits.
-  const enriched = { ...getAttribution(), ...properties }
+  // win on any key collision). Empty for organic visits. Stamp internal:true last
+  // when this browser is flagged as the maintainer's own, so it always wins and
+  // our own testing can be filtered out of external-traffic queries.
+  const enriched = { ...getAttribution(), ...properties, ...(isInternal() ? { internal: true } : {}) }
   // Normalise the path so dynamic segments (parent-pay tokens, ids) never reach
   // analytics — applies to EVERY event, not just page_view.
   const path = normalizePath(window.location.pathname)
