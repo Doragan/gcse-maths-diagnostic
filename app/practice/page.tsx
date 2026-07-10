@@ -334,78 +334,84 @@ export default function PracticePage() {
           </div>
         </div>
 
-        {/* Focus selector — premium. Shown to everyone (locked for free users). */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 8px' }}>
-            <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: 0 }}>
-              What do you want to focus on?
-            </p>
-            {!isPaid && (
-              <span style={{
-                fontSize: '11px', fontWeight: '700', padding: '2px 8px',
-                borderRadius: radius.full, background: colors.cardAlt, color: colors.textHint,
-              }}>
-                Premium
-              </span>
+        {/* Focus selector — premium. Shown to logged-in users only (locked for
+            free, active for paid). Hidden entirely for anonymous visitors so a
+            cold ad visitor isn't met with a padlocked "Premium" upsell grid
+            before seeing a single question — they get a one-tap start instead.
+            Upsell is deferred to the post-5-question signup nudge. */}
+        {student && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 8px' }}>
+              <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: 0 }}>
+                What do you want to focus on?
+              </p>
+              {!isPaid && (
+                <span style={{
+                  fontSize: '11px', fontWeight: '700', padding: '2px 8px',
+                  borderRadius: radius.full, background: colors.cardAlt, color: colors.textHint,
+                }}>
+                  Premium
+                </span>
+              )}
+            </div>
+
+            <div style={styles.focusGrid}>
+              {FOCUS_OPTIONS.map(opt => {
+                // Free users are always on 'auto' (they can't change focusMode),
+                // so this naturally highlights only Auto for them.
+                const selected = focusMode === opt.id
+                const locked = !isPaid && opt.id !== 'auto'
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => selectFocus(opt.id)}
+                    style={{
+                      ...styles.focusButton,
+                      border: `1px solid ${selected ? colors.primary : colors.border}`,
+                      background: selected ? '#eff6ff' : colors.card,
+                      color: locked ? colors.textHint : colors.textPrimary,
+                    }}
+                  >
+                    {locked && <span aria-hidden="true" style={{ marginRight: 5 }}>🔒</span>}
+                    {opt.label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Skill picker */}
+            {isPaid && focusMode === 'skill' && (
+              <select
+                value={focusSkillId}
+                onChange={e => setFocusSkillId(e.target.value)}
+                style={styles.select}
+              >
+                <option value="">Choose a skill…</option>
+                {tierTopics.map(topic => (
+                  <optgroup key={topic} label={topic}>
+                    {tierSkills.filter(s => s.topic === topic).map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            )}
+
+            {/* Topic picker */}
+            {isPaid && focusMode === 'topic' && (
+              <select
+                value={focusTopic}
+                onChange={e => setFocusTopic(e.target.value)}
+                style={styles.select}
+              >
+                <option value="">Choose a topic…</option>
+                {tierTopics.map(topic => (
+                  <option key={topic} value={topic}>{topic}</option>
+                ))}
+              </select>
             )}
           </div>
-
-          <div style={styles.focusGrid}>
-            {FOCUS_OPTIONS.map(opt => {
-              // Free users are always on 'auto' (they can't change focusMode),
-              // so this naturally highlights only Auto for them.
-              const selected = focusMode === opt.id
-              const locked = !isPaid && opt.id !== 'auto'
-              return (
-                <button
-                  key={opt.id}
-                  onClick={() => selectFocus(opt.id)}
-                  style={{
-                    ...styles.focusButton,
-                    border: `1px solid ${selected ? colors.primary : colors.border}`,
-                    background: selected ? '#eff6ff' : colors.card,
-                    color: locked ? colors.textHint : colors.textPrimary,
-                  }}
-                >
-                  {locked && <span aria-hidden="true" style={{ marginRight: 5 }}>🔒</span>}
-                  {opt.label}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Skill picker */}
-          {isPaid && focusMode === 'skill' && (
-            <select
-              value={focusSkillId}
-              onChange={e => setFocusSkillId(e.target.value)}
-              style={styles.select}
-            >
-              <option value="">Choose a skill…</option>
-              {tierTopics.map(topic => (
-                <optgroup key={topic} label={topic}>
-                  {tierSkills.filter(s => s.topic === topic).map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          )}
-
-          {/* Topic picker */}
-          {isPaid && focusMode === 'topic' && (
-            <select
-              value={focusTopic}
-              onChange={e => setFocusTopic(e.target.value)}
-              style={styles.select}
-            >
-              <option value="">Choose a topic…</option>
-              {tierTopics.map(topic => (
-                <option key={topic} value={topic}>{topic}</option>
-              ))}
-            </select>
-          )}
-        </div>
+        )}
 
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
           {loading ? 'Loading...' : `${questionCount} questions available`}
