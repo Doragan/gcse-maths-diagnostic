@@ -163,13 +163,10 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
         setValidationError('Add at least one part before saving.')
         return
       }
+      const unattributed: string[] = []
       for (let i = 0; i < form.parts.length; i++) {
         const p = form.parts[i]
         const letter = 'abcdefghijklmnopqrstuvwxyz'[i] ?? String(i + 1)
-        if (p.skill_ids.length === 0) {
-          setValidationError(`Part (${letter}) needs at least one skill.`)
-          return
-        }
         if (!p.prompt.trim()) {
           setValidationError(`Part (${letter}) needs a prompt.`)
           return
@@ -178,6 +175,19 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           setValidationError(`Part (${letter}) needs an answer template.`)
           return
         }
+        if (p.skill_ids.length === 0) unattributed.push(letter)
+      }
+      // A part with no skill records no mastery signal — intended for
+      // decision/comparison steps (e.g. "which shop is cheaper?"), but easy to
+      // leave off by accident, so confirm rather than silently allow.
+      if (unattributed.length > 0) {
+        const many = unattributed.length > 1
+        const list = unattributed.map(l => `(${l})`).join(', ')
+        const ok = window.confirm(
+          `Part${many ? 's' : ''} ${list} ${many ? 'have' : 'has'} no skill assigned, so ${many ? 'they' : 'it'} will not affect any student's mastery.\n\n` +
+          `This is intended for a decision/comparison step. Save anyway?`,
+        )
+        if (!ok) return
       }
       onSave(form)
       return
