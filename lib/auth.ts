@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { trackEvent } from './analytics'
 
 export async function signUp(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({ email, password })
@@ -10,6 +11,30 @@ export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) throw error
   return data
+}
+
+/**
+ * Starts the Google OAuth redirect flow.
+ *
+ * Google carries no notion of teacher-vs-student, so we thread the intended role
+ * through the callback URL — /auth/callback reads it to provision the right
+ * account row (see app/api/auth/provision). `prompt: select_account` forces the
+ * Google account chooser rather than silently reusing a signed-in Google session.
+ * The plain browser client (detectSessionInUrl on by default) exchanges the code
+ * for a session and stores it in localStorage when Google redirects back.
+ */
+export async function signInWithGoogle(role: 'teacher' | 'student') {
+  const origin = typeof window !== 'undefined'
+    ? window.location.origin
+    : 'https://mathsense.net'
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${origin}/auth/callback?role=${role}`,
+      queryParams: { prompt: 'select_account' },
+    },
+  })
+  if (error) throw error
 }
 
 export async function signOut() {
@@ -81,6 +106,32 @@ export async function signUpStudent(
   })
   if (error) throw error
   return data
+}
+
+/**
+ * Migrate anonymous practice attempts (stored in localStorage by the practice
+ * page so they survive an email-confirmation / OAuth round-trip) into the newly
+ * signed-in account — so the "save your progress" nudge is actually true and the
+ * student doesn't land on an empty dashboard. Idempotent: clears the store on
+ * success, so it's safe to call from the student login page and the OAuth
+ * callback alike.
+ */
+export async function migratePendingPractice(studentId: string) {
+  if (typeof window === 'undefined') return
+  let pending: Array<{ question_id: string; skill_ids: string[]; correct: boolean; kind?: string }> = []
+  try { pending = JSON.parse(localStorage.getItem('pending_practice') ?? '[]') } catch { pending = [] }
+  if (!Array.isArray(pending) || pending.length === 0) return
+  const rows = pending.slice(-200).map(a => ({
+    student_id:  studentId,
+    question_id: a.question_id,
+    skill_ids:   a.skill_ids,
+    correct:     a.correct,
+    kind:        a.kind ?? 'mastery',
+  }))
+  const { error } = await supabase.from('practice_attempts').insert(rows)
+  if (error) { console.error('Failed to migrate pending practice:', error.message); return }
+  localStorage.removeItem('pending_practice')
+  trackEvent('pending_practice_migrated', { count: rows.length })
 }
 
 export async function getStudentProfile() {

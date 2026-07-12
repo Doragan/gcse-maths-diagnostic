@@ -9,6 +9,7 @@ import {
 } from '../../lib/styles'
 import { signIn, signUp, getSession } from '../../lib/auth'
 import { trackEvent } from '../../lib/analytics'
+import { GoogleButton } from '../../components/GoogleButton'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -97,6 +98,8 @@ export default function AuthPage() {
             {isSignUp ? 'Create a teacher account' : 'Log in to your account'}
           </p>
         </div>
+
+        <GoogleButton role="teacher" />
 
         <div style={styles.field}>
           <label style={labelStyle}>Email</label>

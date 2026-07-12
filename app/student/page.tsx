@@ -7,35 +7,12 @@ import {
   pageContainer, narrowCard, pageTitle,
   primaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
-import { signIn, signUpStudent, signOut, getStudentProfile } from '../../lib/auth'
+import { signIn, signUpStudent, signOut, getStudentProfile, migratePendingPractice } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
 import { trackEvent } from '../../lib/analytics'
+import { GoogleButton } from '../../components/GoogleButton'
 
 type Mode = 'login' | 'signup'
-
-// Migrate anonymous practice attempts (stored in localStorage by the practice page
-// so they survive the email-confirmation round-trip) into the new account — so the
-// "save your progress" nudge is actually true and the student doesn't sign up to an
-// empty dashboard. Mirrors the diagnostic's pending_diagnostic import. Idempotent:
-// clears the store on success, so it's safe to call from both the login handler and
-// the on-load redirect.
-async function migratePendingPractice(studentId: string) {
-  if (typeof window === 'undefined') return
-  let pending: Array<{ question_id: string; skill_ids: string[]; correct: boolean; kind?: string }> = []
-  try { pending = JSON.parse(localStorage.getItem('pending_practice') ?? '[]') } catch { pending = [] }
-  if (!Array.isArray(pending) || pending.length === 0) return
-  const rows = pending.slice(-200).map(a => ({
-    student_id:  studentId,
-    question_id: a.question_id,
-    skill_ids:   a.skill_ids,
-    correct:     a.correct,
-    kind:        a.kind ?? 'mastery',
-  }))
-  const { error } = await supabase.from('practice_attempts').insert(rows)
-  if (error) { console.error('Failed to migrate pending practice:', error.message); return }
-  localStorage.removeItem('pending_practice')
-  trackEvent('pending_practice_migrated', { count: rows.length })
-}
 
 export default function StudentAuthPage() {
   const router = useRouter()
@@ -186,6 +163,8 @@ export default function StudentAuthPage() {
             {mode === 'signup' ? 'Create a student account' : 'Log in to your account'}
           </p>
         </div>
+
+        <GoogleButton role="student" />
 
         {mode === 'signup' && (
           <div style={styles.field}>
