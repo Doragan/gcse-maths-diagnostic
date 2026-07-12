@@ -13,24 +13,33 @@ export async function signIn(email: string, password: string) {
   return data
 }
 
+export const OAUTH_ROLE_KEY = 'oauth_intended_role'
+
 /**
  * Starts the Google OAuth redirect flow.
  *
- * Google carries no notion of teacher-vs-student, so we thread the intended role
- * through the callback URL — /auth/callback reads it to provision the right
- * account row (see app/api/auth/provision). `prompt: select_account` forces the
- * Google account chooser rather than silently reusing a signed-in Google session.
- * The plain browser client (detectSessionInUrl on by default) exchanges the code
- * for a session and stores it in localStorage when Google redirects back.
+ * Google carries no notion of teacher-vs-student, so we stash the intended role
+ * in localStorage and hand Supabase a CLEAN callback URL (no query string). The
+ * query string was a liability: Supabase's redirect allow-list matching is picky
+ * about it, which silently bounced sign-ins to the Site URL. A bare
+ * `/auth/callback` matches an exact allow-list entry on every host. The callback
+ * reads the role back from localStorage (see app/auth/callback).
+ *
+ * `prompt: select_account` forces the Google account chooser rather than silently
+ * reusing a signed-in Google session. The plain browser client (detectSessionInUrl
+ * on by default) exchanges the code for a session on the way back.
  */
 export async function signInWithGoogle(role: 'teacher' | 'student') {
   const origin = typeof window !== 'undefined'
     ? window.location.origin
     : 'https://mathsense.net'
+  if (typeof window !== 'undefined') {
+    try { localStorage.setItem(OAUTH_ROLE_KEY, role) } catch { /* storage disabled */ }
+  }
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/auth/callback?role=${role}`,
+      redirectTo: `${origin}/auth/callback`,
       queryParams: { prompt: 'select_account' },
     },
   })

@@ -8,7 +8,7 @@ import {
   primaryButton, inputStyle, labelStyle, errorBox,
 } from '../../../lib/styles'
 import { supabase } from '../../../lib/supabase'
-import { getUserRole, migratePendingPractice } from '../../../lib/auth'
+import { getUserRole, migratePendingPractice, OAUTH_ROLE_KEY } from '../../../lib/auth'
 import { trackEvent } from '../../../lib/analytics'
 
 type Phase = 'resolving' | 'student_consent' | 'provisioning' | 'error'
@@ -41,6 +41,11 @@ export default function AuthCallbackPage() {
 
   function intendedRole(): 'teacher' | 'student' {
     if (typeof window === 'undefined') return 'teacher'
+    // Primary: the role stashed by signInWithGoogle before the redirect.
+    let stored: string | null = null
+    try { stored = localStorage.getItem(OAUTH_ROLE_KEY) } catch { /* storage disabled */ }
+    if (stored === 'student' || stored === 'teacher') return stored
+    // Fallback: the legacy ?role= query param (in-flight pre-deploy links).
     return new URLSearchParams(window.location.search).get('role') === 'student'
       ? 'student'
       : 'teacher'
