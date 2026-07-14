@@ -1,8 +1,8 @@
 'use client'
 
-import { colors, font, radius, primaryButton, secondaryButton } from '../../lib/styles'
+import { colors, font, radius, secondaryButton } from '../../lib/styles'
 import { trackEvent } from '../../lib/analytics'
-import { signInWithGoogle } from '../../lib/auth'
+import { GoogleButton } from '../GoogleButton'
 
 /**
  * Bumps the per-tab "questions answered" counter and decides whether the anonymous
@@ -109,31 +109,36 @@ export default function SignUpPrompt({ onDismiss }: { onDismiss: () => void }) {
             callback (app/auth/callback) still collects the 13+ consent for new
             Google students and migrates the questions they just answered. New
             students land on /student/diagnostic; routing nudge-originated signups
-            back into practice instead is a possible future refinement. */}
-        <button
-          onClick={() => {
-            trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'google' })
-            signInWithGoogle('student')
-          }}
-          style={{ ...primaryButton, width: '100%' }}
+            back into practice instead is a possible future refinement.
+
+            Uses the shared GoogleButton (official "G" mark, Google's own button
+            styling) so the nudge matches /auth and /student — a hand-rolled plain
+            button is off-brand and less recognisable. It brings its own "or" divider. */}
+        <GoogleButton
+          role="student"
+          onBeforeSignIn={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'google' })}
+        />
+        <a
+          href="/student"
+          onClick={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'email' })}
+          style={{ ...secondaryButton, textAlign: 'center' as const, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
         >
-          Continue with Google
+          Sign up with email
+        </a>
+        <button
+          onClick={onDismiss}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: colors.textSecondary,
+            fontSize: font.sm,
+            fontWeight: '600',
+            cursor: 'pointer',
+            padding: '4px',
+          }}
+        >
+          Maybe later
         </button>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <a
-            href="/student"
-            onClick={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'email' })}
-            style={{ ...secondaryButton, flex: 1, textAlign: 'center' as const, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
-          >
-            Sign up with email
-          </a>
-          <button
-            onClick={onDismiss}
-            style={{ ...secondaryButton, flex: 1 }}
-          >
-            Maybe later
-          </button>
-        </div>
       </div>
     </div>
   )
