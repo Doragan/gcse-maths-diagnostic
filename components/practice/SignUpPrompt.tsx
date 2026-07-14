@@ -41,6 +41,12 @@ export function registerQuestionForNudge(): boolean {
  * The anonymous sign-up nudge. Copy escalates with how much the visitor has done
  * (read live from sessionStorage so it works from any practice flow). Offers Google
  * as the primary path and the email flow as a secondary option.
+ *
+ * Rendered as a fixed-overlay MODAL, not an inline card. As an inline card it sat
+ * below the feedback box, the mastery dots and the Next-question button — ~822px
+ * down a 720px viewport — so it fired but was never actually seen, which is the
+ * whole reason the practice→signup step was leaking. The homepage demo's prompt
+ * (app/page.tsx) is a modal for the same reason.
  */
 export default function SignUpPrompt({ onDismiss }: { onDismiss: () => void }) {
   const total   = parseInt(sessionStorage.getItem('session_total')   ?? '0')
@@ -66,50 +72,68 @@ export default function SignUpPrompt({ onDismiss }: { onDismiss: () => void }) {
       : 'Create a free account to save your progress and see your weak spots and progress over time.'
 
   return (
-    <div style={{
-      padding: '16px',
-      borderRadius: radius.lg,
-      background: colors.card,
-      border: `1px solid ${colors.primary}`,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '10px',
-    }}>
-      <p style={{ fontSize: font.md, fontWeight: '600', margin: 0, color: colors.textPrimary }}>
-        {heading}
-      </p>
-      <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
-        {body}
-      </p>
-      {/* Google is the primary path: it skips the email → password → confirm →
-          13+ check → email-verification round-trip (a notorious drop-off). The
-          callback (app/auth/callback) still collects the 13+ consent for new
-          Google students and migrates the questions they just answered. New
-          students land on /student/diagnostic; routing nudge-originated signups
-          back into practice instead is a possible future refinement. */}
-      <button
-        onClick={() => {
-          trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'google' })
-          signInWithGoogle('student')
-        }}
-        style={{ ...primaryButton, width: '100%' }}
-      >
-        Continue with Google
-      </button>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <a
-          href="/student"
-          onClick={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'email' })}
-          style={{ ...secondaryButton, flex: 1, textAlign: 'center' as const, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
-        >
-          Sign up with email
-        </a>
+    <div
+      style={{
+        position: 'fixed' as const,
+        inset: 0,
+        background: 'rgba(0,0,0,0.55)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
+        padding: '20px',
+      }}
+      onClick={e => { if (e.target === e.currentTarget) onDismiss() }}
+    >
+      <div style={{
+        background: colors.card,
+        borderRadius: radius.lg,
+        padding: '28px 24px',
+        maxWidth: '440px',
+        width: '100%',
+        maxHeight: '85dvh',
+        overflowY: 'auto' as const,
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '12px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+      }}>
+        <p style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary }}>
+          {heading}
+        </p>
+        <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 4px' }}>
+          {body}
+        </p>
+        {/* Google is the primary path: it skips the email → password → confirm →
+            13+ check → email-verification round-trip (a notorious drop-off). The
+            callback (app/auth/callback) still collects the 13+ consent for new
+            Google students and migrates the questions they just answered. New
+            students land on /student/diagnostic; routing nudge-originated signups
+            back into practice instead is a possible future refinement. */}
         <button
-          onClick={onDismiss}
-          style={{ ...secondaryButton, flex: 1 }}
+          onClick={() => {
+            trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'google' })
+            signInWithGoogle('student')
+          }}
+          style={{ ...primaryButton, width: '100%' }}
         >
-          Maybe later
+          Continue with Google
         </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a
+            href="/student"
+            onClick={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'email' })}
+            style={{ ...secondaryButton, flex: 1, textAlign: 'center' as const, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
+          >
+            Sign up with email
+          </a>
+          <button
+            onClick={onDismiss}
+            style={{ ...secondaryButton, flex: 1 }}
+          >
+            Maybe later
+          </button>
+        </div>
       </div>
     </div>
   )
