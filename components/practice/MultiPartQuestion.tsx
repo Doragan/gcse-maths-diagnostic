@@ -13,6 +13,7 @@ import {
 import MathInput from './MathInput'
 import ReportIssueButton from './ReportIssueButton'
 import FeedbackWidget from '../FeedbackWidget'
+import SignUpPrompt, { registerQuestionForNudge } from './SignUpPrompt'
 
 type MultiPartQuestionData = {
   id: string
@@ -62,6 +63,7 @@ export default function MultiPartQuestion({
 
   const [current, setCurrent] = useState(0)
   const [answer, setAnswer] = useState('')
+  const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
   // One slot per part; null until that part is answered. Keeps each part's
   // submitted answer on screen so later parts can refer back to it.
   const [outcomes, setOutcomes] = useState<(PartOutcome | null)[]>(
@@ -121,6 +123,9 @@ export default function MultiPartQuestion({
     recordPartAttempt(part, result.correct)
     if (isLastPart) {
       recordAssignmentRollup(next.every(o => o?.correct === true))
+      // The whole multi-part question counts as ONE toward the anonymous sign-up
+      // nudge (not one per part) — fire it when the final part is answered.
+      if (!studentId && registerQuestionForNudge()) setShowSignUpPrompt(true)
     }
   }
 
@@ -321,6 +326,11 @@ export default function MultiPartQuestion({
             Next question →
           </button>
         </div>
+      )}
+
+      {/* Sign-up prompt for anonymous users, surfaced once the whole question is done */}
+      {showSignUpPrompt && !studentId && (
+        <SignUpPrompt onDismiss={() => setShowSignUpPrompt(false)} />
       )}
 
       {/* Report an issue */}
