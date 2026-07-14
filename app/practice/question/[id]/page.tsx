@@ -7,7 +7,6 @@ import { skillsById } from '../../../../lib/skills/skillGraph'
 import { courses } from '../../../../data/courses'
 import { renderQuestion, type RenderedQuestion } from '../../../../lib/questions/paramEngine'
 import { checkAnswer } from '../../../../lib/questions/answerChecker'
-import { trackEvent } from '../../../../lib/analytics'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton,
@@ -19,6 +18,7 @@ import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipl
 import { getCachedStudentId } from '../../../../lib/auth'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
+import SignUpPrompt, { registerQuestionForNudge } from '../../../../components/practice/SignUpPrompt'
 
 type Question = {
   id: string
@@ -349,16 +349,10 @@ function QuestionPage() {
       setSessionSkills(prev => ({ ...prev, [primarySkillId]: skills[primarySkillId] }))
     }
 
-    const count = parseInt(sessionStorage.getItem('practice_questions_answered') ?? '0') + 1
-    sessionStorage.setItem('practice_questions_answered', count.toString())
-    // Re-surface the sign-up nudge at escalating milestones rather than after every
-    // answer — the same prompt on every question just breeds banner-blindness. The
-    // copy escalates with the count (see the prompt block below): 5 = gentle ask,
-    // 15 = stat-led, 30+ = loss-framed.
-    if (!studentId && (count === 5 || count === 15 || (count >= 30 && count % 15 === 0))) {
-      setShowSignUpPrompt(true)
-      trackEvent('practice_signup_prompt_shown', { questions: count })
-    }
+    // Count this answer toward the escalating anonymous sign-up nudge (a single-part
+    // question = one answer = one question). See registerQuestionForNudge for the
+    // milestone logic and why we lowered the first tier to 3.
+    if (!studentId && registerQuestionForNudge()) setShowSignUpPrompt(true)
     if (!studentId) {
       // Anonymous: persist the attempt to localStorage so it migrates into the
       // account on signup/login (see migratePendingPractice in app/student/page).
@@ -957,59 +951,9 @@ function QuestionPage() {
       )}
 
       {/* Sign-up prompt for anonymous users — copy escalates with how much they've done */}
-      {showSignUpPrompt && !studentId && (() => {
-        const total        = sessionStats.total
-        const correct      = sessionStats.correct
-        const skillCount   = Object.keys(sessionSkills).length
-        const acrossSkills = skillCount > 1 ? ` across ${skillCount} skills` : ''
-        const correctBit   = correct > 0 ? `, ${correct} correct` : ''
-
-        const heading =
-          total >= 30 ? "You've done some serious work today" :
-          total >= 15 ? `${total} questions in — nice going` :
-                        'Save your progress'
-
-        const body =
-          total >= 30
-            ? `That's ${total} questions${acrossSkills}${correctBit} — but it's only saved on this device and disappears when you close the tab. Create a free account to keep it and see your weak spots and progress over time.`
-          : total >= 15
-            ? `You've answered ${total} questions${acrossSkills}${correctBit}. Create a free account to save it and track which skills you've mastered.`
-            : 'Create a free account to save your progress and see your weak spots and progress over time.'
-
-        return (
-          <div style={{
-            padding: '16px',
-            borderRadius: radius.lg,
-            background: colors.card,
-            border: `1px solid ${colors.primary}`,
-            display: 'flex',
-            flexDirection: 'column' as const,
-            gap: '10px',
-          }}>
-            <p style={{ fontSize: font.md, fontWeight: '600', margin: 0, color: colors.textPrimary }}>
-              {heading}
-            </p>
-            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
-              {body}
-            </p>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <a
-                href="/student"
-                onClick={() => trackEvent('practice_signup_prompt_clicked', { questions: total })}
-                style={{ ...primaryButton, flex: 1, textAlign: 'center' as const, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
-              >
-                Create free account
-              </a>
-              <button
-                onClick={() => setShowSignUpPrompt(false)}
-                style={{ ...secondaryButton, flex: 1 }}
-              >
-                Maybe later
-              </button>
-            </div>
-          </div>
-        )
-      })()}
+      {showSignUpPrompt && !studentId && (
+        <SignUpPrompt onDismiss={() => setShowSignUpPrompt(false)} />
+      )}
 
       {/* Report an issue */}
       <ReportIssueButton
