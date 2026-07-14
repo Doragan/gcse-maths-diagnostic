@@ -6,13 +6,18 @@ import { signInWithGoogle } from '../lib/auth'
 
 /**
  * "Continue with Google" button + an "or" divider, shared by the teacher (/auth)
- * and student (/student) login pages. The Google "G" is inlined as SVG so there's
- * no external asset to load (keeps it CSP/offline-safe and avoids a network hop).
+ * and student (/student) login pages and the anonymous practice sign-up nudge.
+ * The Google "G" is inlined as SVG so there's no external asset to load (keeps it
+ * CSP/offline-safe and avoids a network hop).
  *
  * `role` decides which account the OAuth callback provisions — see
- * signInWithGoogle in lib/auth.ts.
+ * signInWithGoogle in lib/auth.ts. `onBeforeSignIn` fires just before the redirect,
+ * for callers that need to attribute the click (e.g. the practice nudge's CTA event).
  */
-export function GoogleButton({ role }: { role: 'teacher' | 'student' }) {
+export function GoogleButton({ role, onBeforeSignIn }: {
+  role: 'teacher' | 'student'
+  onBeforeSignIn?: () => void
+}) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,6 +25,7 @@ export function GoogleButton({ role }: { role: 'teacher' | 'student' }) {
     setError(null)
     setBusy(true)
     try {
+      onBeforeSignIn?.()
       await signInWithGoogle(role)
       // On success the browser redirects to Google, so we never fall through.
     } catch (e: any) {
