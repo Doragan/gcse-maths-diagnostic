@@ -373,15 +373,35 @@ function parseFraction(s: string): number {
 }
 
 /**
+ * True when a canonical answer written as "a/b" has an EXACT (terminating)
+ * decimal expansion — i.e. after reducing, the denominator has no prime
+ * factors other than 2 and 5. Non-fraction canonicals (integers, decimals)
+ * count as terminating: they are exactly typeable as decimals.
+ *
+ * "1/4" → true (0.25)   "3/6" → true (reduces to 1/2)   "4/11" → false
+ */
+function hasTerminatingDecimal(canonical: string): boolean {
+  const m = canonical.match(/^(-?\d+)\/(\d+)$/)
+  if (!m) return true
+  let den = parseInt(m[2], 10) / gcd(parseInt(m[1], 10), parseInt(m[2], 10))
+  while (den % 2 === 0) den /= 2
+  while (den % 5 === 0) den /= 5
+  return den === 1
+}
+
+/**
  * Compare two answers that may be expressed as fractions (e.g. "3/4" vs "0.75").
  * Uses parseFraction so that "3/4" and "6/8" and "0.75" are all equivalent
  * within the given tolerance.
  *
  * Special rule for decimal input: if the student wrote a decimal (e.g. "0.25")
- * rather than a fraction, we require an exact IEEE 754 match (tolerance 1e-9)
- * instead of the normal 0.001 tolerance. This means:
- *   • "0.25"   for 1/4  → accepted  (0.25 IS 1/4 exactly in float arithmetic)
- *   • "0.1667" for 1/6  → rejected  (differs from 1/6 by ~3×10⁻⁵, a rounded guess)
+ * rather than a fraction, it is only acceptable when the target value HAS an
+ * exact decimal form (terminating), and then it must match exactly:
+ *   • "0.25"   for 1/4  → accepted  (0.25 IS 1/4 exactly)
+ *   • "0.1667" for 1/6  → rejected  (a rounded guess)
+ *   • "0.3636363636364" for 4/11 → rejected — 4/11 has NO exact decimal form,
+ *     so no number of typed digits counts as the exact answer (previously a
+ *     long-enough truncation crept under the 1e-9 tolerance)
  *   • "1/4"    for 1/4  → accepted  (fraction notation always uses normal tolerance)
  */
 function fractionMatch(
@@ -394,6 +414,7 @@ function fractionMatch(
   if (isNaN(student) || isNaN(correct)) return false
   // Detect a decimal answer: has a "." and no "/" (after normalise has run)
   const isDecimal = studentAnswer.includes('.') && !studentAnswer.includes('/')
+  if (isDecimal && !hasTerminatingDecimal(correctAnswer)) return false
   const effectiveTolerance = isDecimal ? 1e-9 : tolerance
   return Math.abs(student - correct) <= effectiveTolerance
 }
@@ -695,6 +716,23 @@ export function checkAnswer(
   // One-place-out rounding miss (authored traps already had their chance above).
   if (rounding.rel === 'off_by_one') {
     return { correct: false, trap: null, message: ROUNDING_ERROR }
+  }
+
+  // Decimal given for a fraction answer that has no exact decimal form
+  // (e.g. "0.3636…" for 4/11). fractionMatch has already rejected it as
+  // incorrect; if the VALUE is right, say why the form isn't, rather than
+  // the generic miss message.
+  if (answerType === 'fraction' && normStudent.includes('.') && !normStudent.includes('/')
+      && !hasTerminatingDecimal(normCorrect)) {
+    const sVal = parseFraction(normStudent)
+    const cVal = parseFraction(normCorrect)
+    if (!isNaN(sVal) && !isNaN(cVal) && Math.abs(sVal - cVal) <= 0.001) {
+      return {
+        correct: false,
+        trap:    null,
+        message: 'You have the right value, but written as a decimal it can only ever be an approximation — this number does not terminate. Give the EXACT answer as a fraction.',
+      }
+    }
   }
 
   return {

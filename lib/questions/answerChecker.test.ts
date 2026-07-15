@@ -56,6 +56,22 @@ describe('characterisation: fraction', () => {
   it('rejects a rounded decimal guess (0.1667 for 1/6)', () => {
     expect(check('0.1667', '1/6', 'fraction').correct).toBe(false)
   })
+  it('rejects a LONG decimal truncation of a non-terminating fraction (4/11 loophole)', () => {
+    // Previously "enough digits" crept under the 1e-9 exactness tolerance,
+    // letting a student parrot a recurring decimal back instead of converting.
+    const r = check('0.3636363636364', '4/11', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/fraction/i)
+  })
+  it('rejects an ultra-precise decimal for 1/3 (no exact decimal form exists)', () => {
+    expect(check('0.3333333333333333', '1/3', 'fraction').correct).toBe(false)
+  })
+  it('still accepts exact decimals for terminating fractions (0.35 for 7/20)', () => {
+    expect(check('0.35', '7/20', 'fraction').correct).toBe(true)
+  })
+  it('still accepts a decimal for an unreduced-but-terminating canonical (0.5 for 3/6)', () => {
+    expect(checkAnswer('0.5', '3/6', 'fraction', null, [], false).correct).toBe(true)
+  })
 })
 
 describe('characterisation: exact', () => {
