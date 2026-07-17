@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { assembleExam, candidateOf, type Candidate } from './assembler'
+import { normalizePart, emptyPart, emptyBlank } from '../questions/parts'
 import type { ExamSlot } from './blueprint'
 
 // Deterministic rng: always picks the first candidate in a tie group.
@@ -127,6 +128,22 @@ describe('candidateOf', () => {
   it('sums part marks for multi-part questions', () => {
     const c = candidateOf({ ...base, parts: [{ marks: 1 }, { marks: 2 }, { marks: 3 }] })
     expect(c!.marks).toBe(6)
+  })
+
+  it('counts a multi_blank part at its blank-sum marks (normalizePart invariant)', () => {
+    // normalizePart pins part.marks = sum of blank marks, so the assembler
+    // needs no blank awareness — this pins that contract from the consumer side.
+    const part = normalizePart({
+      ...emptyPart(),
+      answer_type: 'multi_blank',
+      blanks: [
+        { ...emptyBlank('A'), answer_template: '{{a}}', marks: 1 },
+        { ...emptyBlank('B'), answer_template: '{{b}}', marks: 2 },
+      ],
+    })
+    const c = candidateOf({ ...base, parts: [part, { marks: 2 }] })
+    expect(part.marks).toBe(3)
+    expect(c!.marks).toBe(5)
   })
 
   it('derives strand from the first skill and defaults unknown calc to na', () => {

@@ -8,7 +8,11 @@ import {
 import {
   QuestionKind, QUESTION_KINDS, QUESTION_KIND_LABELS,
 } from '../../lib/questions/kind'
-import { PartInput, defaultKindForSkills } from '../../lib/questions/parts'
+import { PART_ANSWER_TYPES, ANSWER_TYPE_LABELS } from '../../lib/questions/answerTypes'
+import {
+  PartInput, BlankInput, defaultKindForSkills, emptyBlank, nextBlankLabel, blankMarksTotal,
+} from '../../lib/questions/parts'
+import BlankEditor from './BlankEditor'
 
 type Trap = { answer_template: string, response: string }
 
@@ -55,6 +59,27 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
   function removeTrap(i: number) {
     set('traps', part.traps.filter((_, j) => j !== i))
   }
+
+  const blanks = part.blanks ?? []
+
+  function addBlank() {
+    set('blanks', [...blanks, emptyBlank(nextBlankLabel(blanks))])
+  }
+
+  function updateBlank(i: number, b: BlankInput) {
+    set('blanks', blanks.map((old, j) => j === i ? b : old))
+  }
+
+  function removeBlank(i: number) {
+    set('blanks', blanks.filter((_, j) => j !== i))
+  }
+
+  const isMultiBlank = part.answer_type === 'multi_blank'
+  // Read-only marks for multi_blank: normalizePart recomputes the sum on save,
+  // so the form shows the derived value rather than an editable field.
+  const blankMarks = blankMarksTotal(blanks.map(b => ({
+    marks: b.marks === '' || b.marks == null ? 1 : Number(b.marks),
+  })))
 
   const filteredSkills = Object.entries(skillsById)
     .filter(([, skill]) =>
@@ -142,16 +167,18 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
 
       {/* Answer / type / tolerance / marks / kind */}
       <div style={styles.row}>
-        <div style={styles.field}>
-          <label style={labelStyle}>Answer template</label>
-          <input
-            type="text"
-            value={part.answer_template}
-            onChange={e => set('answer_template', e.target.value)}
-            style={inputStyle}
-            placeholder="{{a + b}}"
-          />
-        </div>
+        {!isMultiBlank && (
+          <div style={styles.field}>
+            <label style={labelStyle}>Answer template</label>
+            <input
+              type="text"
+              value={part.answer_template}
+              onChange={e => set('answer_template', e.target.value)}
+              style={inputStyle}
+              placeholder="{{a + b}}"
+            />
+          </div>
+        )}
         <div style={styles.field}>
           <label style={labelStyle}>Answer type</label>
           <select
@@ -159,13 +186,9 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             onChange={e => set('answer_type', e.target.value as PartInput['answer_type'])}
             style={inputStyle}
           >
-            <option value="numeric">Numeric</option>
-            <option value="exact">Exact</option>
-            <option value="fraction">Fraction</option>
-            <option value="expression">Expression</option>
-            <option value="set">Set</option>
-            <option value="ratio">Ratio</option>
-            <option value="coordinate">Coordinate</option>
+            {PART_ANSWER_TYPES.map(t => (
+              <option key={t} value={t}>{ANSWER_TYPE_LABELS[t]}</option>
+            ))}
           </select>
         </div>
         {part.answer_type === 'numeric' && (
@@ -181,17 +204,26 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             />
           </div>
         )}
-        <div style={{ ...styles.field, minWidth: '90px' }}>
-          <label style={labelStyle}>Marks</label>
-          <input
-            type="number"
-            value={part.marks ?? ''}
-            onChange={e => set('marks', e.target.value)}
-            style={inputStyle}
-            placeholder="1"
-            min="1"
-          />
-        </div>
+        {isMultiBlank ? (
+          <div style={{ ...styles.field, minWidth: '90px' }}>
+            <label style={labelStyle}>Marks</label>
+            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, padding: '10px 0' }}>
+              {blankMarks} — sum of blanks
+            </p>
+          </div>
+        ) : (
+          <div style={{ ...styles.field, minWidth: '90px' }}>
+            <label style={labelStyle}>Marks</label>
+            <input
+              type="number"
+              value={part.marks ?? ''}
+              onChange={e => set('marks', e.target.value)}
+              style={inputStyle}
+              placeholder="1"
+              min="1"
+            />
+          </div>
+        )}
       </div>
 
       {(part.answer_type === 'fraction' || part.answer_type === 'ratio') && (
@@ -204,6 +236,30 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             />
             Requires simplest form
           </label>
+        </div>
+      )}
+
+      {/* Blanks (multi_blank only) */}
+      {isMultiBlank && (
+        <div style={styles.field}>
+          <label style={labelStyle}>Blanks</label>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            Each blank is marked on its own — give every blank its own answer, type and marks.
+            Label them A, B, C to match the prompt/diagram. The NUMBER of blanks is fixed for
+            the question; parameters vary the values only.
+          </p>
+          {blanks.map((b, i) => (
+            <BlankEditor
+              key={i}
+              blank={b}
+              onChange={nb => updateBlank(i, nb)}
+              onRemove={() => removeBlank(i)}
+              autoResize={autoResize}
+            />
+          ))}
+          <button onClick={addBlank} style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}>
+            + Add blank
+          </button>
         </div>
       )}
 
@@ -223,7 +279,8 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
         </p>
       </div>
 
-      {/* Per-part traps */}
+      {/* Per-part traps (multi_blank parts carry traps per BLANK instead) */}
+      {!isMultiBlank && (
       <div style={styles.field}>
         <label style={labelStyle}>Traps for this part</label>
         {part.traps.map((trap, i) => (
@@ -257,6 +314,7 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
           + Add trap
         </button>
       </div>
+      )}
 
       {/* Explanation */}
       <div style={styles.field}>

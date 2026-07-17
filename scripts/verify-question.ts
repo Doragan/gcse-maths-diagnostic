@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { skills } from '../data/skills'
 import { evaluateTemplate, generateValues, satisfiesAllConstraints, type Parameters } from '../lib/questions/paramEngine'
 import { checkAnswer, normalise } from '../lib/questions/answerChecker'
+import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
 import { readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
@@ -37,7 +38,7 @@ import { tmpdir } from 'os'
 // ─────────────────────────────────────────────────────────────────────────────
 
 const EXHAUSTIVE_CAP = 20000
-const VALID_ANSWER_TYPES = ['exact', 'numeric', 'fraction', 'expression', 'set', 'ratio', 'coordinate']
+const VALID_ANSWER_TYPES: readonly string[] = SCALAR_ANSWER_TYPES
 const BAD_RENDER = /\[error|undefined|NaN|\{\{/
 const skillIds = new Set(skills.map(s => s.id))
 
@@ -56,6 +57,9 @@ type Unit = {
   requires_simplest: boolean
   traps: Trap[]
   explanation: string
+  // Set for the blank-units of one multi_blank part ("part-2"), so the
+  // cross-blank ambiguity check knows which units belong together.
+  group?: string
 }
 type Q = Record<string, any>
 
@@ -67,16 +71,37 @@ function decimalPlaces(s: string): number {
 function unitsOf(q: Q): Unit[] {
   const parts: any[] = Array.isArray(q.parts) && q.parts.length ? q.parts : []
   if (parts.length) {
-    return parts.map((p, i) => ({
-      label: `part (${'abcdefgh'[i]})`,
-      prompt: p.prompt ?? '',
-      answer_template: p.answer_template ?? '',
-      answer_type: p.answer_type ?? 'numeric',
-      tolerance: p.tolerance ?? null,
-      requires_simplest: p.requires_simplest ?? false,
-      traps: p.traps ?? [],
-      explanation: p.explanation ?? '',
-    }))
+    return parts.flatMap((p, i): Unit[] => {
+      // A multi_blank part contributes one unit PER BLANK, so every existing
+      // per-unit check (render sweep, self-grade, trap collisions, dp gate)
+      // applies to each blank for free. Prompt/explanation render-checked once,
+      // on the first blank's unit.
+      if (p.answer_type === 'multi_blank') {
+        const blanks: any[] = Array.isArray(p.blanks) ? p.blanks : []
+        return blanks.map((b, bi): Unit => ({
+          label: `part (${'abcdefgh'[i]}) blank ${b.label ?? bi + 1}`,
+          // Part prompt (once) + this blank's own prompt — both render-checked.
+          prompt: [bi === 0 ? (p.prompt ?? '') : '', b.prompt ?? ''].filter(Boolean).join(' '),
+          answer_template: b.answer_template ?? '',
+          answer_type: b.answer_type ?? 'numeric',
+          tolerance: b.tolerance ?? null,
+          requires_simplest: b.requires_simplest ?? false,
+          traps: b.traps ?? [],
+          explanation: bi === 0 ? (p.explanation ?? '') : '',
+          group: `part-${i}`,
+        }))
+      }
+      return [{
+        label: `part (${'abcdefgh'[i]})`,
+        prompt: p.prompt ?? '',
+        answer_template: p.answer_template ?? '',
+        answer_type: p.answer_type ?? 'numeric',
+        tolerance: p.tolerance ?? null,
+        requires_simplest: p.requires_simplest ?? false,
+        traps: p.traps ?? [],
+        explanation: p.explanation ?? '',
+      }]
+    })
   }
   return [{
     label: 'answer',
@@ -142,6 +167,36 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   if (!(q.skill_ids ?? []).length) fails.push('no skill_ids')
   const units = unitsOf(q)
   const isMulti = Array.isArray(q.parts) && q.parts.length > 0
+
+  // ── multi_blank structural gates ──
+  // Part-level only: the question-level answer_type column carries a CHECK
+  // constraint that deliberately excludes multi_blank.
+  if (q.answer_type === 'multi_blank') fails.push(`question-level answer_type 'multi_blank' — multi_blank is PART-level only (author as a one-part question)`)
+  if (isMulti) {
+    for (let i = 0; i < q.parts.length; i++) {
+      const p = q.parts[i]
+      if (p.answer_type !== 'multi_blank') continue
+      const pl = `part (${'abcdefgh'[i]})`
+      const blanks: any[] = Array.isArray(p.blanks) ? p.blanks : []
+      if (!blanks.length) { fails.push(`${pl}: multi_blank with no blanks`); continue }
+      if (blanks.length === 1) warns.push(`${pl}: multi_blank with exactly 1 blank — use a normal part instead`)
+      const labels = blanks.map(b => String(b.label ?? '').trim().toUpperCase())
+      if (labels.some(l => !l)) fails.push(`${pl}: a blank has an empty label`)
+      if (new Set(labels).size !== labels.length) fails.push(`${pl}: duplicate blank labels [${labels.join(', ')}]`)
+      for (const b of blanks) {
+        if (!String(b.answer_template ?? '').trim()) fails.push(`${pl} blank ${b.label}: empty answer template`)
+        if (b.answer_type === 'multi_blank') fails.push(`${pl} blank ${b.label}: blanks cannot nest multi_blank`)
+      }
+      // part.marks must equal the blank sum (normalizePart computes it, but
+      // hand-written --file JSON and direct DB writes can drift, and the exam
+      // runner scores from the blanks while the assembler reads part.marks).
+      const blankSum = blanks.reduce((s, b) => s + (Number(b.marks) || 0), 0)
+      if (p.marks != null && Number(p.marks) !== blankSum) {
+        fails.push(`${pl}: marks ${p.marks} ≠ sum of blank marks ${blankSum}`)
+      }
+    }
+  }
+
   for (const u of units) if (!VALID_ANSWER_TYPES.includes(u.answer_type)) fails.push(`${u.label}: invalid answer_type "${u.answer_type}"`)
   if (q.kind === 'exam' && (q.skill_ids ?? []).length < 2) warns.push(`kind 'exam' but only ${(q.skill_ids ?? []).length} skill(s) — synthesis needs 2+ independent skills`)
   if (q.kind === 'mastery' && !isMulti && (q.skill_ids ?? []).length !== 1) warns.push(`single-part 'mastery' with ${(q.skill_ids ?? []).length} skills — mastery attribution wants exactly 1`)
@@ -156,12 +211,18 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   // Collision bookkeeping so a message names the trap and how often it hit.
   const trapCollisions = new Map<string, number>()
   const trapSilent = new Map<string, number>()
+  // Cross-blank ambiguity: within one multi_blank part, how often two blanks
+  // render the SAME answer (a transposing student is then indistinguishable
+  // from a correct one).
+  const blankPairSame = new Map<string, number>()
   const seenFail = new Set<string>()
   const fail = (key: string, msg: string) => { if (!seenFail.has(key)) { seenFail.add(key); fails.push(msg) } }
 
   for (const c of combos) {
     const stem = (() => { try { return evaluateTemplate(q.question_template ?? '', c) } catch { return '[error]' } })()
     if (BAD_RENDER.test(stem)) fail('stem', `stem renders badly, e.g. at ${JSON.stringify(c)}`)
+
+    const groupAns = new Map<string, { label: string, ans: string }[]>()
 
     for (const u of units) {
       const k = u.label
@@ -189,6 +250,12 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
       const graded = checkAnswer(ans, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest)
       if (!graded.correct) fail(`${k}:self`, `${k}: canonical answer "${ans}" NOT accepted by grader at ${JSON.stringify(c)}`)
 
+      if (u.group) {
+        const list = groupAns.get(u.group) ?? []
+        list.push({ label: u.label, ans: normalise(ans) })
+        groupAns.set(u.group, list)
+      }
+
       for (const t of rt) {
         if (!t.answer.trim() || BAD_RENDER.test(t.answer)) continue
         const res = checkAnswer(t.answer, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest)
@@ -206,6 +273,18 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
         if (!norm.includes(normalise(ans))) warns.push(`MC options missing the correct answer at ${JSON.stringify(c)} (buildOptions will prepend it)`)
       }
     }
+
+    // Cross-blank identical answers within each multi_blank part, this combo.
+    for (const list of groupAns.values()) {
+      for (let a = 0; a < list.length; a++) {
+        for (let b = a + 1; b < list.length; b++) {
+          if (list[a].ans === list[b].ans) {
+            const key = `${list[a].label} ↔ ${list[b].label}`
+            blankPairSame.set(key, (blankPairSame.get(key) ?? 0) + 1)
+          }
+        }
+      }
+    }
   }
 
   for (const [key, hits] of trapCollisions) {
@@ -215,6 +294,11 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   for (const [key, hits] of trapSilent) {
     const [ulabel, tpl] = key.split('|')
     fails.push(`${ulabel}: trap "${tpl}" falls through silently (no trap fires) on ${hits}/${combos.length} value sets`)
+  }
+  for (const [pair, hits] of blankPairSame) {
+    if (hits > combos.length / 2) {
+      warns.push(`${pair}: identical rendered answers on ${hits}/${combos.length} value sets — a transposing student is indistinguishable from a correct one`)
+    }
   }
 
   if (!exhaustive) warns.push(`parameter space too large to enumerate — sampled ${combos.length} constraint-valid draws`)

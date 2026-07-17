@@ -17,6 +17,7 @@ import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
 import type { QuestionPart } from '../../../../lib/questions/parts'
+import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
 import SignUpPrompt, { registerQuestionForNudge } from '../../../../components/practice/SignUpPrompt'
 
@@ -28,7 +29,7 @@ type Question = {
   question_template: string
   parameters: any
   answer_template: string
-  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
+  answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest?: boolean
   traps: { answer_template: string, response: string }[]

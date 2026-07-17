@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { skillsById } from '../../lib/skills/skillGraph'
 import { renderMultiPartQuestion } from '../../lib/questions/paramEngine'
 import { checkAnswer } from '../../lib/questions/answerChecker'
+import { checkMultiBlank, type BlankCheck } from '../../lib/questions/multiBlank'
 import type { QuestionPart } from '../../lib/questions/parts'
 import {
   colors, font, radius, card, primaryButton, secondaryButton,
@@ -25,7 +26,13 @@ type MultiPartQuestionData = {
   parts: QuestionPart[]
 }
 
-type PartOutcome = { answer: string, correct: boolean, message: string }
+type PartOutcome = {
+  answer: string
+  correct: boolean
+  message: string
+  // Only for multi_blank parts: the per-blank verdicts shown in the summary box.
+  blanks?: { label: string, answer: string, correct: boolean, message: string, correctAnswer: string }[]
+}
 
 type Props = {
   question: MultiPartQuestionData
@@ -55,14 +62,25 @@ export default function MultiPartQuestion({
         answer_template: p.answer_template,
         traps: p.traps,
         explanation: p.explanation,
+        blanks: p.blanks,
       })),
       question.parameters ?? {},
     ),
     [question.id], // eslint-disable-line react-hooks/exhaustive-deps
   )
 
+  const blankCountOf = (i: number) =>
+    question.parts[i]?.answer_type === 'multi_blank' ? (question.parts[i].blanks?.length ?? 0) : 0
+
   const [current, setCurrent] = useState(0)
   const [answer, setAnswer] = useState('')
+  // One slot per blank of the CURRENT part (empty array for scalar parts).
+  const [blankAnswers, setBlankAnswers] = useState<string[]>(
+    () => Array(blankCountOf(0)).fill(''),
+  )
+  // Wrapper divs around each blank's MathInput so Enter can hop A → B → C
+  // (MathInput doesn't forward refs; degrades gracefully to the button).
+  const blankRowRefs = useRef<(HTMLDivElement | null)[]>([])
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
   // One slot per part; null until that part is answered. Keeps each part's
   // submitted answer on screen so later parts can refer back to it.
@@ -107,20 +125,57 @@ export default function MultiPartQuestion({
   function submit() {
     const part = question.parts[current]
     const renderedPart = rendered.parts[current]
-    if (!answer.trim() || outcomes[current]) return
+    if (outcomes[current]) return
 
-    const result = checkAnswer(
-      answer,
-      renderedPart.answer,
-      part.answer_type,
-      part.tolerance,
-      renderedPart.traps,
-      part.requires_simplest ?? false,
-    )
+    let outcome: PartOutcome
+    if (part.answer_type === 'multi_blank') {
+      const blanks = part.blanks ?? []
+      const renderedBlanks = renderedPart.blanks ?? []
+      // One submit for the whole part — gated until every blank is filled.
+      if (blankAnswers.some(a => !a.trim())) return
+      const result = checkMultiBlank(blanks.map((b, i): BlankCheck => ({
+        label: b.label,
+        student: blankAnswers[i] ?? '',
+        answer: renderedBlanks[i]?.answer ?? '',
+        answer_type: b.answer_type,
+        tolerance: b.tolerance,
+        requires_simplest: b.requires_simplest ?? false,
+        traps: renderedBlanks[i]?.traps ?? [],
+      })))
+      outcome = {
+        answer: result.blanks.map(b => `${b.label} = ${b.student}`).join(', '),
+        correct: result.correct,
+        message: result.correct
+          ? 'Correct!'
+          : `${result.correctCount} of ${result.blanks.length} blanks correct`,
+        blanks: result.blanks.map((b, i) => ({
+          label: b.label,
+          answer: b.student,
+          correct: b.correct,
+          message: b.message,
+          correctAnswer: renderedBlanks[i]?.answer ?? '',
+        })),
+      }
+    } else {
+      if (!answer.trim()) return
+      const result = checkAnswer(
+        answer,
+        renderedPart.answer,
+        part.answer_type,
+        part.tolerance,
+        renderedPart.traps,
+        part.requires_simplest ?? false,
+      )
+      outcome = { answer, correct: result.correct, message: result.message }
+    }
+
     const next = [...outcomes]
-    next[current] = { answer, correct: result.correct, message: result.message }
+    next[current] = outcome
     setOutcomes(next)
-    recordPartAttempt(part, result.correct)
+    // ONE practice_attempts row per part regardless of blank count — for a
+    // multi_blank part, correct = every blank correct (partial credit lives in
+    // the exam-marks layer, not the mastery substrate).
+    recordPartAttempt(part, outcome.correct)
     if (isLastPart) {
       recordAssignmentRollup(next.every(o => o?.correct === true))
       // The whole multi-part question counts as ONE toward the anonymous sign-up
@@ -131,6 +186,7 @@ export default function MultiPartQuestion({
 
   function nextPart() {
     setAnswer('')
+    setBlankAnswers(Array(blankCountOf(current + 1)).fill(''))
     setCurrent(c => c + 1)
   }
 
@@ -242,31 +298,59 @@ export default function MultiPartQuestion({
                 gap: '6px',
               }}>
                 <p style={{ fontSize: font.sm, margin: 0, color: o.correct ? colors.successText : colors.dangerText, fontWeight: '600' }}>
-                  {o.correct ? '✓ Correct' : '✗ Not quite'}
+                  {o.correct ? '✓ Correct' : o.blanks ? `✗ ${o.message}` : '✗ Not quite'}
                 </p>
-                {/* Reminder / trap feedback (units, simplification, etc.) — suppress
-                    the bare "Correct!" since the ✓ header already says it. */}
-                {o.message && o.message !== 'Correct!' && (
-                  <div
-                    style={{ fontSize: font.sm, color: o.correct ? colors.successText : colors.dangerText }}
-                    dangerouslySetInnerHTML={{ __html: o.message }}
-                  />
-                )}
-                <p style={{ fontSize: font.sm, margin: 0, color: o.correct ? colors.successText : colors.dangerText }}>
-                  Your answer:{' '}
-                  <strong><span dangerouslySetInnerHTML={{ __html: o.answer }} /></strong>
-                </p>
-                {!o.correct && (
-                  <p style={{ fontSize: font.sm, margin: 0, color: colors.dangerText }}>
-                    Correct answer:{' '}
-                    <strong><span dangerouslySetInnerHTML={{ __html: renderedPart.answer }} /></strong>
-                  </p>
+                {/* Per-blank verdicts for multi_blank parts: each blank's answer,
+                    its trap/reminder message, and the right answer where wrong. */}
+                {o.blanks ? o.blanks.map(b => (
+                  <div key={b.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: '2px' }}>
+                    <p style={{ fontSize: font.sm, margin: 0, color: b.correct ? colors.successText : colors.dangerText }}>
+                      {b.correct ? '✓' : '✗'} {b.label} ={' '}
+                      <strong><span dangerouslySetInnerHTML={{ __html: b.answer }} /></strong>
+                      {!b.correct && (
+                        <>
+                          {' — correct answer: '}
+                          <strong><span dangerouslySetInnerHTML={{ __html: b.correctAnswer }} /></strong>
+                        </>
+                      )}
+                    </p>
+                    {/* Suppress the bare "Correct!" (the ✓ says it) and the generic
+                        wrong-answer default (the row already shows the right answer);
+                        trap responses, reminders and "Not answered." still show. */}
+                    {b.message && b.message !== 'Correct!' && !b.message.startsWith('Not quite. The correct answer is') && (
+                      <div
+                        style={{ fontSize: font.sm, color: b.correct ? colors.successText : colors.dangerText, paddingLeft: '18px' }}
+                        dangerouslySetInnerHTML={{ __html: b.message }}
+                      />
+                    )}
+                  </div>
+                )) : (
+                  <>
+                    {/* Reminder / trap feedback (units, simplification, etc.) — suppress
+                        the bare "Correct!" since the ✓ header already says it. */}
+                    {o.message && o.message !== 'Correct!' && (
+                      <div
+                        style={{ fontSize: font.sm, color: o.correct ? colors.successText : colors.dangerText }}
+                        dangerouslySetInnerHTML={{ __html: o.message }}
+                      />
+                    )}
+                    <p style={{ fontSize: font.sm, margin: 0, color: o.correct ? colors.successText : colors.dangerText }}>
+                      Your answer:{' '}
+                      <strong><span dangerouslySetInnerHTML={{ __html: o.answer }} /></strong>
+                    </p>
+                    {!o.correct && (
+                      <p style={{ fontSize: font.sm, margin: 0, color: colors.dangerText }}>
+                        Correct answer:{' '}
+                        <strong><span dangerouslySetInnerHTML={{ __html: renderedPart.answer }} /></strong>
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             )}
 
             {/* Current part, not yet answered → active input */}
-            {isCurrent && !o && (
+            {isCurrent && !o && part.answer_type !== 'multi_blank' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                 <MathInput
                   value={answer}
@@ -283,6 +367,68 @@ export default function MultiPartQuestion({
                 </button>
               </div>
             )}
+
+            {/* Current multi_blank part → one labelled input per blank, a single
+                submit for the whole part. Enter hops to the next blank and
+                submits from the last one once everything is filled. */}
+            {isCurrent && !o && part.answer_type === 'multi_blank' && (() => {
+              const blanks = part.blanks ?? []
+              const allFilled = blankAnswers.length === blanks.length
+                && blankAnswers.every(a => a.trim() !== '')
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+                  {blanks.map((b, bi) => (
+                    <div
+                      key={b.label}
+                      ref={el => { blankRowRefs.current[bi] = el }}
+                      style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px' }}
+                    >
+                      {/* Per-blank prompt so the student isn't glancing back at
+                          the stem/diagram to remember what each letter means. */}
+                      {rendered.parts[current].blanks?.[bi]?.prompt && (
+                        <span
+                          style={{ fontSize: font.sm, color: colors.textSecondary, paddingLeft: '54px' }}
+                          dangerouslySetInnerHTML={{ __html: rendered.parts[current].blanks![bi].prompt }}
+                        />
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                      <span style={{
+                        fontSize: font.lg, fontWeight: '700', color: colors.textPrimary,
+                        minWidth: '44px', paddingTop: '10px', textAlign: 'right' as const,
+                      }}>
+                        {b.label} =
+                      </span>
+                      <div style={{ flex: 1 }}>
+                        <MathInput
+                          value={blankAnswers[bi] ?? ''}
+                          onChange={v => {
+                            const next = [...blankAnswers]
+                            next[bi] = v
+                            setBlankAnswers(next)
+                          }}
+                          onSubmit={() => {
+                            if (bi < blanks.length - 1) {
+                              blankRowRefs.current[bi + 1]?.querySelector('input')?.focus()
+                            } else {
+                              submit()
+                            }
+                          }}
+                          placeholder="Type your answer..."
+                        />
+                      </div>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={submit}
+                    disabled={!allFilled}
+                    style={{ ...primaryButton, opacity: !allFilled ? 0.6 : 1 }}
+                  >
+                    Submit answers
+                  </button>
+                </div>
+              )
+            })()}
 
             {/* Current part, just answered → explanation + advance.
                 The feedback message (including the units reminder) lives in the

@@ -281,6 +281,8 @@ export type RenderedPart = {
   answer: string
   traps: { answer: string, response: string }[]
   explanation: string
+  // Only for multi_blank parts: each labelled blank's rendered prompt, answer + traps.
+  blanks?: { label: string, prompt: string, answer: string, traps: { answer: string, response: string }[] }[]
 }
 
 export type RenderedMultiPartQuestion = {
@@ -306,6 +308,12 @@ export function renderMultiPartQuestion(
     answer_template: string
     traps: { answer_template: string, response: string }[]
     explanation: string | null
+    blanks?: {
+      label: string
+      prompt?: string
+      answer_template: string
+      traps: { answer_template: string, response: string }[]
+    }[]
   }[],
   parameters: Parameters,
   fixedValues?: Record<string, number>
@@ -321,6 +329,19 @@ export function renderMultiPartQuestion(
         response: evaluateTemplate(t.response, generated),
       })),
       explanation: part.explanation ? evaluateTemplate(part.explanation, generated) : '',
+      // Blanks render against the SAME shared value set as everything else, so
+      // chained blanks (frequency trees: B = {{n - a}}) stay consistent.
+      ...(part.blanks?.length ? {
+        blanks: part.blanks.map(b => ({
+          label: b.label,
+          prompt: b.prompt ? evaluateTemplate(b.prompt, generated) : '',
+          answer: evaluateTemplate(b.answer_template, generated),
+          traps: b.traps.map(t => ({
+            answer: evaluateTemplate(t.answer_template, generated),
+            response: evaluateTemplate(t.response, generated),
+          })),
+        })),
+      } : {}),
     })),
     generatedValues: generated,
   }
