@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { colors, font, radius, inputStyle } from '../../lib/styles'
+import { toLatex } from '../../lib/questions/mathLatex'
 
 type Props = {
   value: string
@@ -46,25 +47,6 @@ const SYMBOL_GROUPS: { title: string, buttons: SymbolButton[] }[] = [
   },
 ]
 
-// Convert plain text input to LaTeX for preview
-function toLatex(input: string): string {
-  return input
-    // Fractions: -3/4 or 3/4 → \frac{3}{4}  (must come before other replacements)
-    .replace(/(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)/g, '\\frac{$1}{$2}')
-    .replace(/\^(\d+)/g, '^{$1}')
-    .replace(/\^([a-zA-Z])/g, '^{$1}')
-    .replace(/sqrt\(([^)]*)\)/g, '\\sqrt{$1}')
-    .replace(/cbrt\(([^)]*)\)/g, '\\sqrt[3]{$1}')
-    .replace(/\*/g, '\\times ')
-    // Render both the π character (from the keypad button) and the typed "pi"
-    // word. Global replace doesn't re-scan its own output, so the "pi" inside
-    // the emitted "\pi" is safe.
-    .replace(/π|pi/g, '\\pi ')
-    .replace(/<=/g, '\\leq ')
-    .replace(/>=/g, '\\geq ')
-    .replace(/!=/g, '\\neq ')
-    .replace(/±/g, '\\pm ')
-}
 
 export default function MathInput({ value, onChange, onSubmit, placeholder }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
