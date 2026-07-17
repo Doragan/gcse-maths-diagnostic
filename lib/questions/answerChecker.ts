@@ -1,3 +1,5 @@
+import type { ScalarAnswerType } from './answerTypes'
+
 export type CheckResult = {
   correct: boolean
   trap: { response: string } | null
@@ -532,7 +534,7 @@ const ROUNDING_ERROR =
 export function checkAnswer(
   studentAnswer: string,
   correctAnswer: string,
-  answerType: 'exact' | 'numeric' | 'fraction' | 'expression' | 'set' | 'ratio' | 'coordinate',
+  answerType: ScalarAnswerType,
   tolerance: number | null,
   traps: { answer: string, response: string }[],
   // Whether the question demanded simplest form. Drives the "not simplified"

@@ -124,7 +124,13 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   } | null>(null)
   const [partsPreview, setPartsPreview] = useState<{
     stem: string
-    parts: { prompt: string, answer: string, traps: { answer: string, response: string }[], explanation: string }[]
+    parts: {
+      prompt: string
+      answer: string
+      traps: { answer: string, response: string }[]
+      explanation: string
+      blanks?: { label: string, answer: string, traps: { answer: string, response: string }[] }[]
+    }[]
   } | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [skillSearch, setSkillSearch] = useState('')
@@ -171,7 +177,29 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           setValidationError(`Part (${letter}) needs a prompt.`)
           return
         }
-        if (!p.answer_template.trim()) {
+        if (p.answer_type === 'multi_blank') {
+          // Multi-blank parts carry their answers per BLANK, not on the part.
+          const blanks = p.blanks ?? []
+          if (blanks.length === 0) {
+            setValidationError(`Part (${letter}) is multi-blank but has no blanks — add at least one.`)
+            return
+          }
+          for (const b of blanks) {
+            if (!b.label.trim()) {
+              setValidationError(`Part (${letter}) has a blank without a label.`)
+              return
+            }
+            if (!b.answer_template.trim()) {
+              setValidationError(`Part (${letter}) blank ${b.label.trim()} needs an answer template.`)
+              return
+            }
+          }
+          const labels = blanks.map(b => b.label.trim().toUpperCase())
+          if (new Set(labels).size !== labels.length) {
+            setValidationError(`Part (${letter}) has duplicate blank labels — each blank needs its own.`)
+            return
+          }
+        } else if (!p.answer_template.trim()) {
           setValidationError(`Part (${letter}) needs an answer template.`)
           return
         }
@@ -408,6 +436,12 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             answer_template: p.answer_template,
             traps: p.traps,
             explanation: p.explanation,
+            blanks: p.blanks?.map(b => ({
+              label: b.label,
+              prompt: b.prompt,
+              answer_template: b.answer_template,
+              traps: b.traps,
+            })),
           })),
           params,
           generated,
@@ -976,26 +1010,67 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '8px' }}
                   dangerouslySetInnerHTML={{ __html: p.prompt }}
                 />
-                <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
-                  Correct answer:
-                </p>
-                <div
-                  style={{ fontSize: font.base, fontWeight: '600', color: colors.successText, marginBottom: p.traps.length || p.explanation ? '8px' : 0 }}
-                  dangerouslySetInnerHTML={{ __html: p.answer }}
-                />
-                {p.traps.length > 0 && p.traps.map((t, ti) => (
-                  <div key={ti} style={{ marginBottom: '4px' }}>
-                    <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
-                    <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
-                  </div>
-                ))}
+                {p.blanks ? (
+                  <>
+                    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+                      Blanks:
+                    </p>
+                    {p.blanks.map((b, bi) => {
+                      // Canonical self-grade: the rendered answer must grade
+                      // correct against itself with this blank's settings —
+                      // the same gate the harness applies per blank.
+                      const def = form.parts[pi]?.blanks?.[bi]
+                      const selfGrade = def ? checkAnswer(
+                        b.answer, b.answer, def.answer_type,
+                        def.answer_type === 'numeric' ? parseFloat(String(def.tolerance ?? '0')) || 0 : null,
+                        [], def.requires_simplest ?? false,
+                      ).correct : false
+                      return (
+                        <div key={bi} style={{ marginBottom: '6px' }}>
+                          <span style={{ fontSize: font.base, fontWeight: '600', color: selfGrade ? colors.successText : colors.dangerText }}>
+                            {selfGrade ? '✓' : '✗'} {b.label} = <span dangerouslySetInnerHTML={{ __html: b.answer }} />
+                          </span>
+                          {!selfGrade && (
+                            <span style={{ fontSize: font.sm, color: colors.dangerText, marginLeft: '8px' }}>
+                              (does not self-grade — check the template/type)
+                            </span>
+                          )}
+                          {b.traps.map((t, ti) => (
+                            <div key={ti} style={{ marginLeft: '18px', marginTop: '2px' }}>
+                              <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
+                              <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })}
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+                      Correct answer:
+                    </p>
+                    <div
+                      style={{ fontSize: font.base, fontWeight: '600', color: colors.successText, marginBottom: p.traps.length || p.explanation ? '8px' : 0 }}
+                      dangerouslySetInnerHTML={{ __html: p.answer }}
+                    />
+                    {p.traps.length > 0 && p.traps.map((t, ti) => (
+                      <div key={ti} style={{ marginBottom: '4px' }}>
+                        <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
+                        <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
+                      </div>
+                    ))}
+                  </>
+                )}
                 {p.explanation && (
                   <div
                     style={{ fontSize: font.base, color: colors.textPrimary, marginTop: '6px' }}
                     dangerouslySetInnerHTML={{ __html: p.explanation }}
                   />
                 )}
-                {/* Per-part grader test */}
+                {/* Per-part grader test (scalar parts only — multi_blank shows
+                    per-blank self-grade ticks above instead) */}
+                {!p.blanks && (
                 <div style={{ borderTop: `1px solid ${colors.border}`, marginTop: '12px', paddingTop: '10px' }}>
                   <p style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, margin: '0 0 6px' }}>
                     Test the grader
@@ -1021,6 +1096,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   </div>
                   {partGraderResults[pi] != null && renderGradeResult(partGraderResults[pi]!)}
                 </div>
+                )}
               </div>
             ))}
           </div>

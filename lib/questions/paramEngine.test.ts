@@ -117,4 +117,37 @@ describe('renderQuestion / renderMultiPartQuestion', () => {
     expect(r.stem).toBe('Stem with 5.')
     expect(r.parts.map(p => p.answer)).toEqual(['10', '6'])
   })
+  it('renders multi_blank blanks (answers + traps) against the same shared value set', () => {
+    const r = renderMultiPartQuestion(
+      'Frequency tree: {{n}} students.',
+      [{
+        prompt: 'Write down the values of A and B.',
+        answer_template: '',
+        traps: [],
+        explanation: null,
+        blanks: [
+          { label: 'A', prompt: 'Not walking ({{n}} total)', answer_template: '{{n - w}}', traps: [] },
+          {
+            label: 'B',
+            answer_template: '{{w - l}}',
+            traps: [{ answer_template: '{{w + l}}', response: 'You added instead of subtracting.' }],
+          },
+        ],
+      }],
+      {}, { n: 60, w: 24, l: 9 },
+    )
+    const blanks = r.parts[0].blanks!
+    expect(blanks.map(b => b.answer)).toEqual(['36', '15'])
+    expect(blanks[0].prompt).toBe('Not walking (60 total)')
+    expect(blanks[1].prompt).toBe('')
+    expect(blanks[1].traps[0]).toEqual({ answer: '33', response: 'You added instead of subtracting.' })
+  })
+  it('omits the blanks key for parts without blanks (legacy unchanged)', () => {
+    const r = renderMultiPartQuestion(
+      'Stem.',
+      [{ prompt: 'p', answer_template: '{{a}}', traps: [], explanation: null }],
+      {}, { a: 1 },
+    )
+    expect('blanks' in r.parts[0]).toBe(false)
+  })
 })

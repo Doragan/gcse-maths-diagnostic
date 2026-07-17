@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { skills } from '../data/skills'
 import { evaluateTemplate, generateValues } from '../lib/questions/paramEngine'
 import { checkAnswer } from '../lib/questions/answerChecker'
+import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Bank health check (audit ②/Phase 4). Re-run after any authoring batch:
@@ -19,7 +20,7 @@ import { checkAnswer } from '../lib/questions/answerChecker'
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DRAWS = 25
-const VALID_ANSWER_TYPES = ['exact', 'numeric', 'fraction', 'expression', 'set', 'ratio', 'coordinate']
+const VALID_ANSWER_TYPES: readonly string[] = SCALAR_ANSWER_TYPES
 const ids = new Set(skills.map(s => s.id))
 const byId = Object.fromEntries(skills.map(s => [s.id, s]))
 
@@ -83,8 +84,14 @@ async function auditBank() {
     for (const sid of q.skill_ids ?? []) { usedSkills.add(sid); if (!ids.has(sid)) dangling.push(`${q.id} → ${sid}`) }
 
     const parts: any[] = Array.isArray(q.parts) && q.parts.length ? q.parts : []
+    // Multi_blank parts expand to one unit per blank (mirrors verify-question).
     const units = parts.length
-      ? parts.map((p, i) => ({ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}` }))
+      ? parts.flatMap((p, i) => p.answer_type === 'multi_blank'
+          ? (Array.isArray(p.blanks) ? p.blanks : []).map((b: any, bi: number) => ({
+              ans: b.answer_template, type: b.answer_type ?? 'numeric', tol: b.tolerance ?? null,
+              traps: b.traps ?? [], label: `part ${'abcdefgh'[i]} blank ${b.label ?? bi + 1}`,
+            }))
+          : [{ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}` }])
       : [{ ans: q.answer_template, type: q.answer_type, tol: q.tolerance, traps: q.traps ?? [], label: 'answer' }]
 
     for (const u of units) if (!VALID_ANSWER_TYPES.includes(u.type)) badType.push(`${q.id} ${u.label}: "${u.type}"`)

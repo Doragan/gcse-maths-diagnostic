@@ -12,10 +12,11 @@ import { assembleExam, candidateOf, type CalculatorMode } from '../../../lib/exa
 import { DEFAULT_BLUEPRINT, NOMINAL_MARKS } from '../../../lib/exam/blueprint'
 import { higherOnlySkillIds } from '../../../data/courses'
 import type { QuestionPart } from '../../../lib/questions/parts'
+import type { ScalarAnswerType } from '../../../lib/questions/answerTypes'
 import MathInput from '../../../components/practice/MathInput'
 import { colors, font, radius, card, primaryButton, secondaryButton } from '../../../lib/styles'
 
-type AnswerType = 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
+type AnswerType = ScalarAnswerType
 type Tier = 'foundation' | 'higher'
 
 const HIGHER_ONLY = new Set(higherOnlySkillIds)
@@ -71,20 +72,50 @@ function buildItem(q: QuestionRow, number: number): Item {
 
   if (q.parts && q.parts.length > 0) {
     const r = renderMultiPartQuestion(q.question_template, q.parts, q.parameters ?? {})
-    const units: Unit[] = q.parts.map((p, i) => ({
-      key: `${q.id}:${i}`,
-      label: letter(i),
-      promptHtml: r.parts[i].prompt,
-      correctAnswer: r.parts[i].answer,
-      answerType: p.answer_type,
-      tolerance: p.tolerance,
-      requiresSimplest: p.requires_simplest ?? false,
-      traps: r.parts[i].traps,
-      explanation: r.parts[i].explanation,
-      skillIds: p.skill_ids,
-      kind: p.kind === 'exam' ? 'exam' : 'mastery',
-      marks: p.marks || 1,
-    }))
+    // A multi_blank part flattens to one Unit PER BLANK (key q.id:i:b) — the
+    // flat answers/results records, the submit loop, per-blank marks and the
+    // review boxes then all work unchanged. NOTE: the projected-mastery panel
+    // therefore counts each answered blank as one attempt on the part's skills.
+    // Fine for this teacher-only, write-nothing preview; when the exam becomes
+    // student-facing and records attempts, collapse a multi_blank part's blanks
+    // into ONE attempt (correct = all blanks right) to match the practice rule.
+    const units: Unit[] = q.parts.flatMap((p, i) => {
+      if (p.answer_type === 'multi_blank') {
+        const rb = r.parts[i].blanks ?? []
+        return (p.blanks ?? []).map((blank, b): Unit => ({
+          key: `${q.id}:${i}:${b}`,
+          label: `${letter(i)} · ${blank.label}`,
+          // Part prompt rendered once (first blank); each blank then carries
+          // its own short prompt so the units are self-describing.
+          promptHtml: [b === 0 ? r.parts[i].prompt : '', rb[b]?.prompt ?? '']
+            .filter(Boolean).join(' '),
+          correctAnswer: rb[b]?.answer ?? '',
+          answerType: blank.answer_type,
+          tolerance: blank.tolerance,
+          requiresSimplest: blank.requires_simplest ?? false,
+          traps: rb[b]?.traps ?? [],
+          // Explanation shown once, in the last blank's review box.
+          explanation: b === (p.blanks?.length ?? 0) - 1 ? r.parts[i].explanation : '',
+          skillIds: p.skill_ids,
+          kind: p.kind === 'exam' ? 'exam' : 'mastery',
+          marks: blank.marks || 1,
+        }))
+      }
+      return [{
+        key: `${q.id}:${i}`,
+        label: letter(i),
+        promptHtml: r.parts[i].prompt,
+        correctAnswer: r.parts[i].answer,
+        answerType: p.answer_type,
+        tolerance: p.tolerance,
+        requiresSimplest: p.requires_simplest ?? false,
+        traps: r.parts[i].traps,
+        explanation: r.parts[i].explanation,
+        skillIds: p.skill_ids,
+        kind: p.kind === 'exam' ? 'exam' : 'mastery',
+        marks: p.marks || 1,
+      }]
+    })
     return { questionId: q.id, number, headerHtml: r.stem, imageUrl: q.image_url, skillNames, marks: units.reduce((s, u) => s + u.marks, 0), units }
   }
 
@@ -356,7 +387,9 @@ export default function ExamPreviewPage() {
               if (!r) return null
               return (
                 <div key={u.key} style={{ marginTop: 12, padding: 12, borderRadius: radius.md, background: r.correct ? colors.successLight : colors.dangerLight, border: `1px solid ${r.correct ? colors.successBorder : colors.dangerBorder}` }}>
-                  {u.promptHtml && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label} ${u.promptHtml}` }} />}
+                  {/* Label shown even with an empty prompt so a multi_blank
+                      part's later blanks ("(a) · B") stay identifiable. */}
+                  {(u.promptHtml || u.label) && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label ?? ''} ${u.promptHtml}` }} />}
                   <p style={{ fontSize: font.sm, fontWeight: 700, margin: '0 0 4px', color: r.correct ? colors.successText : colors.dangerText }}>
                     {r.correct ? `✓ ${u.marks}/${u.marks}` : `✗ 0/${u.marks}`}
                   </p>
@@ -411,7 +444,9 @@ export default function ExamPreviewPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 12 }}>
             {item.units.map(u => (
               <div key={u.key}>
-                {u.promptHtml && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label} ${u.promptHtml}` }} />}
+                {/* Label shown even with an empty prompt so a multi_blank
+                    part's later blanks ("(a) · B") stay identifiable. */}
+                {(u.promptHtml || u.label) && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label ?? ''} ${u.promptHtml}` }} />}
                 <MathInput
                   value={answers[u.key] ?? ''}
                   onChange={(v: string) => setAnswers(prev => ({ ...prev, [u.key]: v }))}
