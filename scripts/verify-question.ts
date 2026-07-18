@@ -27,6 +27,8 @@ import { tmpdir } from 'os'
 //   FAIL  canonical answer not accepted by the real grader (checkAnswer)
 //   FAIL  a trap value the grader ACCEPTS as correct (answer⇄trap collision)
 //   FAIL  a trap value that falls through silently (no trap fires)
+//   FAIL/WARN  two traps on one unit rendering the same value (2nd is dead) —
+//              FAIL when systematic (>half the value sets), WARN if occasional
 //   FAIL  numeric answer rendering >4 dp with a tight tolerance (unmatchable)
 //   FAIL  MC: explicit options that normalise-collide, or fewer than 2
 //   WARN  MC: correct answer missing from the explicit option list
@@ -215,6 +217,10 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   // render the SAME answer (a transposing student is then indistinguishable
   // from a correct one).
   const blankPairSame = new Map<string, number>()
+  // Two traps on the SAME unit that render an identical value on a combo: the
+  // second is unreachable (the first fires), and a student who made the second
+  // mistake gets the wrong feedback.
+  const trapPairSame = new Map<string, number>()
   const seenFail = new Set<string>()
   const fail = (key: string, msg: string) => { if (!seenFail.has(key)) { seenFail.add(key); fails.push(msg) } }
 
@@ -264,6 +270,18 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
         else if (res.trap === null) trapSilent.set(key, (trapSilent.get(key) ?? 0) + 1)
       }
 
+      // Two distinct traps rendering the same value → the second is dead.
+      for (let a = 0; a < rt.length; a++) {
+        for (let b = a + 1; b < rt.length; b++) {
+          if (!rt[a].answer.trim() || !rt[b].answer.trim()) continue
+          if (BAD_RENDER.test(rt[a].answer) || BAD_RENDER.test(rt[b].answer)) continue
+          if (normalise(rt[a].answer) === normalise(rt[b].answer)) {
+            const key = `${k}: two traps render the SAME value ("${rt[a].tpl}" ≡ "${rt[b].tpl}")`
+            trapPairSame.set(key, (trapPairSame.get(key) ?? 0) + 1)
+          }
+        }
+      }
+
       // MC gates (question-level, single-part only)
       if (mcTemplates && !isMulti) {
         const opts = mcTemplates.map(t => { try { return evaluateTemplate(t, c) } catch { return '[error]' } })
@@ -299,6 +317,10 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
     if (hits > combos.length / 2) {
       warns.push(`${pair}: identical rendered answers on ${hits}/${combos.length} value sets — a transposing student is indistinguishable from a correct one`)
     }
+  }
+  for (const [key, hits] of trapPairSame) {
+    const msg = `${key} on ${hits}/${combos.length} value sets — the second trap is unreachable and the feedback is ambiguous`
+    if (hits > combos.length / 2) fails.push(msg); else warns.push(msg)
   }
 
   if (!exhaustive) warns.push(`parameter space too large to enumerate — sampled ${combos.length} constraint-valid draws`)
