@@ -20,7 +20,7 @@ export const SCALAR_ANSWER_TYPES = [
 ] as const
 export type ScalarAnswerType = typeof SCALAR_ANSWER_TYPES[number]
 
-export const PART_ANSWER_TYPES = [...SCALAR_ANSWER_TYPES, 'multi_blank'] as const
+export const PART_ANSWER_TYPES = [...SCALAR_ANSWER_TYPES, 'multi_blank', 'grid_draw'] as const
 export type PartAnswerType = typeof PART_ANSWER_TYPES[number]
 
 export const ANSWER_TYPE_LABELS: Record<PartAnswerType, string> = {
@@ -32,6 +32,7 @@ export const ANSWER_TYPE_LABELS: Record<PartAnswerType, string> = {
   ratio: 'Ratio',
   coordinate: 'Coordinate',
   multi_blank: 'Multi-blank — several labelled answers',
+  grid_draw: 'Grid drawing — place points on a grid',
 }
 
 export function isScalarAnswerType(t: string): t is ScalarAnswerType {

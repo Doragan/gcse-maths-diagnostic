@@ -4,6 +4,8 @@ import { skills } from '../data/skills'
 import { evaluateTemplate, generateValues, satisfiesAllConstraints, type Parameters } from '../lib/questions/paramEngine'
 import { checkAnswer, normalise } from '../lib/questions/answerChecker'
 import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
+import { checkGridDraw, type RenderedGrid } from '../lib/questions/gridDraw'
+import { buildGridSvg } from '../lib/questions/gridSvg'
 import { readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
@@ -74,6 +76,10 @@ function unitsOf(q: Q): Unit[] {
   const parts: any[] = Array.isArray(q.parts) && q.parts.length ? q.parts : []
   if (parts.length) {
     return parts.flatMap((p, i): Unit[] => {
+      // grid_draw parts are NOT scalar units — their elements share one
+      // drawing, so the per-unit scalar checks don't apply. They get their own
+      // dedicated pass (verifyGridPart) inside verifyQuestion.
+      if (p.answer_type === 'grid_draw') return []
       // A multi_blank part contributes one unit PER BLANK, so every existing
       // per-unit check (render sweep, self-grade, trap collisions, dp gate)
       // applies to each blank for free. Prompt/explanation render-checked once,
@@ -115,6 +121,134 @@ function unitsOf(q: Q): Unit[] {
     traps: q.traps ?? [],
     explanation: q.explanation ?? '',
   }]
+}
+
+const GRID_V1_MODES = ['points', 'polyline', 'line']
+const GRID_MAX_COLS = 12 // touch rule: ≥28px between gridlines on a phone
+const GRID_MAX_ROWS = 16
+
+/** Evaluate a grid field (number or template) to a number at one value set. */
+function gridNum(v: any, c: Record<string, number>): number {
+  if (typeof v === 'number') return v
+  try { return parseFloat(evaluateTemplate(String(v), c)) } catch { return NaN }
+}
+
+/** Render a grid_draw part's grid at one value set (numbers or NaN). */
+function renderGridAt(g: any, c: Record<string, number>): RenderedGrid {
+  return {
+    mode: g.mode,
+    x: { min: gridNum(g.x?.min, c), max: gridNum(g.x?.max, c), step: Number(g.x?.step), label: '' },
+    y: { min: gridNum(g.y?.min, c), max: gridNum(g.y?.max, c), step: Number(g.y?.step), label: '' },
+    background: '',
+    elements: (g.elements ?? []).map((e: any) => ({ x: gridNum(e.x, c), y: gridNum(e.y, c), marks: Number(e.marks) || 0 })),
+    tolerance: Number(g.tolerance) || 0,
+  }
+}
+
+/**
+ * Dedicated gate pass for a grid_draw part — the analogue of the per-unit
+ * scalar checks, run across every value set:
+ *   structural: v1 mode, element count (line = exactly 2), marks = element sum
+ *   per combo: axes finite with min<max and step>0 and integral cell count;
+ *     elements finite, on-grid, on-lattice when tolerance 0; cols/rows caps;
+ *     duplicate canonical points; line endpoints distinct + separated;
+ *     canonical self-grade via the real marker; background/label render sweep
+ *   across combos: the grid SHAPE (cols × rows) must be constant.
+ */
+function verifyGridPart(
+  p: any, label: string, combos: Record<string, number>[],
+  fails: string[], warns: string[],
+) {
+  const g = p.grid
+  if (!g) { fails.push(`${label}: grid_draw part has no grid object`); return }
+  if (!GRID_V1_MODES.includes(g.mode)) {
+    fails.push(`${label}: grid mode "${g.mode}" is not markable yet (lands in G2/G3)`)
+    return
+  }
+  const els: any[] = Array.isArray(g.elements) ? g.elements : []
+  if (els.length === 0) { fails.push(`${label}: grid has no elements`); return }
+  if (g.mode === 'line' && els.length !== 2) {
+    fails.push(`${label}: line mode needs exactly 2 endpoint elements (has ${els.length})`)
+    return
+  }
+  const markSum = els.reduce((s, e) => s + (Number(e.marks) || 0), 0)
+  if (p.marks != null && Number(p.marks) !== markSum) {
+    fails.push(`${label}: marks ${p.marks} ≠ sum of element marks ${markSum}`)
+  }
+
+  const seen = new Set<string>()
+  const fail = (key: string, msg: string) => { if (!seen.has(key)) { seen.add(key); fails.push(msg) } }
+  const shapes = new Set<string>()
+
+  for (const c of combos) {
+    const r = renderGridAt(g, c)
+    const nums = [r.x.min, r.x.max, r.x.step, r.y.min, r.y.max, r.y.step]
+    if (!nums.every(Number.isFinite)) { fail('axes', `${label}: an axis bound does not evaluate to a number at ${JSON.stringify(c)}`); continue }
+    if (r.x.min >= r.x.max || r.y.min >= r.y.max) { fail('range', `${label}: axis min ≥ max at ${JSON.stringify(c)}`); continue }
+    if (r.x.step <= 0 || r.y.step <= 0) { fail('step', `${label}: axis step must be > 0`); continue }
+
+    const cols = (r.x.max - r.x.min) / r.x.step
+    const rows = (r.y.max - r.y.min) / r.y.step
+    if (Math.abs(cols - Math.round(cols)) > 1e-6 || Math.abs(rows - Math.round(rows)) > 1e-6) {
+      fail('integral', `${label}: (max−min)/step is not a whole number of cells at ${JSON.stringify(c)}`)
+      continue
+    }
+    if (cols > GRID_MAX_COLS) fail('cols', `${label}: ${Math.round(cols)} columns exceeds the ${GRID_MAX_COLS}-column touch cap`)
+    if (rows > GRID_MAX_ROWS) fail('rows', `${label}: ${Math.round(rows)} rows exceeds the ${GRID_MAX_ROWS}-row cap`)
+    shapes.add(`${Math.round(cols)}x${Math.round(rows)}`)
+
+    for (let i = 0; i < r.elements.length; i++) {
+      const e = r.elements[i]
+      if (!Number.isFinite(e.x) || !Number.isFinite(e.y)) {
+        fail(`el${i}:fin`, `${label}: element ${i + 1} does not evaluate to a number at ${JSON.stringify(c)}`)
+        continue
+      }
+      if (e.x < r.x.min - 1e-9 || e.x > r.x.max + 1e-9 || e.y < r.y.min - 1e-9 || e.y > r.y.max + 1e-9) {
+        fail(`el${i}:grid`, `${label}: element ${i + 1} (${e.x}, ${e.y}) is off the grid at ${JSON.stringify(c)}`)
+      }
+      if (r.tolerance === 0) {
+        const fx = Math.abs((e.x - r.x.min) / r.x.step)
+        const fy = Math.abs((e.y - r.y.min) / r.y.step)
+        if (Math.abs(fx - Math.round(fx)) > 1e-6 || Math.abs(fy - Math.round(fy)) > 1e-6) {
+          fail(`el${i}:lat`, `${label}: element ${i + 1} (${e.x}, ${e.y}) is not on the snap lattice (tolerance 0) at ${JSON.stringify(c)}`)
+        }
+      }
+    }
+
+    // Duplicate canonical points make greedy matching ambiguous.
+    if (r.mode === 'points') {
+      const keys = r.elements.map(e => `${e.x}|${e.y}`)
+      if (new Set(keys).size !== keys.length) fail('dupe', `${label}: duplicate canonical points at ${JSON.stringify(c)}`)
+    }
+
+    // Line endpoints must themselves satisfy the marker's separation floor.
+    if (r.mode === 'line' && r.elements.length === 2) {
+      const [a, b] = r.elements
+      const vertical = Math.abs(b.x - a.x) < 1e-9
+      const span = vertical ? Math.abs(b.y - a.y) / r.y.step : Math.abs(b.x - a.x) / r.x.step
+      if (span < 2) fail('sep', `${label}: line endpoints are closer than the 2-grid-unit separation floor at ${JSON.stringify(c)}`)
+    }
+
+    // Canonical self-grade through the REAL marker.
+    const pts = r.elements.map(e => ({ x: e.x, y: e.y }))
+    const graded = checkGridDraw(pts, r.elements, r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step })
+    if (!graded.correct) fail('self', `${label}: canonical drawing NOT accepted by the marker at ${JSON.stringify(c)}`)
+
+    // Render sweep over the templated strings (incl. the part's own prompt +
+    // explanation, since grid parts are excluded from the scalar unit pass).
+    for (const tpl of [g.background, g.x?.label, g.y?.label, p.prompt, p.explanation]) {
+      if (!tpl) continue
+      try { if (BAD_RENDER.test(evaluateTemplate(String(tpl), c))) fail('text', `${label}: background/label renders badly at ${JSON.stringify(c)}`) }
+      catch { fail('text', `${label}: background/label throws at ${JSON.stringify(c)}`) }
+    }
+  }
+
+  if (shapes.size > 1) {
+    fails.push(`${label}: grid shape varies across draws (${[...shapes].join(', ')}) — cell count must be constant`)
+  }
+  if (els.length === 1 && g.mode === 'points') {
+    warns.push(`${label}: a single-point grid question — consider whether a coordinate answer type would do`)
+  }
 }
 
 /**
@@ -170,10 +304,11 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   const units = unitsOf(q)
   const isMulti = Array.isArray(q.parts) && q.parts.length > 0
 
-  // ── multi_blank structural gates ──
+  // ── multi_blank / grid_draw structural gates ──
   // Part-level only: the question-level answer_type column carries a CHECK
-  // constraint that deliberately excludes multi_blank.
+  // constraint that deliberately excludes both.
   if (q.answer_type === 'multi_blank') fails.push(`question-level answer_type 'multi_blank' — multi_blank is PART-level only (author as a one-part question)`)
+  if (q.answer_type === 'grid_draw') fails.push(`question-level answer_type 'grid_draw' — grid_draw is PART-level only (author as a one-part question)`)
   if (isMulti) {
     for (let i = 0; i < q.parts.length; i++) {
       const p = q.parts[i]
@@ -209,6 +344,14 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
 
   const { combos, exhaustive } = enumerate((q.parameters ?? {}) as Parameters, draws)
   if (!combos.length) { fails.push('parameter constraints unsatisfiable — no valid value sets exist'); return { fails, warns, combosChecked: 0 } }
+
+  // Grid parts get their dedicated per-combo pass (they contribute no scalar units).
+  if (isMulti) {
+    for (let i = 0; i < q.parts.length; i++) {
+      const p = q.parts[i]
+      if (p.answer_type === 'grid_draw') verifyGridPart(p, `part (${'abcdefgh'[i]})`, combos, fails, warns)
+    }
+  }
 
   // Collision bookkeeping so a message names the trap and how often it hit.
   const trapCollisions = new Map<string, number>()
@@ -337,8 +480,12 @@ async function rasteriseSvgs(q: Q, label: string) {
     for (const [i, m] of [...(html ?? '').matchAll(/<svg[\s\S]*?<\/svg>/g)].entries()) sources.push({ name: `${name}${i ? `-${i}` : ''}`, tpl: m[0] })
   }
   collect('stem', q.question_template)
-  for (const [i, p] of (Array.isArray(q.parts) ? q.parts : []).entries()) collect(`part${'abcdefgh'[i]}`, p.prompt)
-  if (!sources.length) { console.log('   --svg: no SVGs found'); return }
+  const parts: any[] = Array.isArray(q.parts) ? q.parts : []
+  for (const [i, p] of parts.entries()) collect(`part${'abcdefgh'[i]}`, p.prompt)
+  const gridParts = parts
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => p.answer_type === 'grid_draw' && p.grid)
+  if (!sources.length && !gridParts.length) { console.log('   --svg: no SVGs found'); return }
 
   const { combos } = enumerate((q.parameters ?? {}) as Parameters, 50)
   const picks = [combos[0], combos[Math.floor(combos.length / 2)], combos[combos.length - 1]]
@@ -353,6 +500,27 @@ async function rasteriseSvgs(q: Q, label: string) {
         console.log(`   svg → ${file}  ${JSON.stringify(c)}`)
       } catch (e: any) {
         console.log(`   svg ✗ ${src.name} failed to rasterise: ${e.message}`)
+      }
+    }
+  }
+
+  // Grid parts: rasterise the EXACT student frame (shared gridSvg builder)
+  // with the canonical answer ghosted — the eyeball pass for drawings.
+  for (const { p, i } of gridParts) {
+    for (const [v, c] of picks.entries()) {
+      const rendered = renderGridAt(p.grid, c)
+      // Labels/background render as strings here (renderGridAt strips them for
+      // marking); rebuild with the templated text for the visual.
+      rendered.x.label = p.grid.x?.label ? evaluateTemplate(String(p.grid.x.label), c) : ''
+      rendered.y.label = p.grid.y?.label ? evaluateTemplate(String(p.grid.y.label), c) : ''
+      rendered.background = p.grid.background ? evaluateTemplate(String(p.grid.background), c) : ''
+      const svg = buildGridSvg(rendered, { showCanonical: true })
+      const file = join(outDir, `${label.slice(0, 8)}-part${'abcdefgh'[i]}-grid-v${v}.png`)
+      try {
+        await sharp(Buffer.from(svg)).resize({ width: 620 }).flatten({ background: '#ffffff' }).png().toFile(file)
+        console.log(`   svg → ${file}  ${JSON.stringify(c)}`)
+      } catch (e: any) {
+        console.log(`   svg ✗ part${'abcdefgh'[i]}-grid failed to rasterise: ${e.message}`)
       }
     }
   }

@@ -150,4 +150,54 @@ describe('renderQuestion / renderMultiPartQuestion', () => {
     )
     expect('blanks' in r.parts[0]).toBe(false)
   })
+  it('renders grid templates to numbers against the shared value set', () => {
+    const r = renderMultiPartQuestion(
+      'Draw y = {{m}}x + {{c}}.',
+      [{
+        prompt: 'p', answer_template: '', traps: [], explanation: null,
+        grid: {
+          mode: 'line',
+          x: { min: 0, max: 4, step: 1, label: 'x' },
+          y: { min: 0, max: '{{ymax}}', step: 1, label: 'y' },
+          background: '',
+          elements: [
+            { x: 0, y: '{{c}}', marks: 1 },
+            { x: 4, y: '{{4*m + c}}', marks: 1 },
+          ],
+          tolerance: 0,
+        },
+      }],
+      {}, { m: 2, c: 3, ymax: 12 },
+    )
+    const g = r.parts[0].grid!
+    expect(g.y.max).toBe(12)
+    expect(g.elements.map(e => [e.x, e.y])).toEqual([[0, 3], [4, 11]])
+    expect(g.x.step).toBe(1)
+  })
+  it('a bad grid template renders to NaN (detectable), not a crash', () => {
+    const r = renderMultiPartQuestion(
+      'Stem.',
+      [{
+        prompt: 'p', answer_template: '', traps: [], explanation: null,
+        grid: {
+          mode: 'points',
+          x: { min: 0, max: 4, step: 1, label: '' },
+          y: { min: 0, max: 4, step: 1, label: '' },
+          background: '',
+          elements: [{ x: '{{nope}}', y: 1, marks: 1 }],
+          tolerance: 0,
+        },
+      }],
+      {}, { a: 1 },
+    )
+    expect(Number.isNaN(r.parts[0].grid!.elements[0].x)).toBe(true)
+  })
+  it('omits the grid key for parts without one', () => {
+    const r = renderMultiPartQuestion(
+      'Stem.',
+      [{ prompt: 'p', answer_template: '{{a}}', traps: [], explanation: null }],
+      {}, { a: 1 },
+    )
+    expect('grid' in r.parts[0]).toBe(false)
+  })
 })

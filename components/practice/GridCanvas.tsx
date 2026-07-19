@@ -1,0 +1,204 @@
+'use client'
+
+import { useMemo, useRef, useState } from 'react'
+import { colors, font, radius, secondaryButton, errorBox } from '../../lib/styles'
+import { gridGeometry, buildGridFrame, buildPointsLayer } from '../../lib/questions/gridSvg'
+import type { RenderedGrid, GridPoint } from '../../lib/questions/gridDraw'
+
+/**
+ * The interactive snap-to-grid canvas for `grid_draw` parts.
+ *
+ * Gesture vocabulary is deliberately tiny (touch-first): tap a gridline
+ * intersection to place a point, tap a placed point to remove it, Clear to
+ * start over. No dragging. Keyboard: focus the grid, move the cursor with the
+ * arrow keys, place/remove with Enter or Space.
+ *
+ * The static frame and any ghosted canonical overlay come from the shared
+ * lib/questions/gridSvg builders, so what the student sees is identical to
+ * what the verification harness rasterises and eyeballs.
+ */
+
+type Props = {
+  grid: RenderedGrid
+  value: GridPoint[]
+  onChange?: (pts: GridPoint[]) => void
+  readOnly?: boolean
+  // Ghost the canonical answer (answered/review views).
+  showCanonical?: boolean
+  // Review: colour the i-th student point by verdict (aligned to value order).
+  perElement?: boolean[]
+}
+
+export default function GridCanvas({ grid, value, onChange, readOnly, showCanonical, perElement }: Props) {
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const [cursor, setCursor] = useState<GridPoint | null>(null)
+  const [announce, setAnnounce] = useState('')
+
+  const finite = [grid.x.min, grid.x.max, grid.x.step, grid.y.min, grid.y.max, grid.y.step]
+    .every(Number.isFinite) && grid.x.step > 0 && grid.y.step > 0 && grid.x.max > grid.x.min && grid.y.max > grid.y.min
+
+  const geo = useMemo(
+    () => finite ? gridGeometry(grid.x, grid.y) : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [grid.x.min, grid.x.max, grid.x.step, grid.y.min, grid.y.max, grid.y.step, finite],
+  )
+  const frame = useMemo(
+    () => geo ? buildGridFrame(grid, geo) : '',
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [geo, grid.background],
+  )
+
+  if (!finite || !geo) {
+    // Should be unreachable for harness-verified questions.
+    return <div style={errorBox}>This diagram could not be drawn.</div>
+  }
+
+  const maxPoints = grid.elements.length
+
+  function togglePoint(p: GridPoint) {
+    if (readOnly || !onChange) return
+    const at = value.findIndex(v => v.x === p.x && v.y === p.y)
+    if (at >= 0) {
+      onChange(value.filter((_, i) => i !== at))
+      setAnnounce(`Point removed at (${p.x}, ${p.y})`)
+    } else if (value.length < maxPoints) {
+      onChange([...value, p])
+      setAnnounce(`Point placed at (${p.x}, ${p.y})`)
+    } else {
+      setAnnounce(`All ${maxPoints} points are placed — remove one first`)
+    }
+  }
+
+  function handlePointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (readOnly || !onChange || !svgRef.current || !geo) return
+    const rect = svgRef.current.getBoundingClientRect()
+    // width="100%" with a viewBox preserves aspect, so one linear ratio per
+    // axis converts CSS px → viewBox units exactly.
+    const vx = (e.clientX - rect.left) * (geo.W / rect.width)
+    const vy = (e.clientY - rect.top) * (geo.H / rect.height)
+    const hit = geo.snap(vx, vy)
+    if (hit) {
+      setCursor(hit)
+      togglePoint(hit)
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (readOnly || !onChange || !geo) return
+    const { x, y } = grid
+    const cur = cursor ?? { x: x.min, y: y.min }
+    const move: Record<string, GridPoint> = {
+      ArrowLeft: { x: Math.max(x.min, cur.x - x.step), y: cur.y },
+      ArrowRight: { x: Math.min(x.max, cur.x + x.step), y: cur.y },
+      ArrowDown: { x: cur.x, y: Math.max(y.min, cur.y - y.step) },
+      ArrowUp: { x: cur.x, y: Math.min(y.max, cur.y + y.step) },
+    }
+    if (e.key in move) {
+      e.preventDefault()
+      setCursor(move[e.key])
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setCursor(cur)
+      togglePoint(cur)
+    }
+  }
+
+  const ghost = showCanonical
+    ? buildPointsLayer(grid.elements.map(el => ({ x: el.x, y: el.y })), geo, {
+        color: colors.success, ghost: true, mode: grid.mode,
+      })
+    : ''
+
+  // Student joins (polyline/line) rendered via the shared builder WITHOUT
+  // markers — the point markers are JSX so review views can colour them per
+  // verdict (markers:true here would double-draw them).
+  const joins = value.length >= 2 && (grid.mode === 'polyline' || grid.mode === 'line')
+    ? buildPointsLayer(value, geo, { color: colors.primary, mode: grid.mode, markers: false })
+    : ''
+
+  const counterText = grid.mode === 'line'
+    ? `${value.length} of 2 points placed — place 2 points on the line`
+    : `${value.length} of ${maxPoints} points placed`
+
+  return (
+    <div
+      tabIndex={readOnly ? -1 : 0}
+      onKeyDown={handleKeyDown}
+      style={{ outline: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}
+      aria-label={`Grid from ${grid.x.min} to ${grid.x.max} on the x-axis and ${grid.y.min} to ${grid.y.max} on the y-axis. Use the arrow keys to move and Enter to place or remove a point.`}
+    >
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${geo.W} ${geo.H}`}
+        width="100%"
+        role="img"
+        onPointerDown={handlePointerDown}
+        style={{
+          display: 'block',
+          touchAction: 'none',
+          cursor: readOnly ? 'default' : 'crosshair',
+          background: '#ffffff',
+          borderRadius: radius.md,
+          border: `1px solid ${colors.border}`,
+          maxWidth: `${geo.W * 1.5}px`,
+        }}
+      >
+        <g dangerouslySetInnerHTML={{ __html: frame }} />
+        {ghost && <g dangerouslySetInnerHTML={{ __html: ghost }} />}
+        {joins && <g dangerouslySetInnerHTML={{ __html: joins }} />}
+        {value.map((p, i) => {
+          const verdict = perElement?.[i]
+          const fill = verdict === undefined ? colors.primary : verdict ? colors.success : colors.danger
+          return (
+            <circle
+              key={`${p.x}:${p.y}:${i}`}
+              cx={geo.px(p.x)}
+              cy={geo.py(p.y)}
+              r={5}
+              fill={fill}
+              stroke="#ffffff"
+              strokeWidth={1.5}
+            />
+          )
+        })}
+        {!readOnly && cursor && (
+          <circle
+            cx={geo.px(cursor.x)}
+            cy={geo.py(cursor.y)}
+            r={8}
+            fill="none"
+            stroke={colors.primary}
+            strokeWidth={1.5}
+            strokeDasharray="3 3"
+            pointerEvents="none"
+          />
+        )}
+      </svg>
+
+      {/* Screen-reader announcements for place/remove actions. */}
+      <span aria-live="polite" style={{
+        position: 'absolute', width: '1px', height: '1px', overflow: 'hidden',
+        clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap',
+      }}>
+        {announce}
+      </span>
+
+      {!readOnly && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+          <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{counterText}</span>
+          <button
+            onClick={() => { onChange?.([]); setAnnounce('All points cleared') }}
+            disabled={value.length === 0}
+            style={{
+              ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm,
+              opacity: value.length === 0 ? 0.5 : 1,
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+

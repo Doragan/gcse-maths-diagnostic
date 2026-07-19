@@ -10,9 +10,11 @@ import {
 } from '../../lib/questions/kind'
 import { PART_ANSWER_TYPES, ANSWER_TYPE_LABELS } from '../../lib/questions/answerTypes'
 import {
-  PartInput, BlankInput, defaultKindForSkills, emptyBlank, nextBlankLabel, blankMarksTotal,
+  PartInput, BlankInput, GridInput, defaultKindForSkills, emptyBlank, nextBlankLabel,
+  blankMarksTotal, emptyGrid, gridMarksTotal,
 } from '../../lib/questions/parts'
 import BlankEditor from './BlankEditor'
+import GridEditor from './GridEditor'
 
 type Trap = { answer_template: string, response: string }
 
@@ -75,11 +77,19 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
   }
 
   const isMultiBlank = part.answer_type === 'multi_blank'
-  // Read-only marks for multi_blank: normalizePart recomputes the sum on save,
-  // so the form shows the derived value rather than an editable field.
+  const isGridDraw = part.answer_type === 'grid_draw'
+  // These part types carry their answers in nested structures; the part-level
+  // scalar answer fields are hidden and marks become a computed read-out
+  // (normalizePart recomputes the sum on save either way).
+  const isStructured = isMultiBlank || isGridDraw
   const blankMarks = blankMarksTotal(blanks.map(b => ({
     marks: b.marks === '' || b.marks == null ? 1 : Number(b.marks),
   })))
+  const gridMarks = gridMarksTotal((part.grid?.elements ?? []).map(e => ({
+    marks: e.marks === '' || e.marks == null ? 1 : Number(e.marks),
+  })))
+  const structuredMarks = isGridDraw ? gridMarks : blankMarks
+  const structuredMarksLabel = isGridDraw ? 'sum of points' : 'sum of blanks'
 
   const filteredSkills = Object.entries(skillsById)
     .filter(([, skill]) =>
@@ -167,7 +177,7 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
 
       {/* Answer / type / tolerance / marks / kind */}
       <div style={styles.row}>
-        {!isMultiBlank && (
+        {!isStructured && (
           <div style={styles.field}>
             <label style={labelStyle}>Answer template</label>
             <input
@@ -204,11 +214,11 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             />
           </div>
         )}
-        {isMultiBlank ? (
+        {isStructured ? (
           <div style={{ ...styles.field, minWidth: '90px' }}>
             <label style={labelStyle}>Marks</label>
             <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, padding: '10px 0' }}>
-              {blankMarks} — sum of blanks
+              {structuredMarks} — {structuredMarksLabel}
             </p>
           </div>
         ) : (
@@ -279,8 +289,26 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
         </p>
       </div>
 
-      {/* Per-part traps (multi_blank parts carry traps per BLANK instead) */}
-      {!isMultiBlank && (
+      {/* Grid spec (grid_draw only) */}
+      {isGridDraw && (
+        <div style={styles.field}>
+          <label style={labelStyle}>Grid</label>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            The student places points on a snap-to-grid canvas; each correct point earns its own
+            marks. Coordinates may be templates — the correct drawing is rendered from them, so
+            check it in the Preview card.
+          </p>
+          <GridEditor
+            grid={part.grid ?? emptyGrid()}
+            onChange={(g: GridInput) => set('grid', g)}
+            autoResize={autoResize}
+          />
+        </div>
+      )}
+
+      {/* Per-part traps (multi_blank parts carry traps per BLANK; grid_draw
+          has no traps in v1) */}
+      {!isStructured && (
       <div style={styles.field}>
         <label style={labelStyle}>Traps for this part</label>
         {part.traps.map((trap, i) => (

@@ -283,6 +283,16 @@ export type RenderedPart = {
   explanation: string
   // Only for multi_blank parts: each labelled blank's rendered prompt, answer + traps.
   blanks?: { label: string, prompt: string, answer: string, traps: { answer: string, response: string }[] }[]
+  // Only for grid_draw parts: the grid spec with every template evaluated to a
+  // number (a bad template renders to NaN — callers guard on finiteness).
+  grid?: {
+    mode: string
+    x: { min: number, max: number, step: number, label: string }
+    y: { min: number, max: number, step: number, label: string }
+    background: string
+    elements: { x: number, y: number, marks: number }[]
+    tolerance: number
+  }
 }
 
 export type RenderedMultiPartQuestion = {
@@ -314,11 +324,25 @@ export function renderMultiPartQuestion(
       answer_template: string
       traps: { answer_template: string, response: string }[]
     }[]
+    grid?: {
+      mode: string
+      x: { min: number | string, max: number | string, step: number, label: string }
+      y: { min: number | string, max: number | string, step: number, label: string }
+      background: string
+      elements: { x: number | string, y: number | string, marks: number }[]
+      tolerance: number
+    }
   }[],
   parameters: Parameters,
   fixedValues?: Record<string, number>
 ): RenderedMultiPartQuestion {
   const generated = fixedValues ?? generateValues(parameters)
+  // A grid field may be a plain number or a template; templates evaluate via
+  // the engine and parseFloat — a render error ('[error: …]', unresolved
+  // '{{') parses to NaN, which is exactly what the harness and the runtime
+  // canvas guard key on.
+  const evalNum = (v: number | string): number =>
+    typeof v === 'number' ? v : parseFloat(evaluateTemplate(v, generated))
   return {
     stem: evaluateTemplate(stemTemplate, generated),
     parts: parts.map(part => ({
@@ -341,6 +365,25 @@ export function renderMultiPartQuestion(
             response: evaluateTemplate(t.response, generated),
           })),
         })),
+      } : {}),
+      // Grid axes/elements evaluate against the same shared value set too.
+      ...(part.grid ? {
+        grid: {
+          mode: part.grid.mode,
+          x: {
+            min: evalNum(part.grid.x.min), max: evalNum(part.grid.x.max),
+            step: part.grid.x.step, label: evaluateTemplate(part.grid.x.label ?? '', generated),
+          },
+          y: {
+            min: evalNum(part.grid.y.min), max: evalNum(part.grid.y.max),
+            step: part.grid.y.step, label: evaluateTemplate(part.grid.y.label ?? '', generated),
+          },
+          background: part.grid.background ? evaluateTemplate(part.grid.background, generated) : '',
+          elements: part.grid.elements.map(e => ({
+            x: evalNum(e.x), y: evalNum(e.y), marks: e.marks,
+          })),
+          tolerance: part.grid.tolerance,
+        },
       } : {}),
     })),
     generatedValues: generated,

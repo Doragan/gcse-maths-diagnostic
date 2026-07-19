@@ -14,7 +14,9 @@ import {
 import {
   QuestionKind, QUESTION_KINDS, QUESTION_KIND_LABELS, DEFAULT_QUESTION_KIND,
 } from '../../lib/questions/kind'
-import { PartInput, emptyPart, computeSkillUnion } from '../../lib/questions/parts'
+import { PartInput, emptyPart, computeSkillUnion, normalizeGrid } from '../../lib/questions/parts'
+import GridCanvas from '../practice/GridCanvas'
+import type { RenderedGrid } from '../../lib/questions/gridDraw'
 import PartEditor from './PartEditor'
 import { supabase } from '../../lib/supabase'
 import { checkAnswer, CheckResult } from '../../lib/questions/answerChecker'
@@ -130,6 +132,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
       traps: { answer: string, response: string }[]
       explanation: string
       blanks?: { label: string, answer: string, traps: { answer: string, response: string }[] }[]
+      grid?: RenderedGrid
     }[]
   } | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
@@ -177,7 +180,32 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           setValidationError(`Part (${letter}) needs a prompt.`)
           return
         }
-        if (p.answer_type === 'multi_blank') {
+        if (p.answer_type === 'grid_draw') {
+          const g = p.grid
+          if (!g || g.elements.filter(el => String(el.x).trim() !== '' || String(el.y).trim() !== '').length === 0) {
+            setValidationError(`Part (${letter}) is a grid drawing but has no correct points — add at least one.`)
+            return
+          }
+          const nEls = g.elements.filter(el => String(el.x).trim() !== '' || String(el.y).trim() !== '').length
+          if (g.mode === 'line' && nEls !== 2) {
+            setValidationError(`Part (${letter}) is a straight-line drawing — give exactly 2 endpoints (it has ${nEls}).`)
+            return
+          }
+          for (const axis of ['x', 'y'] as const) {
+            for (const bound of ['min', 'max'] as const) {
+              const v = String(g[axis][bound]).trim()
+              if (v === '' || (!Number.isFinite(Number(v)) && !v.includes('{{'))) {
+                setValidationError(`Part (${letter}) grid: ${axis} ${bound} must be a number or a {{template}}.`)
+                return
+              }
+            }
+            const step = Number(g[axis].step)
+            if (!Number.isFinite(step) || step <= 0) {
+              setValidationError(`Part (${letter}) grid: ${axis} step must be a positive number.`)
+              return
+            }
+          }
+        } else if (p.answer_type === 'multi_blank') {
           // Multi-blank parts carry their answers per BLANK, not on the part.
           const blanks = p.blanks ?? []
           if (blanks.length === 0) {
@@ -442,6 +470,9 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               answer_template: b.answer_template,
               traps: b.traps,
             })),
+            // normalizeGrid coerces the form's string fields so templates
+            // stay templates and plain numbers become numbers.
+            grid: p.answer_type === 'grid_draw' && p.grid ? normalizeGrid(p.grid) : undefined,
           })),
           params,
           generated,
@@ -1010,7 +1041,23 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '8px' }}
                   dangerouslySetInnerHTML={{ __html: p.prompt }}
                 />
-                {p.blanks ? (
+                {p.grid ? (
+                  <>
+                    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+                      Correct drawing (rendered from the templates):
+                    </p>
+                    {p.grid.elements.every(el => Number.isFinite(el.x) && Number.isFinite(el.y))
+                      && [p.grid.x.min, p.grid.x.max, p.grid.y.min, p.grid.y.max].every(Number.isFinite) ? (
+                      <div style={{ maxWidth: '420px' }}>
+                        <GridCanvas grid={p.grid} value={[]} readOnly showCanonical />
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: font.sm, color: colors.dangerText, margin: 0 }}>
+                        ✗ A grid template did not evaluate to a number at these values — check the axis bounds and point coordinates.
+                      </p>
+                    )}
+                  </>
+                ) : p.blanks ? (
                   <>
                     <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
                       Blanks:
@@ -1069,8 +1116,9 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   />
                 )}
                 {/* Per-part grader test (scalar parts only — multi_blank shows
-                    per-blank self-grade ticks above instead) */}
-                {!p.blanks && (
+                    per-blank self-grade ticks, grid_draw shows the rendered
+                    drawing above instead) */}
+                {!p.blanks && !p.grid && (
                 <div style={{ borderTop: `1px solid ${colors.border}`, marginTop: '12px', paddingTop: '10px' }}>
                   <p style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, margin: '0 0 6px' }}>
                     Test the grader

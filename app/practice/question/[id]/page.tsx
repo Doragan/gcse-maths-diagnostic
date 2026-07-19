@@ -638,6 +638,17 @@ function QuestionPage() {
 
   // Multi-part questions get a dedicated sequential per-part flow.
   if (question.parts && question.parts.length > 0) {
+    // Shared-link fixed values, applied to the FIRST draw only — "Try again"
+    // remounts with a fresh random draw (mirrors the single-part behaviour).
+    const multiFixed: Record<string, number> = {}
+    let hasMultiFixed = false
+    for (const key of Object.keys(question.parameters ?? {})) {
+      const val = searchParams.get(key)
+      if (val !== null && Number.isFinite(parseFloat(val))) {
+        multiFixed[key] = parseFloat(val)
+        hasMultiFixed = true
+      }
+    }
     return (
       <MultiPartQuestion
         key={`${question.id}-${reparamNonce}`}
@@ -654,6 +665,8 @@ function QuestionPage() {
         assignmentId={assignmentId}
         onSessionAttempt={bumpSessionCounter}
         onNextQuestion={nextQuestion}
+        onTryAgain={() => setReparamNonce(n => n + 1)}
+        fixedValues={hasMultiFixed && reparamNonce === 0 ? multiFixed : undefined}
       />
     )
   }
