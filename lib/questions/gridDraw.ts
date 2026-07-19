@@ -159,15 +159,14 @@ function checkLine(
   const cSorted = [...canonical].sort((a, b) => a[axis] - b[axis])
   const hits = cSorted.map((_, i) => sorted[i] != null && onLine(sorted[i]))
 
-  // Separation rule: distinct points spanning ≥ max(2 grid units, half the
-  // canonical span) along the dominant axis.
-  const span = sorted.length === 2 ? Math.abs(sorted[1][axis] - sorted[0][axis]) / step : 0
-  const canonSpan = Math.abs(cSorted[1][axis] - cSorted[0][axis]) / step
+  // Two DISTINCT points that both lie on the lattice and on the line define
+  // that line uniquely and correctly — including adjacent points like the
+  // intercept + one gradient step, which is the standard plotting method. The
+  // only degenerate case is identical points (no line drawn at all).
   const distinct = sorted.length === 2 &&
     (Math.abs(sorted[0].x - sorted[1].x) > EPS || Math.abs(sorted[0].y - sorted[1].y) > EPS)
-  const separated = distinct && span + EPS >= Math.max(2, canonSpan / 2)
 
-  const fullyCorrect = drawn.length === 2 && hits.every(Boolean) && separated
+  const fullyCorrect = drawn.length === 2 && hits.every(Boolean) && distinct
   const perElement = cSorted.map((c, i) => ({
     correct: hits[i] === true,
     marks: hits[i] === true ? c.marks || 0 : 0,

@@ -221,12 +221,12 @@ function verifyGridPart(
       if (new Set(keys).size !== keys.length) fail('dupe', `${label}: duplicate canonical points at ${JSON.stringify(c)}`)
     }
 
-    // Line endpoints must themselves satisfy the marker's separation floor.
+    // Line endpoints must be distinct (two identical points define no line).
     if (r.mode === 'line' && r.elements.length === 2) {
       const [a, b] = r.elements
-      const vertical = Math.abs(b.x - a.x) < 1e-9
-      const span = vertical ? Math.abs(b.y - a.y) / r.y.step : Math.abs(b.x - a.x) / r.x.step
-      if (span < 2) fail('sep', `${label}: line endpoints are closer than the 2-grid-unit separation floor at ${JSON.stringify(c)}`)
+      if (Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9) {
+        fail('sep', `${label}: the two line endpoints are identical at ${JSON.stringify(c)}`)
+      }
     }
 
     // Canonical self-grade through the REAL marker.

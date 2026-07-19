@@ -163,7 +163,7 @@ export default function MultiPartQuestion({
           ? 'Correct!'
           : grid.mode === 'line'
             ? (nRight === n
-                ? 'Your points are on the line, but too close together to show it clearly.'
+                ? 'Plot two different points that the line passes through.'
                 : `That doesn't match the line — ${nRight} of ${n} points are on it.`)
             : `${nRight} of ${n} points correct`,
         grid: { points: gridPoints, perStudent: result.perStudent },

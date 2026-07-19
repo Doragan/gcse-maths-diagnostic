@@ -31,6 +31,9 @@ type Props = {
 
 export default function GridCanvas({ grid, value, onChange, readOnly, showCanonical, perElement }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null)
+  // Where a pointer went down, so we can tell a tap (place a point) from a
+  // drag (the browser scrolling the page) — see handlePointerUp.
+  const pointerStart = useRef<{ x: number; y: number; id: number } | null>(null)
   const [cursor, setCursor] = useState<GridPoint | null>(null)
   const [announce, setAnnounce] = useState('')
 
@@ -70,7 +73,20 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   }
 
   function handlePointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (readOnly || !onChange) return
+    pointerStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId }
+  }
+
+  // Place on pointer-UP, and only for a tap that barely moved. A finger that
+  // dragged more than a few pixels was scrolling the page (touchAction:pan-y),
+  // not placing a point — so we ignore it. This lets the page scroll on mobile
+  // even when the gesture starts on the grid.
+  function handlePointerUp(e: React.PointerEvent<SVGSVGElement>) {
     if (readOnly || !onChange || !svgRef.current || !geo) return
+    const start = pointerStart.current
+    pointerStart.current = null
+    if (!start || start.id !== e.pointerId) return
+    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return // a drag, not a tap
     const rect = svgRef.current.getBoundingClientRect()
     // width="100%" with a viewBox preserves aspect, so one linear ratio per
     // axis converts CSS px → viewBox units exactly.
@@ -120,6 +136,10 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     ? `${value.length} of 2 points placed — place 2 points on the line`
     : `${value.length} of ${maxPoints} points placed`
 
+  const instruction = grid.mode === 'line'
+    ? 'Tap the grid to plot 2 points the line passes through, then submit. Tap a point again to remove it.'
+    : `Tap the grid to place ${maxPoints === 1 ? 'a point' : `${maxPoints} points`}. Tap a point again to remove it.`
+
   return (
     <div
       tabIndex={readOnly ? -1 : 0}
@@ -127,15 +147,22 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
       style={{ outline: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}
       aria-label={`Grid from ${grid.x.min} to ${grid.x.max} on the x-axis and ${grid.y.min} to ${grid.y.max} on the y-axis. Use the arrow keys to move and Enter to place or remove a point.`}
     >
+      {!readOnly && (
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>{instruction}</p>
+      )}
       <svg
         ref={svgRef}
         viewBox={`0 0 ${geo.W} ${geo.H}`}
         width="100%"
         role="img"
         onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={() => { pointerStart.current = null }}
         style={{
           display: 'block',
-          touchAction: 'none',
+          // pan-y lets the page scroll vertically when a drag starts on the
+          // grid; a stationary tap still places a point (handlePointerUp).
+          touchAction: readOnly ? 'auto' : 'pan-y',
           cursor: readOnly ? 'default' : 'crosshair',
           background: '#ffffff',
           borderRadius: radius.md,

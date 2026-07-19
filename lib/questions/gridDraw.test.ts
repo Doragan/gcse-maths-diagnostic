@@ -118,15 +118,18 @@ describe('checkGridDraw — line mode', () => {
     expect(res.marksEarned).toBe(1)
   })
 
-  it('both on-line but adjacent (separation fail) → capped below full', () => {
-    // (0,3) and (1,5): span 1 grid unit < max(2, 2) floor.
+  it('adjacent on-line points earn full marks (intercept + one gradient step)', () => {
+    // (0,3) and (1,5): the standard plotting method — two distinct on-line
+    // lattice points define y=2x+3 correctly regardless of separation.
     const res = checkGridDraw([pt(0, 3), pt(1, 5)], canonical, 'line', 0)
-    expect(res.correct).toBe(false)
-    expect(res.marksEarned).toBe(1) // total − 1 cap
+    expect(res.correct).toBe(true)
+    expect(res.marksEarned).toBe(2)
   })
 
-  it('identical points → not correct', () => {
-    expect(checkGridDraw([pt(2, 7), pt(2, 7)], canonical, 'line', 0).correct).toBe(false)
+  it('identical points → not correct (no line drawn)', () => {
+    const res = checkGridDraw([pt(2, 7), pt(2, 7)], canonical, 'line', 0)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(1) // both "on line" but not distinct → capped
   })
 
   it('vertical canonical line', () => {
