@@ -40,6 +40,28 @@ export type Blank = {
   marks: number // per-blank marks (exam partial credit)
 }
 
+/**
+ * The grid specification of a `grid_draw` part: an interactive snap-to-grid
+ * canvas the student places points on. Axis min/max and element coordinates
+ * may be template expressions ({{...}}) rendered against the question's shared
+ * value set; `step` is a plain number so the grid keeps a stable SHAPE across
+ * draws (parameters vary values, never the number of cells or elements).
+ * `mode` storage accommodates the G2/G3 modes; only points/polyline/line are
+ * markable in v1 (the harness gates the rest).
+ */
+export type GridAxis = { min: number | string; max: number | string; step: number; label: string }
+export type GridElement = { x: number | string; y: number | string; marks: number }
+export type Grid = {
+  mode: 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars'
+  x: GridAxis
+  y: GridAxis
+  // SVG-fragment template drawn in AXIS coordinates behind the lattice
+  // (paths/shapes only in v1 — the coordinate transform flips text).
+  background: string
+  elements: GridElement[] // the canonical answer, one row per required placement
+  tolerance: number // grid units; 0 = exact lattice
+}
+
 export type QuestionPart = {
   prompt: string
   skill_ids: string[]
@@ -55,6 +77,8 @@ export type QuestionPart = {
   // Only present when answer_type === 'multi_blank'; scalar parts never carry
   // the key (normalizePart omits it, keeping stored jsonb clean).
   blanks?: Blank[]
+  // Only present when answer_type === 'grid_draw' (same omission rule).
+  grid?: Grid
 }
 
 /**
@@ -139,6 +163,23 @@ export function blankMarksTotal(blanks: { marks: number }[]): number {
   return blanks.reduce((sum, b) => sum + (b.marks || 0), 0)
 }
 
+/** Total marks across a grid's elements. */
+export function gridMarksTotal(elements: { marks: number }[]): number {
+  return elements.reduce((sum, e) => sum + (e.marks || 0), 0)
+}
+
+/** An empty grid with sensible defaults, for seeding the grid editor. */
+export function emptyGrid(): GridInput {
+  return {
+    mode: 'points',
+    x: { min: '0', max: '10', step: '1', label: 'x' },
+    y: { min: '0', max: '10', step: '1', label: 'y' },
+    background: '',
+    elements: [{ x: '', y: '', marks: 1 }],
+    tolerance: 0,
+  }
+}
+
 /**
  * The loose, editable representation of a part as it lives in the authoring
  * form, where numeric fields (tolerance, marks) are held as strings so they
@@ -148,6 +189,20 @@ export function blankMarksTotal(blanks: { marks: number }[]): number {
 export type BlankInput = Omit<Blank, 'tolerance' | 'marks'> & {
   tolerance: string | number | null
   marks: string | number
+}
+
+/**
+ * The loose, editable grid representation in the authoring form. Accepts
+ * numbers too so a canonical Grid (e.g. a DB row loaded for editing) is
+ * assignable without conversion, mirroring BlankInput.
+ */
+export type GridInput = {
+  mode: Grid['mode']
+  x: { min: string | number; max: string | number; step: string | number; label: string }
+  y: { min: string | number; max: string | number; step: string | number; label: string }
+  background: string
+  elements: { x: string | number; y: string | number; marks: string | number }[]
+  tolerance: string | number
 }
 
 export type PartInput = {
@@ -162,6 +217,43 @@ export type PartInput = {
   kind: QuestionKind
   explanation: string | null
   blanks?: BlankInput[]
+  grid?: GridInput
+}
+
+/**
+ * A form field that may be a plain number ("7", "3.5") or a template
+ * ("{{c}}"). Numeric strings are stored as numbers; anything else is kept as a
+ * template string for the param engine to render.
+ */
+function numberOrTemplate(v: string | number): number | string {
+  if (typeof v === 'number') return v
+  const t = v.trim()
+  const n = Number(t)
+  return t !== '' && Number.isFinite(n) ? n : t
+}
+
+export function normalizeGrid(g: GridInput): Grid {
+  const axis = (a: GridInput['x']): GridAxis => ({
+    min: numberOrTemplate(a.min),
+    max: numberOrTemplate(a.max),
+    step: a.step === '' || a.step == null ? 1 : Number(a.step),
+    label: a.label ?? '',
+  })
+  return {
+    mode: g.mode,
+    x: axis(g.x),
+    y: axis(g.y),
+    background: g.background ?? '',
+    // Drop wholly-empty element rows (no coordinates at all).
+    elements: g.elements
+      .filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
+      .map(e => ({
+        x: numberOrTemplate(String(e.x)),
+        y: numberOrTemplate(String(e.y)),
+        marks: e.marks === '' || e.marks == null ? 1 : Number(e.marks),
+      })),
+    tolerance: g.tolerance === '' || g.tolerance == null ? 0 : Number(g.tolerance),
+  }
 }
 
 export function normalizeBlank(b: BlankInput): Blank {
@@ -181,6 +273,27 @@ export function normalizeBlank(b: BlankInput): Blank {
 }
 
 export function normalizePart(p: PartInput): QuestionPart {
+  if (p.answer_type === 'grid_draw') {
+    const grid = normalizeGrid(p.grid ?? emptyGrid())
+    return {
+      prompt: p.prompt,
+      skill_ids: p.skill_ids,
+      // The scalar answer fields are unused for grid_draw — the grid carries
+      // the canonical answer. Blanked so stale form state never persists.
+      // grid_draw parts have NO traps in v1 (trap machinery is scalar-string).
+      answer_template: '',
+      answer_type: 'grid_draw',
+      tolerance: null,
+      requires_simplest: false,
+      traps: [],
+      // Computed, never trusted from the form — the same invariant that keeps
+      // totalMarks and the exam assembler correct with no changes there.
+      marks: gridMarksTotal(grid.elements),
+      kind: p.kind,
+      explanation: p.explanation && p.explanation.trim() !== '' ? p.explanation : null,
+      grid,
+    }
+  }
   if (p.answer_type === 'multi_blank') {
     const blanks = (p.blanks ?? []).map(normalizeBlank)
     return {

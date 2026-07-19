@@ -130,6 +130,27 @@ describe('candidateOf', () => {
     expect(c!.marks).toBe(6)
   })
 
+  it('counts a grid_draw part at its element-sum marks (normalizePart invariant)', () => {
+    const part = normalizePart({
+      ...emptyPart(),
+      answer_type: 'grid_draw',
+      grid: {
+        mode: 'line',
+        x: { min: '0', max: '4', step: '1', label: 'x' },
+        y: { min: '0', max: '12', step: '1', label: 'y' },
+        background: '',
+        elements: [
+          { x: '0', y: '{{c}}', marks: 1 },
+          { x: '4', y: '{{4*m+c}}', marks: 2 },
+        ],
+        tolerance: 0,
+      },
+    })
+    const c = candidateOf({ ...base, parts: [part, { marks: 1 }] })
+    expect(part.marks).toBe(3)
+    expect(c!.marks).toBe(4)
+  })
+
   it('counts a multi_blank part at its blank-sum marks (normalizePart invariant)', () => {
     // normalizePart pins part.marks = sum of blank marks, so the assembler
     // needs no blank awareness — this pins that contract from the consumer side.

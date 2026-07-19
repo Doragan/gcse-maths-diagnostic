@@ -7,6 +7,8 @@ import { skillsById } from '../../lib/skills/skillGraph'
 import { renderMultiPartQuestion } from '../../lib/questions/paramEngine'
 import { checkAnswer } from '../../lib/questions/answerChecker'
 import { checkMultiBlank, type BlankCheck } from '../../lib/questions/multiBlank'
+import { checkGridDraw, formatGridPoints, type GridPoint } from '../../lib/questions/gridDraw'
+import GridCanvas from './GridCanvas'
 import type { QuestionPart } from '../../lib/questions/parts'
 import {
   colors, font, radius, card, primaryButton, secondaryButton,
@@ -32,6 +34,9 @@ type PartOutcome = {
   message: string
   // Only for multi_blank parts: the per-blank verdicts shown in the summary box.
   blanks?: { label: string, answer: string, correct: boolean, message: string, correctAnswer: string }[]
+  // Only for grid_draw parts: the student's drawing + per-point verdicts for
+  // the review overlay.
+  grid?: { points: GridPoint[], perStudent: boolean[] }
 }
 
 type Props = {
@@ -42,12 +47,16 @@ type Props = {
   onSessionAttempt: (correct: boolean) => void
   /** Advance to the next question (free practice) or assignment flow. */
   onNextQuestion: () => void
+  /** Remount with a fresh parameter draw (the parent bumps its reparam nonce). */
+  onTryAgain: () => void
+  /** Reproduce a specific draw (shared links); only applied on first mount. */
+  fixedValues?: Record<string, number>
 }
 
 const PART_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
 export default function MultiPartQuestion({
-  question, studentId, assignmentId, onSessionAttempt, onNextQuestion,
+  question, studentId, assignmentId, onSessionAttempt, onNextQuestion, onTryAgain, fixedValues,
 }: Props) {
   const router = useRouter()
 
@@ -63,8 +72,10 @@ export default function MultiPartQuestion({
         traps: p.traps,
         explanation: p.explanation,
         blanks: p.blanks,
+        grid: p.grid,
       })),
       question.parameters ?? {},
+      fixedValues,
     ),
     [question.id], // eslint-disable-line react-hooks/exhaustive-deps
   )
@@ -78,10 +89,13 @@ export default function MultiPartQuestion({
   const [blankAnswers, setBlankAnswers] = useState<string[]>(
     () => Array(blankCountOf(0)).fill(''),
   )
+  // Placed points for the CURRENT part when it is grid_draw.
+  const [gridPoints, setGridPoints] = useState<GridPoint[]>([])
   // Wrapper divs around each blank's MathInput so Enter can hop A → B → C
   // (MathInput doesn't forward refs; degrades gracefully to the button).
   const blankRowRefs = useRef<(HTMLDivElement | null)[]>([])
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
+  const [shareLabel, setShareLabel] = useState('Share this question')
   // One slot per part; null until that part is answered. Keeps each part's
   // submitted answer on screen so later parts can refer back to it.
   const [outcomes, setOutcomes] = useState<(PartOutcome | null)[]>(
@@ -128,7 +142,33 @@ export default function MultiPartQuestion({
     if (outcomes[current]) return
 
     let outcome: PartOutcome
-    if (part.answer_type === 'multi_blank') {
+    if (part.answer_type === 'grid_draw') {
+      const grid = renderedPart.grid
+      if (!grid) return
+      // One submit for the whole drawing — gated until every point is placed.
+      if (gridPoints.length !== grid.elements.length) return
+      const result = checkGridDraw(
+        gridPoints,
+        grid.elements,
+        grid.mode as 'points' | 'polyline' | 'line',
+        grid.tolerance,
+        { xStep: grid.x.step, yStep: grid.y.step },
+      )
+      const n = grid.elements.length
+      const nRight = result.perElement.filter(e => e.correct).length
+      outcome = {
+        answer: formatGridPoints(gridPoints),
+        correct: result.correct,
+        message: result.correct
+          ? 'Correct!'
+          : grid.mode === 'line'
+            ? (nRight === n
+                ? 'Your points are on the line, but too close together to show it clearly.'
+                : `That doesn't match the line — ${nRight} of ${n} points are on it.`)
+            : `${nRight} of ${n} points correct`,
+        grid: { points: gridPoints, perStudent: result.perStudent },
+      }
+    } else if (part.answer_type === 'multi_blank') {
       const blanks = part.blanks ?? []
       const renderedBlanks = renderedPart.blanks ?? []
       // One submit for the whole part — gated until every blank is filled.
@@ -187,7 +227,30 @@ export default function MultiPartQuestion({
   function nextPart() {
     setAnswer('')
     setBlankAnswers(Array(blankCountOf(current + 1)).fill(''))
+    setGridPoints([])
     setCurrent(c => c + 1)
+  }
+
+  // Same share behaviour as the single-part page: the URL pins this exact
+  // parameter draw so the recipient sees the same numbers.
+  function handleShare() {
+    const urlParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(rendered.generatedValues)) {
+      urlParams.set(key, value.toString())
+    }
+    const url = `${window.location.origin}/practice/question/${question.id}?${urlParams.toString()}`
+    const allCorrect = outcomes.every(o => o?.correct === true)
+    const text = allCorrect
+      ? 'I just answered this GCSE Maths question correctly on Mathsense — can you?'
+      : 'I got stuck on this GCSE Maths question on Mathsense — can you help?'
+    const isMobile = navigator.maxTouchPoints > 0
+    if (isMobile && navigator.share) {
+      navigator.share({ title: 'GCSE Maths question — Mathsense', text, url })
+    } else {
+      navigator.clipboard.writeText(`${text}\n\n${url}`)
+      setShareLabel('Link copied!')
+      setTimeout(() => setShareLabel('Share this question'), 2000)
+    }
   }
 
   const stemSkillNames = question.skill_ids
@@ -298,11 +361,27 @@ export default function MultiPartQuestion({
                 gap: '6px',
               }}>
                 <p style={{ fontSize: font.sm, margin: 0, color: o.correct ? colors.successText : colors.dangerText, fontWeight: '600' }}>
-                  {o.correct ? '✓ Correct' : o.blanks ? `✗ ${o.message}` : '✗ Not quite'}
+                  {o.correct ? '✓ Correct' : (o.blanks || o.grid) ? `✗ ${o.message}` : '✗ Not quite'}
                 </p>
+                {/* Grid review: the student's drawing with the correct answer
+                    ghosted over it, points coloured by verdict. */}
+                {o.grid && renderedPart.grid && (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+                    <GridCanvas
+                      grid={renderedPart.grid}
+                      value={o.grid.points}
+                      readOnly
+                      showCanonical
+                      perElement={o.grid.perStudent}
+                    />
+                    <p style={{ fontSize: font.sm, margin: 0, color: colors.textHint }}>
+                      Your points shown solid · the correct answer is shown dashed
+                    </p>
+                  </div>
+                )}
                 {/* Per-blank verdicts for multi_blank parts: each blank's answer,
                     its trap/reminder message, and the right answer where wrong. */}
-                {o.blanks ? o.blanks.map(b => (
+                {o.grid ? null : o.blanks ? o.blanks.map(b => (
                   <div key={b.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: '2px' }}>
                     <p style={{ fontSize: font.sm, margin: 0, color: b.correct ? colors.successText : colors.dangerText }}>
                       {b.correct ? '✓' : '✗'} {b.label} ={' '}
@@ -349,8 +428,30 @@ export default function MultiPartQuestion({
               </div>
             )}
 
+            {/* Current grid_draw part → interactive canvas, one submit. */}
+            {isCurrent && !o && part.answer_type === 'grid_draw' && renderedPart.grid && (() => {
+              const grid = renderedPart.grid
+              const ready = gridPoints.length === grid.elements.length
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+                  <GridCanvas
+                    grid={grid}
+                    value={gridPoints}
+                    onChange={setGridPoints}
+                  />
+                  <button
+                    onClick={submit}
+                    disabled={!ready}
+                    style={{ ...primaryButton, opacity: !ready ? 0.6 : 1 }}
+                  >
+                    Submit answer
+                  </button>
+                </div>
+              )
+            })()}
+
             {/* Current part, not yet answered → active input */}
-            {isCurrent && !o && part.answer_type !== 'multi_blank' && (
+            {isCurrent && !o && part.answer_type !== 'multi_blank' && part.answer_type !== 'grid_draw' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                 <MathInput
                   value={answer}
@@ -468,8 +569,16 @@ export default function MultiPartQuestion({
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, textAlign: 'center' as const }}>
             You got <strong>{correctCount} of {question.parts.length}</strong> parts correct.
           </p>
-          <button onClick={onNextQuestion} style={primaryButton}>
-            Next question →
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={onTryAgain} style={{ ...secondaryButton, flex: 1 }}>
+              Try again
+            </button>
+            <button onClick={onNextQuestion} style={{ ...primaryButton, flex: 1 }}>
+              Next question →
+            </button>
+          </div>
+          <button onClick={handleShare} style={{ ...secondaryButton, fontSize: font.base }}>
+            {shareLabel}
           </button>
         </div>
       )}

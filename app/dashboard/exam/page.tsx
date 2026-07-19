@@ -13,6 +13,11 @@ import { DEFAULT_BLUEPRINT, NOMINAL_MARKS } from '../../../lib/exam/blueprint'
 import { higherOnlySkillIds } from '../../../data/courses'
 import type { QuestionPart } from '../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../lib/questions/answerTypes'
+import {
+  checkGridDraw, serialiseGridAnswer, parseGridAnswer, formatGridPoints,
+  type RenderedGrid,
+} from '../../../lib/questions/gridDraw'
+import GridCanvas from '../../../components/practice/GridCanvas'
 import MathInput from '../../../components/practice/MathInput'
 import { colors, font, radius, card, primaryButton, secondaryButton } from '../../../lib/styles'
 
@@ -34,6 +39,10 @@ type Unit = {
   skillIds: string[]
   kind: 'mastery' | 'exam'
   marks: number
+  // A grid_draw part's rendered grid — when present the unit is answered on a
+  // GridCanvas (answerType is an inert placeholder) and earns FRACTIONAL
+  // credit per element.
+  grid?: RenderedGrid
 }
 type Item = {
   questionId: string
@@ -44,7 +53,16 @@ type Item = {
   marks: number
   units: Unit[]
 }
-type UnitResult = { correct: boolean; message: string; studentAnswer: string; correctAnswer: string; explanation: string }
+type UnitResult = {
+  correct: boolean // FULLY correct — the projected-mastery panel keys on this
+  message: string
+  studentAnswer: string
+  correctAnswer: string
+  explanation: string
+  marksEarned: number // fractional credit: grid units earn per-element marks
+  // grid units: verdict per student point (drawn order), for the review overlay
+  perStudent?: boolean[]
+}
 
 type QuestionRow = {
   id: string
@@ -100,6 +118,28 @@ function buildItem(q: QuestionRow, number: number): Item {
           kind: p.kind === 'exam' ? 'exam' : 'mastery',
           marks: blank.marks || 1,
         }))
+      }
+      if (p.answer_type === 'grid_draw') {
+        // ONE unit per grid part (a drawing is one interaction); fractional
+        // credit comes from checkGridDraw at submit time. A missing rendered
+        // grid (impossible for harness-verified rows) contributes nothing.
+        const g = r.parts[i].grid as RenderedGrid | undefined
+        if (!g) return []
+        return [{
+          key: `${q.id}:${i}`,
+          label: letter(i),
+          promptHtml: r.parts[i].prompt,
+          correctAnswer: formatGridPoints(g.elements.map(e => ({ x: e.x, y: e.y }))),
+          answerType: 'exact' as AnswerType, // inert — grid units never reach checkAnswer
+          tolerance: null,
+          requiresSimplest: false,
+          traps: [],
+          explanation: r.parts[i].explanation,
+          skillIds: p.skill_ids,
+          kind: p.kind === 'exam' ? 'exam' : 'mastery',
+          marks: p.marks || 1,
+          grid: g,
+        }]
       }
       return [{
         key: `${q.id}:${i}`,
@@ -213,12 +253,34 @@ export default function ExamPreviewPage() {
       for (const u of item.units) {
         const raw = (answers[u.key] ?? '').trim()
         if (raw === '') {
-          res[u.key] = { correct: false, message: 'Not answered.', studentAnswer: '', correctAnswer: u.correctAnswer, explanation: u.explanation }
+          res[u.key] = { correct: false, message: 'Not answered.', studentAnswer: '', correctAnswer: u.correctAnswer, explanation: u.explanation, marksEarned: 0 }
+          continue
+        }
+        if (u.grid) {
+          // Grid units earn fractional per-element credit (the method marks);
+          // `correct` stays "fully correct" so projected mastery is unchanged.
+          const pts = parseGridAnswer(raw)
+          const g = u.grid
+          const check = checkGridDraw(
+            pts, g.elements, g.mode as 'points' | 'polyline' | 'line', g.tolerance,
+            { xStep: g.x.step, yStep: g.y.step },
+          )
+          earned += check.marksEarned
+          const nRight = check.perElement.filter(e => e.correct).length
+          res[u.key] = {
+            correct: check.correct,
+            message: check.correct ? 'Correct!' : `${nRight} of ${g.elements.length} points correct`,
+            studentAnswer: formatGridPoints(pts),
+            correctAnswer: u.correctAnswer,
+            explanation: u.explanation,
+            marksEarned: check.marksEarned,
+            perStudent: check.perStudent,
+          }
           continue
         }
         const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest)
         if (check.correct) earned += u.marks
-        res[u.key] = { correct: check.correct, message: check.message, studentAnswer: raw, correctAnswer: u.correctAnswer, explanation: u.explanation }
+        res[u.key] = { correct: check.correct, message: check.message, studentAnswer: raw, correctAnswer: u.correctAnswer, explanation: u.explanation, marksEarned: check.correct ? u.marks : 0 }
       }
     }
 
@@ -385,15 +447,35 @@ export default function ExamPreviewPage() {
             {item.units.map(u => {
               const r = results[u.key]
               if (!r) return null
+              // Three-state credit: full (success) / partial (warning) / zero
+              // (danger) — partial only arises on grid units.
+              const state = r.marksEarned >= u.marks ? 'full' : r.marksEarned > 0 ? 'partial' : 'zero'
+              const bg = state === 'full' ? colors.successLight : state === 'partial' ? colors.warningLight : colors.dangerLight
+              const bd = state === 'full' ? colors.successBorder : state === 'partial' ? colors.warningBorder : colors.dangerBorder
+              const tx = state === 'full' ? colors.successText : state === 'partial' ? colors.warningText : colors.dangerText
               return (
-                <div key={u.key} style={{ marginTop: 12, padding: 12, borderRadius: radius.md, background: r.correct ? colors.successLight : colors.dangerLight, border: `1px solid ${r.correct ? colors.successBorder : colors.dangerBorder}` }}>
+                <div key={u.key} style={{ marginTop: 12, padding: 12, borderRadius: radius.md, background: bg, border: `1px solid ${bd}` }}>
                   {/* Label shown even with an empty prompt so a multi_blank
                       part's later blanks ("(a) · B") stay identifiable. */}
                   {(u.promptHtml || u.label) && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label ?? ''} ${u.promptHtml}` }} />}
-                  <p style={{ fontSize: font.sm, fontWeight: 700, margin: '0 0 4px', color: r.correct ? colors.successText : colors.dangerText }}>
-                    {r.correct ? `✓ ${u.marks}/${u.marks}` : `✗ 0/${u.marks}`}
+                  <p style={{ fontSize: font.sm, fontWeight: 700, margin: '0 0 4px', color: tx }}>
+                    {state === 'full' ? `✓ ${u.marks}/${u.marks}` : state === 'partial' ? `~ ${r.marksEarned}/${u.marks}` : `✗ 0/${u.marks}`}
                   </p>
-                  <div style={{ fontSize: font.sm, color: r.correct ? colors.successText : colors.dangerText }} dangerouslySetInnerHTML={{ __html: r.message }} />
+                  <div style={{ fontSize: font.sm, color: tx }} dangerouslySetInnerHTML={{ __html: r.message }} />
+                  {u.grid && r.studentAnswer && (
+                    <div style={{ margin: '8px 0' }}>
+                      <GridCanvas
+                        grid={u.grid}
+                        value={parseGridAnswer(answers[u.key] ?? '')}
+                        readOnly
+                        showCanonical
+                        perElement={r.perStudent}
+                      />
+                      <p style={{ fontSize: font.sm, margin: '4px 0 0', color: colors.textHint }}>
+                        Your points shown solid · the correct answer is shown dashed
+                      </p>
+                    </div>
+                  )}
                   <p style={{ fontSize: font.sm, margin: '6px 0 0', color: colors.textSecondary }}>
                     Your answer: <strong><span dangerouslySetInnerHTML={{ __html: r.studentAnswer || '—' }} /></strong>
                     {!r.correct && <> · Correct: <strong><span dangerouslySetInnerHTML={{ __html: r.correctAnswer }} /></strong></>}
@@ -447,12 +529,20 @@ export default function ExamPreviewPage() {
                 {/* Label shown even with an empty prompt so a multi_blank
                     part's later blanks ("(a) · B") stay identifiable. */}
                 {(u.promptHtml || u.label) && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label ?? ''} ${u.promptHtml}` }} />}
+                {u.grid ? (
+                  <GridCanvas
+                    grid={u.grid}
+                    value={parseGridAnswer(answers[u.key] ?? '')}
+                    onChange={pts => setAnswers(prev => ({ ...prev, [u.key]: serialiseGridAnswer(pts) }))}
+                  />
+                ) : (
                 <MathInput
                   value={answers[u.key] ?? ''}
                   onChange={(v: string) => setAnswers(prev => ({ ...prev, [u.key]: v }))}
                   onSubmit={() => {}}
                   placeholder="Type your answer…"
                 />
+                )}
               </div>
             ))}
           </div>

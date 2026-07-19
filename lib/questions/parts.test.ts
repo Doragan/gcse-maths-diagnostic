@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   computeSkillUnion, defaultKindForSkills, totalMarks, emptyPart, normalizePart,
   emptyBlank, nextBlankLabel, blankMarksTotal, normalizeBlank,
+  emptyGrid, normalizeGrid, gridMarksTotal,
 } from './parts'
 
 describe('computeSkillUnion', () => {
@@ -140,5 +141,84 @@ describe('blankMarksTotal', () => {
   it('sums, treating falsy as 0', () => {
     expect(blankMarksTotal([{ marks: 1 }, { marks: 2 }])).toBe(3)
     expect(blankMarksTotal([])).toBe(0)
+  })
+})
+
+describe('normalizeGrid', () => {
+  it('stores numeric strings as numbers and keeps templates as strings', () => {
+    const g = normalizeGrid({
+      ...emptyGrid(),
+      x: { min: '0', max: '{{xmax}}', step: '2', label: 'x' },
+      elements: [{ x: '4', y: '{{4*m + c}}', marks: 1 }],
+    })
+    expect(g.x.min).toBe(0)
+    expect(g.x.max).toBe('{{xmax}}')
+    expect(g.x.step).toBe(2)
+    expect(g.elements[0].x).toBe(4)
+    expect(g.elements[0].y).toBe('{{4*m + c}}')
+  })
+  it('defaults step to 1, marks to 1, tolerance to 0; drops empty element rows', () => {
+    const g = normalizeGrid({
+      ...emptyGrid(),
+      x: { min: '0', max: '5', step: '', label: '' },
+      elements: [
+        { x: '', y: '', marks: 1 },        // wholly empty → dropped
+        { x: '1', y: '2', marks: '' },     // marks defaults
+      ],
+      tolerance: '',
+    })
+    expect(g.x.step).toBe(1)
+    expect(g.elements).toHaveLength(1)
+    expect(g.elements[0].marks).toBe(1)
+    expect(g.tolerance).toBe(0)
+  })
+})
+
+describe('normalizePart (grid_draw)', () => {
+  const gridInput = () => ({
+    ...emptyPart(),
+    answer_type: 'grid_draw' as const,
+    // Stale scalar state that must be blanked:
+    answer_template: '{{stale}}',
+    tolerance: '0.5',
+    requires_simplest: true,
+    traps: [{ answer_template: '{{stale}}', response: 'stale trap' }],
+    marks: '99', // ignored — computed from elements
+    grid: {
+      ...emptyGrid(),
+      mode: 'line' as const,
+      elements: [
+        { x: '0', y: '{{c}}', marks: 1 },
+        { x: '4', y: '{{4*m + c}}', marks: '2' as const },
+      ],
+    },
+  })
+
+  it('blanks the scalar answer fields and normalises the grid', () => {
+    const out = normalizePart(gridInput())
+    expect(out.answer_template).toBe('')
+    expect(out.tolerance).toBeNull()
+    expect(out.requires_simplest).toBe(false)
+    expect(out.traps).toEqual([]) // no traps on grid_draw in v1
+    expect(out.grid!.mode).toBe('line')
+    expect(out.grid!.elements).toHaveLength(2)
+    expect(out.grid!.elements[1].marks).toBe(2)
+  })
+  it('computes marks as the element sum, never trusting the form value', () => {
+    expect(normalizePart(gridInput()).marks).toBe(3)
+  })
+  it('scalar and multi_blank parts never emit a grid key', () => {
+    expect('grid' in normalizePart({ ...emptyPart(), answer_type: 'numeric' })).toBe(false)
+    expect('grid' in normalizePart({
+      ...emptyPart(), answer_type: 'multi_blank',
+      blanks: [{ ...emptyBlank('A'), answer_template: '{{a}}' }],
+    })).toBe(false)
+  })
+})
+
+describe('gridMarksTotal', () => {
+  it('sums, treating falsy as 0', () => {
+    expect(gridMarksTotal([{ marks: 1 }, { marks: 2 }])).toBe(3)
+    expect(gridMarksTotal([])).toBe(0)
   })
 })
