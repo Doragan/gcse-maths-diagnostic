@@ -41,6 +41,23 @@ describe('gridGeometry', () => {
     expect(g2.rows).toBe(4)
     expect(g2.snap(g2.px(6), g2.py(15))).toEqual({ x: 6, y: 15 })
   })
+
+  it('snapCell floors to the containing cell, not the nearest lattice point', () => {
+    // A tap at 0.7 across cell (2,5) belongs to cell (2,5), even though the
+    // nearest lattice point is (3,5).
+    expect(geo.snapCell(geo.px(2) + CELL * 0.7, geo.py(5) - CELL * 0.3)).toEqual({ x: 2, y: 5 })
+  })
+
+  it('snapCell handles edge cells and is null outside the plot', () => {
+    // Just inside the far corner → the last cell (3, 11).
+    expect(geo.snapCell(geo.px(4) - 1, geo.py(12) + 1)).toEqual({ x: 3, y: 11 })
+    // On the right edge exactly, just BELOW the y=6 gridline → clamped into
+    // the last column, cell beneath the line.
+    expect(geo.snapCell(geo.px(4), geo.py(6) + 2)).toEqual({ x: 3, y: 5 })
+    // Outside → null (no half-cell grace for cells).
+    expect(geo.snapCell(PAD.left - 2, geo.py(5))).toBeNull()
+    expect(geo.snapCell(geo.px(2), PAD.top - 2)).toBeNull()
+  })
 })
 
 describe('buildGridSvg', () => {
@@ -71,5 +88,22 @@ describe('buildGridSvg', () => {
   it('draws student points on top', () => {
     const svg = buildGridSvg(grid, { student: [{ x: 1, y: 5 }, { x: 3, y: 9 }] })
     expect((svg.match(/circle/g) ?? []).length).toBe(2)
+  })
+
+  it('cells mode renders rects (no markers); ghost cells are dashed outlines', () => {
+    const cellsGrid = { ...grid, mode: 'cells', elements: [{ x: 1, y: 2, marks: 1 }, { x: 3, y: 4, marks: 1 }] }
+    const student = buildGridSvg(cellsGrid, { student: [{ x: 1, y: 2 }] })
+    expect(student).toContain('fill-opacity="0.45"')
+    expect(student).not.toContain('circle')
+    const ghost = buildGridSvg(cellsGrid, { showCanonical: true })
+    expect((ghost.match(/stroke-dasharray/g) ?? []).length).toBe(2)
+    expect(ghost).toContain('fill="none"')
+  })
+
+  it('polygon mode renders a closed path with vertex markers', () => {
+    const polyGrid = { ...grid, mode: 'polygon', elements: [{ x: 1, y: 1, marks: 1 }, { x: 3, y: 1, marks: 1 }, { x: 1, y: 4, marks: 1 }] }
+    const svg = buildGridSvg(polyGrid, { student: [{ x: 1, y: 1 }, { x: 3, y: 1 }, { x: 1, y: 4 }] })
+    expect(svg).toMatch(/<path d="M [\d. ]+L [\d. ]+L [\d. ]+ Z"/)
+    expect((svg.match(/circle/g) ?? []).length).toBe(3)
   })
 })

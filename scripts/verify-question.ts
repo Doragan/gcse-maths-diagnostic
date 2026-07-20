@@ -123,7 +123,7 @@ function unitsOf(q: Q): Unit[] {
   }]
 }
 
-const GRID_V1_MODES = ['points', 'polyline', 'line']
+const GRID_MODES = ['points', 'polyline', 'line', 'cells', 'polygon']
 const GRID_MAX_COLS = 12 // touch rule: ≥28px between gridlines on a phone
 const GRID_MAX_ROWS = 16
 
@@ -161,8 +161,8 @@ function verifyGridPart(
 ) {
   const g = p.grid
   if (!g) { fails.push(`${label}: grid_draw part has no grid object`); return }
-  if (!GRID_V1_MODES.includes(g.mode)) {
-    fails.push(`${label}: grid mode "${g.mode}" is not markable yet (lands in G2/G3)`)
+  if (!GRID_MODES.includes(g.mode)) {
+    fails.push(`${label}: grid mode "${g.mode}" is not markable yet (lands in G3)`)
     return
   }
   const els: any[] = Array.isArray(g.elements) ? g.elements : []
@@ -170,6 +170,13 @@ function verifyGridPart(
   if (g.mode === 'line' && els.length !== 2) {
     fails.push(`${label}: line mode needs exactly 2 endpoint elements (has ${els.length})`)
     return
+  }
+  if (g.mode === 'polygon' && els.length < 3) {
+    fails.push(`${label}: polygon mode needs at least 3 vertices (has ${els.length})`)
+    return
+  }
+  if (g.mode === 'cells' && (Number(g.tolerance) || 0) !== 0) {
+    fails.push(`${label}: cells mode requires tolerance 0 — shading is exact by nature`)
   }
   const markSum = els.reduce((s, e) => s + (Number(e.marks) || 0), 0)
   if (p.marks != null && Number(p.marks) !== markSum) {
@@ -203,8 +210,12 @@ function verifyGridPart(
         fail(`el${i}:fin`, `${label}: element ${i + 1} does not evaluate to a number at ${JSON.stringify(c)}`)
         continue
       }
-      if (e.x < r.x.min - 1e-9 || e.x > r.x.max + 1e-9 || e.y < r.y.min - 1e-9 || e.y > r.y.max + 1e-9) {
-        fail(`el${i}:grid`, `${label}: element ${i + 1} (${e.x}, ${e.y}) is off the grid at ${JSON.stringify(c)}`)
+      // Cells are identified by their bottom-left corner and span one step
+      // up-right, so the corner must sit within [min, max − step] to FIT.
+      const xHi = r.mode === 'cells' ? r.x.max - r.x.step : r.x.max
+      const yHi = r.mode === 'cells' ? r.y.max - r.y.step : r.y.max
+      if (e.x < r.x.min - 1e-9 || e.x > xHi + 1e-9 || e.y < r.y.min - 1e-9 || e.y > yHi + 1e-9) {
+        fail(`el${i}:grid`, `${label}: element ${i + 1} (${e.x}, ${e.y}) is off the grid${r.mode === 'cells' ? ' (cell must fit inside)' : ''} at ${JSON.stringify(c)}`)
       }
       if (r.tolerance === 0) {
         const fx = Math.abs((e.x - r.x.min) / r.x.step)
@@ -215,10 +226,11 @@ function verifyGridPart(
       }
     }
 
-    // Duplicate canonical points make greedy matching ambiguous.
-    if (r.mode === 'points') {
+    // Duplicate canonical elements make matching ambiguous (points/cells) or
+    // the shape degenerate (polygon).
+    if (r.mode === 'points' || r.mode === 'cells' || r.mode === 'polygon') {
       const keys = r.elements.map(e => `${e.x}|${e.y}`)
-      if (new Set(keys).size !== keys.length) fail('dupe', `${label}: duplicate canonical points at ${JSON.stringify(c)}`)
+      if (new Set(keys).size !== keys.length) fail('dupe', `${label}: duplicate canonical elements at ${JSON.stringify(c)}`)
     }
 
     // Line endpoints must be distinct (two identical points define no line).

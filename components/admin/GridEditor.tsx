@@ -20,10 +20,12 @@ type Props = {
   autoResize: (el: HTMLTextAreaElement | null) => void
 }
 
-const V1_MODES = [
+const MODES = [
   ['points', 'Points — place separate points'],
   ['polyline', 'Polyline — points joined in order'],
   ['line', 'Straight line — 2 points defining a line'],
+  ['cells', 'Shade squares — tap cells to shade'],
+  ['polygon', 'Polygon — place the shape’s corners in order'],
 ] as const
 
 export default function GridEditor({ grid, onChange, autoResize }: Props) {
@@ -40,6 +42,12 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
   }
 
   const isLine = grid.mode === 'line'
+  const isCells = grid.mode === 'cells'
+  const isPolygon = grid.mode === 'polygon'
+  // Line pins exactly 2 elements; polygon needs at least 3.
+  const removeDisabled = (isLine && grid.elements.length <= 2)
+    || (isPolygon && grid.elements.length <= 3)
+  const addDisabled = isLine && grid.elements.length >= 2
 
   function addElement() {
     set('elements', [...grid.elements, { x: '', y: '', marks: 1 }])
@@ -74,7 +82,7 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
           onChange={e => set('mode', e.target.value as GridInput['mode'])}
           style={inputStyle}
         >
-          {V1_MODES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {MODES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
 
@@ -107,7 +115,10 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
       {/* Canonical elements */}
       <div style={styles.field}>
         <label style={labelStyle}>
-          {isLine ? 'Line endpoints (exactly 2 — the intended line)' : 'Correct points'}
+          {isLine ? 'Line endpoints (exactly 2 — the intended line)'
+            : isCells ? 'Squares to shade (bottom-left corner of each)'
+            : isPolygon ? 'Corners in order (at least 3)'
+            : 'Correct points'}
         </label>
         {grid.elements.map((el, i) => (
           <div key={i} style={styles.row}>
@@ -125,8 +136,8 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
             </div>
             <button
               onClick={() => removeElement(i)}
-              disabled={isLine && grid.elements.length <= 2}
-              style={{ ...secondaryButton, width: 'auto', alignSelf: 'flex-end', padding: '8px 12px', fontSize: font.sm, color: colors.dangerText, borderColor: colors.dangerBorder, opacity: isLine && grid.elements.length <= 2 ? 0.5 : 1 }}
+              disabled={removeDisabled}
+              style={{ ...secondaryButton, width: 'auto', alignSelf: 'flex-end', padding: '8px 12px', fontSize: font.sm, color: colors.dangerText, borderColor: colors.dangerBorder, opacity: removeDisabled ? 0.5 : 1 }}
             >
               Remove
             </button>
@@ -134,10 +145,10 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
         ))}
         <button
           onClick={addElement}
-          disabled={isLine && grid.elements.length >= 2}
-          style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm, opacity: isLine && grid.elements.length >= 2 ? 0.5 : 1 }}
+          disabled={addDisabled}
+          style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm, opacity: addDisabled ? 0.5 : 1 }}
         >
-          + Add point
+          {isCells ? '+ Add square' : isPolygon ? '+ Add corner' : '+ Add point'}
         </button>
       </div>
 
