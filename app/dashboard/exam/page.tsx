@@ -15,7 +15,7 @@ import type { QuestionPart } from '../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../lib/questions/answerTypes'
 import {
   checkGridDraw, serialiseGridAnswer, parseGridAnswer, formatGridPoints,
-  type RenderedGrid,
+  type RenderedGrid, type GridDrawMode,
 } from '../../../lib/questions/gridDraw'
 import GridCanvas from '../../../components/practice/GridCanvas'
 import MathInput from '../../../components/practice/MathInput'
@@ -262,14 +262,15 @@ export default function ExamPreviewPage() {
           const pts = parseGridAnswer(raw)
           const g = u.grid
           const check = checkGridDraw(
-            pts, g.elements, g.mode as 'points' | 'polyline' | 'line', g.tolerance,
+            pts, g.elements, g.mode as GridDrawMode, g.tolerance,
             { xStep: g.x.step, yStep: g.y.step },
           )
           earned += check.marksEarned
           const nRight = check.perElement.filter(e => e.correct).length
+          const unitNoun = g.mode === 'cells' ? 'squares' : g.mode === 'polygon' ? 'corners' : 'points'
           res[u.key] = {
             correct: check.correct,
-            message: check.correct ? 'Correct!' : `${nRight} of ${g.elements.length} points correct`,
+            message: check.correct ? 'Correct!' : `${nRight} of ${g.elements.length} ${unitNoun} correct`,
             studentAnswer: formatGridPoints(pts),
             correctAnswer: u.correctAnswer,
             explanation: u.explanation,

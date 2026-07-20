@@ -44,19 +44,28 @@ function gridDist(a: { x: number; y: number }, b: { x: number; y: number }, xSte
   return Math.hypot((a.x - b.x) / xStep, (a.y - b.y) / yStep)
 }
 
+export type GridDrawMode = 'points' | 'polyline' | 'line' | 'cells' | 'polygon'
+
 export function checkGridDraw(
   drawn: GridPoint[],
   canonical: RenderedGridElement[],
-  mode: 'points' | 'polyline' | 'line',
+  mode: GridDrawMode,
   tolerance: number,
   steps: { xStep: number; yStep: number } = { xStep: 1, yStep: 1 },
 ): GridDrawResult {
   const marksTotal = canonical.reduce((s, e) => s + (e.marks || 0), 0)
-  const tol = tolerance + EPS
+  // Cells are lattice-identified squares — shading is exact by nature, so
+  // tolerance is forced to 0 regardless of what the part declares (the
+  // harness also gates it).
+  const tol = (mode === 'cells' ? 0 : tolerance) + EPS
   const { xStep, yStep } = steps
 
   if (mode === 'line') {
     return checkLine(drawn, canonical, tolerance, xStep, yStep, marksTotal)
+  }
+
+  if (mode === 'polygon') {
+    return checkPolygon(drawn, canonical, tolerance, xStep, yStep, marksTotal)
   }
 
   if (mode === 'polyline') {
@@ -118,9 +127,10 @@ export function checkGridDraw(
 
 /**
  * Line mode: the canonical is exactly 2 endpoint elements defining the
- * intended line; the student places exactly 2 points. Both must lie ON the
- * canonical line, be distinct, and span enough of it that two adjacent dots
- * can't "define" the line trivially.
+ * intended line; the student places exactly 2 DISTINCT points, both of which
+ * must lie ON the canonical line. Two distinct on-line lattice points define
+ * the line uniquely (e.g. intercept + one gradient step — the standard
+ * method); identical points are the only degenerate case.
  */
 function checkLine(
   drawn: GridPoint[],
@@ -178,6 +188,71 @@ function checkLine(
   // A student point's own verdict is simply whether IT lies on the line.
   const perStudent = drawn.map(p => onLine(p))
   return { correct: fullyCorrect, perElement, perStudent, marksEarned, marksTotal }
+}
+
+/**
+ * Polygon mode: canonical elements are the shape's vertices IN ORDER; the
+ * student may start at any vertex and go in either direction, so we score
+ * every cyclic rotation in both windings and keep the alignment that earns
+ * the most marks. Per-vertex marks under that alignment (the schemes' "B1 two
+ * vertices correct" partial); correct = counts equal + every vertex matched.
+ * The matcher compares vertex sequences only — it never interprets edges.
+ */
+function checkPolygon(
+  drawn: GridPoint[],
+  canonical: RenderedGridElement[],
+  tolerance: number,
+  xStep: number,
+  yStep: number,
+  marksTotal: number,
+): GridDrawResult {
+  const n = canonical.length
+  const fail = (): GridDrawResult => ({
+    correct: false,
+    perElement: canonical.map(() => ({ correct: false, marks: 0 })),
+    perStudent: drawn.map(() => false),
+    marksEarned: 0,
+    marksTotal,
+  })
+  if (n < 3) return fail()
+
+  const tol = tolerance + EPS
+  // Best alignment: student[s] ↔ canonical[(o + dir·s) mod n].
+  let best = { earned: -1, hits: [] as boolean[], o: 0, dir: 1 }
+  for (const dir of [1, -1]) {
+    for (let o = 0; o < n; o++) {
+      const hits = canonical.map(() => false)
+      let earned = 0
+      const count = Math.min(drawn.length, n)
+      for (let s = 0; s < count; s++) {
+        const c = ((o + dir * s) % n + n) % n
+        if (gridDist(drawn[s], canonical[c], xStep, yStep) <= tol) {
+          hits[c] = true
+          earned += canonical[c].marks || 0
+        }
+      }
+      if (earned > best.earned) best = { earned, hits, o, dir }
+    }
+  }
+
+  const perElement = canonical.map((c, i) => ({
+    correct: best.hits[i],
+    marks: best.hits[i] ? c.marks || 0 : 0,
+  }))
+  // Map back: student s was compared against canonical (o + dir·s) mod n.
+  const perStudent = drawn.map((_, s) => {
+    if (s >= n) return false
+    const c = ((best.o + best.dir * s) % n + n) % n
+    return best.hits[c] && gridDist(drawn[s], canonical[c], xStep, yStep) <= tol
+  })
+  const marksEarned = perElement.reduce((s, e) => s + e.marks, 0)
+  return {
+    correct: drawn.length === n && perElement.every(e => e.correct),
+    perElement,
+    perStudent,
+    marksEarned,
+    marksTotal,
+  }
 }
 
 // ── Exam-record serialisation (the answers record is Record<string,string>) ──

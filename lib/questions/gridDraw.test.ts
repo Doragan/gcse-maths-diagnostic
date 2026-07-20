@@ -148,6 +148,91 @@ describe('checkGridDraw — line mode', () => {
   })
 })
 
+describe('checkGridDraw — cells mode', () => {
+  // Shaded cells identified by bottom-left corner; exact set match.
+  const canonical = [el(2, 3), el(5, 3), el(2, 6)]
+
+  it('exact set in any order → correct, full marks', () => {
+    const res = checkGridDraw([pt(2, 6), pt(2, 3), pt(5, 3)], canonical, 'cells', 0)
+    expect(res.correct).toBe(true)
+    expect(res.marksEarned).toBe(3)
+  })
+
+  it('one wrong cell → partial, not correct', () => {
+    const res = checkGridDraw([pt(2, 3), pt(5, 3), pt(0, 0)], canonical, 'cells', 0)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(2)
+  })
+
+  it('count mismatch → not correct', () => {
+    expect(checkGridDraw([pt(2, 3), pt(5, 3)], canonical, 'cells', 0).correct).toBe(false)
+  })
+
+  it('adjacent cells never match (tolerance forced to 0 even if declared)', () => {
+    // A declared tolerance of 1 would let (3,3) "match" (2,3) — cells must not.
+    const res = checkGridDraw([pt(3, 3)], [el(2, 3)], 'cells', 1)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(0)
+  })
+
+  it('duplicate student cells cannot double-match', () => {
+    const res = checkGridDraw([pt(2, 3), pt(2, 3)], [el(2, 3), el(5, 3)], 'cells', 0)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(1)
+  })
+})
+
+describe('checkGridDraw — polygon mode', () => {
+  // A right triangle: (1,1) → (3,1) → (1,4), 1 mark per vertex.
+  const canonical = [el(1, 1), el(3, 1), el(1, 4)]
+
+  it('same starting vertex, same winding → correct', () => {
+    expect(checkGridDraw([pt(1, 1), pt(3, 1), pt(1, 4)], canonical, 'polygon', 0).correct).toBe(true)
+  })
+
+  it('different starting vertex → still correct (cyclic rotation)', () => {
+    const res = checkGridDraw([pt(3, 1), pt(1, 4), pt(1, 1)], canonical, 'polygon', 0)
+    expect(res.correct).toBe(true)
+    expect(res.marksEarned).toBe(3)
+  })
+
+  it('reversed winding → still correct', () => {
+    expect(checkGridDraw([pt(1, 4), pt(3, 1), pt(1, 1)], canonical, 'polygon', 0).correct).toBe(true)
+  })
+
+  it('one vertex off → partial marks, not correct', () => {
+    const res = checkGridDraw([pt(1, 1), pt(3, 1), pt(2, 4)], canonical, 'polygon', 0)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(2)
+  })
+
+  it('right shape, wrong position → zero', () => {
+    // Same triangle translated by (4,4): no vertex coincides.
+    const res = checkGridDraw([pt(5, 5), pt(7, 5), pt(5, 8)], canonical, 'polygon', 0)
+    expect(res.marksEarned).toBe(0)
+  })
+
+  it('count mismatch (quadrilateral for a triangle) → not correct', () => {
+    const res = checkGridDraw([pt(1, 1), pt(3, 1), pt(3, 4), pt(1, 4)], canonical, 'polygon', 0)
+    expect(res.correct).toBe(false)
+  })
+
+  it('tolerance admits a near vertex', () => {
+    const res = checkGridDraw([pt(1, 1), pt(3, 1), pt(1, 4.4)], canonical, 'polygon', 0.5)
+    expect(res.correct).toBe(true)
+  })
+
+  it('perStudent aligns to the drawn order under the winning rotation', () => {
+    // Start at canonical[1], first two right, last wrong.
+    const res = checkGridDraw([pt(3, 1), pt(1, 4), pt(0, 0)], canonical, 'polygon', 0)
+    expect(res.perStudent).toEqual([true, true, false])
+  })
+
+  it('fewer than 3 canonical vertices is never correct', () => {
+    expect(checkGridDraw([pt(0, 0), pt(1, 1)], [el(0, 0), el(1, 1)], 'polygon', 0).correct).toBe(false)
+  })
+})
+
 describe('serialise / parse / format', () => {
   it('round-trips points', () => {
     const pts = [pt(1, 3), pt(2, 5)]

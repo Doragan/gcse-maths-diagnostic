@@ -27,6 +27,9 @@ export type GridGeometry = {
   px: (gx: number) => number // axis-x → viewBox x
   py: (gy: number) => number // axis-y → viewBox y (flipped: y grows upward)
   snap: (vx: number, vy: number) => GridPoint | null // viewBox → nearest lattice point
+  // viewBox → the CONTAINING cell's bottom-left corner (floor, not round);
+  // null outside the plot. Used by cells mode, where an element is a cell.
+  snapCell: (vx: number, vy: number) => GridPoint | null
 }
 
 export function gridGeometry(x: RenderedAxis, y: RenderedAxis): GridGeometry {
@@ -46,7 +49,15 @@ export function gridGeometry(x: RenderedAxis, y: RenderedAxis): GridGeometry {
     const rc = Math.min(Math.max(ri, 0), rows)
     return { x: x.min + cc * x.step, y: y.min + rc * y.step }
   }
-  return { W, H, cols, rows, px, py, snap }
+  const snapCell = (vx: number, vy: number): GridPoint | null => {
+    // Strictly inside the plot only — a cell is tapped by touching its area.
+    if (vx < PAD.left || vx > PAD.left + cols * CELL) return null
+    if (vy < PAD.top || vy > PAD.top + rows * CELL) return null
+    const ci = Math.min(Math.floor((vx - PAD.left) / CELL), cols - 1)
+    const ri = Math.min(Math.floor((PAD.top + rows * CELL - vy) / CELL), rows - 1)
+    return { x: x.min + ci * x.step, y: y.min + ri * y.step }
+  }
+  return { W, H, cols, rows, px, py, snap, snapCell }
 }
 
 /** Format an axis tick value without float noise (0.30000000000000004 → 0.3). */
@@ -121,6 +132,25 @@ export function buildPointsLayer(
   const parts: string[] = []
   const op = ghost ? ' opacity="0.55"' : ''
   const dash = ghost ? ' stroke-dasharray="6 4"' : ''
+
+  if (mode === 'cells') {
+    // A point is a cell's bottom-left corner in axis units; one grid step is
+    // exactly CELL viewBox units by construction. Ghost = dashed outline only
+    // (the "which squares" reveal); student = filled. No corner markers.
+    for (const p of points) {
+      const rx = geo.px(p.x)
+      const ry = geo.py(p.y) // bottom edge in viewBox — rect grows upward
+      parts.push(ghost
+        ? `<rect x="${rx}" y="${ry - CELL}" width="${CELL}" height="${CELL}" fill="none" stroke="${color}" stroke-width="2"${dash}${op}/>`
+        : `<rect x="${rx}" y="${ry - CELL}" width="${CELL}" height="${CELL}" fill="${color}" fill-opacity="0.45" stroke="${color}" stroke-width="1.5"/>`)
+    }
+    return parts.join('')
+  }
+
+  if (mode === 'polygon' && points.length >= 2) {
+    const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${geo.px(p.x)} ${geo.py(p.y)}`).join(' ') + (points.length >= 3 ? ' Z' : '')
+    parts.push(`<path d="${d}" fill="${color}" fill-opacity="${ghost ? 0 : 0.15}" stroke="${color}" stroke-width="2" stroke-linejoin="round"${op}${dash}/>`)
+  }
 
   if (mode === 'polyline' && points.length >= 2) {
     const d = points.map(p => `${geo.px(p.x)},${geo.py(p.y)}`).join(' ')

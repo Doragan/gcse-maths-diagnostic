@@ -147,10 +147,13 @@ async function auditBank() {
         }))
         const nums = [ax.min, ax.max, ay.min, ay.max, ...els.flatMap((e: any) => [e.x, e.y])]
         if (!nums.every(Number.isFinite)) { renderErrors.push(label); continue }
+        // Cells span one step up-right from their corner, so must FIT inside.
+        const xHi = g.mode === 'cells' ? ax.max - ax.step : ax.max
+        const yHi = g.mode === 'cells' ? ay.max - ay.step : ay.max
         const offGrid = els.some((e: any) =>
-          e.x < ax.min - 1e-9 || e.x > ax.max + 1e-9 || e.y < ay.min - 1e-9 || e.y > ay.max + 1e-9)
+          e.x < ax.min - 1e-9 || e.x > xHi + 1e-9 || e.y < ay.min - 1e-9 || e.y > yHi + 1e-9)
         if (offGrid) { renderErrors.push(`${label} (element off-grid)`); continue }
-        const mode = ['points', 'polyline', 'line'].includes(g.mode) ? g.mode : null
+        const mode = ['points', 'polyline', 'line', 'cells', 'polygon'].includes(g.mode) ? g.mode : null
         if (!mode) { badType.push(`${q.id} part ${'abcdefgh'[pi]}: grid mode "${g.mode}"`); continue }
         const graded = checkGridDraw(
           els.map((e: any) => ({ x: e.x, y: e.y })), els, mode,

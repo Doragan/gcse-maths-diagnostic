@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { colors, font, radius, secondaryButton, errorBox } from '../../lib/styles'
-import { gridGeometry, buildGridFrame, buildPointsLayer } from '../../lib/questions/gridSvg'
+import { gridGeometry, buildGridFrame, buildPointsLayer, CELL } from '../../lib/questions/gridSvg'
 import type { RenderedGrid, GridPoint } from '../../lib/questions/gridDraw'
 
 /**
@@ -60,15 +60,18 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
 
   function togglePoint(p: GridPoint) {
     if (readOnly || !onChange) return
+    const isCells = grid.mode === 'cells'
     const at = value.findIndex(v => v.x === p.x && v.y === p.y)
     if (at >= 0) {
       onChange(value.filter((_, i) => i !== at))
-      setAnnounce(`Point removed at (${p.x}, ${p.y})`)
+      setAnnounce(isCells ? `Square unshaded at (${p.x}, ${p.y})` : `Point removed at (${p.x}, ${p.y})`)
     } else if (value.length < maxPoints) {
       onChange([...value, p])
-      setAnnounce(`Point placed at (${p.x}, ${p.y})`)
+      setAnnounce(isCells ? `Square shaded at (${p.x}, ${p.y})` : `Point placed at (${p.x}, ${p.y})`)
     } else {
-      setAnnounce(`All ${maxPoints} points are placed — remove one first`)
+      setAnnounce(isCells
+        ? `All ${maxPoints} squares are shaded — unshade one first`
+        : `All ${maxPoints} points are placed — remove one first`)
     }
   }
 
@@ -92,7 +95,9 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     // axis converts CSS px → viewBox units exactly.
     const vx = (e.clientX - rect.left) * (geo.W / rect.width)
     const vy = (e.clientY - rect.top) * (geo.H / rect.height)
-    const hit = geo.snap(vx, vy)
+    // cells mode toggles the CONTAINING cell; every other mode snaps to the
+    // nearest lattice intersection.
+    const hit = grid.mode === 'cells' ? geo.snapCell(vx, vy) : geo.snap(vx, vy)
     if (hit) {
       setCursor(hit)
       togglePoint(hit)
@@ -102,12 +107,16 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (readOnly || !onChange || !geo) return
     const { x, y } = grid
+    // In cells mode the cursor addresses a CELL (bottom-left corner), so its
+    // upper bound is one step short of the axis max.
+    const xTop = grid.mode === 'cells' ? x.max - x.step : x.max
+    const yTop = grid.mode === 'cells' ? y.max - y.step : y.max
     const cur = cursor ?? { x: x.min, y: y.min }
     const move: Record<string, GridPoint> = {
       ArrowLeft: { x: Math.max(x.min, cur.x - x.step), y: cur.y },
-      ArrowRight: { x: Math.min(x.max, cur.x + x.step), y: cur.y },
+      ArrowRight: { x: Math.min(xTop, cur.x + x.step), y: cur.y },
       ArrowDown: { x: cur.x, y: Math.max(y.min, cur.y - y.step) },
-      ArrowUp: { x: cur.x, y: Math.min(y.max, cur.y + y.step) },
+      ArrowUp: { x: cur.x, y: Math.min(yTop, cur.y + y.step) },
     }
     if (e.key in move) {
       e.preventDefault()
@@ -128,16 +137,20 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   // Student joins (polyline/line) rendered via the shared builder WITHOUT
   // markers — the point markers are JSX so review views can colour them per
   // verdict (markers:true here would double-draw them).
-  const joins = value.length >= 2 && (grid.mode === 'polyline' || grid.mode === 'line')
+  const joins = value.length >= 2 && (grid.mode === 'polyline' || grid.mode === 'line' || grid.mode === 'polygon')
     ? buildPointsLayer(value, geo, { color: colors.primary, mode: grid.mode, markers: false })
     : ''
 
-  const counterText = grid.mode === 'line'
-    ? `${value.length} of 2 points placed — place 2 points on the line`
+  const counterText =
+    grid.mode === 'line' ? `${value.length} of 2 points placed — place 2 points on the line`
+    : grid.mode === 'cells' ? `${value.length} of ${maxPoints} squares shaded`
+    : grid.mode === 'polygon' ? `${value.length} of ${maxPoints} corners placed`
     : `${value.length} of ${maxPoints} points placed`
 
-  const instruction = grid.mode === 'line'
-    ? 'Tap the grid to plot 2 points the line passes through, then submit. Tap a point again to remove it.'
+  const instruction =
+    grid.mode === 'line' ? 'Tap the grid to plot 2 points the line passes through, then submit. Tap a point again to remove it.'
+    : grid.mode === 'cells' ? 'Tap squares to shade them. Tap a shaded square to unshade it.'
+    : grid.mode === 'polygon' ? "Tap the grid to place the shape's corners in order. Tap a corner again to remove it."
     : `Tap the grid to place ${maxPoints === 1 ? 'a point' : `${maxPoints} points`}. Tap a point again to remove it.`
 
   return (
@@ -176,6 +189,23 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         {value.map((p, i) => {
           const verdict = perElement?.[i]
           const fill = verdict === undefined ? colors.primary : verdict ? colors.success : colors.danger
+          if (grid.mode === 'cells') {
+            // A shaded cell: the rect spans one grid step up-right from the
+            // cell's bottom-left corner (one step = CELL viewBox units).
+            return (
+              <rect
+                key={`${p.x}:${p.y}:${i}`}
+                x={geo.px(p.x)}
+                y={geo.py(p.y) - CELL}
+                width={CELL}
+                height={CELL}
+                fill={fill}
+                fillOpacity={0.45}
+                stroke={fill}
+                strokeWidth={1.5}
+              />
+            )
+          }
           return (
             <circle
               key={`${p.x}:${p.y}:${i}`}
@@ -188,7 +218,19 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
             />
           )
         })}
-        {!readOnly && cursor && (
+        {!readOnly && cursor && (grid.mode === 'cells' ? (
+          <rect
+            x={geo.px(cursor.x)}
+            y={geo.py(cursor.y) - CELL}
+            width={CELL}
+            height={CELL}
+            fill="none"
+            stroke={colors.primary}
+            strokeWidth={1.5}
+            strokeDasharray="3 3"
+            pointerEvents="none"
+          />
+        ) : (
           <circle
             cx={geo.px(cursor.x)}
             cy={geo.py(cursor.y)}
@@ -199,7 +241,7 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
             strokeDasharray="3 3"
             pointerEvents="none"
           />
-        )}
+        ))}
       </svg>
 
       {/* Screen-reader announcements for place/remove actions. */}

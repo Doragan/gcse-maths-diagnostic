@@ -191,6 +191,14 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             setValidationError(`Part (${letter}) is a straight-line drawing — give exactly 2 endpoints (it has ${nEls}).`)
             return
           }
+          if (g.mode === 'polygon' && nEls < 3) {
+            setValidationError(`Part (${letter}) is a polygon — give at least 3 corners (it has ${nEls}).`)
+            return
+          }
+          if (g.mode === 'cells' && Number(g.tolerance) > 0) {
+            setValidationError(`Part (${letter}) shades squares — tolerance must be 0 (shading is exact).`)
+            return
+          }
           for (const axis of ['x', 'y'] as const) {
             for (const bound of ['min', 'max'] as const) {
               const v = String(g[axis][bound]).trim()

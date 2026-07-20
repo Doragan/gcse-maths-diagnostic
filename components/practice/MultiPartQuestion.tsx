@@ -7,7 +7,7 @@ import { skillsById } from '../../lib/skills/skillGraph'
 import { renderMultiPartQuestion } from '../../lib/questions/paramEngine'
 import { checkAnswer } from '../../lib/questions/answerChecker'
 import { checkMultiBlank, type BlankCheck } from '../../lib/questions/multiBlank'
-import { checkGridDraw, formatGridPoints, type GridPoint } from '../../lib/questions/gridDraw'
+import { checkGridDraw, formatGridPoints, type GridPoint, type GridDrawMode } from '../../lib/questions/gridDraw'
 import GridCanvas from './GridCanvas'
 import type { QuestionPart } from '../../lib/questions/parts'
 import {
@@ -150,7 +150,7 @@ export default function MultiPartQuestion({
       const result = checkGridDraw(
         gridPoints,
         grid.elements,
-        grid.mode as 'points' | 'polyline' | 'line',
+        grid.mode as GridDrawMode,
         grid.tolerance,
         { xStep: grid.x.step, yStep: grid.y.step },
       )
@@ -165,6 +165,10 @@ export default function MultiPartQuestion({
             ? (nRight === n
                 ? 'Plot two different points that the line passes through.'
                 : `That doesn't match the line — ${nRight} of ${n} points are on it.`)
+            : grid.mode === 'cells'
+            ? `${nRight} of ${n} squares correct`
+            : grid.mode === 'polygon'
+            ? `${nRight} of ${n} corners correct`
             : `${nRight} of ${n} points correct`,
         grid: { points: gridPoints, perStudent: result.perStudent },
       }
