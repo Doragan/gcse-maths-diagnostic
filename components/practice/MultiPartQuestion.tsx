@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useLayoutEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { skillsById } from '../../lib/skills/skillGraph'
@@ -97,6 +98,16 @@ export default function MultiPartQuestion({
   // Wrapper divs around each blank's MathInput so Enter can hop A → B → C
   // (MathInput doesn't forward refs; degrades gracefully to the button).
   const blankRowRefs = useRef<(HTMLDivElement | null)[]>([])
+  // ── Inline blanks ──────────────────────────────────────────────────────────
+  // Authored HTML (stem or part prompt) can mark WHERE a blank's input belongs
+  // with <span data-blank="A"></span>. We portal the input into that node, so
+  // the student types straight into the table/diagram as they would on paper.
+  // Portaling (rather than splitting the HTML string) keeps arbitrary nesting —
+  // table rows, SVG-adjacent layout — intact. Any blank without a placeholder
+  // still renders in the labelled list below, so existing questions are
+  // unaffected.
+  const questionRootRef = useRef<HTMLElement | null>(null)
+  const [inlineHosts, setInlineHosts] = useState<Record<string, HTMLElement>>({})
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
   const [shareLabel, setShareLabel] = useState('Share this question')
   // One slot per part; null until that part is answered. Keeps each part's
@@ -104,6 +115,25 @@ export default function MultiPartQuestion({
   const [outcomes, setOutcomes] = useState<(PartOutcome | null)[]>(
     () => question.parts.map(() => null),
   )
+
+  // Re-scan for placeholders whenever the rendered HTML or the active part
+  // changes: dangerouslySetInnerHTML replaces those nodes wholesale, so any
+  // previously-found host would be detached.
+  const currentPromptHtml = rendered.parts[current]?.prompt ?? ''
+  useLayoutEffect(() => {
+    const root = questionRootRef.current
+    if (!root) return
+    const found: Record<string, HTMLElement> = {}
+    root.querySelectorAll<HTMLElement>('[data-blank]').forEach(el => {
+      const label = el.getAttribute('data-blank')
+      if (label) found[label] = el
+    })
+    setInlineHosts(prev => {
+      const same = Object.keys(found).length === Object.keys(prev).length
+        && Object.keys(found).every(k => prev[k] === found[k])
+      return same ? prev : found
+    })
+  }, [rendered.stem, currentPromptHtml, current])
 
   const isLastPart = current === question.parts.length - 1
   const currentAnswered = outcomes[current] !== null
@@ -267,7 +297,7 @@ export default function MultiPartQuestion({
     .join(', ')
 
   return (
-    <main style={styles.page}>
+    <main style={styles.page} ref={questionRootRef}>
       {/* Header */}
       <div style={styles.header}>
         <button
@@ -495,7 +525,17 @@ export default function MultiPartQuestion({
                 && blankAnswers.every(a => a.trim() !== '')
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-                  {blanks.map((b, bi) => (
+                  {/* Every blank is answered inline in the diagram/table above,
+                      so the list here is empty — say so rather than showing a
+                      bare Submit button. */}
+                  {blanks.every(b => inlineHosts[b.label]) && (
+                    <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+                      Type each answer directly into the table above.
+                    </p>
+                  )}
+                  {/* A blank with an inline placeholder is rendered there, not
+                      here — but keep the index aligned with blankAnswers. */}
+                  {blanks.map((b, bi) => inlineHosts[b.label] ? null : (
                     <div
                       key={b.label}
                       ref={el => { blankRowRefs.current[bi] = el }}
@@ -599,6 +639,57 @@ export default function MultiPartQuestion({
           </button>
         </div>
       )}
+
+      {/* Inline blank inputs, portalled into the [data-blank] placeholders in
+          the authored HTML. Before submitting these are the answer boxes; after
+          submitting they show what the student entered, so the table/diagram is
+          left visibly completed rather than full of gaps. */}
+      {question.parts.flatMap((p, pi) => (p.blanks ?? []).map((b, bi) => {
+        const host = inlineHosts[b.label]
+        // Render inputs for the ACTIVE part, and keep every already-answered
+        // part's values in place — so a table shared across parts stays filled
+        // as the student advances rather than emptying out.
+        const o = outcomes[pi]
+        if (!host || (pi !== current && !o)) return null
+        const verdict = o?.blanks?.[bi]
+        return createPortal(
+          verdict ? (
+            <span style={{
+              fontWeight: 700,
+              color: verdict.correct ? colors.successText : colors.dangerText,
+            }}>
+              {verdict.answer || '—'}
+            </span>
+          ) : (
+            <input
+              value={blankAnswers[bi] ?? ''}
+              onChange={e => {
+                const next = [...blankAnswers]
+                next[bi] = e.target.value
+                setBlankAnswers(next)
+              }}
+              onKeyDown={e => {
+                if (e.key !== 'Enter') return
+                e.preventDefault()
+                const nextHost = inlineHosts[question.parts[current].blanks?.[bi + 1]?.label ?? '']
+                const nextInput = nextHost?.querySelector('input')
+                  ?? blankRowRefs.current[bi + 1]?.querySelector('input')
+                if (nextInput) nextInput.focus(); else submit()
+              }}
+              aria-label={`Answer for ${b.label}`}
+              autoComplete="off"
+              style={{
+                width: '58px', padding: '5px 4px', textAlign: 'center' as const,
+                fontSize: font.base, color: colors.textPrimary,
+                border: `1.5px solid ${colors.primary}`, borderRadius: radius.sm,
+                background: colors.card,
+              }}
+            />
+          ),
+          host,
+          b.label,
+        )
+      }))}
 
       {/* Sign-up prompt for anonymous users, surfaced once the whole question is done */}
       {showSignUpPrompt && !studentId && (
