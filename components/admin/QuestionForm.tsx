@@ -200,6 +200,12 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             return
           }
           for (const [ti, t] of (g.traps ?? []).entries()) {
+            if (!t.response.trim()) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} needs a response — without one it would match silently.`)
+              return
+            }
+            // A 'translated' trap is a predicate — it carries no points.
+            if (t.match === 'translated') continue
             const tEls = t.elements.filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
             if (tEls.length === 0) {
               setValidationError(`Part (${letter}) trap ${ti + 1} has no points — give the wrong drawing, or remove the trap.`)

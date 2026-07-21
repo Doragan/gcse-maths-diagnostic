@@ -244,7 +244,22 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
                 Remove trap
               </button>
             </div>
-            {t.elements.map((el, ei) => (
+            <select
+              value={t.match ?? 'exact'}
+              onChange={e => updateTrap(ti, { ...t, match: e.target.value as 'exact' | 'translated' })}
+              style={inputStyle}
+            >
+              <option value="exact">This exact wrong drawing</option>
+              <option value="translated">Right shape and size, wrong place (any offset)</option>
+            </select>
+            {t.match === 'translated' && (
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+                Fires whenever the drawing is the correct answer moved somewhere else — which is
+                exactly what using the wrong centre of enlargement produces, for <em>any</em> wrong
+                centre. No points needed.
+              </p>
+            )}
+            {t.match !== 'translated' && t.elements.map((el, ei) => (
               <div key={ei} style={styles.row}>
                 <div style={styles.field}>
                   <label style={{ ...labelStyle, fontWeight: '400' }}>x</label>
@@ -262,12 +277,14 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
                 </button>
               </div>
             ))}
-            <button
-              onClick={() => updateTrap(ti, { ...t, elements: [...t.elements, { x: '', y: '' }] })}
-              style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}
-            >
-              + Add point to this trap
-            </button>
+            {t.match !== 'translated' && (
+              <button
+                onClick={() => updateTrap(ti, { ...t, elements: [...t.elements, { x: '', y: '' }] })}
+                style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}
+              >
+                + Add point to this trap
+              </button>
+            )}
             <textarea
               ref={autoResize}
               value={t.response}

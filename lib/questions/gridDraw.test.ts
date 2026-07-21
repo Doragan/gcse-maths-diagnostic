@@ -326,6 +326,78 @@ describe('checkGridDraw — traps', () => {
   })
 })
 
+describe("checkGridDraw — 'translated' traps (right shape, wrong place)", () => {
+  // Correct enlargement of (1,1),(2,1),(1,3) by k=2 about the origin.
+  const correct = [el(2, 2), el(4, 2), el(2, 6)]
+  const moved = { elements: [], response: 'Right shape, wrong place.', match: 'translated' as const }
+
+  /** Enlarge the original triangle by k about an arbitrary centre. */
+  const enlargeAbout = (cx: number, cy: number, k: number) =>
+    [[1, 1], [2, 1], [1, 3]].map(([x, y]) => pt(cx + k * (x - cx), cy + k * (y - cy)))
+
+  it('fires for EVERY wrong centre of enlargement', () => {
+    // Enlarging about any centre gives the correct image translated, so one
+    // predicate must catch them all.
+    for (const [cx, cy] of [[1, 1], [2, 1], [1, 3], [0, 5], [3, 0], [-2, 4]]) {
+      const drawn = enlargeAbout(cx, cy, 2)
+      const res = checkGridDraw(drawn, correct, 'polygon', 0, undefined, [moved])
+      expect(res.correct).toBe(false)
+      expect(res.trap?.response, `centre (${cx}, ${cy})`).toBe('Right shape, wrong place.')
+    }
+  })
+
+  it('does NOT fire for the correct answer (zero offset)', () => {
+    const res = checkGridDraw(enlargeAbout(0, 0, 2), correct, 'polygon', 0, undefined, [moved])
+    expect(res.correct).toBe(true)
+    expect(res.trap).toBeNull()
+  })
+
+  it('does NOT fire for the wrong SCALE factor (shape differs, not just place)', () => {
+    const res = checkGridDraw(enlargeAbout(0, 0, 3), correct, 'polygon', 0, undefined, [moved])
+    expect(res.trap).toBeNull()
+  })
+
+  it('does NOT fire for a distorted shape moved elsewhere', () => {
+    const res = checkGridDraw([pt(5, 5), pt(8, 5), pt(5, 9)], correct, 'polygon', 0, undefined, [moved])
+    expect(res.trap).toBeNull()
+  })
+
+  it('fires under a rotated/reversed winding of the moved shape', () => {
+    const [a, b, c] = enlargeAbout(1, 1, 2)
+    const res = checkGridDraw([c, b, a], correct, 'polygon', 0, undefined, [moved])
+    expect(res.trap?.response).toBe('Right shape, wrong place.')
+  })
+
+  it('points mode: fires for the set shifted, in any order', () => {
+    const canonical = [el(1, 1), el(3, 2), el(5, 1)]
+    const shifted = [pt(7, 3), pt(3, 3), pt(5, 4)] // +2,+2 in scrambled order
+    const res = checkGridDraw(shifted, canonical, 'points', 0, undefined, [moved])
+    expect(res.trap?.response).toBe('Right shape, wrong place.')
+  })
+
+  it('line mode: fires for a PARALLEL line (right gradient, wrong intercept)', () => {
+    const canonical = [el(0, 2), el(4, 6)] // y = x + 2
+    const parallel = [pt(0, 0), pt(4, 4)] // y = x
+    expect(checkGridDraw(parallel, canonical, 'line', 0, undefined, [moved]).trap?.response)
+      .toBe('Right shape, wrong place.')
+    // A different gradient is NOT a translation.
+    expect(checkGridDraw([pt(0, 2), pt(1, 4)], canonical, 'line', 0, undefined, [moved]).trap).toBeNull()
+  })
+
+  it('wrong element count never fires', () => {
+    const res = checkGridDraw([pt(5, 5), pt(7, 5)], correct, 'polygon', 0, undefined, [moved])
+    expect(res.trap).toBeNull()
+  })
+
+  it('leaves marks untouched, like any trap', () => {
+    const drawn = enlargeAbout(1, 1, 2)
+    const without = checkGridDraw(drawn, correct, 'polygon', 0)
+    const withTrap = checkGridDraw(drawn, correct, 'polygon', 0, undefined, [moved])
+    expect(withTrap.marksEarned).toBe(without.marksEarned)
+    expect(withTrap.perElement).toEqual(without.perElement)
+  })
+})
+
 describe('serialise / parse / format', () => {
   it('round-trips points', () => {
     const pts = [pt(1, 3), pt(2, 5)]

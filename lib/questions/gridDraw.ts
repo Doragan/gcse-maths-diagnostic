@@ -34,7 +34,18 @@ export type GridPoint = { x: number; y: number } // axis units, lattice-snapped
  * An authored WRONG drawing plus the feedback it earns — the geometric twin of
  * a scalar trap. Vertices only: a trap is never credited, so it has no marks.
  */
-export type RenderedGridTrap = { elements: GridPoint[]; response: string }
+export type RenderedGridTrap = {
+  elements: GridPoint[]
+  response: string
+  /**
+   * How the drawing is matched:
+   *   'exact'      (default) — must match `elements` exactly.
+   *   'translated' — the RIGHT shape and size in the WRONG place; `elements`
+   *                  is unused. Catches every wrong centre of enlargement at
+   *                  once (see matchesTranslated).
+   */
+  match?: 'exact' | 'translated'
+}
 
 export type GridDrawResult = {
   correct: boolean // every element right — feeds practice_attempts
@@ -162,6 +173,12 @@ export function checkGridDraw(
   if (result.correct || traps.length === 0) return { ...result, trap: null }
 
   for (const t of traps) {
+    if (t.match === 'translated') {
+      if (matchesTranslated(drawn, canonical, mode, tolerance, steps.xStep, steps.yStep)) {
+        return { ...result, trap: { response: t.response } }
+      }
+      continue
+    }
     if (t.elements.length === 0) continue
     if (!t.elements.every(p => Number.isFinite(p.x) && Number.isFinite(p.y))) continue
     // marks: 1 is LOAD-BEARING, not cosmetic. gradeCore picks its alignment by
@@ -176,6 +193,93 @@ export function checkGridDraw(
     }
   }
   return { ...result, trap: null }
+}
+
+/**
+ * Does the drawing have the RIGHT shape and size but sit in the WRONG place —
+ * i.e. is it the canonical answer moved by a non-zero offset?
+ *
+ * This is the general "wrong centre of enlargement" test. Enlarging a vertex v
+ * about centre C by factor k gives k·v + C(1−k); that C(1−k) term is the SAME
+ * for every vertex, so any wrong centre produces the correct image translated.
+ * One predicate therefore catches every wrong centre at once, rather than
+ * needing a separate trap per centre. Equally: a reflection or rotation drawn
+ * in the wrong position.
+ *
+ * A zero offset is excluded — that is the correct answer, which never reaches
+ * the trap loop anyway.
+ */
+function matchesTranslated(
+  drawn: GridPoint[],
+  canonical: RenderedGridElement[],
+  mode: GridDrawMode,
+  tolerance: number,
+  xStep: number,
+  yStep: number,
+): boolean {
+  const n = canonical.length
+  if (n === 0 || drawn.length !== n) return false
+  const tol = tolerance + EPS
+  const shifted = (a: GridPoint, b: { x: number; y: number }, ox: number, oy: number) =>
+    gridDist({ x: a.x - ox, y: a.y - oy }, b, xStep, yStep) <= tol
+  const nonZero = (ox: number, oy: number) => Math.abs(ox) > EPS || Math.abs(oy) > EPS
+
+  if (mode === 'line') {
+    // A translated line is a PARALLEL, distinct one: same gradient, different
+    // intercept.
+    if (n !== 2) return false
+    const [c1, c2] = canonical
+    const [d1, d2] = drawn
+    const cVert = Math.abs(c2.x - c1.x) < EPS
+    const dVert = Math.abs(d2.x - d1.x) < EPS
+    if (cVert !== dVert) return false
+    if (cVert) return Math.abs(d1.x - c1.x) > EPS
+    const cm = (c2.y - c1.y) / (c2.x - c1.x)
+    const dm = (d2.y - d1.y) / (d2.x - d1.x)
+    if (Math.abs(cm - dm) > tolerance + EPS) return false
+    return Math.abs((d1.y - dm * d1.x) - (c1.y - cm * c1.x)) > EPS
+  }
+
+  // For ordered modes, the offset is fixed by the first aligned pair and must
+  // then hold for every pair.
+  const tryAlignment = (align: (i: number) => number): boolean => {
+    const ox = drawn[0].x - canonical[align(0)].x
+    const oy = drawn[0].y - canonical[align(0)].y
+    if (!nonZero(ox, oy)) return false
+    for (let s = 0; s < n; s++) if (!shifted(drawn[s], canonical[align(s)], ox, oy)) return false
+    return true
+  }
+
+  if (mode === 'polygon') {
+    // Same freedom as normal polygon marking: any starting vertex, either winding.
+    for (const dir of [1, -1]) {
+      for (let o = 0; o < n; o++) {
+        if (tryAlignment(s => ((o + dir * s) % n + n) % n)) return true
+      }
+    }
+    return false
+  }
+
+  if (mode === 'polyline') {
+    return tryAlignment(s => s) || tryAlignment(s => n - 1 - s)
+  }
+
+  // points / cells — order-insensitive: anchor each drawn point to canonical[0]
+  // in turn, then check the whole set shifts by that same offset.
+  for (let a = 0; a < n; a++) {
+    const ox = drawn[a].x - canonical[0].x
+    const oy = drawn[a].y - canonical[0].y
+    if (!nonZero(ox, oy)) continue
+    const used = new Array(n).fill(false)
+    let all = true
+    for (let ci = 0; ci < n; ci++) {
+      const hit = drawn.findIndex((p, si) => !used[si] && shifted(p, canonical[ci], ox, oy))
+      if (hit === -1) { all = false; break }
+      used[hit] = true
+    }
+    if (all) return true
+  }
+  return false
 }
 
 /**

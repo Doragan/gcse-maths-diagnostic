@@ -75,6 +75,10 @@ export type Grid = {
 export type GridTrap = {
   elements: { x: number | string; y: number | string }[]
   response: string
+  // 'exact' (default) matches the drawing in `elements`. 'translated' ignores
+  // `elements` and fires for the RIGHT shape in the WRONG place — one trap
+  // covering every wrong centre of enlargement.
+  match?: 'exact' | 'translated'
 }
 
 export type QuestionPart = {
@@ -227,6 +231,7 @@ export type GridInput = {
 export type GridTrapInput = {
   elements: { x: string | number; y: string | number }[]
   response: string
+  match?: 'exact' | 'translated'
 }
 
 export type PartInput = {
@@ -263,8 +268,11 @@ export function normalizeGrid(g: GridInput): Grid {
         .filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
         .map(e => ({ x: numberOrTemplate(String(e.x)), y: numberOrTemplate(String(e.y)) })),
       response: t.response ?? '',
+      ...(t.match === 'translated' ? { match: 'translated' as const } : {}),
     }))
-    .filter(t => t.elements.length > 0 && t.response.trim() !== '')
+    // A translated trap is a predicate, so it needs no elements — but every
+    // trap needs a response or it would match silently and say nothing.
+    .filter(t => (t.match === 'translated' || t.elements.length > 0) && t.response.trim() !== '')
   const axis = (a: GridInput['x']): GridAxis => ({
     min: numberOrTemplate(a.min),
     max: numberOrTemplate(a.max),

@@ -145,6 +145,7 @@ function renderGridAt(g: any, c: Record<string, number>): RenderedGrid {
     traps: (g.traps ?? []).map((t: any) => ({
       elements: (t.elements ?? []).map((e: any) => ({ x: gridNum(e.x, c), y: gridNum(e.y, c) })),
       response: '',
+      ...(t.match ? { match: t.match } : {}),
     })),
   }
 }
@@ -193,8 +194,11 @@ function verifyGridPart(
     const t = gTraps[ti]
     const tEls: any[] = Array.isArray(t.elements) ? t.elements : []
     const tag = `${label} trap ${ti + 1}`
-    if (!tEls.length) { fails.push(`${tag}: no elements`); continue }
     if (!String(t.response ?? '').trim()) fails.push(`${tag}: empty response — it would match silently and say nothing`)
+    // A 'translated' trap is a predicate (right shape, wrong place), so it has
+    // no elements and the element-shaped gates below don't apply.
+    if (t.match === 'translated') continue
+    if (!tEls.length) { fails.push(`${tag}: no elements`); continue }
     if (g.mode === 'line' && tEls.length !== 2) {
       fails.push(`${tag}: line mode needs exactly 2 elements (has ${tEls.length})`)
     } else if (g.mode === 'polygon' && tEls.length < 3) {
@@ -277,6 +281,8 @@ function verifyGridPart(
     // ── per-combo trap gates ──
     const rTraps = r.traps ?? []
     for (let ti = 0; ti < rTraps.length; ti++) {
+      // Predicate traps carry no geometry to check per combo.
+      if (rTraps[ti].match === 'translated') continue
       const tp = rTraps[ti].elements
       const tag = `${label} trap ${ti + 1}`
       if (!tp.length) continue
