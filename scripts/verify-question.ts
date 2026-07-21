@@ -248,7 +248,7 @@ function verifyGridPart(
 
     // Render sweep over the templated strings (incl. the part's own prompt +
     // explanation, since grid parts are excluded from the scalar unit pass).
-    for (const tpl of [g.background, g.x?.label, g.y?.label, p.prompt, p.explanation]) {
+    for (const tpl of [g.background, g.solution, g.x?.label, g.y?.label, p.prompt, p.explanation]) {
       if (!tpl) continue
       try { if (BAD_RENDER.test(evaluateTemplate(String(tpl), c))) fail('text', `${label}: background/label renders badly at ${JSON.stringify(c)}`) }
       catch { fail('text', `${label}: background/label throws at ${JSON.stringify(c)}`) }
@@ -526,6 +526,7 @@ async function rasteriseSvgs(q: Q, label: string) {
       rendered.x.label = p.grid.x?.label ? evaluateTemplate(String(p.grid.x.label), c) : ''
       rendered.y.label = p.grid.y?.label ? evaluateTemplate(String(p.grid.y.label), c) : ''
       rendered.background = p.grid.background ? evaluateTemplate(String(p.grid.background), c) : ''
+      rendered.solution = p.grid.solution ? evaluateTemplate(String(p.grid.solution), c) : ''
       const svg = buildGridSvg(rendered, { showCanonical: true })
       const file = join(outDir, `${label.slice(0, 8)}-part${'abcdefgh'[i]}-grid-v${v}.png`)
       try {

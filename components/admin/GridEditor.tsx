@@ -69,6 +69,7 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
     x: normalized.x as { min: number, max: number, step: number, label: string },
     y: normalized.y as { min: number, max: number, step: number, label: string },
     background: normalized.background,
+    solution: normalized.solution,
     elements: normalized.elements as { x: number, y: number, marks: number }[],
     tolerance: normalized.tolerance,
   } : null
@@ -179,6 +180,22 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
         />
         <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
           Drawn in axis coordinates (paths and shapes only — text would render mirrored).
+        </p>
+      </div>
+
+      {/* Solution overlay (shown on the answer reveal) */}
+      <div style={styles.field}>
+        <label style={labelStyle}>Solution overlay (optional — shown with the answer)</label>
+        <textarea
+          ref={autoResize}
+          value={grid.solution ?? ''}
+          onChange={e => { set('solution', e.target.value); autoResize(e.target) }}
+          style={{ ...inputStyle, minHeight: '50px', resize: 'none' as const, fontFamily: 'monospace', fontSize: '13px' }}
+          placeholder='<line x1="0" y1="0" x2="6" y2="6" stroke="#94a3b8"/> — method/working, revealed after submitting'
+        />
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+          Method the student would draw (ray lines, mirror perpendiculars). Axis coordinates,
+          shapes/lines only — appears only when the correct answer is revealed.
         </p>
       </div>
 

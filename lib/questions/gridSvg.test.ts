@@ -106,4 +106,14 @@ describe('buildGridSvg', () => {
     expect(svg).toMatch(/<path d="M [\d. ]+L [\d. ]+L [\d. ]+ Z"/)
     expect((svg.match(/circle/g) ?? []).length).toBe(3)
   })
+
+  it('solution overlay renders ONLY on the answer reveal', () => {
+    const withSolution: RenderedGrid = { ...grid, solution: '<line x1="0" y1="0" x2="4" y2="8" stroke="#94a3b8"/>' }
+    // Not revealed → the working stays hidden.
+    expect(buildGridSvg(withSolution)).not.toContain('#94a3b8')
+    // Revealed with the answer → the working shows, wrapped in the axis transform.
+    const revealed = buildGridSvg(withSolution, { showCanonical: true })
+    expect(revealed).toContain('#94a3b8')
+    expect(revealed).toContain('scale(') // axis-coordinate group
+  })
 })

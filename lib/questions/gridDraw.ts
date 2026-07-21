@@ -21,6 +21,8 @@ export type RenderedGrid = {
   x: RenderedAxis
   y: RenderedAxis
   background: string
+  // Rendered method overlay, drawn only on the answer reveal ('' = none).
+  solution?: string
   elements: RenderedGridElement[]
   tolerance: number
 }

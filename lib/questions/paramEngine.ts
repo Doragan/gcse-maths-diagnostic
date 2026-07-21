@@ -290,6 +290,7 @@ export type RenderedPart = {
     x: { min: number, max: number, step: number, label: string }
     y: { min: number, max: number, step: number, label: string }
     background: string
+    solution: string
     elements: { x: number, y: number, marks: number }[]
     tolerance: number
   }
@@ -329,6 +330,7 @@ export function renderMultiPartQuestion(
       x: { min: number | string, max: number | string, step: number, label: string }
       y: { min: number | string, max: number | string, step: number, label: string }
       background: string
+      solution?: string
       elements: { x: number | string, y: number | string, marks: number }[]
       tolerance: number
     }
@@ -379,6 +381,7 @@ export function renderMultiPartQuestion(
             step: part.grid.y.step, label: evaluateTemplate(part.grid.y.label ?? '', generated),
           },
           background: part.grid.background ? evaluateTemplate(part.grid.background, generated) : '',
+          solution: part.grid.solution ? evaluateTemplate(part.grid.solution, generated) : '',
           elements: part.grid.elements.map(e => ({
             x: evalNum(e.x), y: evalNum(e.y), marks: e.marks,
           })),

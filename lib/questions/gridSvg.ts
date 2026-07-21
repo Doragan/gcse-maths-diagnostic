@@ -106,15 +106,26 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
 
   // Author background, drawn in axis coordinates (flip transform mirrors
   // text — v1 rule: paths/shapes only).
-  if (grid.background) {
-    const sx = CELL / x.step
-    const sy = CELL / y.step
-    parts.push(
-      `<g transform="translate(${PAD.left} ${PAD.top + geo.rows * CELL}) scale(${sx} ${-sy}) translate(${-x.min} ${-y.min})" fill="none" stroke-width="${2 / Math.max(sx, sy)}">${grid.background}</g>`,
-    )
-  }
+  if (grid.background) parts.push(axisCoordGroup(grid.background, grid, geo))
 
   return parts.join('')
+}
+
+/**
+ * Wrap an author SVG fragment so its coordinates are read in AXIS units:
+ * translate to the plot's bottom-left origin, scale by cells-per-step, and
+ * flip Y (grids grow upward). Used for both the background and the solution
+ * overlay. Paths/shapes only — the flip mirrors any text.
+ */
+export function axisCoordGroup(fragment: string, grid: RenderedGrid, geo: GridGeometry): string {
+  const sx = CELL / grid.x.step
+  const sy = CELL / grid.y.step
+  return `<g transform="translate(${PAD.left} ${PAD.top + geo.rows * CELL}) scale(${sx} ${-sy}) translate(${-grid.x.min} ${-grid.y.min})" fill="none" stroke-width="${2 / Math.max(sx, sy)}">${fragment}</g>`
+}
+
+/** The method overlay, drawn only on the answer reveal. '' when none. */
+export function buildSolutionLayer(grid: RenderedGrid, geo: GridGeometry): string {
+  return grid.solution ? axisCoordGroup(grid.solution, grid, geo) : ''
 }
 
 /**
@@ -193,11 +204,13 @@ export function buildGridSvg(
 ): string {
   const geo = gridGeometry(grid.x, grid.y)
   const frame = buildGridFrame(grid, geo)
+  // The method overlay reveals alongside the correct answer.
+  const solution = opts.showCanonical ? buildSolutionLayer(grid, geo) : ''
   const canonical = opts.showCanonical
     ? buildPointsLayer(grid.elements.map(e => ({ x: e.x, y: e.y })), geo, { color: colors.success, ghost: true, mode: grid.mode })
     : ''
   const student = opts.student?.length
     ? buildPointsLayer(opts.student, geo, { color: colors.primary, mode: grid.mode })
     : ''
-  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${canonical}${student}</svg>`
+  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${solution}${canonical}${student}</svg>`
 }

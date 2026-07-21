@@ -60,6 +60,11 @@ export type Grid = {
   background: string
   elements: GridElement[] // the canonical answer, one row per required placement
   tolerance: number // grid units; 0 = exact lattice
+  // Optional SVG fragment (axis coords, like background) shown ONLY when the
+  // correct answer is revealed — the method/working the student would draw,
+  // e.g. ray lines from the centre of enlargement or the perpendiculars of a
+  // reflection. Omitted from stored jsonb when empty.
+  solution?: string
 }
 
 export type QuestionPart = {
@@ -175,6 +180,7 @@ export function emptyGrid(): GridInput {
     x: { min: '0', max: '10', step: '1', label: 'x' },
     y: { min: '0', max: '10', step: '1', label: 'y' },
     background: '',
+    solution: '',
     elements: [{ x: '', y: '', marks: 1 }],
     tolerance: 0,
   }
@@ -201,6 +207,7 @@ export type GridInput = {
   x: { min: string | number; max: string | number; step: string | number; label: string }
   y: { min: string | number; max: string | number; step: string | number; label: string }
   background: string
+  solution?: string
   elements: { x: string | number; y: string | number; marks: string | number }[]
   tolerance: string | number
 }
@@ -244,6 +251,8 @@ export function normalizeGrid(g: GridInput): Grid {
     x: axis(g.x),
     y: axis(g.y),
     background: g.background ?? '',
+    // Omitted when empty, keeping stored jsonb clean (mirrors blank.prompt).
+    ...(g.solution && g.solution.trim() !== '' ? { solution: g.solution } : {}),
     // Drop wholly-empty element rows (no coordinates at all).
     elements: g.elements
       .filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')

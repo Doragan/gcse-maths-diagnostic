@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { colors, font, radius, secondaryButton, errorBox } from '../../lib/styles'
-import { gridGeometry, buildGridFrame, buildPointsLayer, CELL } from '../../lib/questions/gridSvg'
+import { gridGeometry, buildGridFrame, buildPointsLayer, buildSolutionLayer, CELL } from '../../lib/questions/gridSvg'
 import type { RenderedGrid, GridPoint } from '../../lib/questions/gridDraw'
 
 /**
@@ -133,6 +133,8 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         color: colors.success, ghost: true, mode: grid.mode,
       })
     : ''
+  // Method overlay (ray lines etc.) — revealed with the correct answer.
+  const solution = showCanonical ? buildSolutionLayer(grid, geo) : ''
 
   // Student joins (polyline/line) rendered via the shared builder WITHOUT
   // markers — the point markers are JSX so review views can colour them per
@@ -173,9 +175,11 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         onPointerCancel={() => { pointerStart.current = null }}
         style={{
           display: 'block',
-          // pan-y lets the page scroll vertically when a drag starts on the
-          // grid; a stationary tap still places a point (handlePointerUp).
-          touchAction: readOnly ? 'auto' : 'pan-y',
+          // pan-y keeps vertical page scroll working when a drag starts on the
+          // grid; pinch-zoom lets a two-finger gesture zoom in on a grid that's
+          // small on mobile. A stationary one-finger tap is neither, so it still
+          // places a point (handlePointerUp's tap-vs-drag test).
+          touchAction: readOnly ? 'auto' : 'pan-y pinch-zoom',
           cursor: readOnly ? 'default' : 'crosshair',
           background: '#ffffff',
           borderRadius: radius.md,
@@ -184,6 +188,7 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         }}
       >
         <g dangerouslySetInnerHTML={{ __html: frame }} />
+        {solution && <g dangerouslySetInnerHTML={{ __html: solution }} />}
         {ghost && <g dangerouslySetInnerHTML={{ __html: ghost }} />}
         {joins && <g dangerouslySetInnerHTML={{ __html: joins }} />}
         {value.map((p, i) => {
