@@ -106,7 +106,13 @@ export default function MultiPartQuestion({
   // table rows, SVG-adjacent layout — intact. Any blank without a placeholder
   // still renders in the labelled list below, so existing questions are
   // unaffected.
-  const questionRootRef = useRef<HTMLElement | null>(null)
+  // The stem is written into the DOM by US (ref + innerHTML) rather than by
+  // React via dangerouslySetInnerHTML. React re-writes a dangerouslySetInnerHTML
+  // subtree on commit, which detaches any portal host inside it — the portal
+  // then renders into an orphaned node and the inputs never appear. Owning the
+  // subtree keeps the hosts stable. (Nothing is lost: the question is fetched
+  // client-side, so this HTML was never part of the server-rendered output.)
+  const stemRef = useRef<HTMLDivElement | null>(null)
   const [inlineHosts, setInlineHosts] = useState<Record<string, HTMLElement>>({})
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
   const [shareLabel, setShareLabel] = useState('Share this question')
@@ -119,21 +125,23 @@ export default function MultiPartQuestion({
   // Re-scan for placeholders whenever the rendered HTML or the active part
   // changes: dangerouslySetInnerHTML replaces those nodes wholesale, so any
   // previously-found host would be detached.
-  const currentPromptHtml = rendered.parts[current]?.prompt ?? ''
   useLayoutEffect(() => {
-    const root = questionRootRef.current
-    if (!root) return
+    const el = stemRef.current
+    if (!el) return
+    if (el.innerHTML !== rendered.stem) el.innerHTML = rendered.stem
+    // Only the stem can host inline blanks — everything else stays
+    // React-managed, so a placeholder there would be wiped on re-render.
     const found: Record<string, HTMLElement> = {}
-    root.querySelectorAll<HTMLElement>('[data-blank]').forEach(el => {
-      const label = el.getAttribute('data-blank')
-      if (label) found[label] = el
+    el.querySelectorAll<HTMLElement>('[data-blank]').forEach(node => {
+      const label = node.getAttribute('data-blank')
+      if (label) found[label] = node
     })
     setInlineHosts(prev => {
       const same = Object.keys(found).length === Object.keys(prev).length
         && Object.keys(found).every(k => prev[k] === found[k])
       return same ? prev : found
     })
-  }, [rendered.stem, currentPromptHtml, current])
+  }, [rendered.stem])
 
   const isLastPart = current === question.parts.length - 1
   const currentAnswered = outcomes[current] !== null
@@ -297,7 +305,7 @@ export default function MultiPartQuestion({
     .join(', ')
 
   return (
-    <main style={styles.page} ref={questionRootRef}>
+    <main style={styles.page}>
       {/* Header */}
       <div style={styles.header}>
         <button
@@ -351,8 +359,8 @@ export default function MultiPartQuestion({
           )}
           {rendered.stem && (
             <div
+              ref={stemRef}
               style={{ fontSize: font.lg, color: colors.textPrimary, lineHeight: '1.6' }}
-              dangerouslySetInnerHTML={{ __html: rendered.stem }}
             />
           )}
         </div>
