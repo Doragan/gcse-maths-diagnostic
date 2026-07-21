@@ -293,7 +293,7 @@ export type RenderedPart = {
     solution: string
     elements: { x: number, y: number, marks: number }[]
     tolerance: number
-    traps: { elements: { x: number, y: number }[], response: string }[]
+    traps: { elements: { x: number, y: number }[], response: string, match?: 'exact' | 'translated' }[]
   }
 }
 
@@ -334,7 +334,7 @@ export function renderMultiPartQuestion(
       solution?: string
       elements: { x: number | string, y: number | string, marks: number }[]
       tolerance: number
-      traps?: { elements: { x: number | string, y: number | string }[], response: string }[]
+      traps?: { elements: { x: number | string, y: number | string }[], response: string, match?: 'exact' | 'translated' }[]
     }
   }[],
   parameters: Parameters,
@@ -391,6 +391,7 @@ export function renderMultiPartQuestion(
           traps: (part.grid.traps ?? []).map(t => ({
             elements: t.elements.map(e => ({ x: evalNum(e.x), y: evalNum(e.y) })),
             response: evaluateTemplate(t.response, generated),
+            ...(t.match ? { match: t.match } : {}),
           })),
         },
       } : {}),
