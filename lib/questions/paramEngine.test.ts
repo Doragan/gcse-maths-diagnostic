@@ -117,6 +117,23 @@ describe('renderQuestion / renderMultiPartQuestion', () => {
     expect(r.stem).toBe('Stem with 5.')
     expect(r.parts.map(p => p.answer)).toEqual(['10', '6'])
   })
+  it('renders a part (and blank) with NO traps array without throwing', () => {
+    // A multi_blank part carries its traps on the blanks, so the part-level
+    // array is legitimately absent. It must not take the whole question down.
+    const r = renderMultiPartQuestion(
+      'Two-way table, {{n}} students.',
+      [{
+        prompt: 'Complete the table.',
+        answer_template: '',
+        explanation: null,
+        blanks: [{ label: 'A', answer_template: '{{n - 1}}' }],
+      } as any],
+      {}, { n: 40 },
+    )
+    expect(r.parts[0].traps).toEqual([])
+    expect(r.parts[0].blanks?.[0].answer).toBe('39')
+    expect(r.parts[0].blanks?.[0].traps).toEqual([])
+  })
   it('renders multi_blank blanks (answers + traps) against the same shared value set', () => {
     const r = renderMultiPartQuestion(
       'Frequency tree: {{n}} students.',

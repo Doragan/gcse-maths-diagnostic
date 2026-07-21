@@ -352,7 +352,10 @@ export function renderMultiPartQuestion(
     parts: parts.map(part => ({
       prompt: evaluateTemplate(part.prompt, generated),
       answer: evaluateTemplate(part.answer_template, generated),
-      traps: part.traps.map(t => ({
+      // `?? []` — a part legitimately has no traps (e.g. a multi_blank part
+      // carries its traps on the blanks); an absent array must not throw and
+      // take the whole question down at render time.
+      traps: (part.traps ?? []).map(t => ({
         answer: evaluateTemplate(t.answer_template, generated),
         response: evaluateTemplate(t.response, generated),
       })),
@@ -364,7 +367,7 @@ export function renderMultiPartQuestion(
           label: b.label,
           prompt: b.prompt ? evaluateTemplate(b.prompt, generated) : '',
           answer: evaluateTemplate(b.answer_template, generated),
-          traps: b.traps.map(t => ({
+          traps: (b.traps ?? []).map(t => ({
             answer: evaluateTemplate(t.answer_template, generated),
             response: evaluateTemplate(t.response, generated),
           })),
