@@ -3,7 +3,7 @@
 import {
   colors, font, radius, secondaryButton, inputStyle, labelStyle,
 } from '../../lib/styles'
-import { GridInput, normalizeGrid } from '../../lib/questions/parts'
+import { GridInput, GridTrapInput, normalizeGrid } from '../../lib/questions/parts'
 import GridCanvas from '../practice/GridCanvas'
 
 /**
@@ -55,6 +55,32 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
 
   function removeElement(i: number) {
     set('elements', grid.elements.filter((_, j) => j !== i))
+  }
+
+  // ── traps: authored WRONG drawings + targeted feedback ──
+  const traps = grid.traps ?? []
+  // Seed a new trap at the element count this mode will demand, so the author
+  // starts from a shape the harness can actually accept.
+  const trapSeedCount = isLine ? 2 : isPolygon ? Math.max(3, grid.elements.length) : grid.elements.length
+
+  function addTrap() {
+    const elements = Array.from({ length: Math.max(1, trapSeedCount) }, () => ({ x: '', y: '' }))
+    set('traps', [...traps, { elements, response: '' }])
+  }
+
+  function updateTrap(ti: number, t: GridTrapInput) {
+    set('traps', traps.map((old, j) => j === ti ? t : old))
+  }
+
+  function removeTrap(ti: number) {
+    set('traps', traps.filter((_, j) => j !== ti))
+  }
+
+  function setTrapElement(ti: number, ei: number, field: 'x' | 'y', value: string) {
+    updateTrap(ti, {
+      ...traps[ti],
+      elements: traps[ti].elements.map((e, j) => j === ei ? { ...e, [field]: value } : e),
+    })
   }
 
   // Static preview: only when every numeric field is a plain number (no
@@ -199,6 +225,63 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
         </p>
       </div>
 
+      {/* Traps — authored WRONG drawings with targeted feedback */}
+      <div style={styles.field}>
+        <label style={labelStyle}>Traps (optional)</label>
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+          A specific <strong>wrong</strong> drawing and the feedback it earns. The response shows
+          only when the student is wrong and their drawing matches this one exactly. Traps never
+          change marks.
+        </p>
+        {traps.map((t, ti) => (
+          <div key={ti} style={styles.trapCard}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ ...labelStyle, fontWeight: '400' }}>Trap {ti + 1}</label>
+              <button
+                onClick={() => removeTrap(ti)}
+                style={{ ...secondaryButton, width: 'auto', padding: '4px 10px', fontSize: font.sm, color: colors.dangerText, borderColor: colors.dangerBorder }}
+              >
+                Remove trap
+              </button>
+            </div>
+            {t.elements.map((el, ei) => (
+              <div key={ei} style={styles.row}>
+                <div style={styles.field}>
+                  <label style={{ ...labelStyle, fontWeight: '400' }}>x</label>
+                  <input type="text" value={String(el.x)} onChange={e => setTrapElement(ti, ei, 'x', e.target.value)} style={inputStyle} placeholder={'0 or {{a}}'} />
+                </div>
+                <div style={styles.field}>
+                  <label style={{ ...labelStyle, fontWeight: '400' }}>y</label>
+                  <input type="text" value={String(el.y)} onChange={e => setTrapElement(ti, ei, 'y', e.target.value)} style={inputStyle} placeholder={'{{c}}'} />
+                </div>
+                <button
+                  onClick={() => updateTrap(ti, { ...t, elements: t.elements.filter((_, j) => j !== ei) })}
+                  style={{ ...secondaryButton, width: 'auto', alignSelf: 'flex-end', padding: '8px 12px', fontSize: font.sm }}
+                >
+                  −
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={() => updateTrap(ti, { ...t, elements: [...t.elements, { x: '', y: '' }] })}
+              style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}
+            >
+              + Add point to this trap
+            </button>
+            <textarea
+              ref={autoResize}
+              value={t.response}
+              onChange={e => { updateTrap(ti, { ...t, response: e.target.value }); autoResize(e.target) }}
+              style={{ ...inputStyle, minHeight: '55px', resize: 'none' as const }}
+              placeholder="You've enlarged from the triangle's own corner. Every ray must start at the centre, (0, 0)."
+            />
+          </div>
+        ))}
+        <button onClick={addTrap} style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}>
+          + Add trap
+        </button>
+      </div>
+
       {/* Static-values instant preview */}
       {previewGrid && (
         <div style={styles.field}>
@@ -226,6 +309,15 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     gap: '10px',
     flexWrap: 'wrap' as const,
+  },
+  trapCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    padding: '10px',
+    background: '#fafafa',
+    borderRadius: 8,
+    border: '1px solid #e5e5e5',
   },
   field: {
     display: 'flex',

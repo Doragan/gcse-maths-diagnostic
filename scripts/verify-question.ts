@@ -142,6 +142,10 @@ function renderGridAt(g: any, c: Record<string, number>): RenderedGrid {
     background: '',
     elements: (g.elements ?? []).map((e: any) => ({ x: gridNum(e.x, c), y: gridNum(e.y, c), marks: Number(e.marks) || 0 })),
     tolerance: Number(g.tolerance) || 0,
+    traps: (g.traps ?? []).map((t: any) => ({
+      elements: (t.elements ?? []).map((e: any) => ({ x: gridNum(e.x, c), y: gridNum(e.y, c) })),
+      response: '',
+    })),
   }
 }
 
@@ -183,9 +187,32 @@ function verifyGridPart(
     fails.push(`${label}: marks ${p.marks} ≠ sum of element marks ${markSum}`)
   }
 
+  // ── trap structural gates ──
+  const gTraps: any[] = Array.isArray(g.traps) ? g.traps : []
+  for (let ti = 0; ti < gTraps.length; ti++) {
+    const t = gTraps[ti]
+    const tEls: any[] = Array.isArray(t.elements) ? t.elements : []
+    const tag = `${label} trap ${ti + 1}`
+    if (!tEls.length) { fails.push(`${tag}: no elements`); continue }
+    if (!String(t.response ?? '').trim()) fails.push(`${tag}: empty response — it would match silently and say nothing`)
+    if (g.mode === 'line' && tEls.length !== 2) {
+      fails.push(`${tag}: line mode needs exactly 2 elements (has ${tEls.length})`)
+    } else if (g.mode === 'polygon' && tEls.length < 3) {
+      fails.push(`${tag}: polygon mode needs at least 3 elements (has ${tEls.length})`)
+    } else if (g.mode !== 'line' && g.mode !== 'polygon' && tEls.length !== els.length) {
+      // points/cells/polyline match requires equal counts, so a differently
+      // sized trap is structurally unreachable — a dead trap.
+      fails.push(`${tag}: has ${tEls.length} elements but the answer has ${els.length} — it can never match`)
+    }
+  }
+
   const seen = new Set<string>()
   const fail = (key: string, msg: string) => { if (!seen.has(key)) { seen.add(key); fails.push(msg) } }
   const shapes = new Set<string>()
+  // Trap bookkeeping across combos, mirroring the scalar trap collision counters.
+  const trapCollide = new Map<number, number>()
+  const trapSilent = new Map<number, number>()
+  const trapPairSame = new Map<string, number>()
 
   for (const c of combos) {
     const r = renderGridAt(g, c)
@@ -204,16 +231,17 @@ function verifyGridPart(
     if (rows > GRID_MAX_ROWS) fail('rows', `${label}: ${Math.round(rows)} rows exceeds the ${GRID_MAX_ROWS}-row cap`)
     shapes.add(`${Math.round(cols)}x${Math.round(rows)}`)
 
+    // Cells are identified by their bottom-left corner and span one step
+    // up-right, so the corner must sit within [min, max − step] to FIT.
+    const xHi = r.mode === 'cells' ? r.x.max - r.x.step : r.x.max
+    const yHi = r.mode === 'cells' ? r.y.max - r.y.step : r.y.max
+
     for (let i = 0; i < r.elements.length; i++) {
       const e = r.elements[i]
       if (!Number.isFinite(e.x) || !Number.isFinite(e.y)) {
         fail(`el${i}:fin`, `${label}: element ${i + 1} does not evaluate to a number at ${JSON.stringify(c)}`)
         continue
       }
-      // Cells are identified by their bottom-left corner and span one step
-      // up-right, so the corner must sit within [min, max − step] to FIT.
-      const xHi = r.mode === 'cells' ? r.x.max - r.x.step : r.x.max
-      const yHi = r.mode === 'cells' ? r.y.max - r.y.step : r.y.max
       if (e.x < r.x.min - 1e-9 || e.x > xHi + 1e-9 || e.y < r.y.min - 1e-9 || e.y > yHi + 1e-9) {
         fail(`el${i}:grid`, `${label}: element ${i + 1} (${e.x}, ${e.y}) is off the grid${r.mode === 'cells' ? ' (cell must fit inside)' : ''} at ${JSON.stringify(c)}`)
       }
@@ -246,13 +274,69 @@ function verifyGridPart(
     const graded = checkGridDraw(pts, r.elements, r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step })
     if (!graded.correct) fail('self', `${label}: canonical drawing NOT accepted by the marker at ${JSON.stringify(c)}`)
 
+    // ── per-combo trap gates ──
+    const rTraps = r.traps ?? []
+    for (let ti = 0; ti < rTraps.length; ti++) {
+      const tp = rTraps[ti].elements
+      const tag = `${label} trap ${ti + 1}`
+      if (!tp.length) continue
+      if (!tp.every(e => Number.isFinite(e.x) && Number.isFinite(e.y))) {
+        fail(`trap${ti}:fin`, `${tag}: an element does not evaluate to a number at ${JSON.stringify(c)}`)
+        continue
+      }
+      const offGrid = tp.some(e =>
+        e.x < r.x.min - 1e-9 || e.x > xHi + 1e-9 || e.y < r.y.min - 1e-9 || e.y > yHi + 1e-9)
+      if (offGrid) fail(`trap${ti}:grid`, `${tag}: an element is off the grid at ${JSON.stringify(c)} — the student could never draw it`)
+      if (r.tolerance === 0) {
+        const off = tp.some(e => {
+          const fx = Math.abs((e.x - r.x.min) / r.x.step), fy = Math.abs((e.y - r.y.min) / r.y.step)
+          return Math.abs(fx - Math.round(fx)) > 1e-6 || Math.abs(fy - Math.round(fy)) > 1e-6
+        })
+        if (off) fail(`trap${ti}:lat`, `${tag}: an element is off the snap lattice at ${JSON.stringify(c)} — unreachable`)
+      }
+      const keys = tp.map(e => `${e.x}|${e.y}`)
+      if (new Set(keys).size !== keys.length) fail(`trap${ti}:dupe`, `${tag}: duplicate elements at ${JSON.stringify(c)}`)
+
+      // COLLISION: drawing this "trap" would actually be marked CORRECT.
+      const asAnswer = checkGridDraw(tp, r.elements, r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step })
+      if (asAnswer.correct) trapCollide.set(ti, (trapCollide.get(ti) ?? 0) + 1)
+      // SILENT: the trap must fire for its own drawing.
+      else {
+        const fired = checkGridDraw(tp, r.elements, r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step }, rTraps)
+        if (!fired.trap) trapSilent.set(ti, (trapSilent.get(ti) ?? 0) + 1)
+      }
+
+      // A later trap shadowed by an earlier one is dead.
+      for (let tj = ti + 1; tj < rTraps.length; tj++) {
+        const other = rTraps[tj].elements
+        if (!other.length || !other.every(e => Number.isFinite(e.x) && Number.isFinite(e.y))) continue
+        const asTrap = checkGridDraw(other, tp.map(e => ({ ...e, marks: 1 })), r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step })
+        if (asTrap.correct) {
+          const key = `trap ${ti + 1} ↔ trap ${tj + 1}`
+          trapPairSame.set(key, (trapPairSame.get(key) ?? 0) + 1)
+        }
+      }
+    }
+
     // Render sweep over the templated strings (incl. the part's own prompt +
     // explanation, since grid parts are excluded from the scalar unit pass).
-    for (const tpl of [g.background, g.solution, g.x?.label, g.y?.label, p.prompt, p.explanation]) {
+    const trapResponses = (Array.isArray(g.traps) ? g.traps : []).map((t: any) => t.response)
+    for (const tpl of [g.background, g.solution, g.x?.label, g.y?.label, p.prompt, p.explanation, ...trapResponses]) {
       if (!tpl) continue
-      try { if (BAD_RENDER.test(evaluateTemplate(String(tpl), c))) fail('text', `${label}: background/label renders badly at ${JSON.stringify(c)}`) }
-      catch { fail('text', `${label}: background/label throws at ${JSON.stringify(c)}`) }
+      try { if (BAD_RENDER.test(evaluateTemplate(String(tpl), c))) fail('text', `${label}: background/label/trap response renders badly at ${JSON.stringify(c)}`) }
+      catch { fail('text', `${label}: background/label/trap response throws at ${JSON.stringify(c)}`) }
     }
+  }
+
+  for (const [ti, hits] of trapCollide) {
+    fails.push(`${label} trap ${ti + 1}: COLLIDES with the answer on ${hits}/${combos.length} value sets — drawing it would be marked CORRECT`)
+  }
+  for (const [ti, hits] of trapSilent) {
+    fails.push(`${label} trap ${ti + 1}: falls through silently (does not fire for its own drawing) on ${hits}/${combos.length} value sets`)
+  }
+  for (const [pair, hits] of trapPairSame) {
+    const msg = `${label}: ${pair} match the same drawing on ${hits}/${combos.length} value sets — the later one is unreachable`
+    if (hits > combos.length / 2) fails.push(msg); else warns.push(msg)
   }
 
   if (shapes.size > 1) {

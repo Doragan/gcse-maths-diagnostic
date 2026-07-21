@@ -233,6 +233,99 @@ describe('checkGridDraw — polygon mode', () => {
   })
 })
 
+describe('checkGridDraw — traps', () => {
+  const tri = [el(1, 1), el(3, 1), el(1, 4)]
+  const wrongTri = [pt(2, 2), pt(4, 2), pt(2, 5)] // the trap drawing
+  const trap = { elements: wrongTri, response: 'You used the wrong centre.' }
+
+  it('no traps argument → trap is null', () => {
+    expect(checkGridDraw(wrongTri, tri, 'polygon', 0).trap).toBeNull()
+  })
+
+  it('a CORRECT drawing never returns a trap', () => {
+    const res = checkGridDraw([pt(1, 1), pt(3, 1), pt(1, 4)], tri, 'polygon', 0, undefined, [
+      { elements: [pt(1, 1), pt(3, 1), pt(1, 4)], response: 'should never fire' },
+    ])
+    expect(res.correct).toBe(true)
+    expect(res.trap).toBeNull()
+  })
+
+  it('drawing the trap exactly fires it', () => {
+    const res = checkGridDraw(wrongTri, tri, 'polygon', 0, undefined, [trap])
+    expect(res.correct).toBe(false)
+    expect(res.trap?.response).toBe('You used the wrong centre.')
+  })
+
+  it('a partial match does NOT fire the trap', () => {
+    const res = checkGridDraw([pt(2, 2), pt(4, 2), pt(9, 9)], tri, 'polygon', 0, undefined, [trap])
+    expect(res.trap).toBeNull()
+  })
+
+  it('a superset does NOT fire the trap (counts must match)', () => {
+    const res = checkGridDraw([...wrongTri, pt(0, 0)], tri, 'polygon', 0, undefined, [trap])
+    expect(res.trap).toBeNull()
+  })
+
+  it('polygon trap fires under a rotated + reversed winding', () => {
+    // Start at the trap's last vertex, wind the other way.
+    const res = checkGridDraw([pt(2, 5), pt(4, 2), pt(2, 2)], tri, 'polygon', 0, undefined, [trap])
+    expect(res.trap?.response).toBe('You used the wrong centre.')
+  })
+
+  it('polyline trap fires on the reversed traversal', () => {
+    const canonical = [el(0, 1), el(1, 3), el(2, 2)]
+    const t = { elements: [pt(0, 0), pt(1, 2), pt(2, 1)], response: 'one down' }
+    const res = checkGridDraw([pt(2, 1), pt(1, 2), pt(0, 0)], canonical, 'polyline', 0, undefined, [t])
+    expect(res.trap?.response).toBe('one down')
+  })
+
+  it('line mode: a trap fires for ANY two points on the wrong line', () => {
+    // Correct y = x + 2; trap line y = x (the "forgot the + c" slip).
+    const canonical = [el(0, 2), el(4, 6)]
+    const t = { elements: [pt(0, 0), pt(4, 4)], response: 'You ignored the + 2.' }
+    // Student draws two DIFFERENT points that still lie on y = x.
+    const res = checkGridDraw([pt(1, 1), pt(3, 3)], canonical, 'line', 0, undefined, [t])
+    expect(res.correct).toBe(false)
+    expect(res.trap?.response).toBe('You ignored the + 2.')
+  })
+
+  it('line mode: points on neither line → no trap', () => {
+    const canonical = [el(0, 2), el(4, 6)]
+    const t = { elements: [pt(0, 0), pt(4, 4)], response: 'nope' }
+    expect(checkGridDraw([pt(0, 5), pt(4, 5)], canonical, 'line', 0, undefined, [t]).trap).toBeNull()
+  })
+
+  it('a firing trap leaves marks and verdicts untouched', () => {
+    const without = checkGridDraw(wrongTri, tri, 'polygon', 0)
+    const withTrap = checkGridDraw(wrongTri, tri, 'polygon', 0, undefined, [trap])
+    expect(withTrap.marksEarned).toBe(without.marksEarned)
+    expect(withTrap.marksTotal).toBe(without.marksTotal)
+    expect(withTrap.perElement).toEqual(without.perElement)
+    expect(withTrap.perStudent).toEqual(without.perStudent)
+  })
+
+  it('the FIRST matching trap wins', () => {
+    const res = checkGridDraw(wrongTri, tri, 'polygon', 0, undefined, [
+      { elements: wrongTri, response: 'first' },
+      { elements: wrongTri, response: 'second' },
+    ])
+    expect(res.trap?.response).toBe('first')
+  })
+
+  it('a trap with a non-finite element is skipped, not thrown on', () => {
+    const res = checkGridDraw(wrongTri, tri, 'polygon', 0, undefined, [
+      { elements: [pt(NaN, 2), pt(4, 2), pt(2, 5)], response: 'broken' },
+      trap,
+    ])
+    expect(res.trap?.response).toBe('You used the wrong centre.')
+  })
+
+  it('trap matching inherits the tolerance', () => {
+    const res = checkGridDraw([pt(2.4, 2), pt(4, 2), pt(2, 5)], tri, 'polygon', 0.5, undefined, [trap])
+    expect(res.trap?.response).toBe('You used the wrong centre.')
+  })
+})
+
 describe('serialise / parse / format', () => {
   it('round-trips points', () => {
     const pts = [pt(1, 3), pt(2, 5)]

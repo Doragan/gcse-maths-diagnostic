@@ -264,13 +264,19 @@ export default function ExamPreviewPage() {
           const check = checkGridDraw(
             pts, g.elements, g.mode as GridDrawMode, g.tolerance,
             { xStep: g.x.step, yStep: g.y.step },
+            g.traps ?? [],
           )
           earned += check.marksEarned
           const nRight = check.perElement.filter(e => e.correct).length
           const unitNoun = g.mode === 'cells' ? 'squares' : g.mode === 'polygon' ? 'corners' : 'points'
           res[u.key] = {
             correct: check.correct,
-            message: check.correct ? 'Correct!' : `${nRight} of ${g.elements.length} ${unitNoun} correct`,
+            // The trap response is additive: it explains the score line rather
+            // than replacing it (the review markers are keyed to the count).
+            message: check.correct
+              ? 'Correct!'
+              : `${nRight} of ${g.elements.length} ${unitNoun} correct`
+                + (check.trap ? `<br/>${check.trap.response}` : ''),
             studentAnswer: formatGridPoints(pts),
             correctAnswer: u.correctAnswer,
             explanation: u.explanation,
