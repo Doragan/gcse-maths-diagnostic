@@ -384,6 +384,25 @@ describe("checkGridDraw — 'translated' traps (right shape, wrong place)", () =
     expect(checkGridDraw([pt(0, 2), pt(1, 4)], canonical, 'line', 0, undefined, [moved]).trap).toBeNull()
   })
 
+  it('line mode: fires for ANY wrong intercept, not just the origin', () => {
+    const canonical = [el(0, 2), el(4, 6)] // y = x + 2
+    // A student who is off by a DIFFERENT amount (not through the origin)
+    // must still be caught — a fixed 'exact' trap at one wrong intercept
+    // would miss this.
+    const offByThree = [pt(0, 5), pt(4, 9)] // y = x + 5
+    expect(checkGridDraw(offByThree, canonical, 'line', 0, undefined, [moved]).trap?.response)
+      .toBe('Right shape, wrong place.')
+  })
+
+  it("line mode: doesn't cross-fire with an exact wrong-gradient trap", () => {
+    const canonical = [el(0, 2), el(4, 6)] // y = x + 2
+    const wrongGradientTrap = { elements: [pt(0, 2), pt(1, 4)], response: 'wrong gradient' }
+    // Right intercept, wrong gradient (y = 2x + 2) should hit the exact trap,
+    // not the translated one — the two traps must not overlap.
+    const res = checkGridDraw([pt(0, 2), pt(2, 6)], canonical, 'line', 0, undefined, [moved, wrongGradientTrap])
+    expect(res.trap?.response).toBe('wrong gradient')
+  })
+
   it('wrong element count never fires', () => {
     const res = checkGridDraw([pt(5, 5), pt(7, 5)], correct, 'polygon', 0, undefined, [moved])
     expect(res.trap).toBeNull()
