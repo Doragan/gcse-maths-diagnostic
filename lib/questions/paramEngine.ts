@@ -282,7 +282,9 @@ export type RenderedPart = {
   traps: { answer: string, response: string }[]
   explanation: string
   // Only for multi_blank parts: each labelled blank's rendered prompt, answer + traps.
-  blanks?: { label: string, prompt: string, answer: string, traps: { answer: string, response: string }[] }[]
+  // `ecf` is the errors-carried-forward formula with parameters already
+  // substituted; its [[SIBLING]] refs survive to marking time.
+  blanks?: { label: string, prompt: string, answer: string, ecf?: string, traps: { answer: string, response: string }[] }[]
   // Only for grid_draw parts: the grid spec with every template evaluated to a
   // number (a bad template renders to NaN — callers guard on finiteness).
   grid?: {
@@ -324,6 +326,7 @@ export function renderMultiPartQuestion(
       label: string
       prompt?: string
       answer_template: string
+      ecf_template?: string
       traps: { answer_template: string, response: string }[]
     }[]
     grid?: {
@@ -367,6 +370,10 @@ export function renderMultiPartQuestion(
           label: b.label,
           prompt: b.prompt ? evaluateTemplate(b.prompt, generated) : '',
           answer: evaluateTemplate(b.answer_template, generated),
+          // Parameters resolve now; [[SIBLING]] refs can't, since they stand
+          // for answers the student hasn't given yet, and are left for the
+          // grader to substitute.
+          ...(b.ecf_template ? { ecf: evaluateTemplate(b.ecf_template, generated) } : {}),
           traps: (b.traps ?? []).map(t => ({
             answer: evaluateTemplate(t.answer_template, generated),
             response: evaluateTemplate(t.response, generated),

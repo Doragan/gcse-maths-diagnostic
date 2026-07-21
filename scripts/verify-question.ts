@@ -425,6 +425,17 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
       for (const b of blanks) {
         if (!String(b.answer_template ?? '').trim()) fails.push(`${pl} blank ${b.label}: empty answer template`)
         if (b.answer_type === 'multi_blank') fails.push(`${pl} blank ${b.label}: blanks cannot nest multi_blank`)
+        // ECF formulas fail SILENTLY at marking time (an unresolvable ref just
+        // means no follow-through credit), so the refs are gated here instead.
+        const ecf = String(b.ecf_template ?? '').trim()
+        if (ecf) {
+          const refs = [...ecf.matchAll(/\[\[\s*([^\]]+?)\s*\]\]/g)].map(m => m[1].trim().toUpperCase())
+          if (!refs.length) fails.push(`${pl} blank ${b.label}: ecf_template has no [[SIBLING]] reference — it can never award follow-through`)
+          for (const r of refs) {
+            if (r === String(b.label ?? '').trim().toUpperCase()) fails.push(`${pl} blank ${b.label}: ecf_template references itself`)
+            else if (!labels.includes(r)) fails.push(`${pl} blank ${b.label}: ecf_template references [[${r}]], which is not a blank in this part`)
+          }
+        }
       }
       // part.marks must equal the blank sum (normalizePart computes it, but
       // hand-written --file JSON and direct DB writes can drift, and the exam

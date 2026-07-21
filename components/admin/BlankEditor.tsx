@@ -133,6 +133,26 @@ export default function BlankEditor({ blank, onChange, onRemove, autoResize }: P
         </div>
       )}
 
+      {/* Errors carried forward — only meaningful when this blank's value
+          depends on another blank the student works out first. */}
+      <div style={styles.field}>
+        <label style={labelStyle}>Follow-through formula (optional)</label>
+        <input
+          type="text"
+          value={blank.ecf_template ?? ''}
+          onChange={e => set('ecf_template', e.target.value)}
+          style={inputStyle}
+          placeholder="[[F]] - {{d}}"
+        />
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+          How this blank follows from another. Use <strong>[[B]]</strong> for another blank&apos;s
+          answer and <strong>{'{{…}}'}</strong> for parameters. If the student gets that blank
+          wrong but works consistently from it, this blank is marked correct and flagged as
+          follow-through — the exam ECF rule. Leave empty when the value comes only from numbers
+          already given.
+        </p>
+      </div>
+
       {/* Per-blank traps */}
       <div style={styles.field}>
         <label style={labelStyle}>Traps for this blank</label>

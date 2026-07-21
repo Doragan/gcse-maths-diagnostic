@@ -38,6 +38,14 @@ export type Blank = {
   requires_simplest: boolean
   traps: PartTrap[]
   marks: number // per-blank marks (exam partial credit)
+  // Optional errors-carried-forward formula, mirroring the exam convention
+  // that a step consistent with the student's OWN earlier wrong answer still
+  // earns the method mark. Parameters interpolate as usual ({{n - a}}); a
+  // SIBLING BLANK is referenced as [[B]], which survives rendering and is
+  // replaced with that blank's student answer at marking time.
+  //   ecf_template: '[[F]] - {{d}}'
+  // Only meaningful on a blank whose value depends on another blank.
+  ecf_template?: string
 }
 
 /**
@@ -315,6 +323,9 @@ export function normalizeBlank(b: BlankInput): Blank {
     requires_simplest: b.requires_simplest ?? false,
     traps: b.traps.filter(t => t.answer_template.trim() !== ''),
     marks: b.marks === '' || b.marks == null ? 1 : Number(b.marks),
+    // Omitted when empty, keeping stored jsonb clean — but preserved when set,
+    // so editing a question in the admin form never silently drops its ECF.
+    ...(b.ecf_template && b.ecf_template.trim() !== '' ? { ecf_template: b.ecf_template.trim() } : {}),
   }
 }
 

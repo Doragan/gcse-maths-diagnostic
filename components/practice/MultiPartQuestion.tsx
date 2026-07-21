@@ -34,7 +34,9 @@ type PartOutcome = {
   correct: boolean
   message: string
   // Only for multi_blank parts: the per-blank verdicts shown in the summary box.
-  blanks?: { label: string, answer: string, correct: boolean, message: string, correctAnswer: string }[]
+  // `followThrough`: correct only as a consequence of the student's own earlier
+  // wrong answer (exam ECF). Shown amber — credited, but not the right value.
+  blanks?: { label: string, answer: string, correct: boolean, followThrough: boolean, message: string, correctAnswer: string }[]
   // Only for grid_draw parts: the student's drawing + per-point verdicts for
   // the review overlay.
   grid?: { points: GridPoint[], perStudent: boolean[] }
@@ -228,6 +230,7 @@ export default function MultiPartQuestion({
         tolerance: b.tolerance,
         requires_simplest: b.requires_simplest ?? false,
         traps: renderedBlanks[i]?.traps ?? [],
+        ecf: renderedBlanks[i]?.ecf,
       })))
       outcome = {
         answer: result.blanks.map(b => `${b.label} = ${b.student}`).join(', '),
@@ -239,6 +242,7 @@ export default function MultiPartQuestion({
           label: b.label,
           answer: b.student,
           correct: b.correct,
+          followThrough: b.followThrough ?? false,
           message: b.message,
           correctAnswer: renderedBlanks[i]?.answer ?? '',
         })),
@@ -436,12 +440,18 @@ export default function MultiPartQuestion({
                 )}
                 {/* Per-blank verdicts for multi_blank parts: each blank's answer,
                     its trap/reminder message, and the right answer where wrong. */}
-                {o.grid ? null : o.blanks ? o.blanks.map(b => (
+                {o.grid ? null : o.blanks ? o.blanks.map(b => {
+                  // Three states, not two: right, wrong, and right-given-your-
+                  // own-earlier-error (amber ✓, still shows the true answer so
+                  // the student can see where the chain went off).
+                  const blankColor = b.followThrough ? colors.warningText
+                    : b.correct ? colors.successText : colors.dangerText
+                  return (
                   <div key={b.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: '2px' }}>
-                    <p style={{ fontSize: font.sm, margin: 0, color: b.correct ? colors.successText : colors.dangerText }}>
+                    <p style={{ fontSize: font.sm, margin: 0, color: blankColor }}>
                       {b.correct ? '✓' : '✗'} {b.label} ={' '}
                       <strong><span dangerouslySetInnerHTML={{ __html: b.answer }} /></strong>
-                      {!b.correct && (
+                      {(!b.correct || b.followThrough) && (
                         <>
                           {' — correct answer: '}
                           <strong><span dangerouslySetInnerHTML={{ __html: b.correctAnswer }} /></strong>
@@ -453,12 +463,13 @@ export default function MultiPartQuestion({
                         trap responses, reminders and "Not answered." still show. */}
                     {b.message && b.message !== 'Correct!' && !b.message.startsWith('Not quite. The correct answer is') && (
                       <div
-                        style={{ fontSize: font.sm, color: b.correct ? colors.successText : colors.dangerText, paddingLeft: '18px' }}
+                        style={{ fontSize: font.sm, color: blankColor, paddingLeft: '18px' }}
                         dangerouslySetInnerHTML={{ __html: b.message }}
                       />
                     )}
                   </div>
-                )) : (
+                  )
+                }) : (
                   <>
                     {/* Reminder / trap feedback (units, simplification, etc.) — suppress
                         the bare "Correct!" since the ✓ header already says it. */}
@@ -662,10 +673,14 @@ export default function MultiPartQuestion({
         const verdict = o?.blanks?.[bi]
         return createPortal(
           verdict ? (
-            <span style={{
-              fontWeight: 700,
-              color: verdict.correct ? colors.successText : colors.dangerText,
-            }}>
+            <span
+              title={verdict.followThrough ? 'Follow-through: consistent with your earlier answer' : undefined}
+              style={{
+                fontWeight: 700,
+                color: verdict.followThrough ? colors.warningText
+                  : verdict.correct ? colors.successText : colors.dangerText,
+              }}
+            >
               {verdict.answer || '—'}
             </span>
           ) : (
