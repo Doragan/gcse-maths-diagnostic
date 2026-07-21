@@ -25,8 +25,16 @@ export type RenderedGrid = {
   solution?: string
   elements: RenderedGridElement[]
   tolerance: number
+  // Rendered wrong-drawing traps (never drawn; marking metadata only).
+  traps?: RenderedGridTrap[]
 }
 export type GridPoint = { x: number; y: number } // axis units, lattice-snapped
+
+/**
+ * An authored WRONG drawing plus the feedback it earns — the geometric twin of
+ * a scalar trap. Vertices only: a trap is never credited, so it has no marks.
+ */
+export type RenderedGridTrap = { elements: GridPoint[]; response: string }
 
 export type GridDrawResult = {
   correct: boolean // every element right — feeds practice_attempts
@@ -37,6 +45,9 @@ export type GridDrawResult = {
   perStudent: boolean[]
   marksEarned: number
   marksTotal: number
+  // The matched trap's response, when the drawing is wrong AND matches an
+  // authored wrong drawing. Never affects marks.
+  trap: { response: string } | null
 }
 
 const EPS = 1e-6
@@ -48,13 +59,20 @@ function gridDist(a: { x: number; y: number }, b: { x: number; y: number }, xSte
 
 export type GridDrawMode = 'points' | 'polyline' | 'line' | 'cells' | 'polygon'
 
-export function checkGridDraw(
+/**
+ * Grade a drawing against a canonical element list. Knows nothing about traps
+ * — `checkGridDraw` wraps this and reuses it to test trap drawings too, which
+ * is what makes trap matching inherit every per-mode nicety (points order-
+ * insensitivity, polyline reversal, polygon rotation/winding, and line mode's
+ * "any 2 distinct points on the line").
+ */
+function gradeCore(
   drawn: GridPoint[],
   canonical: RenderedGridElement[],
   mode: GridDrawMode,
   tolerance: number,
   steps: { xStep: number; yStep: number } = { xStep: 1, yStep: 1 },
-): GridDrawResult {
+): Omit<GridDrawResult, 'trap'> {
   const marksTotal = canonical.reduce((s, e) => s + (e.marks || 0), 0)
   // Cells are lattice-identified squares — shading is exact by nature, so
   // tolerance is forced to 0 regardless of what the part declares (the
@@ -128,6 +146,39 @@ export function checkGridDraw(
 }
 
 /**
+ * Grade a drawing, and — only when it is WRONG — check it against the authored
+ * trap drawings, returning the first match's response. A trap never changes
+ * marks; it only names the misconception, exactly like a scalar trap.
+ */
+export function checkGridDraw(
+  drawn: GridPoint[],
+  canonical: RenderedGridElement[],
+  mode: GridDrawMode,
+  tolerance: number,
+  steps: { xStep: number; yStep: number } = { xStep: 1, yStep: 1 },
+  traps: RenderedGridTrap[] = [],
+): GridDrawResult {
+  const result = gradeCore(drawn, canonical, mode, tolerance, steps)
+  if (result.correct || traps.length === 0) return { ...result, trap: null }
+
+  for (const t of traps) {
+    if (t.elements.length === 0) continue
+    if (!t.elements.every(p => Number.isFinite(p.x) && Number.isFinite(p.y))) continue
+    // marks: 1 is LOAD-BEARING, not cosmetic. gradeCore picks its alignment by
+    // comparing earned marks (polyline forward-vs-reversed, polygon best
+    // rotation/winding); with all-zero marks every alignment ties, the first
+    // candidate wins arbitrarily, and a genuine trap match silently fails to
+    // fire. Never "tidy" this to 0.
+    const asCanonical = t.elements.map(p => ({ x: p.x, y: p.y, marks: 1 }))
+    // NOTE: gradeCore, never checkGridDraw — traps must not nest.
+    if (gradeCore(drawn, asCanonical, mode, tolerance, steps).correct) {
+      return { ...result, trap: { response: t.response } }
+    }
+  }
+  return { ...result, trap: null }
+}
+
+/**
  * Line mode: the canonical is exactly 2 endpoint elements defining the
  * intended line; the student places exactly 2 DISTINCT points, both of which
  * must lie ON the canonical line. Two distinct on-line lattice points define
@@ -141,9 +192,9 @@ function checkLine(
   xStep: number,
   yStep: number,
   marksTotal: number,
-): GridDrawResult {
+): Omit<GridDrawResult, 'trap'> {
   const [p1, p2] = canonical
-  const fail = (): GridDrawResult => ({
+  const fail = (): Omit<GridDrawResult, 'trap'> => ({
     correct: false,
     perElement: canonical.map(() => ({ correct: false, marks: 0 })),
     perStudent: drawn.map(() => false),
@@ -207,9 +258,9 @@ function checkPolygon(
   xStep: number,
   yStep: number,
   marksTotal: number,
-): GridDrawResult {
+): Omit<GridDrawResult, 'trap'> {
   const n = canonical.length
-  const fail = (): GridDrawResult => ({
+  const fail = (): Omit<GridDrawResult, 'trap'> => ({
     correct: false,
     perElement: canonical.map(() => ({ correct: false, marks: 0 })),
     perStudent: drawn.map(() => false),

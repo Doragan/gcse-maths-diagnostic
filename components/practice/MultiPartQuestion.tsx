@@ -37,6 +37,9 @@ type PartOutcome = {
   // Only for grid_draw parts: the student's drawing + per-point verdicts for
   // the review overlay.
   grid?: { points: GridPoint[], perStudent: boolean[] }
+  // Targeted feedback when the drawing matched an authored wrong drawing.
+  // Additive — it explains the score line rather than replacing it.
+  trapResponse?: string
 }
 
 type Props = {
@@ -153,6 +156,7 @@ export default function MultiPartQuestion({
         grid.mode as GridDrawMode,
         grid.tolerance,
         { xStep: grid.x.step, yStep: grid.y.step },
+        grid.traps ?? [],
       )
       const n = grid.elements.length
       const nRight = result.perElement.filter(e => e.correct).length
@@ -171,6 +175,7 @@ export default function MultiPartQuestion({
             ? `${nRight} of ${n} corners correct`
             : `${nRight} of ${n} points correct`,
         grid: { points: gridPoints, perStudent: result.perStudent },
+        ...(result.trap ? { trapResponse: result.trap.response } : {}),
       }
     } else if (part.answer_type === 'multi_blank') {
       const blanks = part.blanks ?? []
@@ -381,6 +386,14 @@ export default function MultiPartQuestion({
                     <p style={{ fontSize: font.sm, margin: 0, color: colors.textHint }}>
                       Your points shown solid · the correct answer is shown dashed
                     </p>
+                    {/* Targeted misconception feedback, when the drawing matched
+                        an authored wrong drawing. */}
+                    {o.trapResponse && (
+                      <div
+                        style={{ fontSize: font.sm, color: colors.dangerText }}
+                        dangerouslySetInnerHTML={{ __html: o.trapResponse }}
+                      />
+                    )}
                   </div>
                 )}
                 {/* Per-blank verdicts for multi_blank parts: each blank's answer,

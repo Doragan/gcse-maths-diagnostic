@@ -174,6 +174,30 @@ describe('normalizeGrid', () => {
   })
 })
 
+describe('normalizeGrid (traps)', () => {
+  it('coerces trap coordinates and keeps templates', () => {
+    const g = normalizeGrid({
+      ...emptyGrid(),
+      traps: [{ elements: [{ x: '3', y: '{{c}}' }], response: 'Wrong centre.' }],
+    })
+    expect(g.traps).toHaveLength(1)
+    expect(g.traps![0].elements[0]).toEqual({ x: 3, y: '{{c}}' })
+  })
+  it('drops traps with no elements or no response, and omits the key when none survive', () => {
+    const g = normalizeGrid({
+      ...emptyGrid(),
+      traps: [
+        { elements: [{ x: '', y: '' }], response: 'no coords' },   // dropped
+        { elements: [{ x: '1', y: '2' }], response: '   ' },       // dropped
+      ],
+    })
+    expect('traps' in g).toBe(false)
+  })
+  it('omits the traps key entirely when none are authored', () => {
+    expect('traps' in normalizeGrid(emptyGrid())).toBe(false)
+  })
+})
+
 describe('normalizePart (grid_draw)', () => {
   const gridInput = () => ({
     ...emptyPart(),

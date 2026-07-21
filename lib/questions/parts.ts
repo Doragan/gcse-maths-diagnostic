@@ -65,6 +65,16 @@ export type Grid = {
   // e.g. ray lines from the centre of enlargement or the perpendiculars of a
   // reflection. Omitted from stored jsonb when empty.
   solution?: string
+  // Authored WRONG drawings with targeted feedback — the geometric twin of
+  // scalar traps. Matched only when the student is wrong; never scored, so
+  // trap elements carry no marks. Omitted from stored jsonb when empty.
+  traps?: GridTrap[]
+}
+
+/** One wrong drawing plus the feedback it earns. */
+export type GridTrap = {
+  elements: { x: number | string; y: number | string }[]
+  response: string
 }
 
 export type QuestionPart = {
@@ -210,6 +220,13 @@ export type GridInput = {
   solution?: string
   elements: { x: string | number; y: string | number; marks: string | number }[]
   tolerance: string | number
+  traps?: GridTrapInput[]
+}
+
+/** The loose, editable trap representation in the authoring form. */
+export type GridTrapInput = {
+  elements: { x: string | number; y: string | number }[]
+  response: string
 }
 
 export type PartInput = {
@@ -240,6 +257,14 @@ function numberOrTemplate(v: string | number): number | string {
 }
 
 export function normalizeGrid(g: GridInput): Grid {
+  const traps = (g.traps ?? [])
+    .map(t => ({
+      elements: t.elements
+        .filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
+        .map(e => ({ x: numberOrTemplate(String(e.x)), y: numberOrTemplate(String(e.y)) })),
+      response: t.response ?? '',
+    }))
+    .filter(t => t.elements.length > 0 && t.response.trim() !== '')
   const axis = (a: GridInput['x']): GridAxis => ({
     min: numberOrTemplate(a.min),
     max: numberOrTemplate(a.max),
@@ -262,6 +287,10 @@ export function normalizeGrid(g: GridInput): Grid {
         marks: e.marks === '' || e.marks == null ? 1 : Number(e.marks),
       })),
     tolerance: g.tolerance === '' || g.tolerance == null ? 0 : Number(g.tolerance),
+    // A trap needs BOTH coordinates and a response to do anything, so drop it
+    // if either is missing (scalar traps only check the template, but a
+    // response-less grid trap would match silently and say nothing).
+    ...(traps.length ? { traps } : {}),
   }
 }
 

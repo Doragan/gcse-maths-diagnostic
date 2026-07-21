@@ -199,6 +199,29 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             setValidationError(`Part (${letter}) shades squares — tolerance must be 0 (shading is exact).`)
             return
           }
+          for (const [ti, t] of (g.traps ?? []).entries()) {
+            const tEls = t.elements.filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
+            if (tEls.length === 0) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} has no points — give the wrong drawing, or remove the trap.`)
+              return
+            }
+            if (!t.response.trim()) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} needs a response — without one it would match silently.`)
+              return
+            }
+            if (g.mode === 'line' && tEls.length !== 2) {
+              setValidationError(`Part (${letter}) trap ${ti + 1}: a straight-line trap needs exactly 2 points (it has ${tEls.length}).`)
+              return
+            }
+            if (g.mode === 'polygon' && tEls.length < 3) {
+              setValidationError(`Part (${letter}) trap ${ti + 1}: a polygon trap needs at least 3 corners (it has ${tEls.length}).`)
+              return
+            }
+            if (g.mode !== 'line' && g.mode !== 'polygon' && tEls.length !== nEls) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} has ${tEls.length} points but the answer has ${nEls} — it could never match.`)
+              return
+            }
+          }
           for (const axis of ['x', 'y'] as const) {
             for (const bound of ['min', 'max'] as const) {
               const v = String(g[axis][bound]).trim()
