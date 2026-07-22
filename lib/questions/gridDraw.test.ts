@@ -471,6 +471,63 @@ describe('checkGridDraw — bars mode', () => {
   })
 })
 
+describe('checkGridDraw — bars_free mode', () => {
+  // A histogram: two 10-wide classes then one 20-wide class.
+  const classes = [
+    { x: 0, x2: 10, y: 1, marks: 1 },
+    { x: 10, x2: 20, y: 1.5, marks: 1 },
+    { x: 20, x2: 40, y: 0.5, marks: 1 },
+  ]
+  const bar = (x: number, x2: number, y: number) => ({ x, y, x2 })
+
+  it('right widths and heights → correct, full marks', () => {
+    const res = checkGridDraw([bar(0, 10, 1), bar(10, 20, 1.5), bar(20, 40, 0.5)], classes, 'bars_free', 0)
+    expect(res.correct).toBe(true)
+    expect(res.marksEarned).toBe(3)
+  })
+
+  it('order does not matter', () => {
+    expect(checkGridDraw([bar(20, 40, 0.5), bar(0, 10, 1), bar(10, 20, 1.5)], classes, 'bars_free', 0).correct).toBe(true)
+  })
+
+  it('THE POINT OF THE MODE: right height, wrong width scores nothing for that bar', () => {
+    // The last class is 20 wide; drawing it 10 wide is the equal-class-widths
+    // misconception, and must not be credited just because the height is right.
+    const res = checkGridDraw([bar(0, 10, 1), bar(10, 20, 1.5), bar(20, 30, 0.5)], classes, 'bars_free', 0)
+    expect(res.correct).toBe(false)
+    expect(res.perElement.map(e => e.correct)).toEqual([true, true, false])
+    expect(res.marksEarned).toBe(2)
+  })
+
+  it('a half-drawn bar (no x2) can never match', () => {
+    const res = checkGridDraw([{ x: 0, y: 1 }], [classes[0]], 'bars_free', 0)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(0)
+  })
+
+  it('tolerance applies to the height but never to the edges', () => {
+    expect(checkGridDraw([bar(0, 10, 1.4)], [classes[0]], 'bars_free', 0.5).correct).toBe(true)
+    // One step out horizontally is a different class, tolerance or not.
+    expect(checkGridDraw([bar(0, 11, 1)], [classes[0]], 'bars_free', 0.5).correct).toBe(false)
+  })
+
+  it('a canonical bar with no x2 defaults to one x step wide', () => {
+    const res = checkGridDraw([bar(2, 3, 4)], [el(2, 4)], 'bars_free', 0)
+    expect(res.correct).toBe(true)
+  })
+
+  it('the equal-widths misconception is trappable — x2 survives the trap loop', () => {
+    const traps = [{
+      elements: [bar(0, 10, 1), bar(10, 20, 1.5), bar(20, 30, 0.5)],
+      response: 'Every class is not the same width.',
+    }]
+    const res = checkGridDraw(
+      [bar(0, 10, 1), bar(10, 20, 1.5), bar(20, 30, 0.5)], classes, 'bars_free', 0, undefined, traps)
+    expect(res.trap?.response).toBe('Every class is not the same width.')
+    expect(res.marksEarned).toBe(2) // a trap never changes the marks
+  })
+})
+
 describe('checkGridDraw — number_line mode', () => {
   // x > -1  →  open circle at -1, arrow right.
   const canonical = [{ x: -1, y: 0, marks: 1, style: 'open' as const, dir: 'right' as const }]

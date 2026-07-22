@@ -26,7 +26,8 @@ const MODES = [
   ['line', 'Straight line — 2 points defining a line'],
   ['cells', 'Shade squares — tap cells to shade'],
   ['polygon', 'Polygon — place the shape’s corners in order'],
-  ['bars', 'Bars — draw each bar to a height (bar chart, histogram)'],
+  ['bars', 'Bars, fixed columns — you set each bar’s width; the student sets only its height (bar chart)'],
+  ['bars_free', 'Bars, student-drawn — the student chooses each bar’s width AND height (histogram)'],
   ['number_line', 'Number line — mark a value with a circle and arrow'],
 ] as const
 
@@ -46,7 +47,9 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
   const isLine = grid.mode === 'line'
   const isCells = grid.mode === 'cells'
   const isPolygon = grid.mode === 'polygon'
-  const isBars = grid.mode === 'bars'
+  // Both bar modes author the same way — the author always declares the
+  // intended [x, x2] span; they differ only in who draws the width.
+  const isBars = grid.mode === 'bars' || grid.mode === 'bars_free'
   const isNumberLine = grid.mode === 'number_line'
   // Line pins exactly 2 elements; polygon needs at least 3; a number line is
   // exactly one marker.

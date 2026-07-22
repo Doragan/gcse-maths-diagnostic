@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { colors, font, radius, secondaryButton, errorBox } from '../../lib/styles'
-import { gridGeometry, buildGridFrame, buildPointsLayer, buildSolutionLayer, CELL } from '../../lib/questions/gridSvg'
+import { gridGeometry, buildGridFrame, buildPointsLayer, buildSolutionLayer, toGhostPoint, CELL, PAD } from '../../lib/questions/gridSvg'
 import type { RenderedGrid, GridPoint } from '../../lib/questions/gridDraw'
 
 /**
@@ -35,6 +35,15 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   // drag (the browser scrolling the page) — see handlePointerUp.
   const pointerStart = useRef<{ x: number; y: number; id: number } | null>(null)
   const [cursor, setCursor] = useState<GridPoint | null>(null)
+  // Where a mouse is hovering, so we can show what a click WOULD do before it
+  // is committed. Without this the canvas is silent until you click, which
+  // means the only way to find a column is to click and see — the cause of the
+  // "I had to click several times until it worked" experience.
+  const [hover, setHover] = useState<GridPoint | null>(null)
+  // bars_free: the first corner of a bar that is half-drawn (x edge + height,
+  // no width yet). Held here rather than in `value` so an incomplete bar can
+  // never be submitted or marked.
+  const [pending, setPending] = useState<GridPoint | null>(null)
   const [announce, setAnnounce] = useState('')
 
   // A number line is deliberately 1-D, so its y axis collapses to a point —
@@ -84,6 +93,44 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     pointerStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId }
   }
 
+  /** CSS px → viewBox units. Aspect is preserved, so one ratio per axis is exact. */
+  function toViewBox(clientX: number, clientY: number): { vx: number; vy: number } | null {
+    if (!svgRef.current) return null
+    const rect = svgRef.current.getBoundingClientRect()
+    return {
+      vx: (clientX - rect.left) * (geo!.W / rect.width),
+      vy: (clientY - rect.top) * (geo!.H / rect.height),
+    }
+  }
+
+  /**
+   * What a click at this position addresses. The hover preview and the click
+   * handler both go through here, so the ghost the student sees can never
+   * disagree with the mark they get.
+   *
+   * Each mode identifies a different thing: cells the containing square, bars
+   * the containing slot (setting its height), number_line a position on the
+   * 1-D axis, everything else the nearest lattice intersection. bars_free
+   * alternates — a free corner, then the far EDGE only (ignoring vy, which is
+   * what makes the second tap forgiving).
+   */
+  function hitFor(vx: number, vy: number): GridPoint | null {
+    if (!geo) return null
+    return grid.mode === 'cells' ? geo.snapCell(vx, vy)
+      : grid.mode === 'bars' ? geo.snapBar(vx, vy, grid.elements)
+      : grid.mode === 'bars_free' ? (pending ? geo.snapLine(vx) : geo.snap(vx, vy))
+      : grid.mode === 'number_line' ? geo.snapLine(vx)
+      : geo.snap(vx, vy)
+  }
+
+  // Hover preview is a MOUSE affordance. Touch has no hover state, and firing
+  // this from a finger would flash a ghost under the fingertip mid-scroll.
+  function handlePointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    if (readOnly || !onChange || e.pointerType !== 'mouse') return
+    const v = toViewBox(e.clientX, e.clientY)
+    setHover(v ? hitFor(v.vx, v.vy) : null)
+  }
+
   // Place on pointer-UP, and only for a tap that barely moved. A finger that
   // dragged more than a few pixels was scrolling the page (touchAction:pan-y),
   // not placing a point — so we ignore it. This lets the page scroll on mobile
@@ -94,36 +141,64 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     pointerStart.current = null
     if (!start || start.id !== e.pointerId) return
     if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return // a drag, not a tap
-    const rect = svgRef.current.getBoundingClientRect()
-    // width="100%" with a viewBox preserves aspect, so one linear ratio per
-    // axis converts CSS px → viewBox units exactly.
-    const vx = (e.clientX - rect.left) * (geo.W / rect.width)
-    const vy = (e.clientY - rect.top) * (geo.H / rect.height)
-    // Each mode identifies a different thing: cells the containing square,
-    // bars the containing slot (setting its height), number_line a position on
-    // the 1-D axis, everything else the nearest lattice intersection.
-    const hit = grid.mode === 'cells' ? geo.snapCell(vx, vy)
-      : grid.mode === 'bars' ? geo.snapBar(vx, vy, grid.elements)
-      : grid.mode === 'number_line' ? geo.snapLine(vx)
-      : geo.snap(vx, vy)
+    const v = toViewBox(e.clientX, e.clientY)
+    if (!v) return
+    const hit = hitFor(v.vx, v.vy)
     if (hit) {
       setCursor(hit)
       if (grid.mode === 'bars') setBarHeight(hit)
+      else if (grid.mode === 'bars_free') tapFreeBar(hit)
       else if (grid.mode === 'number_line') setMarker(hit)
       else togglePoint(hit)
     }
   }
 
   /**
-   * Bars: a tap sets that slot's height, replacing whatever was there. Tapping
-   * a bar at its existing height clears it, keeping the tap-to-undo idiom.
+   * bars_free: two taps per bar. The first sets one top corner (an x edge AND
+   * the height); the second sets the other edge, with its y ignored.
+   *
+   * A tap here ONLY ever draws. Tapping a finished bar deliberately does not
+   * clear it: histogram classes are contiguous, so one bar's right edge is the
+   * next one's left edge, and taps snap to the lattice — on a step-10 axis a
+   * 10-wide bar has no interior lattice point at all. Any "tap the bar to
+   * remove it" rule therefore destroys the previous bar the moment you start
+   * the next one. Removal lives on the explicit Undo and Clear buttons.
+   */
+  function tapFreeBar(p: GridPoint) {
+    if (readOnly || !onChange) return
+    if (pending) {
+      const left = Math.min(pending.x, p.x)
+      const right = Math.max(pending.x, p.x)
+      if (left === right) {
+        setAnnounce('A bar needs some width — tap a different edge')
+        return
+      }
+      setPending(null)
+      onChange([...value, { x: left, y: pending.y, x2: right }])
+      setAnnounce(`Bar drawn from ${left} to ${right} at height ${pending.y}`)
+      return
+    }
+    if (value.length >= maxPoints) {
+      setAnnounce(`All ${maxPoints} bars are drawn — use Undo to change one`)
+      return
+    }
+    setPending(p)
+    setAnnounce(`Corner placed at ${p.x}, height ${p.y}. Now tap the bar's other edge.`)
+  }
+
+  /**
+   * Bars: a tap sets that slot's height, replacing whatever was there.
+   *
+   * Re-tapping at the SAME height is deliberately a no-op. It used to clear the
+   * bar, which meant the natural "did that land where I meant?" second click
+   * destroyed the bar the student had just drawn — the main reason drawing a
+   * chart took several attempts. Clearing lives on the Clear button instead.
    */
   function setBarHeight(p: GridPoint) {
     if (readOnly || !onChange) return
     const at = value.findIndex(v => v.x === p.x)
     if (at >= 0 && value[at].y === p.y) {
-      onChange(value.filter((_, i) => i !== at))
-      setAnnounce(`Bar cleared`)
+      setAnnounce(`Bar already at ${p.y}`)
     } else if (at >= 0) {
       onChange(value.map((v, i) => i === at ? p : v))
       setAnnounce(`Bar set to ${p.y}`)
@@ -182,6 +257,10 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         // Only act if the cursor is inside a declared slot.
         const slot = grid.elements.find(s => cur.x >= s.x - 1e-9 && cur.x < (s.x2 ?? s.x + x.step) - 1e-9)
         if (slot) setBarHeight({ x: slot.x, y: cur.y })
+      } else if (grid.mode === 'bars_free') {
+        // Same two-step vocabulary as tapping: corner, then far edge. The
+        // cursor's y is ignored on the second press, matching hitFor.
+        tapFreeBar(pending ? { x: cur.x, y: pending.y } : cur)
       } else if (grid.mode === 'number_line') {
         setMarker({ x: cur.x, y: y.min })
       } else {
@@ -194,8 +273,7 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   const layerExtra = { slots: grid.elements, axes: { x: grid.x, y: grid.y } }
 
   const ghost = showCanonical
-    ? buildPointsLayer(
-        grid.elements.map(el => ({ x: el.x, y: el.y, ...(el.style ? { style: el.style } : {}), ...(el.dir ? { dir: el.dir } : {}) })),
+    ? buildPointsLayer(grid.elements.map(toGhostPoint(grid)),
         geo, { color: colors.success, ghost: true, mode: grid.mode, ...layerExtra },
       )
     : ''
@@ -209,24 +287,45 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   // separate "marker" to colour.
   const joins = value.length >= 2 && (grid.mode === 'polyline' || grid.mode === 'line' || grid.mode === 'polygon')
     ? buildPointsLayer(value, geo, { color: colors.primary, mode: grid.mode, markers: false })
-    : (value.length >= 1 && (grid.mode === 'bars' || grid.mode === 'number_line'))
+    : (value.length >= 1 && (grid.mode === 'bars' || grid.mode === 'bars_free' || grid.mode === 'number_line'))
     ? buildPointsLayer(value, geo, { color: colors.primary, mode: grid.mode, ...layerExtra })
     : ''
+
+  // What the preview follows: the mouse when it is over the grid, otherwise
+  // the keyboard cursor, so key users get the same look-before-you-commit.
+  const indicator = hover ?? cursor
 
   const marker = value[0]
   const counterText =
     grid.mode === 'line' ? `${value.length} of 2 points placed — place 2 points on the line`
     : grid.mode === 'cells' ? `${value.length} of ${maxPoints} squares shaded`
     : grid.mode === 'polygon' ? `${value.length} of ${maxPoints} corners placed`
-    : grid.mode === 'bars' ? `${value.length} of ${maxPoints} bars drawn`
+    : grid.mode === 'bars' || grid.mode === 'bars_free' ? `${value.length} of ${maxPoints} bars drawn`
     : grid.mode === 'number_line' ? (marker ? `Marked at ${marker.x}` : 'No value marked yet')
     : `${value.length} of ${maxPoints} points placed`
+
+  // A live readout of the value under the pointer, so the student can confirm
+  // what they are about to draw without counting gridlines.
+  const readout =
+    // Mid-bar: describe the bar the next tap would make. On touch there is no
+    // hover, so the indicator is still the corner just tapped — reporting a
+    // zero-width "10 to 10" bar would be nonsense, so show the height instead.
+    pending ? (indicator && indicator.x !== pending.x
+        ? `Bar from ${Math.min(pending.x, indicator.x)} to ${Math.max(pending.x, indicator.x)}, height ${pending.y}`
+        : `Height ${pending.y} — now tap the other edge`)
+    : !indicator ? ''
+    : grid.mode === 'bars' || grid.mode === 'bars_free' ? `Height ${indicator.y}`
+    : grid.mode === 'number_line' ? `${indicator.x}`
+    : `(${indicator.x}, ${indicator.y})`
 
   const instruction =
     grid.mode === 'line' ? 'Tap the grid to plot 2 points the line passes through, then submit. Tap a point again to remove it.'
     : grid.mode === 'cells' ? 'Tap squares to shade them. Tap a shaded square to unshade it.'
     : grid.mode === 'polygon' ? "Tap the grid to place the shape's corners in order. Tap a corner again to remove it."
-    : grid.mode === 'bars' ? 'Tap a column at the height you want to draw its bar. Tap the top of a bar again to clear it.'
+    : grid.mode === 'bars' ? 'Tap a column at the height you want to draw its bar. The dashed lines show where each column starts and ends.'
+    : grid.mode === 'bars_free' ? (pending
+        ? "Now tap the bar's other edge — only how far across matters, not how high."
+        : 'Draw each bar with two taps: first a top corner, then its other edge. Use Undo to change a bar.')
     : grid.mode === 'number_line' ? 'Tap the number line to mark the value, then choose the circle and the arrow below.'
     : `Tap the grid to place ${maxPoints === 1 ? 'a point' : `${maxPoints} points`}. Tap a point again to remove it.`
 
@@ -247,6 +346,8 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         role="img"
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={() => setHover(null)}
         onPointerCancel={() => { pointerStart.current = null }}
         style={{
           display: 'block',
@@ -259,7 +360,9 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
           background: '#ffffff',
           borderRadius: radius.md,
           border: `1px solid ${colors.border}`,
-          maxWidth: `${geo.W * 1.5}px`,
+          // Bigger cells are easier to aim at on a desktop; the 560px ceiling
+          // stops a small grid being blown up into a wall of empty squares.
+          maxWidth: `${Math.min(geo.W * 2.2, 560)}px`,
         }}
       >
         <g dangerouslySetInnerHTML={{ __html: frame }} />
@@ -268,7 +371,7 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         {joins && <g dangerouslySetInnerHTML={{ __html: joins }} />}
         {/* bars and number_line draw their whole mark in `joins` above — a bar
             rect or a circle-plus-arrow has no separate marker to overlay. */}
-        {grid.mode !== 'bars' && grid.mode !== 'number_line' && value.map((p, i) => {
+        {grid.mode !== 'bars' && grid.mode !== 'bars_free' && grid.mode !== 'number_line' && value.map((p, i) => {
           const verdict = perElement?.[i]
           const fill = verdict === undefined ? colors.primary : verdict ? colors.success : colors.danger
           if (grid.mode === 'cells') {
@@ -300,10 +403,55 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
             />
           )
         })}
-        {!readOnly && cursor && (grid.mode === 'cells' ? (
+        {/* bars_free in progress: the corner that has been placed, plus a
+            dashed height guide right across the plot, so the student can see
+            the level they are about to draw to while choosing the far edge. */}
+        {!readOnly && pending && (
+          <g pointerEvents="none">
+            <line
+              x1={PAD.left} y1={geo.py(pending.y)}
+              x2={PAD.left + geo.cols * CELL} y2={geo.py(pending.y)}
+              stroke={colors.primary} strokeWidth={1.5} strokeDasharray="4 4"
+            />
+            <line
+              x1={geo.px(pending.x)} y1={geo.py(pending.y)}
+              x2={geo.px(pending.x)} y2={geo.py(grid.y.min)}
+              stroke={colors.primary} strokeWidth={2}
+            />
+            {/* The bar this tap would complete, if the pointer is over the grid. */}
+            {indicator && Math.abs(indicator.x - pending.x) > 1e-9 && (
+              <rect
+                x={geo.px(Math.min(pending.x, indicator.x))}
+                y={geo.py(pending.y)}
+                width={Math.abs(geo.px(indicator.x) - geo.px(pending.x))}
+                height={geo.py(grid.y.min) - geo.py(pending.y)}
+                fill={colors.primary} fillOpacity={0.18}
+                stroke={colors.primary} strokeWidth={1.5} strokeDasharray="4 4"
+              />
+            )}
+          </g>
+        )}
+        {/* Hover/keyboard preview: exactly what a click would create, drawn
+            before it is committed. In bars mode that is the whole bar, which is
+            what makes the columns discoverable without trial clicking. */}
+        {!readOnly && indicator && grid.mode === 'bars' && (
           <rect
-            x={geo.px(cursor.x)}
-            y={geo.py(cursor.y) - CELL}
+            x={geo.px(indicator.x)}
+            y={geo.py(indicator.y)}
+            width={geo.px(grid.elements.find(s => Math.abs(s.x - indicator.x) < 1e-9)?.x2 ?? indicator.x + grid.x.step) - geo.px(indicator.x)}
+            height={geo.py(grid.y.min) - geo.py(indicator.y)}
+            fill={colors.primary} fillOpacity={0.18}
+            stroke={colors.primary} strokeWidth={1.5} strokeDasharray="4 4"
+            pointerEvents="none"
+          />
+        )}
+        {/* Everything else previews as the marker or square it would place.
+            Suppressed once a bars_free bar is half-drawn — the rect preview
+            above already says what the next tap does. */}
+        {!readOnly && indicator && grid.mode !== 'bars' && !pending && (grid.mode === 'cells' ? (
+          <rect
+            x={geo.px(indicator.x)}
+            y={geo.py(indicator.y) - CELL}
             width={CELL}
             height={CELL}
             fill="none"
@@ -314,8 +462,8 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
           />
         ) : (
           <circle
-            cx={geo.px(cursor.x)}
-            cy={geo.py(cursor.y)}
+            cx={geo.px(indicator.x)}
+            cy={geo.py(indicator.y)}
             r={8}
             fill="none"
             stroke={colors.primary}
@@ -380,13 +528,33 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
 
       {!readOnly && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-          <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{counterText}</span>
+          <span style={{ fontSize: font.sm, color: colors.textSecondary, flex: 1 }}>
+            {counterText}
+            {readout && <span style={{ color: colors.primary, fontWeight: 600 }}> · {readout}</span>}
+          </span>
+          {/* bars_free removes by explicit undo rather than by tapping a bar —
+              see tapFreeBar for why tapping cannot be made unambiguous. */}
+          {grid.mode === 'bars_free' && (
+            <button
+              onClick={() => {
+                if (pending) { setPending(null); setAnnounce('Bar cancelled') }
+                else { onChange?.(value.slice(0, -1)); setAnnounce('Last bar removed') }
+              }}
+              disabled={value.length === 0 && !pending}
+              style={{
+                ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm,
+                opacity: value.length === 0 && !pending ? 0.5 : 1,
+              }}
+            >
+              Undo
+            </button>
+          )}
           <button
-            onClick={() => { onChange?.([]); setAnnounce('All points cleared') }}
-            disabled={value.length === 0}
+            onClick={() => { onChange?.([]); setPending(null); setAnnounce('All points cleared') }}
+            disabled={value.length === 0 && !pending}
             style={{
               ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm,
-              opacity: value.length === 0 ? 0.5 : 1,
+              opacity: value.length === 0 && !pending ? 0.5 : 1,
             }}
           >
             Clear

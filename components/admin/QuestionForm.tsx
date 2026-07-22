@@ -209,7 +209,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               return
             }
           }
-          if (g.mode === 'bars') {
+          if (g.mode === 'bars' || g.mode === 'bars_free') {
             for (const [bi, el] of g.elements.entries()) {
               const from = Number(el.x)
               const to = el.x2 == null || String(el.x2).trim() === '' ? from + Number(g.x.step || 1) : Number(el.x2)

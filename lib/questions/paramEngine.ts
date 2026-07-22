@@ -301,7 +301,7 @@ export type RenderedPart = {
     }[]
     tolerance: number
     traps: {
-      elements: { x: number, y: number, style?: 'open' | 'closed', dir?: 'left' | 'right' | 'none' }[]
+      elements: { x: number, y: number, x2?: number, style?: 'open' | 'closed', dir?: 'left' | 'right' | 'none' }[]
       response: string
       match?: 'exact' | 'translated'
     }[]
@@ -354,6 +354,9 @@ export function renderMultiPartQuestion(
       traps?: {
         elements: {
           x: number | string, y: number | string
+          // bars_free traps are wrong WIDTHS, so the edges are part of the
+          // trap's geometry, not decoration.
+          x2?: number | string
           style?: 'open' | 'closed'
           dir?: 'left' | 'right' | 'none'
         }[]
@@ -426,8 +429,12 @@ export function renderMultiPartQuestion(
           })),
           tolerance: part.grid.tolerance,
           traps: (part.grid.traps ?? []).map(t => ({
+            // x2/style/dir must render here as well as on the canonical
+            // elements: a bars_free trap IS a set of wrong WIDTHS, so dropping
+            // the edges would leave it unable to fire for its own drawing.
             elements: t.elements.map(e => ({
               x: evalNum(e.x), y: evalNum(e.y),
+              ...(e.x2 != null ? { x2: evalNum(e.x2) } : {}),
               ...(e.style ? { style: e.style } : {}),
               ...(e.dir ? { dir: e.dir } : {}),
             })),
