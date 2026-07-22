@@ -442,13 +442,26 @@ export default function MultiPartQuestion({
                     its trap/reminder message, and the right answer where wrong. */}
                 {o.grid ? null : o.blanks ? o.blanks.map(b => {
                   // Three states, not two: right, wrong, and right-given-your-
-                  // own-earlier-error (amber ✓, still shows the true answer so
-                  // the student can see where the chain went off).
-                  const blankColor = b.followThrough ? colors.warningText
-                    : b.correct ? colors.successText : colors.dangerText
+                  // own-earlier-error. Each gets its own chip — the outer box
+                  // is red-tinted whenever the part isn't 100% correct (which
+                  // is always, when ECF fires), and amber TEXT alone read as
+                  // muddy red against that wash. A distinct chip background
+                  // per row fixes that regardless of what the box around it does.
+                  const chip = b.followThrough
+                    ? { bg: colors.warningLight, border: colors.warningBorder, text: colors.warningText }
+                    : b.correct
+                      ? { bg: colors.successLight, border: colors.successBorder, text: colors.successText }
+                      : { bg: colors.dangerLight, border: colors.dangerBorder, text: colors.dangerText }
                   return (
-                  <div key={b.label} style={{ display: 'flex', flexDirection: 'column' as const, gap: '2px' }}>
-                    <p style={{ fontSize: font.sm, margin: 0, color: blankColor }}>
+                  <div
+                    key={b.label}
+                    style={{
+                      display: 'flex', flexDirection: 'column' as const, gap: '2px',
+                      background: chip.bg, border: `1px solid ${chip.border}`,
+                      borderRadius: radius.sm, padding: '6px 8px',
+                    }}
+                  >
+                    <p style={{ fontSize: font.sm, margin: 0, color: chip.text }}>
                       {b.correct ? '✓' : '✗'} {b.label} ={' '}
                       <strong><span dangerouslySetInnerHTML={{ __html: b.answer }} /></strong>
                       {(!b.correct || b.followThrough) && (
@@ -463,7 +476,7 @@ export default function MultiPartQuestion({
                         trap responses, reminders and "Not answered." still show. */}
                     {b.message && b.message !== 'Correct!' && !b.message.startsWith('Not quite. The correct answer is') && (
                       <div
-                        style={{ fontSize: font.sm, color: blankColor, paddingLeft: '18px' }}
+                        style={{ fontSize: font.sm, color: chip.text, paddingLeft: '18px' }}
                         dangerouslySetInnerHTML={{ __html: b.message }}
                       />
                     )}
