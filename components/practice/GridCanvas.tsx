@@ -37,8 +37,12 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   const [cursor, setCursor] = useState<GridPoint | null>(null)
   const [announce, setAnnounce] = useState('')
 
+  // A number line is deliberately 1-D, so its y axis collapses to a point —
+  // demanding y.max > y.min would send every number line to the error box.
+  const needsYRange = grid.mode !== 'number_line'
   const finite = [grid.x.min, grid.x.max, grid.x.step, grid.y.min, grid.y.max, grid.y.step]
-    .every(Number.isFinite) && grid.x.step > 0 && grid.y.step > 0 && grid.x.max > grid.x.min && grid.y.max > grid.y.min
+    .every(Number.isFinite) && grid.x.step > 0 && grid.y.step > 0 && grid.x.max > grid.x.min
+    && (needsYRange ? grid.y.max > grid.y.min : grid.y.max >= grid.y.min)
 
   const geo = useMemo(
     () => finite ? gridGeometry(grid.x, grid.y) : null,
