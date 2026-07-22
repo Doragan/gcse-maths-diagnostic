@@ -156,13 +156,15 @@ async function auditBank() {
         const offGrid = els.some((e: any) =>
           e.x < ax.min - 1e-9 || e.x > xHi + 1e-9 || e.y < ay.min - 1e-9 || e.y > yHi + 1e-9)
         if (offGrid) { renderErrors.push(`${label} (element off-grid)`); continue }
-        const mode = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'number_line'].includes(g.mode) ? g.mode : null
+        const mode = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'bars_free', 'number_line'].includes(g.mode) ? g.mode : null
         if (!mode) { badType.push(`${q.id} part ${'abcdefgh'[pi]}: grid mode "${g.mode}"`); continue }
         const graded = checkGridDraw(
           // style/dir must survive or every number_line question would look
-          // like its own canonical answer fails to self-grade.
+          // like its own canonical answer fails to self-grade — likewise x2 for
+          // bars_free, where the student's bar carries its own edges.
           els.map((e: any) => ({
             x: e.x, y: e.y,
+            ...(mode === 'bars_free' ? { x2: e.x2 ?? e.x + ax.step } : {}),
             ...(e.style ? { style: e.style } : {}),
             ...(e.dir ? { dir: e.dir } : {}),
           })),

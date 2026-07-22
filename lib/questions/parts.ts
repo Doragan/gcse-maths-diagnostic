@@ -69,7 +69,7 @@ export type GridElement = {
   dir?: 'left' | 'right' | 'none'
 }
 export type Grid = {
-  mode: 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars' | 'number_line'
+  mode: 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars' | 'bars_free' | 'number_line'
   x: GridAxis
   y: GridAxis
   // SVG-fragment template drawn in AXIS coordinates behind the lattice
@@ -92,6 +92,9 @@ export type Grid = {
 export type GridTrap = {
   elements: {
     x: number | string; y: number | string
+    // bars_free: the wrong RIGHT edge — this is what makes "every bar drawn
+    // the same width" expressible as a trap.
+    x2?: number | string
     style?: 'open' | 'closed'
     dir?: 'left' | 'right' | 'none'
   }[]
@@ -257,6 +260,7 @@ export type GridInput = {
 export type GridTrapInput = {
   elements: {
     x: string | number; y: string | number
+    x2?: string | number
     style?: 'open' | 'closed'
     dir?: 'left' | 'right' | 'none'
   }[]
@@ -299,7 +303,9 @@ export function normalizeGrid(g: GridInput): Grid {
         .map(e => ({
           x: numberOrTemplate(String(e.x)),
           y: numberOrTemplate(String(e.y)),
-          // A number_line trap IS a wrong circle or arrow, so these must survive.
+          // A number_line trap IS a wrong circle or arrow, and a bars_free trap
+          // IS a set of wrong widths, so these must survive normalisation.
+          ...(e.x2 != null && String(e.x2).trim() !== '' ? { x2: numberOrTemplate(String(e.x2)) } : {}),
           ...(e.style ? { style: e.style } : {}),
           ...(e.dir ? { dir: e.dir } : {}),
         })),

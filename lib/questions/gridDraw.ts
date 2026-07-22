@@ -48,8 +48,17 @@ export type RenderedGrid = {
   traps?: RenderedGridTrap[]
 }
 // axis units, lattice-snapped. style/dir are carried only by number_line
-// markers and ride through serialisation as extra JSON fields.
-export type GridPoint = { x: number; y: number; style?: EndpointStyle; dir?: RayDir }
+// markers, x2 only by bars_free bars; all three ride through serialisation as
+// extra JSON fields.
+export type GridPoint = {
+  x: number
+  y: number
+  // bars_free: the bar's RIGHT edge, set by the student's second tap. Absent
+  // means the bar is still half-drawn (one corner placed, no width yet).
+  x2?: number
+  style?: EndpointStyle
+  dir?: RayDir
+}
 
 /**
  * An authored WRONG drawing plus the feedback it earns — the geometric twin of
@@ -89,7 +98,7 @@ function gridDist(a: { x: number; y: number }, b: { x: number; y: number }, xSte
   return Math.hypot((a.x - b.x) / xStep, (a.y - b.y) / yStep)
 }
 
-export type GridDrawMode = 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars' | 'number_line'
+export type GridDrawMode = 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars' | 'bars_free' | 'number_line'
 
 /**
  * Grade a drawing against a canonical element list. Knows nothing about traps
@@ -118,6 +127,10 @@ function gradeCore(
 
   if (mode === 'bars') {
     return checkBars(drawn, canonical, tolerance, yStep, marksTotal)
+  }
+
+  if (mode === 'bars_free') {
+    return checkBarsFree(drawn, canonical, tolerance, xStep, yStep, marksTotal)
   }
 
   if (mode === 'number_line') {
@@ -218,8 +231,12 @@ export function checkGridDraw(
     // style/dir must survive: a number_line trap IS "right position, wrong
     // circle" or "wrong arrow", so dropping them would make those two coded
     // misconceptions unmatchable.
+    // x2 must survive too: a bars_free trap IS "right heights, wrong widths"
+    // (the equal-class-widths misconception), so dropping the edges would make
+    // it unmatchable — the same bug style/dir hit on number_line.
     const asCanonical = t.elements.map(p => ({
       x: p.x, y: p.y, marks: 1,
+      ...(p.x2 != null ? { x2: p.x2 } : {}),
       ...(p.style ? { style: p.style } : {}),
       ...(p.dir ? { dir: p.dir } : {}),
     }))
@@ -256,6 +273,51 @@ function checkBars(
     const heightOk = Math.abs((drawn[si].y - c.y) / yStep) <= tol
     if (heightOk) sMatched[si] = true
     return { correct: heightOk, marks: heightOk ? c.marks || 0 : 0 }
+  })
+  const marksEarned = perElement.reduce((s, e) => s + e.marks, 0)
+  return {
+    correct: perElement.every(e => e.correct) && drawn.length === canonical.length && canonical.length > 0,
+    perElement,
+    perStudent: sMatched,
+    marksEarned,
+    marksTotal,
+  }
+}
+
+/**
+ * bars_free mode: the student draws each bar's WIDTH as well as its height, so
+ * a drawn point carries both edges ([x, x2]) and a height (y).
+ *
+ * This exists because choosing the class widths is part of what a histogram
+ * question tests — in `bars` the author declares the slots, which hands the
+ * student the very thing being assessed. Here a bar of the right height at the
+ * wrong width is simply wrong.
+ *
+ * Edges must match EXACTLY (class boundaries are lattice values, and "nearly
+ * the right interval" is not a thing in a histogram); only the height is
+ * allowed the part's tolerance. A half-drawn bar (no x2) can never match.
+ */
+function checkBarsFree(
+  drawn: GridPoint[],
+  canonical: RenderedGridElement[],
+  tolerance: number,
+  xStep: number,
+  yStep: number,
+  marksTotal: number,
+): Omit<GridDrawResult, 'trap'> {
+  const tol = tolerance + EPS
+  const sMatched = new Array(drawn.length).fill(false)
+  const perElement = canonical.map(c => {
+    // The canonical right edge defaults to one step, matching bars mode.
+    const cRight = c.x2 ?? c.x + xStep
+    const si = drawn.findIndex((p, i) => !sMatched[i]
+      && p.x2 != null
+      && Math.abs(p.x - c.x) < EPS
+      && Math.abs(p.x2 - cRight) < EPS
+      && Math.abs((p.y - c.y) / yStep) <= tol)
+    if (si === -1) return { correct: false, marks: 0 }
+    sMatched[si] = true
+    return { correct: true, marks: c.marks || 0 }
   })
   const marksEarned = perElement.reduce((s, e) => s + e.marks, 0)
   return {
@@ -522,11 +584,13 @@ function checkPolygon(
 // ── Exam-record serialisation (the answers record is Record<string,string>) ──
 
 export function serialiseGridAnswer(points: GridPoint[]): string {
-  // style/dir are only present on number_line markers; carrying them here is
-  // what lets the exam runner rebuild the student's circle and arrow.
+  // style/dir are only present on number_line markers, x2 only on bars_free
+  // bars; carrying them here is what lets the exam runner rebuild the student's
+  // circle and arrow, or the width they chose for each bar.
   return points.length === 0 ? '' : JSON.stringify(points.map(p => ({
     x: p.x,
     y: p.y,
+    ...(p.x2 != null ? { x2: p.x2 } : {}),
     ...(p.style ? { style: p.style } : {}),
     ...(p.dir ? { dir: p.dir } : {}),
   })))
@@ -542,6 +606,9 @@ export function parseGridAnswer(s: string): GridPoint[] {
     const pts: GridPoint[] = v.map(p => ({
       x: Number(p?.x),
       y: Number(p?.y),
+      // A non-finite x2 is dropped rather than kept as NaN, which would make
+      // the bar unmatchable AND undrawable.
+      ...(Number.isFinite(Number(p?.x2)) ? { x2: Number(p.x2) } : {}),
       // Unknown values are dropped rather than trusted — a marker with a bogus
       // style would otherwise never match anything and read as a mystery.
       ...(STYLES.includes(p?.style) ? { style: p.style as EndpointStyle } : {}),
@@ -554,11 +621,13 @@ export function parseGridAnswer(s: string): GridPoint[] {
 }
 
 /**
- * '(1, 3), (2, 5)' for coordinates; number-line markers read as
- * 'open circle at -1, arrow right' so the review text is meaningful.
+ * '(1, 3), (2, 5)' for coordinates; free bars read as '20 to 40 at height 1.5'
+ * and number-line markers as 'open circle at -1, arrow right', so the review
+ * text is meaningful for every mode.
  */
 export function formatGridPoints(points: GridPoint[]): string {
   return points.map(p => {
+    if (p.x2 != null) return `${p.x} to ${p.x2} at height ${p.y}`
     if (!p.style && !p.dir) return `(${p.x}, ${p.y})`
     const circle = `${p.style ?? 'closed'} circle at ${p.x}`
     return p.dir && p.dir !== 'none' ? `${circle}, arrow ${p.dir}` : circle

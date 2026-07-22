@@ -5,7 +5,7 @@ import { evaluateTemplate, generateValues, satisfiesAllConstraints, type Paramet
 import { checkAnswer, normalise } from '../lib/questions/answerChecker'
 import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
 import { checkGridDraw, type RenderedGrid } from '../lib/questions/gridDraw'
-import { buildGridSvg } from '../lib/questions/gridSvg'
+import { buildGridSvg, toGhostPoint } from '../lib/questions/gridSvg'
 import { readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
@@ -123,7 +123,7 @@ function unitsOf(q: Q): Unit[] {
   }]
 }
 
-const GRID_MODES = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'number_line']
+const GRID_MODES = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'bars_free', 'number_line']
 const ENDPOINT_STYLES = ['open', 'closed']
 const RAY_DIRS = ['left', 'right', 'none']
 const GRID_MAX_COLS = 12 // touch rule: ≥28px between gridlines on a phone
@@ -150,8 +150,11 @@ function renderGridAt(g: any, c: Record<string, number>): RenderedGrid {
     })),
     tolerance: Number(g.tolerance) || 0,
     traps: (g.traps ?? []).map((t: any) => ({
+      // x2 must render here too — a bars_free trap IS a set of wrong widths,
+      // so dropping the edges would make it silently unable to fire.
       elements: (t.elements ?? []).map((e: any) => ({
         x: gridNum(e.x, c), y: gridNum(e.y, c),
+        ...(e.x2 != null ? { x2: gridNum(e.x2, c) } : {}),
         ...(e.style ? { style: e.style } : {}),
         ...(e.dir ? { dir: e.dir } : {}),
       })),
@@ -311,7 +314,9 @@ function verifyGridPart(
     // Bar slots must be well formed: each bar spans [x, x2], the spans must
     // fit the grid, and they must not overlap — overlapping slots make the
     // student's tap ambiguous about which bar they meant.
-    if (r.mode === 'bars') {
+    // bars_free gets the same gates: the student draws the edges there, but
+    // the CANONICAL bars still have to be well formed and unambiguous.
+    if (r.mode === 'bars' || r.mode === 'bars_free') {
       const spans = r.elements.map(e => ({ from: e.x, to: e.x2 ?? e.x + r.x.step }))
       for (let i = 0; i < spans.length; i++) {
         const s = spans[i]
@@ -329,14 +334,26 @@ function verifyGridPart(
           break
         }
       }
+      // In bars_free the student TAPS both edges, so an edge off the x lattice
+      // is unreachable — the question would be impossible to answer. (In bars
+      // the author owns the edges, so any value is drawable.)
+      if (r.mode === 'bars_free') {
+        for (let i = 0; i < spans.length; i++) {
+          for (const [side, v] of [['x', spans[i].from], ['x2', spans[i].to]] as const) {
+            const steps = (v - r.x.min) / r.x.step
+            if (Math.abs(steps - Math.round(steps)) > 1e-9) {
+              fail(`bar${i}:${side}lattice`, `${label}: bar ${i + 1} ${side} = ${v} is not on the x lattice, so the student cannot tap it, at ${JSON.stringify(c)}`)
+            }
+          }
+        }
+      }
     }
 
     // Canonical self-grade through the REAL marker.
-    const pts = r.elements.map(e => ({
-      x: e.x, y: e.y,
-      ...(e.style ? { style: e.style } : {}),
-      ...(e.dir ? { dir: e.dir } : {}),
-    }))
+    // The same mapping the ghost layer uses, so the self-grade drawing is
+    // exactly what a student who drew the answer perfectly would submit —
+    // including the edges, which bars_free reads off the point.
+    const pts = r.elements.map(toGhostPoint(r))
     const graded = checkGridDraw(pts, r.elements, r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step })
     if (!graded.correct) fail('self', `${label}: canonical drawing NOT accepted by the marker at ${JSON.stringify(c)}`)
 

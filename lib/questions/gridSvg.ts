@@ -33,9 +33,11 @@ export type GridGeometry = {
   // bars: viewBox → { x: the containing SLOT's left edge, y: the snapped
   // height }. Slots come from the canonical bars, so this takes them.
   snapBar: (vx: number, vy: number, slots: { x: number; x2?: number }[]) => GridPoint | null
-  // number_line: viewBox → the nearest position on the axis. Ignores vy
-  // entirely — a number line is a 1-D input on a strip only ~14 units tall,
-  // so demanding vertical precision would make it unusable.
+  // viewBox → the nearest x position on the lattice, ignoring vy ENTIRELY.
+  // Used by number_line (a 1-D input on a strip only ~14 units tall, where
+  // demanding vertical precision would make it unusable) and by the second tap
+  // of a bars_free bar, which sets only the far edge — ignoring vy there is
+  // what makes that tap forgiving.
   snapLine: (vx: number) => GridPoint | null
 }
 
@@ -137,6 +139,24 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   if (x.label) parts.push(`<text x="${PAD.left + (geo.cols * CELL) / 2}" y="${PAD.top + geo.rows * CELL + 28}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}">${x.label}</text>`)
   if (y.label) parts.push(`<text x="${12}" y="${PAD.top + (geo.rows * CELL) / 2}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}" transform="rotate(-90 12 ${PAD.top + (geo.rows * CELL) / 2})">${y.label}</text>`)
 
+  // bars: make the columns VISIBLE. The author declares the slots and a tap
+  // sets the containing slot's height, but on a plain grid every column looks
+  // identical, so the student cannot tell which one a click will land in
+  // without clicking to find out. These boundary lines are the fix.
+  // bars_free deliberately gets none — there the student defines the edges, so
+  // drawn boundaries would be handing them the answer.
+  if (grid.mode === 'bars') {
+    const bottom = PAD.top + geo.rows * CELL
+    const edges = new Set<number>()
+    for (const el of grid.elements) {
+      edges.add(el.x)
+      edges.add(el.x2 ?? el.x + x.step)
+    }
+    for (const e of edges) {
+      parts.push(`<line x1="${geo.px(e)}" y1="${PAD.top}" x2="${geo.px(e)}" y2="${bottom}" stroke="${colors.textHint}" stroke-width="1.5" stroke-dasharray="4 3"/>`)
+    }
+  }
+
   // Author background, drawn in axis coordinates (flip transform mirrors
   // text — v1 rule: paths/shapes only).
   if (grid.background) parts.push(axisCoordGroup(grid.background, grid, geo))
@@ -183,18 +203,29 @@ export function buildPointsLayer(
   const op = ghost ? ' opacity="0.55"' : ''
   const dash = ghost ? ' stroke-dasharray="6 4"' : ''
 
-  if (mode === 'bars') {
-    // Each point is a bar: x identifies its slot, y is its height. Bars rise
-    // from the baseline (the y-axis minimum).
+  if (mode === 'bars' || mode === 'bars_free') {
+    // Each point is a bar rising from the baseline (the y-axis minimum), with
+    // y its height. The two modes differ only in where the WIDTH comes from:
+    // `bars` looks the slot up from the author's declared elements, whereas in
+    // `bars_free` the student chose both edges, so they travel on the point.
     const baseline = axes ? geo.py(axes.y.min) : geo.py(0)
     for (const p of points) {
-      const slot = slots.find(s => Math.abs(s.x - p.x) < 1e-9)
-      const right = slot?.x2 ?? (axes ? p.x + axes.x.step : p.x + 1)
-      const left = geo.px(p.x)
+      let leftAxis: number, rightAxis: number
+      if (mode === 'bars_free') {
+        // A half-drawn bar (one corner tapped, no width yet) is not a bar —
+        // GridCanvas draws that as an in-progress guide instead.
+        if (p.x2 == null) continue
+        leftAxis = Math.min(p.x, p.x2)
+        rightAxis = Math.max(p.x, p.x2)
+      } else {
+        leftAxis = p.x
+        rightAxis = slots.find(s => Math.abs(s.x - p.x) < 1e-9)?.x2 ?? (axes ? p.x + axes.x.step : p.x + 1)
+      }
+      const left = geo.px(leftAxis)
       const top = geo.py(p.y)
       parts.push(ghost
-        ? `<rect x="${left}" y="${Math.min(top, baseline)}" width="${geo.px(right) - left}" height="${Math.abs(baseline - top)}" fill="none" stroke="${color}" stroke-width="2"${dash}${op}/>`
-        : `<rect x="${left}" y="${Math.min(top, baseline)}" width="${geo.px(right) - left}" height="${Math.abs(baseline - top)}" fill="${color}" fill-opacity="0.45" stroke="${color}" stroke-width="1.5"/>`)
+        ? `<rect x="${left}" y="${Math.min(top, baseline)}" width="${geo.px(rightAxis) - left}" height="${Math.abs(baseline - top)}" fill="none" stroke="${color}" stroke-width="2"${dash}${op}/>`
+        : `<rect x="${left}" y="${Math.min(top, baseline)}" width="${geo.px(rightAxis) - left}" height="${Math.abs(baseline - top)}" fill="${color}" fill-opacity="0.45" stroke="${color}" stroke-width="1.5"/>`)
     }
     return parts.join('')
   }
@@ -273,6 +304,21 @@ export function buildPointsLayer(
   return parts.join('')
 }
 
+/**
+ * Canonical element → the GridPoint the ghost layer draws. In bars_free the
+ * ghost must carry the author's edges, since that mode reads the width off the
+ * point rather than looking a slot up; style/dir ride along the same way.
+ */
+export function toGhostPoint(grid: RenderedGrid): (e: RenderedGrid['elements'][number]) => GridPoint {
+  return e => ({
+    x: e.x,
+    y: e.y,
+    ...(grid.mode === 'bars_free' ? { x2: e.x2 ?? e.x + grid.x.step } : {}),
+    ...(e.style ? { style: e.style } : {}),
+    ...(e.dir ? { dir: e.dir } : {}),
+  })
+}
+
 /** Complete standalone SVG — what the harness rasterises for the eyeball pass. */
 export function buildGridSvg(
   grid: RenderedGrid,
@@ -286,8 +332,7 @@ export function buildGridSvg(
   // need the axes to find the baseline and plot edges.
   const extra = { slots: grid.elements, axes: { x: grid.x, y: grid.y } }
   const canonical = opts.showCanonical
-    ? buildPointsLayer(
-        grid.elements.map(e => ({ x: e.x, y: e.y, ...(e.style ? { style: e.style } : {}), ...(e.dir ? { dir: e.dir } : {}) })),
+    ? buildPointsLayer(grid.elements.map(toGhostPoint(grid)),
         geo, { color: colors.success, ghost: true, mode: grid.mode, ...extra })
     : ''
   const student = opts.student?.length

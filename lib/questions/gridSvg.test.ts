@@ -126,6 +126,36 @@ describe('buildGridSvg', () => {
     expect(bars[1][3]).toBeGreaterThan(bars[0][3])
   })
 
+  it('bars mode draws the slot boundaries so the columns are visible', () => {
+    // Without these the student cannot tell which column a click lands in.
+    const barGrid: RenderedGrid = {
+      mode: 'bars', x: ax(0, 4, 1, ''), y: ax(0, 8, 1, ''), background: '',
+      elements: [{ x: 0, x2: 1, y: 3, marks: 1 }, { x: 2, x2: 4, y: 5, marks: 1 }],
+      tolerance: 0,
+    }
+    // Edges at 0, 1, 2, 4 → four dashed dividers.
+    expect((buildGridSvg(barGrid).match(/stroke-dasharray="4 3"/g) ?? []).length).toBe(4)
+    // bars_free must NOT get them — there the widths are the answer.
+    const free = buildGridSvg({ ...barGrid, mode: 'bars_free' })
+    expect(free).not.toContain('stroke-dasharray="4 3"')
+  })
+
+  it('bars_free reads each bar\'s width off the point, not the slots', () => {
+    const freeGrid: RenderedGrid = {
+      mode: 'bars_free', x: ax(0, 40, 10, ''), y: ax(0, 3, 0.5, ''), background: '',
+      elements: [{ x: 0, x2: 10, y: 1, marks: 1 }, { x: 20, x2: 40, y: 0.5, marks: 1 }],
+      tolerance: 0,
+    }
+    const svg = buildGridSvg(freeGrid, { student: [{ x: 0, y: 1, x2: 10 }, { x: 20, y: 0.5, x2: 40 }] })
+    const bars = [...svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)]
+      .map(m => m.slice(1).map(Number)).filter(r => r[0] > 0)
+    expect(bars).toHaveLength(2)
+    expect(bars[1][2]).toBeCloseTo(bars[0][2] * 2) // 20 wide vs 10 wide
+    // A half-drawn bar has no width yet, so it is not drawn as a bar at all.
+    const partial = buildGridSvg(freeGrid, { student: [{ x: 0, y: 1 }] })
+    expect([...partial.matchAll(/<rect x="([\d.]+)"/g)].map(m => Number(m[1])).filter(x => x > 0)).toHaveLength(0)
+  })
+
   it('number line draws a hollow circle and an arrow ray', () => {
     const nlGrid: RenderedGrid = {
       mode: 'number_line', x: ax(-5, 5, 1, ''), y: ax(0, 0, 1, ''), background: '',
