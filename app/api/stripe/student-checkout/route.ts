@@ -1,7 +1,8 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { PRICE_IDS, isSubscriptionPlan, toPlan } from '../../../../lib/stripePlans'
+import { priceIdFor, isSubscriptionPlan, toPlan } from '../../../../lib/stripePlans'
+import { founderSeatsLeft } from '../../../../lib/founderSeats'
 
 export async function POST(req: Request) {
   try {
@@ -31,9 +32,18 @@ export async function POST(req: Request) {
 
     const isSubscription = isSubscriptionPlan(plan)
 
+    // Founder pricing: the exam pass charges the discounted founder price while
+    // seats remain, then reverts to the standard price. A service-role client is
+    // used for the count (it must bypass RLS). Non-exam plans skip the check.
+    const admin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
+    const founder = plan === 'exam' ? (await founderSeatsLeft(admin)) > 0 : false
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
+      line_items: [{ price: priceIdFor(plan, { founder }), quantity: 1 }],
       mode: isSubscription ? 'subscription' : 'payment',
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/student/dashboard?upgraded=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/student/upgrade`,
@@ -41,6 +51,7 @@ export async function POST(req: Request) {
       metadata: {
         student_id: user.id,
         plan,
+        founder: String(founder),
       },
       ...(isSubscription && {
         subscription_data: {

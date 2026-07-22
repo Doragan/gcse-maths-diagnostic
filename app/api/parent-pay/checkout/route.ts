@@ -3,7 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { verifyPayToken } from '../../../../lib/parentPay'
 import { isPaidStudent } from '../../../../lib/entitlements'
-import { PRICE_IDS, isSubscriptionPlan, toPlan } from '../../../../lib/stripePlans'
+import { priceIdFor, isSubscriptionPlan, toPlan } from '../../../../lib/stripePlans'
+import { founderSeatsLeft } from '../../../../lib/founderSeats'
 
 /**
  * Public: create a Stripe Checkout Session a parent can complete for a student.
@@ -50,15 +51,20 @@ export async function POST(req: Request) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
     const isSubscription = isSubscriptionPlan(plan)
 
+    // Founder pricing: the exam pass charges the discounted founder price while
+    // seats remain, then reverts to the standard price. Reuse the service-role
+    // `admin` client above for the count.
+    const founder = plan === 'exam' ? (await founderSeatsLeft(admin)) > 0 : false
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
+      line_items: [{ price: priceIdFor(plan, { founder }), quantity: 1 }],
       mode: isSubscription ? 'subscription' : 'payment',
       // Return the PARENT to the pay page; Stripe collects the parent's email.
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pay/${token}?paid=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pay/${token}`,
       // Grant is keyed on student_id — same metadata the webhook already reads.
-      metadata: { student_id: studentId, plan, payer: 'parent' },
+      metadata: { student_id: studentId, plan, payer: 'parent', founder: String(founder) },
       ...(isSubscription && {
         subscription_data: { metadata: { student_id: studentId, plan, payer: 'parent' } },
       }),

@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { PLANS, FEATURES, type Plan } from '../../../lib/studentPlans'
+import { PLANS, FEATURES, planPricing, seatsLeftLabel, type Plan } from '../../../lib/studentPlans'
 import { trackEvent } from '../../../lib/analytics'
 import {
   colors, font, radius,
@@ -27,11 +27,19 @@ export default function ParentPayPage() {
   const [selectedPlan, setSelectedPlan] = useState<Plan>('annual')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Founder seats remaining for the exam pass (null = still loading / unknown).
+  const [seatsLeft, setSeatsLeft] = useState<number | null>(null)
 
   useEffect(() => {
     // Returned from a successful Stripe checkout.
     const paid = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('paid') === 'true'
     if (paid) { setStatus('paid'); return }
+
+    // Founder-seat count for the exam-pass sale framing (aggregate, no PII).
+    fetch('/api/founder-seats')
+      .then(r => r.json())
+      .then(d => setSeatsLeft(typeof d.seatsLeft === 'number' ? d.seatsLeft : null))
+      .catch(() => {})
 
     fetch(`/api/parent-pay/info?token=${encodeURIComponent(token)}`)
       .then(r => r.json())
@@ -127,6 +135,8 @@ export default function ParentPayPage() {
         <div style={styles.plans}>
           {PLANS.map(plan => {
             const selected = selectedPlan === plan.id
+            const pricing = planPricing(plan, seatsLeft)
+            const seatNote = plan.founder ? seatsLeftLabel(seatsLeft) : null
             return (
               <button
                 key={plan.id}
@@ -135,15 +145,21 @@ export default function ParentPayPage() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: font.base, fontWeight: 600, color: colors.textPrimary }}>{plan.label}</span>
-                  {plan.badge && (
-                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: radius.full, background: colors.primary, color: '#fff' }}>{plan.badge}</span>
+                  {pricing.badge && (
+                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: radius.full, background: colors.primary, color: '#fff' }}>{pricing.badge}</span>
                   )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '6px 0 4px' }}>
-                  <span style={{ fontSize: '28px', fontWeight: 700, color: colors.primary }}>{plan.price}</span>
+                  <span style={{ fontSize: '28px', fontWeight: 700, color: colors.primary }}>{pricing.price}</span>
+                  {pricing.strikePrice && (
+                    <span style={{ fontSize: font.base, color: colors.textHint, textDecoration: 'line-through' }}>{pricing.strikePrice}</span>
+                  )}
                   <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{plan.period}</span>
                 </div>
                 <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, textAlign: 'left' }}>{plan.description}</p>
+                {seatNote && (
+                  <p style={{ fontSize: font.sm, fontWeight: 600, color: colors.primary, margin: '6px 0 0', textAlign: 'left' }}>{seatNote}</p>
+                )}
               </button>
             )
           })}
@@ -161,7 +177,11 @@ export default function ParentPayPage() {
         {error && <p style={{ fontSize: font.base, color: colors.dangerText, margin: 0 }}>{error}</p>}
 
         <button onClick={handlePay} disabled={loading} style={{ ...primaryButton, opacity: loading ? 0.6 : 1 }}>
-          {loading ? 'Redirecting to payment…' : `${selectedPlan === 'exam' ? 'Pay' : 'Subscribe'} — ${PLANS.find(p => p.id === selectedPlan)?.price}`}
+          {loading ? 'Redirecting to payment…' : (() => {
+            const p = PLANS.find(p => p.id === selectedPlan)
+            const price = p ? planPricing(p, seatsLeft).price : ''
+            return `${selectedPlan === 'exam' ? 'Pay' : 'Subscribe'} — ${price}`
+          })()}
         </button>
 
         <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, textAlign: 'center' }}>
