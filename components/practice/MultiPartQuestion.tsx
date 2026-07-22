@@ -213,6 +213,11 @@ export default function MultiPartQuestion({
             ? `${nRight} of ${n} squares correct`
             : grid.mode === 'polygon'
             ? `${nRight} of ${n} corners correct`
+            : grid.mode === 'bars'
+            ? `${nRight} of ${n} bars correct`
+            : grid.mode === 'number_line'
+            // One marker, so a count reads oddly — say what's wrong instead.
+            ? 'Check the value, the circle and the arrow.'
             : `${nRight} of ${n} points correct`,
         grid: { points: gridPoints, perStudent: result.perStudent },
         ...(result.trap ? { trapResponse: result.trap.response } : {}),

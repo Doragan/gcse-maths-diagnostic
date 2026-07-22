@@ -26,6 +26,8 @@ const MODES = [
   ['line', 'Straight line — 2 points defining a line'],
   ['cells', 'Shade squares — tap cells to shade'],
   ['polygon', 'Polygon — place the shape’s corners in order'],
+  ['bars', 'Bars — draw each bar to a height (bar chart, histogram)'],
+  ['number_line', 'Number line — mark a value with a circle and arrow'],
 ] as const
 
 export default function GridEditor({ grid, onChange, autoResize }: Props) {
@@ -37,17 +39,22 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
     onChange({ ...grid, [which]: { ...grid[which], [field]: value } })
   }
 
-  function setElement(i: number, field: 'x' | 'y' | 'marks', value: string) {
+  function setElement(i: number, field: 'x' | 'y' | 'marks' | 'x2' | 'style' | 'dir', value: string) {
     set('elements', grid.elements.map((e, j) => j === i ? { ...e, [field]: value } : e))
   }
 
   const isLine = grid.mode === 'line'
   const isCells = grid.mode === 'cells'
   const isPolygon = grid.mode === 'polygon'
-  // Line pins exactly 2 elements; polygon needs at least 3.
+  const isBars = grid.mode === 'bars'
+  const isNumberLine = grid.mode === 'number_line'
+  // Line pins exactly 2 elements; polygon needs at least 3; a number line is
+  // exactly one marker.
   const removeDisabled = (isLine && grid.elements.length <= 2)
     || (isPolygon && grid.elements.length <= 3)
-  const addDisabled = isLine && grid.elements.length >= 2
+    || (isNumberLine && grid.elements.length <= 1)
+  const addDisabled = (isLine && grid.elements.length >= 2)
+    || (isNumberLine && grid.elements.length >= 1)
 
   function addElement() {
     set('elements', [...grid.elements, { x: '', y: '', marks: 1 }])
@@ -145,18 +152,51 @@ export default function GridEditor({ grid, onChange, autoResize }: Props) {
           {isLine ? 'Line endpoints (exactly 2 — the intended line)'
             : isCells ? 'Squares to shade (bottom-left corner of each)'
             : isPolygon ? 'Corners in order (at least 3)'
+            : isBars ? 'Bars — x is the left edge, x2 the right edge, y the correct height'
+            : isNumberLine ? 'The marked value (exactly one)'
             : 'Correct points'}
         </label>
+        {isBars && (
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            Leave x2 blank for a bar one step wide. Set it for unequal class widths (a histogram).
+            Slots must not overlap.
+          </p>
+        )}
         {grid.elements.map((el, i) => (
           <div key={i} style={styles.row}>
             <div style={styles.field}>
-              <label style={{ ...labelStyle, fontWeight: '400' }}>x</label>
+              <label style={{ ...labelStyle, fontWeight: '400' }}>{isBars ? 'x (left)' : 'x'}</label>
               <input type="text" value={String(el.x)} onChange={e => setElement(i, 'x', e.target.value)} style={inputStyle} placeholder={'0 or {{a}}'} />
             </div>
+            {isBars && (
+              <div style={styles.field}>
+                <label style={{ ...labelStyle, fontWeight: '400' }}>x2 (right)</label>
+                <input type="text" value={String(el.x2 ?? '')} onChange={e => setElement(i, 'x2', e.target.value)} style={inputStyle} placeholder="one step wide" />
+              </div>
+            )}
             <div style={styles.field}>
-              <label style={{ ...labelStyle, fontWeight: '400' }}>y</label>
+              <label style={{ ...labelStyle, fontWeight: '400' }}>{isBars ? 'y (height)' : 'y'}</label>
               <input type="text" value={String(el.y)} onChange={e => setElement(i, 'y', e.target.value)} style={inputStyle} placeholder={'{{c}}'} />
             </div>
+            {isNumberLine && (
+              <>
+                <div style={styles.field}>
+                  <label style={{ ...labelStyle, fontWeight: '400' }}>Circle</label>
+                  <select value={el.style ?? 'closed'} onChange={e => setElement(i, 'style', e.target.value)} style={inputStyle}>
+                    <option value="closed">● Solid (≤ or ≥)</option>
+                    <option value="open">○ Hollow (&lt; or &gt;)</option>
+                  </select>
+                </div>
+                <div style={styles.field}>
+                  <label style={{ ...labelStyle, fontWeight: '400' }}>Arrow</label>
+                  <select value={el.dir ?? 'none'} onChange={e => setElement(i, 'dir', e.target.value)} style={inputStyle}>
+                    <option value="none">None</option>
+                    <option value="left">← Left</option>
+                    <option value="right">→ Right</option>
+                  </select>
+                </div>
+              </>
+            )}
             <div style={{ ...styles.field, minWidth: '60px', flex: '0 1 80px' }}>
               <label style={{ ...labelStyle, fontWeight: '400' }}>Marks</label>
               <input type="number" value={String(el.marks)} onChange={e => setElement(i, 'marks', e.target.value)} style={inputStyle} min="1" />

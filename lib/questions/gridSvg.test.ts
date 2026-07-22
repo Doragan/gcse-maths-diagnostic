@@ -107,6 +107,57 @@ describe('buildGridSvg', () => {
     expect((svg.match(/circle/g) ?? []).length).toBe(3)
   })
 
+  it('bars render as rects rising from the baseline, at their slot width', () => {
+    const barGrid: RenderedGrid = {
+      mode: 'bars', x: ax(0, 4, 1, ''), y: ax(0, 8, 1, ''), background: '',
+      elements: [{ x: 0, y: 3, marks: 1 }, { x: 1, x2: 3, y: 5, marks: 1 }],
+      tolerance: 0,
+    }
+    const svg = buildGridSvg(barGrid, { student: [{ x: 0, y: 3 }, { x: 1, y: 5 }] })
+    expect(svg).not.toContain('circle')
+    const rects = [...svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)]
+      .map(m => m.slice(1).map(Number))
+    // Skip the white background rect (x=0,y=0).
+    const bars = rects.filter(r => r[0] > 0)
+    expect(bars).toHaveLength(2)
+    // Default width = one step; the x2 bar spans two steps.
+    expect(bars[1][2]).toBeCloseTo(bars[0][2] * 2)
+    // Taller bar has the greater height.
+    expect(bars[1][3]).toBeGreaterThan(bars[0][3])
+  })
+
+  it('number line draws a hollow circle and an arrow ray', () => {
+    const nlGrid: RenderedGrid = {
+      mode: 'number_line', x: ax(-5, 5, 1, ''), y: ax(0, 0, 1, ''), background: '',
+      elements: [{ x: -1, y: 0, marks: 1, style: 'open', dir: 'right' }],
+      tolerance: 0,
+    }
+    const svg = buildGridSvg(nlGrid, { student: [{ x: -1, y: 0, style: 'open', dir: 'right' }] })
+    expect(svg).toContain('circle')
+    expect(svg).toContain('fill="#ffffff"') // hollow
+    expect(svg).toContain('<path d="M') // arrowhead
+    // Solid endpoint fills with the colour instead.
+    const solid = buildGridSvg(nlGrid, { student: [{ x: -1, y: 0, style: 'closed', dir: 'none' }] })
+    expect(solid).not.toContain('<path d="M') // no arrow when dir is none
+  })
+
+  it('snapBar identifies the slot and snaps the height', () => {
+    const geo2 = gridGeometry(ax(0, 4), ax(0, 8))
+    const slots = [{ x: 0 }, { x: 1, x2: 3 }]
+    // A tap two-thirds across the wide slot still belongs to that slot.
+    expect(geo2.snapBar(geo2.px(2.4), geo2.py(5), slots)).toEqual({ x: 1, y: 5 })
+    expect(geo2.snapBar(geo2.px(0.5), geo2.py(3), slots)).toEqual({ x: 0, y: 3 })
+    // Outside any declared slot → null.
+    expect(geo2.snapBar(geo2.px(3.5), geo2.py(3), slots)).toBeNull()
+  })
+
+  it('snapLine ignores the vertical position entirely', () => {
+    const geo2 = gridGeometry(ax(-5, 5), ax(0, 0))
+    expect(geo2.snapLine(geo2.px(-1))).toEqual({ x: -1, y: 0 })
+    // Nearest-value snapping between ticks.
+    expect(geo2.snapLine(geo2.px(-1) + CELL * 0.6)).toEqual({ x: 0, y: 0 })
+  })
+
   it('solution overlay renders ONLY on the answer reveal', () => {
     const withSolution: RenderedGrid = { ...grid, solution: '<line x1="0" y1="0" x2="4" y2="8" stroke="#94a3b8"/>' }
     // Not revealed → the working stays hidden.

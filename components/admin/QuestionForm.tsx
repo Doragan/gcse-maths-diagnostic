@@ -199,6 +199,28 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             setValidationError(`Part (${letter}) shades squares — tolerance must be 0 (shading is exact).`)
             return
           }
+          if (g.mode === 'number_line') {
+            if (nEls !== 1) {
+              setValidationError(`Part (${letter}) is a number line — mark exactly 1 value (it has ${nEls}).`)
+              return
+            }
+            if (String(g.y.min).trim() !== String(g.y.max).trim()) {
+              setValidationError(`Part (${letter}) is a number line — set y min and y max the same (it is a 1-D axis).`)
+              return
+            }
+          }
+          if (g.mode === 'bars') {
+            for (const [bi, el] of g.elements.entries()) {
+              const from = Number(el.x)
+              const to = el.x2 == null || String(el.x2).trim() === '' ? from + Number(g.x.step || 1) : Number(el.x2)
+              // Templates can't be range-checked here; the harness does that
+              // per parameter draw. Only catch plainly-numeric mistakes.
+              if (Number.isFinite(from) && Number.isFinite(to) && to <= from) {
+                setValidationError(`Part (${letter}) bar ${bi + 1}: x2 (${to}) must be greater than x (${from}).`)
+                return
+              }
+            }
+          }
           for (const [ti, t] of (g.traps ?? []).entries()) {
             if (!t.response.trim()) {
               setValidationError(`Part (${letter}) trap ${ti + 1} needs a response — without one it would match silently.`)

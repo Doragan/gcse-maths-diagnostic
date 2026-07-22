@@ -54,13 +54,22 @@ export type Blank = {
  * may be template expressions ({{...}}) rendered against the question's shared
  * value set; `step` is a plain number so the grid keeps a stable SHAPE across
  * draws (parameters vary values, never the number of cells or elements).
- * `mode` storage accommodates the G2/G3 modes; only points/polyline/line are
- * markable in v1 (the harness gates the rest).
+ * Every mode below is markable; the harness gates each one's shape.
  */
 export type GridAxis = { min: number | string; max: number | string; step: number; label: string }
-export type GridElement = { x: number | string; y: number | string; marks: number }
+export type GridElement = {
+  x: number | string
+  y: number | string
+  marks: number
+  // bars: the bar's right edge (defaults to one step wide). Lets a histogram
+  // declare unequal class widths.
+  x2?: number | string
+  // number_line: the endpoint's circle style and ray direction.
+  style?: 'open' | 'closed'
+  dir?: 'left' | 'right' | 'none'
+}
 export type Grid = {
-  mode: 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars'
+  mode: 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars' | 'number_line'
   x: GridAxis
   y: GridAxis
   // SVG-fragment template drawn in AXIS coordinates behind the lattice
@@ -81,7 +90,11 @@ export type Grid = {
 
 /** One wrong drawing plus the feedback it earns. */
 export type GridTrap = {
-  elements: { x: number | string; y: number | string }[]
+  elements: {
+    x: number | string; y: number | string
+    style?: 'open' | 'closed'
+    dir?: 'left' | 'right' | 'none'
+  }[]
   response: string
   // 'exact' (default) matches the drawing in `elements`. 'translated' ignores
   // `elements` and fires for the RIGHT shape in the WRONG place — one trap
@@ -230,14 +243,23 @@ export type GridInput = {
   y: { min: string | number; max: string | number; step: string | number; label: string }
   background: string
   solution?: string
-  elements: { x: string | number; y: string | number; marks: string | number }[]
+  elements: {
+    x: string | number; y: string | number; marks: string | number
+    x2?: string | number
+    style?: 'open' | 'closed'
+    dir?: 'left' | 'right' | 'none'
+  }[]
   tolerance: string | number
   traps?: GridTrapInput[]
 }
 
 /** The loose, editable trap representation in the authoring form. */
 export type GridTrapInput = {
-  elements: { x: string | number; y: string | number }[]
+  elements: {
+    x: string | number; y: string | number
+    style?: 'open' | 'closed'
+    dir?: 'left' | 'right' | 'none'
+  }[]
   response: string
   match?: 'exact' | 'translated'
 }
@@ -274,7 +296,13 @@ export function normalizeGrid(g: GridInput): Grid {
     .map(t => ({
       elements: t.elements
         .filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
-        .map(e => ({ x: numberOrTemplate(String(e.x)), y: numberOrTemplate(String(e.y)) })),
+        .map(e => ({
+          x: numberOrTemplate(String(e.x)),
+          y: numberOrTemplate(String(e.y)),
+          // A number_line trap IS a wrong circle or arrow, so these must survive.
+          ...(e.style ? { style: e.style } : {}),
+          ...(e.dir ? { dir: e.dir } : {}),
+        })),
       response: t.response ?? '',
       ...(t.match === 'translated' ? { match: 'translated' as const } : {}),
     }))
@@ -301,6 +329,10 @@ export function normalizeGrid(g: GridInput): Grid {
         x: numberOrTemplate(String(e.x)),
         y: numberOrTemplate(String(e.y)),
         marks: e.marks === '' || e.marks == null ? 1 : Number(e.marks),
+        // Mode-specific extras, omitted when unused so stored jsonb stays clean.
+        ...(e.x2 != null && String(e.x2).trim() !== '' ? { x2: numberOrTemplate(String(e.x2)) } : {}),
+        ...(e.style ? { style: e.style } : {}),
+        ...(e.dir ? { dir: e.dir } : {}),
       })),
     tolerance: g.tolerance === '' || g.tolerance == null ? 0 : Number(g.tolerance),
     // A trap needs BOTH coordinates and a response to do anything, so drop it

@@ -293,9 +293,18 @@ export type RenderedPart = {
     y: { min: number, max: number, step: number, label: string }
     background: string
     solution: string
-    elements: { x: number, y: number, marks: number }[]
+    elements: {
+      x: number, y: number, marks: number
+      x2?: number
+      style?: 'open' | 'closed'
+      dir?: 'left' | 'right' | 'none'
+    }[]
     tolerance: number
-    traps: { elements: { x: number, y: number }[], response: string, match?: 'exact' | 'translated' }[]
+    traps: {
+      elements: { x: number, y: number, style?: 'open' | 'closed', dir?: 'left' | 'right' | 'none' }[]
+      response: string
+      match?: 'exact' | 'translated'
+    }[]
   }
 }
 
@@ -335,9 +344,22 @@ export function renderMultiPartQuestion(
       y: { min: number | string, max: number | string, step: number, label: string }
       background: string
       solution?: string
-      elements: { x: number | string, y: number | string, marks: number }[]
+      elements: {
+        x: number | string, y: number | string, marks: number
+        x2?: number | string
+        style?: 'open' | 'closed'
+        dir?: 'left' | 'right' | 'none'
+      }[]
       tolerance: number
-      traps?: { elements: { x: number | string, y: number | string }[], response: string, match?: 'exact' | 'translated' }[]
+      traps?: {
+        elements: {
+          x: number | string, y: number | string
+          style?: 'open' | 'closed'
+          dir?: 'left' | 'right' | 'none'
+        }[]
+        response: string
+        match?: 'exact' | 'translated'
+      }[]
     }
   }[],
   parameters: Parameters,
@@ -396,10 +418,19 @@ export function renderMultiPartQuestion(
           solution: part.grid.solution ? evaluateTemplate(part.grid.solution, generated) : '',
           elements: part.grid.elements.map(e => ({
             x: evalNum(e.x), y: evalNum(e.y), marks: e.marks,
+            // bars: x2 may be a template (a class boundary); style/dir are
+            // number_line enums that pass straight through.
+            ...(e.x2 != null ? { x2: evalNum(e.x2) } : {}),
+            ...(e.style ? { style: e.style } : {}),
+            ...(e.dir ? { dir: e.dir } : {}),
           })),
           tolerance: part.grid.tolerance,
           traps: (part.grid.traps ?? []).map(t => ({
-            elements: t.elements.map(e => ({ x: evalNum(e.x), y: evalNum(e.y) })),
+            elements: t.elements.map(e => ({
+              x: evalNum(e.x), y: evalNum(e.y),
+              ...(e.style ? { style: e.style } : {}),
+              ...(e.dir ? { dir: e.dir } : {}),
+            })),
             response: evaluateTemplate(t.response, generated),
             ...(t.match ? { match: t.match } : {}),
           })),
