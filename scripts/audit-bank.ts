@@ -144,6 +144,9 @@ async function auditBank() {
         const ay = { min: num(g.y?.min), max: num(g.y?.max), step: Number(g.y?.step) || 1 }
         const els = (Array.isArray(g.elements) ? g.elements : []).map((e: any) => ({
           x: num(e.x), y: num(e.y), marks: Number(e.marks) || 0,
+          ...(e.x2 != null ? { x2: num(e.x2) } : {}),
+          ...(e.style ? { style: e.style } : {}),
+          ...(e.dir ? { dir: e.dir } : {}),
         }))
         const nums = [ax.min, ax.max, ay.min, ay.max, ...els.flatMap((e: any) => [e.x, e.y])]
         if (!nums.every(Number.isFinite)) { renderErrors.push(label); continue }
@@ -153,10 +156,17 @@ async function auditBank() {
         const offGrid = els.some((e: any) =>
           e.x < ax.min - 1e-9 || e.x > xHi + 1e-9 || e.y < ay.min - 1e-9 || e.y > yHi + 1e-9)
         if (offGrid) { renderErrors.push(`${label} (element off-grid)`); continue }
-        const mode = ['points', 'polyline', 'line', 'cells', 'polygon'].includes(g.mode) ? g.mode : null
+        const mode = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'number_line'].includes(g.mode) ? g.mode : null
         if (!mode) { badType.push(`${q.id} part ${'abcdefgh'[pi]}: grid mode "${g.mode}"`); continue }
         const graded = checkGridDraw(
-          els.map((e: any) => ({ x: e.x, y: e.y })), els, mode,
+          // style/dir must survive or every number_line question would look
+          // like its own canonical answer fails to self-grade.
+          els.map((e: any) => ({
+            x: e.x, y: e.y,
+            ...(e.style ? { style: e.style } : {}),
+            ...(e.dir ? { dir: e.dir } : {}),
+          })),
+          els, mode,
           Number(g.tolerance) || 0, { xStep: ax.step, yStep: ay.step },
         )
         if (!graded.correct) emptyAns.push(`${label} (canonical fails self-grade)`)

@@ -37,8 +37,12 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   const [cursor, setCursor] = useState<GridPoint | null>(null)
   const [announce, setAnnounce] = useState('')
 
+  // A number line is deliberately 1-D, so its y axis collapses to a point —
+  // demanding y.max > y.min would send every number line to the error box.
+  const needsYRange = grid.mode !== 'number_line'
   const finite = [grid.x.min, grid.x.max, grid.x.step, grid.y.min, grid.y.max, grid.y.step]
-    .every(Number.isFinite) && grid.x.step > 0 && grid.y.step > 0 && grid.x.max > grid.x.min && grid.y.max > grid.y.min
+    .every(Number.isFinite) && grid.x.step > 0 && grid.y.step > 0 && grid.x.max > grid.x.min
+    && (needsYRange ? grid.y.max > grid.y.min : grid.y.max >= grid.y.min)
 
   const geo = useMemo(
     () => finite ? gridGeometry(grid.x, grid.y) : null,
@@ -95,13 +99,61 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     // axis converts CSS px → viewBox units exactly.
     const vx = (e.clientX - rect.left) * (geo.W / rect.width)
     const vy = (e.clientY - rect.top) * (geo.H / rect.height)
-    // cells mode toggles the CONTAINING cell; every other mode snaps to the
-    // nearest lattice intersection.
-    const hit = grid.mode === 'cells' ? geo.snapCell(vx, vy) : geo.snap(vx, vy)
+    // Each mode identifies a different thing: cells the containing square,
+    // bars the containing slot (setting its height), number_line a position on
+    // the 1-D axis, everything else the nearest lattice intersection.
+    const hit = grid.mode === 'cells' ? geo.snapCell(vx, vy)
+      : grid.mode === 'bars' ? geo.snapBar(vx, vy, grid.elements)
+      : grid.mode === 'number_line' ? geo.snapLine(vx)
+      : geo.snap(vx, vy)
     if (hit) {
       setCursor(hit)
-      togglePoint(hit)
+      if (grid.mode === 'bars') setBarHeight(hit)
+      else if (grid.mode === 'number_line') setMarker(hit)
+      else togglePoint(hit)
     }
+  }
+
+  /**
+   * Bars: a tap sets that slot's height, replacing whatever was there. Tapping
+   * a bar at its existing height clears it, keeping the tap-to-undo idiom.
+   */
+  function setBarHeight(p: GridPoint) {
+    if (readOnly || !onChange) return
+    const at = value.findIndex(v => v.x === p.x)
+    if (at >= 0 && value[at].y === p.y) {
+      onChange(value.filter((_, i) => i !== at))
+      setAnnounce(`Bar cleared`)
+    } else if (at >= 0) {
+      onChange(value.map((v, i) => i === at ? p : v))
+      setAnnounce(`Bar set to ${p.y}`)
+    } else {
+      onChange([...value, p])
+      setAnnounce(`Bar drawn to ${p.y}`)
+    }
+  }
+
+  /**
+   * Number line: one marker. A tap moves it, keeping whichever circle style
+   * and arrow direction the student has already chosen.
+   */
+  function setMarker(p: GridPoint) {
+    if (readOnly || !onChange) return
+    const current = value[0]
+    onChange([{ ...p, style: current?.style ?? 'closed', dir: current?.dir ?? 'none' }])
+    setAnnounce(`Marker moved to ${p.x}`)
+  }
+
+  function setMarkerStyle(style: 'open' | 'closed') {
+    if (readOnly || !onChange || !value[0]) return
+    onChange([{ ...value[0], style }])
+    setAnnounce(style === 'open' ? 'Hollow circle' : 'Solid circle')
+  }
+
+  function setMarkerDir(dir: 'left' | 'right' | 'none') {
+    if (readOnly || !onChange || !value[0]) return
+    onChange([{ ...value[0], dir }])
+    setAnnounce(dir === 'none' ? 'Arrow removed' : `Arrow pointing ${dir}`)
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -124,35 +176,58 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       setCursor(cur)
-      togglePoint(cur)
+      // Same routing as a tap — Enter must mean "set this bar's height" or
+      // "mark this value", not "toggle a point".
+      if (grid.mode === 'bars') {
+        // Only act if the cursor is inside a declared slot.
+        const slot = grid.elements.find(s => cur.x >= s.x - 1e-9 && cur.x < (s.x2 ?? s.x + x.step) - 1e-9)
+        if (slot) setBarHeight({ x: slot.x, y: cur.y })
+      } else if (grid.mode === 'number_line') {
+        setMarker({ x: cur.x, y: y.min })
+      } else {
+        togglePoint(cur)
+      }
     }
   }
 
+  // bars/number_line need their slot widths and axes to draw.
+  const layerExtra = { slots: grid.elements, axes: { x: grid.x, y: grid.y } }
+
   const ghost = showCanonical
-    ? buildPointsLayer(grid.elements.map(el => ({ x: el.x, y: el.y })), geo, {
-        color: colors.success, ghost: true, mode: grid.mode,
-      })
+    ? buildPointsLayer(
+        grid.elements.map(el => ({ x: el.x, y: el.y, ...(el.style ? { style: el.style } : {}), ...(el.dir ? { dir: el.dir } : {}) })),
+        geo, { color: colors.success, ghost: true, mode: grid.mode, ...layerExtra },
+      )
     : ''
   // Method overlay (ray lines etc.) — revealed with the correct answer.
   const solution = showCanonical ? buildSolutionLayer(grid, geo) : ''
 
   // Student joins (polyline/line) rendered via the shared builder WITHOUT
   // markers — the point markers are JSX so review views can colour them per
-  // verdict (markers:true here would double-draw them).
+  // verdict (markers:true here would double-draw them). bars and number_line
+  // draw their whole mark here, since a rect or a circle-plus-arrow has no
+  // separate "marker" to colour.
   const joins = value.length >= 2 && (grid.mode === 'polyline' || grid.mode === 'line' || grid.mode === 'polygon')
     ? buildPointsLayer(value, geo, { color: colors.primary, mode: grid.mode, markers: false })
+    : (value.length >= 1 && (grid.mode === 'bars' || grid.mode === 'number_line'))
+    ? buildPointsLayer(value, geo, { color: colors.primary, mode: grid.mode, ...layerExtra })
     : ''
 
+  const marker = value[0]
   const counterText =
     grid.mode === 'line' ? `${value.length} of 2 points placed — place 2 points on the line`
     : grid.mode === 'cells' ? `${value.length} of ${maxPoints} squares shaded`
     : grid.mode === 'polygon' ? `${value.length} of ${maxPoints} corners placed`
+    : grid.mode === 'bars' ? `${value.length} of ${maxPoints} bars drawn`
+    : grid.mode === 'number_line' ? (marker ? `Marked at ${marker.x}` : 'No value marked yet')
     : `${value.length} of ${maxPoints} points placed`
 
   const instruction =
     grid.mode === 'line' ? 'Tap the grid to plot 2 points the line passes through, then submit. Tap a point again to remove it.'
     : grid.mode === 'cells' ? 'Tap squares to shade them. Tap a shaded square to unshade it.'
     : grid.mode === 'polygon' ? "Tap the grid to place the shape's corners in order. Tap a corner again to remove it."
+    : grid.mode === 'bars' ? 'Tap a column at the height you want to draw its bar. Tap the top of a bar again to clear it.'
+    : grid.mode === 'number_line' ? 'Tap the number line to mark the value, then choose the circle and the arrow below.'
     : `Tap the grid to place ${maxPoints === 1 ? 'a point' : `${maxPoints} points`}. Tap a point again to remove it.`
 
   return (
@@ -191,7 +266,9 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         {solution && <g dangerouslySetInnerHTML={{ __html: solution }} />}
         {ghost && <g dangerouslySetInnerHTML={{ __html: ghost }} />}
         {joins && <g dangerouslySetInnerHTML={{ __html: joins }} />}
-        {value.map((p, i) => {
+        {/* bars and number_line draw their whole mark in `joins` above — a bar
+            rect or a circle-plus-arrow has no separate marker to overlay. */}
+        {grid.mode !== 'bars' && grid.mode !== 'number_line' && value.map((p, i) => {
           const verdict = perElement?.[i]
           const fill = verdict === undefined ? colors.primary : verdict ? colors.success : colors.danger
           if (grid.mode === 'cells') {
@@ -256,6 +333,50 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
       }}>
         {announce}
       </span>
+
+      {/* Number line: the circle style and arrow direction are part of the
+          answer, so they get their own controls. Disabled until a value is
+          marked — there is nothing to style otherwise. */}
+      {!readOnly && grid.mode === 'number_line' && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <span style={{ fontSize: font.sm, color: colors.textSecondary }}>Circle:</span>
+            {([['open', '○ Hollow'], ['closed', '● Solid']] as const).map(([v, label]) => (
+              <button
+                key={v}
+                onClick={() => setMarkerStyle(v)}
+                disabled={!marker}
+                style={{
+                  ...secondaryButton, width: 'auto', padding: '6px 12px', fontSize: font.sm,
+                  opacity: !marker ? 0.5 : 1,
+                  ...((marker?.style ?? 'closed') === v
+                    ? { borderColor: colors.primary, color: colors.primary, fontWeight: 700 } : {}),
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <span style={{ fontSize: font.sm, color: colors.textSecondary }}>Arrow:</span>
+            {([['left', '←'], ['none', 'None'], ['right', '→']] as const).map(([v, label]) => (
+              <button
+                key={v}
+                onClick={() => setMarkerDir(v)}
+                disabled={!marker}
+                style={{
+                  ...secondaryButton, width: 'auto', padding: '6px 12px', fontSize: font.sm,
+                  opacity: !marker ? 0.5 : 1,
+                  ...((marker?.dir ?? 'none') === v
+                    ? { borderColor: colors.primary, color: colors.primary, fontWeight: 700 } : {}),
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!readOnly && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>

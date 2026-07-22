@@ -15,7 +15,26 @@
  */
 
 export type RenderedAxis = { min: number; max: number; step: number; label: string }
-export type RenderedGridElement = { x: number; y: number; marks: number }
+
+/** Hollow or solid endpoint circle on a number line. */
+export type EndpointStyle = 'open' | 'closed'
+/** Which way the inequality's ray points from the endpoint. */
+export type RayDir = 'left' | 'right' | 'none'
+
+export type RenderedGridElement = {
+  x: number
+  y: number
+  marks: number
+  // bars: the bar's RIGHT edge. The bar spans [x, x2]; omitted means one step
+  // wide, so a uniform bar chart needs no extra authoring and a histogram just
+  // sets x2 per class.
+  x2?: number
+  // number_line: the endpoint's circle style and ray direction. Both must
+  // match for the answer to be correct — that is what makes the coded
+  // open_vs_closed_circle and arrow_direction misconceptions expressible.
+  style?: EndpointStyle
+  dir?: RayDir
+}
 export type RenderedGrid = {
   mode: string
   x: RenderedAxis
@@ -28,7 +47,9 @@ export type RenderedGrid = {
   // Rendered wrong-drawing traps (never drawn; marking metadata only).
   traps?: RenderedGridTrap[]
 }
-export type GridPoint = { x: number; y: number } // axis units, lattice-snapped
+// axis units, lattice-snapped. style/dir are carried only by number_line
+// markers and ride through serialisation as extra JSON fields.
+export type GridPoint = { x: number; y: number; style?: EndpointStyle; dir?: RayDir }
 
 /**
  * An authored WRONG drawing plus the feedback it earns — the geometric twin of
@@ -68,7 +89,7 @@ function gridDist(a: { x: number; y: number }, b: { x: number; y: number }, xSte
   return Math.hypot((a.x - b.x) / xStep, (a.y - b.y) / yStep)
 }
 
-export type GridDrawMode = 'points' | 'polyline' | 'line' | 'cells' | 'polygon'
+export type GridDrawMode = 'points' | 'polyline' | 'line' | 'cells' | 'polygon' | 'bars' | 'number_line'
 
 /**
  * Grade a drawing against a canonical element list. Knows nothing about traps
@@ -93,6 +114,14 @@ function gradeCore(
 
   if (mode === 'line') {
     return checkLine(drawn, canonical, tolerance, xStep, yStep, marksTotal)
+  }
+
+  if (mode === 'bars') {
+    return checkBars(drawn, canonical, tolerance, yStep, marksTotal)
+  }
+
+  if (mode === 'number_line') {
+    return checkNumberLine(drawn, canonical, tolerance, xStep, marksTotal)
   }
 
   if (mode === 'polygon') {
@@ -186,13 +215,91 @@ export function checkGridDraw(
     // rotation/winding); with all-zero marks every alignment ties, the first
     // candidate wins arbitrarily, and a genuine trap match silently fails to
     // fire. Never "tidy" this to 0.
-    const asCanonical = t.elements.map(p => ({ x: p.x, y: p.y, marks: 1 }))
+    // style/dir must survive: a number_line trap IS "right position, wrong
+    // circle" or "wrong arrow", so dropping them would make those two coded
+    // misconceptions unmatchable.
+    const asCanonical = t.elements.map(p => ({
+      x: p.x, y: p.y, marks: 1,
+      ...(p.style ? { style: p.style } : {}),
+      ...(p.dir ? { dir: p.dir } : {}),
+    }))
     // NOTE: gradeCore, never checkGridDraw — traps must not nest.
     if (gradeCore(drawn, asCanonical, mode, tolerance, steps).correct) {
       return { ...result, trap: { response: t.response } }
     }
   }
   return { ...result, trap: null }
+}
+
+/**
+ * Bars mode: the author declares the bar SLOTS (each element's [x, x2] span);
+ * the student only sets heights. So a drawn point identifies a bar by its slot
+ * and supplies that bar's height.
+ *
+ * Matching is slot-then-height, deliberately NOT the Euclidean nearest-point
+ * used by points mode: a bar drawn to the wrong height in one column must not
+ * be able to satisfy a neighbouring column just because it lands closer to it.
+ */
+function checkBars(
+  drawn: GridPoint[],
+  canonical: RenderedGridElement[],
+  tolerance: number,
+  yStep: number,
+  marksTotal: number,
+): Omit<GridDrawResult, 'trap'> {
+  const tol = tolerance + EPS
+  const sMatched = new Array(drawn.length).fill(false)
+  const perElement = canonical.map(c => {
+    // Slot identity is exact: the canvas snaps a tap to its slot's left edge.
+    const si = drawn.findIndex((p, i) => !sMatched[i] && Math.abs(p.x - c.x) < EPS)
+    if (si === -1) return { correct: false, marks: 0 }
+    const heightOk = Math.abs((drawn[si].y - c.y) / yStep) <= tol
+    if (heightOk) sMatched[si] = true
+    return { correct: heightOk, marks: heightOk ? c.marks || 0 : 0 }
+  })
+  const marksEarned = perElement.reduce((s, e) => s + e.marks, 0)
+  return {
+    correct: perElement.every(e => e.correct) && drawn.length === canonical.length && canonical.length > 0,
+    perElement,
+    perStudent: sMatched,
+    marksEarned,
+    marksTotal,
+  }
+}
+
+/**
+ * Number line: a single marker carrying a position, a hollow/solid circle and
+ * a ray direction. All three must match — the coded misconceptions are
+ * precisely "right position, wrong circle" (open_vs_closed_circle) and "right
+ * circle, wrong arrow" (arrow_direction), so a position-only match would make
+ * both untrappable.
+ */
+function checkNumberLine(
+  drawn: GridPoint[],
+  canonical: RenderedGridElement[],
+  tolerance: number,
+  xStep: number,
+  marksTotal: number,
+): Omit<GridDrawResult, 'trap'> {
+  const tol = tolerance + EPS
+  const sMatched = new Array(drawn.length).fill(false)
+  const perElement = canonical.map(c => {
+    const si = drawn.findIndex((p, i) => !sMatched[i]
+      && Math.abs((p.x - c.x) / xStep) <= tol
+      && (p.style ?? 'closed') === (c.style ?? 'closed')
+      && (p.dir ?? 'none') === (c.dir ?? 'none'))
+    if (si === -1) return { correct: false, marks: 0 }
+    sMatched[si] = true
+    return { correct: true, marks: c.marks || 0 }
+  })
+  const marksEarned = perElement.reduce((s, e) => s + e.marks, 0)
+  return {
+    correct: perElement.every(e => e.correct) && drawn.length === canonical.length && canonical.length > 0,
+    perElement,
+    perStudent: sMatched,
+    marksEarned,
+    marksTotal,
+  }
 }
 
 /**
@@ -415,21 +522,45 @@ function checkPolygon(
 // ── Exam-record serialisation (the answers record is Record<string,string>) ──
 
 export function serialiseGridAnswer(points: GridPoint[]): string {
-  return points.length === 0 ? '' : JSON.stringify(points.map(p => ({ x: p.x, y: p.y })))
+  // style/dir are only present on number_line markers; carrying them here is
+  // what lets the exam runner rebuild the student's circle and arrow.
+  return points.length === 0 ? '' : JSON.stringify(points.map(p => ({
+    x: p.x,
+    y: p.y,
+    ...(p.style ? { style: p.style } : {}),
+    ...(p.dir ? { dir: p.dir } : {}),
+  })))
 }
+
+const STYLES: EndpointStyle[] = ['open', 'closed']
+const DIRS: RayDir[] = ['left', 'right', 'none']
 
 export function parseGridAnswer(s: string): GridPoint[] {
   try {
     const v = JSON.parse(s)
     if (!Array.isArray(v)) return []
-    const pts = v.map(p => ({ x: Number(p?.x), y: Number(p?.y) }))
+    const pts: GridPoint[] = v.map(p => ({
+      x: Number(p?.x),
+      y: Number(p?.y),
+      // Unknown values are dropped rather than trusted — a marker with a bogus
+      // style would otherwise never match anything and read as a mystery.
+      ...(STYLES.includes(p?.style) ? { style: p.style as EndpointStyle } : {}),
+      ...(DIRS.includes(p?.dir) ? { dir: p.dir as RayDir } : {}),
+    }))
     return pts.every(p => Number.isFinite(p.x) && Number.isFinite(p.y)) ? pts : []
   } catch {
     return []
   }
 }
 
-/** '(1, 3), (2, 5)' — for review text and outcome summaries. */
+/**
+ * '(1, 3), (2, 5)' for coordinates; number-line markers read as
+ * 'open circle at -1, arrow right' so the review text is meaningful.
+ */
 export function formatGridPoints(points: GridPoint[]): string {
-  return points.map(p => `(${p.x}, ${p.y})`).join(', ')
+  return points.map(p => {
+    if (!p.style && !p.dir) return `(${p.x}, ${p.y})`
+    const circle = `${p.style ?? 'closed'} circle at ${p.x}`
+    return p.dir && p.dir !== 'none' ? `${circle}, arrow ${p.dir}` : circle
+  }).join(', ')
 }

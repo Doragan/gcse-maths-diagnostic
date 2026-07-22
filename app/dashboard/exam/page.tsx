@@ -268,7 +268,10 @@ export default function ExamPreviewPage() {
           )
           earned += check.marksEarned
           const nRight = check.perElement.filter(e => e.correct).length
-          const unitNoun = g.mode === 'cells' ? 'squares' : g.mode === 'polygon' ? 'corners' : 'points'
+          const unitNoun = g.mode === 'cells' ? 'squares'
+            : g.mode === 'polygon' ? 'corners'
+            : g.mode === 'bars' ? 'bars'
+            : 'points'
           res[u.key] = {
             correct: check.correct,
             // The trap response is additive: it explains the score line rather

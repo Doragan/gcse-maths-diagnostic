@@ -30,6 +30,13 @@ export type GridGeometry = {
   // viewBox → the CONTAINING cell's bottom-left corner (floor, not round);
   // null outside the plot. Used by cells mode, where an element is a cell.
   snapCell: (vx: number, vy: number) => GridPoint | null
+  // bars: viewBox → { x: the containing SLOT's left edge, y: the snapped
+  // height }. Slots come from the canonical bars, so this takes them.
+  snapBar: (vx: number, vy: number, slots: { x: number; x2?: number }[]) => GridPoint | null
+  // number_line: viewBox → the nearest position on the axis. Ignores vy
+  // entirely — a number line is a 1-D input on a strip only ~14 units tall,
+  // so demanding vertical precision would make it unusable.
+  snapLine: (vx: number) => GridPoint | null
 }
 
 export function gridGeometry(x: RenderedAxis, y: RenderedAxis): GridGeometry {
@@ -57,7 +64,24 @@ export function gridGeometry(x: RenderedAxis, y: RenderedAxis): GridGeometry {
     const ri = Math.min(Math.floor((PAD.top + rows * CELL - vy) / CELL), rows - 1)
     return { x: x.min + ci * x.step, y: y.min + ri * y.step }
   }
-  return { W, H, cols, rows, px, py, snap, snapCell }
+  const snapBar = (vx: number, vy: number, slots: { x: number; x2?: number }[]): GridPoint | null => {
+    if (vx < PAD.left || vx > PAD.left + cols * CELL) return null
+    if (vy < PAD.top || vy > PAD.top + rows * CELL) return null
+    // Which declared bar slot does this x fall inside?
+    const gx = x.min + ((vx - PAD.left) / CELL) * x.step
+    const slot = slots.find(s => gx >= s.x - 1e-9 && gx < (s.x2 ?? s.x + x.step) - 1e-9)
+    if (!slot) return null
+    // Height snaps to the y lattice, clamped into the grid.
+    const ri = Math.round((PAD.top + rows * CELL - vy) / CELL)
+    const height = y.min + Math.min(Math.max(ri, 0), rows) * y.step
+    return { x: slot.x, y: height }
+  }
+  const snapLine = (vx: number): GridPoint | null => {
+    if (vx < PAD.left - CELL / 2 || vx > PAD.left + cols * CELL + CELL / 2) return null
+    const ci = Math.min(Math.max(Math.round((vx - PAD.left) / CELL), 0), cols)
+    return { x: x.min + ci * x.step, y: y.min }
+  }
+  return { W, H, cols, rows, px, py, snap, snapCell, snapBar, snapLine }
 }
 
 /** Format an axis tick value without float noise (0.30000000000000004 → 0.3). */
@@ -84,10 +108,15 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
     parts.push(`<line x1="${PAD.left}" y1="${vy}" x2="${PAD.left + geo.cols * CELL}" y2="${vy}" stroke="${colors.border}" stroke-width="1"/>`)
   }
 
-  // Axes: the zero lines when 0 is in range, else the min edges.
+  // Axes: the zero lines when 0 is in range, else the min edges. A 1-D grid
+  // (a number line) has no vertical extent, so it gets no y-axis furniture —
+  // a stray vertical line and a lone "0" tick would just be noise.
+  const oneDimensional = geo.rows === 0
   const axisX = x.min <= 0 && 0 <= x.max ? geo.px(0) : PAD.left
   const axisY = y.min <= 0 && 0 <= y.max ? geo.py(0) : PAD.top + geo.rows * CELL
-  parts.push(`<line x1="${axisX}" y1="${PAD.top}" x2="${axisX}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.textSecondary}" stroke-width="1.5"/>`)
+  if (!oneDimensional) {
+    parts.push(`<line x1="${axisX}" y1="${PAD.top}" x2="${axisX}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.textSecondary}" stroke-width="1.5"/>`)
+  }
   parts.push(`<line x1="${PAD.left}" y1="${axisY}" x2="${PAD.left + geo.cols * CELL}" y2="${axisY}" stroke="${colors.textSecondary}" stroke-width="1.5"/>`)
 
   // Tick numerals — x below the x-axis line, y left of the y-axis line.
@@ -95,9 +124,13 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
     const v = x.min + c * x.step
     parts.push(`<text x="${PAD.left + c * CELL}" y="${PAD.top + geo.rows * CELL + 14}" text-anchor="middle" font-size="10" fill="${colors.textHint}">${tick(v)}</text>`)
   }
-  for (let r = 0; r <= geo.rows; r++) {
-    const v = y.min + r * y.step
-    parts.push(`<text x="${PAD.left - 6}" y="${geo.py(v) + 3.5}" text-anchor="end" font-size="10" fill="${colors.textHint}">${tick(v)}</text>`)
+  // A 1-D grid has a single y value, so its lone tick would read as a mystery
+  // label floating beside the number line.
+  if (!oneDimensional) {
+    for (let r = 0; r <= geo.rows; r++) {
+      const v = y.min + r * y.step
+      parts.push(`<text x="${PAD.left - 6}" y="${geo.py(v) + 3.5}" text-anchor="end" font-size="10" fill="${colors.textHint}">${tick(v)}</text>`)
+    }
   }
 
   // Axis labels
@@ -136,13 +169,56 @@ export function buildSolutionLayer(grid: RenderedGrid, geo: GridGeometry): strin
 export function buildPointsLayer(
   points: GridPoint[],
   geo: GridGeometry,
-  opts: { color: string; ghost?: boolean; mode: string; markers?: boolean },
+  opts: {
+    color: string; ghost?: boolean; mode: string; markers?: boolean
+    // bars: the declared slots, so each height can be drawn at its own width.
+    slots?: { x: number; x2?: number }[]
+    // bars/number_line need the axis to find the baseline and the plot edges.
+    axes?: { x: RenderedAxis; y: RenderedAxis }
+  },
 ): string {
   if (points.length === 0) return ''
-  const { color, ghost, mode, markers = true } = opts
+  const { color, ghost, mode, markers = true, slots = [], axes } = opts
   const parts: string[] = []
   const op = ghost ? ' opacity="0.55"' : ''
   const dash = ghost ? ' stroke-dasharray="6 4"' : ''
+
+  if (mode === 'bars') {
+    // Each point is a bar: x identifies its slot, y is its height. Bars rise
+    // from the baseline (the y-axis minimum).
+    const baseline = axes ? geo.py(axes.y.min) : geo.py(0)
+    for (const p of points) {
+      const slot = slots.find(s => Math.abs(s.x - p.x) < 1e-9)
+      const right = slot?.x2 ?? (axes ? p.x + axes.x.step : p.x + 1)
+      const left = geo.px(p.x)
+      const top = geo.py(p.y)
+      parts.push(ghost
+        ? `<rect x="${left}" y="${Math.min(top, baseline)}" width="${geo.px(right) - left}" height="${Math.abs(baseline - top)}" fill="none" stroke="${color}" stroke-width="2"${dash}${op}/>`
+        : `<rect x="${left}" y="${Math.min(top, baseline)}" width="${geo.px(right) - left}" height="${Math.abs(baseline - top)}" fill="${color}" fill-opacity="0.45" stroke="${color}" stroke-width="1.5"/>`)
+    }
+    return parts.join('')
+  }
+
+  if (mode === 'number_line') {
+    const axisY = geo.py(axes ? axes.y.min : 0)
+    const left = PAD.left
+    const right = PAD.left + geo.cols * CELL
+    for (const p of points) {
+      const cx = geo.px(p.x)
+      // The ray runs to the plot edge with an arrowhead, so "greater than"
+      // reads at a glance.
+      if (p.dir === 'left' || p.dir === 'right') {
+        const end = p.dir === 'right' ? right : left
+        const tipDir = p.dir === 'right' ? -1 : 1
+        parts.push(`<line x1="${cx}" y1="${axisY}" x2="${end}" y2="${axisY}" stroke="${color}" stroke-width="2.5"${op}${dash}/>`)
+        parts.push(`<path d="M ${end} ${axisY} L ${end + tipDir * 8} ${axisY - 5} L ${end + tipDir * 8} ${axisY + 5} Z" fill="${color}"${op}/>`)
+      }
+      // Hollow = "not included" (strict inequality); solid = included.
+      const open = (p.style ?? 'closed') === 'open'
+      parts.push(`<circle cx="${cx}" cy="${axisY}" r="6" fill="${open ? '#ffffff' : color}" stroke="${color}" stroke-width="2.5"${op}/>`)
+    }
+    return parts.join('')
+  }
 
   if (mode === 'cells') {
     // A point is a cell's bottom-left corner in axis units; one grid step is
@@ -206,11 +282,16 @@ export function buildGridSvg(
   const frame = buildGridFrame(grid, geo)
   // The method overlay reveals alongside the correct answer.
   const solution = opts.showCanonical ? buildSolutionLayer(grid, geo) : ''
+  // bars need their slot widths; number_line markers carry style/dir; both
+  // need the axes to find the baseline and plot edges.
+  const extra = { slots: grid.elements, axes: { x: grid.x, y: grid.y } }
   const canonical = opts.showCanonical
-    ? buildPointsLayer(grid.elements.map(e => ({ x: e.x, y: e.y })), geo, { color: colors.success, ghost: true, mode: grid.mode })
+    ? buildPointsLayer(
+        grid.elements.map(e => ({ x: e.x, y: e.y, ...(e.style ? { style: e.style } : {}), ...(e.dir ? { dir: e.dir } : {}) })),
+        geo, { color: colors.success, ghost: true, mode: grid.mode, ...extra })
     : ''
   const student = opts.student?.length
-    ? buildPointsLayer(opts.student, geo, { color: colors.primary, mode: grid.mode })
+    ? buildPointsLayer(opts.student, geo, { color: colors.primary, mode: grid.mode, ...extra })
     : ''
   return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${solution}${canonical}${student}</svg>`
 }

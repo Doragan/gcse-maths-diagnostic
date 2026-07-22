@@ -123,7 +123,9 @@ function unitsOf(q: Q): Unit[] {
   }]
 }
 
-const GRID_MODES = ['points', 'polyline', 'line', 'cells', 'polygon']
+const GRID_MODES = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'number_line']
+const ENDPOINT_STYLES = ['open', 'closed']
+const RAY_DIRS = ['left', 'right', 'none']
 const GRID_MAX_COLS = 12 // touch rule: ≥28px between gridlines on a phone
 const GRID_MAX_ROWS = 16
 
@@ -140,10 +142,19 @@ function renderGridAt(g: any, c: Record<string, number>): RenderedGrid {
     x: { min: gridNum(g.x?.min, c), max: gridNum(g.x?.max, c), step: Number(g.x?.step), label: '' },
     y: { min: gridNum(g.y?.min, c), max: gridNum(g.y?.max, c), step: Number(g.y?.step), label: '' },
     background: '',
-    elements: (g.elements ?? []).map((e: any) => ({ x: gridNum(e.x, c), y: gridNum(e.y, c), marks: Number(e.marks) || 0 })),
+    elements: (g.elements ?? []).map((e: any) => ({
+      x: gridNum(e.x, c), y: gridNum(e.y, c), marks: Number(e.marks) || 0,
+      ...(e.x2 != null ? { x2: gridNum(e.x2, c) } : {}),
+      ...(e.style ? { style: e.style } : {}),
+      ...(e.dir ? { dir: e.dir } : {}),
+    })),
     tolerance: Number(g.tolerance) || 0,
     traps: (g.traps ?? []).map((t: any) => ({
-      elements: (t.elements ?? []).map((e: any) => ({ x: gridNum(e.x, c), y: gridNum(e.y, c) })),
+      elements: (t.elements ?? []).map((e: any) => ({
+        x: gridNum(e.x, c), y: gridNum(e.y, c),
+        ...(e.style ? { style: e.style } : {}),
+        ...(e.dir ? { dir: e.dir } : {}),
+      })),
       response: '',
       ...(t.match ? { match: t.match } : {}),
     })),
@@ -182,6 +193,25 @@ function verifyGridPart(
   }
   if (g.mode === 'cells' && (Number(g.tolerance) || 0) !== 0) {
     fails.push(`${label}: cells mode requires tolerance 0 — shading is exact by nature`)
+  }
+  if (g.mode === 'number_line') {
+    // One inequality, one marker. Every coded question is a single endpoint,
+    // and the marking + canvas both assume exactly one.
+    if (els.length !== 1) {
+      fails.push(`${label}: number_line needs exactly 1 element (has ${els.length})`)
+      return
+    }
+    const e = els[0]
+    if (e.style != null && !ENDPOINT_STYLES.includes(e.style)) {
+      fails.push(`${label}: style "${e.style}" is not open or closed`)
+    }
+    if (e.dir != null && !RAY_DIRS.includes(e.dir)) {
+      fails.push(`${label}: dir "${e.dir}" is not left, right or none`)
+    }
+    // A number line is 1-D: a y range would render a lattice nobody can use.
+    if (String(g.y?.min) !== String(g.y?.max)) {
+      fails.push(`${label}: number_line needs y.min === y.max (it is a 1-D axis)`)
+    }
   }
   const markSum = els.reduce((s, e) => s + (Number(e.marks) || 0), 0)
   if (p.marks != null && Number(p.marks) !== markSum) {
@@ -222,7 +252,12 @@ function verifyGridPart(
     const r = renderGridAt(g, c)
     const nums = [r.x.min, r.x.max, r.x.step, r.y.min, r.y.max, r.y.step]
     if (!nums.every(Number.isFinite)) { fail('axes', `${label}: an axis bound does not evaluate to a number at ${JSON.stringify(c)}`); continue }
-    if (r.x.min >= r.x.max || r.y.min >= r.y.max) { fail('range', `${label}: axis min ≥ max at ${JSON.stringify(c)}`); continue }
+    // A number line is deliberately 1-D, so its y axis collapses to a point —
+    // the separate number_line gate above already requires y.min === y.max.
+    const yMustHaveRange = r.mode !== 'number_line'
+    if (r.x.min >= r.x.max || (yMustHaveRange && r.y.min >= r.y.max)) {
+      fail('range', `${label}: axis min ≥ max at ${JSON.stringify(c)}`); continue
+    }
     if (r.x.step <= 0 || r.y.step <= 0) { fail('step', `${label}: axis step must be > 0`); continue }
 
     const cols = (r.x.max - r.x.min) / r.x.step
@@ -273,8 +308,35 @@ function verifyGridPart(
       }
     }
 
+    // Bar slots must be well formed: each bar spans [x, x2], the spans must
+    // fit the grid, and they must not overlap — overlapping slots make the
+    // student's tap ambiguous about which bar they meant.
+    if (r.mode === 'bars') {
+      const spans = r.elements.map(e => ({ from: e.x, to: e.x2 ?? e.x + r.x.step }))
+      for (let i = 0; i < spans.length; i++) {
+        const s = spans[i]
+        if (!(s.to > s.from + 1e-9)) {
+          fail(`bar${i}:width`, `${label}: bar ${i + 1} has x2 (${s.to}) at or before x (${s.from}) at ${JSON.stringify(c)}`)
+        }
+        if (s.from < r.x.min - 1e-9 || s.to > r.x.max + 1e-9) {
+          fail(`bar${i}:bounds`, `${label}: bar ${i + 1} spans ${s.from}–${s.to}, outside the x axis at ${JSON.stringify(c)}`)
+        }
+      }
+      const sorted = [...spans].sort((a, b) => a.from - b.from)
+      for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i].from < sorted[i - 1].to - 1e-9) {
+          fail('bar:overlap', `${label}: bar slots overlap (${sorted[i - 1].from}–${sorted[i - 1].to} and ${sorted[i].from}–${sorted[i].to}) at ${JSON.stringify(c)}`)
+          break
+        }
+      }
+    }
+
     // Canonical self-grade through the REAL marker.
-    const pts = r.elements.map(e => ({ x: e.x, y: e.y }))
+    const pts = r.elements.map(e => ({
+      x: e.x, y: e.y,
+      ...(e.style ? { style: e.style } : {}),
+      ...(e.dir ? { dir: e.dir } : {}),
+    }))
     const graded = checkGridDraw(pts, r.elements, r.mode as any, r.tolerance, { xStep: r.x.step, yStep: r.y.step })
     if (!graded.correct) fail('self', `${label}: canonical drawing NOT accepted by the marker at ${JSON.stringify(c)}`)
 

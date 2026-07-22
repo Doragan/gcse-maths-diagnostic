@@ -417,6 +417,109 @@ describe("checkGridDraw — 'translated' traps (right shape, wrong place)", () =
   })
 })
 
+describe('checkGridDraw — bars mode', () => {
+  // Three uniform bars at x = 0, 1, 2 with heights 3, 5, 2.
+  const canonical = [el(0, 3), el(1, 5), el(2, 2)]
+
+  it('all heights right → correct, full marks', () => {
+    const res = checkGridDraw([pt(0, 3), pt(1, 5), pt(2, 2)], canonical, 'bars', 0)
+    expect(res.correct).toBe(true)
+    expect(res.marksEarned).toBe(3)
+  })
+
+  it('order does not matter — a bar is identified by its slot', () => {
+    expect(checkGridDraw([pt(2, 2), pt(0, 3), pt(1, 5)], canonical, 'bars', 0).correct).toBe(true)
+  })
+
+  it('one bar at the wrong height → partial, not correct', () => {
+    const res = checkGridDraw([pt(0, 3), pt(1, 4), pt(2, 2)], canonical, 'bars', 0)
+    expect(res.correct).toBe(false)
+    expect(res.marksEarned).toBe(2)
+    expect(res.perElement.map(e => e.correct)).toEqual([true, false, true])
+  })
+
+  it('a bar in the WRONG COLUMN never satisfies its neighbour', () => {
+    // Height 5 belongs to slot 1. Drawn in slot 0 it must NOT match slot 1,
+    // even though Euclidean nearest-point matching would be tempted.
+    const res = checkGridDraw([pt(0, 5), pt(1, 5), pt(2, 2)], canonical, 'bars', 0)
+    expect(res.perElement[0].correct).toBe(false)
+    expect(res.marksEarned).toBe(2)
+  })
+
+  it('missing a bar → not correct', () => {
+    expect(checkGridDraw([pt(0, 3), pt(1, 5)], canonical, 'bars', 0).correct).toBe(false)
+  })
+
+  it('tolerance applies to the height, in y-steps', () => {
+    const near = checkGridDraw([pt(0, 3.4)], [el(0, 3)], 'bars', 0.5)
+    expect(near.correct).toBe(true)
+    const far = checkGridDraw([pt(0, 3.6)], [el(0, 3)], 'bars', 0.5)
+    expect(far.correct).toBe(false)
+  })
+
+  it('height tolerance respects a non-unit y step', () => {
+    // On a step-5 y axis, being 2 out is well under half a step.
+    const res = checkGridDraw([pt(0, 12)], [el(0, 10)], 'bars', 0.5, { xStep: 1, yStep: 5 })
+    expect(res.correct).toBe(true)
+  })
+
+  it('variable-width bars (histogram classes) mark on slot identity', () => {
+    // Classes [0,10) and [10,30) — x2 differs, slot identity is still x.
+    const classes = [{ x: 0, x2: 10, y: 4, marks: 1 }, { x: 10, x2: 30, y: 2, marks: 1 }]
+    expect(checkGridDraw([pt(0, 4), pt(10, 2)], classes, 'bars', 0).correct).toBe(true)
+    expect(checkGridDraw([pt(0, 2), pt(10, 4)], classes, 'bars', 0).marksEarned).toBe(0)
+  })
+})
+
+describe('checkGridDraw — number_line mode', () => {
+  // x > -1  →  open circle at -1, arrow right.
+  const canonical = [{ x: -1, y: 0, marks: 1, style: 'open' as const, dir: 'right' as const }]
+  const marker = (x: number, style: 'open' | 'closed', dir: 'left' | 'right' | 'none') =>
+    [{ x, y: 0, style, dir }]
+
+  it('position, circle and arrow all right → correct', () => {
+    const res = checkGridDraw(marker(-1, 'open', 'right'), canonical, 'number_line', 0)
+    expect(res.correct).toBe(true)
+    expect(res.marksEarned).toBe(1)
+  })
+
+  it('right position and arrow but SOLID circle → wrong (open_vs_closed_circle)', () => {
+    expect(checkGridDraw(marker(-1, 'closed', 'right'), canonical, 'number_line', 0).correct).toBe(false)
+  })
+
+  it('right position and circle but arrow the wrong way → wrong (arrow_direction)', () => {
+    expect(checkGridDraw(marker(-1, 'open', 'left'), canonical, 'number_line', 0).correct).toBe(false)
+  })
+
+  it('right circle and arrow at the wrong value → wrong', () => {
+    expect(checkGridDraw(marker(1, 'open', 'right'), canonical, 'number_line', 0).correct).toBe(false)
+  })
+
+  it('a missing arrow is not the same as an arrow', () => {
+    expect(checkGridDraw(marker(-1, 'open', 'none'), canonical, 'number_line', 0).correct).toBe(false)
+  })
+
+  it('defaults: an unstyled marker reads as closed with no arrow', () => {
+    const plain = [{ x: 2, y: 0, marks: 1 }]
+    expect(checkGridDraw([pt(2, 0)], plain, 'number_line', 0).correct).toBe(true)
+  })
+
+  it('no marker placed → not correct', () => {
+    expect(checkGridDraw([], canonical, 'number_line', 0).correct).toBe(false)
+  })
+
+  it('the coded misconceptions work as exact traps', () => {
+    const traps = [
+      { elements: marker(-1, 'closed', 'right'), response: 'open_vs_closed_circle' },
+      { elements: marker(-1, 'open', 'left'), response: 'arrow_direction' },
+    ]
+    expect(checkGridDraw(marker(-1, 'closed', 'right'), canonical, 'number_line', 0, undefined, traps).trap?.response)
+      .toBe('open_vs_closed_circle')
+    expect(checkGridDraw(marker(-1, 'open', 'left'), canonical, 'number_line', 0, undefined, traps).trap?.response)
+      .toBe('arrow_direction')
+  })
+})
+
 describe('serialise / parse / format', () => {
   it('round-trips points', () => {
     const pts = [pt(1, 3), pt(2, 5)]
@@ -433,5 +536,19 @@ describe('serialise / parse / format', () => {
   })
   it('formats for review text', () => {
     expect(formatGridPoints([pt(1, 3), pt(2, 5)])).toBe('(1, 3), (2, 5)')
+  })
+  it('round-trips a number-line marker\'s circle and arrow', () => {
+    const marker = [{ x: -1, y: 0, style: 'open' as const, dir: 'right' as const }]
+    expect(parseGridAnswer(serialiseGridAnswer(marker))).toEqual(marker)
+  })
+  it('drops a bogus style or direction rather than trusting it', () => {
+    const parsed = parseGridAnswer('[{"x":1,"y":0,"style":"wobbly","dir":"sideways"}]')
+    expect(parsed).toEqual([{ x: 1, y: 0 }])
+  })
+  it('reads a number-line marker in words', () => {
+    expect(formatGridPoints([{ x: -1, y: 0, style: 'open', dir: 'right' }]))
+      .toBe('open circle at -1, arrow right')
+    expect(formatGridPoints([{ x: 4, y: 0, style: 'closed', dir: 'none' }]))
+      .toBe('closed circle at 4')
   })
 })
