@@ -25,10 +25,14 @@ type Attempt = {
  * Calculates skill mastery from a student's practice attempts.
  *
  * Rules:
- * - For each skill, consider only the most recent 5 attempts
- * - 4 or more correct out of 5 → mastered
- * - Fewer than 4 correct out of 5 (with at least 5 attempts) → needs_practice
- * - Fewer than 5 attempts → in_progress
+ * - Once a skill has 5+ attempts: the rolling window governs — 4 or more correct
+ *   out of the most recent 5 → mastered, else needs_practice.
+ * - Before 5 attempts (the fast-track / "catch up quickly" phase): nailing the
+ *   FIRST three attempts on a skill marks it mastered early, so a capable student
+ *   isn't held at in_progress waiting for a full window. Otherwise in_progress.
+ *   A fast-tracked skill stays mastered through a single later slip (the first
+ *   three don't change); the rolling rule takes over at the 5th attempt, so a
+ *   SECOND slip — 4/5 failed — is what demotes it.
  */
 export function calculateMastery(attempts: Attempt[]): Record<string, SkillMastery> {
   const bySkill: Record<string, { correct: boolean; attempted_at: string }[]> = {}
@@ -52,17 +56,22 @@ export function calculateMastery(attempts: Attempt[]): Record<string, SkillMaste
       (a, b) => new Date(b.attempted_at).getTime() - new Date(a.attempted_at).getTime()
     )
 
+    const total = sorted.length
     const lastFive = sorted.slice(0, 5)
     const recentCorrect = lastFive.filter(a => a.correct).length
     const recentAttempts = lastFive.length
 
     let status: MasteryStatus
-    if (recentAttempts >= 5 && recentCorrect >= 4) {
-      status = 'mastered'
-    } else if (recentAttempts >= 5) {
-      status = 'needs_practice'
+    if (total >= 5) {
+      // Rolling window: 4 of the last 5 → mastered, else needs_practice.
+      status = recentCorrect >= 4 ? 'mastered' : 'needs_practice'
     } else {
-      status = 'in_progress'
+      // Fast-track: the first three attempts all correct → mastered early.
+      // `sorted` is most-recent-first, so its last 3 entries are the earliest
+      // three. Under 3 attempts can never fast-track.
+      const firstThree = sorted.slice(-3)
+      const fastTracked = total >= 3 && firstThree.every(a => a.correct)
+      status = fastTracked ? 'mastered' : 'in_progress'
     }
 
     mastery[skillId] = { skillId, status, recentAttempts, recentCorrect }
@@ -117,24 +126,28 @@ export function inferPrerequisiteMastery(
  * Practice-context prerequisite inference (audit L2 — the user's ruling).
  *
  * When a student answers a skill correctly, each of its transitive prerequisites
- * is credited with `creditPerPrerequisite` synthetic correct attempts ("3 answers
+ * is credited with `creditPerPrerequisite` synthetic correct attempts ("2 answers
  * worth of mastery"), timestamped after every real attempt so they occupy the
- * most-recent slots of the 5-attempt window. Feed the result through
- * calculateMastery.
+ * most-recent slots of the window. Feed the result through calculateMastery.
  *
  * Unlike the DIAGNOSTIC's binary `inferPrerequisiteMastery` (which marks every
  * prerequisite mastered outright), this BLENDS with the prerequisite's real
  * history rather than overriding it:
  *   - a prerequisite the student has directly struggled with is not instantly
- *     mastered — the 3 credits combine with its real recent attempts;
- *   - an untested prerequisite reaches only `in_progress` (3 of the 5 needed),
- *     never `mastered`, from inference alone.
+ *     mastered — the 2 credits combine with its real recent attempts;
+ *   - an UNTESTED prerequisite gets only 2 credits — below both the fast-track's
+ *     first-three bar and the window's 5 — so it reaches only `in_progress`,
+ *     never `mastered`, from inference alone. A prerequisite with ≥1 real correct,
+ *     though, is topped past three by the credit and CAN fast-track to mastered
+ *     (the deliberate "answered it once, plus a downstream skill → mastered"
+ *     path — hence 2, not 3: a single downstream answer must not be enough on
+ *     its own).
  * The diagnostic keeps the stronger binary inference; ongoing practice uses this.
  */
 export function applyPrerequisiteCredit(
   attempts: Attempt[],
   getTransitivePrerequisites: (skillId: string) => string[],
-  creditPerPrerequisite = 3,
+  creditPerPrerequisite = 2,
 ): Attempt[] {
   const demonstrated = new Set<string>()
   let latestMs = 0
@@ -225,6 +238,7 @@ export function getWeightedSkillPool(
   allSkillIds: string[],
 ): string[] {
   const pool: string[] = []
+  const masteredIds: string[] = []
 
   for (const skillId of allSkillIds) {
     const m = mastery[skillId]
@@ -232,8 +246,20 @@ export function getWeightedSkillPool(
       pool.push(skillId)           // weight: 1
     } else if (m.status === 'needs_practice') {
       pool.push(skillId, skillId, skillId)  // weight: 3
+    } else {
+      masteredIds.push(skillId)    // mastered → occasional spaced review, below
     }
-    // mastered: weight 0 — excluded until everything else is done
+  }
+
+  // Spaced review: mastered skills reappear as ~10% of the pool. This refreshes
+  // retention AND lets a fast-tracked skill (mastered from just its first three
+  // attempts) reach a 5th attempt, where the rolling rule can demote it if the
+  // student has since slipped — without it, mastered skills leave the rotation
+  // and that demotion could never fire. At least one slot whenever any skill is
+  // mastered, so the review never silently vanishes for a small active pool.
+  if (pool.length > 0 && masteredIds.length > 0) {
+    const slots = Math.max(1, Math.round(pool.length / 9))
+    for (let i = 0; i < slots; i++) pool.push(masteredIds[i % masteredIds.length])
   }
 
   // If everything is mastered, fall back to full pool
