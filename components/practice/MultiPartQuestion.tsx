@@ -567,7 +567,7 @@ export default function MultiPartQuestion({
                       bare Submit button. */}
                   {blanks.every(b => inlineHosts[b.label]) && (
                     <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
-                      Type each answer directly into the table above.
+                      Type each answer directly into the boxes above.
                     </p>
                   )}
                   {/* A blank with an inline placeholder is rendered there, not
