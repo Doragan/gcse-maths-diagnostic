@@ -357,6 +357,12 @@ export default function StudentDashboardPage() {
             Practice
           </button>
           <button
+            onClick={() => { trackEvent('dashboard_miniexam_nav_clicked', { paid: isPaid }); router.push('/student/exam') }}
+            style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+          >
+            Mini-exam
+          </button>
+          <button
             onClick={() => router.push('/student/classes')}
             style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
           >
