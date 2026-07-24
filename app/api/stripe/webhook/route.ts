@@ -1,16 +1,17 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { STUDENT_EXAM_PASS_UNTIL } from '../../../../lib/founderSeats'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-// Season-pass expiry cut-offs for the NON-recurring products (teacher pass +
-// student exam pass). These are fixed end-of-season dates, not rolling windows —
-// named here so they aren't magic strings buried in the handler.
-// ⚠ UPDATE EACH EXAM SEASON (or set the env overrides).
-const TEACHER_PASS_UNTIL      = process.env.STRIPE_TEACHER_PASS_UNTIL ?? '2026-12-31T23:59:59Z'
-const STUDENT_EXAM_PASS_UNTIL = process.env.STRIPE_EXAM_PASS_UNTIL    ?? '2027-07-31T23:59:59Z'
+// Season-pass expiry cut-off for the NON-recurring teacher pass. Fixed
+// end-of-season date, not a rolling window — named here so it isn't a magic
+// string buried in the handler. ⚠ UPDATE EACH EXAM SEASON (or set the env
+// override). The student exam-pass equivalent lives in lib/founderSeats.ts,
+// shared with the founder-seat count so the two can't drift apart.
+const TEACHER_PASS_UNTIL = process.env.STRIPE_TEACHER_PASS_UNTIL ?? '2026-12-31T23:59:59Z'
 
 export async function POST(req: Request) {
   const body = await req.text()
