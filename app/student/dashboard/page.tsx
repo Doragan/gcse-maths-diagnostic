@@ -204,11 +204,21 @@ export default function StudentDashboardPage() {
   // Locked paid actions: free users are routed to upgrade; paid users deep-link
   // into the Practice page pre-targeted (see the deep-link handler there).
   function drillSkill(skillId: string) {
-    if (!isPaid) { router.push('/student/upgrade'); return }
+    if (!isPaid) {
+      trackEvent('dashboard_practice_skill_locked_clicked', { skill_id: skillId, paid: false })
+      router.push('/student/upgrade')
+      return
+    }
+    trackEvent('dashboard_practice_skill_clicked', { skill_id: skillId, paid: true })
     router.push(`/practice?skillId=${encodeURIComponent(skillId)}`)
   }
   function blitzWeakSpots() {
-    if (!isPaid) { router.push('/student/upgrade'); return }
+    if (!isPaid) {
+      trackEvent('dashboard_weakspots_locked_clicked', { paid: false })
+      router.push('/student/upgrade')
+      return
+    }
+    trackEvent('dashboard_weakspots_clicked', { paid: true })
     router.push('/practice?focus=weakspots')
   }
 
@@ -275,13 +285,13 @@ export default function StudentDashboardPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button
-                onClick={() => router.push('/student/diagnostic')}
+                onClick={() => { trackEvent('dashboard_placement_test_clicked', { paid: isPaid }); router.push('/student/diagnostic') }}
                 style={primaryButton}
               >
                 Take a placement test
               </button>
               <button
-                onClick={() => router.push('/practice')}
+                onClick={() => { trackEvent('dashboard_practice_without_test_clicked', { paid: isPaid }); router.push('/practice') }}
                 style={secondaryButton}
               >
                 Start practising without a test
@@ -336,7 +346,7 @@ export default function StudentDashboardPage() {
         </h1>
         <div className="dash-nav" style={{ display: 'flex', gap: '8px' }}>
           <button
-            onClick={() => router.push('/practice')}
+            onClick={() => { trackEvent('dashboard_practice_nav_clicked', { paid: isPaid }); router.push('/practice') }}
             style={{ ...primaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
           >
             Practice
@@ -454,7 +464,10 @@ export default function StudentDashboardPage() {
 
                 {/* Accordion header */}
                 <button
-                  onClick={() => toggleTopic(group.topic)}
+                  onClick={() => {
+                    trackEvent('dashboard_skills_topic_toggled', { topic: group.topic, expanded: !isExpanded, paid: isPaid })
+                    toggleTopic(group.topic)
+                  }}
                   style={{
                     width: '100%',
                     padding: '12px 14px',
@@ -583,7 +596,7 @@ export default function StudentDashboardPage() {
             />
             {!isPaid && (
               <button
-                onClick={() => router.push('/student/upgrade')}
+                onClick={() => { trackEvent('dashboard_progress_unlock_clicked', { paid: false }); router.push('/student/upgrade') }}
                 style={{ ...primaryButton, marginTop: '16px' }}
               >
                 🔒 Unlock accuracy &amp; activity trends
