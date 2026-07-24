@@ -11,6 +11,7 @@ import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/pr
 import { skills } from '../../../data/skills'
 import { isPaidStudent } from '../../../lib/entitlements'
 import FeedbackWidget from '../../../components/FeedbackWidget'
+import FounderUpgradeModal from '../../../components/FounderUpgradeModal'
 import ProgressChart from '../../../components/ProgressChart'
 import {
   colors, font, radius, card,
@@ -338,6 +339,10 @@ export default function StudentDashboardPage() {
   // ── Returning student with data ──────────────────────────────────────────
   return (
     <main style={styles.page}>
+
+      {/* Founder-price nudge — returning FREE students only. The component owns
+          the snooze + seats-remaining checks and stays hidden otherwise. */}
+      {!isPaid && <FounderUpgradeModal />}
 
       {/* Header */}
       <div style={styles.header}>
