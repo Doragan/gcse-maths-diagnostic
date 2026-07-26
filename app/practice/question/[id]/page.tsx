@@ -974,6 +974,16 @@ function QuestionPage() {
         questionId={id}
         renderedValues={rendered.generatedValues}
         studentId={studentId}
+        answerContext={{
+          answered: feedback !== null,
+          answerType: question.answer_type,
+          // The raw input, even if unsubmitted — useful on a "before I submit
+          // this looks wrong" report.
+          studentAnswer: answer.trim() || undefined,
+          ...(feedback !== null
+            ? { correct: feedback.correct, expectedAnswer: rendered.answer }
+            : {}),
+        }}
       />
 
       {/* General feedback */}

@@ -737,11 +737,25 @@ export default function MultiPartQuestion({
         <SignUpPrompt onDismiss={() => setShowSignUpPrompt(false)} />
       )}
 
-      {/* Report an issue */}
+      {/* Report an issue — carries each answered part's submitted answer, how it
+          was marked, and the expected answer for the shown parameters. */}
       <ReportIssueButton
         questionId={question.id}
         renderedValues={rendered.generatedValues}
         studentId={studentId}
+        answerContext={{
+          answered: outcomes.some(o => o !== null),
+          parts: question.parts
+            .map((_, i) => ({ i, o: outcomes[i] }))
+            .filter(({ o }) => o !== null)
+            .map(({ i, o }) => ({
+              label: `(${'abcdefgh'[i] ?? i + 1})`,
+              studentAnswer: o!.answer,
+              correct: o!.correct,
+              expectedAnswer: typeof rendered.parts?.[i]?.answer === 'string'
+                ? rendered.parts[i].answer : undefined,
+            })),
+        }}
       />
 
       {/* General feedback */}
