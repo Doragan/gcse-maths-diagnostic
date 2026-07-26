@@ -310,7 +310,7 @@ export default function PracticePage() {
         {/* Tier selector */}
         <div>
           <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: '0 0 8px' }}>
-            Which tier are you studying?
+            Choose your level
           </p>
           <div style={styles.toggle}>
             {(['foundation', 'higher', 'both'] as Tier[]).map(t => (

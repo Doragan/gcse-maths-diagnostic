@@ -46,7 +46,10 @@ const RULES: [RegExp, string, string?][] = [
 
   // Practice & diagnostic
   [/^\/practice\/question\/[^/]+$/, 'Practice question', '/practice/question/[id]'],
-  [/^\/practice$/, 'Practise GCSE Maths'],
+  // Noun "practice" (with a c) to read consistently with 'Practice question'
+  // below — both are correct UK English, but the mixed verb/noun spelling looked
+  // like a typo side by side in the GA4 report.
+  [/^\/practice$/, 'GCSE Maths practice'],
   [/^\/diagnostic$/, 'Diagnostic'],
   [/^\/account$/, 'Account'],
 

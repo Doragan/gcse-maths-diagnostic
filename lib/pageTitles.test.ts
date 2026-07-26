@@ -30,7 +30,7 @@ describe('titleForPath', () => {
   })
 
   it('ignores a trailing slash', () => {
-    expect(titleForPath('/practice/')).toBe('Practise GCSE Maths — Mathsense')
+    expect(titleForPath('/practice/')).toBe('GCSE Maths practice — Mathsense')
   })
 })
 
