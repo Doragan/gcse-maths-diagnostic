@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { skills } from '../../../data/skills'
-import { rateLimitEmail } from '../../../lib/rateLimit'
+import { rateLimitEmail, emailSendBudget } from '../../../lib/rateLimit'
 
 const ISSUE_LABELS: Record<string, string> = {
   wrong_answer:    'Wrong answer',
@@ -80,6 +80,15 @@ export async function POST(req: NextRequest) {
     if (!notifyEmail || !resendKey) {
       console.warn('REPORT_NOTIFY_EMAIL or RESEND_API_KEY not set — skipping email')
       return NextResponse.json({ ok: true })
+    }
+
+    // Hard daily cap on outbound email (audit F4). Claimed here, after the
+    // report is durably recorded above, so hitting the cap — or a limiter
+    // outage, which this fails closed on — costs the notification but never the
+    // report itself. Shares one global budget with /api/feedback.
+    const budget = await emailSendBudget()
+    if (!budget.ok) {
+      return NextResponse.json({ ok: true, email: 'skipped_rate_capped' })
     }
 
     // Instantiate Resend here (not at module scope) so a missing key can't throw

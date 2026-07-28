@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { rateLimitEmail } from '../../../lib/rateLimit'
+import { rateLimitEmail, emailSendBudget } from '../../../lib/rateLimit'
 
 // General product feedback (distinct from the per-question report flow in
 // /api/report-question). Sent from the dashboards and question page via the
@@ -79,6 +79,15 @@ export async function POST(req: NextRequest) {
         `RESEND_API_KEY=${resendKey ? 'set' : 'MISSING'}`,
       )
       return NextResponse.json({ ok: true, email: 'skipped_no_config' })
+    }
+
+    // Hard daily cap on outbound email (audit F4). Claimed here, after the
+    // feedback is durably recorded above, so hitting the cap — or a limiter
+    // outage, which this fails closed on — costs the notification but never the
+    // feedback itself.
+    const budget = await emailSendBudget()
+    if (!budget.ok) {
+      return NextResponse.json({ ok: true, email: 'skipped_rate_capped' })
     }
 
     const resend = new Resend(resendKey)
