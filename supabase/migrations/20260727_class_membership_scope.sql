@@ -74,8 +74,43 @@ create policy memberships_student_update on class_memberships
 commit;
 
 -- ── Verify after applying ────────────────────────────────────────────────────
--- As a logged-in student, each of these must now fail with 42501:
---   insert into class_memberships (class_id, student_id) values ('<any>', auth.uid());
---   update class_memberships set class_id = '<other class>' where student_id = auth.uid();
--- And this must still succeed (leaving a class):
---   update class_memberships set status = 'left', left_at = now() where student_id = auth.uid();
+--
+-- 🚨 DO NOT paste these into the SQL Editor as-is. The editor runs as a
+-- SUPERUSER, which bypasses BOTH table grants and RLS — every statement below
+-- would succeed no matter what this migration did, giving you a false pass.
+-- This fix lives entirely in the grant layer, so it is invisible to a superuser.
+--
+-- Impersonate the client role instead. `begin/rollback` means nothing is
+-- written, so these are safe to run against production. Substitute a real
+-- student uuid and two real class uuids.
+--
+--   begin;
+--     set local role authenticated;
+--     set local request.jwt.claims = '{"sub":"<STUDENT_UUID>"}';
+--
+--     -- (1) EXPECT ERROR 42501 — creation is server-only now
+--     insert into class_memberships (class_id, student_id)
+--     values ('<ANY_CLASS_UUID>', '<STUDENT_UUID>');
+--   rollback;
+--
+--   begin;
+--     set local role authenticated;
+--     set local request.jwt.claims = '{"sub":"<STUDENT_UUID>"}';
+--
+--     -- (2) EXPECT ERROR 42501 on class_id — no hopping between classes
+--     update class_memberships set class_id = '<OTHER_CLASS_UUID>'
+--     where student_id = '<STUDENT_UUID>';
+--   rollback;
+--
+--   begin;
+--     set local role authenticated;
+--     set local request.jwt.claims = '{"sub":"<STUDENT_UUID>"}';
+--
+--     -- (3) EXPECT SUCCESS — leaving a class must keep working
+--     update class_memberships set status = 'left', left_at = now()
+--     where student_id = '<STUDENT_UUID>';
+--   rollback;
+--
+-- Then smoke-test the real flow in the app as a student: join by code → leave →
+-- rejoin. That exercises app/api/classes/join, which is the path that now
+-- carries the join-code check.
