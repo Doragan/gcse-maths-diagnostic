@@ -13,6 +13,7 @@ import { isPaidStudent } from '../../../lib/entitlements'
 import FeedbackWidget from '../../../components/FeedbackWidget'
 import FounderUpgradeModal from '../../../components/FounderUpgradeModal'
 import ProgressChart from '../../../components/ProgressChart'
+import MiniExamHistory from '../../../components/exam/MiniExamHistory'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle,
@@ -621,6 +622,9 @@ export default function StudentDashboardPage() {
           </p>
         )}
       </div>
+
+      {/* Past mini-exams — renders itself away when there are none. */}
+      <MiniExamHistory studentId={profile.id} />
 
       {/* Manage subscription — monthly subscribers only (one-off buyers have
           nothing recurring to cancel, so no stripe_customer_id is stored). */}

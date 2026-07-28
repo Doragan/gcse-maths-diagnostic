@@ -57,6 +57,10 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/pay\/[^/]+$/, 'Pay for a subscription', '/pay/[token]'],
 
   // Student
+  // Re-review of a sat paper before the /student/exam parent, and the session
+  // id normalised away so it never reaches analytics.
+  [/^\/student\/exam\/[^/]+$/, 'Exam review', '/student/exam/[sessionId]'],
+  [/^\/student\/exam$/, 'Mini-exam'],
   [/^\/student\/diagnostic$/, 'Diagnostic'],
   [/^\/student\/dashboard$/, 'Student dashboard'],
   [/^\/student\/assignments\/[^/]+$/, 'Assignment', '/student/assignments/[id]'],

@@ -27,6 +27,9 @@ describe('titleForPath', () => {
     expect(titleForPath('/student/assignments/xyz')).toBe('Assignment — Mathsense')
     expect(titleForPath('/admin/questions/new')).toBe('Admin – new question — Mathsense')
     expect(titleForPath('/admin/questions/xyz')).toBe('Admin – edit question — Mathsense')
+    // the student mini-exam, and re-opening a sat paper
+    expect(titleForPath('/student/exam')).toBe('Mini-exam — Mathsense')
+    expect(titleForPath('/student/exam/9f3a-uuid')).toBe('Exam review — Mathsense')
   })
 
   it('ignores a trailing slash', () => {
@@ -45,6 +48,8 @@ describe('normalizePath', () => {
     expect(normalizePath('/dashboard/classes/9f3a')).toBe('/dashboard/classes/[id]')
     expect(normalizePath('/dashboard/8f3a-uuid')).toBe('/dashboard/[id]')
     expect(normalizePath('/student/assignments/xyz')).toBe('/student/assignments/[id]')
+    expect(normalizePath('/student/exam/9f3a-uuid')).toBe('/student/exam/[sessionId]')
+    expect(normalizePath('/student/exam')).toBe('/student/exam') // static, unchanged
     expect(normalizePath('/admin/questions/xyz')).toBe('/admin/questions/[id]')
   })
 
