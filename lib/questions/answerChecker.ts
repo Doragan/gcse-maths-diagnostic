@@ -488,6 +488,19 @@ function coordinatesEqual(a: number[], b: number[], tol: number): boolean {
   return a.every((v, i) => Math.abs(v - b[i]) <= tol)
 }
 
+/**
+ * Parse a BARE scalar — a single value with no comma, so not a coordinate/list.
+ * Lets a coordinate question author a trap for "gave just the value, not the
+ * point" (e.g. `21` against the answer `(0, 21)`): parseCoordinate rejects a
+ * lone number, so without this the slip gets only a generic "not quite". Used
+ * for TRAP matching only — the canonical answer stays strictly a coordinate.
+ */
+function parseScalarOnly(s: string): number | null {
+  if (s.includes(',')) return null
+  const n = parseFraction(s.replace(/[()]/g, ''))
+  return isNaN(n) ? null : n
+}
+
 const INEQUALITY_OP = /[≤≥<>]/
 
 function flipInequality(op: string): string {
@@ -689,7 +702,13 @@ export function checkAnswer(
         case 'coordinate': {
           const cs = parseCoordinate(normStudent)
           const ct = parseCoordinate(normTrap)
-          return cs !== null && ct !== null && coordinatesEqual(cs, ct, Math.max(tol, 1e-9))
+          if (cs !== null && ct !== null) return coordinatesEqual(cs, ct, Math.max(tol, 1e-9))
+          // Bare-scalar trap: the student gave a lone value instead of a
+          // coordinate. Matches only when BOTH the trap and the student answer
+          // are bare numbers (a real coordinate never reaches here).
+          const ss = parseScalarOnly(normStudent)
+          const st = parseScalarOnly(normTrap)
+          return ss !== null && st !== null && Math.abs(ss - st) <= Math.max(tol, 1e-9)
         }
       }
     })()
