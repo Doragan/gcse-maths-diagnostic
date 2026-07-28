@@ -48,7 +48,7 @@ export default function MiniExamHistory({ studentId }: { studentId: string }) {
 
   return (
     <section style={card}>
-      <h2 style={{ ...sectionTitle, margin: '0 0 4px' }}>Mini-exams</h2>
+      <h2 style={{ ...sectionTitle, margin: '0 0 4px' }}>Your past papers</h2>
       <p style={{ fontSize: '11px', color: colors.textHint, margin: '0 0 14px' }}>
         Practice scores across a whole paper — not predicted grades. Tap one to see your answers again.
       </p>

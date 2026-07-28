@@ -20,8 +20,8 @@ import { getSession } from '../../../../lib/auth'
 import { QUESTION_COLUMNS, type QuestionRow, type Tier } from '../../../../lib/exam/examPaper'
 import { rehydratePaper, parsePaperSnapshot, type RehydratedPaper } from '../../../../lib/exam/examSession'
 import type { CalculatorMode } from '../../../../lib/exam/assembler'
-import ExamReview from '../../../../components/exam/ExamReview'
-import { colors, font, primaryButton, secondaryButton } from '../../../../lib/styles'
+import ExamReview, { BackToDashboard } from '../../../../components/exam/ExamReview'
+import { colors, font, primaryButton } from '../../../../lib/styles'
 
 const pageStyle: React.CSSProperties = {
   maxWidth: 640, margin: '0 auto', padding: '24px 20px 64px',
@@ -84,11 +84,12 @@ export default function ExamSessionPage() {
   if (state === 'notfound') {
     return (
       <main style={pageStyle}>
+        <BackToDashboard onClick={() => router.push('/student/dashboard')} />
         <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>Paper not found</h1>
         <p style={{ color: colors.textSecondary, margin: 0 }}>
           This mini-exam doesn&apos;t exist, or it isn&apos;t yours.
         </p>
-        <button onClick={() => router.push('/student/dashboard')} style={{ ...primaryButton }}>Back to dashboard</button>
+        <button onClick={() => router.push('/student/exam')} style={{ ...primaryButton }}>Go to mini-exams</button>
       </main>
     )
   }
@@ -99,12 +100,13 @@ export default function ExamSessionPage() {
     const pct = row && row.marks_total > 0 ? Math.round((row.marks_earned / row.marks_total) * 100) : 0
     return (
       <main style={pageStyle}>
+        <BackToDashboard onClick={() => router.push('/student/dashboard')} />
         <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>Exam review</h1>
         <p style={{ color: colors.textSecondary, margin: 0 }}>
           You scored <strong>{row?.marks_earned} / {row?.marks_total}</strong> ({pct}%). The questions from this paper
           can&apos;t be shown.
         </p>
-        <button onClick={() => router.push('/student/dashboard')} style={{ ...primaryButton }}>Back to dashboard</button>
+        <button onClick={() => router.push('/student/exam')} style={{ ...primaryButton }}>Go to mini-exams</button>
       </main>
     )
   }
@@ -114,6 +116,8 @@ export default function ExamSessionPage() {
 
   return (
     <main style={pageStyle}>
+      {/* Back link stays the first thing on the page, as on every exam screen. */}
+      <BackToDashboard onClick={() => router.push('/student/dashboard')} />
       <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>Sat on {sat}</p>
       <ExamReview
         items={paper.items}
@@ -128,10 +132,7 @@ export default function ExamSessionPage() {
           ? `${missing} question${missing === 1 ? '' : 's'} from this paper ${missing === 1 ? 'is' : 'are'} no longer available, so ${missing === 1 ? 'it is' : 'they are'} not shown below. Your score is unchanged.`
           : undefined}
         footer={
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button onClick={() => router.push('/student/exam')} style={{ ...primaryButton, flex: 1 }}>New mini-exam</button>
-            <button onClick={() => router.push('/student/dashboard')} style={{ ...secondaryButton, flex: 1 }}>Dashboard</button>
-          </div>
+          <button onClick={() => router.push('/student/exam')} style={{ ...primaryButton }}>New mini-exam</button>
         }
       />
     </main>

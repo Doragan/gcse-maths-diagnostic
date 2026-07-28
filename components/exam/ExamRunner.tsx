@@ -14,7 +14,8 @@ import {
   type Item, type QuestionRow, type UnitResult, type Tier,
 } from '../../lib/exam/examPaper'
 import { buildPaperSnapshot } from '../../lib/exam/examSession'
-import ExamReview from './ExamReview'
+import ExamReview, { BackToDashboard } from './ExamReview'
+import MiniExamHistory from './MiniExamHistory'
 import GridCanvas from '../practice/GridCanvas'
 import MathInput from '../practice/MathInput'
 import { colors, font, radius, card, primaryButton, secondaryButton } from '../../lib/styles'
@@ -42,6 +43,8 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   // Student quota: null until fetched. remaining=null means unlimited (paid).
   const [quota, setQuota] = useState<{ remaining: number | null; isPaid: boolean } | null>(null)
   const [limitReached, setLimitReached] = useState(false)
+  // Set for students only — drives the past-papers list on the config screen.
+  const [studentId, setStudentId] = useState<string | null>(null)
 
   useEffect(() => {
     getSession().then(async session => {
@@ -50,6 +53,7 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
         // Must be a student account; a teacher visiting is bounced to their own.
         const { data: student } = await supabase.from('students').select('id').eq('id', session.user.id).single()
         if (!student) { router.push('/dashboard'); return }
+        setStudentId(student.id)
         setGate('ok')
         // Peek at the month's allowance for the config screen (display only —
         // the /api/exam/quota POST is the authoritative gate on start).
@@ -200,6 +204,7 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   if (phase === 'config' || phase === 'loading') {
     return (
       <main style={styles.page}>
+        <BackToDashboard onClick={() => router.push(dashboardHref)} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
           <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>Mini-exam</h1>
           {!isStudent && <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: radius.full, background: colors.cardAlt, color: colors.textHint }}>Preview</span>}
@@ -255,7 +260,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
             )
           })()}
         </div>
-        <button onClick={() => router.push(dashboardHref)} style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}>← Back to dashboard</button>
+        {/* Past papers sit under the options card, where a student is already
+            deciding what to do next — not on the dashboard. */}
+        {isStudent && studentId && <MiniExamHistory studentId={studentId} />}
       </main>
     )
   }
@@ -274,11 +281,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
           projectedCaption={isStudent
             ? 'What this paper did to your skill map, counted from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.'
             : undefined}
+          onBack={() => router.push(dashboardHref)}
           footer={
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button onClick={() => { setPhase('config'); setItems([]) }} style={{ ...primaryButton, flex: 1 }}>New mini-exam</button>
-              <button onClick={() => router.push(dashboardHref)} style={{ ...secondaryButton, flex: 1 }}>Dashboard</button>
-            </div>
+            <button onClick={() => { setPhase('config'); setItems([]) }} style={{ ...primaryButton }}>New mini-exam</button>
           }
         />
       </main>

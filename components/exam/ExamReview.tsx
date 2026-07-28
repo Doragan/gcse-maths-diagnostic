@@ -26,6 +26,27 @@ const STATUS_META: Record<MasteryStatus, { label: string; bg: string; color: str
 }
 const STATUS_RANK: Record<MasteryStatus, number> = { mastered: 0, in_progress: 1, needs_practice: 2 }
 
+/**
+ * The way OUT of any exam screen, always the first thing on the page.
+ *
+ * Exported so every exam surface uses the same control in the same place — it
+ * used to sit at the bottom on some screens and the top on others, which meant
+ * hunting for it after a long paper.
+ */
+export function BackToDashboard({ onClick, label = '← Back to dashboard' }: { onClick: () => void; label?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        alignSelf: 'flex-start', background: 'none', border: 'none', cursor: 'pointer',
+        padding: '2px 0', fontSize: font.base, color: colors.textSecondary,
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+
 export type ExamReviewProps = {
   items: Item[]
   results: Record<string, UnitResult>
@@ -39,6 +60,8 @@ export type ExamReviewProps = {
   projectedCaption?: string
   /** Shown above the score card (e.g. "2 questions are no longer available"). */
   notice?: string
+  /** Renders the back link at the very top of the review. */
+  onBack?: () => void
   /** Action buttons — differ per surface, so the caller supplies them. */
   footer?: React.ReactNode
 }
@@ -48,6 +71,7 @@ export default function ExamReview({
   heading = 'Exam review',
   projectedCaption = 'What completing this paper would do to a student’s skill map, from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.',
   notice,
+  onBack,
   footer,
 }: ExamReviewProps) {
   const pct = score.total > 0 ? Math.round((score.earned / score.total) * 100) : 0
@@ -82,6 +106,7 @@ export default function ExamReview({
 
   return (
     <>
+      {onBack && <BackToDashboard onClick={onBack} />}
       <h1 style={{ fontSize: font['2xl'], fontWeight: 700, margin: 0, color: colors.textPrimary }}>{heading}</h1>
 
       {notice && (
