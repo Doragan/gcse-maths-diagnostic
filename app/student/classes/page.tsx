@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getStudentProfile } from '../../../lib/auth'
 import {
-  getStudentClasses, lookupClass, joinClass, leaveClass,
+  getStudentClasses, joinClass, leaveClass,
   type StudentClass,
 } from '../../../lib/classes'
 import {
@@ -53,8 +53,7 @@ function StudentClassesInner() {
 
     setJoining(true)
     try {
-      const cls = await lookupClass(trimmed)
-      await joinClass(cls.id)
+      const cls = await joinClass(trimmed)
       setJoinedName(cls.name)
       setCode('')
       await load()

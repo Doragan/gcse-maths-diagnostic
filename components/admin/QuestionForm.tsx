@@ -1319,10 +1319,15 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             </button>
           </div>
         )}
+        {/* SVG deliberately excluded from `accept` — see
+            20260727_storage_question_images.sql: the bucket is public, so an
+            uploaded SVG is script on the storage origin. The bucket's MIME
+            allowlist rejects it server-side too; this just keeps the picker
+            honest. */}
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+          accept="image/jpeg,image/png,image/gif,image/webp"
           style={{ display: 'none' }}
           onChange={e => {
             const file = e.target.files?.[0]
