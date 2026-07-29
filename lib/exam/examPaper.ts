@@ -12,7 +12,7 @@
 import { skillsById } from '../skills/skillGraph'
 import { renderQuestion, renderMultiPartQuestion, type Parameters } from '../questions/paramEngine'
 import { checkAnswer } from '../questions/answerChecker'
-import { NOMINAL_MARKS } from './blueprint'
+import { resolveQuestionMarks } from './markEvidence'
 import type { QuestionPart } from '../questions/parts'
 import type { ScalarAnswerType } from '../questions/answerTypes'
 import {
@@ -177,7 +177,8 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
   }
 
   const r = renderQuestion(q.question_template, q.answer_template, q.traps ?? [], q.explanation, q.parameters ?? {}, fixedValues)
-  const marks = NOMINAL_MARKS[q.difficulty] ?? 1
+  // Must agree with the assembler, which prices the paper before it is built.
+  const marks = resolveQuestionMarks(q).marks
   return {
     questionId: q.id,
     number,

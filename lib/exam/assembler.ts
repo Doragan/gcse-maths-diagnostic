@@ -1,6 +1,6 @@
 import type { ExamSlot } from './blueprint'
-import { NOMINAL_MARKS } from './blueprint'
 import { skillsById } from '../skills/skillGraph'
+import { resolveQuestionMarks } from './markEvidence'
 
 // ── Mini-exam assembler ──────────────────────────────────────────────────────
 // Pure selection: given a pool of candidate questions and a blueprint, pick one
@@ -123,9 +123,11 @@ export type CandidateSource = {
  */
 export function candidateOf(q: CandidateSource): Candidate | null {
   if (q.question_type === 'multiple_choice') return null
+  // Multi-part questions are priced by their authored parts; everything else
+  // goes through the evidence-based resolver (see lib/exam/markEvidence.ts).
   const marks = q.parts && q.parts.length > 0
     ? q.parts.reduce((s, p) => s + (p.marks || 0), 0)
-    : (NOMINAL_MARKS[q.difficulty] ?? 1)
+    : resolveQuestionMarks(q).marks
   return {
     id: q.id,
     difficulty: q.difficulty,

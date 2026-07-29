@@ -32,10 +32,10 @@ export const DEFAULT_BLUEPRINT: ExamSlot[] = [
   { band: 4, kind: 'any' },
 ]
 
-/**
- * Nominal marks for a SINGLE-PART question, by difficulty. Multi-part questions
- * use the sum of their parts' marks instead (which authors set explicitly).
- * This is a rough exam-like weighting, not a calibrated one — the score is
- * labelled a "score", not a predicted grade (calibration is a later increment).
- */
-export const NOMINAL_MARKS: Record<number, number> = { 1: 1, 2: 1, 3: 2, 4: 3 }
+// Marks per question are no longer decided here. The flat NOMINAL_MARKS table
+// that used to live in this file ({1:1, 2:1, 3:2, 4:3}) was a guess: it averaged
+// ~1.8 marks/part against a real-exam 2.16, and ignored `kind` even though real
+// synthesis parts are worth nearly twice a single-skill part. It now lives in
+// lib/exam/markEvidence.ts as the LAST-RESORT fallback inside
+// resolveQuestionMarks, behind evidence from the coded 2024 series. Keeping a
+// second copy here would only invite the two to drift.
