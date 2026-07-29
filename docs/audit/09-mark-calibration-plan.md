@@ -102,11 +102,39 @@ question's marks sit outside the empirical range for its skills — the spread i
 real and a short version may be deliberate. Run bank-wide once to produce a
 review list.
 
-### 5. Re-check paper totals
+### 5. Re-check paper totals — DONE, no blueprint change needed
 
-Realistic weights should pull a default paper nearer the ~25-mark target (today:
-20 nominal, 20–25 observed). Confirm the blueprint ramp still holds; adjust slot
-counts only if it overshoots.
+Measured over 40 assembled papers per configuration:
+
+| config | mean | range | questions | short papers |
+|---|---|---|---|---|
+| foundation · non-calc | 26.4 | 19–34 | 11.0 | 0/40 |
+| foundation · calc | 25.5 | 21–30 | 11.0 | 0/40 |
+| higher · non-calc | 24.1 | 20–30 | 11.0 | 0/40 |
+| higher · calc | 23.8 | 20–30 | 11.0 | 0/40 |
+
+All four centre on the ~25-mark target (was 20 nominal / 20–25 observed), and
+**every** paper fills all 11 slots — no relaxation to a short paper. So the slot
+counts stay as they are.
+
+**The ramp is intact and monotonic**, which was the thing at risk from centring
+marks on skill evidence rather than difficulty:
+
+```
+d1 1.06 · d2 1.44 · d3 2.35 · d4 2.84 · d5 4.67   (mean marks per question)
+```
+
+**Residual spread (19–34) is multi-part draw luck**, not a calibration fault:
+multi-part questions average 3.56 marks against 1.72 for single-part, so a paper
+that happens to draw several runs heavy. Percentage is therefore the right unit
+for the score trend; the remaining variance is in a paper's *composition*, which
+is the part a fixed-total assembler (or sectioning) would address if it ever
+proves to matter.
+
+**One outlier found, for content review:** `60fd2421` is a **d2 question worth 6
+marks** — the heaviest in the bank, at the second-easiest difficulty, while d4
+averages 2.84. It is multi-part, so the 6 comes from summed authored part marks.
+Either its difficulty rating or its part marks look wrong. Not a code issue.
 
 ## Explicitly NOT in this increment
 
