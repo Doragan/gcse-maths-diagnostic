@@ -5,6 +5,7 @@ import { evaluateTemplate, generateValues } from '../lib/questions/paramEngine'
 import { checkAnswer } from '../lib/questions/answerChecker'
 import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
 import { checkGridDraw } from '../lib/questions/gridDraw'
+import { evidenceFor, resolveQuestionMarks } from '../lib/exam/markEvidence'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Bank health check (audit ②/Phase 4). Re-run after any authoring batch:
@@ -71,12 +72,13 @@ async function auditBank() {
   section(`② QUESTION BANK (published, ${DRAWS} draws)`)
   const { data, error } = await supabase
     .from('questions')
-    .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, traps, parts, is_published')
+    .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, traps, parts, is_published, difficulty, kind, marks')
     .eq('is_published', true)
   if (error || !data) { console.error(error); process.exit(1) }
 
   const renderErrors: string[] = [], badType: string[] = [], dangling: string[] = []
   const noSkills: string[] = [], emptyAns: string[] = [], unrounded: string[] = []
+  const markOutliers: string[] = [], noMarkEvidence: string[] = []
   const usedSkills = new Set<string>()
   const trapHits = new Map<string, { hits: number; total: number; desc: string }>()
 
@@ -85,6 +87,18 @@ async function auditBank() {
     for (const sid of q.skill_ids ?? []) { usedSkills.add(sid); if (!ids.has(sid)) dangling.push(`${q.id} → ${sid}`) }
 
     const parts: any[] = Array.isArray(q.parts) && q.parts.length ? q.parts : []
+
+    // Marks vs the coded papers — advisory, mirroring verify-question. Only
+    // single-part questions: multi-part ones are priced by their authored parts.
+    if (!parts.length) {
+      const stats = evidenceFor(q.skill_ids ?? [], q.kind === 'exam' ? 'exam' : 'mastery')
+      const { marks, source } = resolveQuestionMarks(q as any)
+      if (stats && (marks < stats.min || marks > stats.max)) {
+        markOutliers.push(`${q.id}: ${marks} vs real ${stats.min}-${stats.max} (mean ${stats.mean}, n=${stats.n})`)
+      } else if (source === 'kind' && (q.skill_ids ?? []).length) {
+        noMarkEvidence.push(`${q.id} (${(q.skill_ids ?? []).join(', ')})`)
+      }
+    }
     // Multi_blank parts expand to one unit per blank; grid_draw parts get a
     // lighter dedicated check below (mirrors verify-question).
     const units = parts.length
@@ -181,6 +195,8 @@ async function auditBank() {
   report('dangling skill_ids', dangling); report('questions with no skills', noSkills)
   report('empty rendered answers', emptyAns)
   report('🔶 unrounded numeric answers (tight tolerance — may be unmatchable)', unrounded)
+  report('🔶 marks outside the range real papers award for that material', markOutliers)
+  report('🔶 no coded exam evidence for these skills (marks from the kind average)', noMarkEvidence)
 
   const always: string[] = [], sometimes: string[] = []
   for (const { hits, total, desc } of trapHits.values()) {

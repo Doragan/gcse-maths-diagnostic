@@ -6,6 +6,7 @@ import { checkAnswer, normalise } from '../lib/questions/answerChecker'
 import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
 import { checkGridDraw, type RenderedGrid } from '../lib/questions/gridDraw'
 import { buildGridSvg, toGhostPoint } from '../lib/questions/gridSvg'
+import { evidenceFor, resolveQuestionMarks } from '../lib/exam/markEvidence'
 import { readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
@@ -529,6 +530,37 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   for (const u of units) if (!VALID_ANSWER_TYPES.includes(u.answer_type)) fails.push(`${u.label}: invalid answer_type "${u.answer_type}"`)
   if (q.kind === 'exam' && (q.skill_ids ?? []).length < 2) warns.push(`kind 'exam' but only ${(q.skill_ids ?? []).length} skill(s) — synthesis needs 2+ independent skills`)
   if (q.kind === 'mastery' && !isMulti && (q.skill_ids ?? []).length !== 1) warns.push(`single-part 'mastery' with ${(q.skill_ids ?? []).length} skills — mastery attribution wants exactly 1`)
+
+  // ── Marks sanity, against the coded 2024 papers ─────────────────────────────
+  // WARN, never fail: a question's marks track the number of creditable steps
+  // in its solution, not its topic, so the within-skill spread is genuine
+  // (simple_arithmetic parts really do range 1-5). A short version of a
+  // normally-long question is legitimate — this only asks "did you mean that?".
+  // Multi-part questions are priced by summing authored parts, so they are
+  // checked per part rather than as a whole.
+  if (!isMulti) {
+    const stats = evidenceFor(q.skill_ids ?? [], q.kind === 'exam' ? 'exam' : 'mastery')
+    const { marks, source } = resolveQuestionMarks(q as any)
+    if (stats && (marks < stats.min || marks > stats.max)) {
+      warns.push(
+        `${marks} mark${marks === 1 ? '' : 's'} is outside the ${stats.min}-${stats.max} range real papers award for this material `
+        + `(n=${stats.n}, mean ${stats.mean})`
+        + (source === 'explicit' ? ' — set explicitly, so check it is deliberate' : ''),
+      )
+    }
+    if (source === 'kind' && (q.skill_ids ?? []).length > 0) {
+      warns.push(`no coded exam evidence for these skills — marks (${marks}) come from the ${q.kind === 'exam' ? 'synthesis' : 'single-skill'} average`)
+    }
+  } else {
+    for (let i = 0; i < q.parts.length; i++) {
+      const p = q.parts[i]
+      const stats = evidenceFor(p.skill_ids ?? [], p.kind === 'exam' ? 'exam' : 'mastery')
+      const m = Number(p.marks) || 0
+      if (stats && m > 0 && (m < stats.min || m > stats.max)) {
+        warns.push(`part (${'abcdefgh'[i]}): ${m} mark${m === 1 ? '' : 's'} is outside the ${stats.min}-${stats.max} range real papers award for this material (n=${stats.n}, mean ${stats.mean})`)
+      }
+    }
+  }
 
   const isMC = q.question_type === 'multiple_choice'
   const mcTemplates: string[] | null = isMC && Array.isArray(q.mc_options) && q.mc_options.length >= 2 ? q.mc_options : null
