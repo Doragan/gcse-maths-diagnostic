@@ -21,6 +21,7 @@ import PartEditor from './PartEditor'
 import { supabase } from '../../lib/supabase'
 import { checkAnswer, CheckResult } from '../../lib/questions/answerChecker'
 import CollapsibleCard from './CollapsibleCard'
+import { resolveQuestionMarks, evidenceFor } from '../../lib/exam/markEvidence'
 
 type Trap = {
   answer_template: string
@@ -39,6 +40,12 @@ type QuestionFormData = {
   requires_simplest: boolean
   calculator: CalculatorMode
   kind: QuestionKind
+  /**
+   * Explicit exam marks for a SINGLE-PART question. Empty = use the estimate
+   * from the coded papers (lib/exam/markEvidence.ts). Multi-part questions
+   * ignore this and sum their parts.
+   */
+  marks: string
   mc_options: string[]
   traps: Trap[]
   explanation: string
@@ -67,6 +74,7 @@ const emptyForm: QuestionFormData = {
   requires_simplest: false,
   calculator: DEFAULT_CALCULATOR_MODE,
   kind: DEFAULT_QUESTION_KIND,
+  marks: '',
   mc_options: [],
   traps: [],
   explanation: '',
@@ -597,6 +605,14 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
 
   const detailsSummary = `${form.difficulty}★ · ${form.answer_type}`
 
+  // What the exam layer would award if the marks field is left blank, plus the
+  // evidence behind it — so the author is choosing against real papers rather
+  // than guessing. Skills/kind come straight from the form, so this updates live.
+  const estimatedMarks = resolveQuestionMarks({
+    skill_ids: form.skill_ids, kind: form.kind, difficulty: form.difficulty,
+  }).marks
+  const markStats = evidenceFor(form.skill_ids, form.kind === 'exam' ? 'exam' : 'mastery')
+
   const paramSummary = (() => {
     try {
       const keys = Object.keys(JSON.parse(form.parameters || '{}'))
@@ -754,6 +770,23 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               ))}
             </select>
           </div>
+          {/* Multi-part questions are priced by summing their parts, so this is
+              a single-part-only override. Left empty, the exam layer estimates
+              from the coded papers — see the evidence note below. */}
+          {!form.multiPart && (
+            <div style={styles.field}>
+              <label style={labelStyle}>Exam marks</label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={form.marks}
+                onChange={e => update('marks', e.target.value)}
+                placeholder={`auto (${estimatedMarks})`}
+                style={inputStyle}
+              />
+            </div>
+          )}
           {!form.multiPart && (
             <div style={styles.field}>
               <label style={labelStyle}>Answer type</label>
@@ -769,6 +802,21 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             </div>
           )}
         </div>
+        {/* Evidence for the marks field: what real papers award for this
+            material. Guidance, never enforcement — the spread within a skill is
+            genuine (marks track solution steps, not topic), so the author's
+            judgement wins. Says so plainly when the evidence is too thin. */}
+        {!form.multiPart && (
+          <p style={{ fontSize: '11px', color: colors.textHint, margin: '-4px 0 0', lineHeight: 1.6 }}>
+            {markStats
+              ? <>2024 papers, this material · {form.kind === 'exam' ? 'synthesis' : 'single-skill'}:{' '}
+                  <strong>n={markStats.n}, mean {markStats.mean}, range {markStats.min}–{markStats.max}</strong>
+                  {markStats.splits.length > 0 && <> — usually {markStats.splits.join(' or ')}</>}.{' '}
+                  Leave blank to use the estimate ({estimatedMarks}).</>
+              : <>No coded evidence for these skills yet — the estimate ({estimatedMarks}) comes from the{' '}
+                  {form.kind === 'exam' ? 'synthesis' : 'single-skill'} average across all papers. Set a value if you know better.</>}
+          </p>
+        )}
         {!form.multiPart && form.answer_type === 'numeric' && (
           <div style={styles.field}>
             <label style={labelStyle}>Tolerance (±)</label>

@@ -9,6 +9,7 @@ const q1: QuestionRow = {
   difficulty: 1,
   calculator: 'na',
   kind: 'mastery',
+  marks: null,
   question_type: 'numeric',
   parts: null,
   question_template: 'Calculate {{a}} × {{b}}',
@@ -29,6 +30,7 @@ const q2: QuestionRow = {
   difficulty: 2,
   calculator: 'na',
   kind: 'mastery',
+  marks: null,
   question_type: 'numeric',
   question_template: 'A shop sells {{n}} pens.',
   answer_template: '',
@@ -117,6 +119,22 @@ describe('buildPaperSnapshot + rehydratePaper', () => {
     // The surviving question keeps the number the student sat it under.
     expect(back.items[0].number).toBe(2)
     expect(back.results['q2:0'].correct).toBe(true)
+  })
+})
+
+describe('explicit marks override', () => {
+  it('an author-set value beats the estimate when the paper is built', () => {
+    const estimated = buildItem(q1, 1, { a: 11, b: 3 })
+    const overridden = buildItem({ ...q1, marks: 4 }, 1, { a: 11, b: 3 })
+    expect(overridden.units[0].marks).toBe(4)
+    expect(overridden.marks).toBe(4)
+    // and it only matters because it differs from what we would have guessed
+    expect(estimated.units[0].marks).not.toBe(4)
+  })
+
+  it('multi-part questions ignore it and still sum their parts', () => {
+    const it2 = buildItem({ ...q2, marks: 9 }, 1, { n: 6 })
+    expect(it2.marks).toBe(2) // two 1-mark parts, not the bogus 9
   })
 })
 

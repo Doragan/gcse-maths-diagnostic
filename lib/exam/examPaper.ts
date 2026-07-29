@@ -72,6 +72,8 @@ export type QuestionRow = {
   difficulty: number
   calculator: string | null
   kind: string | null
+  /** Author's explicit exam marks; null = estimate from the coded papers. */
+  marks: number | null
   question_type: string
   parts: QuestionPart[] | null
   question_template: string
@@ -91,7 +93,7 @@ export type QuestionRow = {
  * supabase-js infers the row type from the literal, so splitting or
  * concatenating it collapses the result to GenericStringError.
  */
-export const QUESTION_COLUMNS = 'id, skill_ids, difficulty, calculator, kind, question_type, parts, question_template, answer_template, answer_type, tolerance, requires_simplest, traps, explanation, image_url, parameters' as const
+export const QUESTION_COLUMNS = 'id, skill_ids, difficulty, calculator, kind, marks, question_type, parts, question_template, answer_template, answer_type, tolerance, requires_simplest, traps, explanation, image_url, parameters' as const
 
 const letter = (i: number) => `(${String.fromCharCode(97 + i)})`
 

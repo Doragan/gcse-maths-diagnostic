@@ -38,6 +38,8 @@ export default function EditQuestionPage() {
         ...data,
         parameters: JSON.stringify(data.parameters, null, 2),
         tolerance: data.tolerance?.toString() ?? '0',
+        // NULL marks means "estimate it" — show that as an empty field, not "0".
+        marks: data.marks != null ? String(data.marks) : '',
         traps: data.traps ?? [],
         image_url: data.image_url ?? '',
       })
@@ -67,6 +69,8 @@ export default function EditQuestionPage() {
         requires_simplest: data.requires_simplest,
         calculator: data.calculator,
         kind: data.kind,
+        // Single-part only; blank clears back to the estimate.
+        marks: !isMulti && data.marks.trim() !== '' ? parseInt(data.marks, 10) : null,
         traps: isMulti ? [] : data.traps,
         explanation: isMulti ? null : (data.explanation || null),
         image_url: data.image_url || null,

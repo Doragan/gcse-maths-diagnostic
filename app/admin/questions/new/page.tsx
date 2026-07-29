@@ -44,6 +44,9 @@ export default function NewQuestionPage() {
       requires_simplest: data.requires_simplest,
       calculator: data.calculator,
       kind: data.kind,
+      // Single-part only: multi-part questions are priced by summing their
+      // parts. Blank means "use the evidence-based estimate", so it stays NULL.
+      marks: !isMulti && data.marks.trim() !== '' ? parseInt(data.marks, 10) : null,
       traps: isMulti ? [] : data.traps,
       explanation: isMulti ? null : (data.explanation || null),
       image_url: data.image_url || null,

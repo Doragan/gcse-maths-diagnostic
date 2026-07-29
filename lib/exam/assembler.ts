@@ -112,6 +112,8 @@ export type CandidateSource = {
   difficulty: number
   calculator: string | null
   kind: string | null
+  /** Author's explicit exam marks; null = estimate from the coded papers. */
+  marks?: number | null
   question_type: string
   parts: { marks: number }[] | null
 }
