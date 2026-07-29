@@ -15,6 +15,7 @@ import {
 } from '../../lib/questions/parts'
 import BlankEditor from './BlankEditor'
 import GridEditor from './GridEditor'
+import { evidenceFor } from '../../lib/exam/markEvidence'
 
 type Trap = { answer_template: string, response: string }
 
@@ -235,6 +236,32 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
           </div>
         )}
       </div>
+
+      {/* What real papers award for this part's material. Guidance only: marks
+          track the number of creditable steps in a solution, not the topic, so
+          the spread within a skill is genuine and the author's judgement wins.
+          Shown for structured parts too, where the total is computed from the
+          blanks/elements and is just as worth sanity-checking. */}
+      {(() => {
+        const stats = evidenceFor(part.skill_ids ?? [], part.kind === 'exam' ? 'exam' : 'mastery')
+        const effective = isStructured ? structuredMarks : Number(part.marks) || 0
+        const outside = stats && effective > 0 && (effective < stats.min || effective > stats.max)
+        if (!stats) {
+          return (part.skill_ids ?? []).length > 0 ? (
+            <p style={{ fontSize: '11px', color: colors.textHint, margin: '-4px 0 0', lineHeight: 1.6 }}>
+              No coded exam evidence for this part&apos;s skills yet.
+            </p>
+          ) : null
+        }
+        return (
+          <p style={{ fontSize: '11px', color: outside ? colors.warningText : colors.textHint, margin: '-4px 0 0', lineHeight: 1.6 }}>
+            2024 papers, this material · {part.kind === 'exam' ? 'synthesis' : 'single-skill'}:{' '}
+            <strong>n={stats.n}, mean {stats.mean}, range {stats.min}–{stats.max}</strong>
+            {stats.splits.length > 0 && <> — usually {stats.splits.join(' or ')}</>}
+            {outside && <> · this part is <strong>{effective}</strong>, outside that range — check it is deliberate</>}
+          </p>
+        )
+      })()}
 
       {(part.answer_type === 'fraction' || part.answer_type === 'ratio') && (
         <div style={styles.field}>
