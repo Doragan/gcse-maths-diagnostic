@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { getSession } from '../../lib/auth'
-import { assembleExam, candidateOf, type CalculatorMode } from '../../lib/exam/assembler'
-import { DEFAULT_BLUEPRINT } from '../../lib/exam/blueprint'
+import { assembleExam, candidateOf, type CalculatorMode, type AssembledExam } from '../../lib/exam/assembler'
+import { BLUEPRINTS } from '../../lib/exam/blueprint'
 import { higherOnlySkillIds } from '../../data/courses'
 import { serialiseGridAnswer, parseGridAnswer } from '../../lib/questions/gridDraw'
 import { groupExamAttempts } from '../../lib/exam/recordAttempts'
@@ -45,6 +45,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [limitReached, setLimitReached] = useState(false)
   // Set for students only — drives the past-papers list on the config screen.
   const [studentId, setStudentId] = useState<string | null>(null)
+  // Teacher preview only: how far the assembled paper fell short of its
+  // blueprint, so the content gap is visible rather than silently absorbed.
+  const [shortfall, setShortfall] = useState<AssembledExam['shortfall'] | null>(null)
 
   useEffect(() => {
     getSession().then(async session => {
@@ -89,13 +92,23 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
     const rows = data as QuestionRow[]
     const byId = new Map(rows.map(r => [r.id, r]))
     const candidates = rows.map(candidateOf).filter((c): c is NonNullable<typeof c> => c !== null)
-    // Foundation papers exclude questions that touch a Higher-only skill; Higher
-    // draws from the whole pool (every Foundation skill is also on Higher).
-    const assembled = assembleExam(candidates, DEFAULT_BLUEPRINT, {
+    // Each tier has its OWN blueprint — a real Higher paper is fewer, heavier,
+    // synthesis-led questions, not the same paper with harder content. Foundation
+    // additionally excludes anything touching a Higher-only skill; Higher draws
+    // from the whole pool (every Foundation skill is also on Higher).
+    const assembled = assembleExam(candidates, BLUEPRINTS[tier], {
       calculatorMode: calcMode,
       blockedSkillIds: tier === 'foundation' ? HIGHER_ONLY : undefined,
     })
     if (assembled.questionIds.length === 0) { setError('No questions available for this paper yet.'); setPhase('config'); return }
+    // The bank cannot yet supply a faithful Higher paper (it holds ~15% synthesis
+    // marks against a blueprint asking ~78%), so papers WILL fall short. Log it
+    // rather than hide it — it is the signal for where content is needed. Shown
+    // only to a teacher previewing; students just see their paper.
+    if (!isStudent && (assembled.shortfall.marks > 0 || assembled.shortfall.kind > 0)) {
+      console.warn('[mini-exam] blueprint not fully met', assembled.shortfall)
+    }
+    setShortfall(!isStudent ? assembled.shortfall : null)
 
     // Student: spend one monthly generation now — AFTER a paper is known to
     // assemble, so a technical failure never burns an allowance. The server is
@@ -281,6 +294,13 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
           projectedCaption={isStudent
             ? 'What this paper did to your skill map, counted from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.'
             : undefined}
+          {...(shortfall && (shortfall.marks > 0 || shortfall.kind > 0) ? {
+            notice:
+              `This paper is ${shortfall.marks} mark${shortfall.marks === 1 ? '' : 's'} short of its `
+              + `${BLUEPRINTS[tier].targetMarks}-mark blueprint`
+              + (shortfall.kind > 0 ? `, including ${shortfall.kind} synthesis mark${shortfall.kind === 1 ? '' : 's'} the bank could not supply` : '')
+              + '. Students do not see this.',
+          } : {})}
           onBack={() => router.push(dashboardHref)}
           footer={
             <button onClick={() => { setPhase('config'); setItems([]) }} style={{ ...primaryButton }}>New mini-exam</button>

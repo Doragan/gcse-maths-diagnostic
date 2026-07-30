@@ -41,19 +41,26 @@ must not try to make later questions worth more.
 Same 80 marks, ten fewer parts. Scaled to a 25-mark slice: Foundation ≈ **13
 parts**, Higher ≈ **10**.
 
-### The bank cannot yet supply a faithful Higher paper
+### Synthesis supply — a prediction this doc got WRONG
 
-| | real Higher | our Higher pool |
-|---|---|---|
-| Mean marks/question | 2.47 | **2.01** |
-| Synthesis share of marks | 78% | **15%** |
+The original draft said the bank "cannot yet supply a faithful Higher paper",
+reasoning from synthesis being **15% of pool marks** against a blueprint wanting
+~78%. **Measurement after building disproved that.** The Higher synthesis gap is
+**1–2 marks out of 20** — the blueprint is ~93% satisfied.
 
-(Foundation is close: real 1.92 vs pool 1.95, synthesis 48% vs 16%.)
+The error was comparing a *pool share* with a *per-paper requirement*. One paper
+needs ~20 synthesis marks; the pool holds **74** across 18 questions. Ample for
+any single paper.
 
-Our Higher pool is barely heavier than our Foundation pool, and synthesis supply
-is a fifth of what a Higher paper needs. **The blueprint will encode the right
-target and the ladder will relax hard.** That is accepted and must be reported,
-not hidden — see "Honest degradation".
+**The real constraint is freshness, not capacity.** Across 5 consecutive Higher
+papers only **7 distinct** synthesis questions appeared, 6 of them more than
+once. A student sitting several papers meets the same synthesis questions
+repeatedly — and since these are the memorable, heavily-weighted questions, that
+is exactly where repetition is most noticeable. Growing the `exam`-kind bank is
+still the right content priority; the reason is variety, not whether a paper can
+be built.
+
+(Foundation for reference: real 1.92 mean marks/part vs our pool 1.95.)
 
 ## Design
 
