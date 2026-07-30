@@ -19,7 +19,30 @@ export type Candidate = {
   strand: string
   marks: number
   skillIds: string[]
+  /** Several sub-questions on one stem — see MAX_MULTI_PART. */
+  multiPart: boolean
 }
+
+/**
+ * How many multi-part questions one paper may contain.
+ *
+ * Multi-part questions are the mark-heavy ones by construction (mean 3.56 marks
+ * against 1.72 for single-part), and nothing else in the assembler notices a
+ * question's SHAPE — it picks on difficulty, kind and strand. Today the pool is
+ * only ~16% multi-part, so papers naturally land at 1-3 of 11 and this cap
+ * rarely binds. It exists for when that changes: decomposing into parts is how
+ * most real exam questions get captured, so the share will grow, and without a
+ * brake papers would drift long (a 50% multi-part pool would routinely give 5-6
+ * per paper and totals near 40 — a third over the ~30-minute target).
+ *
+ * There is a second reason beyond length: a multi-part question asks several
+ * short questions about ONE stem, so a paper heavy in them covers fewer distinct
+ * contexts than its question count suggests.
+ *
+ * 4 of 11 leaves the observed distribution almost untouched while capping the
+ * tail that produced the heaviest papers.
+ */
+export const MAX_MULTI_PART = 4
 
 export type AssembledExam = {
   questionIds: string[]
@@ -42,8 +65,9 @@ function calcEligible(c: Candidate, mode: CalculatorMode): boolean {
  *   2. exact band, any kind
  *   3. adjacent band (±1), any kind
  *   4. any band
- * The calculator constraint is NEVER relaxed. A slot that still can't be filled
- * (pool exhausted) is skipped, yielding a slightly shorter paper.
+ * The calculator constraint is NEVER relaxed, and neither is MAX_MULTI_PART —
+ * both hold at every rung. A slot that still can't be filled (pool exhausted) is
+ * skipped, yielding a slightly shorter paper.
  *
  * `rng` is injectable for deterministic tests.
  */
@@ -76,9 +100,14 @@ export function assembleExam(
   const strandCount = new Map<string, number>()
   const picked: string[] = []
   let totalMarks = 0
+  let multiPartCount = 0
 
   function tryPick(pred: (c: Candidate) => boolean): Candidate | null {
-    const cands = pool.filter(c => !used.has(c.id) && pred(c))
+    // Once the paper holds its share of multi-part questions, they drop out of
+    // every subsequent pick — including the relaxed ones, so the cap can't be
+    // sidestepped by a slot that had to widen its search.
+    const capped = multiPartCount >= MAX_MULTI_PART
+    const cands = pool.filter(c => !used.has(c.id) && !(capped && c.multiPart) && pred(c))
     if (cands.length === 0) return null
     // Prefer the least-represented strand so far (cross-section coverage);
     // random tiebreak within the least-used strand.
@@ -99,6 +128,7 @@ export function assembleExam(
     used.add(pick.id)
     picked.push(pick.id)
     strandCount.set(pick.strand, (strandCount.get(pick.strand) ?? 0) + 1)
+    if (pick.multiPart) multiPartCount++
     totalMarks += pick.marks
   }
 
@@ -127,11 +157,13 @@ export function candidateOf(q: CandidateSource): Candidate | null {
   if (q.question_type === 'multiple_choice') return null
   // Multi-part questions are priced by their authored parts; everything else
   // goes through the evidence-based resolver (see lib/exam/markEvidence.ts).
-  const marks = q.parts && q.parts.length > 0
-    ? q.parts.reduce((s, p) => s + (p.marks || 0), 0)
+  const multiPart = !!q.parts && q.parts.length > 0
+  const marks = multiPart
+    ? q.parts!.reduce((s, p) => s + (p.marks || 0), 0)
     : resolveQuestionMarks(q).marks
   return {
     id: q.id,
+    multiPart,
     difficulty: q.difficulty,
     calculator: q.calculator === 'calc' || q.calculator === 'non_calc' ? q.calculator : 'na',
     kind: q.kind === 'exam' ? 'exam' : 'mastery',

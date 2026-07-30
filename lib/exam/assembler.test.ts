@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { assembleExam, candidateOf, type Candidate } from './assembler'
+import { assembleExam, candidateOf, MAX_MULTI_PART, type Candidate } from './assembler'
 import { normalizePart, emptyPart, emptyBlank } from '../questions/parts'
 import type { ExamSlot } from './blueprint'
 
@@ -7,8 +7,50 @@ import type { ExamSlot } from './blueprint'
 const firstRng = () => 0
 
 function cand(id: string, difficulty: number, over: Partial<Candidate> = {}): Candidate {
-  return { id, difficulty, calculator: 'na', kind: 'mastery', strand: 'Number', marks: 1, skillIds: [], ...over }
+  return { id, difficulty, calculator: 'na', kind: 'mastery', strand: 'Number', marks: 1, skillIds: [], multiPart: false, ...over }
 }
+
+describe('assembleExam — multi-part cap', () => {
+  const manySlots: ExamSlot[] = Array.from({ length: 11 }, () => ({ band: 2, kind: 'any' as const }))
+
+  it('caps multi-part questions even when the pool is all multi-part', () => {
+    const candidates = Array.from({ length: 20 }, (_, i) => cand(`m${i}`, 2, { multiPart: true }))
+    const res = assembleExam(candidates, manySlots, { calculatorMode: 'calc', rng: firstRng })
+    expect(res.questionIds).toHaveLength(MAX_MULTI_PART)
+  })
+
+  it('fills the rest of the paper with single-part questions once capped', () => {
+    const candidates = [
+      ...Array.from({ length: 20 }, (_, i) => cand(`m${i}`, 2, { multiPart: true })),
+      ...Array.from({ length: 20 }, (_, i) => cand(`s${i}`, 2)),
+    ]
+    const res = assembleExam(candidates, manySlots, { calculatorMode: 'calc', rng: firstRng })
+    expect(res.questionIds).toHaveLength(11)
+    expect(res.questionIds.filter(id => id.startsWith('m'))).toHaveLength(MAX_MULTI_PART)
+  })
+
+  it('holds at every rung of the relaxation ladder, not just the exact-band one', () => {
+    // Only multi-part left, and the slot must relax across bands to find them.
+    const candidates = [
+      ...Array.from({ length: 6 }, (_, i) => cand(`m${i}`, 4, { multiPart: true })),
+      cand('s0', 1),
+    ]
+    const blueprint: ExamSlot[] = Array.from({ length: 6 }, () => ({ band: 1, kind: 'any' as const }))
+    const res = assembleExam(candidates, blueprint, { calculatorMode: 'calc', rng: firstRng })
+    expect(res.questionIds.filter(id => id.startsWith('m')).length).toBeLessThanOrEqual(MAX_MULTI_PART)
+  })
+
+  it('leaves papers alone when multi-part questions are scarce (today)', () => {
+    const candidates = [
+      ...Array.from({ length: 2 }, (_, i) => cand(`m${i}`, 2, { multiPart: true })),
+      ...Array.from({ length: 20 }, (_, i) => cand(`s${i}`, 2)),
+    ]
+    const res = assembleExam(candidates, manySlots, { calculatorMode: 'calc', rng: firstRng })
+    expect(res.questionIds).toHaveLength(11)
+    // both multi-part questions are still eligible — the cap never binds
+    expect(res.questionIds.filter(id => id.startsWith('m')).length).toBeLessThanOrEqual(2)
+  })
+})
 
 describe('assembleExam', () => {
   it('never puts a calc question on a non-calc paper', () => {
