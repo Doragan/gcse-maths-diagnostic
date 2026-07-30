@@ -154,7 +154,9 @@ export function assembleExam(
   for (const bandSpec of blueprint.bands) {
     const { band, preferKind } = bandSpec
     const wanted = blueprint.targetMarks * bandSpec.share
-    let budget = wanted + carry
+    // Fixed for this band: what it asked for, plus whatever earlier bands left
+    // unspent. Only `spent` moves as questions are bought.
+    const budget = wanted + carry
     let spent = 0
     if (preferKind && preferKind !== 'any') kindWanted += wanted
 
