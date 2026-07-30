@@ -171,7 +171,15 @@ export default function ExamReview({
             if (!r) return null
             // Three-state credit: full (success) / partial (warning) / zero
             // (danger) — partial only arises on grid units.
-            const state = r.marksEarned >= u.marks ? 'full' : r.marksEarned > 0 ? 'partial' : 'zero'
+            // Three-state credit: full / partial (grid part-marks, or a banded
+            // multi_blank part scoring below its top band) / zero. A
+            // follow-through blank is deliberately AMBER rather than green: it
+            // earned its method mark, but the value itself is not the right one,
+            // and showing it green would teach the wrong answer.
+            const state = r.followThrough ? 'partial'
+              : r.marksEarned >= u.marks ? 'full'
+              : r.marksEarned > 0 ? 'partial'
+              : 'zero'
             const bg = state === 'full' ? colors.successLight : state === 'partial' ? colors.warningLight : colors.dangerLight
             const bd = state === 'full' ? colors.successBorder : state === 'partial' ? colors.warningBorder : colors.dangerBorder
             const tx = state === 'full' ? colors.successText : state === 'partial' ? colors.warningText : colors.dangerText
@@ -181,7 +189,15 @@ export default function ExamReview({
                     part's later blanks ("(a) · B") stay identifiable. */}
                 {(u.promptHtml || u.label) && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label ?? ''} ${u.promptHtml}` }} />}
                 <p style={{ fontSize: font.sm, fontWeight: 700, margin: '0 0 4px', color: tx }}>
-                  {state === 'full' ? `✓ ${u.marks}/${u.marks}` : state === 'partial' ? `~ ${r.marksEarned}/${u.marks}` : `✗ 0/${u.marks}`}
+                  {/* A banded multi_blank part carries all its marks on its
+                      FIRST blank, so the others would read a meaningless "0/0".
+                      They show a bare tick or cross; the part's marks appear
+                      once, against the first blank. */}
+                  {u.marks === 0
+                    ? (r.correct ? (r.followThrough ? '~ correct (followed through)' : '✓ correct') : '✗')
+                    : state === 'full' ? `✓ ${u.marks}/${u.marks}`
+                    : state === 'partial' ? `~ ${r.marksEarned}/${u.marks}`
+                    : `✗ 0/${u.marks}`}
                 </p>
                 <div style={{ fontSize: font.sm, color: tx }} dangerouslySetInnerHTML={{ __html: r.message }} />
                 {u.grid && r.studentAnswer && (

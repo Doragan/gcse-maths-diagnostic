@@ -13,7 +13,8 @@ import { skillsById } from '../skills/skillGraph'
 import { renderQuestion, renderMultiPartQuestion, type Parameters } from '../questions/paramEngine'
 import { checkAnswer } from '../questions/answerChecker'
 import { resolveQuestionMarks } from './markEvidence'
-import type { QuestionPart } from '../questions/parts'
+import { bandedMarks, bandedMax, type QuestionPart, type MarkBand } from '../questions/parts'
+import { checkMultiBlank } from '../questions/multiBlank'
 import type { ScalarAnswerType } from '../questions/answerTypes'
 import {
   checkGridDraw, parseGridAnswer, formatGridPoints,
@@ -40,6 +41,24 @@ export type Unit = {
   // GridCanvas (answerType is an inert placeholder) and earns FRACTIONAL
   // credit per element.
   grid?: RenderedGrid
+  /**
+   * One blank of a `multi_blank` part. The blanks stay separate UNITS (each
+   * needs its own input box and review line), but they must be GRADED together:
+   * errors-carried-forward means a blank can be right given the student's own
+   * earlier slip, which is invisible when each is checked in isolation.
+   *
+   * Every unit of the same part shares `partKey`. `bands`/`partMarks` are set on
+   * the FIRST unit only — a banded scheme prices the whole part, so exactly one
+   * unit carries the marks and the rest carry zero (see gradeUnits).
+   */
+  blank?: {
+    partKey: string
+    label: string
+    /** Rendered errors-carried-forward formula, e.g. '[[F]] - 4'. */
+    ecf?: string
+    /** Banded mark scheme (first unit of the part only). */
+    bands?: MarkBand[]
+  }
 }
 
 export type Item = {
@@ -64,6 +83,12 @@ export type UnitResult = {
   marksEarned: number // fractional credit: grid units earn per-element marks
   // grid units: verdict per student point (drawn order), for the review overlay
   perStudent?: boolean[]
+  /**
+   * multi_blank: correct only BECAUSE we followed through from the student's own
+   * wrong answer elsewhere. Credited, but shown amber rather than green — the
+   * value itself is not the right one.
+   */
+  followThrough?: boolean
 }
 
 export type QuestionRow = {
@@ -115,8 +140,10 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
     const units: Unit[] = q.parts.flatMap((p, i) => {
       if (p.answer_type === 'multi_blank') {
         const rb = r.parts[i].blanks ?? []
+        const bands = p.mark_bands && p.mark_bands.length > 0 ? p.mark_bands : undefined
+        const partKey = `${q.id}:${i}`
         return (p.blanks ?? []).map((blank, b): Unit => ({
-          key: `${q.id}:${i}:${b}`,
+          key: `${partKey}:${b}`,
           label: `${letter(i)} · ${blank.label}`,
           // Part prompt rendered once (first blank); each blank then carries
           // its own short prompt so the units are self-describing.
@@ -131,7 +158,15 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
           explanation: b === (p.blanks?.length ?? 0) - 1 ? r.parts[i].explanation : '',
           skillIds: p.skill_ids,
           kind: p.kind === 'exam' ? 'exam' : 'mastery',
-          marks: blank.marks || 1,
+          // Under a banded scheme the marks belong to the PART, so the first
+          // blank carries them all and the rest carry none.
+          marks: bands ? (b === 0 ? bandedMax(bands) : 0) : (blank.marks || 1),
+          blank: {
+            partKey,
+            label: blank.label,
+            ...(rb[b]?.ecf ? { ecf: rb[b].ecf } : {}),
+            ...(bands && b === 0 ? { bands } : {}),
+          },
         }))
       }
       if (p.answer_type === 'grid_draw') {
@@ -207,6 +242,66 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
 }
 
 /**
+ * Grade one multi_blank part's blanks together, writing a result per blank and
+ * returning the marks the PART earned.
+ *
+ * Two things only work at part level:
+ *   - errors carried forward — `checkMultiBlank` follows a blank through from
+ *     what the student actually wrote elsewhere, so a blank that is wrong on its
+ *     own merits can still earn its method mark;
+ *   - banded marks — real "complete the table" schemes award by how many cells
+ *     are right (B3 all / B2 all-but-one / B1 any, ecf), not per cell.
+ *
+ * Without bands the behaviour is unchanged: each blank simply earns its own
+ * marks, exactly as before, but now with ECF applied.
+ */
+function gradeBlankGroup(
+  group: Unit[],
+  answers: Record<string, string>,
+  results: Record<string, UnitResult>,
+): number {
+  const checked = checkMultiBlank(group.map(u => ({
+    label: u.blank!.label,
+    student: (answers[u.key] ?? '').trim(),
+    answer: u.correctAnswer,
+    answer_type: u.answerType,
+    tolerance: u.tolerance,
+    requires_simplest: u.requiresSimplest,
+    traps: u.traps,
+    ...(u.blank!.ecf ? { ecf: u.blank!.ecf } : {}),
+  })))
+
+  const bands = group.find(u => u.blank?.bands)?.blank?.bands
+  // A follow-through blank has earned its method mark, so it counts toward the
+  // band — that is exactly what "(ecf)" means on a real mark scheme.
+  const partMarks = bands ? bandedMarks(bands, checked.correctCount) : 0
+
+  let earned = 0
+  group.forEach((u, i) => {
+    const r = checked.blanks[i]
+    const answered = (answers[u.key] ?? '').trim() !== ''
+    // Under a banded scheme the first unit carries the part's marks; otherwise
+    // each blank earns its own.
+    const unitMarks = bands
+      ? (i === 0 ? partMarks : 0)
+      : (r.correct ? u.marks : 0)
+    earned += unitMarks
+    results[u.key] = {
+      correct: r.correct,
+      message: !answered ? 'Not answered.'
+        : r.followThrough ? 'Correct, following through from your earlier answer.'
+        : r.message,
+      studentAnswer: answers[u.key] ?? '',
+      correctAnswer: u.correctAnswer,
+      explanation: u.explanation,
+      marksEarned: unitMarks,
+      ...(r.followThrough ? { followThrough: true } : {}),
+    }
+  })
+  return earned
+}
+
+/**
  * Grade every unit of a paper against the student's raw answers.
  *
  * Pure and total: an unanswered unit scores 0 with a "Not answered" message
@@ -222,7 +317,24 @@ export function gradeUnits(
   let earned = 0
 
   for (const item of items) {
+    // multi_blank parts are graded as a WHOLE, before the per-unit loop: their
+    // blanks are separate units for input and review, but errors-carried-forward
+    // means a blank can be right *given* the student's own earlier slip, which
+    // is invisible when each blank is checked in isolation. This is also where a
+    // banded scheme is applied.
+    const blankUnits = item.units.filter(u => u.blank)
+    const byPart = new Map<string, Unit[]>()
+    for (const u of blankUnits) {
+      const k = u.blank!.partKey
+      if (!byPart.has(k)) byPart.set(k, [])
+      byPart.get(k)!.push(u)
+    }
+    for (const group of byPart.values()) {
+      earned += gradeBlankGroup(group, answers, results)
+    }
+
     for (const u of item.units) {
+      if (u.blank) continue // already graded above
       const raw = (answers[u.key] ?? '').trim()
       if (raw === '') {
         results[u.key] = { correct: false, message: 'Not answered.', studentAnswer: '', correctAnswer: u.correctAnswer, explanation: u.explanation, marksEarned: 0 }

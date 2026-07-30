@@ -120,8 +120,67 @@ export type QuestionPart = {
   // Only present when answer_type === 'multi_blank'; scalar parts never carry
   // the key (normalizePart omits it, keeping stored jsonb clean).
   blanks?: Blank[]
+  /**
+   * Optional BANDED mark scheme for a multi_blank part, awarding marks by HOW
+   * MANY blanks are right rather than summing each blank's own marks.
+   *
+   * Real mark schemes for "complete the table" questions work this way — a
+   * six-cell two-way table is typically "B3 all correct, B2 four or five, B1 any
+   * one correct (ecf)", not six independent one-mark cells. Summing per-blank
+   * marks over-rewards them: it made a d2 table worth 6 marks when comparable
+   * questions cap at 3 and real papers of that style average 2.57.
+   *
+   * Bands are checked highest-first; the first whose `min_correct` is met wins.
+   * Absent = sum the blanks' own marks (the original behaviour, unchanged for
+   * every existing question).
+   */
+  mark_bands?: MarkBand[]
   // Only present when answer_type === 'grid_draw' (same omission rule).
   grid?: Grid
+}
+
+/** One rung of a banded multi_blank mark scheme. */
+export type MarkBand = {
+  /** Award these marks once at least this many blanks are correct. */
+  min_correct: number
+  marks: number
+}
+
+/**
+ * Marks for a banded scheme: the highest band whose threshold is met, else 0.
+ * `correctCount` should already include errors-carried-forward credit, since a
+ * follow-through blank earns its method mark in a real mark scheme.
+ */
+export function bandedMarks(bands: MarkBand[], correctCount: number): number {
+  let best = 0
+  for (const b of bands) {
+    if (correctCount >= b.min_correct && b.marks > best) best = b.marks
+  }
+  return best
+}
+
+/** The most a banded scheme can award — the part's marks for assembly/display. */
+export function bandedMax(bands: MarkBand[]): number {
+  return bands.reduce((m, b) => Math.max(m, b.marks), 0)
+}
+
+/**
+ * Coerce authored/stored bands into a clean ascending list, or null when there
+ * is no usable scheme (so the caller falls back to summing blank marks).
+ */
+export function normalizeMarkBands(raw: unknown): MarkBand[] | null {
+  if (!Array.isArray(raw)) return null
+  const bands: MarkBand[] = []
+  for (const b of raw) {
+    if (!b || typeof b !== 'object') continue
+    const minCorrect = Number((b as MarkBand).min_correct)
+    const marks = Number((b as MarkBand).marks)
+    if (!Number.isFinite(minCorrect) || !Number.isFinite(marks)) continue
+    if (minCorrect < 1 || marks < 1) continue
+    bands.push({ min_correct: Math.round(minCorrect), marks: Math.round(marks) })
+  }
+  if (bands.length === 0) return null
+  return bands.sort((a, b) => a.min_correct - b.min_correct)
 }
 
 /**
@@ -280,6 +339,8 @@ export type PartInput = {
   kind: QuestionKind
   explanation: string | null
   blanks?: BlankInput[]
+  /** Banded mark scheme for a multi_blank part; see QuestionPart.mark_bands. */
+  mark_bands?: MarkBand[]
   grid?: GridInput
 }
 
@@ -391,6 +452,9 @@ export function normalizePart(p: PartInput): QuestionPart {
   }
   if (p.answer_type === 'multi_blank') {
     const blanks = (p.blanks ?? []).map(normalizeBlank)
+    // A banded scheme prices the PART by how many blanks are right; without one
+    // the part is still the sum of its blanks (unchanged for existing questions).
+    const bands = normalizeMarkBands(p.mark_bands)
     return {
       prompt: p.prompt,
       skill_ids: p.skill_ids,
@@ -403,10 +467,11 @@ export function normalizePart(p: PartInput): QuestionPart {
       traps: [],
       // Computed, never trusted from the form: this single invariant is what
       // keeps totalMarks and the exam assembler correct with no changes there.
-      marks: blankMarksTotal(blanks),
+      marks: bands ? bandedMax(bands) : blankMarksTotal(blanks),
       kind: p.kind,
       explanation: p.explanation && p.explanation.trim() !== '' ? p.explanation : null,
       blanks,
+      ...(bands ? { mark_bands: bands } : {}),
     }
   }
   return {

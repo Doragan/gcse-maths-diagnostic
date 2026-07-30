@@ -517,12 +517,28 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
           }
         }
       }
-      // part.marks must equal the blank sum (normalizePart computes it, but
-      // hand-written --file JSON and direct DB writes can drift, and the exam
-      // runner scores from the blanks while the assembler reads part.marks).
-      const blankSum = blanks.reduce((s, b) => s + (Number(b.marks) || 0), 0)
-      if (p.marks != null && Number(p.marks) !== blankSum) {
-        fails.push(`${pl}: marks ${p.marks} ≠ sum of blank marks ${blankSum}`)
+      // Marks invariant. A BANDED part is priced by how many blanks are right,
+      // so its marks are the top band, not the blank sum; an unbanded part is
+      // still the sum. normalizePart computes both, but hand-written --file JSON
+      // and direct DB writes can drift, and the assembler reads part.marks while
+      // the runner scores from the blanks.
+      const bands = Array.isArray(p.mark_bands) ? p.mark_bands : null
+      if (bands && bands.length > 0) {
+        const bad = bands.find((b: any) =>
+          !Number.isFinite(Number(b?.min_correct)) || !Number.isFinite(Number(b?.marks))
+          || Number(b.min_correct) < 1 || Number(b.marks) < 1)
+        if (bad) fails.push(`${pl}: mark_bands entry ${JSON.stringify(bad)} needs min_correct ≥ 1 and marks ≥ 1`)
+        const over = bands.find((b: any) => Number(b.min_correct) > blanks.length)
+        if (over) fails.push(`${pl}: mark_bands wants ${over.min_correct} correct but the part has only ${blanks.length} blanks — unreachable`)
+        const top = bands.reduce((m: number, b: any) => Math.max(m, Number(b.marks) || 0), 0)
+        if (p.marks != null && Number(p.marks) !== top) {
+          fails.push(`${pl}: marks ${p.marks} ≠ top mark band ${top}`)
+        }
+      } else {
+        const blankSum = blanks.reduce((s, b) => s + (Number(b.marks) || 0), 0)
+        if (p.marks != null && Number(p.marks) !== blankSum) {
+          fails.push(`${pl}: marks ${p.marks} ≠ sum of blank marks ${blankSum}`)
+        }
       }
     }
   }
