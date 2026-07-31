@@ -1957,3 +1957,18 @@ export const OVERALL: MarkStats = {
  "max": 5,
  "splits": []
 }
+
+/**
+ * Average METHOD marks per part, by the part's mark total.
+ *
+ * Method marks are what a real scheme awards for a sound approach behind a wrong
+ * answer — the credit auto-grading is blind to. Note the 1-mark row: a one-mark
+ * part never carries method marks, which is what makes the blind spot bounded.
+ */
+export const METHOD_SHARE_BY_MARKS: Record<number, number> = {
+ "1": 0,
+ "2": 0.45,
+ "3": 0.93,
+ "4": 1.2,
+ "5": 2.08
+}

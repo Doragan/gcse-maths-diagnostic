@@ -16,8 +16,9 @@ import {
 import BlankEditor from './BlankEditor'
 import GridEditor from './GridEditor'
 import { evidenceFor } from '../../lib/exam/markEvidence'
+import TrapMethodMarks from './TrapMethodMarks'
 
-type Trap = { answer_template: string, response: string }
+type Trap = { answer_template: string, response: string, method_marks?: number }
 
 type Props = {
   index: number
@@ -57,6 +58,15 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
 
   function updateTrap(i: number, field: keyof Trap, value: string) {
     set('traps', part.traps.map((t, j) => j === i ? { ...t, [field]: value } : t))
+  }
+
+  /** Undefined removes the key entirely — "unset" must not persist as 0. */
+  function setTrapMethodMarks(i: number, v: number | undefined) {
+    set('traps', part.traps.map((t, j) => {
+      if (j !== i) return t
+      const { method_marks: _drop, ...rest } = t
+      return v == null ? rest : { ...rest, method_marks: v }
+    }))
   }
 
   function removeTrap(i: number) {
@@ -362,6 +372,11 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
               onChange={e => { updateTrap(i, 'response', e.target.value); autoResize(e.target) }}
               style={{ ...inputStyle, minHeight: '55px', resize: 'none' as const }}
               placeholder="Targeted feedback for this wrong answer."
+            />
+            <TrapMethodMarks
+              value={trap.method_marks}
+              marks={Number(part.marks) || 1}
+              onChange={v => setTrapMethodMarks(i, v)}
             />
           </div>
         ))}

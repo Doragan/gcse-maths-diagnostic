@@ -123,10 +123,14 @@ export default function ExamSessionPage() {
         items={paper.items}
         results={paper.results}
         answers={paper.answers}
-        // The STORED score, so it can't drift from the history list.
-        score={{ earned: row.marks_earned, total: row.marks_total }}
+        // The STORED score, so it can't drift from the history list. The band
+        // around it is re-derived rather than stored — it is an estimate about
+        // marks we never saw, so it SHOULD improve as the estimate does, and
+        // nothing depends on it holding still.
+        score={{ earned: row.marks_earned, total: row.marks_total, unknown: paper.unknown }}
         tier={row.tier}
         mode={row.calculator}
+        timing={paper.meta}
         projectedCaption="What this paper did to your skill map, counted from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions."
         notice={missing > 0
           ? `${missing} question${missing === 1 ? '' : 's'} from this paper ${missing === 1 ? 'is' : 'are'} no longer available, so ${missing === 1 ? 'it is' : 'they are'} not shown below. Your score is unchanged.`

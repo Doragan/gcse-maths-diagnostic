@@ -19,12 +19,32 @@
 
 import { buildItem, gradeUnits, type Item, type QuestionRow, type UnitResult } from './examPaper'
 
+/**
+ * How the paper was sat, as opposed to what was on it.
+ *
+ * Rides inside the existing `paper` jsonb rather than taking new columns: it is
+ * descriptive detail for the review, never queried or aggregated, and adding
+ * columns would need a migration for something no list or chart reads. Every
+ * field is optional — papers sat before timing existed simply have none.
+ */
+export type PaperMeta = {
+  /** Sat under a countdown, rather than at the student's own pace. */
+  timed?: boolean
+  /** The allowance, at the real paper rate — see EXAM_SECONDS_PER_MARK. */
+  allowedSeconds?: number
+  /** How long it actually took, whether timed or not. */
+  elapsedSeconds?: number
+  /** Submitted by the clock running out rather than by the student. */
+  autoSubmitted?: boolean
+}
+
 /** The `paper` jsonb column of exam_sessions. */
 export type PaperSnapshot = {
   /** Paper order — index 0 is Question 1. */
   questions: { id: string; params: Record<string, number> }[]
   /** Raw submitted answers by unit key (`qid:part[:blank]`). Blanks omitted. */
   answers: Record<string, string>
+  meta?: PaperMeta
 }
 
 export type RehydratedPaper = {
@@ -32,6 +52,15 @@ export type RehydratedPaper = {
   answers: Record<string, string>
   results: Record<string, UnitResult>
   earned: number
+  /**
+   * Method marks a real examiner might have added — re-derived, never stored.
+   *
+   * Deliberately not pinned like `marks_earned`: the band is an estimate about
+   * marks we cannot see, so it SHOULD move when the estimate improves, and
+   * nothing (history list, score trend) depends on it holding still.
+   */
+  unknown: number
+  meta: PaperMeta
   /** Ids present in the snapshot whose question could not be loaded. */
   missingQuestionIds: string[]
 }
@@ -45,6 +74,7 @@ export type RehydratedPaper = {
 export function buildPaperSnapshot(
   items: Item[],
   answers: Record<string, string>,
+  meta?: PaperMeta,
 ): PaperSnapshot {
   const kept: Record<string, string> = {}
   for (const item of items) {
@@ -56,6 +86,7 @@ export function buildPaperSnapshot(
   return {
     questions: items.map(it => ({ id: it.questionId, params: it.params })),
     answers: kept,
+    ...(meta && Object.keys(meta).length ? { meta } : {}),
   }
 }
 
@@ -80,8 +111,12 @@ export function rehydratePaper(
     items.push(buildItem(row, i + 1, entry.params))
   })
 
-  const { results, earned } = gradeUnits(items, snapshot.answers)
-  return { items, answers: snapshot.answers, results, earned, missingQuestionIds }
+  const { results, earned, unknown } = gradeUnits(items, snapshot.answers)
+  return {
+    items, answers: snapshot.answers, results, earned, unknown,
+    meta: snapshot.meta ?? {},
+    missingQuestionIds,
+  }
 }
 
 /**
@@ -112,5 +147,24 @@ export function parsePaperSnapshot(value: unknown): PaperSnapshot | null {
       if (typeof val === 'string') answers[k] = val
     }
   }
-  return { questions, answers }
+  return { questions, answers, ...(parseMeta(v.meta) ? { meta: parseMeta(v.meta)! } : {}) }
+}
+
+/**
+ * Narrow the optional `meta` block. Field-by-field rather than a cast, so a
+ * partially-written or older row yields the fields it does have instead of
+ * being discarded whole — meta is descriptive, and losing it must never stop a
+ * paper re-opening.
+ */
+function parseMeta(value: unknown): PaperMeta | null {
+  if (!value || typeof value !== 'object') return null
+  const v = value as Record<string, unknown>
+  const meta: PaperMeta = {}
+  if (typeof v.timed === 'boolean') meta.timed = v.timed
+  if (typeof v.autoSubmitted === 'boolean') meta.autoSubmitted = v.autoSubmitted
+  for (const k of ['allowedSeconds', 'elapsedSeconds'] as const) {
+    const n = v[k]
+    if (typeof n === 'number' && Number.isFinite(n) && n >= 0) meta[k] = n
+  }
+  return Object.keys(meta).length ? meta : null
 }

@@ -52,7 +52,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
-type Trap = { answer_template: string; response: string }
+type Trap = { answer_template: string; response: string; method_marks?: number }
 type Unit = {
   label: string
   prompt: string            // '' for the single top-level unit
@@ -62,6 +62,8 @@ type Unit = {
   requires_simplest: boolean
   traps: Trap[]
   explanation: string
+  /** What this unit is worth — bounds any method marks its traps claim. */
+  marks?: number
   // Set for the blank-units of one multi_blank part ("part-2"), so the
   // cross-blank ambiguity check knows which units belong together.
   group?: string
@@ -97,6 +99,7 @@ function unitsOf(q: Q): Unit[] {
           requires_simplest: b.requires_simplest ?? false,
           traps: b.traps ?? [],
           explanation: bi === 0 ? (p.explanation ?? '') : '',
+          marks: Number(b.marks) || 1,
           group: `part-${i}`,
         }))
       }
@@ -109,6 +112,7 @@ function unitsOf(q: Q): Unit[] {
         requires_simplest: p.requires_simplest ?? false,
         traps: p.traps ?? [],
         explanation: p.explanation ?? '',
+        marks: Number(p.marks) || 1,
       }]
     })
   }
@@ -121,6 +125,9 @@ function unitsOf(q: Q): Unit[] {
     requires_simplest: q.requires_simplest ?? false,
     traps: q.traps ?? [],
     explanation: q.explanation ?? '',
+    // Single-part questions are priced by the evidence unless the author
+    // overrode it — the same number the exam layer will use.
+    marks: resolveQuestionMarks(q as any).marks,
   }]
 }
 
@@ -544,6 +551,30 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   }
 
   for (const u of units) if (!VALID_ANSWER_TYPES.includes(u.answer_type)) fails.push(`${u.label}: invalid answer_type "${u.answer_type}"`)
+
+  // ── Trap method marks ───────────────────────────────────────────────────────
+  // A trap may declare the method marks it proves the student earned. Those
+  // marks are ADDED to the exam score, so a bad value inflates a real result —
+  // hence hard failures, not warnings. Absent is fine and means "unknown".
+  for (const u of units) {
+    const unitMarks = u.marks ?? 1
+    u.traps.forEach((t, ti) => {
+      if (t.method_marks == null) return
+      const tag = `${u.label} trap ${ti + 1}`
+      if (!Number.isInteger(t.method_marks) || t.method_marks < 0) {
+        fails.push(`${tag}: method_marks must be a whole number ≥ 0, got ${t.method_marks}`)
+        return
+      }
+      // At least one mark always needs the right answer; no scheme pays full
+      // marks for method alone, so marks−1 is the hard ceiling.
+      if (t.method_marks > unitMarks - 1) {
+        fails.push(
+          `${tag}: method_marks ${t.method_marks} leaves nothing for the answer on a ${unitMarks}-mark unit `
+          + `(max ${Math.max(0, unitMarks - 1)})`,
+        )
+      }
+    })
+  }
   if (q.kind === 'exam' && (q.skill_ids ?? []).length < 2) warns.push(`kind 'exam' but only ${(q.skill_ids ?? []).length} skill(s) — synthesis needs 2+ independent skills`)
   if (q.kind === 'mastery' && !isMulti && (q.skill_ids ?? []).length !== 1) warns.push(`single-part 'mastery' with ${(q.skill_ids ?? []).length} skills — mastery attribution wants exactly 1`)
 

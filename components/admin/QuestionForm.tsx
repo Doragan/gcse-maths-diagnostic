@@ -18,6 +18,7 @@ import { PartInput, emptyPart, computeSkillUnion, normalizeGrid } from '../../li
 import GridCanvas from '../practice/GridCanvas'
 import type { RenderedGrid } from '../../lib/questions/gridDraw'
 import PartEditor from './PartEditor'
+import TrapMethodMarks from './TrapMethodMarks'
 import { supabase } from '../../lib/supabase'
 import { checkAnswer, CheckResult } from '../../lib/questions/answerChecker'
 import CollapsibleCard from './CollapsibleCard'
@@ -26,6 +27,8 @@ import { resolveQuestionMarks, evidenceFor } from '../../lib/exam/markEvidence'
 type Trap = {
   answer_template: string
   response: string
+  /** Method marks this trap proves; see PartTrap in lib/questions/parts.ts. */
+  method_marks?: number
 }
 
 type QuestionFormData = {
@@ -348,6 +351,14 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   }
   function updateTrap(index: number, field: keyof Trap, value: string) {
     update('traps', form.traps.map((t, i) => i === index ? { ...t, [field]: value } : t))
+  }
+  /** Undefined removes the key entirely — "unset" must not persist as 0. */
+  function setTrapMethodMarks(index: number, v: number | undefined) {
+    update('traps', form.traps.map((t, i) => {
+      if (i !== index) return t
+      const { method_marks: _drop, ...rest } = t
+      return v == null ? rest : { ...rest, method_marks: v }
+    }))
   }
   function removeTrap(index: number) {
     update('traps', form.traps.filter((_, i) => i !== index))
@@ -1465,6 +1476,15 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   onChange={e => { updateTrap(i, 'response', e.target.value); autoResize(e.target) }}
                   style={{ ...inputStyle, minHeight: '60px', resize: 'none' as const }}
                   placeholder="It looks like you added the dimensions rather than multiplied them. Area = width × height."
+                />
+              </div>
+              <div style={styles.field}>
+                {/* Bounded by the effective marks: the author's override when
+                    set, otherwise the same estimate the exam layer would use. */}
+                <TrapMethodMarks
+                  value={trap.method_marks}
+                  marks={form.marks.trim() !== '' ? Number(form.marks) || 1 : estimatedMarks}
+                  onChange={v => setTrapMethodMarks(i, v)}
                 />
               </div>
             </div>

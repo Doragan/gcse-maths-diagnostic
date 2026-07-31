@@ -15,6 +15,7 @@ import { skillsById, getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus } from '../../lib/skills/masteryEngine'
 import { parseGridAnswer } from '../../lib/questions/gridDraw'
 import type { Item, UnitResult, Tier } from '../../lib/exam/examPaper'
+import { formatDuration } from '../../lib/exam/examTiming'
 import type { CalculatorMode } from '../../lib/exam/assembler'
 import GridCanvas from '../practice/GridCanvas'
 import { colors, font, radius, card } from '../../lib/styles'
@@ -52,9 +53,16 @@ export type ExamReviewProps = {
   results: Record<string, UnitResult>
   /** Raw answers by unit key — the grid canvas re-draws the student's points. */
   answers: Record<string, string>
-  score: { earned: number; total: number }
+  /**
+   * `unknown` is the three-state band: method marks a real examiner might have
+   * awarded behind a wrong answer, which we cannot see. Never folded into
+   * `earned` — that stays the confirmed floor, and the recorded score with it.
+   */
+  score: { earned: number; total: number; unknown?: number }
   tier: Tier
   mode: CalculatorMode
+  /** How the paper was sat — drives the "finished in 21 minutes" line. */
+  timing?: { elapsedSeconds?: number; allowedSeconds?: number; timed?: boolean; autoSubmitted?: boolean }
   heading?: string
   /** Caption under "Projected skill mastery" — tense differs live vs re-opened. */
   projectedCaption?: string
@@ -67,7 +75,7 @@ export type ExamReviewProps = {
 }
 
 export default function ExamReview({
-  items, results, answers, score, tier, mode,
+  items, results, answers, score, tier, mode, timing,
   heading = 'Exam review',
   projectedCaption = 'What completing this paper would do to a student’s skill map, from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.',
   notice,
@@ -77,6 +85,22 @@ export default function ExamReview({
   const pct = score.total > 0 ? Math.round((score.earned / score.total) * 100) : 0
   const accent = pct >= 70 ? colors.successText : pct >= 40 ? colors.warning : colors.dangerText
   const bar = pct >= 70 ? colors.success : pct >= 40 ? colors.warning : colors.danger
+
+  // The three-state band. `earned` is what we can prove; `unknown` is the method
+  // credit a real examiner would weigh that auto-grading cannot see. Shown as a
+  // ceiling BENEATH the headline, never added to it: overstating a score is the
+  // one failure that would make the number untrustworthy.
+  const unknown = score.unknown ?? 0
+  // Rounded to a whole mark only for display — a band reading "up to 17.8" would
+  // imply a precision this estimate does not have.
+  const ceiling = Math.round(score.earned + unknown)
+  const showBand = unknown > 0 && ceiling > Math.round(score.earned) && score.total > 0
+  const ceilingPct = Math.round((ceiling / score.total) * 100)
+  // How many questions the uncertainty is spread across — "on 3 questions" is
+  // concrete in a way "3.4 marks" is not.
+  const uncertainUnits = items
+    .flatMap(it => it.units)
+    .filter(u => (results[u.key]?.marksUnknown ?? 0) > 0).length
 
   // A question counts as fully correct only if every one of its units is right.
   const questionsCorrect = items.filter(it => it.units.every(u => results[u.key]?.correct)).length
@@ -121,15 +145,41 @@ export default function ExamReview({
         </p>
         <p style={{ fontSize: 48, fontWeight: 800, margin: '0 0 2px', color: accent, lineHeight: 1 }}>{score.earned} / {score.total}</p>
         <p style={{ fontSize: font.lg, color: colors.textSecondary, margin: '0 0 12px' }}>marks · {pct}%</p>
-        <div style={{ background: colors.border, borderRadius: radius.full, height: 8, overflow: 'hidden' }}>
-          <div style={{ background: bar, height: 8, borderRadius: radius.full, width: `${pct}%` }} />
+        {/* Two-segment bar: solid to the confirmed score, then a hatched
+            extension to the top of the band, so the uncertainty is visible as
+            width rather than only as a sentence. */}
+        <div style={{ background: colors.border, borderRadius: radius.full, height: 8, overflow: 'hidden', display: 'flex' }}>
+          <div style={{ background: bar, height: 8, width: `${pct}%` }} />
+          {showBand && (
+            <div
+              style={{
+                height: 8, width: `${Math.max(0, ceilingPct - pct)}%`,
+                backgroundImage: `repeating-linear-gradient(45deg, ${bar} 0 3px, transparent 3px 6px)`,
+                opacity: 0.55,
+              }}
+            />
+          )}
         </div>
-        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '12px 0 0' }}>
+        {showBand && (
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '10px 0 0', lineHeight: 1.6 }}>
+            Likely <strong style={{ color: colors.textPrimary }}>{Math.round(score.earned)}–{ceiling}</strong> with method marks
+            {uncertainUnits > 0 && <> — {uncertainUnits} answer{uncertainUnits === 1 ? '' : 's'} may have earned credit for the working</>}.
+          </p>
+        )}
+        <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: showBand ? '6px 0 0' : '12px 0 0' }}>
           {questionsCorrect} of {items.length} question{items.length === 1 ? '' : 's'} fully correct
+          {timing?.elapsedSeconds != null && <> · finished in {formatDuration(timing.elapsedSeconds)}</>}
         </p>
-        <p style={{ fontSize: '11px', color: colors.textHint, margin: '4px 0 0' }}>
-          A practice score across the paper — not a predicted grade.
+        <p style={{ fontSize: '11px', color: colors.textHint, margin: '4px 0 0', lineHeight: 1.6 }}>
+          {showBand
+            ? <>Your score counts only the marks we can confirm. A real examiner also pays for correct working behind a wrong answer — about a quarter of the marks on a real paper — so your true mark is likely a little higher.</>
+            : <>A practice score across the paper — not a predicted grade.</>}
         </p>
+        {timing?.autoSubmitted && (
+          <p style={{ fontSize: '11px', color: colors.warningText, margin: '6px 0 0', lineHeight: 1.6 }}>
+            Time ran out, so the paper was submitted as it stood. Pacing is part of the exam — try leaving the questions you get stuck on and coming back.
+          </p>
+        )}
       </div>
 
       {projectedRows.length > 0 && (
@@ -200,6 +250,48 @@ export default function ExamReview({
                     : `✗ 0/${u.marks}`}
                 </p>
                 <div style={{ fontSize: font.sm, color: tx }} dangerouslySetInnerHTML={{ __html: r.message }} />
+                {/* The third state, in words. A student who reads "0" concludes
+                    they got nothing; on a real paper they may well not have. */}
+                {r.methodAwarded ? (
+                  <p style={{ fontSize: font.sm, margin: '6px 0 0', color: colors.textSecondary }}>
+                    Your method was right as far as it went, so this keeps {r.methodAwarded} method mark{r.methodAwarded === 1 ? '' : 's'}.
+                  </p>
+                ) : r.marksUnknown ? (
+                  <p style={{ fontSize: font.sm, margin: '6px 0 0', color: colors.textSecondary }}>
+                    We can only mark your final answer. If your working was on the right lines, a real examiner would give you method marks here.
+                  </p>
+                ) : null}
+                {/* Multiple choice: show the list as it was sat, with the pick
+                    and the right answer both marked. Reading "your answer: 12"
+                    against "correct: 15" loses the fact that these were four
+                    options side by side, which is what the student saw. */}
+                {u.options && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '8px 0 2px' }}>
+                    {u.options.map(opt => {
+                      const picked = r.studentAnswer === opt
+                      const isRight = u.correctAnswer === opt
+                      return (
+                        <div
+                          key={opt}
+                          style={{
+                            display: 'flex', alignItems: 'baseline', gap: 8,
+                            padding: '6px 10px', borderRadius: radius.sm, fontSize: font.sm,
+                            background: colors.card,
+                            border: `1px solid ${isRight ? colors.successBorder : picked ? colors.dangerBorder : colors.border}`,
+                            color: colors.textPrimary,
+                            fontWeight: isRight || picked ? 700 : 400,
+                          }}
+                        >
+                          <span aria-hidden="true" style={{ color: isRight ? colors.successText : picked ? colors.dangerText : colors.textHint }}>
+                            {isRight ? '✓' : picked ? '✗' : '·'}
+                          </span>
+                          <span dangerouslySetInnerHTML={{ __html: opt }} />
+                          {picked && <span style={{ fontSize: '11px', color: colors.textHint }}>your answer</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
                 {u.grid && r.studentAnswer && (
                   <div style={{ margin: '8px 0' }}>
                     <GridCanvas
@@ -214,10 +306,13 @@ export default function ExamReview({
                     </p>
                   </div>
                 )}
-                <p style={{ fontSize: font.sm, margin: '6px 0 0', color: colors.textSecondary }}>
-                  Your answer: <strong><span dangerouslySetInnerHTML={{ __html: r.studentAnswer || '—' }} /></strong>
-                  {!r.correct && <> · Correct: <strong><span dangerouslySetInnerHTML={{ __html: r.correctAnswer }} /></strong></>}
-                </p>
+                {/* Redundant under an options list, which already marks both. */}
+                {!u.options && (
+                  <p style={{ fontSize: font.sm, margin: '6px 0 0', color: colors.textSecondary }}>
+                    Your answer: <strong><span dangerouslySetInnerHTML={{ __html: r.studentAnswer || '—' }} /></strong>
+                    {!r.correct && <> · Correct: <strong><span dangerouslySetInnerHTML={{ __html: r.correctAnswer }} /></strong></>}
+                  </p>
+                )}
                 {r.explanation && (
                   <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: radius.sm, background: colors.card, border: `1px solid ${colors.border}` }}>
                     <div style={{ fontSize: font.sm, color: colors.textPrimary }} dangerouslySetInnerHTML={{ __html: r.explanation }} />

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { getSession } from '../../lib/auth'
@@ -13,7 +13,10 @@ import {
   buildItem, gradeUnits, QUESTION_COLUMNS,
   type Item, type QuestionRow, type UnitResult, type Tier,
 } from '../../lib/exam/examPaper'
-import { buildPaperSnapshot } from '../../lib/exam/examSession'
+import { buildPaperSnapshot, type PaperMeta } from '../../lib/exam/examSession'
+import {
+  allowanceSeconds, remainingSeconds, elapsedSeconds, urgencyOf, formatClock,
+} from '../../lib/exam/examTiming'
 import ExamReview, { BackToDashboard } from './ExamReview'
 import MiniExamHistory from './MiniExamHistory'
 import GridCanvas from '../practice/GridCanvas'
@@ -38,8 +41,20 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [items, setItems] = useState<Item[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [results, setResults] = useState<Record<string, UnitResult>>({})
-  const [score, setScore] = useState<{ earned: number; total: number }>({ earned: 0, total: 0 })
+  const [score, setScore] = useState<{ earned: number; total: number; unknown: number }>({ earned: 0, total: 0, unknown: 0 })
   const [error, setError] = useState<string | null>(null)
+  // Exam conditions: a real paper's time is not yours to spend. Chosen before
+  // the paper starts and fixed for its duration.
+  const [timed, setTimed] = useState(true)
+  // Wall-clock start. A countdown decremented by an interval would be throttled
+  // in a background tab and quietly hand the time back — see examTiming.ts.
+  const [startedAt, setStartedAt] = useState<number | null>(null)
+  const [now, setNow] = useState(() => Date.now())
+  const [allowed, setAllowed] = useState(0)
+  const [timing, setTiming] = useState<PaperMeta>({})
+  // Auto-submit must fire exactly once: the effect that watches the clock can
+  // re-run before `phase` has flushed to 'review'.
+  const submittedRef = useRef(false)
   // Student quota: null until fetched. remaining=null means unlimited (paid).
   const [quota, setQuota] = useState<{ remaining: number | null; isPaid: boolean } | null>(null)
   const [limitReached, setLimitReached] = useState(false)
@@ -78,6 +93,29 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const allUnits = items.flatMap(it => it.units)
   const totalMarks = allUnits.reduce((s, u) => s + u.marks, 0)
   const answeredCount = allUnits.filter(u => (answers[u.key] ?? '').trim() !== '').length
+  const remaining = startedAt != null ? remainingSeconds(startedAt, allowed, now) : allowed
+
+  // Tick the clock only while a TIMED paper is open. An untimed paper still
+  // records how long it took, but that is read once at submit rather than
+  // re-rendering the whole paper every second for a number nobody is watching.
+  useEffect(() => {
+    if (phase !== 'running' || !timed || startedAt == null) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [phase, timed, startedAt])
+
+  // Out of time: submit the paper as it stands, which is what happens in the
+  // hall. Guarded by a ref because this effect can re-run on the same tick
+  // before `phase` has flushed.
+  useEffect(() => {
+    if (phase !== 'running' || !timed || startedAt == null) return
+    // `allowed <= 0` would mean a paper worth no marks — impossible in practice,
+    // but it would read as "already out of time" and submit the paper the
+    // instant it opened, so refuse to run the clock at all.
+    if (allowed <= 0 || remaining > 0 || submittedRef.current) return
+    submittedRef.current = true
+    submitExam(true)
+  }, [phase, timed, startedAt, remaining, allowed])
 
   async function startExam(calcMode: CalculatorMode) {
     setMode(calcMode)
@@ -143,14 +181,28 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
     setItems(built)
     setAnswers({})
     setResults({})
+    // The allowance follows THIS paper's marks at the real rate, so a paper the
+    // assembler built a mark or two short does not become the generous one.
+    const paperMarks = built.flatMap(it => it.units).reduce((s, u) => s + u.marks, 0)
+    setAllowed(allowanceSeconds(paperMarks))
+    submittedRef.current = false
+    setStartedAt(Date.now())
+    setNow(Date.now())
     setPhase('running')
     window.scrollTo(0, 0)
   }
 
-  function submitExam() {
+  function submitExam(outOfTime = false) {
     // Graded by the SAME pure function that re-grades a stored paper, so a
     // re-opened review can never disagree with what was seen at submit.
-    const { results: res, earned } = gradeUnits(items, answers)
+    const { results: res, earned, unknown } = gradeUnits(items, answers)
+    const meta: PaperMeta = {
+      timed,
+      ...(timed ? { allowedSeconds: allowed } : {}),
+      ...(startedAt != null ? { elapsedSeconds: elapsedSeconds(startedAt, Date.now()) } : {}),
+      ...(outOfTime ? { autoSubmitted: true } : {}),
+    }
+    setTiming(meta)
 
     // Teacher preview records nothing (a teacher isn't building skill mastery).
     // A student's paper feeds the skill map: one practice_attempts row per PART
@@ -160,11 +212,13 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
     // review renders regardless of whether either lands.
     if (isStudent) {
       recordAttempts(res)
-      saveSession(earned)
+      saveSession(earned, meta)
     }
 
     setResults(res)
-    setScore({ earned, total: totalMarks })
+    // `unknown` rides alongside but never into `earned` — the stored score and
+    // every point on the trend stay the confirmed floor.
+    setScore({ earned, total: totalMarks, unknown })
     setPhase('review')
     window.scrollTo(0, 0)
   }
@@ -194,7 +248,7 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
    * render without re-grading every past paper, and a later grader fix must not
    * silently move a point on the trend.
    */
-  async function saveSession(earned: number) {
+  async function saveSession(earned: number, meta: PaperMeta) {
     const { data: { session } } = await supabase.auth.getSession()
     const studentId = session?.user.id
     if (!studentId) return
@@ -202,9 +256,11 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
       student_id: studentId,
       tier,
       calculator: mode,
+      // The CONFIRMED floor, never the band top: a stored score that moved with
+      // an estimate would drag every past point on the trend with it.
       marks_earned: earned,
       marks_total: totalMarks,
-      paper: buildPaperSnapshot(items, answers),
+      paper: buildPaperSnapshot(items, answers, meta),
     })
     if (esErr) console.error('Failed to save mini-exam session:', esErr.message)
   }
@@ -255,6 +311,31 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
             ))}
           </div>
 
+          <label style={{ display: 'block', fontSize: font.sm, fontWeight: 700, color: colors.textSecondary, marginBottom: 6 }}>Conditions</label>
+          <div style={{ display: 'inline-flex', gap: 0, marginBottom: 6, border: `1px solid ${colors.border}`, borderRadius: radius.md, overflow: 'hidden' }}>
+            {([true, false] as const).map(t => (
+              <button
+                key={String(t)}
+                disabled={phase === 'loading'}
+                onClick={() => setTimed(t)}
+                style={{
+                  padding: '8px 18px', fontSize: font.base, fontWeight: 600, cursor: 'pointer', border: 'none',
+                  background: timed === t ? colors.primary : 'transparent',
+                  color: timed === t ? '#ffffff' : colors.textSecondary,
+                }}
+              >
+                {t ? 'Timed' : 'Untimed'}
+              </button>
+            ))}
+          </div>
+          <p style={{ fontSize: '11px', color: colors.textHint, margin: '0 0 16px', lineHeight: 1.6 }}>
+            {timed
+              // The allowance is the real rate, so say so — it is the reason to
+              // trust that finishing in time means something.
+              ? <>Timed at the real exam rate (90 minutes for 80 marks), so a ~25-mark paper gives you about 28 minutes. The paper submits itself when the time is up.</>
+              : <>Work at your own pace. Good for building confidence — but pacing is part of the exam, so come back to timed before a real one.</>}
+          </p>
+
           {(() => {
             // Free students at zero for the month can't start a paper — the
             // upgrade prompt in QuotaNote is their path forward.
@@ -291,6 +372,7 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
           score={score}
           tier={tier}
           mode={mode}
+          timing={timing}
           projectedCaption={isStudent
             ? 'What this paper did to your skill map, counted from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.'
             : undefined}
@@ -318,12 +400,16 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
           <h1 style={{ fontSize: font.xl, fontWeight: 700, margin: 0, color: colors.textPrimary }}>
             Mini-exam <span style={{ fontSize: font.sm, fontWeight: 400, color: colors.textHint }}>· {tier === 'higher' ? 'Higher' : 'Foundation'} · {mode === 'calc' ? 'Calculator' : 'Non-calculator'}</span>
           </h1>
-          <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{answeredCount}/{allUnits.length} answered · {totalMarks} marks</span>
+          <span style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexShrink: 0 }}>
+            <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{answeredCount}/{allUnits.length} · {totalMarks} marks</span>
+            {timed && <ExamClock remaining={remaining} />}
+          </span>
         </div>
       </div>
 
       <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, lineHeight: 1.6 }}>
         Answer every question. You won&apos;t see if you&apos;re right until you submit the whole paper.
+        {timed && <> If you get stuck, leave it and come back — the paper submits itself when the time is up.</>}
       </p>
 
       {items.map(item => (
@@ -340,7 +426,38 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
                 {/* Label shown even with an empty prompt so a multi_blank
                     part's later blanks ("(a) · B") stay identifiable. */}
                 {(u.promptHtml || u.label) && <div style={{ fontSize: font.base, color: colors.textPrimary, marginBottom: 6 }} dangerouslySetInnerHTML={{ __html: `${u.label ?? ''} ${u.promptHtml}` }} />}
-                {u.grid ? (
+                {u.options ? (
+                  /* Answer stored as the option TEXT, not its index, so grading
+                     goes through checkAnswer exactly like a typed answer and a
+                     stored paper stays readable. */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {u.options.map(opt => {
+                      const chosen = (answers[u.key] ?? '') === opt
+                      return (
+                        <button
+                          key={opt}
+                          onClick={() => setAnswers(prev => ({
+                            // Tapping the chosen option again clears it — the
+                            // same tap-to-undo idiom as the grid canvas, and
+                            // without it a mis-tap could not be taken back.
+                            ...prev, [u.key]: chosen ? '' : opt,
+                          }))}
+                          aria-pressed={chosen}
+                          style={{
+                            textAlign: 'left', cursor: 'pointer', padding: '10px 12px',
+                            borderRadius: radius.md, fontSize: font.base,
+                            border: `1px solid ${chosen ? colors.primary : colors.border}`,
+                            background: chosen ? colors.cardAlt : colors.background,
+                            color: colors.textPrimary,
+                            fontWeight: chosen ? 700 : 400,
+                          }}
+                        >
+                          <span dangerouslySetInnerHTML={{ __html: opt }} />
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : u.grid ? (
                   <GridCanvas
                     grid={u.grid}
                     value={parseGridAnswer(answers[u.key] ?? '')}
@@ -360,12 +477,54 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
         </div>
       ))}
 
-      <button onClick={submitExam} style={primaryButton}>Submit paper</button>
+      {/* Not `onClick={submitExam}` — that hands the click event in as
+          `outOfTime`, and a MouseEvent is truthy, so every manual submit would
+          be recorded as having run out of time. */}
+      <button onClick={() => { submittedRef.current = true; submitExam(false) }} style={primaryButton}>Submit paper</button>
       <button onClick={() => { if (confirm('Leave the exam? Your progress will be lost.')) { setPhase('config'); setItems([]) } }} style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}>
         Quit
       </button>
     </main>
   )
+}
+
+/**
+ * The countdown in the exam header.
+ *
+ * Colour is the primary signal (amber at 5 minutes, red in the last), but it
+ * cannot be the only one — so the two thresholds are also announced to screen
+ * readers, and only the thresholds: a clock politely reading itself aloud every
+ * second would make the page unusable.
+ */
+function ExamClock({ remaining }: { remaining: number }) {
+  const urgency = urgencyOf(remaining)
+  const colour = urgency === 'urgent' ? colors.dangerText
+    : urgency === 'warn' ? colors.warningText
+    : colors.textSecondary
+  return (
+    <>
+      <span
+        style={{
+          fontSize: font.base, fontWeight: 700, color: colour,
+          fontVariantNumeric: 'tabular-nums', minWidth: 46, textAlign: 'right',
+        }}
+        aria-hidden="true"
+      >
+        {formatClock(remaining)}
+      </span>
+      <span style={srOnly} role="status" aria-live="polite">
+        {urgency === 'urgent' ? 'One minute remaining.'
+          : urgency === 'warn' ? 'Five minutes remaining.'
+          : ''}
+      </span>
+    </>
+  )
+}
+
+/** Visually hidden, still announced. */
+const srOnly: React.CSSProperties = {
+  position: 'absolute', width: 1, height: 1, padding: 0, margin: -1,
+  overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0,
 }
 
 /** The student's monthly-allowance line on the config screen. */

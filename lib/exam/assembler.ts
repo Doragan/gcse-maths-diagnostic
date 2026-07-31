@@ -214,18 +214,32 @@ export type CandidateSource = {
 }
 
 /**
+ * What a multiple-choice question is worth on a paper.
+ *
+ * Real GCSE papers DO carry multiple choice — 22 parts / 30 marks across the
+ * coded 2024 series, 0–6 marks per paper — so admitting them is faithful, not a
+ * shortcut. But 17 of those 22 parts are worth exactly 1 mark, and the reason
+ * generalises: picking from a list shows no working, so there is no method to
+ * credit and nothing to build a 3-mark scheme on. Priced at 1 unless the author
+ * says otherwise.
+ */
+function multipleChoiceMarks(q: CandidateSource): number {
+  return q.marks != null && Number.isFinite(q.marks) && q.marks > 0 ? Math.round(q.marks) : 1
+}
+
+/**
  * Build an assembler Candidate from a raw published-question row. Returns null
- * for questions the MVP exam runner can't present — currently multiple-choice
- * (the runner is typed-answer only).
+ * for questions the exam runner cannot present — none, currently.
  */
 export function candidateOf(q: CandidateSource): Candidate | null {
-  if (q.question_type === 'multiple_choice') return null
   // Multi-part questions are priced by their authored parts; everything else
   // goes through the evidence-based resolver (see lib/exam/markEvidence.ts).
   const multiPart = !!q.parts && q.parts.length > 0
   const marks = multiPart
     ? q.parts!.reduce((s, p) => s + (p.marks || 0), 0)
-    : resolveQuestionMarks(q).marks
+    : q.question_type === 'multiple_choice'
+      ? multipleChoiceMarks(q)
+      : resolveQuestionMarks(q).marks
   return {
     id: q.id,
     multiPart,

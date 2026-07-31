@@ -247,10 +247,44 @@ export function evaluateTemplate(
   return cleanExpression(evaluated)
 }
 
+/** A scalar trap as authored — the shape every trap-bearing level shares. */
+export type TrapTemplate = {
+  answer_template: string
+  response: string
+  /** Method marks the trap proves; see PartTrap in lib/questions/parts.ts. */
+  method_marks?: number
+}
+
+export type RenderedTrap = {
+  answer: string
+  response: string
+  method_marks?: number
+}
+
+/**
+ * Render one trap against the shared value set.
+ *
+ * Centralised because traps hang off four levels (question, part, blank, grid)
+ * and a field dropped at any one of them fails silently — the trap still
+ * matches, it just quietly loses whatever the omitted field controlled. That is
+ * exactly how `style`/`dir` were lost on number-line traps.
+ *
+ * `method_marks` is omitted when unset rather than defaulted to 0: unset means
+ * "we don't know what method this proves", which is a different claim from
+ * "this proves none", and the exam scorer treats them differently.
+ */
+export function renderTrap(t: TrapTemplate, generated: Record<string, number>): RenderedTrap {
+  return {
+    answer: evaluateTemplate(t.answer_template, generated),
+    response: evaluateTemplate(t.response, generated),
+    ...(typeof t.method_marks === 'number' ? { method_marks: t.method_marks } : {}),
+  }
+}
+
 export type RenderedQuestion = {
   question: string
   answer: string
-  traps: { answer: string, response: string }[]
+  traps: RenderedTrap[]
   explanation: string
   generatedValues: Record<string, number>
 }
@@ -258,7 +292,7 @@ export type RenderedQuestion = {
 export function renderQuestion(
   questionTemplate: string,
   answerTemplate: string,
-  traps: { answer_template: string, response: string }[],
+  traps: TrapTemplate[],
   explanation: string | null,
   parameters: Parameters,
   fixedValues?: Record<string, number>
@@ -267,10 +301,7 @@ export function renderQuestion(
   return {
     question: evaluateTemplate(questionTemplate, generated),
     answer: evaluateTemplate(answerTemplate, generated),
-    traps: traps.map(t => ({
-      answer: evaluateTemplate(t.answer_template, generated),
-      response: evaluateTemplate(t.response, generated),
-    })),
+    traps: traps.map(t => renderTrap(t, generated)),
     explanation: explanation ? evaluateTemplate(explanation, generated) : '',
     generatedValues: generated,
   }
@@ -279,12 +310,12 @@ export function renderQuestion(
 export type RenderedPart = {
   prompt: string
   answer: string
-  traps: { answer: string, response: string }[]
+  traps: RenderedTrap[]
   explanation: string
   // Only for multi_blank parts: each labelled blank's rendered prompt, answer + traps.
   // `ecf` is the errors-carried-forward formula with parameters already
   // substituted; its [[SIBLING]] refs survive to marking time.
-  blanks?: { label: string, prompt: string, answer: string, ecf?: string, traps: { answer: string, response: string }[] }[]
+  blanks?: { label: string, prompt: string, answer: string, ecf?: string, traps: RenderedTrap[] }[]
   // Only for grid_draw parts: the grid spec with every template evaluated to a
   // number (a bad template renders to NaN — callers guard on finiteness).
   grid?: {
@@ -329,14 +360,14 @@ export function renderMultiPartQuestion(
   parts: {
     prompt: string
     answer_template: string
-    traps: { answer_template: string, response: string }[]
+    traps: TrapTemplate[]
     explanation: string | null
     blanks?: {
       label: string
       prompt?: string
       answer_template: string
       ecf_template?: string
-      traps: { answer_template: string, response: string }[]
+      traps: TrapTemplate[]
     }[]
     grid?: {
       mode: string
@@ -383,10 +414,7 @@ export function renderMultiPartQuestion(
       // `?? []` — a part legitimately has no traps (e.g. a multi_blank part
       // carries its traps on the blanks); an absent array must not throw and
       // take the whole question down at render time.
-      traps: (part.traps ?? []).map(t => ({
-        answer: evaluateTemplate(t.answer_template, generated),
-        response: evaluateTemplate(t.response, generated),
-      })),
+      traps: (part.traps ?? []).map(t => renderTrap(t, generated)),
       explanation: part.explanation ? evaluateTemplate(part.explanation, generated) : '',
       // Blanks render against the SAME shared value set as everything else, so
       // chained blanks (frequency trees: B = {{n - a}}) stay consistent.
@@ -399,10 +427,7 @@ export function renderMultiPartQuestion(
           // for answers the student hasn't given yet, and are left for the
           // grader to substitute.
           ...(b.ecf_template ? { ecf: evaluateTemplate(b.ecf_template, generated) } : {}),
-          traps: (b.traps ?? []).map(t => ({
-            answer: evaluateTemplate(t.answer_template, generated),
-            response: evaluateTemplate(t.response, generated),
-          })),
+          traps: (b.traps ?? []).map(t => renderTrap(t, generated)),
         })),
       } : {}),
       // Grid axes/elements evaluate against the same shared value set too.
