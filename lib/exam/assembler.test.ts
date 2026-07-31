@@ -254,8 +254,18 @@ describe('assembleExam', () => {
 describe('candidateOf', () => {
   const base = { id: 'q', skill_ids: ['simple_arithmetic'], difficulty: 2, calculator: 'na', kind: 'mastery', question_type: 'numeric', parts: null }
 
-  it('excludes multiple-choice questions from exam assembly', () => {
-    expect(candidateOf({ ...base, question_type: 'multiple_choice' })).toBeNull()
+  it('admits multiple-choice questions, priced at one mark', () => {
+    // Real papers carry MC — 22 parts / 30 marks across the coded 2024 series,
+    // 17 of them worth exactly 1. Picking from a list shows no working, so
+    // there is no method to credit and nothing to build a bigger scheme on.
+    const c = candidateOf({ ...base, question_type: 'multiple_choice' })
+    expect(c).not.toBeNull()
+    expect(c!.marks).toBe(1)
+  })
+
+  it('lets an author override the multiple-choice default', () => {
+    const c = candidateOf({ ...base, question_type: 'multiple_choice', marks: 2 })
+    expect(c!.marks).toBe(2)
   })
 
   it('uses nominal marks for single-part questions by difficulty', () => {

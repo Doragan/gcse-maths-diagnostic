@@ -17,6 +17,21 @@ import type { PartAnswerType, ScalarAnswerType } from './answerTypes'
 export type PartTrap = {
   answer_template: string
   response: string
+  /**
+   * Method marks this trap proves the student earned, for exam scoring.
+   *
+   * A trap is an anticipated wrong answer, and the two flavours deserve very
+   * different credit. "You added the coordinates but didn't halve them" is a
+   * sound method with a missed last step — a real scheme pays M1 for it. "That
+   * is the area; the question asks for the perimeter" is the wrong method and
+   * pays nothing. Only the author can tell them apart, so this is opt-in.
+   *
+   * UNSET is not the same as 0: unset leaves the marks *unknown* (they widen
+   * the honest uncertainty band on the score), while 0 asserts the trap earns
+   * nothing. Never more than the part's marks minus one — no scheme pays full
+   * marks for method alone. Inert outside exam mode: practice grades binary.
+   */
+  method_marks?: number
 }
 
 /**

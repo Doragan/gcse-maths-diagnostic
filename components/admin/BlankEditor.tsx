@@ -5,8 +5,9 @@ import {
 } from '../../lib/styles'
 import { SCALAR_ANSWER_TYPES, ANSWER_TYPE_LABELS, type ScalarAnswerType } from '../../lib/questions/answerTypes'
 import { BlankInput } from '../../lib/questions/parts'
+import TrapMethodMarks from './TrapMethodMarks'
 
-type Trap = { answer_template: string, response: string }
+type Trap = { answer_template: string, response: string, method_marks?: number }
 
 type Props = {
   blank: BlankInput
@@ -26,6 +27,15 @@ export default function BlankEditor({ blank, onChange, onRemove, autoResize }: P
 
   function updateTrap(i: number, field: keyof Trap, value: string) {
     set('traps', blank.traps.map((t, j) => j === i ? { ...t, [field]: value } : t))
+  }
+
+  /** Undefined removes the key entirely — "unset" must not persist as 0. */
+  function setTrapMethodMarks(i: number, v: number | undefined) {
+    set('traps', blank.traps.map((t, j) => {
+      if (j !== i) return t
+      const { method_marks: _drop, ...rest } = t
+      return v == null ? rest : { ...rest, method_marks: v }
+    }))
   }
 
   function removeTrap(i: number) {
@@ -180,6 +190,11 @@ export default function BlankEditor({ blank, onChange, onRemove, autoResize }: P
               onChange={e => { updateTrap(i, 'response', e.target.value); autoResize(e.target) }}
               style={{ ...inputStyle, minHeight: '55px', resize: 'none' as const }}
               placeholder="Targeted feedback for this wrong answer."
+            />
+            <TrapMethodMarks
+              value={trap.method_marks}
+              marks={Number(blank.marks) || 1}
+              onChange={v => setTrapMethodMarks(i, v)}
             />
           </div>
         ))}

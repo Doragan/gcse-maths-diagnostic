@@ -2,7 +2,12 @@ import type { ScalarAnswerType } from './answerTypes'
 
 export type CheckResult = {
   correct: boolean
-  trap: { response: string } | null
+  /**
+   * The authored trap the answer matched, if any. `method_marks` rides along so
+   * exam scoring can pay for a sound method behind a wrong answer; it is absent
+   * on unmarked traps and ignored entirely in practice, which grades binary.
+   */
+  trap: { response: string; method_marks?: number } | null
   message: string
 }
 
@@ -549,7 +554,7 @@ export function checkAnswer(
   correctAnswer: string,
   answerType: ScalarAnswerType,
   tolerance: number | null,
-  traps: { answer: string, response: string }[],
+  traps: { answer: string, response: string, method_marks?: number }[],
   // Whether the question demanded simplest form. Drives the "not simplified"
   // nudge for fraction/ratio answers. Defaults true → current behaviour preserved.
   requireSimplest: boolean = true

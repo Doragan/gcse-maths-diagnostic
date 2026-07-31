@@ -20,7 +20,7 @@ export type BlankCheck = {
   answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest: boolean
-  traps: { answer: string, response: string }[] // RENDERED traps
+  traps: { answer: string, response: string, method_marks?: number }[] // RENDERED traps
   // RENDERED errors-carried-forward formula: arithmetic over numbers and
   // [[SIBLING]] refs, e.g. '[[F]] - 4'. See Blank.ecf_template.
   ecf?: string

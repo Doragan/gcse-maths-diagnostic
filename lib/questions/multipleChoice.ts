@@ -32,12 +32,14 @@ function dedupeByValue(opts: string[]): string[] {
 export function buildOptions(
   correct: string,
   traps: { answer: string }[],
-  explicit?: string[] | null
+  explicit?: string[] | null,
+  /** Pass to make the order reproducible — see shuffle. Exam mode requires it. */
+  seed?: string,
 ): string[] {
   if (explicit && explicit.length >= 2) {
     const hasCorrect = explicit.some(o => normalise(o) === normalise(correct))
     const opts = hasCorrect ? explicit : [correct, ...explicit]
-    return shuffle(dedupeByValue(opts))
+    return shuffle(dedupeByValue(opts), seed)
   }
 
   // Correct first, then traps — deduped by value so a trap equal to the answer
@@ -55,14 +57,45 @@ export function buildOptions(
   }
 
   // Trim to 4 and shuffle
-  return shuffle(options.slice(0, 4))
+  return shuffle(options.slice(0, 4), seed)
 }
 
-/** Fisher–Yates shuffle, returning a new array (does not mutate the input). */
-function shuffle<T>(arr: T[]): T[] {
+/**
+ * Deterministic PRNG from a string seed (xmur3 hash → mulberry32).
+ *
+ * Needed because a mini-exam must be REPRODUCIBLE: a stored paper keeps only
+ * the question id, the parameter draw and the raw answer, and re-renders
+ * everything else. With Math.random the options would come back in a different
+ * order on re-open, so "C" in the review would not be the "C" that was ticked.
+ */
+function seededRandom(seed: string): () => number {
+  let h = 1779033703 ^ seed.length
+  for (let i = 0; i < seed.length; i++) {
+    h = Math.imul(h ^ seed.charCodeAt(i), 3432918353)
+    h = (h << 13) | (h >>> 19)
+  }
+  let a = (h ^= h >>> 16) >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * Fisher–Yates shuffle, returning a new array (does not mutate the input).
+ *
+ * With a `seed` the order is stable for that seed — the exam path passes the
+ * question id and its parameter draw, so a re-opened paper shows the options
+ * exactly as they were sat. Without one it is random, which is what practice
+ * wants: the same question met twice should not drill the position of an answer.
+ */
+function shuffle<T>(arr: T[], seed?: string): T[] {
   const a = [...arr]
+  const rnd = seed == null ? Math.random : seededRandom(seed)
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rnd() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]]
   }
   return a

@@ -21,7 +21,7 @@
  * the fix is an explicit author-set mark on the question, not a cleverer formula.
  */
 
-import { BY_SKILL_KIND, BY_KIND, OVERALL, type MarkStats } from './markEvidence.data'
+import { BY_SKILL_KIND, BY_KIND, OVERALL, METHOD_SHARE_BY_MARKS, type MarkStats } from './markEvidence.data'
 
 export type QuestionKind = 'mastery' | 'exam'
 
@@ -105,4 +105,34 @@ export function resolveQuestionMarks(q: {
   // Never leave the range real papers actually award for this material.
   const clamped = Math.min(Math.max(nudged, stats.min), stats.max)
   return { marks: Math.max(1, Math.round(clamped)), source }
+}
+
+/**
+ * How many of a part's marks a real scheme would typically award for METHOD —
+ * the credit that survives a wrong final answer.
+ *
+ * This is the size of auto-grading's blind spot. We mark a final answer right or
+ * wrong; a real examiner also reads the working and pays for a sound approach.
+ * Across the coded 2024 series that is 232 of 960 marks — 24% of every paper —
+ * so scoring a wrong answer as a flat zero is not merely conservative, it is
+ * systematically low by about a quarter.
+ *
+ * An EXPECTATION, not a ceiling: it averages over all parts of that size,
+ * including the many whose schemes award no method marks at all. A 3-mark part
+ * could be M2 A1 (2 method marks) or B3 (none); 0.93 is what the mix comes to.
+ * That makes it the right basis for "what were the marks we cannot see probably
+ * worth", and the wrong basis for "the most you could have got".
+ *
+ * Capped below `marks` because at least one mark always needs the right answer:
+ * no scheme pays full marks for method alone.
+ */
+export function methodMarkShare(marks: number): number {
+  if (!Number.isFinite(marks) || marks <= 1) return 0
+  const table = METHOD_SHARE_BY_MARKS
+  // Beyond the largest coded part size, hold the top rate rather than
+  // extrapolating from a 12-part sample.
+  const sizes = Object.keys(table).map(Number).sort((a, b) => a - b)
+  const key = marks <= sizes[sizes.length - 1] ? Math.floor(marks) : sizes[sizes.length - 1]
+  const share = table[key] ?? 0
+  return Math.min(share, marks - 1)
 }
