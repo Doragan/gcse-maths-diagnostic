@@ -204,6 +204,14 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
 
   if (q.parts && q.parts.length > 0) {
     const r = renderMultiPartQuestion(q.question_template, q.parts, q.parameters ?? {}, fixedValues)
+    /**
+     * "(a)" only means something when there is a "(b)".
+     *
+     * Some question SHAPES are necessarily one part in a parts array —
+     * grid_draw and multi_blank are only expressible as parts — so labelling
+     * them "(a)" invented a part structure the student could see was missing.
+     */
+    const partLetter = (i: number) => (q.parts!.length > 1 ? letter(i) : null)
     // A multi_blank part flattens to one Unit PER BLANK (key q.id:i:b) — the
     // flat answers/results records, the submit loop, per-blank marks and the
     // review boxes then all work unchanged. (The mastery write collapses them
@@ -215,7 +223,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
         const partKey = `${q.id}:${i}`
         return (p.blanks ?? []).map((blank, b): Unit => ({
           key: `${partKey}:${b}`,
-          label: `${letter(i)} · ${blank.label}`,
+          label: [partLetter(i), blank.label].filter(Boolean).join(" · "),
           // Part prompt rendered once (first blank); each blank then carries
           // its own short prompt so the units are self-describing.
           promptHtml: [b === 0 ? r.parts[i].prompt : '', rb[b]?.prompt ?? '']
@@ -248,7 +256,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
         if (!g) return []
         return [{
           key: `${q.id}:${i}`,
-          label: letter(i),
+          label: partLetter(i),
           promptHtml: r.parts[i].prompt,
           correctAnswer: formatGridPoints(g.elements.map(e => ({ x: e.x, y: e.y }))),
           answerType: 'exact' as AnswerType, // inert — grid units never reach checkAnswer
@@ -264,7 +272,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
       }
       return [{
         key: `${q.id}:${i}`,
-        label: letter(i),
+        label: partLetter(i),
         promptHtml: r.parts[i].prompt,
         correctAnswer: r.parts[i].answer,
         answerType: p.answer_type,
@@ -476,8 +484,21 @@ export function gradeUnits(
       }
       const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest)
       if (check.correct) {
-        earned += u.marks
-        results[u.key] = { correct: true, message: check.message, studentAnswer: raw, correctAnswer: u.correctAnswer, explanation: u.explanation, marksEarned: u.marks }
+        // Right value, wrong unit. The maths is sound, so it stays `correct`
+        // and the skill map credits it in full — the unit is rarely the skill
+        // under test. Exam MARKS are the exception: real schemes fold units
+        // into the final accuracy mark, so that one mark goes and the method
+        // marks stay.
+        const earnedHere = check.wrongUnits ? Math.max(0, u.marks - 1) : u.marks
+        earned += earnedHere
+        results[u.key] = {
+          correct: true,
+          message: check.message,
+          studentAnswer: raw,
+          correctAnswer: u.correctAnswer,
+          explanation: u.explanation,
+          marksEarned: earnedHere,
+        }
         continue
       }
       // Wrong, but attempted — the only place method marks arise.

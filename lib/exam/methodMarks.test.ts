@@ -149,6 +149,39 @@ describe('traps that prove the method', () => {
   })
 })
 
+describe('wrong units — flagged in practice, costed in the exam', () => {
+  const litres = q({ marks: 4, answer_template: '400 litres', question_template: 'Capacity in litres?' })
+
+  it('drops the accuracy mark and keeps the method marks', () => {
+    // Real schemes never award a mark for units alone — across the 17 coded
+    // 2024 parts involving units, every one folds them into the final A1/B1.
+    // So a wrong unit costs exactly that one mark, whatever the part is worth.
+    const { results, earned } = grade(litres, '400cm^3')
+    expect(earned).toBe(3)
+    expect(results['q1:0'].marksEarned).toBe(3)
+  })
+
+  it('still counts as correct, so the skill map is untouched', () => {
+    // The unit is not the skill under test. A student who did the maths must
+    // not lose mastery progress for mislabelling the answer.
+    const { results } = grade(litres, '400cm^3')
+    expect(results['q1:0'].correct).toBe(true)
+  })
+
+  it('costs the whole mark on a one-mark part, since there is no method to keep', () => {
+    const one = q({ marks: 1, answer_template: '400 litres' })
+    expect(grade(one, '400cm^3').earned).toBe(0)
+  })
+
+  it('leaves a fully correct answer at full marks', () => {
+    expect(grade(litres, '400 litres').earned).toBe(4)
+  })
+
+  it('does not penalise units merely left off', () => {
+    expect(grade(litres, '400').earned).toBe(4)
+  })
+})
+
 describe('the confirmed floor', () => {
   it('never exceeds the paper total, even with every question trapped', () => {
     const row = q({ traps: [{ answer_template: '50', response: 'x', method_marks: 2 }] })

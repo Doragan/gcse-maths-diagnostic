@@ -9,6 +9,19 @@ export type CheckResult = {
    */
   trap: { response: string; method_marks?: number } | null
   message: string
+  /**
+   * Right value, wrong unit ("400 cm³" for "400 litres").
+   *
+   * Still `correct`, deliberately. The unit is almost never the skill under
+   * test, so in practice this must not hold a student back — the skill map
+   * should credit the maths they actually did.
+   *
+   * EXAM scoring is where it costs something: gradeUnits drops the accuracy
+   * mark and keeps the method marks, mirroring real schemes, where across the
+   * 17 coded 2024 parts involving units not one awards a mark for units alone —
+   * they always ride on the final A1/B1.
+   */
+  wrongUnits?: boolean
 }
 
 // ── Expression equivalence helpers ───────────────────────────────────────────
@@ -238,6 +251,63 @@ function containsUnits(text: string): boolean {
   return UNIT_PATTERN.test(stripHtmlForUnits(text))
 }
 
+/**
+ * The unit an answer is expressed in, normalised for comparison — "400 cm³" →
+ * "cm3", "15 mm" → "mm", "72" → null.
+ *
+ * Derived by removing the numeric part and tidying what is left, rather than by
+ * matching a unit list, so an unusual unit still compares equal to itself.
+ * Currency and percent are excluded: `normalise` already strips them, and they
+ * behave as notation rather than as a unit that could be got wrong.
+ */
+function unitToken(text: string): string | null {
+  const flat = stripHtmlForUnits(text)
+    .toLowerCase()
+    .replace(/[²³]/g, m => (m === '²' ? '2' : '3'))
+    .replace(/\^/g, '')
+  // Match the KNOWN unit vocabulary rather than "whatever letters are left":
+  // an answer can legitimately contain letters that are not units — π written
+  // as "pi", an algebraic x — and treating those as a unit would report a
+  // mismatch between two ways of writing the same correct answer.
+  // Compound and squared/cubed forms first, so "cm3" never matches as "cm".
+  const matches = flat.match(
+    /g\/cm3|g\/ml|km\/h|m\/s|mph|cm[23]|mm[23]|km[23]|m[23]|kg|mg|ml|cm|mm|km|litres?|liters?|metres?|meters?|grams?|miles?|hours?|hrs?|minutes?|mins?|seconds?|secs?|\b[mgs]\b/g,
+  )
+  // The unit trails the value, so the last token is the one being claimed.
+  return matches ? matches[matches.length - 1] : null
+}
+
+/** The unit as a comparison key, with spelling variants folded together. */
+function unitOf(text: string): string | null {
+  const cleaned = unitToken(text)
+  if (cleaned === null) return null
+  // Spelling variants that mean the same quantity must not read as a mismatch.
+  const SYNONYMS: Record<string, string> = {
+    metres: 'm', metre: 'm', meters: 'm', meter: 'm',
+    litres: 'l', litre: 'l', liters: 'l', liter: 'l',
+    grams: 'g', gram: 'g',
+    seconds: 's', second: 's', secs: 's', sec: 's',
+    minutes: 'min', minute: 'min', mins: 'min',
+    hours: 'hr', hour: 'hr', hrs: 'hr',
+    miles: 'mile',
+  }
+  return SYNONYMS[cleaned] ?? cleaned
+}
+
+/**
+ * Both sides name a unit, and they are different ones.
+ *
+ * This is a WRONG answer, not a formatting slip: "400 cm³" is not a capacity in
+ * litres, and on the question that prompted this the conversion was the assessed
+ * skill. Distinct from units merely OMITTED, which stays acceptable — a bare
+ * number is incomplete, whereas a wrong unit asserts something untrue.
+ */
+function unitsMismatch(studentAnswer: string, correctAnswer: string): boolean {
+  const s = unitOf(studentAnswer)
+  const c = unitOf(correctAnswer)
+  return s !== null && c !== null && s !== c
+}
+
 // ── Answer normalisation ──────────────────────────────────────────────────────
 
 export function normalise(value: string): string {
@@ -305,6 +375,15 @@ export function normalise(value: string): string {
  * "1,000" → 1000.
  */
 function extractNumber(s: string): number {
+  // A bare fraction is ONE value, not a number followed by noise. Taking the
+  // first number would read "3/15" as 3 — which silently turned a student's
+  // fraction into a different answer entirely and then fired the trap written
+  // for that other answer, feeding back a mistake they had not made.
+  const frac = s.trim().match(/^(-?[\d,]+(?:\.\d+)?)\s*\/\s*(-?[\d,]+(?:\.\d+)?)$/)
+  if (frac) {
+    const den = parseFloat(frac[2].replace(/,/g, ''))
+    if (den !== 0) return parseFloat(frac[1].replace(/,/g, '')) / den
+  }
   const m = s.match(/-?[\d,]+(?:\.\d+)?/)
   return m ? parseFloat(m[0].replace(/,/g, '')) : NaN
 }
@@ -602,6 +681,24 @@ export function checkAnswer(
   const missingUnits    = correctHasUnits && !studentHasUnits   // expected units omitted
   const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
 
+  // Right value, WRONG unit. Checked before every acceptance path below,
+  // because for numeric answers the value comparison never sees the unit at all
+  // (extractNumber reads the number and stops), so "400 cm³" would otherwise
+  // sail through as a correct "400 litres".
+  if (isCorrect && correctHasUnits && studentHasUnits && unitsMismatch(studentAnswer, correctAnswer)) {
+    // Name the unit as the question writes it ("litres"), not the internal
+    // comparison key ("l").
+    const want = unitToken(correctAnswer)
+    return {
+      // Correct: the maths is right, and the unit is not what was being tested.
+      // The mini-exam still deducts the accuracy mark — see gradeUnits.
+      correct: true,
+      wrongUnits: true,
+      trap: null,
+      message: `Right value — but check your units: the question asks for the answer in ${want}. In an exam a wrong unit costs you the final mark.`,
+    }
+  }
+
   // Check whether the student's fraction answer is correct but not fully reduced.
   // Only applies to fraction-type questions; decimals and integers are unaffected.
   // Right value but not in lowest terms (only meaningful for fraction/ratio).
@@ -742,6 +839,23 @@ export function checkAnswer(
   // One-place-out rounding miss (authored traps already had their chance above).
   if (rounding.rel === 'off_by_one') {
     return { correct: false, trap: null, message: ROUNDING_ERROR }
+  }
+
+  // Power written without its caret — "x5" for "x^5".
+  //
+  // Stays WRONG, because "x5" genuinely reads as 5 × x and accepting it would
+  // train a notation that loses marks in a real exam. But the generic "not
+  // quite" hides the fact that the maths may have been perfect, so name the
+  // problem instead. Deliberately narrow: it fires only when removing the
+  // carets from the EXPECTED answer produces exactly what the student wrote.
+  if (normCorrect.includes('^') && normStudent === normCorrect.replace(/\^/g, '')) {
+    return {
+      correct: false,
+      trap:    null,
+      // "Caret" is the typographer's word for it, not a student's — name the
+      // key and say how to type it.
+      message: `Did you mean ${correctAnswer}? Use the <strong>^</strong> symbol for powers — hold Shift and press 6. Without it, “${studentAnswer.trim()}” reads as a multiplication rather than a power.`,
+    }
   }
 
   // Decimal given for a fraction answer that has no exact decimal form
