@@ -14,6 +14,7 @@ import {
   type Item, type QuestionRow, type UnitResult, type Tier,
 } from '../../lib/exam/examPaper'
 import { buildPaperSnapshot, type PaperMeta } from '../../lib/exam/examSession'
+import type { Attempt } from '../../lib/skills/masteryProgress'
 import {
   allowanceSeconds, remainingSeconds, elapsedSeconds, urgencyOf, formatClock,
 } from '../../lib/exam/examTiming'
@@ -52,6 +53,15 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [now, setNow] = useState(() => Date.now())
   const [allowed, setAllowed] = useState(0)
   const [timing, setTiming] = useState<PaperMeta>({})
+  /**
+   * The student's answered history as it stood when this paper STARTED.
+   *
+   * Captured up front, before a single answer from this paper is written, which
+   * is what makes the "before" side of the progress card free of any race with
+   * the fire-and-forget attempts insert — we never have to ask whether that
+   * write has landed.
+   */
+  const [priorAttempts, setPriorAttempts] = useState<Attempt[]>([])
   // Auto-submit must fire exactly once: the effect that watches the clock can
   // re-run before `phase` has flushed to 'review'.
   const submittedRef = useRef(false)
@@ -171,6 +181,18 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
         setPhase('config')
         return
       }
+    }
+
+    // Snapshot the skill map's inputs BEFORE the paper is answered, so the
+    // review can say what this paper moved. Best-effort: a failure here costs
+    // the comparison, never the paper.
+    if (isStudent && studentId) {
+      const { data: prior } = await supabase
+        .from('practice_attempts')
+        .select('skill_ids, correct, attempted_at, kind')
+        .eq('student_id', studentId)
+        .order('attempted_at', { ascending: true })
+      setPriorAttempts((prior ?? []) as Attempt[])
     }
 
     const built = assembled.questionIds
@@ -373,9 +395,8 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
           tier={tier}
           mode={mode}
           timing={timing}
-          projectedCaption={isStudent
-            ? 'What this paper did to your skill map, counted from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.'
-            : undefined}
+          priorAttempts={priorAttempts}
+          preview={!isStudent}
           {...(shortfall && (shortfall.marks > 0 || shortfall.kind > 0) ? {
             notice:
               `This paper is ${shortfall.marks} mark${shortfall.marks === 1 ? '' : 's'} short of its `

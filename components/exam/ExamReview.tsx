@@ -11,21 +11,15 @@
  * re-open it" are the same screen.
  */
 
-import { skillsById, getPrerequisiteTree } from '../../lib/skills/skillGraph'
-import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus } from '../../lib/skills/masteryEngine'
+import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
+import { computeMasteryProgress, type Attempt } from '../../lib/skills/masteryProgress'
 import { parseGridAnswer } from '../../lib/questions/gridDraw'
 import type { Item, UnitResult, Tier } from '../../lib/exam/examPaper'
 import { formatDuration } from '../../lib/exam/examTiming'
 import type { CalculatorMode } from '../../lib/exam/assembler'
 import GridCanvas from '../practice/GridCanvas'
+import MasteryProgressCard from './MasteryProgressCard'
 import { colors, font, radius, card } from '../../lib/styles'
-
-const STATUS_META: Record<MasteryStatus, { label: string; bg: string; color: string; border: string }> = {
-  mastered:       { label: 'Mastered',       bg: colors.successLight, color: colors.successText, border: colors.successBorder },
-  in_progress:    { label: 'In progress',    bg: colors.warningLight, color: colors.warningText, border: colors.warningBorder },
-  needs_practice: { label: 'Needs practice', bg: colors.dangerLight,  color: colors.dangerText,  border: colors.dangerBorder },
-}
-const STATUS_RANK: Record<MasteryStatus, number> = { mastered: 0, in_progress: 1, needs_practice: 2 }
 
 /**
  * The way OUT of any exam screen, always the first thing on the page.
@@ -64,8 +58,16 @@ export type ExamReviewProps = {
   /** How the paper was sat — drives the "finished in 21 minutes" line. */
   timing?: { elapsedSeconds?: number; allowedSeconds?: number; timed?: boolean; autoSubmitted?: boolean }
   heading?: string
-  /** Caption under "Projected skill mastery" — tense differs live vs re-opened. */
-  projectedCaption?: string
+  /**
+   * Everything the student had answered BEFORE this paper.
+   *
+   * The skill-progress card is a comparison, so without this there is nothing
+   * to compare against and it can only report where the paper leaves them.
+   * Omitted for a teacher preview, where no map is being built at all.
+   */
+  priorAttempts?: Attempt[]
+  /** Teacher preview: nothing here is recorded, and the copy should say so. */
+  preview?: boolean
   /** Shown above the score card (e.g. "2 questions are no longer available"). */
   notice?: string
   /** Renders the back link at the very top of the review. */
@@ -77,7 +79,8 @@ export type ExamReviewProps = {
 export default function ExamReview({
   items, results, answers, score, tier, mode, timing,
   heading = 'Exam review',
-  projectedCaption = 'What completing this paper would do to a student’s skill map, from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions.',
+  priorAttempts,
+  preview = false,
   notice,
   onBack,
   footer,
@@ -105,28 +108,19 @@ export default function ExamReview({
   // A question counts as fully correct only if every one of its units is right.
   const questionsCorrect = items.filter(it => it.units.every(u => results[u.key]?.correct)).length
 
-  // Projected skill mastery — run this paper's answered units through the SAME
-  // engine a student's practice attempts use, from a blank slate, to show what
-  // completing the mini-exam does to a skill map. Correct answers also credit
-  // prerequisite skills (exam-kind is positive-only, handled by the engine).
-  // Attempts from ANSWERED units only (a blank is never recorded, so it never
-  // penalises); increasing timestamps for the engine's recency window.
+  // This paper's answered units, as attempts. ANSWERED only — a blank is never
+  // recorded, so it must never count against a skill. Increasing timestamps
+  // give the engine's recency window a stable order.
   const examAttempts = items.flatMap(it => it.units).flatMap((u, i) => {
     const r = results[u.key]
     if (!r || r.studentAnswer.trim() === '') return []
     return [{ skill_ids: u.skillIds, correct: r.correct, attempted_at: new Date(Date.now() + i * 1000).toISOString(), kind: u.kind }]
   })
-  const directMastery = calculateMastery(examAttempts)
-  const projectedRows = Object.values(directMastery)
-    .map(m => ({ ...m, name: skillsById[m.skillId]?.name ?? m.skillId }))
-    .sort((a, b) =>
-      STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
-      (b.recentCorrect / b.recentAttempts) - (a.recentCorrect / a.recentAttempts) ||
-      a.name.localeCompare(b.name))
-  // Prerequisite skills a correct answer additionally reinforces (credited but
-  // not directly tested) — the inference engine's positive spillover.
-  const withCredit = calculateMastery(applyPrerequisiteCredit(examAttempts, getPrerequisiteTree))
-  const reinforcedCount = Object.keys(withCredit).filter(id => !directMastery[id]).length
+  // Progress is the DIFFERENCE between the student's map before this paper and
+  // after it. Without `priorAttempts` there is nothing to compare against, so
+  // we fall back to measuring the paper against an empty history — honest for a
+  // teacher preview or a first-ever paper, and the card says which it is.
+  const progress = computeMasteryProgress(priorAttempts ?? [], examAttempts, getPrerequisiteTree)
 
   return (
     <>
@@ -182,31 +176,7 @@ export default function ExamReview({
         )}
       </div>
 
-      {projectedRows.length > 0 && (
-        <div style={card}>
-          <h2 style={{ fontSize: font.lg, fontWeight: 700, margin: '0 0 4px', color: colors.textPrimary }}>Projected skill mastery</h2>
-          <p style={{ fontSize: '11px', color: colors.textHint, margin: '0 0 14px', lineHeight: 1.6 }}>{projectedCaption}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {projectedRows.map(s => {
-              const meta = STATUS_META[s.status]
-              return (
-                <div key={s.skillId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: font.sm, color: colors.textPrimary }}>{s.name}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                    <span style={{ fontSize: '11px', color: colors.textHint }}>{s.recentCorrect}/{s.recentAttempts} correct</span>
-                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: radius.full, background: meta.bg, color: meta.color, border: `1px solid ${meta.border}` }}>{meta.label}</span>
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-          {reinforcedCount > 0 && (
-            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '12px 0 0' }}>
-              + {reinforcedCount} prerequisite skill{reinforcedCount === 1 ? '' : 's'} reinforced by correct answers.
-            </p>
-          )}
-        </div>
-      )}
+      <MasteryProgressCard progress={progress} preview={preview} />
 
       {items.map(item => (
         <div key={item.questionId} style={card}>

@@ -20,6 +20,7 @@ import { getSession } from '../../../../lib/auth'
 import { QUESTION_COLUMNS, type QuestionRow, type Tier } from '../../../../lib/exam/examPaper'
 import { rehydratePaper, parsePaperSnapshot, type RehydratedPaper } from '../../../../lib/exam/examSession'
 import type { CalculatorMode } from '../../../../lib/exam/assembler'
+import type { Attempt } from '../../../../lib/skills/masteryProgress'
 import ExamReview, { BackToDashboard } from '../../../../components/exam/ExamReview'
 import { colors, font, primaryButton } from '../../../../lib/styles'
 
@@ -46,6 +47,7 @@ export default function ExamSessionPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'notfound' | 'unreadable'>('loading')
   const [row, setRow] = useState<SessionRow | null>(null)
   const [paper, setPaper] = useState<RehydratedPaper | null>(null)
+  const [priorAttempts, setPriorAttempts] = useState<Attempt[]>([])
 
   useEffect(() => {
     (async () => {
@@ -71,6 +73,19 @@ export default function ExamSessionPage() {
         .in('id', ids)
 
       const byId = new Map<string, QuestionRow>(((qs ?? []) as QuestionRow[]).map(q => [q.id, q]))
+
+      // What the student's map looked like BEFORE they sat this paper —
+      // everything answered earlier than the session itself. Lets a re-opened
+      // paper show the same progress card as it did on the day, rather than
+      // measuring against a history that has since moved on.
+      const { data: prior } = await supabase
+        .from('practice_attempts')
+        .select('skill_ids, correct, attempted_at, kind')
+        .eq('student_id', session.user.id)
+        .lt('attempted_at', (data as SessionRow).created_at)
+        .order('attempted_at', { ascending: true })
+      setPriorAttempts((prior ?? []) as Attempt[])
+
       setRow(data as SessionRow)
       setPaper(rehydratePaper(snapshot, byId))
       setState('ready')
@@ -131,7 +146,7 @@ export default function ExamSessionPage() {
         tier={row.tier}
         mode={row.calculator}
         timing={paper.meta}
-        projectedCaption="What this paper did to your skill map, counted from no prior practice. One paper mostly moves skills to in progress — mastery is confirmed over repeated sessions."
+        priorAttempts={priorAttempts}
         notice={missing > 0
           ? `${missing} question${missing === 1 ? '' : 's'} from this paper ${missing === 1 ? 'is' : 'are'} no longer available, so ${missing === 1 ? 'it is' : 'they are'} not shown below. Your score is unchanged.`
           : undefined}
