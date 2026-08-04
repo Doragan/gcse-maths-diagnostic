@@ -10,18 +10,20 @@ export type CheckResult = {
   trap: { response: string; method_marks?: number } | null
   message: string
   /**
-   * Right value, wrong unit ("400 cm³" for "400 litres").
+   * The value is right but the units are not: either omitted ("400" for
+   * "400 litres") or a different unit entirely ("400 cm³").
    *
-   * Still `correct`, deliberately. The unit is almost never the skill under
-   * test, so in practice this must not hold a student back — the skill map
-   * should credit the maths they actually did.
+   * The answer is still `correct`, deliberately. A unit is almost never the
+   * skill under test, so neither case may hold a student back — practice and
+   * the skill map credit the maths they actually did.
    *
-   * EXAM scoring is where it costs something: gradeUnits drops the accuracy
-   * mark and keeps the method marks, mirroring real schemes, where across the
-   * 17 coded 2024 parts involving units not one awards a mark for units alone —
-   * they always ride on the final A1/B1.
+   * EXAM scoring is where it costs: gradeUnits drops the accuracy mark and
+   * keeps the method marks. That mirrors real schemes, where across the 17
+   * coded 2024 parts involving units not one awards a mark for units alone —
+   * they always ride on the final A1/B1, so an answer that does not carry the
+   * unit the question asked for cannot have that mark.
    */
-  wrongUnits?: boolean
+  unitsIssue?: 'missing' | 'wrong'
 }
 
 // ── Expression equivalence helpers ───────────────────────────────────────────
@@ -617,7 +619,7 @@ function inequalityMatch(a: string, b: string): boolean {
 // ── Main checker ──────────────────────────────────────────────────────────────
 
 const UNITS_REMINDER =
-  'Correct! Remember to include units in your answer — you can lose marks in exams for missing units.'
+  'Right value — but always write the units. An answer without them costs you the final mark in an exam.'
 
 const SIMPLIFICATION_REMINDER =
   'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
@@ -693,7 +695,7 @@ export function checkAnswer(
       // Correct: the maths is right, and the unit is not what was being tested.
       // The mini-exam still deducts the accuracy mark — see gradeUnits.
       correct: true,
-      wrongUnits: true,
+      unitsIssue: 'wrong',
       trap: null,
       message: `Right value — but check your units: the question asks for the answer in ${want}. In an exam a wrong unit costs you the final mark.`,
     }
@@ -723,6 +725,10 @@ export function checkAnswer(
     return {
       correct: true,
       trap:    null,
+      // Omitted units are flagged the same way a wrong unit is: the maths
+      // stands, but the answer as written is not in the unit the question
+      // asked for, so the exam's accuracy mark is not there to be given.
+      ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
               : 'Correct!',
@@ -771,6 +777,7 @@ export function checkAnswer(
         trap:    null,
         // Only nudge when expected units were OMITTED. Adding units where none
         // were required is fine and needs no reminder.
+        ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
                : 'Correct!',

@@ -177,8 +177,12 @@ describe('wrong units — flagged in practice, costed in the exam', () => {
     expect(grade(litres, '400 litres').earned).toBe(4)
   })
 
-  it('does not penalise units merely left off', () => {
-    expect(grade(litres, '400').earned).toBe(4)
+  it('costs the same mark when the units are simply left off', () => {
+    // An answer without units is not expressed in what the question asked for
+    // either, so the accuracy mark is no more available than for a wrong unit.
+    const { results, earned } = grade(litres, '400')
+    expect(earned).toBe(3)
+    expect(results['q1:0'].correct).toBe(true)  // still no mastery penalty
   })
 })
 

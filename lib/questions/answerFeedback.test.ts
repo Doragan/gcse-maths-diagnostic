@@ -33,29 +33,39 @@ describe('a fraction is one value, not a number followed by noise', () => {
   })
 })
 
-describe('wrong units are flagged, but never block progress', () => {
-  it('stays CORRECT so the skill map credits the maths', () => {
+describe('units are flagged, but never block progress', () => {
+  it('flags a WRONG unit, and stays correct so the skill map credits the maths', () => {
     // The unit is almost never the skill under test, so a student who did the
     // work must not be held back by mislabelling it. Only exam MARKS suffer,
     // and that deduction lives in gradeUnits, not here.
     const r = check('400cm^3', '400 litres', 'numeric')
     expect(r.correct).toBe(true)
-    expect(r.wrongUnits).toBe(true)
+    expect(r.unitsIssue).toBe('wrong')
     // Names the unit as the question writes it, not an internal key.
     expect(r.message).toMatch(/litres/)
   })
 
   it('catches it for a length too', () => {
     const r = check('15mm', '15 cm', 'numeric')
-    expect(r.wrongUnits).toBe(true)
+    expect(r.unitsIssue).toBe('wrong')
     expect(r.correct).toBe(true)
   })
 
-  it('accepts units merely omitted, with the existing reminder', () => {
+  it('flags OMITTED units the same way', () => {
+    // An answer without the unit is not expressed in what the question asked
+    // for, so on a paper the accuracy mark is not there to be given either.
     const r = check('400', '400 litres', 'numeric')
     expect(r.correct).toBe(true)
-    expect(r.wrongUnits).toBeUndefined()
+    expect(r.unitsIssue).toBe('missing')
     expect(r.message).toMatch(/units/i)
+  })
+
+  it('says nothing when the units are right', () => {
+    expect(check('400 litres', '400 litres', 'numeric').unitsIssue).toBeUndefined()
+  })
+
+  it('says nothing when the answer carries no units at all', () => {
+    expect(check('72 cm', '72', 'numeric').unitsIssue).toBeUndefined()
   })
 
   it('treats spelling variants of the same unit as equal', () => {
@@ -70,7 +80,7 @@ describe('wrong units are flagged, but never block progress', () => {
   })
 
   it('is silent when neither side names a unit', () => {
-    expect(check('72', '72', 'numeric').wrongUnits).toBeUndefined()
+    expect(check('72', '72', 'numeric').unitsIssue).toBeUndefined()
   })
 })
 

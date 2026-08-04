@@ -484,12 +484,12 @@ export function gradeUnits(
       }
       const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest)
       if (check.correct) {
-        // Right value, wrong unit. The maths is sound, so it stays `correct`
+        // Units missing or wrong. The maths is sound, so it stays `correct`
         // and the skill map credits it in full — the unit is rarely the skill
         // under test. Exam MARKS are the exception: real schemes fold units
-        // into the final accuracy mark, so that one mark goes and the method
-        // marks stay.
-        const earnedHere = check.wrongUnits ? Math.max(0, u.marks - 1) : u.marks
+        // into the final accuracy mark, so an answer not expressed in the unit
+        // the question asked for cannot have that mark. The method marks stay.
+        const earnedHere = check.unitsIssue ? Math.max(0, u.marks - 1) : u.marks
         earned += earnedHere
         results[u.key] = {
           correct: true,
