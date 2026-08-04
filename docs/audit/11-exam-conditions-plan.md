@@ -161,15 +161,60 @@ running phase, which is behind student auth. The arithmetic is unit-tested and
 the effect is guarded (a ref against double-submit, `allowed <= 0` against an
 instant one), but the wiring itself has not been watched in a browser.
 
-## Deferred
+## Outstanding — carried forward 2026-07-31
 
-- **The 313-trap `method_marks` content pass** — the mechanism ships inert until
-  authored. Biggest remaining win here.
+Recorded after the merge (PR #17, `237aa2f`). Ordered by how much they cost if
+left alone, not by effort.
+
+### 1. The ticking clock has never been watched run
+
+The one thing shipped without live exercise. `remainingSeconds` /
+`allowanceSeconds` / `urgencyOf` are unit-tested and the auto-submit effect is
+guarded twice — a ref against double-firing, `allowed <= 0` against an instant
+one — but the wiring itself was never observed, because the exam pages are
+behind student auth and the review was verified through a throwaway page.
+
+**What to do:** sit one timed paper end to end. Watch for the countdown ticking
+down (not frozen, not double-speed), the amber flip at 5:00, the red at 1:00,
+and the paper submitting itself at 0:00 exactly once. A second submit, or a
+paper that submits the moment it opens, is the failure mode to look for.
+
+### 2. 42 coincidental trap collisions blunt the harness
+
+`verify-question` fails on ANY trap that equals the correct answer on any draw;
+`audit-bank` classifies the same thing as merely coincidental when it does not
+collide on every draw. So 14 of the 86 method-mark questions now "fail" the
+harness for reasons that predate this work and that Phase 4 consciously relaxed.
+
+This matters beyond tidiness: **a gate that always reports failures stops being
+read.** Either constrain the parameters so the collisions cannot occur (the
+Phase 4 D2 approach), or make `verify-question` grade a sometimes-collision as a
+warning and reserve failure for always-collisions, matching `audit-bank`.
+
+### 3. The 175 unset zeros
+
+Traps judged wrong-method in the review pass, deliberately left unset so they
+keep contributing uncertainty rather than asserting "no method here" (the user's
+ruling — a wrong award inflates a score, a missing one merely widens a band).
+
+Converting them would tighten the band and make the score more precise. Do it
+only with an appetite for reviewing them; the proposal at
+`11-trap-method-marks.json` already holds a `method_marks: 0` for each.
+
+### 4. Content bug: a trap with no feedback
+
+Question `0270e0be…`, trap 3 (`standard_form`): the `response` field contains
+only the correct-answer template, so a student who hits it sees a bare number
+where an explanation should be. Found in passing during the trap review;
+unrelated to method marks.
+
+## Deferred by design
+
 - **Self-review mop-up** (recovery tier 3 from the exam-mode design): asking the
   student "did you use the sine rule here?" to resolve `unknown`s. Needs the
   self-review-reliability question answered first.
 - **Method marks on grid and banded multi_blank parts** — both already price
   partial success, so a method estimate on top would pay twice for the same
-  work. Excluded by design, not oversight.
+  work. Excluded deliberately, not by oversight.
 - Teacher-facing exam readiness, and server-side grading (still client-graded —
   see `08-exam-sessions-plan.md` decision 3).
