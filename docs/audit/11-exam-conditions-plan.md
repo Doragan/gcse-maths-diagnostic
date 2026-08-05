@@ -166,7 +166,9 @@ instant one), but the wiring itself has not been watched in a browser.
 Recorded after the merge (PR #17, `237aa2f`). Ordered by how much they cost if
 left alone, not by effort.
 
-### 1. The ticking clock has never been watched run
+### 1. ~~The ticking clock has never been watched run~~ — CLOSED 2026-07-31
+
+**User sat a timed paper and confirmed the timeout behaves as expected.** Original note follows.
 
 The one thing shipped without live exercise. `remainingSeconds` /
 `allowanceSeconds` / `urgencyOf` are unit-tested and the auto-submit effect is
@@ -179,17 +181,26 @@ down (not frozen, not double-speed), the amber flip at 5:00, the red at 1:00,
 and the paper submitting itself at 0:00 exactly once. A second submit, or a
 paper that submits the moment it opens, is the failure mode to look for.
 
-### 2. 42 coincidental trap collisions blunt the harness
+### 2. ~~42 coincidental trap collisions blunt the harness~~ — DONE 2026-07-31 (`f6791be`)
 
-`verify-question` fails on ANY trap that equals the correct answer on any draw;
-`audit-bank` classifies the same thing as merely coincidental when it does not
-collide on every draw. So 14 of the 86 method-mark questions now "fail" the
-harness for reasons that predate this work and that Phase 4 consciously relaxed.
+Both suggested routes turned out to be half-right, because the collisions are
+two different things:
 
-This matters beyond tidiness: **a gate that always reports failures stops being
-read.** Either constrain the parameters so the collisions cannot occur (the
-Phase 4 D2 approach), or make `verify-question` grade a sometimes-collision as a
-warning and reserve failure for always-collisions, matching `audit-bank`.
+- **Degenerate draw** — a particular combination makes the WRONG METHOD give the
+  RIGHT answer (`a*c+b` meets `a+b+c` at `a=c=2`), so the question silently stops
+  discriminating. A constraint removes it. **24 applied across 23 questions.**
+- **Inapplicable trap** — the trap models "you didn't do step X" and step X was a
+  no-op on those draws ("forgot to round up" IS right when the digit is below 5).
+  Nothing is wrong, and constraining it would telegraph the answer.
+
+Whether a constraint EXISTS is what separates them, so the harness now searches
+for one: found → FAIL naming it, not found → WARN. **86/86 pass, 0 failures.**
+
+Worth knowing if this is revisited: a colliding trap never mis-marks a correct
+answer — `checkAnswer` returns on `correct` before the trap loop — so the harm
+was always about discrimination, not marking. And a fix is only proposed from an
+EXHAUSTIVE enumeration; on a sample, a constraint removing the collisions you
+happened to see proves nothing.
 
 ### 3. The 175 unset zeros
 
