@@ -28,7 +28,12 @@ import { tmpdir } from 'os'
 //   FAIL  render artefact ([error / undefined / NaN / unresolved {{) anywhere
 //   FAIL  empty rendered answer
 //   FAIL  canonical answer not accepted by the real grader (checkAnswer)
-//   FAIL  a trap value the grader ACCEPTS as correct (answer⇄trap collision)
+//   FAIL  a trap that equals the answer on EVERY value set (the trap is dead)
+//   FAIL/WARN  a trap that equals the answer on SOME value sets — FAIL, naming
+//              the constraint, when one exists that removes them all (a
+//              degenerate draw: a wrong method scores full marks there); WARN
+//              when none does, because the trap is then merely inapplicable on
+//              those draws rather than wrong
 //   FAIL  a trap value that falls through silently (no trap fires)
 //   FAIL/WARN  two traps on one unit rendering the same value (2nd is dead) —
 //              FAIL when systematic (>half the value sets), WARN if occasional
@@ -73,6 +78,66 @@ type Q = Record<string, any>
 function decimalPlaces(s: string): number {
   const m = s.match(/-?\d+(?:\.(\d+))?/)
   return m && m[1] ? m[1].length : 0
+}
+
+/**
+ * A constraint must leave the question with enough draws to still feel fresh,
+ * or it is not a fix.
+ *
+ * Both a share AND an absolute floor, because a share alone misjudges small
+ * spaces: with three values per parameter, excluding one always costs a third,
+ * so a 70% bar would reject every fix on a 27-draw question — including the
+ * textbook degenerate case where a×c+b meets a+b+c at a=c=2.
+ */
+const FIX_KEEP_SHARE = 0.5
+const FIX_KEEP_MIN_COMBOS = 6
+
+/**
+ * Find a single constraint that removes every draw on which a trap equalled the
+ * answer — and report none when there isn't one.
+ *
+ * Whether such a constraint EXISTS is the useful distinction. If it does, the
+ * collision is a degenerate draw: some particular combination makes a wrong
+ * method produce the right answer, the question stops discriminating there, and
+ * the author can and should exclude it. If it does not, the trap is simply
+ * inapplicable on those draws — "you forgot to round up" IS the right answer
+ * when the digit is below 5 — and no amount of constraining fixes that without
+ * telegraphing the answer.
+ *
+ * Only `!=` against a literal or another parameter is considered: those are the
+ * constraints an author can act on directly, and anything cleverer would be
+ * proposing a rewrite rather than a fix.
+ */
+function suggestCollisionFix(
+  parameters: Parameters,
+  combos: Record<string, number>[],
+  bad: Record<string, number>[],
+  exhaustive: boolean,
+): { desc: string; keptPct: number } | null {
+  if (!bad.length || !combos.length) return null
+  // On a SAMPLED space we have not seen every colliding draw, so a constraint
+  // that removes the ones we did see proves nothing — a mean question whose
+  // trap is the literal 5 collides whenever the SUM is 25, and any single
+  // parameter will appear to fix that in a small sample. Refuse to guess.
+  if (!exhaustive) return null
+  const keys = Object.keys(parameters ?? {})
+  let best: { desc: string; kept: number } | null = null
+  const consider = (desc: string, test: (c: Record<string, number>) => boolean) => {
+    if (!bad.every(c => !test(c))) return          // must remove EVERY collision
+    const kept = combos.filter(test).length
+    // A fix that guts the question is not a fix.
+    if (kept / combos.length < FIX_KEEP_SHARE || kept < FIX_KEEP_MIN_COMBOS) return
+    if (!best || kept > best.kept) best = { desc, kept }
+  }
+  for (const k of keys) {
+    const cfg = parameters[k]
+    if (cfg?.type !== 'integer') continue
+    for (let v = cfg.min; v <= cfg.max; v++) consider(`${k} != ${v}`, c => c[k] !== v)
+    for (const j of keys) if (j !== k) consider(`${k} != ${j}`, c => c[k] !== c[j])
+  }
+  if (!best) return null
+  const b = best as { desc: string; kept: number }
+  return { desc: b.desc, keptPct: Math.round((100 * b.kept) / combos.length) }
 }
 
 function unitsOf(q: Q): Unit[] {
@@ -626,6 +691,8 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
 
   // Collision bookkeeping so a message names the trap and how often it hit.
   const trapCollisions = new Map<string, number>()
+  // The value sets on which each trap collided, so a fix can be searched for.
+  const badCombos = new Map<string, Record<string, number>[]>()
   const trapSilent = new Map<string, number>()
   // Cross-blank ambiguity: within one multi_blank part, how often two blanks
   // render the SAME answer (a transposing student is then indistinguishable
@@ -680,7 +747,10 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
         if (!t.answer.trim() || BAD_RENDER.test(t.answer)) continue
         const res = checkAnswer(t.answer, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest)
         const key = `${k}|${t.tpl}`
-        if (res.correct) trapCollisions.set(key, (trapCollisions.get(key) ?? 0) + 1)
+        if (res.correct) {
+          trapCollisions.set(key, (trapCollisions.get(key) ?? 0) + 1)
+          badCombos.set(key, [...(badCombos.get(key) ?? []), c])
+        }
         else if (res.trap === null) trapSilent.set(key, (trapSilent.get(key) ?? 0) + 1)
       }
 
@@ -721,7 +791,37 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
 
   for (const [key, hits] of trapCollisions) {
     const [ulabel, tpl] = key.split('|')
-    fails.push(`${ulabel}: trap "${tpl}" COLLIDES with the answer on ${hits}/${combos.length} value sets`)
+    if (hits === combos.length) {
+      fails.push(`${ulabel}: trap "${tpl}" COLLIDES with the answer on EVERY value set — the trap is dead`)
+      continue
+    }
+    // A partial collision is one of two very different things, and the severity
+    // should say which, because only one of them is the author's to fix.
+    //
+    //   DEGENERATE  — a specific draw makes the wrong method give the right
+    //                 answer (a*c+b vs a+b+c at a=c=2). The question fails to
+    //                 discriminate there, and a constraint removes it. FAIL,
+    //                 naming the constraint.
+    //   INAPPLICABLE — the trap models "didn't do step X", and on those draws
+    //                 step X was a no-op ("forgot to round up" when the digit
+    //                 is below 5). Nothing is wrong and no constraint can help
+    //                 without telegraphing the answer. WARN.
+    //
+    // Searching for the constraint IS the test: if one exists, it was
+    // degenerate. A gate that failed on both kinds got ignored, which is worse
+    // than a gate that is occasionally lenient.
+    const fix = suggestCollisionFix((q.parameters ?? {}) as Parameters, combos, badCombos.get(key) ?? [], exhaustive)
+    if (fix) {
+      fails.push(
+        `${ulabel}: trap "${tpl}" COLLIDES with the answer on ${hits}/${combos.length} value sets `
+        + `— a wrong method scores full marks there. Add the constraint ${fix.desc} (keeps ${fix.keptPct}% of the draws).`,
+      )
+    } else {
+      warns.push(
+        `${ulabel}: trap "${tpl}" equals the answer on ${hits}/${combos.length} value sets. `
+        + `No constraint removes this, so the trap is simply inapplicable on those draws rather than wrong — it stays silent there.`,
+      )
+    }
   }
   for (const [key, hits] of trapSilent) {
     const [ulabel, tpl] = key.split('|')
