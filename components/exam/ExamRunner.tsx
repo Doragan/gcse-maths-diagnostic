@@ -102,7 +102,6 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
 
   const allUnits = items.flatMap(it => it.units)
   const totalMarks = allUnits.reduce((s, u) => s + u.marks, 0)
-  const answeredCount = allUnits.filter(u => (answers[u.key] ?? '').trim() !== '').length
   const remaining = startedAt != null ? remainingSeconds(startedAt, allowed, now) : allowed
 
   // Tick the clock only while a TIMED paper is open. An untimed paper still
@@ -212,6 +211,33 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
     setNow(Date.now())
     setPhase('running')
     window.scrollTo(0, 0)
+  }
+
+  /**
+   * Manual submit, with a warning when answers are still blank.
+   *
+   * This replaces the running "7/14 answered" counter in the header, which
+   * nagged for the whole paper about something that only matters at the moment
+   * of submitting — and named a total the student had no way to interpret,
+   * since one question can carry several answer boxes. Here it can say which
+   * questions, which is actionable.
+   *
+   * Only for a deliberate submit: when the clock runs out the paper goes as it
+   * stands, exactly as it would in the hall.
+   */
+  function confirmThenSubmit() {
+    const blank = items.filter(it => it.units.some(u => (answers[u.key] ?? '').trim() === ''))
+    if (blank.length > 0) {
+      const list = blank.map(it => it.number).join(', ')
+      const ok = confirm(
+        blank.length === 1
+          ? `Question ${list} still has an empty answer box. Submit anyway?`
+          : `${blank.length} questions still have empty answer boxes: ${list}.\n\nSubmit anyway?`,
+      )
+      if (!ok) return
+    }
+    submittedRef.current = true
+    submitExam(false)
   }
 
   function submitExam(outOfTime = false) {
@@ -421,8 +447,11 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
           <h1 style={{ fontSize: font.xl, fontWeight: 700, margin: 0, color: colors.textPrimary }}>
             Mini-exam <span style={{ fontSize: font.sm, fontWeight: 400, color: colors.textHint }}>· {tier === 'higher' ? 'Higher' : 'Foundation'} · {mode === 'calc' ? 'Calculator' : 'Non-calculator'}</span>
           </h1>
+          {/* No progress counter. It nagged throughout the paper for something
+              that only matters once, at submit — where an explicit warning
+              says which questions are still blank. */}
           <span style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexShrink: 0 }}>
-            <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{answeredCount}/{allUnits.length} · {totalMarks} marks</span>
+            <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{totalMarks} marks</span>
             {timed && <ExamClock remaining={remaining} />}
           </span>
         </div>
@@ -501,7 +530,7 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
       {/* Not `onClick={submitExam}` — that hands the click event in as
           `outOfTime`, and a MouseEvent is truthy, so every manual submit would
           be recorded as having run out of time. */}
-      <button onClick={() => { submittedRef.current = true; submitExam(false) }} style={primaryButton}>Submit paper</button>
+      <button onClick={confirmThenSubmit} style={primaryButton}>Submit paper</button>
       <button onClick={() => { if (confirm('Leave the exam? Your progress will be lost.')) { setPhase('config'); setItems([]) } }} style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}>
         Quit
       </button>

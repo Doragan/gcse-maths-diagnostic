@@ -71,7 +71,14 @@ export type Blank = {
  * draws (parameters vary values, never the number of cells or elements).
  * Every mode below is markable; the harness gates each one's shape.
  */
-export type GridAxis = { min: number | string; max: number | string; step: number; label: string }
+export type GridAxis = {
+  min: number | string
+  max: number | string
+  step: number
+  label: string
+  /** Bar-chart category names, one per bar, left to right. See RenderedAxis. */
+  categories?: string[]
+}
 export type GridElement = {
   x: number | string
   y: number | string

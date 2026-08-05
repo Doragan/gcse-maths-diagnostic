@@ -284,8 +284,11 @@ export default function ExamReview({
                   </p>
                 )}
                 {r.explanation && (
-                  <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: radius.sm, background: colors.card, border: `1px solid ${colors.border}` }}>
-                    <div style={{ fontSize: font.sm, color: colors.textPrimary }} dangerouslySetInnerHTML={{ __html: r.explanation }} />
+                  <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: radius.sm, background: colors.card, border: `1px solid ${colors.border}` }}>
+                    {/* The worked solution is the part of the review a student
+                        actually reads and works through, so it gets body size
+                        and generous leading — not the 12px used for labels. */}
+                    <div style={{ fontSize: font.lg, lineHeight: 1.65, color: colors.textPrimary }} dangerouslySetInnerHTML={{ __html: r.explanation }} />
                   </div>
                 )}
               </div>

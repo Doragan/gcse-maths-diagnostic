@@ -784,6 +784,11 @@ async function rasteriseSvgs(q: Q, label: string) {
       // marking); rebuild with the templated text for the visual.
       rendered.x.label = p.grid.x?.label ? evaluateTemplate(String(p.grid.x.label), c) : ''
       rendered.y.label = p.grid.y?.label ? evaluateTemplate(String(p.grid.y.label), c) : ''
+      // Bar-chart category names are what the x-axis actually says, so the
+      // eyeball PNG must show them or it is not the frame the student sees.
+      if (p.grid.x?.categories?.length) {
+        rendered.x.categories = p.grid.x.categories.map((n: string) => evaluateTemplate(String(n), c))
+      }
       rendered.background = p.grid.background ? evaluateTemplate(String(p.grid.background), c) : ''
       rendered.solution = p.grid.solution ? evaluateTemplate(String(p.grid.solution), c) : ''
       const svg = buildGridSvg(rendered, { showCanonical: true })

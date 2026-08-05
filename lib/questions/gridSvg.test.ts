@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { gridGeometry, buildGridSvg, CELL, PAD } from './gridSvg'
+import { gridGeometry, buildGridSvg, buildGridFrame, CELL, PAD } from './gridSvg'
 import type { RenderedAxis, RenderedGrid } from './gridDraw'
 
 const ax = (min: number, max: number, step = 1, label = ''): RenderedAxis => ({ min, max, step, label })
@@ -196,5 +196,48 @@ describe('buildGridSvg', () => {
     const revealed = buildGridSvg(withSolution, { showCanonical: true })
     expect(revealed).toContain('#94a3b8')
     expect(revealed).toContain('scale(') // axis-coordinate group
+  })
+})
+
+describe('categorical x-axis (bar charts)', () => {
+  const axis = (over: Partial<RenderedAxis> = {}): RenderedAxis =>
+    ({ min: 0, max: 4, step: 1, label: '', ...over })
+
+  it('centres each category under its own bar, not on a gridline', () => {
+    // A bar occupies the space BETWEEN gridlines, so a numeral sitting on a
+    // gridline names a boundary. Four bars under "0 1 2 3 4" read as an
+    // off-by-one, which is exactly what a student reported.
+    const grid = { mode: 'bars', x: axis({ categories: ['Ali', 'Ben', 'Cara', 'Priya'] }), y: axis({ max: 8 }), background: '', elements: [] } as unknown as RenderedGrid
+    const svg = buildGridFrame(grid, gridGeometry(grid.x, grid.y))
+    const xs = [...svg.matchAll(/<text x="([\d.]+)"[^>]*>(Ali|Ben|Cara|Priya)</g)].map(m => Number(m[1]))
+    expect(xs).toHaveLength(4)
+    // Half a cell in from the left edge, then one cell apart.
+    expect(xs[0]).toBeCloseTo(PAD.left + CELL / 2)
+    expect(xs[1] - xs[0]).toBeCloseTo(CELL)
+    expect(xs[3] - xs[0]).toBeCloseTo(3 * CELL)
+  })
+
+  it('drops the numeric ticks that named the boundaries', () => {
+    const grid = { mode: 'bars', x: axis({ categories: ['A', 'B', 'C', 'D'] }), y: axis({ max: 8 }), background: '', elements: [] } as unknown as RenderedGrid
+    const svg = buildGridFrame(grid, gridGeometry(grid.x, grid.y))
+    // The y-axis still needs its numerals, and its "0" shares this y-band, so
+    // select on x too: y ticks sit LEFT of the plot, x labels inside it.
+    const belowAxis = [...svg.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*>([^<]*)</g)]
+      .filter(m => Number(m[2]) > PAD.top + 8 * CELL && Number(m[1]) >= PAD.left)
+      .map(m => m[3])
+    expect(belowAxis).toEqual(['A', 'B', 'C', 'D'])
+  })
+
+  it('keeps numerals when there are no categories', () => {
+    const grid = { mode: 'points', x: axis(), y: axis(), background: '', elements: [] } as unknown as RenderedGrid
+    const svg = buildGridFrame(grid, gridGeometry(grid.x, grid.y))
+    expect(svg).toContain('>0<')
+    expect(svg).toContain('>4<')
+  })
+
+  it('escapes author text so an ampersand cannot break the diagram', () => {
+    const grid = { mode: 'bars', x: axis({ categories: ['Tom & Jo', 'B', 'C', 'D'] }), y: axis(), background: '', elements: [] } as unknown as RenderedGrid
+    const svg = buildGridFrame(grid, gridGeometry(grid.x, grid.y))
+    expect(svg).toContain('Tom &amp; Jo')
   })
 })

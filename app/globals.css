@@ -13,7 +13,11 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  overflow-x: hidden;
+  /* `clip`, NOT `hidden`. Both stop sideways scrolling, but `hidden` makes this
+     element a scroll container, and that silently defeats `position: sticky`
+     anywhere in the page — measured: a sticky header sat at top:-776 under
+     `hidden` and top:0 under `clip`. The exam timer depends on it. */
+  overflow-x: clip;
 }
 
 body {

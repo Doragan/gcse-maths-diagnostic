@@ -14,7 +14,22 @@
  * layer.
  */
 
-export type RenderedAxis = { min: number; max: number; step: number; label: string }
+export type RenderedAxis = {
+  min: number
+  max: number
+  step: number
+  label: string
+  /**
+   * Category names for a CATEGORICAL x-axis (a bar chart), one per bar, left to
+   * right.
+   *
+   * A bar sits BETWEEN gridlines, so the numeric ticks that suit a coordinate
+   * grid land on the bar's edges and name nothing — "0 1 2 3 4" under four bars
+   * reads as an off-by-one. When categories are present they are centred under
+   * their own bar and the numerals are dropped.
+   */
+  categories?: string[]
+}
 
 /** Hollow or solid endpoint circle on a number line. */
 export type EndpointStyle = 'open' | 'closed'

@@ -212,6 +212,21 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
      * them "(a)" invented a part structure the student could see was missing.
      */
     const partLetter = (i: number) => (q.parts!.length > 1 ? letter(i) : null)
+    /**
+     * Drop a part letter the author already typed at the start of the prompt.
+     *
+     * 61 of the bank's 72 multi-part prompts open with their own "(a)", so the
+     * app's label made every one of them read "(a) (a) How many…". The app's
+     * label is the single source of truth — it is the one that knows whether a
+     * letter is warranted at all — so the authored duplicate goes.
+     *
+     * Matched against THIS part's own letter, never any letter: a prompt that
+     * genuinely opens with different bracketed algebra is left alone.
+     */
+    const stripLeadingLetter = (prompt: string, i: number) => {
+      const own = String.fromCharCode(97 + i)
+      return prompt.replace(new RegExp(`^\\s*\\(?${own}\\)\\s*`, 'i'), '')
+    }
     // A multi_blank part flattens to one Unit PER BLANK (key q.id:i:b) — the
     // flat answers/results records, the submit loop, per-blank marks and the
     // review boxes then all work unchanged. (The mastery write collapses them
@@ -226,7 +241,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
           label: [partLetter(i), blank.label].filter(Boolean).join(" · "),
           // Part prompt rendered once (first blank); each blank then carries
           // its own short prompt so the units are self-describing.
-          promptHtml: [b === 0 ? r.parts[i].prompt : '', rb[b]?.prompt ?? '']
+          promptHtml: [b === 0 ? stripLeadingLetter(r.parts[i].prompt, i) : "", rb[b]?.prompt ?? '']
             .filter(Boolean).join(' '),
           correctAnswer: rb[b]?.answer ?? '',
           answerType: blank.answer_type,
@@ -257,7 +272,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
         return [{
           key: `${q.id}:${i}`,
           label: partLetter(i),
-          promptHtml: r.parts[i].prompt,
+          promptHtml: stripLeadingLetter(r.parts[i].prompt, i),
           correctAnswer: formatGridPoints(g.elements.map(e => ({ x: e.x, y: e.y }))),
           answerType: 'exact' as AnswerType, // inert — grid units never reach checkAnswer
           tolerance: null,
@@ -273,7 +288,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
       return [{
         key: `${q.id}:${i}`,
         label: partLetter(i),
-        promptHtml: r.parts[i].prompt,
+        promptHtml: stripLeadingLetter(r.parts[i].prompt, i),
         correctAnswer: r.parts[i].answer,
         answerType: p.answer_type,
         tolerance: p.tolerance,

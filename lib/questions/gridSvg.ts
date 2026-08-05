@@ -87,6 +87,15 @@ export function gridGeometry(x: RenderedAxis, y: RenderedAxis): GridGeometry {
 }
 
 /** Format an axis tick value without float noise (0.30000000000000004 → 0.3). */
+/**
+ * Escape author text before it goes into SVG markup. Category names and axis
+ * labels are free text, and an "&" or "<" would otherwise produce invalid XML
+ * that silently breaks the whole diagram.
+ */
+function escXml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
 function tick(v: number): string {
   return String(Math.round(v * 1e6) / 1e6)
 }
@@ -121,10 +130,27 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   }
   parts.push(`<line x1="${PAD.left}" y1="${axisY}" x2="${PAD.left + geo.cols * CELL}" y2="${axisY}" stroke="${colors.textSecondary}" stroke-width="1.5"/>`)
 
-  // Tick numerals — x below the x-axis line, y left of the y-axis line.
-  for (let c = 0; c <= geo.cols; c++) {
-    const v = x.min + c * x.step
-    parts.push(`<text x="${PAD.left + c * CELL}" y="${PAD.top + geo.rows * CELL + 14}" text-anchor="middle" font-size="10" fill="${colors.textHint}">${tick(v)}</text>`)
+  /**
+   * Tick numerals — x below the x-axis line, y left of the y-axis line.
+   *
+   * A CATEGORICAL x-axis replaces them: bars occupy the space between
+   * gridlines, so a numeral sitting on a gridline names a boundary rather than
+   * a bar, and four bars under "0 1 2 3 4" read as an off-by-one. Category
+   * names go under the middle of their own bar instead.
+   */
+  const categories = x.categories ?? []
+  if (categories.length > 0) {
+    // Bars are one x-step wide on a categorical axis, so category i spans
+    // [min + i·step, min + (i+1)·step] and its centre is half a step in.
+    categories.forEach((name, i) => {
+      const cx = PAD.left + (i + 0.5) * CELL
+      parts.push(`<text x="${cx}" y="${PAD.top + geo.rows * CELL + 15}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}">${escXml(name)}</text>`)
+    })
+  } else {
+    for (let c = 0; c <= geo.cols; c++) {
+      const v = x.min + c * x.step
+      parts.push(`<text x="${PAD.left + c * CELL}" y="${PAD.top + geo.rows * CELL + 14}" text-anchor="middle" font-size="10" fill="${colors.textHint}">${tick(v)}</text>`)
+    }
   }
   // A 1-D grid has a single y value, so its lone tick would read as a mystery
   // label floating beside the number line.
@@ -136,8 +162,8 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   }
 
   // Axis labels
-  if (x.label) parts.push(`<text x="${PAD.left + (geo.cols * CELL) / 2}" y="${PAD.top + geo.rows * CELL + 28}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}">${x.label}</text>`)
-  if (y.label) parts.push(`<text x="${12}" y="${PAD.top + (geo.rows * CELL) / 2}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}" transform="rotate(-90 12 ${PAD.top + (geo.rows * CELL) / 2})">${y.label}</text>`)
+  if (x.label) parts.push(`<text x="${PAD.left + (geo.cols * CELL) / 2}" y="${PAD.top + geo.rows * CELL + 28}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}">${escXml(x.label)}</text>`)
+  if (y.label) parts.push(`<text x="${12}" y="${PAD.top + (geo.rows * CELL) / 2}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}" transform="rotate(-90 12 ${PAD.top + (geo.rows * CELL) / 2})">${escXml(y.label)}</text>`)
 
   // bars: make the columns VISIBLE. The author declares the slots and a tap
   // sets the containing slot's height, but on a plain grid every column looks

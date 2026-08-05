@@ -371,7 +371,7 @@ export function renderMultiPartQuestion(
     }[]
     grid?: {
       mode: string
-      x: { min: number | string, max: number | string, step: number, label: string }
+      x: { min: number | string, max: number | string, step: number, label: string, categories?: string[] }
       y: { min: number | string, max: number | string, step: number, label: string }
       background: string
       solution?: string
@@ -437,6 +437,11 @@ export function renderMultiPartQuestion(
           x: {
             min: evalNum(part.grid.x.min), max: evalNum(part.grid.x.max),
             step: part.grid.x.step, label: evaluateTemplate(part.grid.x.label ?? '', generated),
+            // Category names may reference parameters like anything else, so a
+            // chart can be drawn about whichever four names the draw picked.
+            ...(part.grid.x.categories?.length
+              ? { categories: part.grid.x.categories.map(c => evaluateTemplate(c, generated)) }
+              : {}),
           },
           y: {
             min: evalNum(part.grid.y.min), max: evalNum(part.grid.y.max),
