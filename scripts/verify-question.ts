@@ -35,6 +35,8 @@ import { tmpdir } from 'os'
 //              when none does, because the trap is then merely inapplicable on
 //              those draws rather than wrong
 //   FAIL  a trap value that falls through silently (no trap fires)
+//   FAIL  a trap whose response renders with no words — the student would be
+//         shown a bare value instead of an explanation
 //   FAIL/WARN  two traps on one unit rendering the same value (2nd is dead) —
 //              FAIL when systematic (>half the value sets), WARN if occasional
 //   FAIL  numeric answer rendering >4 dp with a tight tolerance (unmatchable)
@@ -78,6 +80,23 @@ type Q = Record<string, any>
 function decimalPlaces(s: string): number {
   const m = s.match(/-?\d+(?:\.(\d+))?/)
   return m && m[1] ? m[1].length : 0
+}
+
+/**
+ * A trap's response must actually SAY something.
+ *
+ * A response can render to bare numbers — one live question had its response
+ * set to the trap's own answer template, so a student who fell for it was shown
+ * their own wrong answer back with no explanation. That is worse than no trap
+ * at all: the corrective feedback is this bank's whole point, and the failure
+ * is invisible unless someone happens to hit that exact draw.
+ *
+ * Three short words is the bar. It admits terse but real feedback ("Use the
+ * inverse sine") while rejecting a lone value or a stray formula.
+ */
+function hasProse(rendered: string): boolean {
+  const words = rendered.replace(/<[^>]+>/g, ' ').match(/[A-Za-z]{3,}/g) ?? []
+  return words.length >= 3
 }
 
 /**
@@ -744,6 +763,12 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
       }
 
       for (const t of rt) {
+        // Checked before the collision work: a trap that fires but explains
+        // nothing is a silent failure, since the value still marks wrong.
+        if (!hasProse(t.response ?? '')) {
+          const shown = (t.response ?? '').replace(/<[^>]+>/g, '').trim().slice(0, 40)
+          fail(`trapprose:${t.tpl}`, `${k}: trap "${t.tpl}" gives the student no explanation — it renders as "${shown}"`)
+        }
         if (!t.answer.trim() || BAD_RENDER.test(t.answer)) continue
         const res = checkAnswer(t.answer, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest)
         const key = `${k}|${t.tpl}`
