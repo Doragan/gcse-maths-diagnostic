@@ -37,11 +37,14 @@ function ago(iso: string | null): string {
 export default function StudentDetailModal({
   s,
   readiness = null,
+  classId,
   onClose,
 }: {
   s: StudentAnalytics
   /** Exam history; null before the fetch lands or before the migration is applied. */
   readiness?: StudentReadiness | null
+  /** Needed to open a paper — the teacher route is scoped by class, not by session alone. */
+  classId?: string
   onClose: () => void
 }) {
   const topicRows = TOPICS.filter(t => s.topicMastery[t] !== undefined)
@@ -105,8 +108,8 @@ export default function StudentDetailModal({
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                 {readiness.papers.map(p => {
                   const score = p.marks_total > 0 ? Math.round((p.marks_earned / p.marks_total) * 100) : 0
-                  return (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, fontSize: font.sm }}>
+                  const label = (
+                    <>
                       <span style={{ color: colors.textSecondary }}>
                         {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         <span style={{ color: colors.textHint }}>
@@ -116,8 +119,26 @@ export default function StudentDetailModal({
                       </span>
                       <span style={{ color: colors.textPrimary, fontWeight: 700, flexShrink: 0 }}>
                         {score}% <span style={{ color: colors.textHint, fontWeight: 400 }}>{p.marks_earned}/{p.marks_total}</span>
+                        {classId && <span style={{ color: colors.textHint, fontWeight: 400 }}> ›</span>}
                       </span>
-                    </div>
+                    </>
+                  )
+                  const row: React.CSSProperties = {
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                    gap: 10, fontSize: font.sm, width: '100%', textAlign: 'left',
+                  }
+                  // Only a link when we know which class to scope the read to —
+                  // the teacher route is gated by class, not by session alone.
+                  return classId ? (
+                    <a
+                      key={p.id}
+                      href={`/dashboard/classes/${classId}/exam/${p.id}`}
+                      style={{ ...row, textDecoration: 'none', cursor: 'pointer' }}
+                    >
+                      {label}
+                    </a>
+                  ) : (
+                    <div key={p.id} style={row}>{label}</div>
                   )
                 })}
               </div>

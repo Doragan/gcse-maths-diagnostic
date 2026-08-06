@@ -211,6 +211,7 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
         <StudentDetailModal
           s={selected}
           readiness={readiness?.byStudent[selected.studentId] ?? null}
+          classId={classId}
           onClose={() => setSelected(null)}
         />
       )}
