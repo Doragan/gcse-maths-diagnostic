@@ -5,6 +5,7 @@ import {
   getClassAnalytics, TOPICS,
   type ClassAnalytics, type Topic, type StudentAnalytics,
 } from '../lib/teacherAnalytics'
+import { getClassReadiness, type ClassReadiness } from '../lib/exam/classReadiness'
 import ClassMasteryTrend from './ClassMasteryTrend'
 import StudentDetailModal from './StudentDetailModal'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
@@ -26,12 +27,20 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
   const [data, setData] = useState<ClassAnalytics | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [selected, setSelected] = useState<StudentAnalytics | null>(null)
+  // Exam readiness is fetched separately and degrades to empty, so the mastery
+  // dashboard renders normally before the migration is applied.
+  const [readiness, setReadiness] = useState<ClassReadiness | null>(null)
 
   useEffect(() => {
     let live = true
     setState('loading')
     getClassAnalytics(classId)
-      .then(d => { if (live) { setData(d); setState('ready') } })
+      .then(async d => {
+        if (!live) return
+        setData(d); setState('ready')
+        const r = await getClassReadiness(classId, d.students.map(x => x.studentId))
+        if (live) setReadiness(r)
+      })
       .catch(() => { if (live) setState('error') })
     return () => { live = false }
   }, [classId])
@@ -144,6 +153,7 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
                   <th style={{ ...th, textAlign: 'left' }}>Student</th>
                   <th style={th}>Mastery</th>
+                  <th style={th}>Exam</th>
                   {liveTopics.map(t => <th key={t} style={{ ...th, color: TOPIC_COLOUR[t] }}>{t.split(' ')[0]}</th>)}
                   <th style={th} aria-label="expand" />
                 </tr>
@@ -161,6 +171,17 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
                     <td style={{ ...td, fontWeight: 700, color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint }}>
                       {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
                     </td>
+                    {(() => {
+                      const r = readiness?.byStudent[s.studentId]
+                      // Latest paper only. No descriptor, by the same rule the
+                      // mastery column follows: a number a teacher can read,
+                      // never a label that brands a student.
+                      return (
+                        <td style={{ ...td, fontWeight: 700, color: r?.latest != null ? bCol(r.latest) : colors.textHint }}>
+                          {r?.latest != null ? `${r.latest}%` : '—'}
+                        </td>
+                      )
+                    })()}
                     {liveTopics.map(t => {
                       const m = s.topicMastery[t]
                       return (
@@ -186,7 +207,13 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
         </>
       )}
 
-      {selected && <StudentDetailModal s={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <StudentDetailModal
+          s={selected}
+          readiness={readiness?.byStudent[selected.studentId] ?? null}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </div>
   )
 }

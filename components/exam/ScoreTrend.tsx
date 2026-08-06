@@ -83,7 +83,9 @@ export default function ScoreTrend({ trend }: { trend: ScoreTrend }) {
       </svg>
 
       <p style={{ fontSize: '11px', color: colors.textHint, margin: '2px 0 0', lineHeight: 1.6 }}>
-        Best {best}% · average {average}% across {papers} paper{papers === 1 ? '' : 's'}, placed by the date you sat them.
+        {/* Second person deliberately avoided: this same chart is shown to a
+            TEACHER looking at a student, where "you sat them" is simply wrong. */}
+        Best {best}% · average {average}% across {papers} paper{papers === 1 ? '' : 's'}, placed by the date each was sat.
         {averaged && <> Papers in the same {GRANULARITY_NOUN[granularity]} are averaged into one point.</>}
         {' '}Practice scores, not predicted grades.
         {mixedTiers && (
