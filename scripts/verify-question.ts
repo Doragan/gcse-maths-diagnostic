@@ -18,6 +18,7 @@ import { tmpdir } from 'os'
 //
 //   npx tsx scripts/verify-question.ts <question-id> [<id> ...]  verify DB rows
 //   npx tsx scripts/verify-question.ts --drafts                  all unpublished rows
+//   npx tsx scripts/verify-question.ts --published               all live rows
 //   npx tsx scripts/verify-question.ts --file batch.json         pre-insert JSON
 //                                                                (one object or an array)
 //   flags:  --svg       rasterise each question's SVGs to PNG for eyeballing
@@ -960,14 +961,15 @@ async function loadQuestions(args: string[]): Promise<{ q: Q; label: string }[]>
     const arr = Array.isArray(raw) ? raw : [raw]
     return arr.map((q: Q, i: number) => ({ q, label: q.id ?? `${(q.skill_ids ?? ['?']).join('+')}#${i}` }))
   }
-  if (args.includes('--drafts')) {
-    const { data, error } = await supabase.from('questions').select('*').eq('is_published', false)
+  if (args.includes('--drafts') || args.includes('--published')) {
+    const published = args.includes('--published')
+    const { data, error } = await supabase.from('questions').select('*').eq('is_published', published)
     if (error) { console.error(error.message); process.exit(1) }
     return (data ?? []).map((q: Q) => ({ q, label: q.id }))
   }
   const ids = args.filter(a => !a.startsWith('--') && !/^\d+$/.test(a))
   if (!ids.length) {
-    console.log('usage: npx tsx scripts/verify-question.ts <question-id> [...] | --drafts | --file batch.json   [--svg] [--draws N]')
+    console.log('usage: npx tsx scripts/verify-question.ts <question-id> [...] | --drafts | --published | --file batch.json   [--svg] [--draws N]')
     process.exit(1)
   }
   const { data, error } = await supabase.from('questions').select('*').in('id', ids)
