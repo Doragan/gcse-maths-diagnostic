@@ -713,6 +713,8 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   // The value sets on which each trap collided, so a fix can be searched for.
   const badCombos = new Map<string, Record<string, number>[]>()
   const trapSilent = new Map<string, number>()
+  // key: `unit|thisTrapTemplate|templateThatFiredInstead`
+  const trapShadowed = new Map<string, number>()
   // Cross-blank ambiguity: within one multi_blank part, how often two blanks
   // render the SAME answer (a transposing student is then indistinguishable
   // from a correct one).
@@ -762,7 +764,8 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
         groupAns.set(u.group, list)
       }
 
-      for (const t of rt) {
+      for (let ti = 0; ti < rt.length; ti++) {
+        const t = rt[ti]
         // Checked before the collision work: a trap that fires but explains
         // nothing is a silent failure, since the value still marks wrong.
         if (!hasProse(t.response ?? '')) {
@@ -777,6 +780,22 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
           badCombos.set(key, [...(badCombos.get(key) ?? []), c])
         }
         else if (res.trap === null) trapSilent.set(key, (trapSilent.get(key) ?? 0) + 1)
+        else {
+          // The trap fired — but was it THIS one? checkAnswer returns the
+          // matched element of `rt`, so identity tells us which. An earlier
+          // trap winning means this one's feedback can never be shown.
+          //
+          // The pair check below compares rendered STRINGS; this compares by
+          // the grader's own equivalence, so it also catches traps that differ
+          // textually but not in value — "4/7" vs "8/14", or "25.67" vs
+          // "25.67 cm" once units are stripped. Those are exactly the cases
+          // that reached published questions unnoticed.
+          const firedIdx = rt.findIndex(x => (x as unknown) === (res.trap as unknown))
+          if (firedIdx !== -1 && firedIdx !== ti) {
+            const sk = `${k}|${t.tpl}|${rt[firedIdx].tpl}`
+            trapShadowed.set(sk, (trapShadowed.get(sk) ?? 0) + 1)
+          }
+        }
       }
 
       // Two distinct traps rendering the same value → the second is dead.
@@ -851,6 +870,12 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
   for (const [key, hits] of trapSilent) {
     const [ulabel, tpl] = key.split('|')
     fails.push(`${ulabel}: trap "${tpl}" falls through silently (no trap fires) on ${hits}/${combos.length} value sets`)
+  }
+  for (const [key, hits] of trapShadowed) {
+    const [ulabel, tpl, firedTpl] = key.split('|')
+    const msg = `${ulabel}: trap "${tpl}" is SHADOWED by "${firedTpl}" on ${hits}/${combos.length} value sets`
+      + ` — the two match the same student answer, so this trap's feedback never shows`
+    if (hits > combos.length / 2) fails.push(msg); else warns.push(msg)
   }
   for (const [pair, hits] of blankPairSame) {
     if (hits > combos.length / 2) {
