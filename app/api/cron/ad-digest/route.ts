@@ -66,19 +66,31 @@ export async function GET(req: NextRequest) {
   const targetDay = dayKey(targetDayStart.toISOString())
   const windowStart = new Date(todayStartUTC.getTime() - 7 * DAY_MS)
 
-  const { data, error } = await supabase
-    .from('analytics_events')
-    .select('event, path, session_id, properties, created_at')
-    .gte('created_at', windowStart.toISOString())
-    .lt('created_at', todayStartUTC.toISOString())
+  // Paginate explicitly — a bare .select() is silently capped at Supabase's
+  // default max-rows (1000), which under-counts a 7-day window once events
+  // per session (page views, question attempts, etc.) add up. Ordering by
+  // created_at keeps each page's offset window stable across requests.
+  const PAGE_SIZE = 1000
+  const data: EventRow[] = []
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data: page, error } = await supabase
+      .from('analytics_events')
+      .select('event, path, session_id, properties, created_at')
+      .gte('created_at', windowStart.toISOString())
+      .lt('created_at', todayStartUTC.toISOString())
+      .order('created_at', { ascending: true })
+      .range(from, from + PAGE_SIZE - 1)
 
-  if (error) {
-    console.error('[ad-digest] analytics_events query failed:', error.message)
-    return NextResponse.json({ error: 'Query failed' }, { status: 500 })
+    if (error) {
+      console.error('[ad-digest] analytics_events query failed:', error.message)
+      return NextResponse.json({ error: 'Query failed' }, { status: 500 })
+    }
+    data.push(...(page as EventRow[]))
+    if (page.length < PAGE_SIZE) break
   }
 
   // Exclude the maintainer's own testing traffic (see lib/analytics.ts isInternal()).
-  const rows = ((data as EventRow[] | null) ?? []).filter(r => r.properties?.internal !== true)
+  const rows = data.filter(r => r.properties?.internal !== true)
 
   // ── Target-day session grouping (ad vs organic, and practice-question reach) ──
   const sessionsByDay = new Map<string, Map<string, { ad: boolean; practice: boolean }>>()
