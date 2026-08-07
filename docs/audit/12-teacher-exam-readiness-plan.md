@@ -89,7 +89,7 @@ more than the extra precision.
 
 1. **Migration** `20260801_class_exam_readiness.sql` — the two RPCs above,
    `SECURITY DEFINER`, `REVOKE` from `anon`, `GRANT` to `authenticated`.
-   **Agent cannot run DDL — the user applies this in the SQL editor.**
+   **APPLIED by the user 2026-08-01.** (Agent cannot run DDL.)
 2. **Pure analytics** in `lib/teacherAnalytics.ts` (or a sibling): per student
    `{ papersSat, latest, best, average, trend }`, plus a class aggregate.
    Composes `buildScoreTrend`; unit-tested with no UI, as `scoreTrend` was.
@@ -106,10 +106,33 @@ more than the extra precision.
 
 - Unit tests on the pure analytics (empty class, one paper, mixed tiers, a
   student with no papers).
-- **RLS is the risk and needs empirical proof, not reasoning**: a teacher who
-  does NOT own the class gets 0 rows; a student who has left (status flipped)
-  disappears; a plain `select` on `exam_sessions` still returns only your own.
-  Same shape as the checks run for the mastery RPC.
+- **RLS — VERIFIED 2026-08-01, migration applied.** Six checks, all as intended:
+
+  | check | result |
+  |---|---|
+  | teacher reads own class's sessions | 1 row (the one member with a paper) |
+  | teacher opens that paper | returns it, 12 questions |
+  | teacher opens a NON-member's paper | 0 rows |
+  | student calls the teacher function on their own class | 0 rows |
+  | member flipped to `left`, teacher re-reads | 0 rows |
+  | plain `select * from exam_sessions` as the teacher | 0 rows |
+
+  **The method matters as much as the result.** The SQL editor runs as
+  superuser, where `auth.uid()` is NULL — so every negative test passes for the
+  wrong reason and proves nothing. Impersonation is required:
+
+  ```sql
+  begin;
+    set local role authenticated;   -- also exercises the GRANT, which postgres bypasses
+    set local request.jwt.claims = '{"sub":"<user-uuid>","role":"authenticated"}';
+    select ...;
+  commit;
+  ```
+
+  Run the POSITIVE case first: if it returns rows, impersonation is working and
+  the negatives mean something. Anyone repeating this must remember to set the
+  flipped membership back to `active` afterwards — it was missed the first time
+  and left a student out of the class.
 - Seeded test student for a populated view (as "Firefox" was seeded for the
   mastery trend), then a throwaway lab page — teacher pages are auth-gated and
   the agent cannot log in.
