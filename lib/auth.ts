@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { trackEvent } from './analytics'
+import { PENDING_KEY, pendingPracticeRows } from './pendingPractice'
 
 export async function signUp(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({ email, password })
@@ -127,19 +128,18 @@ export async function signUpStudent(
  */
 export async function migratePendingPractice(studentId: string) {
   if (typeof window === 'undefined') return
-  let pending: Array<{ question_id: string; skill_ids: string[]; correct: boolean; kind?: string }> = []
-  try { pending = JSON.parse(localStorage.getItem('pending_practice') ?? '[]') } catch { pending = [] }
-  if (!Array.isArray(pending) || pending.length === 0) return
-  const rows = pending.slice(-200).map(a => ({
-    student_id:  studentId,
-    question_id: a.question_id,
-    skill_ids:   a.skill_ids,
-    correct:     a.correct,
-    kind:        a.kind ?? 'mastery',
-  }))
+  let raw: unknown = []
+  try { raw = JSON.parse(localStorage.getItem(PENDING_KEY) ?? '[]') } catch { raw = [] }
+  const rows = pendingPracticeRows(raw, studentId, Date.now())
+  if (rows.length === 0) {
+    // Nothing usable — but if the store held something (all malformed), clear it
+    // so it isn't re-parsed on every login for the life of the browser.
+    localStorage.removeItem(PENDING_KEY)
+    return
+  }
   const { error } = await supabase.from('practice_attempts').insert(rows)
   if (error) { console.error('Failed to migrate pending practice:', error.message); return }
-  localStorage.removeItem('pending_practice')
+  localStorage.removeItem(PENDING_KEY)
   trackEvent('pending_practice_migrated', { count: rows.length })
 }
 

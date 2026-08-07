@@ -16,6 +16,7 @@ import ReportIssueButton from '../../../../components/practice/ReportIssueButton
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
+import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
@@ -355,15 +356,15 @@ function QuestionPage() {
     // milestone logic and why we lowered the first tier to 3.
     if (!studentId && registerQuestionForNudge()) setShowSignUpPrompt(true)
     if (!studentId) {
-      // Anonymous: persist the attempt to localStorage so it migrates into the
-      // account on signup/login (see migratePendingPractice in app/student/page).
-      // localStorage (not sessionStorage) survives the email-confirmation round-trip;
-      // capped so a long anonymous run can't bloat storage.
-      try {
-        const pending = JSON.parse(localStorage.getItem('pending_practice') ?? '[]')
-        pending.push({ question_id: question.id, skill_ids: question.skill_ids, correct, kind: question.kind ?? 'mastery' })
-        localStorage.setItem('pending_practice', JSON.stringify(pending.slice(-200)))
-      } catch { /* best-effort — storage may be full or disabled */ }
+      // Anonymous: park the attempt in localStorage so it migrates into the
+      // account on signup/login. appendPendingAttempt stamps it with the time it
+      // was actually answered — see lib/pendingPractice.ts for why that matters.
+      appendPendingAttempt({
+        question_id: question.id,
+        skill_ids: question.skill_ids,
+        correct,
+        kind: question.kind ?? 'mastery',
+      })
       return
     }
 
