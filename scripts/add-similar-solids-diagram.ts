@@ -41,25 +41,38 @@ function cuboid(x: number, y: number, w: number, h: number, dx: number, dy: numb
 const label = (x: number, y: number, anchor: string, text: string, size = 12, weight = '400') =>
   `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${K}" font-family="${F}">${text}</text>`
 
-// Layout is spaced so no label is clipped by the viewBox or collides with its
-// neighbour (a label reaching ~40 units at font-size 12):
-//   A height label  12..52   | A  58..120  | A depth label 126..166
-//   B height label 188..228  | B 234..326  | right margin to 380
-// Bottoms aligned at y=140 so the two solids sit on a common baseline.
+// B is derived from A by ONE scalar, so the two drawn solids are genuinely
+// similar — the property the question is about. Hand-typing B's dimensions is
+// what produced the first version, where A was wider-than-tall and B was
+// taller-than-wide: a diagram that contradicted the word "similar".
+//
+// S is a VISUAL scale only. The real factor n is 2 or 3, but the geometry is
+// fixed across draws, so the magnitude is approximate and the diagram carries
+// the standard "Not drawn accurately" note. Proportion is what must be exact,
+// and is.
+const A_W = 40, A_H = 36, A_DX = 16, A_DY = 12
+const S = 1.75          // chosen so every scaled dimension lands on an integer
+const BASELINE = 150    // both solids stand on this line
+
+// Layout, spaced so no label is clipped or collides (labels reach ~40 units):
+//   A height 12..52 | A 58..114 | A depth 118..158
+//   B height 170..210 | B 216..314 | right margin to 340
 const SVG =
   '<div style="text-align:center;margin:6px 0 4px">'
-  + '<svg viewBox="0 0 380 196" style="width:100%;max-width:360px;display:block;margin:0 auto" aria-hidden="true">'
-  + cuboid(58, 100, 44, 40, 18, 14)
-  + cuboid(234, 58, 66, 82, 26, 20)
+  // viewBox is cropped to the content: the topmost ink is B's back-top edge at
+  // y=66 (BASELINE - A_H*S - A_DY*S), the lowest is the A/B letters at y~194.
+  + '<svg viewBox="0 54 340 146" style="width:100%;max-width:340px;display:block;margin:0 auto" aria-hidden="true">'
+  + cuboid(58, BASELINE - A_H, A_W, A_H, A_DX, A_DY)
+  + cuboid(216, BASELINE - A_H * S, A_W * S, A_H * S, A_DX * S, A_DY * S)
   // A's three dimensions.
-  + label(80, 157, 'middle', '{{a}} cm')                 // front bottom edge
-  + label(126, 143, 'start', '{{b}} cm')                 // receding bottom edge
-  + label(52, 124, 'end', '{{c}} cm')                    // left vertical edge
+  + label(78, 167, 'middle', '{{a}} cm')                 // front bottom edge
+  + label(118, 160, 'start', '{{b}} cm')                 // receding bottom edge
+  + label(52, 136, 'end', '{{c}} cm')                    // left vertical edge
   // B: only the height is known — the rest is what the student works out.
-  + label(228, 103, 'end', '{{n*c}} cm')
+  + label(210, 122, 'end', '{{n*c}} cm')
   // Solid names.
-  + label(89, 181, 'middle', 'A', 14, '700')
-  + label(274, 181, 'middle', 'B', 14, '700')
+  + label(82, 190, 'middle', 'A', 14, '700')
+  + label(258, 190, 'middle', 'B', 14, '700')
   + '</svg></div>'
   + '<p style="text-align:center;font-size:12px;color:#6b7280;margin:0 0 12px;font-style:italic">Not drawn accurately</p>'
 
@@ -79,6 +92,19 @@ async function main() {
   const { data, error } = await supabase.from('questions')
     .select('parameters, answer_template, traps, explanation').eq('id', ID).single()
   if (error) throw error
+
+  // The drawn solids must actually BE similar — the property the question is
+  // about, and the one the first version of this diagram got wrong. Every
+  // dimension must scale by the same factor, and land on an integer so no
+  // sub-pixel rounding skews one axis against another.
+  const dims: [string, number][] = [['width', A_W], ['height', A_H], ['depth-x', A_DX], ['depth-y', A_DY]]
+  for (const [name, base] of dims) {
+    const scaled = base * S
+    if (!Number.isInteger(scaled)) throw new Error(`B's ${name} (${scaled}) is not an integer — sub-pixel skew`)
+    if (Math.abs(scaled / base - S) > 1e-9) throw new Error(`B's ${name} does not scale by S`)
+  }
+  // Aspect ratios must match on both solids, which is what "similar" looks like.
+  if (Math.abs((A_W / A_H) - ((A_W * S) / (A_H * S))) > 1e-9) throw new Error('aspect ratios differ')
 
   // Balanced-tag sanity on the raw template. A malformed SVG renders as a
   // blank box rather than throwing, so nothing else would catch it.
