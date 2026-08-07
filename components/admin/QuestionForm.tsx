@@ -14,15 +14,21 @@ import {
 import {
   QuestionKind, QUESTION_KINDS, QUESTION_KIND_LABELS, DEFAULT_QUESTION_KIND,
 } from '../../lib/questions/kind'
-import { PartInput, emptyPart, computeSkillUnion } from '../../lib/questions/parts'
+import { PartInput, emptyPart, computeSkillUnion, normalizeGrid } from '../../lib/questions/parts'
+import GridCanvas from '../practice/GridCanvas'
+import type { RenderedGrid } from '../../lib/questions/gridDraw'
 import PartEditor from './PartEditor'
+import TrapMethodMarks from './TrapMethodMarks'
 import { supabase } from '../../lib/supabase'
 import { checkAnswer, CheckResult } from '../../lib/questions/answerChecker'
 import CollapsibleCard from './CollapsibleCard'
+import { resolveQuestionMarks, evidenceFor } from '../../lib/exam/markEvidence'
 
 type Trap = {
   answer_template: string
   response: string
+  /** Method marks this trap proves; see PartTrap in lib/questions/parts.ts. */
+  method_marks?: number
 }
 
 type QuestionFormData = {
@@ -37,6 +43,12 @@ type QuestionFormData = {
   requires_simplest: boolean
   calculator: CalculatorMode
   kind: QuestionKind
+  /**
+   * Explicit exam marks for a SINGLE-PART question. Empty = use the estimate
+   * from the coded papers (lib/exam/markEvidence.ts). Multi-part questions
+   * ignore this and sum their parts.
+   */
+  marks: string
   mc_options: string[]
   traps: Trap[]
   explanation: string
@@ -65,6 +77,7 @@ const emptyForm: QuestionFormData = {
   requires_simplest: false,
   calculator: DEFAULT_CALCULATOR_MODE,
   kind: DEFAULT_QUESTION_KIND,
+  marks: '',
   mc_options: [],
   traps: [],
   explanation: '',
@@ -124,7 +137,14 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   } | null>(null)
   const [partsPreview, setPartsPreview] = useState<{
     stem: string
-    parts: { prompt: string, answer: string, traps: { answer: string, response: string }[], explanation: string }[]
+    parts: {
+      prompt: string
+      answer: string
+      traps: { answer: string, response: string }[]
+      explanation: string
+      blanks?: { label: string, answer: string, traps: { answer: string, response: string }[] }[]
+      grid?: RenderedGrid
+    }[]
   } | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [skillSearch, setSkillSearch] = useState('')
@@ -171,7 +191,113 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
           setValidationError(`Part (${letter}) needs a prompt.`)
           return
         }
-        if (!p.answer_template.trim()) {
+        if (p.answer_type === 'grid_draw') {
+          const g = p.grid
+          if (!g || g.elements.filter(el => String(el.x).trim() !== '' || String(el.y).trim() !== '').length === 0) {
+            setValidationError(`Part (${letter}) is a grid drawing but has no correct points — add at least one.`)
+            return
+          }
+          const nEls = g.elements.filter(el => String(el.x).trim() !== '' || String(el.y).trim() !== '').length
+          if (g.mode === 'line' && nEls !== 2) {
+            setValidationError(`Part (${letter}) is a straight-line drawing — give exactly 2 endpoints (it has ${nEls}).`)
+            return
+          }
+          if (g.mode === 'polygon' && nEls < 3) {
+            setValidationError(`Part (${letter}) is a polygon — give at least 3 corners (it has ${nEls}).`)
+            return
+          }
+          if (g.mode === 'cells' && Number(g.tolerance) > 0) {
+            setValidationError(`Part (${letter}) shades squares — tolerance must be 0 (shading is exact).`)
+            return
+          }
+          if (g.mode === 'number_line') {
+            if (nEls !== 1) {
+              setValidationError(`Part (${letter}) is a number line — mark exactly 1 value (it has ${nEls}).`)
+              return
+            }
+            if (String(g.y.min).trim() !== String(g.y.max).trim()) {
+              setValidationError(`Part (${letter}) is a number line — set y min and y max the same (it is a 1-D axis).`)
+              return
+            }
+          }
+          if (g.mode === 'bars' || g.mode === 'bars_free') {
+            for (const [bi, el] of g.elements.entries()) {
+              const from = Number(el.x)
+              const to = el.x2 == null || String(el.x2).trim() === '' ? from + Number(g.x.step || 1) : Number(el.x2)
+              // Templates can't be range-checked here; the harness does that
+              // per parameter draw. Only catch plainly-numeric mistakes.
+              if (Number.isFinite(from) && Number.isFinite(to) && to <= from) {
+                setValidationError(`Part (${letter}) bar ${bi + 1}: x2 (${to}) must be greater than x (${from}).`)
+                return
+              }
+            }
+          }
+          for (const [ti, t] of (g.traps ?? []).entries()) {
+            if (!t.response.trim()) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} needs a response — without one it would match silently.`)
+              return
+            }
+            // A 'translated' trap is a predicate — it carries no points.
+            if (t.match === 'translated') continue
+            const tEls = t.elements.filter(e => String(e.x).trim() !== '' || String(e.y).trim() !== '')
+            if (tEls.length === 0) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} has no points — give the wrong drawing, or remove the trap.`)
+              return
+            }
+            if (!t.response.trim()) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} needs a response — without one it would match silently.`)
+              return
+            }
+            if (g.mode === 'line' && tEls.length !== 2) {
+              setValidationError(`Part (${letter}) trap ${ti + 1}: a straight-line trap needs exactly 2 points (it has ${tEls.length}).`)
+              return
+            }
+            if (g.mode === 'polygon' && tEls.length < 3) {
+              setValidationError(`Part (${letter}) trap ${ti + 1}: a polygon trap needs at least 3 corners (it has ${tEls.length}).`)
+              return
+            }
+            if (g.mode !== 'line' && g.mode !== 'polygon' && tEls.length !== nEls) {
+              setValidationError(`Part (${letter}) trap ${ti + 1} has ${tEls.length} points but the answer has ${nEls} — it could never match.`)
+              return
+            }
+          }
+          for (const axis of ['x', 'y'] as const) {
+            for (const bound of ['min', 'max'] as const) {
+              const v = String(g[axis][bound]).trim()
+              if (v === '' || (!Number.isFinite(Number(v)) && !v.includes('{{'))) {
+                setValidationError(`Part (${letter}) grid: ${axis} ${bound} must be a number or a {{template}}.`)
+                return
+              }
+            }
+            const step = Number(g[axis].step)
+            if (!Number.isFinite(step) || step <= 0) {
+              setValidationError(`Part (${letter}) grid: ${axis} step must be a positive number.`)
+              return
+            }
+          }
+        } else if (p.answer_type === 'multi_blank') {
+          // Multi-blank parts carry their answers per BLANK, not on the part.
+          const blanks = p.blanks ?? []
+          if (blanks.length === 0) {
+            setValidationError(`Part (${letter}) is multi-blank but has no blanks — add at least one.`)
+            return
+          }
+          for (const b of blanks) {
+            if (!b.label.trim()) {
+              setValidationError(`Part (${letter}) has a blank without a label.`)
+              return
+            }
+            if (!b.answer_template.trim()) {
+              setValidationError(`Part (${letter}) blank ${b.label.trim()} needs an answer template.`)
+              return
+            }
+          }
+          const labels = blanks.map(b => b.label.trim().toUpperCase())
+          if (new Set(labels).size !== labels.length) {
+            setValidationError(`Part (${letter}) has duplicate blank labels — each blank needs its own.`)
+            return
+          }
+        } else if (!p.answer_template.trim()) {
           setValidationError(`Part (${letter}) needs an answer template.`)
           return
         }
@@ -225,6 +351,14 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   }
   function updateTrap(index: number, field: keyof Trap, value: string) {
     update('traps', form.traps.map((t, i) => i === index ? { ...t, [field]: value } : t))
+  }
+  /** Undefined removes the key entirely — "unset" must not persist as 0. */
+  function setTrapMethodMarks(index: number, v: number | undefined) {
+    update('traps', form.traps.map((t, i) => {
+      if (i !== index) return t
+      const { method_marks: _drop, ...rest } = t
+      return v == null ? rest : { ...rest, method_marks: v }
+    }))
   }
   function removeTrap(index: number) {
     update('traps', form.traps.filter((_, i) => i !== index))
@@ -408,6 +542,15 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             answer_template: p.answer_template,
             traps: p.traps,
             explanation: p.explanation,
+            blanks: p.blanks?.map(b => ({
+              label: b.label,
+              prompt: b.prompt,
+              answer_template: b.answer_template,
+              traps: b.traps,
+            })),
+            // normalizeGrid coerces the form's string fields so templates
+            // stay templates and plain numbers become numbers.
+            grid: p.answer_type === 'grid_draw' && p.grid ? normalizeGrid(p.grid) : undefined,
           })),
           params,
           generated,
@@ -472,6 +615,14 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
   })()
 
   const detailsSummary = `${form.difficulty}★ · ${form.answer_type}`
+
+  // What the exam layer would award if the marks field is left blank, plus the
+  // evidence behind it — so the author is choosing against real papers rather
+  // than guessing. Skills/kind come straight from the form, so this updates live.
+  const estimatedMarks = resolveQuestionMarks({
+    skill_ids: form.skill_ids, kind: form.kind, difficulty: form.difficulty,
+  }).marks
+  const markStats = evidenceFor(form.skill_ids, form.kind === 'exam' ? 'exam' : 'mastery')
 
   const paramSummary = (() => {
     try {
@@ -630,6 +781,23 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
               ))}
             </select>
           </div>
+          {/* Multi-part questions are priced by summing their parts, so this is
+              a single-part-only override. Left empty, the exam layer estimates
+              from the coded papers — see the evidence note below. */}
+          {!form.multiPart && (
+            <div style={styles.field}>
+              <label style={labelStyle}>Exam marks</label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={form.marks}
+                onChange={e => update('marks', e.target.value)}
+                placeholder={`auto (${estimatedMarks})`}
+                style={inputStyle}
+              />
+            </div>
+          )}
           {!form.multiPart && (
             <div style={styles.field}>
               <label style={labelStyle}>Answer type</label>
@@ -645,6 +813,21 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             </div>
           )}
         </div>
+        {/* Evidence for the marks field: what real papers award for this
+            material. Guidance, never enforcement — the spread within a skill is
+            genuine (marks track solution steps, not topic), so the author's
+            judgement wins. Says so plainly when the evidence is too thin. */}
+        {!form.multiPart && (
+          <p style={{ fontSize: '11px', color: colors.textHint, margin: '-4px 0 0', lineHeight: 1.6 }}>
+            {markStats
+              ? <>2024 papers, this material · {form.kind === 'exam' ? 'synthesis' : 'single-skill'}:{' '}
+                  <strong>n={markStats.n}, mean {markStats.mean}, range {markStats.min}–{markStats.max}</strong>
+                  {markStats.splits.length > 0 && <> — usually {markStats.splits.join(' or ')}</>}.{' '}
+                  Leave blank to use the estimate ({estimatedMarks}).</>
+              : <>No coded evidence for these skills yet — the estimate ({estimatedMarks}) comes from the{' '}
+                  {form.kind === 'exam' ? 'synthesis' : 'single-skill'} average across all papers. Set a value if you know better.</>}
+          </p>
+        )}
         {!form.multiPart && form.answer_type === 'numeric' && (
           <div style={styles.field}>
             <label style={labelStyle}>Tolerance (±)</label>
@@ -976,26 +1159,84 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   style={{ fontSize: font.lg, color: colors.textPrimary, marginBottom: '8px' }}
                   dangerouslySetInnerHTML={{ __html: p.prompt }}
                 />
-                <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
-                  Correct answer:
-                </p>
-                <div
-                  style={{ fontSize: font.base, fontWeight: '600', color: colors.successText, marginBottom: p.traps.length || p.explanation ? '8px' : 0 }}
-                  dangerouslySetInnerHTML={{ __html: p.answer }}
-                />
-                {p.traps.length > 0 && p.traps.map((t, ti) => (
-                  <div key={ti} style={{ marginBottom: '4px' }}>
-                    <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
-                    <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
-                  </div>
-                ))}
+                {p.grid ? (
+                  <>
+                    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+                      Correct drawing (rendered from the templates):
+                    </p>
+                    {p.grid.elements.every(el => Number.isFinite(el.x) && Number.isFinite(el.y))
+                      && [p.grid.x.min, p.grid.x.max, p.grid.y.min, p.grid.y.max].every(Number.isFinite) ? (
+                      <div style={{ maxWidth: '420px' }}>
+                        <GridCanvas grid={p.grid} value={[]} readOnly showCanonical />
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: font.sm, color: colors.dangerText, margin: 0 }}>
+                        ✗ A grid template did not evaluate to a number at these values — check the axis bounds and point coordinates.
+                      </p>
+                    )}
+                  </>
+                ) : p.blanks ? (
+                  <>
+                    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+                      Blanks:
+                    </p>
+                    {p.blanks.map((b, bi) => {
+                      // Canonical self-grade: the rendered answer must grade
+                      // correct against itself with this blank's settings —
+                      // the same gate the harness applies per blank.
+                      const def = form.parts[pi]?.blanks?.[bi]
+                      const selfGrade = def ? checkAnswer(
+                        b.answer, b.answer, def.answer_type,
+                        def.answer_type === 'numeric' ? parseFloat(String(def.tolerance ?? '0')) || 0 : null,
+                        [], def.requires_simplest ?? false,
+                      ).correct : false
+                      return (
+                        <div key={bi} style={{ marginBottom: '6px' }}>
+                          <span style={{ fontSize: font.base, fontWeight: '600', color: selfGrade ? colors.successText : colors.dangerText }}>
+                            {selfGrade ? '✓' : '✗'} {b.label} = <span dangerouslySetInnerHTML={{ __html: b.answer }} />
+                          </span>
+                          {!selfGrade && (
+                            <span style={{ fontSize: font.sm, color: colors.dangerText, marginLeft: '8px' }}>
+                              (does not self-grade — check the template/type)
+                            </span>
+                          )}
+                          {b.traps.map((t, ti) => (
+                            <div key={ti} style={{ marginLeft: '18px', marginTop: '2px' }}>
+                              <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
+                              <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })}
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontSize: font.base, fontWeight: '600', margin: '0 0 4px', color: colors.textSecondary }}>
+                      Correct answer:
+                    </p>
+                    <div
+                      style={{ fontSize: font.base, fontWeight: '600', color: colors.successText, marginBottom: p.traps.length || p.explanation ? '8px' : 0 }}
+                      dangerouslySetInnerHTML={{ __html: p.answer }}
+                    />
+                    {p.traps.length > 0 && p.traps.map((t, ti) => (
+                      <div key={ti} style={{ marginBottom: '4px' }}>
+                        <span style={{ color: colors.dangerText, fontWeight: '600' }} dangerouslySetInnerHTML={{ __html: t.answer }} />
+                        <span style={{ color: colors.textSecondary, fontSize: font.sm }} dangerouslySetInnerHTML={{ __html: ` → ${t.response}` }} />
+                      </div>
+                    ))}
+                  </>
+                )}
                 {p.explanation && (
                   <div
                     style={{ fontSize: font.base, color: colors.textPrimary, marginTop: '6px' }}
                     dangerouslySetInnerHTML={{ __html: p.explanation }}
                   />
                 )}
-                {/* Per-part grader test */}
+                {/* Per-part grader test (scalar parts only — multi_blank shows
+                    per-blank self-grade ticks, grid_draw shows the rendered
+                    drawing above instead) */}
+                {!p.blanks && !p.grid && (
                 <div style={{ borderTop: `1px solid ${colors.border}`, marginTop: '12px', paddingTop: '10px' }}>
                   <p style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, margin: '0 0 6px' }}>
                     Test the grader
@@ -1021,6 +1262,7 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   </div>
                   {partGraderResults[pi] != null && renderGradeResult(partGraderResults[pi]!)}
                 </div>
+                )}
               </div>
             ))}
           </div>
@@ -1136,10 +1378,15 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
             </button>
           </div>
         )}
+        {/* SVG deliberately excluded from `accept` — see
+            20260727_storage_question_images.sql: the bucket is public, so an
+            uploaded SVG is script on the storage origin. The bucket's MIME
+            allowlist rejects it server-side too; this just keeps the picker
+            honest. */}
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+          accept="image/jpeg,image/png,image/gif,image/webp"
           style={{ display: 'none' }}
           onChange={e => {
             const file = e.target.files?.[0]
@@ -1229,6 +1476,15 @@ export default function QuestionForm({ initialData, onSave, saving, error }: Pro
                   onChange={e => { updateTrap(i, 'response', e.target.value); autoResize(e.target) }}
                   style={{ ...inputStyle, minHeight: '60px', resize: 'none' as const }}
                   placeholder="It looks like you added the dimensions rather than multiplied them. Area = width × height."
+                />
+              </div>
+              <div style={styles.field}>
+                {/* Bounded by the effective marks: the author's override when
+                    set, otherwise the same estimate the exam layer would use. */}
+                <TrapMethodMarks
+                  value={trap.method_marks}
+                  marks={form.marks.trim() !== '' ? Number(form.marks) || 1 : estimatedMarks}
+                  onChange={v => setTrapMethodMarks(i, v)}
                 />
               </div>
             </div>

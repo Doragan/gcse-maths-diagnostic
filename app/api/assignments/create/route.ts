@@ -71,6 +71,38 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'One or more target classes not found' }, { status: 403 })
     }
 
+    // ── Verify each directly-targeted student reached us through consent ─────
+    // Membership is the student's OWN act (see 20260605_classes_and_memberships),
+    // so an active membership in one of THIS teacher's classes is what makes a
+    // student targetable. Without this check any authenticated teacher could name
+    // an arbitrary student uuid and (a) push teacher-authored title/instructions
+    // text into that student's dashboard, and (b) read their display_name +
+    // year_group back out of /api/assignments/[id]/results, which resolves
+    // directly-targeted ids under the service role. Classes were already checked
+    // above; students were not.
+    if (targetStudentIds?.length) {
+      const { data: ownClasses } = await service
+        .from('classes')
+        .select('id')
+        .eq('teacher_id', user.id)
+      const ownClassIds = (ownClasses ?? []).map(c => c.id)
+
+      let reachable = new Set<string>()
+      if (ownClassIds.length > 0) {
+        const { data: members } = await service
+          .from('class_memberships')
+          .select('student_id')
+          .in('class_id', ownClassIds)
+          .in('student_id', targetStudentIds)
+          .eq('status', 'active')
+        reachable = new Set((members ?? []).map(m => m.student_id))
+      }
+      // Fails closed: a malformed id makes the query error out, leaving the set
+      // empty, so nothing unverified can slip through.
+      if ((targetStudentIds as string[]).some(id => !reachable.has(id)))
+        return NextResponse.json({ error: 'One or more target students not found' }, { status: 403 })
+    }
+
     // ── Insert assignment ────────────────────────────────────────────────────
     const { data: assignment, error: insertError } = await service
       .from('assignments')

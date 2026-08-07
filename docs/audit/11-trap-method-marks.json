@@ -1,0 +1,3132 @@
+[
+ {
+  "qid": "014b944d-2203-4a72-b131-223b38d2ad60",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "graph_transformations",
+  "trap": "{{t==0 ? \"y = f(x + \" + k + \")\" : t==1 ? \"y = f(x − \" + k + \")\" : t==2 ? \"y = f(x) − \" + k : \"y = f(x) + \" + k}}",
+  "response": "The sign is the wrong way round. Inside the bracket the shift is COUNTER-intuitive — f(x − a) moves the graph a units RIGHT — while outside the bracket it is direct — f(x) + a moves it a units UP. Translating {{k}} units {{['right','left','up','down'][t]}} gives {{t==0 ? \"y = f(x − \" + k + \")\" : t==1 ? \"y = f(x + \" + k + \")\" : t==2 ? \"y = f(x) + \" + k : \"y = f(x) − \" + k}}.",
+  "method_marks": 1,
+  "i": 0
+ },
+ {
+  "qid": "014b944d-2203-4a72-b131-223b38d2ad60",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "graph_transformations",
+  "trap": "{{t==0 ? \"y = f(x) + \" + k : t==1 ? \"y = f(x) − \" + k : t==2 ? \"y = f(x + \" + k + \")\" : \"y = f(x − \" + k + \")\"}}",
+  "response": "You have mixed up horizontal and vertical. Changes INSIDE the bracket, f(x ± a), move the graph LEFT or RIGHT; changes OUTSIDE, f(x) ± a, move it UP or DOWN. Translating {{k}} units {{['right','left','up','down'][t]}} gives {{t==0 ? \"y = f(x − \" + k + \")\" : t==1 ? \"y = f(x + \" + k + \")\" : t==2 ? \"y = f(x) + \" + k : \"y = f(x) − \" + k}}.",
+  "method_marks": 0,
+  "i": 1
+ },
+ {
+  "qid": "0270e0be-ffc7-4505-bb47-5904ec89ee1d",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "standard_form",
+  "trap": "{{a}}000",
+  "response": "This is not in standard form. Standard form is written as A × 10ⁿ where 1 ≤ A < 10.",
+  "method_marks": 1,
+  "i": 2
+ },
+ {
+  "qid": "0270e0be-ffc7-4505-bb47-5904ec89ee1d",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "standard_form",
+  "trap": "{{Math.round(a * 1000 / Math.pow(10, Math.floor(Math.log10(a * 1000)) - 1) * 10) / 10}} × 10<sup>{{Math.floor(Math.log10(a * 1000)) - 1}}</sup>",
+  "response": "This is not in standard form. The coefficient must be between 1 and 10. Divide your coefficient by 10 and increase the power by 1.",
+  "method_marks": 1,
+  "i": 3
+ },
+ {
+  "qid": "0270e0be-ffc7-4505-bb47-5904ec89ee1d",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "standard_form",
+  "trap": "{{Math.round(a * 1000 / Math.pow(10, Math.floor(Math.log10(a * 1000)) + 1) * 10) / 10}} × 10<sup>{{Math.floor(Math.log10(a * 1000)) + 1}}</sup>",
+  "response": "{{Math.round(a * 1000 / Math.pow(10, Math.floor(Math.log10(a * 1000)) + 1) * 10) / 10}} × 10{{Math.floor(Math.log10(a * 1000)) + 1}}",
+  "method_marks": 0,
+  "i": 4
+ },
+ {
+  "qid": "0401d85e-9e9c-47b5-af06-b0eb5da8acdd",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "completing_the_square",
+  "trap": "{{qv > 0 ? \"(x + \" + a + \")² + \" + qv : \"(x + \" + a + \")² − \" + Math.abs(qv)}}",
+  "response": "Check the sign inside the bracket: the x-term is NEGATIVE ({{0-2*a}}x), so the bracket is (x − {{a}})², not (x + {{a}})².",
+  "method_marks": 1,
+  "i": 5
+ },
+ {
+  "qid": "0401d85e-9e9c-47b5-af06-b0eb5da8acdd",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "completing_the_square",
+  "trap": "(x − {{a}})² + {{a*a+qv}}",
+  "response": "Expanding (x − {{a}})² gives an extra +{{a*a}}, so you must SUBTRACT {{a*a}} from the constant: {{a*a+qv}} − {{a*a}} = {{qv}}. The answer is {{qv > 0 ? \"(x − \" + a + \")² + \" + qv : \"(x − \" + a + \")² − \" + Math.abs(qv)}}.",
+  "method_marks": 1,
+  "i": 6
+ },
+ {
+  "qid": "04098ba0-5c8c-48b8-b8c2-bea31b135224",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "mean+solving_linear_equations",
+  "trap": "{{2*x0}}",
+  "response": "That is the value of 2x — the question asks for x itself: x = {{x0}}.",
+  "method_marks": 2,
+  "i": 7
+ },
+ {
+  "qid": "04098ba0-5c8c-48b8-b8c2-bea31b135224",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "mean+solving_linear_equations",
+  "trap": "{{3*x0}}",
+  "response": "You treated x and 2x as a single x. The list contains BOTH, so the sum is {{a}} + {{(4*M - a - 3*x0)}} + x + 2x = {{a + (4*M - a - 3*x0)}} + 3x. Setting that equal to 4 × {{M}} = {{4*M}} gives 3x = {{3*x0}}, so x = {{x0}}.",
+  "method_marks": 0,
+  "i": 8
+ },
+ {
+  "qid": "042fa99f-d9e1-4528-adf6-2f3ca756ac12",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "sine_rule",
+  "trap": "{{round(s * Math.sin(A * Math.PI / 180) / Math.sin(B * Math.PI / 180), 2)}}",
+  "response": "You divided by sin(B) instead of sin(A). Sine rule: b/sin(B) = a/sin(A), so b = a × sin(B)/sin(A) = {{s}} × sin({{B}}°)/sin({{A}}°) ≈ {{round(s*Math.sin(B*Math.PI/180)/Math.sin(A*Math.PI/180), 2)}} cm.",
+  "method_marks": 1,
+  "i": 9
+ },
+ {
+  "qid": "042fa99f-d9e1-4528-adf6-2f3ca756ac12",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "sine_rule",
+  "trap": "{{round(s * B / A, 2)}}",
+  "response": "Use the sine rule, not a direct ratio of angles. b = a × sin(B)/sin(A) ≈ {{round(s*Math.sin(B*Math.PI/180)/Math.sin(A*Math.PI/180), 2)}} cm.",
+  "method_marks": 0,
+  "i": 10
+ },
+ {
+  "qid": "042fa99f-d9e1-4528-adf6-2f3ca756ac12",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "sine_rule",
+  "trap": "{{round(s * B / A , 2)}} cm",
+  "response": "You forgot to apply sin to the two angles. b = a × sin(B)/sin(A) ≈ {{round(s*Math.sin(B*Math.PI/180)/Math.sin(A*Math.PI/180), 2)}} cm.",
+  "method_marks": 0,
+  "i": 11
+ },
+ {
+  "qid": "04b37198-85e6-4487-887a-eafd5a99b47a",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "circle_theorem_cyclic_quadrilateral",
+  "trap": "{{a}}",
+  "response": "Opposite angles of a cyclic quadrilateral are supplementary (not equal). Angle C = 180° − {{a}}° = {{180 - a}}°.",
+  "method_marks": 0,
+  "i": 12
+ },
+ {
+  "qid": "04b37198-85e6-4487-887a-eafd5a99b47a",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "circle_theorem_cyclic_quadrilateral",
+  "trap": "{{360 - a}}",
+  "response": "Opposite angles of a cyclic quadrilateral sum to 180°, not 360°. Angle C = 180° − {{a}}° = {{180 - a}}°.",
+  "method_marks": 0,
+  "i": 13
+ },
+ {
+  "qid": "0799c17c-b016-4728-ba84-91e1239244f7",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "surface_area_of_a_cone",
+  "trap": "{{round(Math.PI * r * l, 2)}}",
+  "response": "That's the curved surface area only. Add the circular base (πr²): Total SA = πrl + πr² = π × {{r}} × ({{l}} + {{r}}) ≈ {{round(Math.PI*r*(r+l), 2)}} cm².",
+  "method_marks": 1,
+  "i": 14
+ },
+ {
+  "qid": "0799c17c-b016-4728-ba84-91e1239244f7",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "surface_area_of_a_cone",
+  "trap": "{{round(Math.PI * r * r, 2)}}",
+  "response": "That's just the base area. Total SA = πr(l + r) = π × {{r}} × ({{l}} + {{r}}) ≈ {{round(Math.PI*r*(r+l), 2)}} cm².",
+  "method_marks": 0,
+  "i": 15
+ },
+ {
+  "qid": "0799c17c-b016-4728-ba84-91e1239244f7",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "surface_area_of_a_cone",
+  "trap": "{{round(Math.PI * r * r*l/3, 2)}}",
+  "response": "It looks like you've tried to calculate the volume of the cone (⅓πr²h).",
+  "method_marks": 0,
+  "i": 16
+ },
+ {
+  "qid": "0959d8d5-aafa-41e3-a84a-03db28c5281e",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "area_of_triangle_sine",
+  "trap": "{{round(0.5 * a * b, 2)}}",
+  "response": "This only works when the angle is 90°. In general: Area = ½ab sin(C) = ½ × {{a}} × {{b}} × sin({{30*n}}°) ≈ {{round(0.5*a*b*Math.sin(30*n*Math.PI/180), 2)}} cm².",
+  "method_marks": 0,
+  "i": 17
+ },
+ {
+  "qid": "0959d8d5-aafa-41e3-a84a-03db28c5281e",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "area_of_triangle_sine",
+  "trap": "{{round(a * b * Math.sin(30*n * Math.PI / 180), 2)}}",
+  "response": "You forgot the ½. Area = ½ab sin(C) = ½ × {{a}} × {{b}} × sin({{30*n}}°) ≈ {{round(0.5*a*b*Math.sin(30*n*Math.PI/180), 2)}} cm².",
+  "method_marks": 1,
+  "i": 18
+ },
+ {
+  "qid": "0a0f60f2-3f85-4393-adcc-db6673f198a3",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "venn_diagrams",
+  "trap": "{{c}}/{{a+b+c}}",
+  "response": "Include the {{d}} students who play neither in the total. There are {{a+b+c+d}} students altogether, so P(both) = {{c}}/{{a+b+c+d}}.",
+  "method_marks": 1,
+  "i": 19
+ },
+ {
+  "qid": "0a0f60f2-3f85-4393-adcc-db6673f198a3",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "venn_diagrams",
+  "trap": "{{c}}",
+  "response": "That is the number of students who play both. A probability is that number out of the total: {{c}}/{{a+b+c+d}}.",
+  "method_marks": 1,
+  "i": 20
+ },
+ {
+  "qid": "0a0f60f2-3f85-4393-adcc-db6673f198a3",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "venn_diagrams",
+  "trap": "{{a+b+c}}/{{a+b+c+d}}",
+  "response": "That's the probability of a student playing the piano or the guitar. You needed the number in the middle of the venn diagram.",
+  "method_marks": 0,
+  "i": 21
+ },
+ {
+  "qid": "0e0ef486-70ca-4799-9ca6-e8a8eefa4756",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "algebraic_fractions",
+  "trap": "x + {{p}}",
+  "response": "The numerator factorises as (x + {{p}})(x + {{q}}). Cancel (x + {{p}}) with the denominator: the result is x + {{q}}, not x + {{p}}.",
+  "method_marks": 1,
+  "i": 22
+ },
+ {
+  "qid": "0e0ef486-70ca-4799-9ca6-e8a8eefa4756",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "algebraic_fractions",
+  "trap": "{{q}}",
+  "response": "After cancelling (x + {{p}}), the full remaining factor is (x + {{q}}) — not just {{q}}. The x term stays: answer is x + {{q}}.",
+  "method_marks": 1,
+  "i": 23
+ },
+ {
+  "qid": "0f10dbc9-68d5-4dd6-ad64-eed2a1218ca5",
+  "loc": "p0:0",
+  "marks": 2,
+  "skill": "forming_expressions_and_formulae",
+  "trap": "{{b}}m",
+  "response": "Don’t forget the fixed fee — it is added on regardless of distance: {{a}}+{{b}}m.",
+  "method_marks": 1,
+  "i": 24
+ },
+ {
+  "qid": "0f10dbc9-68d5-4dd6-ad64-eed2a1218ca5",
+  "loc": "p0:1",
+  "marks": 2,
+  "skill": "forming_expressions_and_formulae",
+  "trap": "{{a+b}}m",
+  "response": "The £{{a}} fee is a one-off, not charged per mile: {{a}}+{{b}}m.",
+  "method_marks": 0,
+  "i": 25
+ },
+ {
+  "qid": "0f10dbc9-68d5-4dd6-ad64-eed2a1218ca5",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "solving_linear_equations",
+  "trap": "{{b*m2}}",
+  "response": "Subtract the fixed fee first, THEN divide by the per-mile rate: ({{a+b*m2}} − {{a}}) ÷ {{b}} = {{m2}} miles.",
+  "method_marks": 0,
+  "i": 26
+ },
+ {
+  "qid": "10933441-1407-479d-92f0-5c53ff2392fe",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "proportion_with_powers",
+  "trap": "{{b * k}}",
+  "response": "You forgot to square x. Since y is proportional to x², y = kx² where k = {{k}}. When x = {{b}}: y = {{k}} × {{b}}² = {{k}} × {{b * b}} = {{b * b * k}}.",
+  "method_marks": 1,
+  "i": 27
+ },
+ {
+  "qid": "10933441-1407-479d-92f0-5c53ff2392fe",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "proportion_with_powers",
+  "trap": "{{a * a * k + (b - a) * k}}",
+  "response": "You cannot just add to the original y value. Find k first: k = y ÷ x² = {{a * a * k}} ÷ {{a * a}} = {{k}}. Then y = k × x² = {{k}} × {{b * b}} = {{b * b * k}}.",
+  "method_marks": 0,
+  "i": 28
+ },
+ {
+  "qid": "10933441-1407-479d-92f0-5c53ff2392fe",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "proportion_with_powers",
+  "trap": "{{b * b * b * k}}",
+  "response": "You cubed x instead of squaring it. y = kx², so y = {{k}} × {{b}}² = {{k}} × {{b * b}} = {{b * b * k}}.",
+  "method_marks": 1,
+  "i": 29
+ },
+ {
+  "qid": "10a196fa-6db2-4ef8-af94-908d55dc87ce",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "simplifying_indices",
+  "trap": "x^{{[3,2,3,2,4,3][sel]+[2,4,3,5,2,4][sel]-[2,3,4,3,3,5][sel]}}",
+  "response": "For a power raised to a power, MULTIPLY the indices, don't add: (x{{[3,2,3,2,4,3][sel]}}){{[2,4,3,5,2,4][sel]}} = x{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]}}. Then subtract for the division: x{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]}} − {{[2,3,4,3,3,5][sel]}} = x{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]-[2,3,4,3,3,5][sel]}}.",
+  "method_marks": 0,
+  "i": 30
+ },
+ {
+  "qid": "10a196fa-6db2-4ef8-af94-908d55dc87ce",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "simplifying_indices",
+  "trap": "x^{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]+[2,3,4,3,3,5][sel]}}",
+  "response": "When DIVIDING powers of the same base, SUBTRACT the indices: x{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]}} ÷ x{{[2,3,4,3,3,5][sel]}} = x{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]}} − {{[2,3,4,3,3,5][sel]}} = x{{[3,2,3,2,4,3][sel]*[2,4,3,5,2,4][sel]-[2,3,4,3,3,5][sel]}}.",
+  "method_marks": 1,
+  "i": 31
+ },
+ {
+  "qid": "127a4998-4aa0-41e9-8a60-3f365936ab67",
+  "loc": "q:0",
+  "marks": 3,
+  "skill": "compound_units",
+  "trap": "{{l*w*h}}",
+  "response": "That is the volume in cm³. Mass = volume × density = {{l*w*h}} × {{d}} = {{l*w*h*d}} g.",
+  "method_marks": 1,
+  "i": 32
+ },
+ {
+  "qid": "127a4998-4aa0-41e9-8a60-3f365936ab67",
+  "loc": "q:1",
+  "marks": 3,
+  "skill": "compound_units",
+  "trap": "{{round(l*w*h/d,2)}}",
+  "response": "Mass = density × volume, so multiply — don’t divide: {{l*w*h}} × {{d}} = {{l*w*h*d}} g.",
+  "method_marks": 0,
+  "i": 33
+ },
+ {
+  "qid": "127a4998-4aa0-41e9-8a60-3f365936ab67",
+  "loc": "q:2",
+  "marks": 3,
+  "skill": "compound_units",
+  "trap": "{{l*w*d}}",
+  "response": "Volume uses all three dimensions: {{l}} × {{w}} × {{h}} = {{l*w*h}} cm³. Then mass = {{l*w*h}} × {{d}} = {{l*w*h*d}} g.",
+  "method_marks": 0,
+  "i": 34
+ },
+ {
+  "qid": "127a4998-4aa0-41e9-8a60-3f365936ab67",
+  "loc": "q:3",
+  "marks": 3,
+  "skill": "compound_units",
+  "trap": "{{round(d/(l*w*h),2)}}",
+  "response": "Mass = density × volume, so multiply — don’t divide: {{l*w*h}} × {{d}} = {{l*w*h*d}} g.",
+  "method_marks": 0,
+  "i": 35
+ },
+ {
+  "qid": "13bac071-b78d-4e19-bfb1-db36eb50d23f",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "surds_expanding_and_rationalising",
+  "trap": "{{a*a + b}}",
+  "response": "Check the sign on the last term. (√{{b}}) × (−√{{b}}) = −{{b}}, not +{{b}}. The answer is {{a}}² − {{b}} = {{a*a-b}}.",
+  "method_marks": 1,
+  "i": 36
+ },
+ {
+  "qid": "13bac071-b78d-4e19-bfb1-db36eb50d23f",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "surds_expanding_and_rationalising",
+  "trap": "{{a*a}}",
+  "response": "Don't forget the last term. (√{{b}}) × (−√{{b}}) = −{{b}}, so the full expansion is {{a*a}} − {{b}} = {{a*a-b}}.",
+  "method_marks": 1,
+  "i": 37
+ },
+ {
+  "qid": "1785da89-1ef2-4b5d-99b8-3a688b566a3e",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{5*a * b}}",
+  "response": "That is the distance, not the time. Time = distance ÷ speed = {{5*a * b}} ÷ {{5*b}} = {{a}} hours.",
+  "method_marks": 0,
+  "i": 38
+ },
+ {
+  "qid": "1785da89-1ef2-4b5d-99b8-3a688b566a3e",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{5*5*a * b * b}}",
+  "response": "You multiplied distance by speed. Time = distance ÷ speed = {{a * b*5}} ÷ {{b*5}} = {{a}} hours.",
+  "method_marks": 0,
+  "i": 39
+ },
+ {
+  "qid": "1785da89-1ef2-4b5d-99b8-3a688b566a3e",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{1/a}}",
+  "response": "It looks like you got your divide calculation the wrong way around. Time = distance ÷ speed = {{a * b*5}} ÷ {{b*5}} = {{a}} hours.",
+  "method_marks": 0,
+  "i": 40
+ },
+ {
+  "qid": "19085de9-08d6-45d3-8296-5d9f44be360e",
+  "loc": "p0:0",
+  "marks": 2,
+  "skill": "pythagoras_theorem",
+  "trap": "{{((sel?5:3)+(sel?12:4))*k}}",
+  "response": "You added the two sides. Use Pythagoras: √({{(sel?5:3)*k}}² + {{(sel?12:4)*k}}²) = {{(sel?13:5)*k}} cm.",
+  "method_marks": 0,
+  "i": 41
+ },
+ {
+  "qid": "19085de9-08d6-45d3-8296-5d9f44be360e",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "lengths_and_perimeters",
+  "trap": "{{((sel?5:3)+(sel?12:4))*k}}",
+  "response": "That is only the two shorter sides. Add the hypotenuse ({{(sel?13:5)*k}} cm) as well: perimeter = {{(sel?30:12)*k}} cm.",
+  "method_marks": 0,
+  "i": 42
+ },
+ {
+  "qid": "1b1b7e39-2d72-424e-b2e0-978ba134249b",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "probability_spaces",
+  "trap": "{{fracStr((k<=7 ? k-1 : 13-k), 6)}}",
+  "response": "Two dice give 6 × 6 = 36 equally likely outcomes, not 6. There are {{k<=7 ? k-1 : 13-k}} ways to score {{k}}, so P = {{fracStr((k<=7 ? k-1 : 13-k), 36)}}.",
+  "method_marks": 1,
+  "i": 43
+ },
+ {
+  "qid": "1b1b7e39-2d72-424e-b2e0-978ba134249b",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "probability_spaces",
+  "trap": "{{fracStr(1, 36)}}",
+  "response": "There is more than one way to score {{k}} with two dice. Count all pairs (d1, d2) where d1 + d2 = {{k}}: there are {{k<=7 ? k-1 : 13-k}} such pairs. So P = {{fracStr((k<=7 ? k-1 : 13-k), 36)}}.",
+  "method_marks": 0,
+  "i": 44
+ },
+ {
+  "qid": "1b1b7e39-2d72-424e-b2e0-978ba134249b",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "probability_spaces",
+  "trap": "{{fracStr(k, 36)}}",
+  "response": "You've just divided the expected score by 36 (the total number of outcomes). You need to think which of those outcomes give a score of {{k}}.",
+  "method_marks": 0,
+  "i": 45
+ },
+ {
+  "qid": "1c2d2c7b-4ad9-43ff-9fda-5014a8150b2d",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "time_series",
+  "trap": "{{(Math.max(v1,v2,v3,v4,v5,v6)+Math.min(v1,v2,v3,v4,v5,v6))*10}}",
+  "response": "Find the DIFFERENCE — subtract the lowest reading from the highest, do not add them.",
+  "method_marks": 1,
+  "i": 46
+ },
+ {
+  "qid": "1c2d2c7b-4ad9-43ff-9fda-5014a8150b2d",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "time_series",
+  "trap": "{{Math.min(v1,v2,v3,v4,v5,v6)*10}}",
+  "response": "You've found the minimum value. You need to find the difference between the maximum and minimum values.",
+  "method_marks": 1,
+  "i": 47
+ },
+ {
+  "qid": "1c2d2c7b-4ad9-43ff-9fda-5014a8150b2d",
+  "loc": "p1:2",
+  "marks": 2,
+  "skill": "time_series",
+  "trap": "{{Math.max(v1,v2,v3,v4,v5,v6)*10}}",
+  "response": "You've found the maximum value. You need to find the difference between the maximum and minimum values.",
+  "method_marks": 1,
+  "i": 48
+ },
+ {
+  "qid": "1c2d2c7b-4ad9-43ff-9fda-5014a8150b2d",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "time_series",
+  "trap": "{{Math.max(v1,v2,v3,v4,v5,v6)*10}}",
+  "response": "You've found the maximum value (the month with the most visits). You need to find the total visitors over all months.",
+  "method_marks": 0,
+  "i": 49
+ },
+ {
+  "qid": "1dbb9708-70f7-41cd-ba33-cfe35b0a2f80",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "dividing_fractions",
+  "trap": "{{(a*c)/gcd(a*c,b*d)}}/{{(b*d)/gcd(a*c,b*d)}}",
+  "response": "That's multiplying the fractions, not dividing. To divide, multiply by the reciprocal (flip the second fraction): {{a}}/{{b}} ÷ {{c}}/{{d}} = {{a}}/{{b}} × {{d}}/{{c}} = {{(a*d)/gcd(a*d,b*c)}}/{{(b*c)/gcd(a*d,b*c)}}.",
+  "method_marks": 0,
+  "i": 50
+ },
+ {
+  "qid": "1dbb9708-70f7-41cd-ba33-cfe35b0a2f80",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "dividing_fractions",
+  "trap": "{{(b*c)/gcd(a*d,b*c)}}/{{(a*d)/gcd(a*d,b*c)}}",
+  "response": "Flip the second fraction (the divisor), not the first: {{a}}/{{b}} ÷ {{c}}/{{d}} = {{a}}/{{b}} × {{d}}/{{c}} = {{(a*d)/gcd(a*d,b*c)}}/{{(b*c)/gcd(a*d,b*c)}}.",
+  "method_marks": 1,
+  "i": 51
+ },
+ {
+  "qid": "1e05dd11-4431-4234-87b0-c1d926a345ff",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "surface_area_of_a_sphere",
+  "trap": "{{round(4/3 * Math.PI * r * r * r, 2)}}",
+  "response": "That's the volume formula. Surface area = 4πr² = 4 × π × {{r}}² ≈ {{round(4*Math.PI*r*r, 2)}} cm².",
+  "method_marks": 0,
+  "i": 52
+ },
+ {
+  "qid": "1e05dd11-4431-4234-87b0-c1d926a345ff",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "surface_area_of_a_sphere",
+  "trap": "{{round(2 * Math.PI * r * r, 2)}}",
+  "response": "Surface area = 4πr², not 2πr². SA = 4 × π × {{r}}² ≈ {{round(4*Math.PI*r*r, 2)}} cm².",
+  "method_marks": 0,
+  "i": 53
+ },
+ {
+  "qid": "245fb5b8-cb5a-497e-ae90-1e98f3beadcf",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "ratio+percentage_change",
+  "trap": "{{5*b*w}}",
+  "response": "That is Ben’s full share before spending. He spends 20%, leaving 80%: {{5*b*w}} × 0.8 = £{{4*b*w}}.",
+  "method_marks": 2,
+  "i": 54
+ },
+ {
+  "qid": "245fb5b8-cb5a-497e-ae90-1e98f3beadcf",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "ratio+percentage_change",
+  "trap": "{{b*w}}",
+  "response": "That is the 20% Ben spent, not what is left: £{{5*b*w}} − £{{b*w}} = £{{4*b*w}}.",
+  "method_marks": 1,
+  "i": 55
+ },
+ {
+  "qid": "245fb5b8-cb5a-497e-ae90-1e98f3beadcf",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "ratio+percentage_change",
+  "trap": "{{4*(a+b)*w}}",
+  "response": "That is 80% of the whole £{{(a+b)*5*w}}. Apply the 20% reduction to Ben’s share only — his share is {{b}}/{{a+b}} of the money: {{5*b*w}} × 0.8 = £{{4*b*w}}.",
+  "method_marks": 0,
+  "i": 56
+ },
+ {
+  "qid": "245fb5b8-cb5a-497e-ae90-1e98f3beadcf",
+  "loc": "q:3",
+  "marks": 4,
+  "skill": "ratio+percentage_change",
+  "trap": "{{(a+b)*w}}",
+  "response": "That is 20% of the whole £{{(a+b)*5*w}}. First work out Ben's share, then apply a 20% reduction to that share — his share is {{b}}/{{a+b}} of the money: {{5*b*w}} × 0.8 = £{{4*b*w}}.",
+  "method_marks": 0,
+  "i": 57
+ },
+ {
+  "qid": "27a0fc43-b290-409e-826a-c4866292cf02",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "{{a * a / 2}}",
+  "response": "A power of ½ means square root, not divide by 2. {{a * a}}½ = √{{a * a}} = {{a}}.",
+  "method_marks": 0,
+  "i": 58
+ },
+ {
+  "qid": "27a0fc43-b290-409e-826a-c4866292cf02",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "{{a * a * a * a}}",
+  "response": "A power of ½ means square root, not squaring. {{a * a}}½ = √{{a * a}} = {{a}}.",
+  "method_marks": 0,
+  "i": 59
+ },
+ {
+  "qid": "282dc022-3a4c-4c3d-b162-0a1fa9609950",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "{{a * a * a / 3}}",
+  "response": "A power of ⅓ means cube root, not divide by 3. {{a * a * a}}⅓ = ∛{{a * a * a}} = {{a}}.",
+  "method_marks": 0,
+  "i": 60
+ },
+ {
+  "qid": "282dc022-3a4c-4c3d-b162-0a1fa9609950",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "{{a * a}}",
+  "response": "A power of ⅓ means cube root, not square root. ∛{{a * a * a}} = {{a}} because {{a}} × {{a}} × {{a}} = {{a * a * a}}.",
+  "method_marks": 0,
+  "i": 61
+ },
+ {
+  "qid": "28f4dd18-0cc0-4598-a8e8-85b8c8def293",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "trigonometry_missing_sides",
+  "trap": "{{round(adj * Math.cos(theta * Math.PI / 180), 2)}}",
+  "response": "You multiplied by cos instead of dividing, probably because you got the hypotenuse and adjacent mixed up. cos(θ) = adjacent/hypotenuse, so hypotenuse = adjacent ÷ cos(θ) = {{adj}} ÷ cos({{theta}}°) ≈ {{round(adj/Math.cos(theta*Math.PI/180), 2)}} cm.",
+  "method_marks": 0,
+  "i": 62
+ },
+ {
+  "qid": "28f4dd18-0cc0-4598-a8e8-85b8c8def293",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "trigonometry_missing_sides",
+  "trap": "{{round(adj / Math.sin(theta * Math.PI / 180), 2)}}",
+  "response": "You used sin, which is used with the side opposite to the hypotenuse and the adjacent; cos relates adjacent and hypotenuse. hyp = adj ÷ cos({{theta}}°) ≈ {{round(adj/Math.cos(theta*Math.PI/180), 2)}} cm.",
+  "method_marks": 0,
+  "i": 63
+ },
+ {
+  "qid": "29c84c18-d130-4f62-a657-b83cefb67a0a",
+  "loc": "q:0",
+  "marks": 5,
+  "skill": "circle_theorem_cyclic_quadrilateral+solving_linear_equations",
+  "trap": "{{x0}}",
+  "response": "That is the value of x — the question asks for the ANGLE. Substitute back: angle A = 2×{{x0}} + {{q}} = {{(2*x0 + q)}}° and angle C = 180 − {{(2*x0 + q)}} = {{180 - (2*x0 + q)}}°, so the larger is {{(2*x0 + q) > 90 ? (2*x0 + q) : 180 - (2*x0 + q)}}°.",
+  "method_marks": 2,
+  "i": 64
+ },
+ {
+  "qid": "29c84c18-d130-4f62-a657-b83cefb67a0a",
+  "loc": "q:1",
+  "marks": 5,
+  "skill": "circle_theorem_cyclic_quadrilateral+solving_linear_equations",
+  "trap": "{{(2*x0 + q) > 90 ? 180 - (2*x0 + q) : (2*x0 + q)}}",
+  "response": "That is the SMALLER of the two angles. A = {{(2*x0 + q)}}° and C = {{180 - (2*x0 + q)}}° — the larger is {{(2*x0 + q) > 90 ? (2*x0 + q) : 180 - (2*x0 + q)}}°.",
+  "method_marks": 2,
+  "i": 65
+ },
+ {
+  "qid": "29c84c18-d130-4f62-a657-b83cefb67a0a",
+  "loc": "q:2",
+  "marks": 5,
+  "skill": "circle_theorem_cyclic_quadrilateral+solving_linear_equations",
+  "trap": "{{x0 + 36}}",
+  "response": "You set the two angles equal to 360°. OPPOSITE angles of a cyclic quadrilateral sum to 180° (it is all four angles that sum to 360°): 5x + {{q + (180 - 5*x0 - q)}} = 180 gives x = {{x0}}, so the larger angle is {{(2*x0 + q) > 90 ? (2*x0 + q) : 180 - (2*x0 + q)}}°.",
+  "method_marks": 0,
+  "i": 66
+ },
+ {
+  "qid": "2ad52d8e-59a2-44f3-8688-335ebbd5fae0",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "recurring_decimals_to_fractions",
+  "trap": "{{fracStr(n, 10)}}",
+  "response": "{{fracStr(n,10)}} would be the fraction for the terminating decimal 0.{{n}}. For the recurring decimal 0.{{n}}{{n}}{{n}}..., let x = 0.{{n}}{{n}}{{n}}..., then 10x = {{n}}.{{n}}{{n}}..., so 9x = {{n}} and x = {{fracStr(n,9)}}.",
+  "method_marks": 0,
+  "i": 67
+ },
+ {
+  "qid": "2ad52d8e-59a2-44f3-8688-335ebbd5fae0",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "recurring_decimals_to_fractions",
+  "trap": "{{fracStr(n, 99)}}",
+  "response": "A denominator of 99 is used for two-digit recurring decimals. For a single repeating digit, the denominator is 9: {{fracStr(n,9)}}.",
+  "method_marks": 0,
+  "i": 68
+ },
+ {
+  "qid": "2e343e27-1140-4d99-9888-3d0dac39479c",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "trigonometry_missing_angles",
+  "trap": "{{round(Math.acos(opp / hyp) * 180 / Math.PI, 1)}}",
+  "response": "sin(x) = opposite/hypotenuse, so use sin⁻¹.x = sin⁻¹({{opp}}/{{hyp}}) ≈ {{round(Math.asin(opp/hyp)*180/Math.PI, 1)}}°.",
+  "method_marks": 0,
+  "i": 69
+ },
+ {
+  "qid": "2e343e27-1140-4d99-9888-3d0dac39479c",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "trigonometry_missing_angles",
+  "trap": "{{round(opp / hyp, 2)}}",
+  "response": "That gives sin(x), not x itself. Use the inverse sine function: x = sin⁻¹({{opp}}/{{hyp}}) = sin⁻¹({{round(opp/hyp, 3)}}) ≈ {{round(Math.asin(opp/hyp)*180/Math.PI, 1)}}°.",
+  "method_marks": 1,
+  "i": 70
+ },
+ {
+  "qid": "2e5dd32f-d701-4e26-ba96-36b4d892a738",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "volume_of_a_prism+converting_measurements",
+  "trap": "{{10000*p*q*r}}",
+  "response": "That is the volume in cm³. The question asks for LITRES — divide by 1000: {{10000*p*q*r}} ÷ 1000 = {{10*p*q*r}} litres.",
+  "method_marks": 2,
+  "i": 71
+ },
+ {
+  "qid": "2e5dd32f-d701-4e26-ba96-36b4d892a738",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "volume_of_a_prism+converting_measurements",
+  "trap": "{{20*p*q*r}}",
+  "response": "You treated the cross-section as a rectangle. It is a TRIANGLE, so halve it: area = ½ × {{20*p}} × {{10*q}} = {{100*p*q}} cm², volume = {{100*p*q}} × {{100*r}} = {{10000*p*q*r}} cm³ = {{10*p*q*r}} litres.",
+  "method_marks": 0,
+  "i": 72
+ },
+ {
+  "qid": "2e5dd32f-d701-4e26-ba96-36b4d892a738",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "volume_of_a_prism+converting_measurements",
+  "trap": "{{100*p*q*r}}",
+  "response": "Check the conversion: 1 litre = 1000 cm³, not 100. {{10000*p*q*r}} ÷ 1000 = {{10*p*q*r}} litres.",
+  "method_marks": 1,
+  "i": 73
+ },
+ {
+  "qid": "2e5dd32f-d701-4e26-ba96-36b4d892a738",
+  "loc": "q:3",
+  "marks": 4,
+  "skill": "volume_of_a_prism+converting_measurements",
+  "trap": "{{20000*p*q*r}}",
+  "response": "Two mistakes here. First, you treated the cross-section as a rectangle — it is a TRIANGLE, so halve it: ½ × {{20*p}} × {{10*q}} = {{100*p*q}} cm². Second, that value is in cm³ — the question asks for LITRES, so divide by 1000: {{100*p*q}} × {{100*r}} = {{10000*p*q*r}} cm³ = {{10*p*q*r}} litres.",
+  "method_marks": 0,
+  "i": 74
+ },
+ {
+  "qid": "2e5dd32f-d701-4e26-ba96-36b4d892a738",
+  "loc": "q:4",
+  "marks": 4,
+  "skill": "volume_of_a_prism+converting_measurements",
+  "trap": "{{200*p*q*r}}",
+  "response": "Two mistakes here. First, you treated the cross-section as a rectangle — it is a TRIANGLE, so halve it: ½ × {{20*p}} × {{10*q}} = {{100*p*q}} cm². Second, 1 litre = 1000 cm³, not 100 — the correct volume is {{100*p*q}} × {{100*r}} = {{10000*p*q*r}} cm³ = {{10*p*q*r}} litres.",
+  "method_marks": 0,
+  "i": 75
+ },
+ {
+  "qid": "321f22f0-8379-4522-a137-02fb8d47ce7e",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "frustum",
+  "trap": "{{round(Math.PI * h * (R*R + r*r) / 3, 2)}}",
+  "response": "The frustum formula is (π/3)h(R² + Rr + r²), not (π/3)h(R² + r²). Don't forget the middle term R × r = {{R*r}}.",
+  "method_marks": 0,
+  "i": 76
+ },
+ {
+  "qid": "321f22f0-8379-4522-a137-02fb8d47ce7e",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "frustum",
+  "trap": "{{round(Math.PI * h * (R*R - r*r) / 3, 2)}}",
+  "response": "The formula uses R² + Rr + r², not R² − r². Volume = (π/3) × {{h}} × ({{R*R}} + {{R*r}} + {{r*r}}) = {{round(Math.PI * h * (R*R + R*r + r*r) / 3, 2)}} cm³.",
+  "method_marks": 0,
+  "i": 77
+ },
+ {
+  "qid": "321f22f0-8379-4522-a137-02fb8d47ce7e",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "frustum",
+  "trap": "{{round(Math.PI * h * (R*R) / 3, 2)}}",
+  "response": "That's the formula for the volume of a cone. You need to find the volume of the frustrum (the cone with the top chopped off).",
+  "method_marks": 0,
+  "i": 78
+ },
+ {
+  "qid": "359bbf82-c357-4773-bb87-962b4b08a88b",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{p*(100+n*r)}}",
+  "response": "That is simple interest. With compound interest, each year earns interest on the previous year’s total, not just the original £{{100*p}}. The value is £{{(p*Math.pow(100+r,n)/Math.pow(100,n-1)).toFixed(2)}}.",
+  "method_marks": 0,
+  "i": 79
+ },
+ {
+  "qid": "359bbf82-c357-4773-bb87-962b4b08a88b",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{(p*Math.pow(100+r,n-1)/Math.pow(100,n-2)).toFixed(2)}}",
+  "response": "That is the value after only {{n-1}} year{{n-1===1?'':'s'}}. Apply the {{r}}% increase once more to reach {{n}} years: £{{(p*Math.pow(100+r,n)/Math.pow(100,n-1)).toFixed(2)}}.",
+  "method_marks": 1,
+  "i": 80
+ },
+ {
+  "qid": "36697be7-944c-49a2-bab3-28d0acf9fb19",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "pythagoras_theorem",
+  "trap": "{{3 * k + 4 * k}}",
+  "response": "You added the two sides instead of using Pythagoras. Hypotenuse² = {{3*k}}² + {{4*k}}² = {{9*k*k}} + {{16*k*k}} = {{25*k*k}}, so hypotenuse = √{{25*k*k}} = {{5*k}} cm.",
+  "method_marks": 0,
+  "i": 81
+ },
+ {
+  "qid": "36697be7-944c-49a2-bab3-28d0acf9fb19",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "pythagoras_theorem",
+  "trap": "{{25 * k * k}}",
+  "response": "You found hypotenuse² = {{25*k*k}} correctly but forgot to take the square root. Hypotenuse = √{{25*k*k}} = {{5*k}} cm.",
+  "method_marks": 1,
+  "i": 82
+ },
+ {
+  "qid": "36697be7-944c-49a2-bab3-28d0acf9fb19",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "pythagoras_theorem",
+  "trap": "{{6*k^2}}",
+  "response": "It looks like you've calculated the area of the triangle rather than the length of the Hypotenuse.",
+  "method_marks": 0,
+  "i": 83
+ },
+ {
+  "qid": "3a59b15a-60c8-466c-af1c-b52d6c86635a",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "circle_theorem_same_segment",
+  "trap": "{{180 - a}}",
+  "response": "Opposite angles of a cyclic quadrilateral sum to 180° — but angles in the same segment are equal. Answer: {{a}}°.",
+  "method_marks": 0,
+  "i": 84
+ },
+ {
+  "qid": "3a59b15a-60c8-466c-af1c-b52d6c86635a",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "circle_theorem_same_segment",
+  "trap": "{{2 * a}}",
+  "response": "The angle at the centre is double the angle at the circumference — not applicable here. Angles in the same segment are equal. Answer: {{a}}°.",
+  "method_marks": 0,
+  "i": 85
+ },
+ {
+  "qid": "3c72b3a4-713f-4e27-b0c5-dce7b0cf17e0",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "surds_simplifying+difference_of_two_squares",
+  "trap": "{{a * a + b}}",
+  "response": "This is a difference of two squares: (a + b)(a − b) = a² − b². The middle terms cancel, and √{{b}} × √{{b}} = {{b}}, not −{{b}}.",
+  "method_marks": 1,
+  "i": 86
+ },
+ {
+  "qid": "3c72b3a4-713f-4e27-b0c5-dce7b0cf17e0",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "surds_simplifying+difference_of_two_squares",
+  "trap": "{{a*a - b*b}}",
+  "response": "You squared {{b}} instead of √{{b}}. Remember (√{{b}})² = {{b}}, not {{b}}², so the answer is {{a}}² − {{b}} = {{a*a-b}}.",
+  "method_marks": 1,
+  "i": 87
+ },
+ {
+  "qid": "40ee97d5-c4f8-4d3f-91e4-2292f8a38e01",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "enlargements",
+  "trap": "{{w * l * k}}",
+  "response": "You scaled the area by k once. Under an enlargement of scale factor k, area scales by k squared — multiply by k twice.",
+  "method_marks": 1,
+  "i": 88
+ },
+ {
+  "qid": "40ee97d5-c4f8-4d3f-91e4-2292f8a38e01",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "enlargements",
+  "trap": "{{w * l}}",
+  "response": "That is the original area. Each side is multiplied by {{k}}, so the new area is k squared times bigger.",
+  "method_marks": 0,
+  "i": 89
+ },
+ {
+  "qid": "41cbcb3d-301a-4fda-b9f3-fd5f11000a00",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_quadratic_equation",
+  "trap": "{{round((p - Math.sqrt(p*p + 4*q)) / 2, 2)}}",
+  "response": "That's the negative root. The question asks for the positive root: x = {{frac(p + ' + √' + (p*p + 4*q), 2)}} ≈ {{round((p + Math.sqrt(p*p + 4*q)) / 2, 2)}}.",
+  "method_marks": 1,
+  "i": 90
+ },
+ {
+  "qid": "41cbcb3d-301a-4fda-b9f3-fd5f11000a00",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_quadratic_equation",
+  "trap": "{{round(p + Math.sqrt(p*p + 4*q), 2)}}",
+  "response": "Remember the full formula: x = {{frac('-b ± √b² - 4ac', '2a')}}. Here a = 1, so divide by 2: x = {{frac(p + ' + √' + (p*p + 4*q), 2)}} ≈ {{round((p + Math.sqrt(p*p + 4*q)) / 2, 2)}}.",
+  "method_marks": 1,
+  "i": 91
+ },
+ {
+  "qid": "4220ca43-66ea-49d4-aa45-2d56c50b3262",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "adding_and_subtracting_fractions",
+  "trap": "{{a + b}}/{{3 + 7}}",
+  "response": "You can't add fractions by adding the numerators and the denominators separately. Find a common denominator first. LCM(3, 7) = 21. Convert: {{a}}/3 = {{7*a}}/21 and {{b}}/7 = {{3*b}}/21. Add: ({{7*a}} + {{3*b}})/21 = {{7*a + 3*b}}/21.",
+  "method_marks": 0,
+  "i": 92
+ },
+ {
+  "qid": "4220ca43-66ea-49d4-aa45-2d56c50b3262",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "adding_and_subtracting_fractions",
+  "trap": "{{a*b}}/{{3*7}}",
+  "response": "That's what you'd get multiplying the fractions. To add, find a common denominator: LCM(3, 7) = 21 → {{7*a + 3*b}}/21.",
+  "method_marks": 0,
+  "i": 93
+ },
+ {
+  "qid": "43dfa472-da7c-4e0a-b835-c25850f7a01f",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "-{{a ** b}}",
+  "response": "A negative index does not make the answer negative. {{a}}−{{b}} = 1/{{a}}{{b}} = 1/{{a ** b}}.",
+  "method_marks": 0,
+  "i": 94
+ },
+ {
+  "qid": "43dfa472-da7c-4e0a-b835-c25850f7a01f",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "{{a ** b}}",
+  "response": "A negative index means take the reciprocal. {{a}}−{{b}} = 1/{{a}}{{b}} = 1/{{a ** b}}.",
+  "method_marks": 0,
+  "i": 95
+ },
+ {
+  "qid": "43dfa472-da7c-4e0a-b835-c25850f7a01f",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "-1/{{a ** b}}",
+  "response": "You don't need to make your answer negative when there's a negative power. It's just 1/{{a ** b}}.",
+  "method_marks": 0,
+  "i": 96
+ },
+ {
+  "qid": "43dfa472-da7c-4e0a-b835-c25850f7a01f",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "fractional_and_negative_indices",
+  "trap": "1/-{{a ** b}}",
+  "response": "You don't need to make your answer negative when there's a negative power. It's just 1/{{a ** b}}.",
+  "method_marks": 0,
+  "i": 97
+ },
+ {
+  "qid": "4481278a-14a9-479b-892b-703af0d87e97",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "reverse_percentage",
+  "trap": "{{c - c * b / 100}}",
+  "response": "You subtracted {{b}}% of the increased price. Instead, divide by the multiplier (1 + {{b/100}}) to find the original.",
+  "method_marks": 0,
+  "i": 98
+ },
+ {
+  "qid": "4481278a-14a9-479b-892b-703af0d87e97",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "reverse_percentage",
+  "trap": "{{c + c * b / 100}}",
+  "response": "You added {{b}}% instead of working backwards. Divide by (1 + {{b/100}}) to reverse the percentage increase.",
+  "method_marks": 0,
+  "i": 99
+ },
+ {
+  "qid": "45a2013a-30c0-483c-b063-f52357a23927",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "sector_calculations",
+  "trap": "{{round(30*t/360*Math.PI*r*r,2)}}",
+  "response": "That is the area of the sector (it uses r²). The arc length uses the circumference formula 2πr: ({{30*t}}/360) × 2 × π × {{r}} = {{round(30*t/360*2*Math.PI*r,2)}} cm.",
+  "method_marks": 0,
+  "i": 100
+ },
+ {
+  "qid": "45a2013a-30c0-483c-b063-f52357a23927",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "sector_calculations",
+  "trap": "{{round(2*Math.PI*r,2)}}",
+  "response": "That is the circumference of the whole circle. The arc is only {{30*t}}/360 of it: {{round(30*t/360*2*Math.PI*r,2)}} cm.",
+  "method_marks": 1,
+  "i": 101
+ },
+ {
+  "qid": "45a2013a-30c0-483c-b063-f52357a23927",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "sector_calculations",
+  "trap": "{{round((30*t/360*2*Math.PI*r)+2*r,2)}}",
+  "response": "That's the perimeter of the whole sector. You only needed the length of the arc (the curved side) and didn't need to add on the two straight edges.",
+  "method_marks": 1,
+  "i": 102
+ },
+ {
+  "qid": "45bd90a1-d0a4-4df2-9777-e9f3235caed4",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "mean",
+  "trap": "{{(5*g+5*h)/2}}",
+  "response": "You found the mean of the two means. Because the classes are different sizes you must combine the totals: ({{100*g}} + {{150*h}}) ÷ 50 = {{(100*g+150*h)/50}}.",
+  "method_marks": 0,
+  "i": 103
+ },
+ {
+  "qid": "48c6804a-a4d8-44b7-ad8b-1e46c2e549df",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{l*w*h}}",
+  "response": "That is the volume. Mass = volume × density = {{l*w*h}} × {{d}} = {{l*w*h*d}} g.",
+  "method_marks": 1,
+  "i": 104
+ },
+ {
+  "qid": "48c6804a-a4d8-44b7-ad8b-1e46c2e549df",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{round(l*w*h/d,2)}}",
+  "response": "Density = mass ÷ volume, so mass = density × volume — multiply, don’t divide: {{l*w*h}} × {{d}} = {{l*w*h*d}} g.",
+  "method_marks": 0,
+  "i": 105
+ },
+ {
+  "qid": "48d6b11f-ad99-4ed7-8ca4-4e505767022f",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "completing_the_square",
+  "trap": "(x + {{2 * a}})² + {{b}}",
+  "response": "When completing the square, halve the coefficient of x to find p. Here p = {{2*a}} ÷ 2 = {{a}}.",
+  "method_marks": 0,
+  "i": 106
+ },
+ {
+  "qid": "48d6b11f-ad99-4ed7-8ca4-4e505767022f",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "completing_the_square",
+  "trap": "(x + {{a}})² + {{b + a * a}}",
+  "response": "(x + {{a}})² = x² + {{2*a}}x + {{a*a}}, so to match the original you need to subtract {{a*a}}: the constant term is {{b}} − {{a*a}} = {{b - a*a}}.",
+  "method_marks": 1,
+  "i": 107
+ },
+ {
+  "qid": "4c0e94c1-4bec-4dcb-a7fa-e59c576f22aa",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "sequences+solving_linear_equations",
+  "trap": "{{d*m}}",
+  "response": "You subtracted the constant correctly, but then stopped — that is {{d}}n, not n. Divide by the common difference: {{d*m}} ÷ {{d}} = {{m}}. It is the {{m}}th term.",
+  "method_marks": 1,
+  "i": 108
+ },
+ {
+  "qid": "4c0e94c1-4bec-4dcb-a7fa-e59c576f22aa",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "sequences+solving_linear_equations",
+  "trap": "{{round((d*m+2*c)/d,2)}}",
+  "response": "The nth term is {{d}}n + {{c}}, so set {{d}}n + {{c}} = {{d*m+c}} and SUBTRACT {{c}} before dividing: ({{d*m+c}} − {{c}}) ÷ {{d}} = {{m}}. It is the {{m}}th term.",
+  "method_marks": 0,
+  "i": 109
+ },
+ {
+  "qid": "4c0e94c1-4bec-4dcb-a7fa-e59c576f22aa",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "sequences+solving_linear_equations",
+  "trap": "{{d*(d*m+c)+c}}",
+  "response": "You substituted the given term&apos;s VALUE in for n. n is what you are solving for — set {{d}}n + {{c}} = {{d*m+c}} and solve: subtract {{c}}, then divide by {{d}}, giving n = {{m}}. It is the {{m}}th term.",
+  "method_marks": 0,
+  "i": 110
+ },
+ {
+  "qid": "501366d5-0abe-4ab9-9000-e19efb2bddd6",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "upper_and_lower_bounds",
+  "trap": "{{a}}.{{b + 1}}",
+  "response": "The upper bound is halfway between this measurement and the next, not the next rounded value.",
+  "method_marks": 0,
+  "i": 111
+ },
+ {
+  "qid": "51d2e490-b55f-479c-aae9-6422af1a4522",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "sector_calculations",
+  "trap": "{{round(Math.PI * r * r, 2)}}",
+  "response": "That's the area of the full circle. For a sector, multiply by θ/360: Area = ({{theta}}/360) × π × {{r}}² ≈ {{round(theta/360 * Math.PI * r * r, 2)}} cm².",
+  "method_marks": 1,
+  "i": 112
+ },
+ {
+  "qid": "51d2e490-b55f-479c-aae9-6422af1a4522",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "sector_calculations",
+  "trap": "{{round(theta / 360 * 2 * Math.PI * r, 2)}}",
+  "response": "That's the arc length. Area of sector = (θ/360) × πr² = ({{theta}}/360) × π × {{r}}² ≈ {{round(theta/360 * Math.PI * r * r, 2)}} cm².",
+  "method_marks": 0,
+  "i": 113
+ },
+ {
+  "qid": "5336bd5e-7fa8-4fa8-9a67-387b9b684d0a",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{a * 1000 + a * 1000 * r * n / 100}}",
+  "response": "You calculated simple interest by adding the same amount each year. Compound interest multiplies by (1 + {{r/100}}) each year.",
+  "method_marks": 0,
+  "i": 114
+ },
+ {
+  "qid": "5336bd5e-7fa8-4fa8-9a67-387b9b684d0a",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{a * 1000 * r * n / 100}}",
+  "response": "That is the total interest earned using simple interest, not the total value. The total value is the original × (1 + {{r/100}}) for each year.",
+  "method_marks": 0,
+  "i": 115
+ },
+ {
+  "qid": "53d8b86c-c090-4085-bce2-82926c3ac26d",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "composite_functions",
+  "trap": "{{(a*n+b)*(a*n+b)}}",
+  "response": "fg means apply g first, then f — not the other way round. g({{n}}) = {{n}}² = {{n*n}}, then apply f to that result: f({{n*n}}) = {{a}}×{{n*n}} + {{b}} = {{a*n*n + b}}.",
+  "method_marks": 0,
+  "i": 116
+ },
+ {
+  "qid": "53d8b86c-c090-4085-bce2-82926c3ac26d",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "composite_functions",
+  "trap": "{{a*n + b}}",
+  "response": "fg({{n}}) means apply g first: g({{n}}) = {{n}}² = {{n*n}}, then apply f to that result: f({{n*n}}) = {{a}}×{{n*n}} + {{b}} = {{a*n*n + b}}.",
+  "method_marks": 0,
+  "i": 117
+ },
+ {
+  "qid": "53d8b86c-c090-4085-bce2-82926c3ac26d",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "composite_functions",
+  "trap": "{{n*n}}",
+  "response": "fg({{n}}) means apply g first: g({{n}}) = {{n}}² = {{n*n}}, then apply f to that result: f({{n*n}}) = {{a}}×{{n*n}} + {{b}} = {{a*n*n + b}}.",
+  "method_marks": 1,
+  "i": 118
+ },
+ {
+  "qid": "53ea9182-3499-428c-8747-134ac65364e1",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{round(Math.sqrt(a-Math.sqrt(a-c)), 3)}}",
+  "response": "That is x₂ — you stopped one iteration early. Apply the formula once more: x₃ = √({{a}} − x₂) = {{round(Math.sqrt(a-Math.sqrt(a-Math.sqrt(a-c))), 3)}}.",
+  "method_marks": 1,
+  "i": 119
+ },
+ {
+  "qid": "53ea9182-3499-428c-8747-134ac65364e1",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{round(Math.sqrt(a-c), 3)}}",
+  "response": "That is x₁ (one application of the formula). You need to apply it three times: x₁ = {{round(Math.sqrt(a-c), 3)}}, x₂ = {{round(Math.sqrt(a-Math.sqrt(a-c)), 3)}}, x₃ = {{round(Math.sqrt(a-Math.sqrt(a-Math.sqrt(a-c))), 3)}}.",
+  "method_marks": 1,
+  "i": 120
+ },
+ {
+  "qid": "53ea9182-3499-428c-8747-134ac65364e1",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{round(Math.sqrt(a-Math.sqrt(a-Math.sqrt(a-Math.sqrt(a-c)))), 3)}}",
+  "response": "That is x₄ — you did one iteration too many. You should have stopped at the previous iteration: x₃ = √({{a}} − x₂) = {{round(Math.sqrt(a-Math.sqrt(a-Math.sqrt(a-c))), 3)}}.",
+  "method_marks": 1,
+  "i": 121
+ },
+ {
+  "qid": "56632f2a-918e-417e-9716-d6746b0d071e",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "grouped_frequency_tables",
+  "trap": "{{round((5+15+25)/3,1)}}",
+  "response": "You averaged the midpoints but must weight each by its frequency: (5×{{f1}} + 15×{{f2}} + 25×{{f3}}) ÷ {{f1+f2+f3}}.",
+  "method_marks": 0,
+  "i": 122
+ },
+ {
+  "qid": "56632f2a-918e-417e-9716-d6746b0d071e",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "grouped_frequency_tables",
+  "trap": "{{round((5*f1+15*f2+25*f3)/3,1)}}",
+  "response": "Divide by the TOTAL frequency ({{f1+f2+f3}}), not by the number of classes (3).",
+  "method_marks": 1,
+  "i": 123
+ },
+ {
+  "qid": "570e1004-a694-4518-b98c-60033fafa87c",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "tree_diagrams",
+  "trap": "{{r}}/{{r+b}}",
+  "response": "That is only the first counter. Multiply along the branches: {{r}}/{{r+b}} × {{r}}/{{r+b}} = {{r*r}}/{{(r+b)*(r+b)}}.",
+  "method_marks": 0,
+  "i": 124
+ },
+ {
+  "qid": "570e1004-a694-4518-b98c-60033fafa87c",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "tree_diagrams",
+  "trap": "{{r+r}}/{{(r+b)+(r+b)}}",
+  "response": "Multiply the branch probabilities, do not add them: {{r}}/{{r+b}} × {{r}}/{{r+b}}.",
+  "method_marks": 0,
+  "i": 125
+ },
+ {
+  "qid": "570e1004-a694-4518-b98c-60033fafa87c",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "tree_diagrams",
+  "trap": "{{r*b}}/{{(r+b)*(r+b)}}",
+  "response": "There are TWO ways: red-then-blue OR blue-then-red. Add both: 2 × {{r}}/{{r+b}} × {{b}}/{{r+b}}.",
+  "method_marks": 1,
+  "i": 126
+ },
+ {
+  "qid": "598242e2-5ebc-49a0-9dff-60aebfe89ff4",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "inequalities",
+  "trap": "x ≥ {{fracStr(c-b, a)}}",
+  "response": "Only flip the inequality sign when multiplying or dividing by a negative. You divide by {{a}} (positive), so the sign stays: x ≤ {{fracStr(c-b, a)}}.",
+  "method_marks": 1,
+  "i": 127
+ },
+ {
+  "qid": "598242e2-5ebc-49a0-9dff-60aebfe89ff4",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "inequalities",
+  "trap": "x ≤ {{fracStr(c+b, a)}}",
+  "response": "Check the sign: moving +{{b}} across means subtracting it, so {{a}}x ≤ {{c-b}}.",
+  "method_marks": 0,
+  "i": 128
+ },
+ {
+  "qid": "598242e2-5ebc-49a0-9dff-60aebfe89ff4",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "inequalities",
+  "trap": "x={{fracStr(c-b, a)}}",
+  "response": "Almost — you've found the correct boundary value, but written it as an EQUATION. This question asks you to solve an INEQUALITY, so the answer must keep the inequality sign: x ≤ {{fracStr(c-b, a)}}.",
+  "method_marks": 1,
+  "i": 129
+ },
+ {
+  "qid": "598242e2-5ebc-49a0-9dff-60aebfe89ff4",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "inequalities",
+  "trap": "{{fracStr(c-b, a)}}",
+  "response": "Almost — you've found the correct boundary value, but written it as an EQUATION. This question asks you to solve an INEQUALITY, so the answer must keep the inequality sign: x ≤ {{fracStr(c-b, a)}}.",
+  "method_marks": 1,
+  "i": 130
+ },
+ {
+  "qid": "5eca9cc8-635c-4be6-98b8-afe0164347ed",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "standard_form+time_calculations",
+  "trap": "{{3*m}} × 10<sup>8</sup>",
+  "response": "You multiplied by the number of MINUTES, but the speed is per SECOND. {{m}} minutes = {{60*m}} seconds, so distance = 3 × 10⁸ × {{60*m}} = {{180*m}} × 10⁸ = {{1.8*m}} × 10¹⁰ m.",
+  "method_marks": 0,
+  "i": 131
+ },
+ {
+  "qid": "5eca9cc8-635c-4be6-98b8-afe0164347ed",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "standard_form+time_calculations",
+  "trap": "{{3*m}} × 10<sup>10</sup>",
+  "response": "Check the time conversion: 1 minute is 60 seconds, not 100. {{m}} minutes = {{60*m}} seconds, so distance = 3 × 10⁸ × {{60*m}} = {{1.8*m}} × 10¹⁰ m.",
+  "method_marks": 1,
+  "i": 132
+ },
+ {
+  "qid": "5eca9cc8-635c-4be6-98b8-afe0164347ed",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "standard_form+time_calculations",
+  "trap": "{{18*m}} × 10<sup>9</sup>",
+  "response": "The value is right, but {{18*m}} × 10⁹ is not STANDARD FORM — the front number must be at least 1 and less than 10: {{18*m}} × 10⁹ = {{1.8*m}} × 10¹⁰ m.",
+  "method_marks": 2,
+  "i": 133
+ },
+ {
+  "qid": "6211f46f-9163-43fc-90d2-1535cd2b67e3",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "frequency_trees",
+  "trap": "{{wl}}/{{wl+wn+dl+dn}}",
+  "response": "Include the late students from BOTH branches: {{wl}} + {{dl}} = {{wl+dl}} late, out of {{wl+wn+dl+dn}}.",
+  "method_marks": 1,
+  "i": 134
+ },
+ {
+  "qid": "6211f46f-9163-43fc-90d2-1535cd2b67e3",
+  "loc": "p2:1",
+  "marks": 2,
+  "skill": "frequency_trees",
+  "trap": "{{dl}}/{{wl+wn+dl+dn}}",
+  "response": "Include the late students from BOTH branches: {{wl}} + {{dl}} = {{wl+dl}} late, out of {{wl+wn+dl+dn}}.",
+  "method_marks": 1,
+  "i": 135
+ },
+ {
+  "qid": "6211f46f-9163-43fc-90d2-1535cd2b67e3",
+  "loc": "p2:2",
+  "marks": 2,
+  "skill": "frequency_trees",
+  "trap": "{{wn+dn}}/{{wl+wn+dl+dn}}",
+  "response": "You've added together the students who were not late. You should have added {{dl}} and {{wl}}.",
+  "method_marks": 0,
+  "i": 136
+ },
+ {
+  "qid": "66cdd6fc-c0d2-4f0e-b567-b46e4a440b24",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "combined_events",
+  "trap": "{{a+b}}/{{a*b}}",
+  "response": "For independent events, multiply the probabilities — do not add them. P(1 on first) = {{frac(1, a)}}, P(1 on second) = {{frac(1, b)}}. P(1 on both) = {{frac(1, a)}} × {{frac(1, b)}} = {{frac(1, a*b)}}.",
+  "method_marks": 0,
+  "i": 137
+ },
+ {
+  "qid": "66cdd6fc-c0d2-4f0e-b567-b46e4a440b24",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "combined_events",
+  "trap": "1/{{a}}",
+  "response": "You need to account for both spinners. P(1 on first) = {{frac(1, a)}} and P(1 on second) = {{frac(1, b)}}. Combined: {{frac(1, a)}} × {{frac(1, b)}} = {{frac(1, a*b)}}.",
+  "method_marks": 1,
+  "i": 138
+ },
+ {
+  "qid": "66cdd6fc-c0d2-4f0e-b567-b46e4a440b24",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "combined_events",
+  "trap": "1/{{b}}",
+  "response": "You need to account for both spinners. P(1 on first) = {{frac(1, a)}} and P(1 on second) = {{frac(1, b)}}. Combined: {{frac(1, a)}} × {{frac(1, b)}} = {{frac(1, a*b)}}.",
+  "method_marks": 1,
+  "i": 139
+ },
+ {
+  "qid": "6837c60d-78c4-4362-8395-30cd5d2c6bdb",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "multiplying_fractions",
+  "trap": "{{fracStr(a*d + b*c, b*d)}}",
+  "response": "That's adding the fractions. To multiply, multiply numerators together and denominators together: {{frac(a,b)}} × {{frac(c,d)}} = {{frac(a*c, b*d)}}{{gcd(a*c,b*d)>1 ? ' = ' + fracStr(a*c,b*d) : ''}}.",
+  "method_marks": 0,
+  "i": 140
+ },
+ {
+  "qid": "6837c60d-78c4-4362-8395-30cd5d2c6bdb",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "multiplying_fractions",
+  "trap": "{{fracStr(a*d, b*c)}}",
+  "response": "That's the result of dividing instead of multiplying. Multiply straight across: ({{a}} × {{c}}) / ({{b}} × {{d}}) = {{fracStr(a*c, b*d)}}.",
+  "method_marks": 0,
+  "i": 141
+ },
+ {
+  "qid": "6898fb28-aef6-42d1-a31a-8558d2a457b9",
+  "loc": "q:0",
+  "marks": 3,
+  "skill": "fractions_of_amounts+areas_of_squares_and_rectangles",
+  "trap": "{{l*[6,9,8,8,10,10][sel]}}",
+  "response": "That is the area of the WHOLE garden. Only {{[1,2,1,3,2,3][sel]}}/{{[3,3,4,4,5,5][sel]}} of it is lawn: {{[1,2,1,3,2,3][sel]}}/{{[3,3,4,4,5,5][sel]}} × {{l*[6,9,8,8,10,10][sel]}} = {{l*[6,9,8,8,10,10][sel]*[1,2,1,3,2,3][sel]/[3,3,4,4,5,5][sel]}} m².",
+  "method_marks": 1,
+  "i": 142
+ },
+ {
+  "qid": "6898fb28-aef6-42d1-a31a-8558d2a457b9",
+  "loc": "q:1",
+  "marks": 3,
+  "skill": "fractions_of_amounts+areas_of_squares_and_rectangles",
+  "trap": "{{l*[6,9,8,8,10,10][sel]*([3,3,4,4,5,5][sel]-[1,2,1,3,2,3][sel])/[3,3,4,4,5,5][sel]}}",
+  "response": "That is the part of the garden that is NOT lawn. The lawn is {{[1,2,1,3,2,3][sel]}}/{{[3,3,4,4,5,5][sel]}} of the garden: {{[1,2,1,3,2,3][sel]}}/{{[3,3,4,4,5,5][sel]}} × {{l*[6,9,8,8,10,10][sel]}} = {{l*[6,9,8,8,10,10][sel]*[1,2,1,3,2,3][sel]/[3,3,4,4,5,5][sel]}} m².",
+  "method_marks": 1,
+  "i": 143
+ },
+ {
+  "qid": "6bc803e1-b16b-40d5-aded-e3cfe6c8e4fa",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "circle_theorem_alternate_segment",
+  "trap": "{{90 - a}}",
+  "response": "The alternate segment theorem states that the angle between a tangent and a chord equals the inscribed angle in the alternate segment. Angle PRQ = {{a}}°.",
+  "method_marks": 0,
+  "i": 144
+ },
+ {
+  "qid": "6bc803e1-b16b-40d5-aded-e3cfe6c8e4fa",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "circle_theorem_alternate_segment",
+  "trap": "{{180 - a}}",
+  "response": "By the alternate segment theorem, angle PRQ equals the angle between the tangent and the chord. Angle PRQ = {{a}}°.",
+  "method_marks": 0,
+  "i": 145
+ },
+ {
+  "qid": "6e9781e7-eb2f-4b88-971b-a950462e4325",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "perpendicular_gradients",
+  "trap": "{{m}}",
+  "response": "Parallel lines share a gradient; perpendicular lines have the NEGATIVE RECIPROCAL: −1/{{m}}.",
+  "method_marks": 0,
+  "i": 146
+ },
+ {
+  "qid": "6e9781e7-eb2f-4b88-971b-a950462e4325",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "perpendicular_gradients",
+  "trap": "1/{{m}}",
+  "response": "The reciprocal is right, but a perpendicular gradient must be negative: −1/{{m}}.",
+  "method_marks": 1,
+  "i": 147
+ },
+ {
+  "qid": "6e9781e7-eb2f-4b88-971b-a950462e4325",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "perpendicular_gradients",
+  "trap": "-{{m}}",
+  "response": "You made it a negative, but did not take the reciprocal. Perpendicular gradient = −1 ÷ {{m}} = −1/{{m}}.",
+  "method_marks": 1,
+  "i": 148
+ },
+ {
+  "qid": "6ed2d883-7e79-4c79-ad35-1a462b4a5ab5",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "conditional_probability",
+  "trap": "{{fracStr(r*r,(r+b)*(r+b))}}",
+  "response": "This assumes the balls are replaced between draws — but they are not. After drawing one red ball, there are {{r-1}} red balls left out of {{r+b-1}} total. P(both red) = {{frac(r, r+b)}} × {{frac(r-1, r+b-1)}} = {{fracStr(r*(r-1),(r+b)*(r+b-1))}}.",
+  "method_marks": 0,
+  "i": 149
+ },
+ {
+  "qid": "6ed2d883-7e79-4c79-ad35-1a462b4a5ab5",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "conditional_probability",
+  "trap": "{{fracStr(r,r+b)}}",
+  "response": "That's the probability the first ball is red. For both to be red, also multiply by the probability the second is red (given the first was): {{frac(r, r+b)}} × {{frac(r-1, r+b-1)}} = {{fracStr(r*(r-1),(r+b)*(r+b-1))}}.",
+  "method_marks": 1,
+  "i": 150
+ },
+ {
+  "qid": "7168c1d6-e36e-4f79-bead-c74bb24ad267",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "mutually_exclusive_events",
+  "trap": "{{round((a / 10) * (b / 10), 4)}}",
+  "response": "You multiplied the probabilities — that applies to independent events. For mutually exclusive events: P(A or B) = P(A) + P(B) = {{a / 10}} + {{b / 10}} = {{(a + b) / 10}}.",
+  "method_marks": 0,
+  "i": 151
+ },
+ {
+  "qid": "7168c1d6-e36e-4f79-bead-c74bb24ad267",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "mutually_exclusive_events",
+  "trap": "{{round((a + b) / 10 - (a / 10) * (b / 10), 4)}}",
+  "response": "A and B are mutually exclusive — they cannot both occur, so P(A and B) = 0. P(A or B) = P(A) + P(B) = {{(a + b) / 10}}.",
+  "method_marks": 1,
+  "i": 152
+ },
+ {
+  "qid": "7230bb35-3384-4dd6-9d7a-39ddb50ca897",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "quadratic_inequalities",
+  "trap": "{{b}}",
+  "response": "The inequality is strict ({{b-1}}.",
+  "method_marks": 1,
+  "i": 153
+ },
+ {
+  "qid": "7230bb35-3384-4dd6-9d7a-39ddb50ca897",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "quadratic_inequalities",
+  "trap": "{{a+1}}",
+  "response": "That's the smallest integer satisfying the inequality. The solution set is {{a}} largest integer is {{b-1}}.",
+  "method_marks": 1,
+  "i": 154
+ },
+ {
+  "qid": "7230bb35-3384-4dd6-9d7a-39ddb50ca897",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "quadratic_inequalities",
+  "trap": "{{a}}",
+  "response": "You've tried to find the smallest integer, but also not noticed it's strict ( If you were trying to find the smaller solution it would be {{a+2}}, but the answer here was the larger solution, so it should have been {{b}}.",
+  "method_marks": 0,
+  "i": 155
+ },
+ {
+  "qid": "7536046f-b58f-49f2-8461-b3725bd4a3a8",
+  "loc": "q:0",
+  "marks": 5,
+  "skill": "area_of_a_circle+percentage_change",
+  "trap": "{{2*[10,20,30,50][sel]}}",
+  "response": "Close, but doubling the radius increase is not enough. Area = πr², so the area scales by (1.{{[10,20,30,50][sel]}})² ... work it as a multiplier: the new area is ({{100+[10,20,30,50][sel]}}/100)² = {{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/10000}} times the old area — an increase of {{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/100 - 100}}%.",
+  "method_marks": 2,
+  "i": 156
+ },
+ {
+  "qid": "7536046f-b58f-49f2-8461-b3725bd4a3a8",
+  "loc": "q:1",
+  "marks": 5,
+  "skill": "area_of_a_circle+percentage_change",
+  "trap": "{{[10,20,30,50][sel]}}",
+  "response": "The area does not grow by the same percentage as the radius. Area = πr², so the multiplier is squared: ({{100+[10,20,30,50][sel]}}/100)² = {{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/10000}}, an increase of {{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/100 - 100}}%.",
+  "method_marks": 0,
+  "i": 157
+ },
+ {
+  "qid": "7536046f-b58f-49f2-8461-b3725bd4a3a8",
+  "loc": "q:2",
+  "marks": 5,
+  "skill": "area_of_a_circle+percentage_change",
+  "trap": "{{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/100}}",
+  "response": "That is the new area as a percentage of the old area. The question asks for the percentage INCREASE — subtract 100: {{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/100}} − 100 = {{(100+[10,20,30,50][sel])*(100+[10,20,30,50][sel])/100 - 100}}%.",
+  "method_marks": 2,
+  "i": 158
+ },
+ {
+  "qid": "75ebebaf-76f6-48b2-8da9-6d19164b9a5e",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "surds_simplifying",
+  "trap": "√{{a * a * b}}",
+  "response": "Look for a square factor inside the surd. {{a * a * b}} = {{a * a}} × {{b}} = {{a}}² × {{b}}, so √{{a * a * b}} = √{{a * a}} × √{{b}} = {{a}}√{{b}}.",
+  "method_marks": 1,
+  "i": 159
+ },
+ {
+  "qid": "75ebebaf-76f6-48b2-8da9-6d19164b9a5e",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "surds_simplifying",
+  "trap": "{{a * b}}",
+  "response": "You cannot just multiply the numbers outside the surd. √{{a * a * b}} = {{a}}√{{b}}, not {{a * b}}.",
+  "method_marks": 0,
+  "i": 160
+ },
+ {
+  "qid": "75ebebaf-76f6-48b2-8da9-6d19164b9a5e",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "surds_simplifying",
+  "trap": "√{{b}}",
+  "response": "You've forgotten to include the number you've square rooted ({{a}}).",
+  "method_marks": 1,
+  "i": 161
+ },
+ {
+  "qid": "75ebebaf-76f6-48b2-8da9-6d19164b9a5e",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "surds_simplifying",
+  "trap": "{{a}}",
+  "response": "You've square rooted {{a*a}} but you forgot to include the √{{b}}",
+  "method_marks": 1,
+  "i": 162
+ },
+ {
+  "qid": "768ebac0-92c1-435b-a6c4-030218eabe2e",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "angles_on_lines_and_circles+solving_linear_equations",
+  "trap": "{{[30,40,25,35][sel]}}",
+  "response": "You found x, but the question asks for the largest angle. The largest is {{[3,2,4,3][sel]}}x = {{[3,2,4,3][sel]}} × {{[30,40,25,35][sel]}} = {{[90,80,100,105][sel]}}°.",
+  "method_marks": 2,
+  "i": 163
+ },
+ {
+  "qid": "768ebac0-92c1-435b-a6c4-030218eabe2e",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "angles_on_lines_and_circles+solving_linear_equations",
+  "trap": "{{[198,200,220,240][sel]}}",
+  "response": "Angles on a straight LINE add up to 180°, not 360°. The largest angle is {{[90,80,100,105][sel]}}°.",
+  "method_marks": 0,
+  "i": 164
+ },
+ {
+  "qid": "768ebac0-92c1-435b-a6c4-030218eabe2e",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "angles_on_lines_and_circles+solving_linear_equations",
+  "trap": "{{[3,2,4,3][sel]*180/([2,1,2,1][sel]+[3,2,4,3][sel])}}",
+  "response": "Don’t forget the {{[30,60,30,40][sel]}}° angle — all three angles must add up to 180°: {{[2,1,2,1][sel]}}x + {{[3,2,4,3][sel]}}x + {{[30,60,30,40][sel]}} = 180. That gives x = {{(180-[30,60,30,40][sel])/([2,1,2,1][sel]+[3,2,4,3][sel])}} and a largest angle of {{[90,80,100,105][sel]}}°.",
+  "method_marks": 1,
+  "i": 165
+ },
+ {
+  "qid": "76ee77be-03ce-421c-bcb3-f752aea1f4ef",
+  "loc": "q:0",
+  "marks": 5,
+  "skill": "areas_of_squares_and_rectangles+enlargements",
+  "trap": "{{w*l*k}}",
+  "response": "Under an enlargement of scale factor {{k}}, area scales both sides by {{k}}, not just one. Enlarged area = {{w*k}} × {{l*k}} = {{w*l*k*k}} cm².",
+  "method_marks": 2,
+  "i": 166
+ },
+ {
+  "qid": "76ee77be-03ce-421c-bcb3-f752aea1f4ef",
+  "loc": "q:1",
+  "marks": 5,
+  "skill": "areas_of_squares_and_rectangles+enlargements",
+  "trap": "{{w*l}}",
+  "response": "That is the original area. Each side is multiplied by {{k}}, so the area becomes {{k}}² = {{k*k}} times bigger: {{w*l}} × {{k*k}} = {{w*l*k*k}} cm².",
+  "method_marks": 1,
+  "i": 167
+ },
+ {
+  "qid": "76ee77be-03ce-421c-bcb3-f752aea1f4ef",
+  "loc": "q:2",
+  "marks": 5,
+  "skill": "areas_of_squares_and_rectangles+enlargements",
+  "trap": "{{2*(w+l)}}",
+  "response": "That is the perimeter of the original rectangle. Area = width × length = {{w*l}} cm², then scale by {{k}}²: {{w*l*k*k}} cm².",
+  "method_marks": 0,
+  "i": 168
+ },
+ {
+  "qid": "79378b82-3a03-4a57-a28d-8a81accee8c3",
+  "loc": "q:0",
+  "marks": 3,
+  "skill": "calculating_simple_probability+adding_and_subtracting_fractions",
+  "trap": "{{fracStr(9 - [1,1,1,2,2][sel] - [1,2,3,1,2][sel], 9)}}",
+  "response": "You added the fractions by adding tops and bottoms separately — use a COMMON DENOMINATOR instead: {{[1,1,1,2,2][sel]}}/4 + {{[1,2,3,1,2][sel]}}/5 = {{5*[1,1,1,2,2][sel]}}/20 + {{4*[1,2,3,1,2][sel]}}/20 = {{5*[1,1,1,2,2][sel] + 4*[1,2,3,1,2][sel]}}/20. Then P(yellow) = 1 − {{5*[1,1,1,2,2][sel] + 4*[1,2,3,1,2][sel]}}/20 = {{fracStr(20 - 5*[1,1,1,2,2][sel] - 4*[1,2,3,1,2][sel], 20)}}.",
+  "method_marks": 0,
+  "i": 169
+ },
+ {
+  "qid": "79378b82-3a03-4a57-a28d-8a81accee8c3",
+  "loc": "q:1",
+  "marks": 3,
+  "skill": "calculating_simple_probability+adding_and_subtracting_fractions",
+  "trap": "{{fracStr(5*[1,1,1,2,2][sel] + 4*[1,2,3,1,2][sel], 20)}}",
+  "response": "That is P(red OR blue). The three probabilities sum to 1, so P(yellow) = 1 − {{5*[1,1,1,2,2][sel] + 4*[1,2,3,1,2][sel]}}/20 = {{fracStr(20 - 5*[1,1,1,2,2][sel] - 4*[1,2,3,1,2][sel], 20)}}.",
+  "method_marks": 1,
+  "i": 170
+ },
+ {
+  "qid": "7d7efd65-ddd9-42a4-bff0-7d1ad33a63d5",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{a * b}}",
+  "response": "That is the distance travelled, not the speed. Speed = distance ÷ time = {{a * b}} ÷ {{a}} = {{b}} mph.",
+  "method_marks": 0,
+  "i": 171
+ },
+ {
+  "qid": "7d7efd65-ddd9-42a4-bff0-7d1ad33a63d5",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{a + b}}",
+  "response": "Speed is not distance plus time. Speed = distance ÷ time, so {{a * b}} ÷ {{a}} = {{b}} mph.",
+  "method_marks": 0,
+  "i": 172
+ },
+ {
+  "qid": "7d7efd65-ddd9-42a4-bff0-7d1ad33a63d5",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{a * b * a}}",
+  "response": "You multiplied distance by time. Speed = distance ÷ time = {{a * b}} ÷ {{a}} = {{b}} mph.",
+  "method_marks": 0,
+  "i": 173
+ },
+ {
+  "qid": "7d7efd65-ddd9-42a4-bff0-7d1ad33a63d5",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{1/b}}",
+  "response": "It looks like you've done your divide the wrong way around. Speed = distance ÷ time, so {{a * b}} ÷ {{a}} = {{b}} mph.",
+  "method_marks": 0,
+  "i": 174
+ },
+ {
+  "qid": "7ed30148-8cbf-449f-b6a8-e38ef82e482f",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "simultaneous_equations",
+  "trap": "x = {{d}}, y = {{c}}",
+  "response": "Check which variable is which — substitute your answers back into both equations to verify.",
+  "method_marks": 1,
+  "i": 175
+ },
+ {
+  "qid": "7ed30148-8cbf-449f-b6a8-e38ef82e482f",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "simultaneous_equations",
+  "trap": "x = {{c + d}}, y = {{c + d}}",
+  "response": "You cannot add the values together. Use elimination or substitution to find each variable separately.",
+  "method_marks": 0,
+  "i": 176
+ },
+ {
+  "qid": "7ed30148-8cbf-449f-b6a8-e38ef82e482f",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "simultaneous_equations",
+  "trap": "x = {{c - d}}, y = {{d - c}}",
+  "response": "Check your signs. Substitute your answers back into the original equations to verify.",
+  "method_marks": 0,
+  "i": 177
+ },
+ {
+  "qid": "7fcbc0e9-4cc0-4eda-9a30-4ce4d2c00632",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "inverse_proportion",
+  "trap": "{{round(12*m/[2,3,4,6][i]*[2,3,4,6][j]/[2,3,4,6][i],2)}}",
+  "response": "More workers means the job takes fewer days, not more — the quantities are inversely proportional. Total work = {{[2,3,4,6][i]}} × {{12*m/[2,3,4,6][i]}} = {{12*m}} worker-days, so {{[2,3,4,6][j]}} workers take {{12*m}} ÷ {{[2,3,4,6][j]}} = {{12*m/[2,3,4,6][j]}} days.",
+  "method_marks": 0,
+  "i": 178
+ },
+ {
+  "qid": "7fcbc0e9-4cc0-4eda-9a30-4ce4d2c00632",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "inverse_proportion",
+  "trap": "{{12*m}}",
+  "response": "That is the total amount of work in worker-days ({{[2,3,4,6][i]}} × {{12*m/[2,3,4,6][i]}}). Divide by the {{[2,3,4,6][j]}} workers to get the time: {{12*m}} ÷ {{[2,3,4,6][j]}} = {{12*m/[2,3,4,6][j]}} days.",
+  "method_marks": 1,
+  "i": 179
+ },
+ {
+  "qid": "88aff836-498d-4bfb-bc2e-c444938c9026",
+  "loc": "q:0",
+  "marks": 3,
+  "skill": "pythagoras_theorem+lengths_and_perimeters",
+  "trap": "{{([3,9,8,12][t]+[4,12,15,16][t])}}",
+  "response": "That is only the two shorter sides. You also need the hypotenuse ({{[5,15,17,20][t]}} cm): perimeter = {{[3,9,8,12][t]}} + {{[4,12,15,16][t]}} + {{[5,15,17,20][t]}} = {{([3,9,8,12][t]+[4,12,15,16][t]+[5,15,17,20][t])}} cm.",
+  "method_marks": 0,
+  "i": 180
+ },
+ {
+  "qid": "88aff836-498d-4bfb-bc2e-c444938c9026",
+  "loc": "q:1",
+  "marks": 3,
+  "skill": "pythagoras_theorem+lengths_and_perimeters",
+  "trap": "{{[5,15,17,20][t]}}",
+  "response": "That is the hypotenuse. The perimeter is the sum of all three sides: {{[3,9,8,12][t]}} + {{[4,12,15,16][t]}} + {{[5,15,17,20][t]}} = {{([3,9,8,12][t]+[4,12,15,16][t]+[5,15,17,20][t])}} cm.",
+  "method_marks": 1,
+  "i": 181
+ },
+ {
+  "qid": "88aff836-498d-4bfb-bc2e-c444938c9026",
+  "loc": "q:2",
+  "marks": 3,
+  "skill": "pythagoras_theorem+lengths_and_perimeters",
+  "trap": "{{2*([3,9,8,12][t]+[4,12,15,16][t])}}",
+  "response": "To find the hypotenuse you cannot just add the two shorter sides — use Pythagoras: √({{[3,9,8,12][t]}}² + {{[4,12,15,16][t]}}²) = {{[5,15,17,20][t]}} cm. Perimeter = {{([3,9,8,12][t]+[4,12,15,16][t]+[5,15,17,20][t])}} cm.",
+  "method_marks": 0,
+  "i": 182
+ },
+ {
+  "qid": "88aff836-498d-4bfb-bc2e-c444938c9026",
+  "loc": "q:3",
+  "marks": 3,
+  "skill": "pythagoras_theorem+lengths_and_perimeters",
+  "trap": "{{([3,9,8,12][t]*[4,12,15,16][t]/2)}}",
+  "response": "That is the area of the triangle (½ × {{[3,9,8,12][t]}} × {{[4,12,15,16][t]}}). The question asks for the perimeter — the total distance around all three sides: {{[3,9,8,12][t]}} + {{[4,12,15,16][t]}} + {{[5,15,17,20][t]}} = {{([3,9,8,12][t]+[4,12,15,16][t]+[5,15,17,20][t])}} cm.",
+  "method_marks": 0,
+  "i": 183
+ },
+ {
+  "qid": "8a010944-d6f5-47b0-9d02-186989d3764e",
+  "loc": "p0:0",
+  "marks": 2,
+  "skill": "areas_of_triangles",
+  "trap": "{{(sel?5:3)*k/2}}",
+  "response": "Area = ½ × base × height, so height = (2 × area) ÷ base. Remember to double the area first: ({{2*(sel?30:6)*k*k}}) ÷ {{(sel?12:4)*k}} = {{(sel?5:3)*k}} cm.",
+  "method_marks": 1,
+  "i": 184
+ },
+ {
+  "qid": "8a010944-d6f5-47b0-9d02-186989d3764e",
+  "loc": "p1:0",
+  "marks": 3,
+  "skill": "pythagoras_theorem",
+  "trap": "{{(sel?17:7)*k}}",
+  "response": "You have added the base and height, but not the hypotenuse. Use Pythagoras to find the third side first, then add all three: {{(sel?30:12)*k}} cm.",
+  "method_marks": 0,
+  "i": 185
+ },
+ {
+  "qid": "8a010944-d6f5-47b0-9d02-186989d3764e",
+  "loc": "p1:1",
+  "marks": 3,
+  "skill": "pythagoras_theorem",
+  "trap": "{{(sel?13:5)*k}}",
+  "response": "That is the hypotenuse. The perimeter is the sum of all three sides: {{(sel?12:4)*k}} + {{(sel?5:3)*k}} + {{(sel?13:5)*k}} = {{(sel?30:12)*k}} cm.",
+  "method_marks": 1,
+  "i": 186
+ },
+ {
+  "qid": "8ac2ff8f-108c-46c8-b83d-6b90549c2044",
+  "loc": "q:0",
+  "marks": 5,
+  "skill": "upper_and_lower_bounds+compound_units",
+  "trap": "{{round(d / (w + z/10), 1)}}",
+  "response": "You used the measured values. Each measurement has a range: the distance could be as much as {{d + 0.5}} km and the time as little as {{round(w + z/10 - 0.05, 2)}} hours — use those bounds for the fastest possible speed.",
+  "method_marks": 0,
+  "i": 187
+ },
+ {
+  "qid": "8ac2ff8f-108c-46c8-b83d-6b90549c2044",
+  "loc": "q:1",
+  "marks": 5,
+  "skill": "upper_and_lower_bounds+compound_units",
+  "trap": "{{round((d + 0.5) / (w + z/10 + 0.05), 1)}}",
+  "response": "You used the UPPER bound of the time. Dividing by a bigger time gives a SLOWER speed — for the fastest possible speed, divide by the SMALLEST possible time: {{round(w + z/10 - 0.05, 2)}} hours.",
+  "method_marks": 2,
+  "i": 188
+ },
+ {
+  "qid": "8ac2ff8f-108c-46c8-b83d-6b90549c2044",
+  "loc": "q:2",
+  "marks": 5,
+  "skill": "upper_and_lower_bounds+compound_units",
+  "trap": "{{round((d - 0.5) / (w + z/10 + 0.05), 1)}}",
+  "response": "That is the LOWER bound of the speed. For the UPPER bound use the biggest possible distance ({{d + 0.5}} km) and the smallest possible time ({{round(w + z/10 - 0.05, 2)}} hours).",
+  "method_marks": 2,
+  "i": 189
+ },
+ {
+  "qid": "8bccad20-7e3e-4caf-96f7-996cc1be067b",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{Math.round((c + a) / b * 1000) / 1000}}",
+  "response": "That is x₁, not x₂. You need to apply the formula a second time using x₁ as the new input.",
+  "method_marks": 1,
+  "i": 190
+ },
+ {
+  "qid": "8bccad20-7e3e-4caf-96f7-996cc1be067b",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{Math.round(((c + a) / b + a) / b * 10) / 10}}",
+  "response": "Check your rounding — give your answer to 3 decimal places.",
+  "method_marks": 1,
+  "i": 191
+ },
+ {
+  "qid": "8bccad20-7e3e-4caf-96f7-996cc1be067b",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{Math.floor(((c + a) / b + a) / b * 1000) / 1000}}",
+  "response": "It looks like you didn't round up when you should have.",
+  "method_marks": 1,
+  "i": 192
+ },
+ {
+  "qid": "8bccad20-7e3e-4caf-96f7-996cc1be067b",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "iteration",
+  "trap": "{{Math.round((((c + a) / b + a) / b + a) / b * 1000) / 1000}}",
+  "response": "That is x₃, not x₂. You have done one too many iterations.",
+  "method_marks": 1,
+  "i": 193
+ },
+ {
+  "qid": "8c70c92c-382d-46a5-9b0e-3f34e0313c66",
+  "loc": "p1:0",
+  "marks": 3,
+  "skill": "percentage_change",
+  "trap": "{{b*w}}",
+  "response": "That is the 20% Ben spent, not what is left. Ben has {{5*b*w}} − {{b*w}} = £{{4*b*w}}.",
+  "method_marks": 1,
+  "i": 194
+ },
+ {
+  "qid": "8c70c92c-382d-46a5-9b0e-3f34e0313c66",
+  "loc": "p1:1",
+  "marks": 3,
+  "skill": "percentage_change",
+  "trap": "{{5*b*w}}",
+  "response": "That is Ben’s full share before spending. Reduce it by 20%: £{{4*b*w}}.",
+  "method_marks": 1,
+  "i": 195
+ },
+ {
+  "qid": "8c70c92c-382d-46a5-9b0e-3f34e0313c66",
+  "loc": "p1:2",
+  "marks": 3,
+  "skill": "percentage_change",
+  "trap": "{{4*(a+b)*w}}",
+  "response": "That is 80% of the whole £{{(a+b)*5*w}}, not of Ben’s share. Apply the 20% reduction to Ben’s share only: {{5*b*w}} × 0.8 = £{{4*b*w}}.",
+  "method_marks": 0,
+  "i": 196
+ },
+ {
+  "qid": "8e7493e7-65e9-4a7a-a3af-c4942313bcb9",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "combined_events+solving_quadratic_equations_factorising",
+  "trap": "{{[90,72,56,90,42,72,132,30][sel]}}",
+  "response": "That is the value of n(n − 1), not n. Finish by solving the quadratic: n² − n − {{[90,72,56,90,42,72,132,30][sel]}} = 0, so (n − {{[10,9,8,10,7,9,12,6][sel]}})(n + {{[10,9,8,10,7,9,12,6][sel] - 1}}) = 0 and n = {{[10,9,8,10,7,9,12,6][sel]}}.",
+  "method_marks": 2,
+  "i": 197
+ },
+ {
+  "qid": "8e7493e7-65e9-4a7a-a3af-c4942313bcb9",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "combined_events+solving_quadratic_equations_factorising",
+  "trap": "{{[10,9,8,10,7,9,12,6][sel] - 1}}",
+  "response": "It looks like you solved n(n + 1) = {{[90,72,56,90,42,72,132,30][sel]}}. After the first counter is taken there are n − 1 counters left, so the equation is n(n − 1) = {{[90,72,56,90,42,72,132,30][sel]}}, giving n = {{[10,9,8,10,7,9,12,6][sel]}}.",
+  "method_marks": 0,
+  "i": 198
+ },
+ {
+  "qid": "8fae0cf9-b732-4cb4-a82a-21b7533b9efa",
+  "loc": "p1:0",
+  "marks": 3,
+  "skill": "ratio",
+  "trap": "{{(2*a+b+gap)*gap*u}}",
+  "response": "The £{{gap*u}} is the difference of {{gap}} parts, not one part. One part = {{gap*u}} ÷ {{gap}} = £{{u}}, so the total = {{2*a+b+gap}} × {{u}} = £{{(2*a+b+gap)*u}}.",
+  "method_marks": 0,
+  "i": 199
+ },
+ {
+  "qid": "8fae0cf9-b732-4cb4-a82a-21b7533b9efa",
+  "loc": "p1:1",
+  "marks": 3,
+  "skill": "ratio",
+  "trap": "{{(a+gap)*u}}",
+  "response": "That is only Cara’s share. The total is all {{2*a+b+gap}} parts: £{{(2*a+b+gap)*u}}.",
+  "method_marks": 1,
+  "i": 200
+ },
+ {
+  "qid": "919a43f5-cf3f-4efc-8568-603eba1b6cf7",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_factorising",
+  "trap": "x = {{a}} or x = {{b}}",
+  "response": "Check your signs. If (x + {{a}}) = 0 then x = −{{a}}, not x = {{a}}.",
+  "method_marks": 1,
+  "i": 201
+ },
+ {
+  "qid": "919a43f5-cf3f-4efc-8568-603eba1b6cf7",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_factorising",
+  "trap": "(x + {{a}})(x + {{b}})",
+  "response": "You need to solve, not just factorise. After this you need to solve when each bracket equals zero.",
+  "method_marks": 1,
+  "i": 202
+ },
+ {
+  "qid": "919a43f5-cf3f-4efc-8568-603eba1b6cf7",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_factorising",
+  "trap": "(x - {{a}})(x - {{b}}) ",
+  "response": "You need to solve, not just factorise. However, first you should check your factorising as you've gotten mixed up with your signs.",
+  "method_marks": 0,
+  "i": 203
+ },
+ {
+  "qid": "9221a578-51b3-4fd5-ab9e-358fae3613de",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{a * b}}",
+  "response": "That is the mass, not the density. Density = mass ÷ volume = {{a * b}} ÷ {{a}} = {{b}} g/cm³.",
+  "method_marks": 0,
+  "i": 204
+ },
+ {
+  "qid": "9221a578-51b3-4fd5-ab9e-358fae3613de",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{a + b}}",
+  "response": "Density is not mass plus volume. Density = mass ÷ volume = {{a * b}} ÷ {{a}} = {{b}} g/cm³.",
+  "method_marks": 0,
+  "i": 205
+ },
+ {
+  "qid": "9221a578-51b3-4fd5-ab9e-358fae3613de",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{b/a}}",
+  "response": "You've gotten the divide calculation the wrong way around. Density = mass ÷ volume = {{a * b}} ÷ {{a}} = {{b}} g/cm³.",
+  "method_marks": 0,
+  "i": 206
+ },
+ {
+  "qid": "93a98a78-e1b6-41dc-bfa2-008f9911b3fe",
+  "loc": "q:0",
+  "marks": 3,
+  "skill": "quadratic_functions",
+  "trap": "{{h}}",
+  "response": "{{h}} is the x-value where the minimum occurs. The minimum value of y is found by completing the square: y = (x − {{h}})² + {{k}}, so the minimum y is {{k}}.",
+  "method_marks": 1,
+  "i": 207
+ },
+ {
+  "qid": "93a98a78-e1b6-41dc-bfa2-008f9911b3fe",
+  "loc": "q:1",
+  "marks": 3,
+  "skill": "quadratic_functions",
+  "trap": "{{h*h + k}}",
+  "response": "That's the constant term when expanded, where the curve crosses the y axis. Complete the square: y = (x − {{h}})² + {{k}}. The minimum y-value is {{k}}, which occurs when (x − {{h}})² = 0.",
+  "method_marks": 0,
+  "i": 208
+ },
+ {
+  "qid": "955cc3ef-3088-4049-90eb-6b0104f59a08",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "coordinates+pythagoras_theorem",
+  "trap": "{{[3,6,5,8,9,12][sel]+[4,8,12,15,12,16][sel]}}",
+  "response": "You ADDED the horizontal and vertical differences. AB is the hypotenuse of a right-angled triangle with legs {{[3,6,5,8,9,12][sel]}} and {{[4,8,12,15,12,16][sel]}} — use Pythagoras: √({{[3,6,5,8,9,12][sel]}}² + {{[4,8,12,15,12,16][sel]}}²) = {{[5,10,13,17,15,20][sel]}}.",
+  "method_marks": 0,
+  "i": 209
+ },
+ {
+  "qid": "955cc3ef-3088-4049-90eb-6b0104f59a08",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "coordinates+pythagoras_theorem",
+  "trap": "{{[3,6,5,8,9,12][sel]*[3,6,5,8,9,12][sel]+[4,8,12,15,12,16][sel]*[4,8,12,15,12,16][sel]}}",
+  "response": "That is {{[3,6,5,8,9,12][sel]}}² + {{[4,8,12,15,12,16][sel]}}² — you forgot to take the square root: √{{[3,6,5,8,9,12][sel]*[3,6,5,8,9,12][sel]+[4,8,12,15,12,16][sel]*[4,8,12,15,12,16][sel]}} = {{[5,10,13,17,15,20][sel]}}.",
+  "method_marks": 2,
+  "i": 210
+ },
+ {
+  "qid": "9b147954-641b-4dc1-a1d0-5cf17be45708",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "upper_and_lower_bounds",
+  "trap": "{{[10,100,1000][r]*n - [10,100,1000][r]}}",
+  "response": "Rounding to the nearest {{[10,100,1000][r]}} means the true value is within half of {{[10,100,1000][r]}} either way. Subtract {{[10,100,1000][r]}} ÷ 2 = {{[10,100,1000][r]/2}}, not the whole {{[10,100,1000][r]}}: lower bound = {{[10,100,1000][r]*n - [10,100,1000][r]/2}}.",
+  "method_marks": 0,
+  "i": 211
+ },
+ {
+  "qid": "9b147954-641b-4dc1-a1d0-5cf17be45708",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "upper_and_lower_bounds",
+  "trap": "{{[10,100,1000][r]*n + [10,100,1000][r]/2}}",
+  "response": "That is the upper bound. The lower bound subtracts half of {{[10,100,1000][r]}}: {{[10,100,1000][r]*n}} − {{[10,100,1000][r]/2}} = {{[10,100,1000][r]*n - [10,100,1000][r]/2}}.",
+  "method_marks": 1,
+  "i": 212
+ },
+ {
+  "qid": "9b147954-641b-4dc1-a1d0-5cf17be45708",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "upper_and_lower_bounds",
+  "trap": "{{[10,100,1000][r]*n + [10,100,1000][r]/2 - 1}}",
+  "response": "That is the largest whole number of people that would still round to {{[10,100,1000][r]*n}} — but it is still an upper-bound value. This question asks for the LOWER bound: {{[10,100,1000][r]*n}} − {{[10,100,1000][r]/2}} = {{[10,100,1000][r]*n - [10,100,1000][r]/2}}.",
+  "method_marks": 1,
+  "i": 213
+ },
+ {
+  "qid": "9dfb11ed-de27-4e99-999e-57385c89abc9",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "upper_and_lower_bounds",
+  "trap": "{{8*w + 4 > [590,605,615][ci] ? \"NO\" : \"YES\"}}",
+  "response": "Compare the WORST CASE with the limit: the total could be as much as {{8*w + 4}} kg, and the lift carries at most {{[590,605,615][ci]}} kg. {{8*w + 4 > [590,605,615][ci] ? \"Since \" + (8*w + 4) + \" > \" + [590,605,615][ci] + \", the lift COULD be overloaded — YES.\" : \"Even the worst case (\" + (8*w + 4) + \" kg) is within the limit, so NO.\"}}",
+  "method_marks": 0,
+  "i": 214
+ },
+ {
+  "qid": "a1b332b3-0d3b-4b9d-832b-a8e74e6aa295",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "trigonometry_missing_sides+areas_of_triangles",
+  "trap": "{{round(b * b * Math.tan(theta * Math.PI / 180), 2)}}",
+  "response": "You found base × height but forgot the ½. Height = {{b}} × tan({{theta}}°) = {{round(b * Math.tan(theta * Math.PI / 180), 2)}} cm, so area = ½ × {{b}} × {{round(b * Math.tan(theta * Math.PI / 180), 2)}} ≈ {{round(0.5 * b * b * Math.tan(theta * Math.PI / 180), 2)}} cm².",
+  "method_marks": 2,
+  "i": 215
+ },
+ {
+  "qid": "a1b332b3-0d3b-4b9d-832b-a8e74e6aa295",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "trigonometry_missing_sides+areas_of_triangles",
+  "trap": "{{round(0.5 * b * b, 2)}}",
+  "response": "You used the base as the height. The height is NOT given — find it with trigonometry first: height = {{b}} × tan({{theta}}°) = {{round(b * Math.tan(theta * Math.PI / 180), 2)}} cm, then area = ½ × {{b}} × height ≈ {{round(0.5 * b * b * Math.tan(theta * Math.PI / 180), 2)}} cm².",
+  "method_marks": 0,
+  "i": 216
+ },
+ {
+  "qid": "a1b332b3-0d3b-4b9d-832b-a8e74e6aa295",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "trigonometry_missing_sides+areas_of_triangles",
+  "trap": "{{round(0.5 * b * b / Math.cos(theta * Math.PI / 180), 2)}}",
+  "response": "That uses the HYPOTENUSE ({{b}} ÷ cos({{theta}}°) = {{round(b / Math.cos(theta * Math.PI / 180), 2)}} cm) as the height. The height is the side OPPOSITE the {{theta}}° angle: {{b}} × tan({{theta}}°) = {{round(b * Math.tan(theta * Math.PI / 180), 2)}} cm, so area = ½ × {{b}} × {{round(b * Math.tan(theta * Math.PI / 180), 2)}} ≈ {{round(0.5 * b * b * Math.tan(theta * Math.PI / 180), 2)}} cm².",
+  "method_marks": 1,
+  "i": 217
+ },
+ {
+  "qid": "a1e9b976-d0ed-47c4-8efd-d8cb8667216b",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "adding_and_subtracting_fractions",
+  "trap": "{{a - b}}/{{4 - 5}}",
+  "response": "You can't subtract fractions by subtracting numerators and denominators separately. Find a common denominator: LCM(4, 5) = 20. {{a}}/4 = {{5*a}}/20 and {{b}}/5 = {{4*b}}/20. Subtract: ({{5*a}} - {{4*b}})/20 = {{5*a - 4*b}}/20.",
+  "method_marks": 0,
+  "i": 218
+ },
+ {
+  "qid": "a1e9b976-d0ed-47c4-8efd-d8cb8667216b",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "adding_and_subtracting_fractions",
+  "trap": "{{a - b}}/4",
+  "response": "You need a common denominator before subtracting. LCM(4, 5) = 20: {{a}}/4 = {{5*a}}/20, {{b}}/5 = {{4*b}}/20, so the answer is {{5*a - 4*b}}/20.",
+  "method_marks": 0,
+  "i": 219
+ },
+ {
+  "qid": "a653ffa7-038e-434e-90a5-d692e9fa8675",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "proportion",
+  "trap": "{{a * c + b}}",
+  "response": "You added {{b}} to the original amount. Instead, find the amount per person: {{a * c}} ÷ {{a}} = {{c}} g, then multiply by {{b}}.",
+  "method_marks": 0,
+  "i": 220
+ },
+ {
+  "qid": "a653ffa7-038e-434e-90a5-d692e9fa8675",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "proportion",
+  "trap": "{{a * c*a}}/{{b}}",
+  "response": "It looks like you've got the amounts of people the wrong way around. You should have divided by {{a}} then multiplied by {{b}}.",
+  "method_marks": 0,
+  "i": 221
+ },
+ {
+  "qid": "a653ffa7-038e-434e-90a5-d692e9fa8675",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "proportion",
+  "trap": "{{c}}",
+  "response": "It looks like you've calculated the amount for one person. You need to multiply this by {{b}} to get the total amount.",
+  "method_marks": 1,
+  "i": 222
+ },
+ {
+  "qid": "a7cff7db-2c25-4628-9877-75b966d5dcaa",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "circle_theorem_tangent",
+  "trap": "{{5*k - 3*k}}",
+  "response": "Use Pythagoras, not subtraction. The tangent meets the radius at 90°, so PT² = OT² − OP² = {{5*k}}² − {{3*k}}² = {{25*k*k}} − {{9*k*k}} = {{16*k*k}}. PT = √{{16*k*k}} = {{4*k}} cm.",
+  "method_marks": 0,
+  "i": 223
+ },
+ {
+  "qid": "a7cff7db-2c25-4628-9877-75b966d5dcaa",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "circle_theorem_tangent",
+  "trap": "{{round(Math.sqrt((5*k)*(5*k) + (3*k)*(3*k)), 2)}}",
+  "response": "Angle OPT = 90°, so OT is the hypotenuse. Subtract (not add): PT² = OT² − OP² = {{25*k*k}} − {{9*k*k}} = {{16*k*k}}, PT = {{4*k}} cm.",
+  "method_marks": 1,
+  "i": 224
+ },
+ {
+  "qid": "ab2375ae-05e0-4e8e-8601-47152dd02a75",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "circle_theorem_angle_at_centre",
+  "trap": "{{a / 2}}",
+  "response": "The angle at the centre is twice the angle at the circumference — not half. Angle at centre = 2 × {{a}}° = {{2 * a}}°.",
+  "method_marks": 0,
+  "i": 225
+ },
+ {
+  "qid": "ab2375ae-05e0-4e8e-8601-47152dd02a75",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "circle_theorem_angle_at_centre",
+  "trap": "{{180 - a}}",
+  "response": "That calculation doesn't apply here. The circle theorem states: angle at centre = 2 × angle at circumference = 2 × {{a}}° = {{2 * a}}°.",
+  "method_marks": 0,
+  "i": 226
+ },
+ {
+  "qid": "abc93b14-32f9-42bc-8e78-e82ffaffb8e3",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{5*a+5*b}}",
+  "response": "You found the mean of the two speeds. Average speed uses TOTAL distance ÷ TOTAL time = {{20*a+30*b}} ÷ 5 = {{4*a+6*b}} km/h.",
+  "method_marks": 0,
+  "i": 227
+ },
+ {
+  "qid": "abc93b14-32f9-42bc-8e78-e82ffaffb8e3",
+  "loc": "p2:1",
+  "marks": 2,
+  "skill": "compound_units",
+  "trap": "{{round(5/(20*a+30*b),4)}}",
+  "response": "You have divided time by distance. Speed = distance ÷ time, not time ÷ distance: {{20*a+30*b}} ÷ 5 = {{4*a+6*b}} km/h.",
+  "method_marks": 0,
+  "i": 228
+ },
+ {
+  "qid": "af3808f4-aae0-4c2a-8be6-ccab96385f47",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "recurring_decimals_to_fractions",
+  "trap": "{{fracStr([12,36,45,27,15,72,24,18][sel], 100)}}",
+  "response": "{{[12,36,45,27,15,72,24,18][sel]}}/100 would be the TERMINATING decimal 0.{{[12,36,45,27,15,72,24,18][sel]}} — but this decimal recurs forever. Let x = 0.{{[12,36,45,27,15,72,24,18][sel]}}{{[12,36,45,27,15,72,24,18][sel]}}…, then 100x − x = {{[12,36,45,27,15,72,24,18][sel]}}, so x = {{[12,36,45,27,15,72,24,18][sel]}}/99 = {{fracStr([12,36,45,27,15,72,24,18][sel], 99)}}.",
+  "method_marks": 0,
+  "i": 229
+ },
+ {
+  "qid": "af3808f4-aae0-4c2a-8be6-ccab96385f47",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "recurring_decimals_to_fractions",
+  "trap": "{{fracStr([12,36,45,27,15,72,24,18][sel], 90)}}",
+  "response": "A denominator of 90 is for when only ONE digit recurs after a non-recurring digit. Here BOTH digits recur, so the denominator is 99: {{[12,36,45,27,15,72,24,18][sel]}}/99 = {{fracStr([12,36,45,27,15,72,24,18][sel], 99)}}.",
+  "method_marks": 0,
+  "i": 230
+ },
+ {
+  "qid": "b1f3d882-1467-4051-b16a-294bc340a201",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "simultaneous_equations_quadratic",
+  "trap": "{{-n}}",
+  "response": "x = {{-n}} is the negative root. The question asks for the positive value: x = {{n+1}}.",
+  "method_marks": 1,
+  "i": 231
+ },
+ {
+  "qid": "b1f3d882-1467-4051-b16a-294bc340a201",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "simultaneous_equations_quadratic",
+  "trap": "{{n*(n+1)}}",
+  "response": "Substitute y = x² into the linear equation: x² = x + {{n*(n+1)}} → x² − x − {{n*(n+1)}} = 0 → (x − {{n+1}})(x + {{n}}) = 0. The positive root is x = {{n+1}}.",
+  "method_marks": 0,
+  "i": 232
+ },
+ {
+  "qid": "b544504a-fbfc-4c73-a203-c68e81910adb",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "cosine_rule",
+  "trap": "{{round(Math.sqrt(p*p + q*q + 2*p*q*Math.cos((30+30*n)*Math.PI/180)), 2)}}",
+  "response": "The cosine rule has a minus sign: c² = a² + b² − 2ab cos(C). c = √({{p}}² + {{q}}² − 2×{{p}}×{{q}}×cos({{30+30*n}}°)) ≈ {{round(Math.sqrt(p*p+q*q-2*p*q*Math.cos((30+30*n)*Math.PI/180)), 2)}} cm.",
+  "method_marks": 1,
+  "i": 233
+ },
+ {
+  "qid": "b544504a-fbfc-4c73-a203-c68e81910adb",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "cosine_rule",
+  "trap": "{{round(Math.sqrt(p*p + q*q), 2)}}",
+  "response": "That's Pythagoras — only valid at 90°. Use the cosine rule: c² = a² + b² − 2ab cos(C) ≈ {{round(Math.sqrt(p*p+q*q-2*p*q*Math.cos((30+30*n)*Math.PI/180)), 2)}} cm.",
+  "method_marks": 0,
+  "i": 234
+ },
+ {
+  "qid": "b544504a-fbfc-4c73-a203-c68e81910adb",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "cosine_rule",
+  "trap": "{{round(Math.sqrt(p*p + q*q - 2*p*q*Math.cos(30+30*n)),2)}}",
+  "response": "That is what your calculator gives in RADIAN mode. This is a degrees problem — set your calculator to DEG mode. In degrees, cos({{30+30*n}}°) = {{round(Math.cos((30+30*n)*Math.PI/180),3)}}, giving c = {{round(Math.sqrt(p*p + q*q - 2*p*q*Math.cos((30+30*n)*Math.PI/180)),2)}} cm.",
+  "method_marks": 1,
+  "i": 235
+ },
+ {
+  "qid": "b66b436e-cf8e-4747-8cd4-fc76447e323c",
+  "loc": "q:0",
+  "marks": 3,
+  "skill": "areas_of_triangles+pythagoras_theorem",
+  "trap": "{{(sel?13:5)*k}}",
+  "response": "That is the hypotenuse. The perimeter is the sum of all three sides: {{(sel?12:4)*k}} + {{(sel?5:3)*k}} + {{(sel?13:5)*k}} = {{(sel?30:12)*k}} cm.",
+  "method_marks": 1,
+  "i": 236
+ },
+ {
+  "qid": "b66b436e-cf8e-4747-8cd4-fc76447e323c",
+  "loc": "q:1",
+  "marks": 3,
+  "skill": "areas_of_triangles+pythagoras_theorem",
+  "trap": "{{(sel?17:7)*k}}",
+  "response": "You have added the base and height, but not the hypotenuse. Use Pythagoras to find it ({{(sel?13:5)*k}} cm), then add all three sides: {{(sel?30:12)*k}} cm.",
+  "method_marks": 0,
+  "i": 237
+ },
+ {
+  "qid": "b66b436e-cf8e-4747-8cd4-fc76447e323c",
+  "loc": "q:2",
+  "marks": 3,
+  "skill": "areas_of_triangles+pythagoras_theorem",
+  "trap": "{{(sel?5:3)*k}}",
+  "response": "That is the height of the triangle (from area = ½ × base × height). You still need the hypotenuse, then add all three sides: {{(sel?30:12)*k}} cm.",
+  "method_marks": 1,
+  "i": 238
+ },
+ {
+  "qid": "b6a855a2-beaf-4f28-879e-448b53296b72",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "inverse_functions",
+  "trap": "{{a*(a*n+b) + b}}",
+  "response": "f⁻¹ means the inverse function — you need to reverse f, not apply it again. Rearrange y = {{a}}x + {{b}} for x: x = (y − {{b}}) ÷ {{a}}. So f⁻¹({{a*n+b}}) = ({{a*n+b}} − {{b}}) ÷ {{a}} = {{n}}.",
+  "method_marks": 0,
+  "i": 239
+ },
+ {
+  "qid": "b6a855a2-beaf-4f28-879e-448b53296b72",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "inverse_functions",
+  "trap": "{{round((a*n + b) / a, 4)}}",
+  "response": "Subtract {{b}} before dividing by {{a}}: f⁻¹({{a*n+b}}) = ({{a*n+b}} − {{b}}) ÷ {{a}} = {{a*n}} ÷ {{a}} = {{n}}.",
+  "method_marks": 0,
+  "i": 240
+ },
+ {
+  "qid": "b9051e5b-b8a5-4dbe-9f94-f3a20411b7e0",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "volume_of_a_sphere",
+  "trap": "{{round(4 * Math.PI * r * r, 2)}}",
+  "response": "That's the surface area (4πr²). Volume of a sphere = (4/3)πr³ = (4/3) × π × {{r}}³ ≈ {{round(4/3*Math.PI*r*r*r, 2)}} cm³.",
+  "method_marks": 0,
+  "i": 241
+ },
+ {
+  "qid": "b9051e5b-b8a5-4dbe-9f94-f3a20411b7e0",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "volume_of_a_sphere",
+  "trap": "{{round(Math.PI * r * r * r, 2)}}",
+  "response": "You used πr³. The formula is (4/3)πr³: V = (4/3) × π × {{r}}³ ≈ {{round(4/3*Math.PI*r*r*r, 2)}} cm³.",
+  "method_marks": 0,
+  "i": 242
+ },
+ {
+  "qid": "b9051e5b-b8a5-4dbe-9f94-f3a20411b7e0",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "volume_of_a_sphere",
+  "trap": "{{round(Math.PI * r * r, 2)}}",
+  "response": "You used πr². The formula is (4/3)πr³: V = (4/3) × π × {{r}}³ ≈ {{round(4/3*Math.PI*r*r*r, 2)}} cm³.",
+  "method_marks": 0,
+  "i": 243
+ },
+ {
+  "qid": "b9051e5b-b8a5-4dbe-9f94-f3a20411b7e0",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "volume_of_a_sphere",
+  "trap": "{{round(4/3 * Math.PI * r * r, 2)}} cm³",
+  "response": "You used r² in the formula instead of r³",
+  "method_marks": 0,
+  "i": 244
+ },
+ {
+  "qid": "bb6a2963-f67c-4042-9365-9834c8efe025",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "standard_form",
+  "trap": "{{a >= 10 ? a / 10 : a}} × 10<sup>{{a >= 10 ? p - 1 : p}}</sup>",
+  "response": "The number is smaller than 1 so the power must be negative. Small numbers have negative powers in standard form.",
+  "method_marks": 1,
+  "i": 245
+ },
+ {
+  "qid": "bb6a2963-f67c-4042-9365-9834c8efe025",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "standard_form",
+  "trap": "{{a >= 10 ? a : a * 10}} × 10<sup>-{{a >= 10 ? p : p + 1}}</sup>",
+  "response": "The coefficient must be between 1 and 10. {{a >= 10 ? a : a * 10}} is {{a >= 10 ? 'greater than 10' : 'greater than 10'}} so divide it by 10 and increase the power by 1.",
+  "method_marks": 1,
+  "i": 246
+ },
+ {
+  "qid": "bb6a2963-f67c-4042-9365-9834c8efe025",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "standard_form",
+  "trap": "{{a >= 10 ? a / 100 : a / 10}} × 10<sup>-{{a >= 10 ? p - 2 : p - 1}}</sup>",
+  "response": "The coefficient must be between 1 and 10. {{a >= 10 ? a / 100 : a / 10}} is less than 1 so multiply it by 10 and decrease the power by 1.",
+  "method_marks": 1,
+  "i": 247
+ },
+ {
+  "qid": "bf2216ef-41cf-4377-969a-c6d33a7b9299",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "compound_units+time_calculations",
+  "trap": "{{[16,18,14,16,22,12][sel]*[15,20,30,45,30,45][sel]}}",
+  "response": "You multiplied the speed by the time in MINUTES, but the speed is in km per HOUR. Convert first: {{[15,20,30,45,30,45][sel]}} minutes = {{[15,20,30,45,30,45][sel]}}/60 hours, so distance = {{[16,18,14,16,22,12][sel]}} × {{[15,20,30,45,30,45][sel]}}/60 = {{[16,18,14,16,22,12][sel]*[15,20,30,45,30,45][sel]/60}} km.",
+  "method_marks": 0,
+  "i": 248
+ },
+ {
+  "qid": "bf2216ef-41cf-4377-969a-c6d33a7b9299",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "compound_units+time_calculations",
+  "trap": "{{[16,18,14,16,22,12][sel]*[15,20,30,45,30,45][sel]/100}}",
+  "response": "{{[15,20,30,45,30,45][sel]}} minutes is NOT 0.{{[15,20,30,45,30,45][sel]}} hours — there are 60 minutes in an hour, not 100. {{[15,20,30,45,30,45][sel]}} minutes = {{[15,20,30,45,30,45][sel]}}/60 hours, so distance = {{[16,18,14,16,22,12][sel]}} × {{[15,20,30,45,30,45][sel]}}/60 = {{[16,18,14,16,22,12][sel]*[15,20,30,45,30,45][sel]/60}} km.",
+  "method_marks": 1,
+  "i": 249
+ },
+ {
+  "qid": "c143a0a6-dea6-41d1-b79b-e6405ae319fc",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "trigonometry_missing_sides",
+  "trap": "{{round(h * Math.cos(theta * Math.PI / 180), 2)}}",
+  "response": "You used cos instead of sin. The side marked x is OPPOSITE the {{theta}}° angle, and you have the hypotenuse — so use sin: x = {{h}} × sin({{theta}}°) ≈ {{round(h * Math.sin(theta * Math.PI / 180), 2)}} cm.",
+  "method_marks": 0,
+  "i": 250
+ },
+ {
+  "qid": "c143a0a6-dea6-41d1-b79b-e6405ae319fc",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "trigonometry_missing_sides",
+  "trap": "{{round(h / Math.sin(theta * Math.PI / 180), 2)}}",
+  "response": "You divided by sin({{theta}}°) — that would find the hypotenuse FROM the opposite side. Here you already have the hypotenuse, so multiply: x = {{h}} × sin({{theta}}°) ≈ {{round(h * Math.sin(theta * Math.PI / 180), 2)}} cm.",
+  "method_marks": 0,
+  "i": 251
+ },
+ {
+  "qid": "c179e489-a4b8-4a03-9d4c-08998f5a14cc",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "functions_notation",
+  "trap": "{{a * c * 2 + b}}",
+  "response": "f({{c}}) means substitute x = {{c}}. Remember x² means x × x, so {{c}}² = {{c * c}}, not {{c * 2}}.",
+  "method_marks": 0,
+  "i": 252
+ },
+ {
+  "qid": "c179e489-a4b8-4a03-9d4c-08998f5a14cc",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "functions_notation",
+  "trap": "{{a * c + b}}",
+  "response": "You need to square {{c}} first. f({{c}}) = {{a}} × {{c}}² + {{b}} = {{a}} × {{c * c}} + {{b}} = {{a * c * c + b}}.",
+  "method_marks": 0,
+  "i": 253
+ },
+ {
+  "qid": "c179e489-a4b8-4a03-9d4c-08998f5a14cc",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "functions_notation",
+  "trap": "{{a*a*c*c+b}} ",
+  "response": "Remember you need to square x before multiplying it by {{a}}.",
+  "method_marks": 0,
+  "i": 254
+ },
+ {
+  "qid": "c314dd46-5181-4e2e-8c3f-ea0ba55bfc3c",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "cumulative_frequency",
+  "trap": "{{[30,40,30,40,30,30][sel]}}",
+  "response": "That is just the upper quartile. The interquartile range is upper quartile − lower quartile: {{[30,40,30,40,30,30][sel]}} − {{[10,20,20,20,20,10][sel]}} = {{[30,40,30,40,30,30][sel] - [10,20,20,20,20,10][sel]}} minutes.",
+  "method_marks": 1,
+  "i": 255
+ },
+ {
+  "qid": "c314dd46-5181-4e2e-8c3f-ea0ba55bfc3c",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "cumulative_frequency",
+  "trap": "{{[30,40,30,40,30,30][sel] + [10,20,20,20,20,10][sel]}}",
+  "response": "You ADDED the quartiles — the interquartile range is upper quartile minus lower quartile: {{[30,40,30,40,30,30][sel]}} − {{[10,20,20,20,20,10][sel]}} = {{[30,40,30,40,30,30][sel] - [10,20,20,20,20,10][sel]}} minutes.",
+  "method_marks": 1,
+  "i": 256
+ },
+ {
+  "qid": "ca17b522-f6a3-4d99-8f0a-1f3357485f44",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "rearranging_formulae",
+  "trap": "(y-{{b}})/{{a}}",
+  "response": "You have found x², not x — take the square root of the whole expression: x = √((y − {{b}})/{{a}}).",
+  "method_marks": 1,
+  "i": 257
+ },
+ {
+  "qid": "ca17b522-f6a3-4d99-8f0a-1f3357485f44",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "rearranging_formulae",
+  "trap": "√(y/{{a}}-{{b}})",
+  "response": "The subtraction must happen BEFORE the division: undo the +{{b}} first, then the ×{{a}}. x = √((y − {{b}})/{{a}}).",
+  "method_marks": 0,
+  "i": 258
+ },
+ {
+  "qid": "ca17b522-f6a3-4d99-8f0a-1f3357485f44",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "rearranging_formulae",
+  "trap": "√(y-{{b}})/{{a}}",
+  "response": "Check your brackets — the WHOLE fraction (y − {{b}})/{{a}} sits under the square root: x = √((y − {{b}})/{{a}}).",
+  "method_marks": 1,
+  "i": 259
+ },
+ {
+  "qid": "cb37e981-92cb-4a84-bf06-3c61f8215575",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "direct_proportion",
+  "trap": "{{b * a}}",
+  "response": "You used x instead of the constant of proportionality. First find k: y = kx, so k = {{a * k}} ÷ {{a}} = {{k}}. Then y = {{k}} × {{b}} = {{b * k}}.",
+  "method_marks": 0,
+  "i": 260
+ },
+ {
+  "qid": "cb37e981-92cb-4a84-bf06-3c61f8215575",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "direct_proportion",
+  "trap": "{{b + k}}",
+  "response": "In direct proportion, y = kx (multiplication, not addition). Find k = {{a * k}} ÷ {{a}} = {{k}}. Then y = {{k}} × {{b}} = {{b * k}}.",
+  "method_marks": 0,
+  "i": 261
+ },
+ {
+  "qid": "cb37e981-92cb-4a84-bf06-3c61f8215575",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "direct_proportion",
+  "trap": "{{a * k + b - a}}",
+  "response": "You cannot just add the difference. Use the proportionality equation y = kx where k = {{k}}, giving y = {{k}} × {{b}} = {{b * k}}.",
+  "method_marks": 0,
+  "i": 262
+ },
+ {
+  "qid": "cc23a097-d365-47b7-9728-f7686ea67c4a",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "venn_diagrams",
+  "trap": "{{c}}",
+  "response": "{{c}} is the number who play both sports, not neither. Use: neither = total − football only − both − tennis only = {{a+b+c+d}} − {{a}} − {{b}} − {{c}} = {{d}}.",
+  "method_marks": 0,
+  "i": 263
+ },
+ {
+  "qid": "cc23a097-d365-47b7-9728-f7686ea67c4a",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "venn_diagrams",
+  "trap": "{{a+b+c}}",
+  "response": "That's how many play at least one sport. The question asks for neither. Neither = total − (at least one) = {{a+b+c+d}} − {{a+b+c}} = {{d}}.",
+  "method_marks": 1,
+  "i": 264
+ },
+ {
+  "qid": "cc23a097-d365-47b7-9728-f7686ea67c4a",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "venn_diagrams",
+  "trap": "{{d-c}}",
+  "response": "When subtracting both sport groups, you double-subtract students who play both. Add back the overlap: {{a+b+c+d}} − {{a+c}} − {{b+c}} + {{c}} = {{a+b+c+d}} − {{a+b+c}} = {{d}}.",
+  "method_marks": 1,
+  "i": 265
+ },
+ {
+  "qid": "cce72180-d45e-4fa0-a622-35849e0fb3c2",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "equation_of_a_circle",
+  "trap": "{{b*b}}",
+  "response": "That is k², not k. Substituting x = {{a}}: {{a*a}} + k² = {{a*a+b*b}}, so k² = {{b*b}} — now take the square root: k = {{b}}.",
+  "method_marks": 1,
+  "i": 266
+ },
+ {
+  "qid": "cce72180-d45e-4fa0-a622-35849e0fb3c2",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "equation_of_a_circle",
+  "trap": "{{round(Math.sqrt(a*a+b*b)-a, 2)}}",
+  "response": "You subtracted {{a}} from the radius — but coordinates don't work like that. Substitute the point into the equation: {{a}}² + k² = {{a*a+b*b}}, so k² = {{a*a+b*b}} − {{a*a}} = {{b*b}}, giving k = {{b}}.",
+  "method_marks": 0,
+  "i": 267
+ },
+ {
+  "qid": "cce72180-d45e-4fa0-a622-35849e0fb3c2",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "equation_of_a_circle",
+  "trap": "{{a+b}}",
+  "response": "You've worked out the radius, not the y coordinate. Substitute the point into the equation: {{a}}² + k² = {{a*a+b*b}}, so k² = {{a*a+b*b}} − {{a*a}} = {{b*b}}, giving k = {{b}}.",
+  "method_marks": 0,
+  "i": 268
+ },
+ {
+  "qid": "d195ed12-2cc9-4925-9dd6-9506e2d4a55c",
+  "loc": "p0:0",
+  "marks": 2,
+  "skill": "percentage_change",
+  "trap": "{{[60,80,45,70,120,50][sel] - [48,60,27,63,84,40][sel]}}",
+  "response": "That is the DISCOUNT ({{[20,25,40,10,30,20][sel]}}% of £{{[60,80,45,70,120,50][sel]}}), not the sale price — subtract it from the usual price: £{{[60,80,45,70,120,50][sel]}} − £{{[60,80,45,70,120,50][sel] - [48,60,27,63,84,40][sel]}} = £{{[48,60,27,63,84,40][sel]}}.",
+  "method_marks": 1,
+  "i": 269
+ },
+ {
+  "qid": "d195ed12-2cc9-4925-9dd6-9506e2d4a55c",
+  "loc": "p0:1",
+  "marks": 2,
+  "skill": "percentage_change",
+  "trap": "{{[60,80,45,70,120,50][sel] - [20,25,40,10,30,20][sel]}}",
+  "response": "You subtracted £{{[20,25,40,10,30,20][sel]}} — but {{[20,25,40,10,30,20][sel]}}% is a PERCENTAGE of the price, not a number of pounds. {{[20,25,40,10,30,20][sel]}}% of £{{[60,80,45,70,120,50][sel]}} = £{{[60,80,45,70,120,50][sel] - [48,60,27,63,84,40][sel]}}, so the sale price is £{{[60,80,45,70,120,50][sel]}} − £{{[60,80,45,70,120,50][sel] - [48,60,27,63,84,40][sel]}} = £{{[48,60,27,63,84,40][sel]}}.",
+  "method_marks": 0,
+  "i": 270
+ },
+ {
+  "qid": "d195ed12-2cc9-4925-9dd6-9506e2d4a55c",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "fractions_of_amounts",
+  "trap": "{{[66,84,40,90,110,45][sel] - [44,63,30,60,88,36][sel]}}",
+  "response": "That is the DISCOUNT (1/{{[3,4,4,3,5,5][sel]}} of £{{[66,84,40,90,110,45][sel]}}), not the sale price — subtract it: £{{[66,84,40,90,110,45][sel]}} − £{{[66,84,40,90,110,45][sel] - [44,63,30,60,88,36][sel]}} = £{{[44,63,30,60,88,36][sel]}}.",
+  "method_marks": 1,
+  "i": 271
+ },
+ {
+  "qid": "d195ed12-2cc9-4925-9dd6-9506e2d4a55c",
+  "loc": "p1:1",
+  "marks": 2,
+  "skill": "fractions_of_amounts",
+  "trap": "{{[66,84,40,90,110,45][sel] - [3,4,4,3,5,5][sel]}}",
+  "response": "You subtracted £{{[3,4,4,3,5,5][sel]}} — but \"1/{{[3,4,4,3,5,5][sel]}} off\" means a FRACTION of the price comes off, not £{{[3,4,4,3,5,5][sel]}}. 1/{{[3,4,4,3,5,5][sel]}} of £{{[66,84,40,90,110,45][sel]}} = £{{[66,84,40,90,110,45][sel] - [44,63,30,60,88,36][sel]}}, so the sale price is £{{[44,63,30,60,88,36][sel]}}.",
+  "method_marks": 0,
+  "i": 272
+ },
+ {
+  "qid": "d4f45fda-7ebc-4059-9352-c5460ce823d5",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{a * 1000 - a * 1000 * r * n / 100}}",
+  "response": "You calculated simple depreciation by subtracting the same amount each year. Compound depreciation multiplies by (1 − {{r/100}}) each year.",
+  "method_marks": 0,
+  "i": 273
+ },
+ {
+  "qid": "d4f45fda-7ebc-4059-9352-c5460ce823d5",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{a * 1000 * r * n / 100}}",
+  "response": "That is the total amount lost using simple depreciation, not the value remaining. The value remaining is the original × (1 − {{r/100}}) for each year.",
+  "method_marks": 0,
+  "i": 274
+ },
+ {
+  "qid": "d4f45fda-7ebc-4059-9352-c5460ce823d5",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "growth_and_decay",
+  "trap": "{{Math.round(a * 1000 * Math.pow(1 + r/100, n) * 100) / 100}}",
+  "response": "Depreciation means decreasing — multiply by (1 − {{r/100}}) each year, not (1 + {{r/100}}).",
+  "method_marks": 0,
+  "i": 275
+ },
+ {
+  "qid": "d4fac2d4-b873-4233-a6c5-05dd2955997a",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "inverse_proportion",
+  "trap": "{{(n===0)?24:(n===1)?24:(n===2)?36:(n===3)?24:(n===4)?20:(n===5)?30:(n===6)?30:(n===7)?36:(n===8)?60:(n===9)?60:(n===10)?60:(n===11)?60:(n===12)?48:(n===13)?48:(n===14)?42:60}}",
+  "response": "That is k (the constant of proportionality), not y. Once you have k = {{(n===0)?24:(n===1)?24:(n===2)?36:(n===3)?24:(n===4)?20:(n===5)?30:(n===6)?30:(n===7)?36:(n===8)?60:(n===9)?60:(n===10)?60:(n===11)?60:(n===12)?48:(n===13)?48:(n===14)?42:60}}, divide by the new x value ({{(n===0)?6:(n===1)?6:(n===2)?9:(n===3)?8:(n===4)?10:(n===5)?6:(n===6)?10:(n===7)?12:(n===8)?10:(n===9)?12:(n===10)?15:(n===11)?10:(n===12)?8:(n===13)?12:(n===14)?7:10}}) to get y = {{(n===0)?4:(n===1)?4:(n===2)?4:(n===3)?3:(n===4)?2:(n===5)?5:(n===6)?3:(n===7)?3:(n===8)?6:(n===9)?5:(n===10)?4:(n===11)?6:(n===12)?6:(n===13)?4:(n===14)?6:6}}.",
+  "method_marks": 1,
+  "i": 276
+ },
+ {
+  "qid": "d4fac2d4-b873-4233-a6c5-05dd2955997a",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "inverse_proportion",
+  "trap": "{{(n===0)?10:(n===1)?11:(n===2)?25:(n===3)?10:(n===4)?9:(n===5)?13:(n===6)?9:(n===7)?17:(n===8)?38:(n===9)?29:(n===10)?22:(n===11)?21:(n===12)?30:(n===13)?14:(n===14)?18:17}}",
+  "response": "For inverse proportion, y = k ÷ x (not addition or subtraction). Find k = x × y = {{(n===0)?24:(n===1)?24:(n===2)?36:(n===3)?24:(n===4)?20:(n===5)?30:(n===6)?30:(n===7)?36:(n===8)?60:(n===9)?60:(n===10)?60:(n===11)?60:(n===12)?48:(n===13)?48:(n===14)?42:60}}, then divide by the new x ({{(n===0)?6:(n===1)?6:(n===2)?9:(n===3)?8:(n===4)?10:(n===5)?6:(n===6)?10:(n===7)?12:(n===8)?10:(n===9)?12:(n===10)?15:(n===11)?10:(n===12)?8:(n===13)?12:(n===14)?7:10}}) to get {{(n===0)?4:(n===1)?4:(n===2)?4:(n===3)?3:(n===4)?2:(n===5)?5:(n===6)?3:(n===7)?3:(n===8)?6:(n===9)?5:(n===10)?4:(n===11)?6:(n===12)?6:(n===13)?4:(n===14)?6:6}}.",
+  "method_marks": 0,
+  "i": 277
+ },
+ {
+  "qid": "d64bba55-86e1-4824-b9a5-51301a42a9a6",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "graph_transformations",
+  "trap": "({{ t==3 ? a+k : t==4 ? a-k : a }}, {{ t==0 ? b : t==1 ? b-k : t==2 ? b+k : b }})",
+  "response": "Right idea, wrong direction. Check which way this transformation moves the point and whether it changes x or y.",
+  "method_marks": 1,
+  "i": 278
+ },
+ {
+  "qid": "d64bba55-86e1-4824-b9a5-51301a42a9a6",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "graph_transformations",
+  "trap": "({{ t==0 ? -a : t==1 ? a+k : t==2 ? a-k : a }}, {{ t==3 ? b-k : t==4 ? b+k : b }})",
+  "response": "You changed the wrong coordinate. A transformation outside f (like −f(x) or f(x)+k) affects the y-coordinate; one inside the bracket (like f(x+k)) affects the x-coordinate.",
+  "method_marks": 0,
+  "i": 279
+ },
+ {
+  "qid": "dd753004-8acc-4c35-8416-c502715735fe",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "nth_term_quadratic_sequences",
+  "trap": "{{10*d + e}}",
+  "response": "The nth term includes n² — with n = 10: n² = 100. 10th term = 100 + {{10*d}} + {{e}} = {{100+10*d+e}}.",
+  "method_marks": 0,
+  "i": 280
+ },
+ {
+  "qid": "dd753004-8acc-4c35-8416-c502715735fe",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "nth_term_quadratic_sequences",
+  "trap": "{{1+d+e}}",
+  "response": "That's the 1st term (when n = 1). For the 10th term, substitute n = 10: 100 + {{10*d}} + {{e}} = {{100+10*d+e}}.",
+  "method_marks": 0,
+  "i": 281
+ },
+ {
+  "qid": "dd753004-8acc-4c35-8416-c502715735fe",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "nth_term_quadratic_sequences",
+  "trap": "{{10*d+28+e}}",
+  "response": "It looks like you've found the nth term from the first two values, but assumed it was a linear equation. This nth term is a quadratic equation, so you need to start by finding the differences between the differences.",
+  "method_marks": 0,
+  "i": 282
+ },
+ {
+  "qid": "dd753004-8acc-4c35-8416-c502715735fe",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "nth_term_quadratic_sequences",
+  "trap": "n² + {{ d===1 ? '' : d }}n + {{e}}",
+  "response": "That's the rule for the nth term, not the 10th term. Substitute n = 10: 10² + {{d}}×10 + {{e}} = {{100+10*d+e}}.",
+  "method_marks": 1,
+  "i": 283
+ },
+ {
+  "qid": "df3e167c-8d4a-4d1e-a492-1365a2b34a63",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "reverse_percentage",
+  "trap": "{{round(20*m*(100-[10,20,25,30,40][i])/100*(100+[10,20,25,30,40][i])/100, 2)}}",
+  "response": "You added {{[10,20,25,30,40][i]}}% of the SALE price — but the {{[10,20,25,30,40][i]}}% was taken off the ORIGINAL price, which is a bigger amount. The sale price is {{100-[10,20,25,30,40][i]}}% of the original: £{{20*m*(100-[10,20,25,30,40][i])/100}} ÷ {{100-[10,20,25,30,40][i]}} × 100 = £{{20*m}}.",
+  "method_marks": 0,
+  "i": 284
+ },
+ {
+  "qid": "df3e167c-8d4a-4d1e-a492-1365a2b34a63",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "reverse_percentage",
+  "trap": "{{round(20*m*(100-[10,20,25,30,40][i])/100*(100-[10,20,25,30,40][i])/100, 2)}}",
+  "response": "You reduced the sale price AGAIN — but £{{20*m*(100-[10,20,25,30,40][i])/100}} is already the reduced price. Work backwards: £{{20*m*(100-[10,20,25,30,40][i])/100}} is {{100-[10,20,25,30,40][i]}}% of the original, so the original = £{{20*m*(100-[10,20,25,30,40][i])/100}} ÷ {{100-[10,20,25,30,40][i]}} × 100 = £{{20*m}}.",
+  "method_marks": 0,
+  "i": 285
+ },
+ {
+  "qid": "dfba947f-39c0-477e-bae7-63b02160d9e8",
+  "loc": "q:0",
+  "marks": 4,
+  "skill": "frequency_trees+expected_outcomes",
+  "trap": "{{dn}}",
+  "response": "That is the number in the survey of 40 students. Scale it up to the whole school of {{(40*f)}}: ({{dn}} ÷ 40) × {{(40*f)}} = {{(dn*f)}}.",
+  "method_marks": 1,
+  "i": 286
+ },
+ {
+  "qid": "dfba947f-39c0-477e-bae7-63b02160d9e8",
+  "loc": "q:1",
+  "marks": 4,
+  "skill": "frequency_trees+expected_outcomes",
+  "trap": "{{(dl+dn)*f}}",
+  "response": "You have estimated everyone who does not walk. Narrow it to those who were also not late ({{dn}}) first: ({{dn}} ÷ 40) × {{(40*f)}} = {{(dn*f)}}.",
+  "method_marks": 1,
+  "i": 287
+ },
+ {
+  "qid": "dfba947f-39c0-477e-bae7-63b02160d9e8",
+  "loc": "q:2",
+  "marks": 4,
+  "skill": "frequency_trees+expected_outcomes",
+  "trap": "{{dl*f}}",
+  "response": "That estimates those who do not walk and WERE late. You need those who were NOT late ({{dn}}): {{(dn*f)}}.",
+  "method_marks": 0,
+  "i": 288
+ },
+ {
+  "qid": "dfba947f-39c0-477e-bae7-63b02160d9e8",
+  "loc": "q:3",
+  "marks": 4,
+  "skill": "frequency_trees+expected_outcomes",
+  "trap": "{{dn/40}}",
+  "response": "That is the proportion (probability), not a number of students. Multiply by the school size: {{dn}}/40 × {{(40*f)}} = {{(dn*f)}}.",
+  "method_marks": 2,
+  "i": 289
+ },
+ {
+  "qid": "e2eaab6b-ee4c-4c73-ab9b-bde30975afcf",
+  "loc": "p1:0",
+  "marks": 2,
+  "skill": "kinematic_graphs",
+  "trap": "{{acc*t1*t1}}",
+  "response": "Acceleration is the GRADIENT of the sloping line = change in velocity ÷ time = {{acc*t1}} ÷ {{t1}} = {{acc}} m/s².",
+  "method_marks": 0,
+  "i": 290
+ },
+ {
+  "qid": "e2eaab6b-ee4c-4c73-ab9b-bde30975afcf",
+  "loc": "p2:0",
+  "marks": 2,
+  "skill": "kinematic_graphs",
+  "trap": "{{t2}}",
+  "response": "That is the total time. The velocity is constant from {{t1}} s to {{t2}} s — a duration of {{t2}} − {{t1}} = {{t2-t1}} s.",
+  "method_marks": 1,
+  "i": 291
+ },
+ {
+  "qid": "e437b80c-8403-433c-bbbf-2fea7186871e",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "sine_rule",
+  "trap": "{{round(A*b/a,2)}}",
+  "response": "That scales the angle directly by the side ratio — the sine rule does not work that way. Sine rule: sin(B)/b = sin(A)/a, so B = sin⁻¹(b × sin(A) ÷ a) = sin⁻¹({{round(b*Math.sin(A*Math.PI/180)/a,4)}}) ≈ {{round(Math.asin(b*Math.sin(A*Math.PI/180)/a)*180/Math.PI,2)}}°.",
+  "method_marks": 0,
+  "i": 292
+ },
+ {
+  "qid": "e437b80c-8403-433c-bbbf-2fea7186871e",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "sine_rule",
+  "trap": "{{round((b*Math.sin(A*Math.PI/180)/a)*(180/Math.PI),2)}}",
+  "response": "You worked out sin(B) correctly but then forgot to take the INVERSE sine — you converted the sine value using the radian-to-degree factor instead. Take sin⁻¹ of that value: sin⁻¹({{round(b*Math.sin(A*Math.PI/180)/a,4)}}) ≈ {{round(Math.asin(b*Math.sin(A*Math.PI/180)/a)*180/Math.PI,2)}}°.",
+  "method_marks": 1,
+  "i": 293
+ },
+ {
+  "qid": "e437b80c-8403-433c-bbbf-2fea7186871e",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "sine_rule",
+  "trap": "{{round(Math.asin(b*Math.sin(A)/a),2)}}",
+  "response": "That is the value your calculator gives in RADIAN mode. This is a degrees problem — switch your calculator to DEG mode. In degrees, sin({{A}}°) = {{round(Math.sin(A*Math.PI/180),3)}}, giving angle B = {{round(Math.asin(b*Math.sin(A*Math.PI/180)/a)*180/Math.PI,2)}}°.",
+  "method_marks": 1,
+  "i": 294
+ },
+ {
+  "qid": "e658d399-6d3a-4083-bcfa-d2c375ebe65d",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "mean",
+  "trap": "{{a + b + c + d + e}}",
+  "response": "That's the total, not the mean. Divide the total by the number of values: {{a + b + c + d + e}} ÷ 5 = {{round((a + b + c + d + e) / 5, 1)}}.",
+  "method_marks": 1,
+  "i": 295
+ },
+ {
+  "qid": "e658d399-6d3a-4083-bcfa-d2c375ebe65d",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "mean",
+  "trap": "{{5}}",
+  "response": "The mean = sum ÷ count. Add the values: {{a + b + c + d + e}}, then divide by 5 to get {{round((a + b + c + d + e) / 5, 1)}}.",
+  "method_marks": 0,
+  "i": 296
+ },
+ {
+  "qid": "e6fc8f3f-6c7d-4476-9efa-9dc4c8675e58",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "volume_of_a_pyramid_and_cone",
+  "trap": "{{round(Math.PI * r * r * h, 2)}}",
+  "response": "You used the cylinder formula. A cone is ⅓ of the equivalent cylinder: V = ⅓πr²h = ⅓ × π × {{r}}² × {{h}} ≈ {{round(Math.PI*r*r*h/3, 2)}} cm³.",
+  "method_marks": 0,
+  "i": 297
+ },
+ {
+  "qid": "e6fc8f3f-6c7d-4476-9efa-9dc4c8675e58",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "volume_of_a_pyramid_and_cone",
+  "trap": "{{round(Math.PI * r * h / 3, 2)}}",
+  "response": "You need r² (radius squared): V = ⅓πr²h = ⅓ × π × {{r*r}} × {{h}} ≈ {{round(Math.PI*r*r*h/3, 2)}} cm³.",
+  "method_marks": 0,
+  "i": 298
+ },
+ {
+  "qid": "e6fc8f3f-6c7d-4476-9efa-9dc4c8675e58",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "volume_of_a_pyramid_and_cone",
+  "trap": "{{r*h/2}}",
+  "response": "It looks like you've found the area of the right angled triangle within the cone. You need to find the volume of the cone, by using V = ⅓πr²h",
+  "method_marks": 0,
+  "i": 299
+ },
+ {
+  "qid": "e74e17ea-0132-4d25-958c-b2d5a1897bbc",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_quadratic_equation",
+  "trap": "{{round((Math.sqrt(p*p+4*a*q)-p)/2, 2)}}",
+  "response": "You divided by 2 instead of 2a. Here a = {{a}}, so the denominator is 2 × {{a}} = {{2*a}}: x = (−{{p}} + √{{p*p+4*a*q}}) ÷ {{2*a}} = {{round((Math.sqrt(p*p+4*a*q)-p)/(2*a), 2)}}.",
+  "method_marks": 1,
+  "i": 300
+ },
+ {
+  "qid": "e74e17ea-0132-4d25-958c-b2d5a1897bbc",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_quadratic_equation",
+  "trap": "{{round((Math.sqrt(p*p+4*a*q)+p)/(2*a), 2)}}",
+  "response": "Check the first term of the formula: it is −b, and here b = +{{p}}, so it starts −{{p}}, not +{{p}}: x = (−{{p}} + √{{p*p+4*a*q}}) ÷ {{2*a}} = {{round((Math.sqrt(p*p+4*a*q)-p)/(2*a), 2)}}.",
+  "method_marks": 1,
+  "i": 301
+ },
+ {
+  "qid": "e74e17ea-0132-4d25-958c-b2d5a1897bbc",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "solving_quadratic_equations_quadratic_equation",
+  "trap": "{{round((-Math.sqrt(p*p+4*a*q)-p)/(2*a), 2)}}",
+  "response": "That is the NEGATIVE root (using −√ in the formula). The question asks for the POSITIVE root, so use +√: x = (−{{p}} + √{{p*p+4*a*q}}) ÷ {{2*a}} = {{round((Math.sqrt(p*p+4*a*q)-p)/(2*a), 2)}}.",
+  "method_marks": 1,
+  "i": 302
+ },
+ {
+  "qid": "e9a09aa3-9589-4ebe-b1a6-5988571eada3",
+  "loc": "q:0",
+  "marks": 5,
+  "skill": "surds_expanding_and_rationalising+areas_of_squares_and_rectangles",
+  "trap": "{{[22,19,16,26,22,29][sel] - [3,2,4,2,5,2][sel]}}+{{[10,11,11,10,22,13][sel] - 1}}√{{[5,3,2,7,3,5][sel]}}",
+  "response": "You SUBTRACTED the width from the area. Area = length × width, so length = area ÷ width — rationalise ({{[22,19,16,26,22,29][sel]}} + {{[10,11,11,10,22,13][sel]}}√{{[5,3,2,7,3,5][sel]}}) ÷ ({{[3,2,4,2,5,2][sel]}} + √{{[5,3,2,7,3,5][sel]}}) by multiplying the top and bottom by ({{[3,2,4,2,5,2][sel]}} − √{{[5,3,2,7,3,5][sel]}}).",
+  "method_marks": 0,
+  "i": 303
+ },
+ {
+  "qid": "e9a09aa3-9589-4ebe-b1a6-5988571eada3",
+  "loc": "q:1",
+  "marks": 5,
+  "skill": "surds_expanding_and_rationalising+areas_of_squares_and_rectangles",
+  "trap": "{{[2,3,2,2,4,3][sel]}}+{{[4,5,3,6,2,7][sel]}}√{{[5,3,2,7,3,5][sel]}}",
+  "response": "Check your final line — the integer part and the √{{[5,3,2,7,3,5][sel]}} part are swapped. The length is {{[4,5,3,6,2,7][sel]}} + {{[2,3,2,2,4,3][sel]}}√{{[5,3,2,7,3,5][sel]}} cm.",
+  "method_marks": 2,
+  "i": 304
+ },
+ {
+  "qid": "e9a09aa3-9589-4ebe-b1a6-5988571eada3",
+  "loc": "q:2",
+  "marks": 5,
+  "skill": "surds_expanding_and_rationalising+areas_of_squares_and_rectangles",
+  "trap": "{{[22,19,16,26,22,29][sel] * [3,2,4,2,5,2][sel] + [10,11,11,10,22,13][sel] * [5,3,2,7,3,5][sel]}}+{{[22,19,16,26,22,29][sel] + [10,11,11,10,22,13][sel] * [3,2,4,2,5,2][sel]}}√{{[5,3,2,7,3,5][sel]}}",
+  "response": "You MULTIPLIED the area by the width. Since area = length × width, the length is area ÷ width — you need to DIVIDE, not multiply. Rationalise ({{[22,19,16,26,22,29][sel]}} + {{[10,11,11,10,22,13][sel]}}√{{[5,3,2,7,3,5][sel]}}) ÷ ({{[3,2,4,2,5,2][sel]}} + √{{[5,3,2,7,3,5][sel]}}) by multiplying the top and bottom by ({{[3,2,4,2,5,2][sel]}} − √{{[5,3,2,7,3,5][sel]}}).",
+  "method_marks": 0,
+  "i": 305
+ },
+ {
+  "qid": "f7e179b6-8dbe-4e55-9d08-d42bc35781be",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "proportion",
+  "trap": "{{a * c + b}}",
+  "response": "You added {{b}} to the original cost. Instead, find the cost of one pen first: £{{a * c}} ÷ {{a}} = £{{c}}, then multiply by {{b}}.",
+  "method_marks": 0,
+  "i": 306
+ },
+ {
+  "qid": "f7e179b6-8dbe-4e55-9d08-d42bc35781be",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "proportion",
+  "trap": "{{a * c * b}}",
+  "response": "You multiplied the total cost by {{b}}. Instead, find the cost of one pen first: £{{a * c}} ÷ {{a}} = £{{c}}, then multiply by {{b}}.",
+  "method_marks": 0,
+  "i": 307
+ },
+ {
+  "qid": "f7e179b6-8dbe-4e55-9d08-d42bc35781be",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "proportion",
+  "trap": "{{c}}",
+  "response": "It looks like you've calculated the price of one pen. You need to multiply this by {{b}} to get the total amount.",
+  "method_marks": 1,
+  "i": 308
+ },
+ {
+  "qid": "f94db3f3-04b5-4a1d-9ea8-684143c530da",
+  "loc": "q:0",
+  "marks": 2,
+  "skill": "surface_area_of_a_cylinder",
+  "trap": "{{round(2 * Math.PI * r * h, 2)}}",
+  "response": "That's only the curved surface area. The total includes the two circular ends: SA = 2πr² + 2πrh = 2πr(r + h) = 2π × {{r}} × ({{r}} + {{h}}) ≈ {{round(2*Math.PI*r*(r+h), 2)}} cm².",
+  "method_marks": 1,
+  "i": 309
+ },
+ {
+  "qid": "f94db3f3-04b5-4a1d-9ea8-684143c530da",
+  "loc": "q:1",
+  "marks": 2,
+  "skill": "surface_area_of_a_cylinder",
+  "trap": "{{round(Math.PI * r * r * h, 2)}}",
+  "response": "That's the volume. Surface area = 2πr(r + h) = 2 × π × {{r}} × {{r + h}} ≈ {{round(2*Math.PI*r*(r+h), 2)}} cm².",
+  "method_marks": 0,
+  "i": 310
+ },
+ {
+  "qid": "f94db3f3-04b5-4a1d-9ea8-684143c530da",
+  "loc": "q:2",
+  "marks": 2,
+  "skill": "surface_area_of_a_cylinder",
+  "trap": "{{round(Math.PI*r*r + 2*Math.PI*r*h, 2)}} cm²",
+  "response": "You've only added one of the end circles onto the curved surface. Remember, there's a circle at each end!",
+  "method_marks": 1,
+  "i": 311
+ },
+ {
+  "qid": "f94db3f3-04b5-4a1d-9ea8-684143c530da",
+  "loc": "q:3",
+  "marks": 2,
+  "skill": "surface_area_of_a_cylinder",
+  "trap": "{{round(2*Math.PI*r*r + r*h, 2)}} cm²",
+  "response": "The curved surface isn't found by multiplying the radius and the height of the cylinder. The curved surface of the cylinder is a rectangle, with the height the same as the cylinder height, and the width is the circumfrence of the circles (2πrh). This is then added on to the two circles.",
+  "method_marks": 0,
+  "i": 312
+ }
+]

@@ -8,9 +8,17 @@ import {
 import {
   QuestionKind, QUESTION_KINDS, QUESTION_KIND_LABELS,
 } from '../../lib/questions/kind'
-import { PartInput, defaultKindForSkills } from '../../lib/questions/parts'
+import { PART_ANSWER_TYPES, ANSWER_TYPE_LABELS } from '../../lib/questions/answerTypes'
+import {
+  PartInput, BlankInput, GridInput, defaultKindForSkills, emptyBlank, nextBlankLabel,
+  blankMarksTotal, emptyGrid, gridMarksTotal,
+} from '../../lib/questions/parts'
+import BlankEditor from './BlankEditor'
+import GridEditor from './GridEditor'
+import { evidenceFor } from '../../lib/exam/markEvidence'
+import TrapMethodMarks from './TrapMethodMarks'
 
-type Trap = { answer_template: string, response: string }
+type Trap = { answer_template: string, response: string, method_marks?: number }
 
 type Props = {
   index: number
@@ -52,9 +60,47 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
     set('traps', part.traps.map((t, j) => j === i ? { ...t, [field]: value } : t))
   }
 
+  /** Undefined removes the key entirely — "unset" must not persist as 0. */
+  function setTrapMethodMarks(i: number, v: number | undefined) {
+    set('traps', part.traps.map((t, j) => {
+      if (j !== i) return t
+      const { method_marks: _drop, ...rest } = t
+      return v == null ? rest : { ...rest, method_marks: v }
+    }))
+  }
+
   function removeTrap(i: number) {
     set('traps', part.traps.filter((_, j) => j !== i))
   }
+
+  const blanks = part.blanks ?? []
+
+  function addBlank() {
+    set('blanks', [...blanks, emptyBlank(nextBlankLabel(blanks))])
+  }
+
+  function updateBlank(i: number, b: BlankInput) {
+    set('blanks', blanks.map((old, j) => j === i ? b : old))
+  }
+
+  function removeBlank(i: number) {
+    set('blanks', blanks.filter((_, j) => j !== i))
+  }
+
+  const isMultiBlank = part.answer_type === 'multi_blank'
+  const isGridDraw = part.answer_type === 'grid_draw'
+  // These part types carry their answers in nested structures; the part-level
+  // scalar answer fields are hidden and marks become a computed read-out
+  // (normalizePart recomputes the sum on save either way).
+  const isStructured = isMultiBlank || isGridDraw
+  const blankMarks = blankMarksTotal(blanks.map(b => ({
+    marks: b.marks === '' || b.marks == null ? 1 : Number(b.marks),
+  })))
+  const gridMarks = gridMarksTotal((part.grid?.elements ?? []).map(e => ({
+    marks: e.marks === '' || e.marks == null ? 1 : Number(e.marks),
+  })))
+  const structuredMarks = isGridDraw ? gridMarks : blankMarks
+  const structuredMarksLabel = isGridDraw ? 'sum of points' : 'sum of blanks'
 
   const filteredSkills = Object.entries(skillsById)
     .filter(([, skill]) =>
@@ -142,16 +188,18 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
 
       {/* Answer / type / tolerance / marks / kind */}
       <div style={styles.row}>
-        <div style={styles.field}>
-          <label style={labelStyle}>Answer template</label>
-          <input
-            type="text"
-            value={part.answer_template}
-            onChange={e => set('answer_template', e.target.value)}
-            style={inputStyle}
-            placeholder="{{a + b}}"
-          />
-        </div>
+        {!isStructured && (
+          <div style={styles.field}>
+            <label style={labelStyle}>Answer template</label>
+            <input
+              type="text"
+              value={part.answer_template}
+              onChange={e => set('answer_template', e.target.value)}
+              style={inputStyle}
+              placeholder="{{a + b}}"
+            />
+          </div>
+        )}
         <div style={styles.field}>
           <label style={labelStyle}>Answer type</label>
           <select
@@ -159,13 +207,9 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             onChange={e => set('answer_type', e.target.value as PartInput['answer_type'])}
             style={inputStyle}
           >
-            <option value="numeric">Numeric</option>
-            <option value="exact">Exact</option>
-            <option value="fraction">Fraction</option>
-            <option value="expression">Expression</option>
-            <option value="set">Set</option>
-            <option value="ratio">Ratio</option>
-            <option value="coordinate">Coordinate</option>
+            {PART_ANSWER_TYPES.map(t => (
+              <option key={t} value={t}>{ANSWER_TYPE_LABELS[t]}</option>
+            ))}
           </select>
         </div>
         {part.answer_type === 'numeric' && (
@@ -181,18 +225,53 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             />
           </div>
         )}
-        <div style={{ ...styles.field, minWidth: '90px' }}>
-          <label style={labelStyle}>Marks</label>
-          <input
-            type="number"
-            value={part.marks ?? ''}
-            onChange={e => set('marks', e.target.value)}
-            style={inputStyle}
-            placeholder="1"
-            min="1"
-          />
-        </div>
+        {isStructured ? (
+          <div style={{ ...styles.field, minWidth: '90px' }}>
+            <label style={labelStyle}>Marks</label>
+            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, padding: '10px 0' }}>
+              {structuredMarks} — {structuredMarksLabel}
+            </p>
+          </div>
+        ) : (
+          <div style={{ ...styles.field, minWidth: '90px' }}>
+            <label style={labelStyle}>Marks</label>
+            <input
+              type="number"
+              value={part.marks ?? ''}
+              onChange={e => set('marks', e.target.value)}
+              style={inputStyle}
+              placeholder="1"
+              min="1"
+            />
+          </div>
+        )}
       </div>
+
+      {/* What real papers award for this part's material. Guidance only: marks
+          track the number of creditable steps in a solution, not the topic, so
+          the spread within a skill is genuine and the author's judgement wins.
+          Shown for structured parts too, where the total is computed from the
+          blanks/elements and is just as worth sanity-checking. */}
+      {(() => {
+        const stats = evidenceFor(part.skill_ids ?? [], part.kind === 'exam' ? 'exam' : 'mastery')
+        const effective = isStructured ? structuredMarks : Number(part.marks) || 0
+        const outside = stats && effective > 0 && (effective < stats.min || effective > stats.max)
+        if (!stats) {
+          return (part.skill_ids ?? []).length > 0 ? (
+            <p style={{ fontSize: '11px', color: colors.textHint, margin: '-4px 0 0', lineHeight: 1.6 }}>
+              No coded exam evidence for this part&apos;s skills yet.
+            </p>
+          ) : null
+        }
+        return (
+          <p style={{ fontSize: '11px', color: outside ? colors.warningText : colors.textHint, margin: '-4px 0 0', lineHeight: 1.6 }}>
+            2024 papers, this material · {part.kind === 'exam' ? 'synthesis' : 'single-skill'}:{' '}
+            <strong>n={stats.n}, mean {stats.mean}, range {stats.min}–{stats.max}</strong>
+            {stats.splits.length > 0 && <> — usually {stats.splits.join(' or ')}</>}
+            {outside && <> · this part is <strong>{effective}</strong>, outside that range — check it is deliberate</>}
+          </p>
+        )
+      })()}
 
       {(part.answer_type === 'fraction' || part.answer_type === 'ratio') && (
         <div style={styles.field}>
@@ -204,6 +283,30 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
             />
             Requires simplest form
           </label>
+        </div>
+      )}
+
+      {/* Blanks (multi_blank only) */}
+      {isMultiBlank && (
+        <div style={styles.field}>
+          <label style={labelStyle}>Blanks</label>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            Each blank is marked on its own — give every blank its own answer, type and marks.
+            Label them A, B, C to match the prompt/diagram. The NUMBER of blanks is fixed for
+            the question; parameters vary the values only.
+          </p>
+          {blanks.map((b, i) => (
+            <BlankEditor
+              key={i}
+              blank={b}
+              onChange={nb => updateBlank(i, nb)}
+              onRemove={() => removeBlank(i)}
+              autoResize={autoResize}
+            />
+          ))}
+          <button onClick={addBlank} style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}>
+            + Add blank
+          </button>
         </div>
       )}
 
@@ -223,7 +326,26 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
         </p>
       </div>
 
-      {/* Per-part traps */}
+      {/* Grid spec (grid_draw only) */}
+      {isGridDraw && (
+        <div style={styles.field}>
+          <label style={labelStyle}>Grid</label>
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+            The student places points on a snap-to-grid canvas; each correct point earns its own
+            marks. Coordinates may be templates — the correct drawing is rendered from them, so
+            check it in the Preview card.
+          </p>
+          <GridEditor
+            grid={part.grid ?? emptyGrid()}
+            onChange={(g: GridInput) => set('grid', g)}
+            autoResize={autoResize}
+          />
+        </div>
+      )}
+
+      {/* Per-part traps (multi_blank parts carry traps per BLANK; grid_draw
+          has no traps in v1) */}
+      {!isStructured && (
       <div style={styles.field}>
         <label style={labelStyle}>Traps for this part</label>
         {part.traps.map((trap, i) => (
@@ -251,12 +373,18 @@ export default function PartEditor({ index, part, onChange, onRemove, autoResize
               style={{ ...inputStyle, minHeight: '55px', resize: 'none' as const }}
               placeholder="Targeted feedback for this wrong answer."
             />
+            <TrapMethodMarks
+              value={trap.method_marks}
+              marks={Number(part.marks) || 1}
+              onChange={v => setTrapMethodMarks(i, v)}
+            />
           </div>
         ))}
         <button onClick={addTrap} style={{ ...secondaryButton, width: 'auto', padding: '6px 14px', fontSize: font.sm }}>
           + Add trap
         </button>
       </div>
+      )}
 
       {/* Explanation */}
       <div style={styles.field}>

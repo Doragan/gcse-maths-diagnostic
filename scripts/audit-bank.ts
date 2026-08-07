@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import { skills } from '../data/skills'
 import { evaluateTemplate, generateValues } from '../lib/questions/paramEngine'
 import { checkAnswer } from '../lib/questions/answerChecker'
+import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
+import { checkGridDraw } from '../lib/questions/gridDraw'
+import { evidenceFor, resolveQuestionMarks } from '../lib/exam/markEvidence'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Bank health check (audit ②/Phase 4). Re-run after any authoring batch:
@@ -19,7 +22,7 @@ import { checkAnswer } from '../lib/questions/answerChecker'
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DRAWS = 25
-const VALID_ANSWER_TYPES = ['exact', 'numeric', 'fraction', 'expression', 'set', 'ratio', 'coordinate']
+const VALID_ANSWER_TYPES: readonly string[] = SCALAR_ANSWER_TYPES
 const ids = new Set(skills.map(s => s.id))
 const byId = Object.fromEntries(skills.map(s => [s.id, s]))
 
@@ -69,12 +72,13 @@ async function auditBank() {
   section(`② QUESTION BANK (published, ${DRAWS} draws)`)
   const { data, error } = await supabase
     .from('questions')
-    .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, traps, parts, is_published')
+    .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, traps, parts, is_published, difficulty, kind, marks')
     .eq('is_published', true)
   if (error || !data) { console.error(error); process.exit(1) }
 
   const renderErrors: string[] = [], badType: string[] = [], dangling: string[] = []
   const noSkills: string[] = [], emptyAns: string[] = [], unrounded: string[] = []
+  const markOutliers: string[] = [], noMarkEvidence: string[] = []
   const usedSkills = new Set<string>()
   const trapHits = new Map<string, { hits: number; total: number; desc: string }>()
 
@@ -83,9 +87,34 @@ async function auditBank() {
     for (const sid of q.skill_ids ?? []) { usedSkills.add(sid); if (!ids.has(sid)) dangling.push(`${q.id} → ${sid}`) }
 
     const parts: any[] = Array.isArray(q.parts) && q.parts.length ? q.parts : []
+
+    // Marks vs the coded papers — advisory, mirroring verify-question. Only
+    // single-part questions: multi-part ones are priced by their authored parts.
+    if (!parts.length) {
+      const stats = evidenceFor(q.skill_ids ?? [], q.kind === 'exam' ? 'exam' : 'mastery')
+      const { marks, source } = resolveQuestionMarks(q as any)
+      if (stats && (marks < stats.min || marks > stats.max)) {
+        markOutliers.push(`${q.id}: ${marks} vs real ${stats.min}-${stats.max} (mean ${stats.mean}, n=${stats.n})`)
+      } else if (source === 'kind' && (q.skill_ids ?? []).length) {
+        noMarkEvidence.push(`${q.id} (${(q.skill_ids ?? []).join(', ')})`)
+      }
+    }
+    // Multi_blank parts expand to one unit per blank; grid_draw parts get a
+    // lighter dedicated check below (mirrors verify-question).
     const units = parts.length
-      ? parts.map((p, i) => ({ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}` }))
+      ? parts.flatMap((p, i) => p.answer_type === 'grid_draw'
+          ? []
+          : p.answer_type === 'multi_blank'
+          ? (Array.isArray(p.blanks) ? p.blanks : []).map((b: any, bi: number) => ({
+              ans: b.answer_template, type: b.answer_type ?? 'numeric', tol: b.tolerance ?? null,
+              traps: b.traps ?? [], label: `part ${'abcdefgh'[i]} blank ${b.label ?? bi + 1}`,
+            }))
+          : [{ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}` }])
       : [{ ans: q.answer_template, type: q.answer_type, tol: q.tolerance, traps: q.traps ?? [], label: 'answer' }]
+
+    // Grid parts: per draw, every axis/element must evaluate finite + on-grid
+    // + on-lattice (tolerance 0), and the canonical must self-grade.
+    const gridParts = parts.map((p, i) => ({ p, i })).filter(({ p }) => p.answer_type === 'grid_draw')
 
     for (const u of units) if (!VALID_ANSWER_TYPES.includes(u.type)) badType.push(`${q.id} ${u.label}: "${u.type}"`)
 
@@ -117,6 +146,47 @@ async function auditBank() {
           if (checkAnswer(ta, ans, u.type as any, u.tol, [], false).correct) rec.hits++
         }
       }
+
+      for (const { p, i: pi } of gridParts) {
+        const label = `${q.id} part ${'abcdefgh'[pi]} grid`
+        const num = (v: any): number => {
+          if (typeof v === 'number') return v
+          try { return parseFloat(evaluateTemplate(String(v), vals)) } catch { return NaN }
+        }
+        const g = p.grid ?? {}
+        const ax = { min: num(g.x?.min), max: num(g.x?.max), step: Number(g.x?.step) || 1 }
+        const ay = { min: num(g.y?.min), max: num(g.y?.max), step: Number(g.y?.step) || 1 }
+        const els = (Array.isArray(g.elements) ? g.elements : []).map((e: any) => ({
+          x: num(e.x), y: num(e.y), marks: Number(e.marks) || 0,
+          ...(e.x2 != null ? { x2: num(e.x2) } : {}),
+          ...(e.style ? { style: e.style } : {}),
+          ...(e.dir ? { dir: e.dir } : {}),
+        }))
+        const nums = [ax.min, ax.max, ay.min, ay.max, ...els.flatMap((e: any) => [e.x, e.y])]
+        if (!nums.every(Number.isFinite)) { renderErrors.push(label); continue }
+        // Cells span one step up-right from their corner, so must FIT inside.
+        const xHi = g.mode === 'cells' ? ax.max - ax.step : ax.max
+        const yHi = g.mode === 'cells' ? ay.max - ay.step : ay.max
+        const offGrid = els.some((e: any) =>
+          e.x < ax.min - 1e-9 || e.x > xHi + 1e-9 || e.y < ay.min - 1e-9 || e.y > yHi + 1e-9)
+        if (offGrid) { renderErrors.push(`${label} (element off-grid)`); continue }
+        const mode = ['points', 'polyline', 'line', 'cells', 'polygon', 'bars', 'bars_free', 'number_line'].includes(g.mode) ? g.mode : null
+        if (!mode) { badType.push(`${q.id} part ${'abcdefgh'[pi]}: grid mode "${g.mode}"`); continue }
+        const graded = checkGridDraw(
+          // style/dir must survive or every number_line question would look
+          // like its own canonical answer fails to self-grade — likewise x2 for
+          // bars_free, where the student's bar carries its own edges.
+          els.map((e: any) => ({
+            x: e.x, y: e.y,
+            ...(mode === 'bars_free' ? { x2: e.x2 ?? e.x + ax.step } : {}),
+            ...(e.style ? { style: e.style } : {}),
+            ...(e.dir ? { dir: e.dir } : {}),
+          })),
+          els, mode,
+          Number(g.tolerance) || 0, { xStep: ax.step, yStep: ay.step },
+        )
+        if (!graded.correct) emptyAns.push(`${label} (canonical fails self-grade)`)
+      }
     }
   }
 
@@ -125,6 +195,8 @@ async function auditBank() {
   report('dangling skill_ids', dangling); report('questions with no skills', noSkills)
   report('empty rendered answers', emptyAns)
   report('🔶 unrounded numeric answers (tight tolerance — may be unmatchable)', unrounded)
+  report('🔶 marks outside the range real papers award for that material', markOutliers)
+  report('🔶 no coded exam evidence for these skills (marks from the kind average)', noMarkEvidence)
 
   const always: string[] = [], sometimes: string[] = []
   for (const { hits, total, desc } of trapHits.values()) {

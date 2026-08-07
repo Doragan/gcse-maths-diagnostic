@@ -123,14 +123,22 @@ describe('computeClassAnalytics', () => {
     }
   })
 
-  it('treats in_progress (<5 attempts) as neither mastered nor weak', () => {
-    const rows = attempts('a', 'simple_arithmetic', 3, 3) // only 3 attempts
+  it('treats in_progress (<5 attempts, not fast-tracked) as neither mastered nor weak', () => {
+    const rows = attempts('a', 'simple_arithmetic', 3, 2) // 3 attempts, first three not all right
     const res = computeClassAnalytics(rows, members)
     const alice = res.students.find(s => s.studentId === 'a')!
     expect(alice.attemptedSkills).toBe(1)
     expect(alice.masteredSkills).toBe(0)        // in_progress, not mastered
     expect(alice.overallMastery).toBe(0)
     expect(res.gaps).toEqual([])                // in_progress is not "weak"
+  })
+
+  it('fast-track: first three correct → mastered in the class view too', () => {
+    // The teacher view shares calculateMastery, so a student who nails their
+    // first three counts as mastered before a full window exists.
+    const rows = attempts('a', 'simple_arithmetic', 3, 3)
+    const alice = computeClassAnalytics(rows, members).students.find(s => s.studentId === 'a')!
+    expect(alice.masteredSkills).toBe(1)
   })
 
   it('is unscoped (whole-curriculum denominator) when no coverage is given', () => {

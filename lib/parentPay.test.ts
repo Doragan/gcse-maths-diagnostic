@@ -48,3 +48,41 @@ describe('parentPay tokens', () => {
     process.env.PARENT_PAY_SECRET = 'test-secret-key' // restore
   })
 })
+
+// ── F6: the signing key must be dedicated, and required ──────────────────────
+// `secret()` was once `PARENT_PAY_SECRET || SUPABASE_SERVICE_ROLE_KEY`, so a
+// renamed or deleted env var would have silently started signing public links
+// with the database's master credential. These two pin the fix: the dedicated
+// key is mandatory, and the service-role key plays no part in either direction.
+//
+// Keys are read lazily inside sign/verify, so setting process.env is enough —
+// no module re-import needed.
+describe('parentPay signing key (F6)', () => {
+  const SERVICE_ROLE = 'service-role-key-must-be-ignored'
+
+  afterEach(() => {
+    process.env.PARENT_PAY_SECRET = 'test-secret-key'
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY
+  })
+
+  it('throws instead of silently falling back when PARENT_PAY_SECRET is unset', () => {
+    delete process.env.PARENT_PAY_SECRET
+    process.env.SUPABASE_SERVICE_ROLE_KEY = SERVICE_ROLE // the old fallback — must NOT be used
+    expect(() => signPayToken(SID)).toThrow(/PARENT_PAY_SECRET/)
+  })
+
+  it('ignores SUPABASE_SERVICE_ROLE_KEY for both signing and verification', () => {
+    process.env.SUPABASE_SERVICE_ROLE_KEY = SERVICE_ROLE
+
+    // Not used for SIGNING: a holder of only the service-role key can't open it.
+    process.env.PARENT_PAY_SECRET = 'dedicated-parent-pay-secret'
+    const token = signPayToken(SID)
+    process.env.PARENT_PAY_SECRET = SERVICE_ROLE
+    expect(verifyPayToken(token)).toBeNull()
+
+    // Not used for VERIFYING: a token signed with it is rejected outright.
+    const forged = signPayToken(SID) // signed while PARENT_PAY_SECRET === SERVICE_ROLE
+    process.env.PARENT_PAY_SECRET = 'dedicated-parent-pay-secret'
+    expect(verifyPayToken(forged)).toBeNull()
+  })
+})

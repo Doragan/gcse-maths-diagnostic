@@ -1,7 +1,9 @@
 'use client'
 
 import { type StudentAnalytics, type Topic, type SkillStatus, TOPICS } from '../lib/teacherAnalytics'
+import type { StudentReadiness } from '../lib/exam/classReadiness'
 import ClassMasteryTrend from './ClassMasteryTrend'
+import ScoreTrend from './exam/ScoreTrend'
 import { colors, font, radius } from '../lib/styles'
 
 const TOPIC_COLOUR: Record<Topic, string> = {
@@ -32,7 +34,19 @@ function ago(iso: string | null): string {
 }
 
 /** A teacher-facing version of the student dashboard, in a modal. */
-export default function StudentDetailModal({ s, onClose }: { s: StudentAnalytics; onClose: () => void }) {
+export default function StudentDetailModal({
+  s,
+  readiness = null,
+  classId,
+  onClose,
+}: {
+  s: StudentAnalytics
+  /** Exam history; null before the fetch lands or before the migration is applied. */
+  readiness?: StudentReadiness | null
+  /** Needed to open a paper — the teacher route is scoped by class, not by session alone. */
+  classId?: string
+  onClose: () => void
+}) {
   const topicRows = TOPICS.filter(t => s.topicMastery[t] !== undefined)
 
   return (
@@ -76,6 +90,68 @@ export default function StudentDetailModal({ s, onClose }: { s: StudentAnalytics
 
           {/* mastery over time (reuses the class trend chart) */}
           <ClassMasteryTrend points={s.timeline} title="Mastery over time" caption="This student's % of the curriculum mastered, by week." />
+
+          {/* ── Exam readiness: the marks currency, beside the mastery one ──
+              Deliberately the SAME ScoreTrend component the student sees on
+              their own dashboard, so teacher and student read one chart rather
+              than two implementations of it. */}
+          {readiness && readiness.papersSat > 0 && (
+            <div style={{ marginTop: 18 }}>
+              <div style={{ fontSize: font.md, fontWeight: 700, color: colors.textPrimary, marginBottom: 8 }}>Mini-exams</div>
+              {readiness.trend
+                ? <ScoreTrend trend={readiness.trend} />
+                : (
+                  <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+                    Latest <strong>{readiness.latest}%</strong> — one paper so far, so there is no trend to draw yet.
+                  </p>
+                )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+                {readiness.papers.map(p => {
+                  const score = p.marks_total > 0 ? Math.round((p.marks_earned / p.marks_total) * 100) : 0
+                  const label = (
+                    <>
+                      <span style={{ color: colors.textSecondary }}>
+                        {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        <span style={{ color: colors.textHint }}>
+                          {' · '}{p.tier === 'higher' ? 'Higher' : 'Foundation'}
+                          {' · '}{p.calculator === 'calc' ? 'Calculator' : 'Non-calculator'}
+                        </span>
+                      </span>
+                      <span style={{ color: colors.textPrimary, fontWeight: 700, flexShrink: 0 }}>
+                        {score}% <span style={{ color: colors.textHint, fontWeight: 400 }}>{p.marks_earned}/{p.marks_total}</span>
+                        {classId && <span style={{ color: colors.textHint, fontWeight: 400 }}> ›</span>}
+                      </span>
+                    </>
+                  )
+                  const row: React.CSSProperties = {
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                    gap: 10, fontSize: font.sm, width: '100%', textAlign: 'left',
+                  }
+                  // Only a link when we know which class to scope the read to —
+                  // the teacher route is gated by class, not by session alone.
+                  return classId ? (
+                    <a
+                      key={p.id}
+                      href={`/dashboard/classes/${classId}/exam/${p.id}`}
+                      style={{ ...row, textDecoration: 'none', cursor: 'pointer' }}
+                    >
+                      {label}
+                    </a>
+                  ) : (
+                    <div key={p.id} style={row}>{label}</div>
+                  )
+                })}
+              </div>
+              {/* ScoreTrend already carries "not predicted grades", so this adds
+                  only what a TEACHER needs and the student does not: the papers
+                  are not scoped to what has been taught, unlike the mastery
+                  figures directly above them. */}
+              <p style={{ fontSize: '11px', color: colors.textHint, margin: '8px 0 0', lineHeight: 1.6 }}>
+                Mini-exams cover the whole course and are not limited to topics you have marked as covered, so an
+                early score reflects what has not been taught yet as much as anything else.
+              </p>
+            </div>
+          )}
 
           {/* topic mastery bars */}
           <div style={{ fontSize: font.md, fontWeight: 700, color: colors.textPrimary, margin: '18px 0 8px' }}>Topic mastery</div>

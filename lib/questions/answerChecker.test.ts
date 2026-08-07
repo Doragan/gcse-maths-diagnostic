@@ -195,6 +195,32 @@ describe('coordinate', () => {
   it('accepts negative and fractional components', () => {
     expect(check('(-3,1/2)', '(-3,0.5)', 'coordinate').correct).toBe(true)
   })
+
+  // A bare scalar is never the correct coordinate, but CAN be trapped so a
+  // student who gives just the value gets targeted feedback.
+  it('a lone value is not the coordinate answer', () => {
+    expect(check('21', '(0,21)', 'coordinate').correct).toBe(false)
+  })
+  it('fires a bare-scalar trap when the student gives just the value', () => {
+    const r = check('21', '(0,21)', 'coordinate', 0, [{ answer: '21', response: 'That is the y-value.' }])
+    expect(r.correct).toBe(false)
+    expect(r.trap).not.toBeNull()
+    expect(r.message).toBe('That is the y-value.')
+  })
+  it('a bare-scalar trap does NOT fire on a coordinate answer', () => {
+    // Student gave a full (wrong) coordinate — the bare trap must not match it.
+    const r = check('(3,0)', '(0,21)', 'coordinate', 0, [{ answer: '21', response: 'value only' }])
+    expect(r.trap).toBeNull()
+  })
+  it('the correct coordinate never triggers a bare-scalar trap', () => {
+    const r = check('(0,21)', '(0,21)', 'coordinate', 0, [{ answer: '21', response: 'value only' }])
+    expect(r.correct).toBe(true)
+    expect(r.trap).toBeNull()
+  })
+  it('still matches a coordinate-shaped trap (e.g. axes swapped)', () => {
+    const r = check('(21,0)', '(0,21)', 'coordinate', 0, [{ answer: '(21,0)', response: 'axes swapped' }])
+    expect(r.message).toBe('axes swapped')
+  })
 })
 
 describe('implied multiplication / π / surds', () => {

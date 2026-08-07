@@ -11,13 +11,32 @@ const ISSUE_TYPES = [
   { id: 'other',           label: 'Other' },
 ] as const
 
+/**
+ * The student's interaction with the question at report time — only the client
+ * knows this, so it travels with the report to help triage (especially "wrong
+ * answer" reports: what they typed, how it was marked, and the expected answer
+ * for the exact parameters they saw). `answered` is false when they report
+ * before submitting. Maths answers only — no PII (the reporter stays the opaque
+ * studentId, as before).
+ */
+export type ReportAnswerContext = {
+  answered: boolean
+  answerType?: string
+  studentAnswer?: string
+  correct?: boolean
+  expectedAnswer?: string
+  // Multi-part questions: one row per part the student has reached.
+  parts?: { label: string; studentAnswer: string; correct: boolean; expectedAnswer?: string }[]
+}
+
 type Props = {
   questionId: string
   renderedValues: Record<string, number>
   studentId: string | null
+  answerContext?: ReportAnswerContext | null
 }
 
-export default function ReportIssueButton({ questionId, renderedValues, studentId }: Props) {
+export default function ReportIssueButton({ questionId, renderedValues, studentId, answerContext }: Props) {
   const [open, setOpen]             = useState(false)
   const [issueType, setIssueType]   = useState('')
   const [description, setDescription] = useState('')
@@ -37,6 +56,7 @@ export default function ReportIssueButton({ questionId, renderedValues, studentI
           description: description.trim() || null,
           renderedValues,
           studentId,
+          answerContext: answerContext ?? null,
           sessionId: getSessionId(),
         }),
       })

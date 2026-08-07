@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { skills } from '../../../data/skills'
-import { rateLimitEmail } from '../../../lib/rateLimit'
+import { rateLimitEmail, emailSendBudget } from '../../../lib/rateLimit'
 
 const ISSUE_LABELS: Record<string, string> = {
   wrong_answer:    'Wrong answer',
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 })
     }
 
-    const { questionId, issueType, description, renderedValues, studentId, sessionId } =
+    const { questionId, issueType, description, renderedValues, studentId, sessionId, answerContext } =
       await req.json()
 
     if (!questionId || !issueType) {
@@ -54,13 +54,14 @@ export async function POST(req: NextRequest) {
         description:     description ?? null,
         rendered_values: renderedValues ?? {},
         student_id:      studentId ?? null,
+        answer_context:  answerContext ?? null,
       },
     })
 
     // ── 2. Look up question metadata for the email ────────────────────────────
     const { data: question } = await supabase
       .from('questions')
-      .select('skill_ids, difficulty, is_published')
+      .select('skill_ids, difficulty, is_published, kind, calculator')
       .eq('id', questionId)
       .single()
 
@@ -81,6 +82,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
+    // Hard daily cap on outbound email (audit F4). Claimed here, after the
+    // report is durably recorded above, so hitting the cap — or a limiter
+    // outage, which this fails closed on — costs the notification but never the
+    // report itself. Shares one global budget with /api/feedback.
+    const budget = await emailSendBudget()
+    if (!budget.ok) {
+      return NextResponse.json({ ok: true, email: 'skipped_rate_capped' })
+    }
+
     // Instantiate Resend here (not at module scope) so a missing key can't throw
     // during the production build's page-data collection.
     const resend = new Resend(resendKey)
@@ -93,6 +103,40 @@ export async function POST(req: NextRequest) {
     const paramsHtml = Object.entries(renderedValues ?? {})
       .map(([k, v]) => `<tr><td style="padding:3px 10px 3px 0;color:#6b7280;">${escapeHtml(k)}</td><td style="padding:3px 0;font-weight:600;">${escapeHtml(v)}</td></tr>`)
       .join('')
+
+    // The student's answer(s) at report time — the most useful triage signal for
+    // a "wrong answer" report. All fields are attacker-controllable, so escape.
+    const markLabel = (c: unknown) => c === true ? '✓ Correct' : c === false ? '✗ Incorrect' : '—'
+    const ac = answerContext && typeof answerContext === 'object' ? answerContext : null
+    let answerHtml = ''
+    if (ac) {
+      const cell = (s: string, extra = '') => `<td style="padding:3px 12px 3px 0;${extra}">${s}</td>`
+      const label = (s: string) => `<td style="padding:3px 12px 3px 0;color:#6b7280;white-space:nowrap;vertical-align:top;">${s}</td>`
+      let rows = ''
+      if (Array.isArray(ac.parts) && ac.parts.length > 0) {
+        rows = ac.parts.map((p: Record<string, unknown>) =>
+          `<tr>${label(escapeHtml(p.label))}` +
+          cell(`<strong>${escapeHtml(p.studentAnswer) || '<em>blank</em>'}</strong>`) +
+          cell(p.correct === true ? '✓' : '✗') +
+          cell(`<span style="color:#6b7280;">expected ${escapeHtml(p.expectedAnswer ?? '—')}</span>`) +
+          `</tr>`).join('')
+      } else {
+        rows =
+          `<tr>${label('Answer')}${cell(`<strong>${escapeHtml(ac.studentAnswer) || '<em>blank</em>'}</strong>`)}</tr>` +
+          (ac.answered ? `<tr>${label('Marked')}${cell(markLabel(ac.correct))}</tr>` : '') +
+          (ac.answered ? `<tr>${label('Expected')}${cell(escapeHtml(ac.expectedAnswer ?? '—'))}</tr>` : '') +
+          (ac.answerType ? `<tr>${label('Answer type')}${cell(escapeHtml(ac.answerType))}</tr>` : '')
+      }
+      const note = ac.answered ? '' : ' <span style="color:#9ca3af;">(reported before submitting)</span>'
+      answerHtml = `
+        <p style="margin:0 0 6px;font-weight:600;color:#374151;">Student's answer${Array.isArray(ac.parts) && ac.parts.length > 1 ? 's' : ''}${note}</p>
+        <table style="border-collapse:collapse;margin-bottom:20px;background:#f9fafb;border-radius:6px;width:auto;">
+          ${rows}
+        </table>`
+    }
+
+    const kindStr = question?.kind ? escapeHtml(question.kind) : '—'
+    const calcStr = question?.calculator ? escapeHtml(question.calculator) : '—'
 
     const { error: emailError } = await resend.emails.send({
       from:    fromEmail,
@@ -123,13 +167,15 @@ export async function POST(req: NextRequest) {
             </tr>
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Status</td>
-              <td style="padding:6px 0;">${publishedFlag}</td>
+              <td style="padding:6px 0;">${publishedFlag} · ${kindStr} · ${calcStr}</td>
             </tr>
             <tr>
               <td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;white-space:nowrap;">Reporter</td>
               <td style="padding:6px 0;">${escapeHtml(studentId ?? 'Anonymous')}</td>
             </tr>
           </table>
+
+          ${answerHtml}
 
           ${paramsHtml ? `
           <p style="margin:0 0 6px;font-weight:600;color:#374151;">Parameter values shown</p>

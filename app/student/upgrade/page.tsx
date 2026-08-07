@@ -8,7 +8,7 @@ import {
   colors, font, radius,
   primaryButton, secondaryButton, pageContainer,
 } from '../../../lib/styles'
-import { PLANS, FEATURES, type Plan } from '../../../lib/studentPlans'
+import { PLANS, FEATURES, planPricing, seatsLeftLabel, type Plan } from '../../../lib/studentPlans'
 import { trackEvent } from '../../../lib/analytics'
 
 export default function StudentUpgradePage() {
@@ -17,6 +17,8 @@ export default function StudentUpgradePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [upgraded, setUpgraded] = useState(false)
+  // Founder seats remaining for the exam pass (null = still loading / unknown).
+  const [seatsLeft, setSeatsLeft] = useState<number | null>(null)
 
   // "Ask a parent to pay" — a shareable link the student forwards.
   const [parentLink, setParentLink] = useState<string | null>(null)
@@ -31,6 +33,11 @@ export default function StudentUpgradePage() {
         if (params.get('upgraded') === 'true') setUpgraded(true)
       }
     })
+    // Founder-seat count for the exam-pass sale framing (aggregate, no PII).
+    fetch('/api/founder-seats')
+      .then(r => r.json())
+      .then(d => setSeatsLeft(typeof d.seatsLeft === 'number' ? d.seatsLeft : null))
+      .catch(() => {})
   }, [])
 
   async function handleUpgrade() {
@@ -143,10 +150,12 @@ export default function StudentUpgradePage() {
 
         <div>
           <h1 style={{ fontSize: font['2xl'], fontWeight: '700', margin: 0, color: colors.textPrimary }}>
-            Upgrade Mathsense
+            Unlock the full picture
           </h1>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '4px 0 0' }}>
-            Unlock targeted practice — drill the exact skills you need to improve.
+            Your progress is safe — we keep saving everything. Upgrade to see your
+            whole arc: progress trends, targeted practice, and your weak spots —
+            kept through your summer 2027 exams.
           </p>
         </div>
 
@@ -154,6 +163,8 @@ export default function StudentUpgradePage() {
         <div style={styles.plans}>
           {PLANS.map(plan => {
             const selected = selectedPlan === plan.id
+            const pricing = planPricing(plan, seatsLeft)
+            const seatNote = plan.founder ? seatsLeftLabel(seatsLeft) : null
             return (
               <button
                 key={plan.id}
@@ -168,7 +179,7 @@ export default function StudentUpgradePage() {
                   <span style={{ fontSize: font.base, fontWeight: '600', color: colors.textPrimary }}>
                     {plan.label}
                   </span>
-                  {plan.badge && (
+                  {pricing.badge && (
                     <span style={{
                       fontSize: '11px',
                       fontWeight: '700',
@@ -177,14 +188,19 @@ export default function StudentUpgradePage() {
                       background: colors.primary,
                       color: '#fff',
                     }}>
-                      {plan.badge}
+                      {pricing.badge}
                     </span>
                   )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '6px 0 4px' }}>
                   <span style={{ fontSize: '28px', fontWeight: '700', color: colors.primary }}>
-                    {plan.price}
+                    {pricing.price}
                   </span>
+                  {pricing.strikePrice && (
+                    <span style={{ fontSize: font.base, color: colors.textHint, textDecoration: 'line-through' }}>
+                      {pricing.strikePrice}
+                    </span>
+                  )}
                   <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
                     {plan.period}
                   </span>
@@ -192,6 +208,11 @@ export default function StudentUpgradePage() {
                 <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, textAlign: 'left' as const }}>
                   {plan.description}
                 </p>
+                {seatNote && (
+                  <p style={{ fontSize: font.sm, fontWeight: 600, color: colors.primary, margin: '6px 0 0', textAlign: 'left' as const }}>
+                    {seatNote}
+                  </p>
+                )}
               </button>
             )
           })}
@@ -218,7 +239,11 @@ export default function StudentUpgradePage() {
         >
           {loading
             ? 'Redirecting to payment...'
-            : `${selectedPlan === 'exam' ? 'Get access' : 'Subscribe'} — ${PLANS.find(p => p.id === selectedPlan)?.price}`}
+            : (() => {
+                const p = PLANS.find(p => p.id === selectedPlan)
+                const price = p ? planPricing(p, seatsLeft).price : ''
+                return `${selectedPlan === 'exam' ? 'Get access' : 'Subscribe'} — ${price}`
+              })()}
         </button>
 
         {/* Ask a parent / guardian to pay */}

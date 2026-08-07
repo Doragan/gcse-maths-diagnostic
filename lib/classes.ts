@@ -78,35 +78,37 @@ export async function getClassMembers(classId: string): Promise<ClassMember[]> {
 
 // ── Student ──────────────────────────────────────────────────────────────────
 
-export async function lookupClass(code: string): Promise<{ id: string; name: string }> {
-  const res = await fetch(`/api/classes/lookup?code=${encodeURIComponent(code.trim().toUpperCase())}`)
-  if (!res.ok) throw new Error('Code not found')
-  return res.json()
-}
+/**
+ * Join a class by its 4-character code.
+ *
+ * Goes through the server (service role) rather than inserting client-side:
+ * INSERT on class_memberships is REVOKE'd, and the route resolves the CODE
+ * itself, so knowing the code is genuinely required to join. The old
+ * `joinClass(classId)` took a class uuid, which RLS alone could not gate —
+ * see 20260727_class_membership_scope.sql. Idempotent: rejoining a class you
+ * previously left reactivates the existing membership.
+ *
+ * Returns the joined class's name, for the confirmation message.
+ */
+export async function joinClass(code: string): Promise<{ id: string; name: string }> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
 
-export async function joinClass(classId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not signed in')
+  const res = await fetch('/api/classes/join', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ code: code.trim().toUpperCase() }),
+  })
 
-  const { error } = await supabase
-    .from('class_memberships')
-    .insert({ class_id: classId, student_id: user.id })
-
-  if (error) {
-    // 23505 = already a member (the (class_id, student_id) unique row exists,
-    // possibly with status 'left'). Reactivate it instead. We update only
-    // status/left_at — the identity columns are REVOKE'd from the client.
-    if ((error as { code?: string }).code === '23505') {
-      const { error: upErr } = await supabase
-        .from('class_memberships')
-        .update({ status: 'active', left_at: null })
-        .eq('class_id', classId)
-        .eq('student_id', user.id)
-      if (upErr) throw upErr
-      return
-    }
-    throw error
+  const json = await res.json().catch(() => null)
+  if (!res.ok || !json?.class) {
+    if (res.status === 404) throw new Error('Code not found')
+    throw new Error(json?.error ?? `Could not join the class (HTTP ${res.status})`)
   }
+  return json.class as { id: string; name: string }
 }
 
 export async function leaveClass(classId: string): Promise<void> {

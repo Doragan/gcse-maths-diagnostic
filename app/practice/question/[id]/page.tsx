@@ -17,6 +17,7 @@ import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
 import type { QuestionPart } from '../../../../lib/questions/parts'
+import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
 import SignUpPrompt, { registerQuestionForNudge } from '../../../../components/practice/SignUpPrompt'
 
@@ -28,7 +29,7 @@ type Question = {
   question_template: string
   parameters: any
   answer_template: string
-  answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
+  answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest?: boolean
   traps: { answer_template: string, response: string }[]
@@ -637,6 +638,17 @@ function QuestionPage() {
 
   // Multi-part questions get a dedicated sequential per-part flow.
   if (question.parts && question.parts.length > 0) {
+    // Shared-link fixed values, applied to the FIRST draw only — "Try again"
+    // remounts with a fresh random draw (mirrors the single-part behaviour).
+    const multiFixed: Record<string, number> = {}
+    let hasMultiFixed = false
+    for (const key of Object.keys(question.parameters ?? {})) {
+      const val = searchParams.get(key)
+      if (val !== null && Number.isFinite(parseFloat(val))) {
+        multiFixed[key] = parseFloat(val)
+        hasMultiFixed = true
+      }
+    }
     return (
       <MultiPartQuestion
         key={`${question.id}-${reparamNonce}`}
@@ -653,6 +665,8 @@ function QuestionPage() {
         assignmentId={assignmentId}
         onSessionAttempt={bumpSessionCounter}
         onNextQuestion={nextQuestion}
+        onTryAgain={() => setReparamNonce(n => n + 1)}
+        fixedValues={hasMultiFixed && reparamNonce === 0 ? multiFixed : undefined}
       />
     )
   }
@@ -960,6 +974,16 @@ function QuestionPage() {
         questionId={id}
         renderedValues={rendered.generatedValues}
         studentId={studentId}
+        answerContext={{
+          answered: feedback !== null,
+          answerType: question.answer_type,
+          // The raw input, even if unsubmitted — useful on a "before I submit
+          // this looks wrong" report.
+          studentAnswer: answer.trim() || undefined,
+          ...(feedback !== null
+            ? { correct: feedback.correct, expectedAnswer: rendered.answer }
+            : {}),
+        }}
       />
 
       {/* General feedback */}
