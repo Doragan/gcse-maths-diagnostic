@@ -40,6 +40,15 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
+// The draft rows this script owns, so a revision edits them in place rather
+// than inserting a second copy. Populated after the first insert; `--update`
+// rewrites every field except is_published (the drafts stay unpublished).
+const DRAFT_IDS: Record<string, string> = {
+  'best-buy-with-percentage-discount': '7a289a0d-e649-49d5-9777-b379d8971de0',
+  'population-density-comparison': 'd755a649-bb08-459b-9460-9ed169efffdc',
+  'bottling-rate-to-litres': '1c9336cc-b9e4-4e1f-a6f6-f02626063b6a',
+}
+
 // ── Q1 curated variants — three where shop A wins, three where shop B does, so
 // "the discounted one is always cheaper" is never a winning heuristic.
 // pack sizes / pack prices in pence / discount % / order size
@@ -167,34 +176,46 @@ const drafts: Draft[] = [
       + `<tr><td style="border:1px solid currentColor;padding:4px 10px;">Barwick</td>`
       + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_PBD}}}</td>`
       + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_AB}}}</td></tr></table>`
-      + `<p>One town is more crowded than the other.</p>`
-      + `<p>Work out the population density of the <strong>more crowded</strong> town.</p>`
-      + `<p>Give your answer in people per km².</p>`,
+      + `<p>Ashford and Barwick are not equally crowded.</p>`
+      + `<p>Which town is <strong>more crowded</strong>?</p>`
+      + `<p>Write down the name of the town.</p>`,
     question_type: 'numeric',
     parameters: { sel: { type: 'integer', min: 0, max: 5 } },
-    answer_template: `{{Math.max(${Q2_DA}, ${Q2_DB})}}`,
-    answer_type: 'numeric',
-    tolerance: 0,
+    // A name, not a number: `exact` normalises case and whitespace, so
+    // "Barwick", "barwick" and " barwick " all mark correct. The numeric traps
+    // below still fire on an exact string match, which is how a student who
+    // computes the density and writes THAT still gets targeted feedback.
+    answer_template: `{{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}`,
+    answer_type: 'exact',
+    tolerance: null,
     explanation:
-      `Population density = population ÷ area.<br>`
+      `Population on its own does not settle it — the towns cover different areas, so compare their <strong>densities</strong>.<br>`
+      + `Population density = population ÷ area.<br>`
       + `Ashford: {{${Q2_PAD}}} ÷ {{${Q2_AA}}} = <strong>{{${Q2_DA}}}</strong> people per km².<br>`
       + `Barwick: {{${Q2_PBD}}} ÷ {{${Q2_AB}}} = <strong>{{${Q2_DB}}}</strong> people per km².<br>`
-      + `The more crowded town is the one with the greater density: <strong>{{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}</strong>, at <strong>{{Math.max(${Q2_DA}, ${Q2_DB})}}</strong> people per km².`,
+      + `{{Math.max(${Q2_DA}, ${Q2_DB})}} is greater than {{Math.min(${Q2_DA}, ${Q2_DB})}}, so the more crowded town is <strong>{{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}</strong>.`,
     traps: [
       {
+        // Right maths, wrong deliverable — the commonest way to lose the mark
+        // on a "which one" question.
+        answer_template: `{{Math.max(${Q2_DA}, ${Q2_DB})}}`,
+        response: `That is the right density — {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} does have {{Math.max(${Q2_DA}, ${Q2_DB})}} people per km². But the question asks <em>which town</em>, so the answer is the name: {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}.`,
+        method_marks: 2,
+      },
+      {
         answer_template: `{{Math.min(${Q2_DA}, ${Q2_DB})}}`,
-        response: `Both densities are right, but that is the <em>less</em> crowded town. {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} packs {{Math.max(${Q2_DA}, ${Q2_DB})}} people into each km², against {{Math.min(${Q2_DA}, ${Q2_DB})}} — so it is the more crowded one.`,
-        method_marks: 2,
+        response: `Two things to fix: that is the density of the <em>less</em> crowded town, and the question asks for a name rather than a number. {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} has {{Math.max(${Q2_DA}, ${Q2_DB})}} people per km² against {{Math.min(${Q2_DA}, ${Q2_DB})}}, so {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} is the more crowded one.`,
+        method_marks: 1,
       },
       {
-        answer_template: `{{Math.abs(${Q2_DA} - ${Q2_DB})}}`,
-        response: `That is the difference between the two densities. The question asks for the density of the more crowded town itself: {{Math.max(${Q2_DA}, ${Q2_DB})}} people per km².`,
-        method_marks: 2,
-      },
-      {
-        answer_template: `{{${Q2_DA} + ${Q2_DB}}}`,
-        response: `You added the two densities together. Each town has its own density, and the answer is the larger of them: {{Math.max(${Q2_DA}, ${Q2_DB})}} people per km².`,
-        method_marks: 2,
+        // The wrong town. Method deliberately left UNSET rather than 0: this
+        // could be a comparison of populations (no credit) or a slip in one
+        // division (some credit), and the exam scorer treats "unknown" as a
+        // widened uncertainty band rather than an assertion of zero.
+        answer_template: `{{${Q2_DA} > ${Q2_DB} ? 'Barwick' : 'Ashford'}}`,
+        // In every variant the bigger-population town also covers the bigger
+        // area, so this framing of the misconception is always true.
+        response: `Check what you compared. {{${Q2_PA} > ${Q2_PB} ? 'Ashford' : 'Barwick'}} has the bigger population, but it also covers the bigger area ({{Math.max(${Q2_AA}, ${Q2_AB})}} km² against {{Math.min(${Q2_AA}, ${Q2_AB})}} km²) — crowding is people <em>per km²</em>. Ashford: {{${Q2_PAD}}} ÷ {{${Q2_AA}}} = {{${Q2_DA}}}; Barwick: {{${Q2_PBD}}} ÷ {{${Q2_AB}}} = {{${Q2_DB}}}. So the more crowded town is {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}.`,
       },
     ],
   },
@@ -282,6 +303,18 @@ async function main() {
 
   if (process.argv.includes('--dry-run')) {
     console.log(JSON.stringify(drafts.map(rowOf), null, 1))
+    return
+  }
+
+  if (process.argv.includes('--update')) {
+    for (const q of drafts) {
+      const id = DRAFT_IDS[q.name]
+      if (!id) { console.error(`no draft id recorded for "${q.name}" — insert it first`); process.exit(1) }
+      const { error } = await supabase.from('questions').update(rowOf(q)).eq('id', id)
+      if (error) { console.error(`update failed for ${q.name}:`, error); process.exit(1) }
+      console.log(`  updated ${q.name}: ${id}`)
+    }
+    console.log(`\nverify:  npx tsx scripts/verify-question.ts ${Object.values(DRAFT_IDS).join(' ')}`)
     return
   }
 
