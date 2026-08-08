@@ -17,6 +17,30 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 4. The bank's coverage gap is **exam-relevant, quantified, and ranked**: 33
    exam-tested skills have zero questions (~280 involvement-weighted 2024 marks),
    and several of the heaviest skills sit at one question (E1/E2).
+   **Superseded 2026-08-08 — see the content-coverage restatement below.**
+
+### Content coverage — restated 2026-08-08
+The bank has roughly doubled since this audit (133 → **233 published**, 113 →
+**139 of 152 skills covered**) and the engine gained the equivalence grader,
+`multi_blank` and `grid_draw`. Finding 4 above is obsolete:
+
+- **Zero-coverage is closed** — 10 exam-tested skills remain at zero, worth
+  **29 primary marks** (not 33 / ~280). Eight need drawing or free-text marking;
+  only `trig_graphs` and `sketching_functions` are authorable-and-untouched.
+- **The gap moved from breadth to shape** — real papers are **63 % exam-kind
+  (synthesis) marks**; the bank is **9 %** (21 of 233). `proportion`,
+  `growth_and_decay`, `kinematic_graphs` and `tree_diagrams` are among the
+  heaviest synthesis skills and have **zero** synthesis questions.
+- **Depth is the live problem** — 87 exam-tested skills sit at 1–2 questions,
+  51 at exactly one.
+- **Shipped capability is unexploited** — 6 `multi_blank` parts, 6 `grid_draw`
+  parts and 3 `mark_bands` parts across the whole bank, against ~86 marks of
+  coded exam traffic that `grid_draw`'s eight modes now fit.
+
+Priorities are ranked by **primary marks** (the skill is `skill_ids[0]`, i.e.
+the part is genuinely about it) with **near-root skills excluded** (transitive
+dependents ≥ 8). Detail in `05-exam-coverage.md`; blocked set in
+`06-app-gap-plan.md` §Revision 2026-08-08.
 
 ## Severity-ranked finding index
 | ID | Severity | Finding |
@@ -31,8 +55,10 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
 | L1 | ✅ FIXED | Multi-part questions excluded from diagnostic selection |
 | L2 | 🟠 Med | Prerequisite inference overrides direct needs_practice evidence on 1 correct answer (design ruling needed) |
 | D1 | ✅ 9/12 FIXED | Deleted 9 broken traps; `round(x±0.01)` replaced by a grader rounding check. 3 remain = Bucket C (left for user investigation) |
-| E1 | 🟠 Med | 33 exam-tested skills with zero questions (~280 marks of 2024 traffic); 18 authorable today, rest blocked by app gaps — supersedes ②-cov with exam weighting |
-| E2 | 🟠 Med | ~40 heavy exam skills at one question (`simple_arithmetic` touches 75 marks); top skills overall at 1–3 (`proportion` 55→2, `ratio` 46→2) |
+| E1 | ✅ LARGELY CLOSED | _(was: 33 zero-coverage skills / ~280 marks / 18 authorable)_ **Restated 2026-08-08: 10 exam-tested skills at zero, 29 primary marks.** 8 need drawing or free-text marking; only `trig_graphs` + `sketching_functions` are authorable-and-untouched |
+| E2 | 🟠 Med | **Now the live content backlog.** 87 exam-tested skills at 1–2 questions, 51 at exactly one. Top by primary marks: `inverse_proportion` 18, `tree_diagrams` 15, `kinematic_graphs` 14, `simplifying_indices` 13 (near-root excluded; `simple_charts` 19 / `calculating_simple_probability` 19 / `fractions_decimals_and_percentages` 16 are hand-overrides) |
+| E5 | 🟠 Med | **New 2026-08-08 — synthesis shortfall.** Papers are 63 % exam-kind marks; bank is 9 % exam-kind questions. `proportion` (49 involvement exam-kind marks), `growth_and_decay`, `kinematic_graphs`, `tree_diagrams` have zero synthesis questions |
+| E6 | 🟠 Med | **New 2026-08-08 — shipped capability unexploited.** 6 `multi_blank` + 6 `grid_draw` + 3 `mark_bands` parts across 233 questions; ~308 of 479 previously app-blocked marks are authorable today. The `app_gap_note` text in `data/exam-audit/` is stale and must be cross-checked against current capability |
 | ④-lint | ✅ DONE | 146 → 0 errors; pragmatic rules → warnings; CI lint now blocking |
 | L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
 | L4 | ✅ FIXED | Multi-part drill question remounts via a reparam nonce ("Next" now re-serves it) |
@@ -129,30 +155,47 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
   ④ housekeeping (`git rm git`, archive one-off scripts).
 
 ### Phase 5 — Content build, exam-weighted _(from `05-exam-coverage.md`; this IS the Direction A on-ramp)_
-Ordering principle: marks of 2024 exam traffic per unit of authoring effort.
-1. **Publish the compound-areas draft** (`44c3101d`, diagram added 2026-06-10) —
-   instant −1 on the zero-coverage list.
-2. **Author the authorable-now zero-coverage list top-down by marks** (E1):
-   `forming_expressions_and_formulae` (16), `function_machines` (15),
-   `tree_diagrams` (15), `kinematic_graphs` (14), `symmetry` (13), pie-chart
-   calculations (12) — the first six cover ~85 marks; then `time_series`,
-   `frequency_trees`, `systematic_listing`, `relative_frequency`,
-   `rearranging_formulae`, `grouped_frequency_tables`, `perpendicular_gradients`,
-   `exact_trig_values`, `fractional_enlargements`, `time_calculations`.
-   These double as Direction A material: author them as multi-part where the exam
-   parts decompose naturally, so the synthesis/`exam`-kind tail grows in the same
-   pass rather than as separate work.
-3. **Thicken the bank:1 heavy hitters** (E2) to 2–3 questions each:
-   `simple_arithmetic` (75 marks!), `fractions_of_amounts`,
-   `simplifying_expressions`, `coordinates`, `inverse_proportion`,
-   `calculating_simple_probability`, `mean`, then down the list.
-4. **Watchlist (E4):** revisit the circle-parts-vocabulary node when the 2025
+
+**Rewritten 2026-08-08.** The original step list is complete or obsolete: the
+compound-areas draft is published, every skill in the old "authorable-now
+zero-coverage" list now has questions, and the drawing/equivalence blockers that
+parked step 5 have shipped. The superseded version is preserved in
+`05-exam-coverage.md` §H.
+
+Ordering principle is unchanged: exam marks per unit of authoring effort — but
+scored on **primary marks with near-root skills excluded**, not involvement.
+
+1. **Synthesis on the heaviest skills (E5)** — the largest single mismatch.
+   `proportion` (49 involvement exam-kind marks, 0 synthesis questions) and
+   `ratio` first, then `compound_units`, `percentage_change`,
+   `upper_and_lower_bounds`, `growth_and_decay`, `kinematic_graphs`. The
+   best-buy / cheapest-shop / which-is-denser decision pattern is a multi-part
+   numeric + final MC — no engine work. Apply the project's synthesis rule:
+   `exam` kind only where one answer needs two *independent* skills.
+2. **Thicken the thin list (E2) top-down by primary marks** —
+   `inverse_proportion` (18), `tree_diagrams` (15), `kinematic_graphs` (14),
+   `simplifying_indices` (13), `time_series` (12), `reverse_percentage` (12),
+   `systematic_listing` (10), `completing_the_square` (10), then down. Add the
+   three hand-overrides the near-root rule wrongly filters out: `simple_charts`
+   (19), `calculating_simple_probability` (19),
+   `fractions_decimals_and_percentages` (16).
+3. **Exploit `grid_draw` (E6)** — ~86 marks of coded traffic fit its eight modes
+   against 6 parts built. Lead with `plans_and_elevations` (12 marks, still zero
+   coverage), then `symmetry` drawing, `time_series`, `cumulative_frequency`,
+   `simple_charts`, `enlargements`/`translations`/`reflections`,
+   `scatter_graphs` (plot side only).
+4. **Close E1's authorable tail** — `trig_graphs` (3), `sketching_functions` (2).
+5. **Watchlist (E4):** revisit the circle-parts-vocabulary node when the 2025
    series is coded (5 recurrences already inside 2024).
-5. **Parked behind app gaps** (roadmap decision needed first): the drawing
-   cluster (`simple_charts` 19 marks, plotting, constructions, loci,
-   plans/elevations, histograms, box plots) and the proof skills
-   (`algebraic_proof`, `vector_proof`) — blocked on the drawing-input surface /
-   free-text marking decisions already tracked in the product roadmap.
+6. **Still parked behind app gaps** (~104 marks, down from ~295): free-text /
+   proof marking (`algebraic_proof`, `vector_proof`, describe-transformation,
+   describe-correlation, explain-the-error — 74 marks), the matching widget
+   (15), compass/ruler (`constructions`, `loci` — 10), set-validity partial
+   credit (5, grader-only), and a box-plot grid mode (3). Detail in
+   `06-app-gap-plan.md` §Revision 2026-08-08.
+
+Authoring gate is unchanged: every question through `scripts/verify-question.ts`,
+left unpublished for review.
 
 ## How this meshes with the product roadmap
 The product roadmap's **Direction A** (exam-style parametric content) and the

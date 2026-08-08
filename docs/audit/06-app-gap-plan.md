@@ -5,6 +5,15 @@ coded part-rows in `data/exam-audit/` (`app_supported` + `app_gap_note` fields).
 All mark figures are involvement-weighted 2024-series marks and re-derivable by
 aggregating `app_gap_note` over the parts coded `app_supported: "no"`._
 
+> **⚠ Revised 2026-08-08 — most of this plan has shipped.** Increments 0–2 are
+> substantially built (equivalence grader, `multi_blank`, `grid_draw`), so the
+> `app_gap_note` text in `data/exam-audit/` is **stale**: it records what was
+> unsupported when the papers were coded, not what is unsupported now. Roughly
+> **308 of the 479 `no`+`partial` marks are authorable today**; only ~104 are
+> hard-blocked. **Read §Revision 2026-08-08 at the foot of this document before
+> using any figure above it.** The bucket analysis below is retained because the
+> clustering is still correct — only the cost-to-unblock has changed.
+
 ## Headline
 
 Of 960 coded marks: **50% fully supported, 19% partial, 31% (295 marks) unsupported.**
@@ -129,3 +138,71 @@ Increment 1 ≈ 50 / small; Increment 2 ≈ 60 / large; B3b ≈ 30 / large+risky
 The mastery graph, grader, and mini-exam assembler all consume questions
 uniformly — none of these increments touch attribution logic. B2/B4/B5 add
 answer *types*; the assembler's calculator/difficulty logic is unaffected.
+
+---
+
+# Revision 2026-08-08 — re-scored against shipped capability
+
+Re-derived by bucketing every `app_gap_note` on the 113 parts coded
+`app_supported: no` or `partial` (479 marks: 295 `no` + 184 `partial`), then
+checking each bucket against what the engine can actually do now.
+
+## Capability that landed since 2026-07-06
+
+- **Equivalence grader** (2e44ee4, 3072b09) — answer types `exact`, `numeric`,
+  `fraction`, `expression`, `set`, `ratio`, `coordinate`, all with equivalence
+  checking. Full CAS deferred.
+- **`multi_blank`** — part-level; N labelled scalar blanks, per-blank traps,
+  per-blank marks, errors-carried-forward across siblings.
+- **`grid_draw`** — modes `points`, `polyline`, `line`, `cells`, `polygon`,
+  `bars`, `bars_free`, `number_line`, with per-element marks and wrong-drawing
+  traps. This is B4 **and** B5, both delivered.
+- **`mark_bands`** — partial credit on multi-blank parts.
+
+## Buckets re-scored
+
+| Bucket | Marks | Status now | Heaviest skills |
+|---|---|---|---|
+| **A — Equivalence-checkable answers** | **163** | ✅ **Shipped.** Was the single biggest bucket and is entirely gone. | `understanding_straight_line_graphs` 21, `ratio` 19, `simplifying_expressions` 19, `coordinates` 17, `simplifying_indices` 10 |
+| **C — Grid drawing/plotting** (old B4+B5) | **86** | ✅ **Shipped** for all eight modes. | `plans_and_elevations` 12, `symmetry` 10, `time_series` 8, `plotting_straight_line_graphs` 7, `cumulative_frequency`/`interquartile_range` 7, `simple_charts` 6, `enlargements` 5 |
+| **D — Decision + supporting values** (old B1) | **34** | ✅ Always authorable — multi-part numeric + final MC. Original estimate of ~65 was generous; the strict decision-note total is 34. | `proportion` 19, `percentage_change` 13, `compound_units` 10 |
+| **B — Multi-cell structured entry** (old B2) | **25** | ✅ **Shipped** as `multi_blank`. Original estimate ~35. | `frequency_trees` 9, `venn_diagrams` 5, `inverse_proportion` 4, `simple_arithmetic` 4 |
+| **E — Free-text / proof / explain** (old B3) | **74** | ❌ **Blocked.** B3a (structured show-that on `multi_blank`) could convert perhaps a third; B3b free-text marking still deferred. | `enlargements` 6, `calculating_simple_probability` 6, `relative_frequency` 6, `algebraic_proof` 6, `upper_and_lower_bounds` 5, `vectors`/`vector_proof` 4 each |
+| **Z — Other / mixed** | **67** | ◐ Mixed. Column-vector entry, structured listing with set-equality, reading intervals off a graph. Small grader/input additions, not one project. | `function_machines` 9, `proportion` 6, `ratio` 6, `tree_diagrams` 4 |
+| **H — Matching / connecting** (part of old B6) | **15** | ❌ Blocked — needs the pair-matching widget. | `graph_transformations`, `quadratic_functions`, vocabulary recall |
+| **F — Compass / ruler / physical** (old B6) | **10** | ❌ Blocked, low yield. Still the right call to defer. | `constructions`, `loci`, `measuring_lines_and_angles` |
+| **G — Set-validity / constraint partial credit** | **5** | ◐ Grader-only change; cheapest remaining carve-out. | `systematic_listing`, `factors_and_multiples` |
+
+**Authorable today: ~308 marks (A+C+D+B). Hard-blocked: ~104 (E+H+F), plus a
+mixed ~67 in Z.** Box-plot drawing (3 marks) is the one drawing case `grid_draw`
+does not cover — there is no box-plot mode and `points` is only an
+approximation.
+
+## The actual bottleneck is now authoring, not engineering
+
+Across all 233 published questions the bank uses:
+
+- **6 `multi_blank` parts** — `frequency_trees`, `venn_diagrams`,
+  `function_machines`, `simultaneous_equations`, `quadratic_functions`,
+  `solving_quadratic_equations_factorising`, `gathering_and_organising_data`
+- **6 `grid_draw` parts** — modes `polygon` ×2, `bars`, `bars_free`, `line`,
+  `number_line`; skills `histograms`, `inequalities`, `simple_charts`,
+  `enlargements`, `reflections`, `plotting_straight_line_graphs`
+- **3 `mark_bands` parts**
+
+~86 marks of coded exam traffic fit `grid_draw`'s modes against 6 parts built.
+The capability is in place and essentially unexploited — content, not code, is
+what converts it.
+
+## Revised sequence
+
+1. **Author against what shipped** — no engineering gate. Priority order lives in
+   `05-exam-coverage.md` §Suggested action order (synthesis on the heavy skills,
+   then thin-coverage depth, then `grid_draw` content led by
+   `plans_and_elevations`).
+2. **Set-validity grader extension** (~5 marks) — smallest remaining code win.
+3. **Matching widget** (~15 marks) — independent of everything else.
+4. **B3a structured show-that** on `multi_blank` — converts part of E's 74 marks
+   with zero marking risk.
+5. **Still deferred:** B3b free-text proof marking; compass constructions/loci;
+   a box-plot grid mode.
