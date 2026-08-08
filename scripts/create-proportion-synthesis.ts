@@ -118,7 +118,9 @@ type Draft = {
   question_type: 'numeric'
   parameters: Record<string, { type: 'integer'; min: number; max: number }>
   answer_template: string
-  answer_type: 'numeric'
+  // 'exact' for the density question, whose answer is a town NAME — the grader
+  // normalises case and whitespace, so "Barwick" and " barwick " both match.
+  answer_type: 'numeric' | 'exact'
   tolerance: number | null
   traps: { answer_template: string; response: string; method_marks?: number }[]
   explanation: string
@@ -318,6 +320,19 @@ function rowOf(q: Draft) {
   }
 }
 
+/**
+ * Update payload: everything EXCEPT is_published.
+ *
+ * `--update` must never flip a question back to draft. The user is the
+ * publishing gate, and once they have approved one of these rows, a later
+ * revision here would otherwise silently pull it off the live site — which is
+ * exactly what would have happened to d755a649.
+ */
+function updateOf(q: Draft) {
+  const { is_published: _ignored, ...rest } = rowOf(q)
+  return rest
+}
+
 async function main() {
   const jsonIdx = process.argv.indexOf('--json')
   if (jsonIdx !== -1) {
@@ -337,7 +352,7 @@ async function main() {
     for (const q of drafts) {
       const id = DRAFT_IDS[q.name]
       if (!id) { console.error(`no draft id recorded for "${q.name}" — insert it first`); process.exit(1) }
-      const { error } = await supabase.from('questions').update(rowOf(q)).eq('id', id)
+      const { error } = await supabase.from('questions').update(updateOf(q)).eq('id', id)
       if (error) { console.error(`update failed for ${q.name}:`, error); process.exit(1) }
       console.log(`  updated ${q.name}: ${id}`)
     }

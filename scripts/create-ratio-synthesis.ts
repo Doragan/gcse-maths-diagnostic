@@ -277,6 +277,19 @@ function rowOf(q: Draft) {
   }
 }
 
+/**
+ * Update payload: everything EXCEPT is_published.
+ *
+ * `--update` must never flip a question back to draft. The user is the
+ * publishing gate, and once they have approved one of these rows, a later
+ * revision here would otherwise silently pull it off the live site — which is
+ * exactly what would have happened to d755a649.
+ */
+function updateOf(q: Draft) {
+  const { is_published: _ignored, ...rest } = rowOf(q)
+  return rest
+}
+
 async function main() {
   const jsonIdx = process.argv.indexOf('--json')
   if (jsonIdx !== -1) {
@@ -296,7 +309,7 @@ async function main() {
     for (const q of drafts) {
       const id = DRAFT_IDS[q.name]
       if (!id) { console.error(`no draft id recorded for "${q.name}" — insert it first`); process.exit(1) }
-      const { error } = await supabase.from('questions').update(rowOf(q)).eq('id', id)
+      const { error } = await supabase.from('questions').update(updateOf(q)).eq('id', id)
       if (error) { console.error(`update failed for ${q.name}:`, error); process.exit(1) }
       console.log(`  updated ${q.name}: ${id}`)
     }
