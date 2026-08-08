@@ -66,16 +66,38 @@ const Q1_DIFF = `Math.abs(${Q1_TA}-${Q1_TB})`
 // Pence → pounds, always 2 dp.
 const gbp = (pence: string) => `(${pence}/100).toFixed(2)`
 
-// ── Q2 curated variants — populations chosen so both densities are whole
-// numbers; three towns A denser, three B denser.
-const Q2_PA = '[48000,25500,84000,19200,72000,45600][sel]'
-const Q2_PAD = "['48 000','25 500','84 000','19 200','72 000','45 600'][sel]"
-const Q2_AA = '[12,15,28,16,30,19][sel]'
-const Q2_PB = '[63000,36000,45000,33600,55000,39000][sel]'
-const Q2_PBD = "['63 000','36 000','45 000','33 600','55 000','39 000'][sel]"
-const Q2_AB = '[21,24,18,24,22,15][sel]'
+// ── Q2 curated variants — three towns. Every density is a whole number and the
+// three are always distinct, so "the most crowded" is never ambiguous.
+//
+// Two properties are load-bearing and hold on all six draws:
+//   • The biggest-POPULATION town is never the densest. That is what makes
+//     "you compared populations" a trap that can never collide with the answer
+//     — and it is the misconception the coded 2024 part actually carries
+//     (`density_per_area`). It also always covers the most ground, so the
+//     trap's wording is safe.
+//   • The smallest-AREA town IS the answer on three of the six draws (1, 3, 5)
+//     and is not on the other three. Deliberate: if BOTH lazy heuristics were
+//     always wrong, then with three towns the answer would be deducible by
+//     elimination without dividing anything.
+// Each town wins exactly twice.
+const Q2_PA = '[48000,27200,67200,36000,72000,57200][sel]'
+const Q2_PAD = "['48 000','27 200','67 200','36 000','72 000','57 200'][sel]"
+const Q2_AA = '[12,16,28,30,30,26][sel]'
+const Q2_PB = '[78000,45000,45000,28000,50600,35000][sel]'
+const Q2_PBD = "['78 000','45 000','45 000','28 000','50 600','35 000'][sel]"
+const Q2_AB = '[30,30,15,20,22,14][sel]'
+const Q2_PC = '[60000,16800,62500,18200,46800,56000][sel]'
+const Q2_PCD = "['60 000','16 800','62 500','18 200','46 800','56 000'][sel]"
+const Q2_AC = '[20,12,25,14,18,20][sel]'
 const Q2_DA = `(${Q2_PA}/${Q2_AA})`
 const Q2_DB = `(${Q2_PB}/${Q2_AB})`
+const Q2_DC = `(${Q2_PC}/${Q2_AC})`
+const Q2_MAXD = `Math.max(${Q2_DA}, ${Q2_DB}, ${Q2_DC})`
+const Q2_MIND = `Math.min(${Q2_DA}, ${Q2_DB}, ${Q2_DC})`
+/** Name of the densest town — the answer. */
+const Q2_DENSEST = `((${Q2_DA} >= ${Q2_DB} && ${Q2_DA} >= ${Q2_DC}) ? 'Ashford' : (${Q2_DB} >= ${Q2_DC} ? 'Barwick' : 'Calder'))`
+/** Name of the most POPULOUS town — never the answer, by construction. */
+const Q2_BIGPOP = `((${Q2_PA} >= ${Q2_PB} && ${Q2_PA} >= ${Q2_PC}) ? 'Ashford' : (${Q2_PB} >= ${Q2_PC} ? 'Barwick' : 'Calder'))`
 
 // ── Q3 curated variants — run time is always a whole number of fill periods
 // and the total is always a whole number of litres.
@@ -165,7 +187,7 @@ const drafts: Draft[] = [
     marks: 3,
     calculator: 'calc',
     question_template:
-      `<p>The table shows the population and the area of two towns.</p>`
+      `<p>The table shows the population and the area of three towns.</p>`
       + `<table style="border-collapse:collapse;margin:8px 0;">`
       + `<tr><th style="border:1px solid currentColor;padding:4px 10px;"></th>`
       + `<th style="border:1px solid currentColor;padding:4px 10px;">Population</th>`
@@ -175,17 +197,19 @@ const drafts: Draft[] = [
       + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_AA}}}</td></tr>`
       + `<tr><td style="border:1px solid currentColor;padding:4px 10px;">Barwick</td>`
       + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_PBD}}}</td>`
-      + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_AB}}}</td></tr></table>`
-      + `<p>Ashford and Barwick are not equally crowded.</p>`
-      + `<p>Which town is <strong>more crowded</strong>?</p>`
+      + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_AB}}}</td></tr>`
+      + `<tr><td style="border:1px solid currentColor;padding:4px 10px;">Calder</td>`
+      + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_PCD}}}</td>`
+      + `<td style="border:1px solid currentColor;padding:4px 10px;">{{${Q2_AC}}}</td></tr></table>`
+      + `<p>Which town is the <strong>most crowded</strong>?</p>`
       + `<p>Write down the name of the town.</p>`,
     question_type: 'numeric',
     parameters: { sel: { type: 'integer', min: 0, max: 5 } },
     // A name, not a number: `exact` normalises case and whitespace, so
-    // "Barwick", "barwick" and " barwick " all mark correct. The numeric traps
+    // "Calder", "calder" and " calder " all mark correct. The numeric traps
     // below still fire on an exact string match, which is how a student who
     // computes the density and writes THAT still gets targeted feedback.
-    answer_template: `{{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}`,
+    answer_template: `{{${Q2_DENSEST}}}`,
     answer_type: 'exact',
     tolerance: null,
     explanation:
@@ -193,29 +217,32 @@ const drafts: Draft[] = [
       + `Population density = population ÷ area.<br>`
       + `Ashford: {{${Q2_PAD}}} ÷ {{${Q2_AA}}} = <strong>{{${Q2_DA}}}</strong> people per km².<br>`
       + `Barwick: {{${Q2_PBD}}} ÷ {{${Q2_AB}}} = <strong>{{${Q2_DB}}}</strong> people per km².<br>`
-      + `{{Math.max(${Q2_DA}, ${Q2_DB})}} is greater than {{Math.min(${Q2_DA}, ${Q2_DB})}}, so the more crowded town is <strong>{{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}</strong>.`,
+      + `Calder: {{${Q2_PCD}}} ÷ {{${Q2_AC}}} = <strong>{{${Q2_DC}}}</strong> people per km².<br>`
+      + `The largest of those is {{${Q2_MAXD}}}, so the most crowded town is <strong>{{${Q2_DENSEST}}}</strong>.`,
     traps: [
       {
         // Right maths, wrong deliverable — the commonest way to lose the mark
         // on a "which one" question.
-        answer_template: `{{Math.max(${Q2_DA}, ${Q2_DB})}}`,
-        response: `That is the right density — {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} does have {{Math.max(${Q2_DA}, ${Q2_DB})}} people per km². But the question asks <em>which town</em>, so the answer is the name: {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}.`,
+        answer_template: `{{${Q2_MAXD}}}`,
+        response: `That is the right density — {{${Q2_DENSEST}}} does have {{${Q2_MAXD}}} people per km². But the question asks <em>which town</em>, so the answer is the name: {{${Q2_DENSEST}}}.`,
         method_marks: 2,
       },
       {
-        answer_template: `{{Math.min(${Q2_DA}, ${Q2_DB})}}`,
-        response: `Two things to fix: that is the density of the <em>less</em> crowded town, and the question asks for a name rather than a number. {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} has {{Math.max(${Q2_DA}, ${Q2_DB})}} people per km² against {{Math.min(${Q2_DA}, ${Q2_DB})}}, so {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}} is the more crowded one.`,
+        answer_template: `{{${Q2_MIND}}}`,
+        response: `Two things to fix: that is the density of the <em>least</em> crowded town, and the question asks for a name rather than a number. The three densities are {{${Q2_DA}}}, {{${Q2_DB}}} and {{${Q2_DC}}} people per km², so the most crowded town is {{${Q2_DENSEST}}}.`,
         method_marks: 1,
       },
       {
-        // The wrong town. Method deliberately left UNSET rather than 0: this
-        // could be a comparison of populations (no credit) or a slip in one
-        // division (some credit), and the exam scorer treats "unknown" as a
-        // widened uncertainty band rather than an assertion of zero.
-        answer_template: `{{${Q2_DA} > ${Q2_DB} ? 'Barwick' : 'Ashford'}}`,
-        // In every variant the bigger-population town also covers the bigger
-        // area, so this framing of the misconception is always true.
-        response: `Check what you compared. {{${Q2_PA} > ${Q2_PB} ? 'Ashford' : 'Barwick'}} has the bigger population, but it also covers the bigger area ({{Math.max(${Q2_AA}, ${Q2_AB})}} km² against {{Math.min(${Q2_AA}, ${Q2_AB})}} km²) — crowding is people <em>per km²</em>. Ashford: {{${Q2_PAD}}} ÷ {{${Q2_AA}}} = {{${Q2_DA}}}; Barwick: {{${Q2_PBD}}} ÷ {{${Q2_AB}}} = {{${Q2_DB}}}. So the more crowded town is {{${Q2_DA} > ${Q2_DB} ? 'Ashford' : 'Barwick'}}.`,
+        // The town with the biggest population — never the densest, by
+        // construction, so this can never collide with the answer. Method
+        // deliberately left UNSET rather than 0: it could be a comparison of
+        // populations (no credit) or a slip in one division (some credit), and
+        // the exam scorer treats "unknown" as a widened uncertainty band rather
+        // than an assertion of zero.
+        answer_template: `{{${Q2_BIGPOP}}}`,
+        // The biggest-population town also covers the largest area on every
+        // draw, so this framing of the misconception is always true.
+        response: `Check what you compared. {{${Q2_BIGPOP}}} has the biggest population, but it also covers the most ground — crowding is people <em>per km²</em>. Ashford: {{${Q2_PAD}}} ÷ {{${Q2_AA}}} = {{${Q2_DA}}}; Barwick: {{${Q2_PBD}}} ÷ {{${Q2_AB}}} = {{${Q2_DB}}}; Calder: {{${Q2_PCD}}} ÷ {{${Q2_AC}}} = {{${Q2_DC}}}. So the most crowded town is {{${Q2_DENSEST}}}.`,
       },
     ],
   },
