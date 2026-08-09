@@ -46,12 +46,22 @@ const DRAFT_IDS: Record<string, string> = {
   'sphere-radius-from-mass-and-density': '40908778-5687-47dc-b97c-84ef230cd1f6',
 }
 
-// ── C1: water through a pipe. litres = (A/10000) × v × 60T × 1000 = 6·A·v·T,
-// so every draw is a whole number of litres however messy the chain looks.
-const C1_A = '[20,15,24,12,30,18][sel]'   // cross-section, cm²
-const C1_V = '[2,3,2,4,3,5][sel]'         // flow speed, m/s
-const C1_T = '[5,4,8,10,5,3][sel]'        // duration, minutes
-const C1_ANS = `(6*${C1_A}*${C1_V}*${C1_T})`
+// ── C1: water through a pipe.
+//
+// The speed is in cm/s DELIBERATELY, so that cm² × cm/s = cm³/s composes with
+// no conversion at all. An earlier draft gave the speed in m/s, which forced a
+// cm² → m² step: that is a squared conversion factor of 10 000, a known
+// stumbling block in its own right, and too much to bolt onto a rate chain at
+// GCSE. (The source question's coded trap is unit_confusion_km_m — a LENGTH
+// conversion — so the area version was never what the paper asked either.)
+//
+// What is left is the two mainstream conversions: minutes → seconds and
+// cm³ → litres. litres = A·v·60T/1000, and every draw is a whole number.
+const C1_A = '[25,15,40,12,30,20][sel]'   // cross-section, cm²
+const C1_V = '[20,25,15,50,20,35][sel]'   // flow speed, cm/s
+const C1_T = '[5,4,6,3,10,2][sel]'        // duration, minutes
+const C1_CM3 = `(${C1_A}*${C1_V}*60*${C1_T})`
+const C1_ANS = `(${C1_CM3}/1000)`
 
 // ── C2: distance-time graph. Geometry is drawn from lattice units so the
 // polyline always lands on exact pixels; only the y-axis SCALE (k km per unit)
@@ -107,42 +117,40 @@ const drafts: Draft[] = [
   {
     name: 'pipe-flow-rate-to-litres',
     skill_ids: ['compound_units', 'converting_measurements'],
-    difficulty: 4,
-    marks: 5,
+    difficulty: 3,
+    marks: 4,
     calculator: 'calc',
     question_template:
-      `<p>Water flows through a pipe at a constant speed of <strong>{{${C1_V}}} m/s</strong>.</p>`
+      `<p>Water flows through a pipe at a constant speed of <strong>{{${C1_V}}} cm/s</strong>.</p>`
       + `<p>The pipe has a cross-sectional area of <strong>{{${C1_A}}} cm²</strong>.</p>`
       + `<p>Work out the volume of water that flows through the pipe in <strong>{{${C1_T}}} minutes</strong>.</p>`
       + `<p>Give your answer in <strong>litres</strong>.</p>`
-      + `<p><em>1 m³ = 1000 litres.</em></p>`,
+      + `<p><em>1 litre = 1000 cm³.</em></p>`,
     question_type: 'numeric',
     parameters: { sel: { type: 'integer', min: 0, max: 5 } },
     answer_template: `{{${C1_ANS}}}`,
     answer_type: 'numeric',
     tolerance: 0.001,
     explanation:
-      `Work in metres and seconds throughout.<br>`
-      + `Cross-sectional area: {{${C1_A}}} cm² ÷ 10 000 = <strong>{{${C1_A}/10000}} m²</strong> (there are 100 × 100 = 10 000 cm² in 1 m²).<br>`
+      `In one second the water advances {{${C1_V}}} cm along the pipe, sweeping out a cylinder of length {{${C1_V}}} cm and cross-section {{${C1_A}}} cm².<br>`
+      + `So the flow rate is {{${C1_A}}} × {{${C1_V}}} = <strong>{{${C1_A}*${C1_V}}} cm³ per second</strong>.<br>`
       + `Time: {{${C1_T}}} minutes × 60 = <strong>{{60*${C1_T}}} seconds</strong>.<br>`
-      + `In one second the water advances {{${C1_V}}} m, so it sweeps out {{${C1_A}/10000}} × {{${C1_V}}} = {{${C1_A}*${C1_V}/10000}} m³ each second.<br>`
-      + `Over {{60*${C1_T}}} seconds: {{${C1_A}*${C1_V}/10000}} × {{60*${C1_T}}} = <strong>{{${C1_ANS}/1000}} m³</strong>.<br>`
-      + `Finally 1 m³ = 1000 litres, so that is {{${C1_ANS}/1000}} × 1000 = <strong>{{${C1_ANS}}} litres</strong>.`,
+      + `Volume = {{${C1_A}*${C1_V}}} × {{60*${C1_T}}} = <strong>{{${C1_CM3}}} cm³</strong>.<br>`
+      + `Finally 1 litre = 1000 cm³, so that is {{${C1_CM3}}} ÷ 1000 = <strong>{{${C1_ANS}}} litres</strong>.`,
     traps: [
       {
-        // The coded unit_confusion: cm² read straight off as m².
-        answer_template: `{{${C1_ANS}*10000}}`,
-        response: `You used {{${C1_A}}} as if it were {{${C1_A}}} m². There are 100 × 100 = 10 000 cm² in one m², so the area is {{${C1_A}}} ÷ 10 000 = {{${C1_A}/10000}} m², which gives {{${C1_ANS}}} litres.`,
+        answer_template: `{{${C1_CM3}}}`,
+        response: `That is the volume in cm³. The question asks for litres, and 1 litre = 1000 cm³: {{${C1_CM3}}} ÷ 1000 = {{${C1_ANS}}} litres.`,
         method_marks: 3,
       },
       {
-        answer_template: `{{${C1_ANS}/1000}}`,
-        response: `That is the volume in cubic metres. The question asks for litres, and 1 m³ = 1000 litres: {{${C1_ANS}/1000}} × 1000 = {{${C1_ANS}}} litres.`,
-        method_marks: 4,
+        answer_template: `{{${C1_ANS}/60}}`,
+        response: `The speed is in centimetres per <em>second</em>, but you used {{${C1_T}}} as if it were seconds. {{${C1_T}}} minutes is {{${C1_T}}} × 60 = {{60*${C1_T}}} seconds, so the volume is {{${C1_ANS}}} litres.`,
+        method_marks: 2,
       },
       {
-        answer_template: `{{${C1_ANS}/60}}`,
-        response: `The speed is in metres per <em>second</em>, but you used {{${C1_T}}} as if it were seconds. {{${C1_T}}} minutes is {{${C1_T}}} × 60 = {{60*${C1_T}}} seconds, so the volume is {{${C1_ANS}}} litres.`,
+        answer_template: `{{${C1_CM3}/100}}`,
+        response: `Check your conversion — you divided by 100. There are 1000 cm³ in a litre, so {{${C1_CM3}}} cm³ = {{${C1_ANS}}} litres.`,
         method_marks: 3,
       },
     ],
@@ -307,7 +315,15 @@ async function main() {
   }
 
   if (process.argv.includes('--update')) {
-    for (const q of drafts) {
+    // `--update <name>` restricts the rewrite to ONE question. Without it every
+    // row this script owns is rewritten — including rows that are already
+    // published and may have been hand-edited in the admin UI since, whose
+    // changes this would silently overwrite. Prefer the named form.
+    const only = process.argv[process.argv.indexOf('--update') + 1]
+    const targets = only && !only.startsWith('--') ? drafts.filter(q => q.name === only) : drafts
+    if (!targets.length) { console.error(`no question named "${only}" in this script`); process.exit(1) }
+    if (targets.length > 1) console.log(`rewriting all ${targets.length} rows — pass --update <name> to target just one`)
+    for (const q of targets) {
       const id = DRAFT_IDS[q.name]
       if (!id) { console.error(`no draft id recorded for "${q.name}" — insert it first`); process.exit(1) }
       const { error } = await supabase.from('questions').update(updateOf(q)).eq('id', id)

@@ -349,7 +349,15 @@ async function main() {
   }
 
   if (process.argv.includes('--update')) {
-    for (const q of drafts) {
+    // `--update <name>` restricts the rewrite to ONE question. Without it every
+    // row this script owns is rewritten — including rows that are already
+    // published and may have been hand-edited in the admin UI since, whose
+    // changes this would silently overwrite. Prefer the named form.
+    const only = process.argv[process.argv.indexOf('--update') + 1]
+    const targets = only && !only.startsWith('--') ? drafts.filter(q => q.name === only) : drafts
+    if (!targets.length) { console.error(`no question named "${only}" in this script`); process.exit(1) }
+    if (targets.length > 1) console.log(`rewriting all ${targets.length} rows — pass --update <name> to target just one`)
+    for (const q of targets) {
       const id = DRAFT_IDS[q.name]
       if (!id) { console.error(`no draft id recorded for "${q.name}" — insert it first`); process.exit(1) }
       const { error } = await supabase.from('questions').update(updateOf(q)).eq('id', id)
