@@ -3,10 +3,14 @@
 _Read-only cross-reference of the published bank against all 12 coded 2024
 papers (`data/exam-audit/`, 444 part-rows, 960 marks)._
 
-**Revised 2026-08-08** — bank now **233 published questions covering 139 of 152
-skills**. The original pass (2026-06-10) ran against a 133-question / 113-skill
-bank; **its headline figures are superseded and must not be used for planning**
-— see §H for what changed and why.
+**Revised 2026-08-08; figures refreshed 2026-08-09** — bank now **242 published
+questions covering 139 of 152 skills**. The original pass (2026-06-10) ran
+against a 133-question / 113-skill bank; **its headline figures are superseded
+and must not be used for planning** — see §H for what changed and why.
+
+The 2026-08-09 refresh reflects the first Phase 5 content batch: nine synthesis
+questions published across `proportion`, `ratio` and `compound_units`
+(`scripts/create-{proportion,ratio,compound-units}-synthesis.ts`).
 
 **Cross-validation:** every `skill_id` used across all 444 exam rows exists in
 the skill graph — zero coding typos. The exam audit and the graph agree.
@@ -36,10 +40,11 @@ See §E2b for the three skills where the rule should be overridden by hand.
   authorable-and-untouched. Ranking by zero-coverage now produces near-noise.
 - **The gap moved from breadth to shape.** Real papers are **63 % exam-kind
   (synthesis) marks** — 606 of 960, across 215 of 444 parts. The published bank
-  is **21 of 233 questions exam-kind (9 %)**. Several of the heaviest synthesis
-  skills have *no* synthesis question at all.
-- **Depth is the remaining coverage problem.** 87 exam-tested skills sit at 1–2
-  questions; 51 sit at exactly 1.
+  is **30 of 242 questions exam-kind (12 %)**, up from 21 of 233 (9 %) after the
+  first content batch. Still less than a fifth of the way to the papers' own
+  ratio, and several heavy synthesis skills remain at zero — see E2c.
+- **Depth is the remaining coverage problem.** 83 exam-tested skills sit at 1–2
+  questions (was 87).
 - **Most `app_gap_note` text is stale.** The equivalence grader, `multi_blank`
   and `grid_draw` all shipped after those notes were written; roughly 308 of the
   479 `no`/`partial` marks are authorable today. See `06-app-gap-plan.md`
@@ -67,14 +72,13 @@ exam-weight evidence: `frequency_diagrams`, `rotations`, `trigonometry_3d`.
 
 ## E2 — Thin coverage _(the live content backlog)_
 
-87 exam-tested skills sit at 1–2 published questions. Ranked by primary marks,
+83 exam-tested skills sit at 1–2 published questions (was 87). Ranked by primary marks,
 near-root excluded — this list replaces E1 as the priority queue.
 
 | Primary (F/H) | Bank | Skill | Note |
 |---|---|---|---|
 | 18 (7/11) | 2 | `inverse_proportion` | Highest thin skill outright. |
 | 15 (4/11) | 2 | `tree_diagrams` | 0 exam-kind. Branch-probability entry now possible via `multi_blank`. |
-| 14 (5/9) | 2 | `kinematic_graphs` | 0 exam-kind. Read-offs authorable; 4 marks want `grid_draw`. |
 | 13 (7/6) | 2 | `simplifying_indices` | 7 previously-blocked marks were equivalence-checker — now clear. |
 | 12 (6/6) | 2 | `time_series` | Plotting side now available (`polyline`). |
 | 12 (6/6) | 2 | `reverse_percentage` | Fully supported, no blockers. |
@@ -88,6 +92,9 @@ near-root excluded — this list replaces E1 as the priority queue.
 | 7 (0/7) | 2 | `cumulative_frequency` | `grid_draw` `polyline`. |
 | 6 | 1–2 | `measuring_lines_and_angles`, `quadratic_functions`, `areas_of_compound_shapes`, `recurring_decimals_to_fractions`, `direct_proportion`, `iteration`, `sine_rule`, `volume_of_a_sphere`, `graph_transformations` | |
 | 5 | 1–2 | `properties_of_3d_solids`, `surds_expanding_and_rationalising`, `exact_trig_values`, `cosine_rule`, `simultaneous_equations_quadratic` | |
+
+`kinematic_graphs` (14 primary marks) left this list on 2026-08-09 — batch 1
+took it to 3 questions, one of them the bank's first exam-kind item for it.
 
 ### E2b — Near-root exclusions to override by hand
 
@@ -105,26 +112,35 @@ it is the exact case the rule exists for.
 
 ## E2c — The synthesis shortfall _(largest single mismatch)_
 
-Papers: **63 % of marks are `kind: exam`**. Bank: **9 % of questions**. The
-heaviest synthesis skills with no synthesis question, by exam-kind marks
-(primary / involvement), near-root excluded:
+Papers: **63 % of marks are `kind: exam`**. Bank: **12 % of questions**. Ranked
+by exam-kind marks (primary / involvement), near-root excluded. ✅ marks the
+three skills the first batch addressed.
 
 | Exam-kind (pri/inv) | Bank total | Bank exam-kind | Skill |
 |---|---|---|---|
-| 19 / 49 | 3 | **0** | `proportion` |
-| 24 / 30 | 10 | 3 | `compound_units` |
-| 23 / 33 | 5 | 1 | `ratio` |
-| 17 / 22 | 8 | 2 | `percentage_change` |
-| 12 / 12 | 2 | **0** | `kinematic_graphs` |
+| 24 / 30 | 14 | 7 ✅ | `compound_units` _(was 3)_ |
+| 23 / 33 | 8 | 4 ✅ | `ratio` _(was 1)_ |
+| 19 / 49 | 6 | 3 ✅ | `proportion` _(was 0)_ |
+| 17 / 22 | 9 | 3 | `percentage_change` |
+| 12 / 12 | 3 | 1 | `kinematic_graphs` _(was 0)_ |
 | 12 / 12 | 5 | 1 | `upper_and_lower_bounds` |
 | 10 / 13 | 4 | **0** | `growth_and_decay` |
 | 9 / 9 | 2 | **0** | `tree_diagrams` |
 | 9 / 9 | 2 | **0** | `simplifying_indices` |
+| 8 / 12 | 2 | **0** | `pie_charts` |
+| 8 / 8 | 3 | **0** | `venn_diagrams` |
 | 7 / 15 | 2 | **0** | `forming_expressions_and_formulae` |
+| 7 / 7 | 2 | **0** | `rearranging_formulae` |
+
+`growth_and_decay` (10 primary marks, 4 questions, no synthesis) is now the
+heaviest skill with zero exam-kind coverage, and is the obvious next batch.
 
 Author these to the project's synthesis rule — `exam` kind only where one answer
 genuinely needs two *independent* skills; otherwise they land in E2 as mastery
-depth.
+depth. Note that the rule bites harder the further down a prerequisite chain a
+skill sits: `ratio` (downstream of proportion) had most of its
+frequently-paired partners barred, and the three usable pairings were the ones
+the papers set *least* often.
 
 ## E3 — Bank skills with no 2024 appearance _(info, no action)_
 
@@ -143,12 +159,14 @@ Merging note-text variants across papers:
 - "Least n where quadratic exceeds a bound" — 2 rows / 2 marks.
 - Parity/odd-even properties — 1 row / 3 marks. π-exact manipulation — 1 row.
 
-## Suggested action order (2026-08-08)
+## Suggested action order (2026-08-08, progress noted 2026-08-09)
 
-1. **Synthesis on the heaviest skills** (E2c) — `proportion` and `ratio` first;
-   both are top-5 by exam-kind marks and near-empty of synthesis items. The
-   best-buy / cheapest-shop decision pattern is a multi-part numeric + final MC:
-   no engine work.
+1. ✅ **Synthesis on the heaviest skills** (E2c) — `proportion`, `ratio` and
+   `compound_units` done: nine questions published. The decision-framed items
+   (best buy, denser town) are single markable numbers rather than multi-part
+   decompositions — the comparison stays in the student's head, so the exam's
+   open route survives. **Next: `growth_and_decay`, then `tree_diagrams` and
+   `simplifying_indices`.**
 2. **Thicken E2 top-down** — `inverse_proportion`, `tree_diagrams`,
    `kinematic_graphs`, `simplifying_indices`, `time_series`,
    `reverse_percentage` — plus the three E2b hand-overrides.

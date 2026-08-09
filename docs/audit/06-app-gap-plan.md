@@ -180,7 +180,8 @@ approximation.
 
 ## The actual bottleneck is now authoring, not engineering
 
-Across all 233 published questions the bank uses:
+Across all 242 published questions the bank uses (recounted 2026-08-09; the
+first synthesis batch added no new-input parts, so only the denominator moved):
 
 - **6 `multi_blank` parts** — `frequency_trees`, `venn_diagrams`,
   `function_machines`, `simultaneous_equations`, `quadratic_functions`,

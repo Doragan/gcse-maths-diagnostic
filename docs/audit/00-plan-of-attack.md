@@ -20,7 +20,7 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
    **Superseded 2026-08-08 — see the content-coverage restatement below.**
 
 ### Content coverage — restated 2026-08-08
-The bank has roughly doubled since this audit (133 → **233 published**, 113 →
+The bank has roughly doubled since this audit (133 → **242 published**, 113 →
 **139 of 152 skills covered**) and the engine gained the equivalence grader,
 `multi_blank` and `grid_draw`. Finding 4 above is obsolete:
 
@@ -28,11 +28,13 @@ The bank has roughly doubled since this audit (133 → **233 published**, 113 �
   **29 primary marks** (not 33 / ~280). Eight need drawing or free-text marking;
   only `trig_graphs` and `sketching_functions` are authorable-and-untouched.
 - **The gap moved from breadth to shape** — real papers are **63 % exam-kind
-  (synthesis) marks**; the bank is **9 %** (21 of 233). `proportion`,
-  `growth_and_decay`, `kinematic_graphs` and `tree_diagrams` are among the
-  heaviest synthesis skills and have **zero** synthesis questions.
-- **Depth is the live problem** — 87 exam-tested skills sit at 1–2 questions,
-  51 at exactly one.
+  (synthesis) marks**; the bank is **12 %** (30 of 242, after the first content
+  batch — was 9 %). `growth_and_decay`, `tree_diagrams`, `simplifying_indices`,
+  `pie_charts` and `venn_diagrams` are the heaviest synthesis skills still at
+  **zero**; `proportion`, `ratio`, `compound_units` and `kinematic_graphs` were
+  cleared by batch 1.
+- **Depth is the live problem** — 83 exam-tested skills sit at 1–2 questions,
+  50 at exactly one.
 - **Shipped capability is unexploited** — 6 `multi_blank` parts, 6 `grid_draw`
   parts and 3 `mark_bands` parts across the whole bank, against ~86 marks of
   coded exam traffic that `grid_draw`'s eight modes now fit.
@@ -56,9 +58,9 @@ dependents ≥ 8). Detail in `05-exam-coverage.md`; blocked set in
 | L2 | 🟠 Med | Prerequisite inference overrides direct needs_practice evidence on 1 correct answer (design ruling needed) |
 | D1 | ✅ 9/12 FIXED | Deleted 9 broken traps; `round(x±0.01)` replaced by a grader rounding check. 3 remain = Bucket C (left for user investigation) |
 | E1 | ✅ LARGELY CLOSED | _(was: 33 zero-coverage skills / ~280 marks / 18 authorable)_ **Restated 2026-08-08: 10 exam-tested skills at zero, 29 primary marks.** 8 need drawing or free-text marking; only `trig_graphs` + `sketching_functions` are authorable-and-untouched |
-| E2 | 🟠 Med | **Now the live content backlog.** 87 exam-tested skills at 1–2 questions, 51 at exactly one. Top by primary marks: `inverse_proportion` 18, `tree_diagrams` 15, `kinematic_graphs` 14, `simplifying_indices` 13 (near-root excluded; `simple_charts` 19 / `calculating_simple_probability` 19 / `fractions_decimals_and_percentages` 16 are hand-overrides) |
-| E5 | 🟠 Med | **New 2026-08-08 — synthesis shortfall.** Papers are 63 % exam-kind marks; bank is 9 % exam-kind questions. `proportion` (49 involvement exam-kind marks), `growth_and_decay`, `kinematic_graphs`, `tree_diagrams` have zero synthesis questions |
-| E6 | 🟠 Med | **New 2026-08-08 — shipped capability unexploited.** 6 `multi_blank` + 6 `grid_draw` + 3 `mark_bands` parts across 233 questions; ~308 of 479 previously app-blocked marks are authorable today. The `app_gap_note` text in `data/exam-audit/` is stale and must be cross-checked against current capability |
+| E2 | 🟠 Med | **Now the live content backlog.** 83 exam-tested skills at 1–2 questions, 50 at exactly one. Top by primary marks: `inverse_proportion` 18, `tree_diagrams` 15, `simplifying_indices` 13, `time_series` 12, `reverse_percentage` 12 (near-root excluded; `simple_charts` 19 / `calculating_simple_probability` 19 / `fractions_decimals_and_percentages` 16 are hand-overrides) |
+| E5 | 🟠 Med | **New 2026-08-08 — synthesis shortfall.** Papers are 63 % exam-kind marks; bank was 9 % exam-kind questions. **Batch 1 published 2026-08-09** — 9 synthesis questions across `proportion` (0→3), `ratio` (1→4) and `compound_units` (3→7), lifting the bank to 12 % (30 of 242). `growth_and_decay` is now the heaviest skill at zero, then `tree_diagrams`, `simplifying_indices`, `pie_charts`, `venn_diagrams` |
+| E6 | 🟠 Med | **New 2026-08-08 — shipped capability unexploited.** 6 `multi_blank` + 6 `grid_draw` + 3 `mark_bands` parts across 242 questions; ~308 of 479 previously app-blocked marks are authorable today. The `app_gap_note` text in `data/exam-audit/` is stale and must be cross-checked against current capability |
 | ④-lint | ✅ DONE | 146 → 0 errors; pragmatic rules → warnings; CI lint now blocking |
 | L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
 | L4 | ✅ FIXED | Multi-part drill question remounts via a reparam nonce ("Next" now re-serves it) |
@@ -165,13 +167,19 @@ parked step 5 have shipped. The superseded version is preserved in
 Ordering principle is unchanged: exam marks per unit of authoring effort — but
 scored on **primary marks with near-root skills excluded**, not involvement.
 
-1. **Synthesis on the heaviest skills (E5)** — the largest single mismatch.
-   `proportion` (49 involvement exam-kind marks, 0 synthesis questions) and
-   `ratio` first, then `compound_units`, `percentage_change`,
-   `upper_and_lower_bounds`, `growth_and_decay`, `kinematic_graphs`. The
-   best-buy / cheapest-shop / which-is-denser decision pattern is a multi-part
-   numeric + final MC — no engine work. Apply the project's synthesis rule:
-   `exam` kind only where one answer needs two *independent* skills.
+1. ✅ **Synthesis on the heaviest skills (E5)** — batch 1 published 2026-08-09:
+   `proportion`, `ratio` and `compound_units`, 9 questions, one script per
+   skill (`scripts/create-*-synthesis.ts`, each with `--json` for pre-insert
+   verification and a targeted `--update <name>`). The decision-framed items
+   ask for a single markable number rather than decomposing into parts, so the
+   student still chooses the comparison strategy. **Next: `growth_and_decay`
+   (10 primary marks, zero synthesis), then `tree_diagrams`,
+   `simplifying_indices`, `pie_charts`, `venn_diagrams`,
+   `forming_expressions_and_formulae`, `rearranging_formulae`.**
+   Apply the project's synthesis rule: `exam` kind only where one answer needs
+   two *independent* skills. Expect the usable pairings to thin out as you move
+   down a prerequisite chain — `ratio` had most of its commonly-paired partners
+   barred for sitting in its own closure.
 2. **Thicken the thin list (E2) top-down by primary marks** —
    `inverse_proportion` (18), `tree_diagrams` (15), `kinematic_graphs` (14),
    `simplifying_indices` (13), `time_series` (12), `reverse_percentage` (12),
