@@ -231,6 +231,50 @@ describe('checkGridDraw — polygon mode', () => {
   it('fewer than 3 canonical vertices is never correct', () => {
     expect(checkGridDraw([pt(0, 0), pt(1, 1)], [el(0, 0), el(1, 1)], 'polygon', 0).correct).toBe(false)
   })
+
+  // Uneven vertex marks: a rectangle that scores only the two corners carrying
+  // the assessed dimensions, with the anchor and the implied corner at 0. A
+  // partial alignment can then earn the SAME marks as the fully-correct one, so
+  // ranking alignments by marks alone picked whichever came first and reported
+  // full marks alongside correct:false.
+  describe('uneven vertex marks', () => {
+    const rect = [el(0, 0, 0), el(6, 0, 1), el(6, 4, 0), el(0, 4, 1)]
+    const drawn = [pt(0, 0), pt(6, 0), pt(6, 4), pt(0, 4)]
+
+    it('accepts the rectangle drawn anticlockwise', () => {
+      const res = checkGridDraw(drawn, rect, 'polygon', 0)
+      expect(res.correct).toBe(true)
+      expect(res.marksEarned).toBe(2)
+    })
+    it('accepts the same rectangle drawn clockwise', () => {
+      const res = checkGridDraw([...drawn].reverse(), rect, 'polygon', 0)
+      expect(res.correct).toBe(true)
+      expect(res.marksEarned).toBe(2)
+    })
+    it('accepts it started from any corner, either winding', () => {
+      for (let o = 0; o < 4; o++) {
+        for (const seq of [drawn, [...drawn].reverse()]) {
+          const rotated = [...seq.slice(o), ...seq.slice(0, o)]
+          expect(checkGridDraw(rotated, rect, 'polygon', 0).correct).toBe(true)
+        }
+      }
+    })
+    it('never reports full marks while saying the drawing is wrong', () => {
+      // The invariant the bug broke, over every rotation and winding.
+      for (let o = 0; o < 4; o++) {
+        for (const seq of [drawn, [...drawn].reverse()]) {
+          const res = checkGridDraw([...seq.slice(o), ...seq.slice(0, o)], rect, 'polygon', 0)
+          if (res.marksEarned === res.marksTotal) expect(res.correct).toBe(true)
+        }
+      }
+    })
+    it('still gives partial marks for a genuinely wrong rectangle', () => {
+      // Right height, wrong width: the (0,4) corner scores, (6,0) does not.
+      const res = checkGridDraw([pt(0, 0), pt(5, 0), pt(5, 4), pt(0, 4)], rect, 'polygon', 0)
+      expect(res.correct).toBe(false)
+      expect(res.marksEarned).toBe(1)
+    })
+  })
 })
 
 describe('checkGridDraw — traps', () => {

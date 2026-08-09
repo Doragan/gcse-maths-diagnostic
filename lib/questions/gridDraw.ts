@@ -559,20 +559,33 @@ function checkPolygon(
 
   const tol = tolerance + EPS
   // Best alignment: student[s] ↔ canonical[(o + dir·s) mod n].
-  let best = { earned: -1, hits: [] as boolean[], o: 0, dir: 1 }
+  //
+  // Ranked by marks earned, then by HOW MANY vertices matched. The second key
+  // matters whenever vertices carry uneven marks — e.g. a rectangle that scores
+  // only the two corners encoding the computed dimensions, leaving the anchor
+  // and the implied corner at 0. There, a partial alignment can earn the same
+  // marks as the fully-correct one while matching fewer vertices; ranking on
+  // marks alone would keep whichever came first and report `correct: false`
+  // alongside full marks. With equal marks per vertex the two keys move
+  // together, so this changes nothing for any existing question.
+  let best = { earned: -1, hitCount: -1, hits: [] as boolean[], o: 0, dir: 1 }
   for (const dir of [1, -1]) {
     for (let o = 0; o < n; o++) {
       const hits = canonical.map(() => false)
       let earned = 0
+      let hitCount = 0
       const count = Math.min(drawn.length, n)
       for (let s = 0; s < count; s++) {
         const c = ((o + dir * s) % n + n) % n
         if (gridDist(drawn[s], canonical[c], xStep, yStep) <= tol) {
           hits[c] = true
+          hitCount++
           earned += canonical[c].marks || 0
         }
       }
-      if (earned > best.earned) best = { earned, hits, o, dir }
+      if (earned > best.earned || (earned === best.earned && hitCount > best.hitCount)) {
+        best = { earned, hitCount, hits, o, dir }
+      }
     }
   }
 
