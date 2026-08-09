@@ -83,6 +83,20 @@ const R2_DX = `(${R2_BX}-${R2_AX})`
 const R2_DY = `(${R2_BY}-${R2_AY})`
 const R2_PX = `(${R2_AX}+${R2_DX}*${R2_FRAC})`
 const R2_PY = `(${R2_AY}+${R2_DY}*${R2_FRAC})`
+/**
+ * The coordinates of the point reached by measuring the m share from B instead
+ * of from A — i.e. n/(m+n) of the way along rather than m/(m+n).
+ *
+ * Used three times: once for the fully wrong point, and once each for the
+ * `partial_coordinate` case the source question codes, where the student gets
+ * one coordinate right and makes this same slip on the other.
+ *
+ * Those five points can never collide, and it is structural rather than luck:
+ * wrong ≠ right on an axis iff m ≠ n and the delta along that axis is non-zero.
+ * No draw has m = n, and no draw has dx = 0 or dy = 0.
+ */
+const R2_WX = `(${R2_AX}+${R2_DX}*${R2_FRACN})`
+const R2_WY = `(${R2_AY}+${R2_DY}*${R2_FRACN})`
 
 // ── R3: cylinder vs sphere. V(cyl) : V(sph) = πr²h : (4/3)πR³ — π cancels,
 // which is the point of the question.
@@ -194,8 +208,22 @@ const drafts: Draft[] = [
     traps: [
       {
         // The coded ratio_split_wrong: measured the m share from B instead of A.
-        answer_template: `({{${R2_AX}+${R2_DX}*${R2_FRACN}}}, {{${R2_AY}+${R2_DY}*${R2_FRACN}}})`,
+        answer_template: `({{${R2_WX}}}, {{${R2_WY}}})`,
         response: `You have gone {{fracStr(${R2_N}, ${R2_M}+${R2_N})}} of the way instead of {{fracStr(${R2_M}, ${R2_M}+${R2_N})}} — that is the point where <em>BP</em> : <em>PA</em> = {{${R2_M}}} : {{${R2_N}}}. AP is the FIRST part, so P is {{${R2_M}}} of the {{${R2_M}+${R2_N}}} parts from A: ({{${R2_PX}}}, {{${R2_PY}}}).`,
+        method_marks: 2,
+      },
+      {
+        // The coded partial_coordinate: the same wrong-end slip, but on ONE
+        // axis only. Worth separating from the both-axes trap because the
+        // student has demonstrably got the method right once — the feedback
+        // should say which half to keep, not re-teach the whole thing.
+        answer_template: `({{${R2_PX}}}, {{${R2_WY}}})`,
+        response: `Your x-coordinate is right, so the method is there — but the y-coordinate has gone {{fracStr(${R2_N}, ${R2_M}+${R2_N})}} of the way instead of {{fracStr(${R2_M}, ${R2_M}+${R2_N})}}. Apply the same {{fracStr(${R2_M}, ${R2_M}+${R2_N})}} you used for x: {{${R2_AY}}} + {{${R2_DY}}} × {{fracStr(${R2_M}, ${R2_M}+${R2_N})}} = {{${R2_PY}}}, giving ({{${R2_PX}}}, {{${R2_PY}}}).`,
+        method_marks: 2,
+      },
+      {
+        answer_template: `({{${R2_WX}}}, {{${R2_PY}}})`,
+        response: `Your y-coordinate is right, so the method is there — but the x-coordinate has gone {{fracStr(${R2_N}, ${R2_M}+${R2_N})}} of the way instead of {{fracStr(${R2_M}, ${R2_M}+${R2_N})}}. Apply the same {{fracStr(${R2_M}, ${R2_M}+${R2_N})}} you used for y: {{${R2_AX}}} + {{${R2_DX}}} × {{fracStr(${R2_M}, ${R2_M}+${R2_N})}} = {{${R2_PX}}}, giving ({{${R2_PX}}}, {{${R2_PY}}}).`,
         method_marks: 2,
       },
       {
