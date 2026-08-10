@@ -87,10 +87,13 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/admin\/questions$/, 'Admin – questions'],
   [/^\/admin$/, 'Admin'],
 
-  // Demo
+  // Demo — the guided tour and its four stops. The /demo hub is last of these
+  // so the deeper routes match first (see the ordering note at the top).
   [/^\/demo\/marking$/, 'Demo – marking'],
   [/^\/demo\/dashboard\/teacher$/, 'Demo – teacher dashboard'],
   [/^\/demo\/dashboard\/student$/, 'Demo – student dashboard'],
+  [/^\/demo\/questions$/, 'Demo – question showcase'],
+  [/^\/demo$/, 'Demo – guided tour'],
 ]
 
 /** Full document <title> for a pathname. Unmapped routes get the brand default. */

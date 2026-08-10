@@ -32,6 +32,14 @@ describe('titleForPath', () => {
     expect(titleForPath('/student/exam/9f3a-uuid')).toBe('Exam review — Mathsense')
   })
 
+  it('titles the demo tour and its stops', () => {
+    expect(titleForPath('/demo')).toBe('Demo – guided tour — Mathsense')
+    expect(titleForPath('/demo/questions')).toBe('Demo – question showcase — Mathsense')
+    // the deeper demo routes must win over the /demo hub
+    expect(titleForPath('/demo/marking')).toBe('Demo – marking — Mathsense')
+    expect(titleForPath('/demo/dashboard/teacher')).toBe('Demo – teacher dashboard — Mathsense')
+  })
+
   it('ignores a trailing slash', () => {
     expect(titleForPath('/practice/')).toBe('GCSE Maths practice — Mathsense')
   })

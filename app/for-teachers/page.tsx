@@ -153,27 +153,48 @@ export default function ForTeachersPage() {
               See it in action
             </p>
             <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: '800', color: colors.textPrimary, margin: '0 0 16px', letterSpacing: '-0.02em' }}>
-              A real dashboard, with real student data
+              The whole thing, in about ten minutes
             </h2>
+            {/* This said "with real student data" — it is a sample class, and
+                the demo dashboards now say so on the page itself. */}
             <p style={{ fontSize: font.md, color: colors.textSecondary, margin: '0 auto 24px', lineHeight: '1.7', maxWidth: '560px' }}>
-              Here&apos;s a preview of the teacher dashboard — including class mastery, common gaps, and students who need support. Click through to explore the full interactive demo.
+              Below is a preview of the teacher dashboard for a sample class — class mastery, common gaps, and students who need support. The guided tour walks you through it, plus the question bank and the free marking tool.
             </p>
-            <Link
-              href="/demo/dashboard/teacher"
-              onClick={() => trackEvent('teacher_demo_dashboard_clicked')}
-              style={{
-                display: 'inline-block',
-                background: colors.primary,
-                color: '#fff',
-                padding: '12px 24px',
-                borderRadius: radius.md,
-                fontSize: font.base,
-                fontWeight: '700',
-                textDecoration: 'none',
-              }}
-            >
-              Explore the full demo →
-            </Link>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+              <Link
+                href="/demo"
+                onClick={() => trackEvent('teacher_demo_tour_clicked')}
+                style={{
+                  display: 'inline-block',
+                  background: colors.primary,
+                  color: '#fff',
+                  padding: '12px 24px',
+                  borderRadius: radius.md,
+                  fontSize: font.base,
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                }}
+              >
+                Take the guided tour →
+              </Link>
+              <Link
+                href="/demo/dashboard/teacher"
+                onClick={() => trackEvent('teacher_demo_dashboard_clicked')}
+                style={{
+                  display: 'inline-block',
+                  background: '#fff',
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.borderStrong}`,
+                  padding: '12px 24px',
+                  borderRadius: radius.md,
+                  fontSize: font.base,
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                }}
+              >
+                Straight to the dashboard
+              </Link>
+            </div>
           </div>
 
           {/* Mini dashboard preview */}

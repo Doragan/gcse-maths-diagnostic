@@ -1,19 +1,24 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   colors, radius, font,
   card as cardStyle, primaryButton, secondaryButton, inputStyle, errorBox,
   pageTitle, sectionTitle,
 } from '@/lib/styles'
+import { TOPIC_COLOURS } from '@/lib/demoTopicColours'
 
 // ─── Topics ─────────────────────────────────────────────────────────────────
+// Colours come from the shared demo palette, which is deliberately kept clear
+// of the red/amber/green performance scale used all over this page — Statistics
+// used to be `colors.success`, so a topic wore the same green that means "good
+// score" two columns away. See lib/demoTopicColours.ts.
 const TOPICS = [
-  { id: 'number',  label: 'Number',                colour: '#7c3aed' },
-  { id: 'algebra', label: 'Algebra',               colour: colors.primary },
-  { id: 'ratio',   label: 'Ratio & Proportion',    colour: '#0891b2' },
-  { id: 'stats',   label: 'Statistics',             colour: colors.success },
+  { id: 'number',  label: 'Number',             colour: TOPIC_COLOURS.number.fg },
+  { id: 'algebra', label: 'Algebra',            colour: TOPIC_COLOURS.algebra.fg },
+  { id: 'ratio',   label: 'Ratio & Proportion', colour: TOPIC_COLOURS.ratio.fg },
+  { id: 'stats',   label: 'Statistics',         colour: TOPIC_COLOURS.stats.fg },
 ] as const
 
 type TopicId = typeof TOPICS[number]['id']
@@ -267,8 +272,10 @@ function parseCSV(text: string): { students: string[]; marks: Record<string, Stu
 }
 
 // ─── Topic header colours ───────────────────────────────────────────────────
-const topicBg: Record<TopicId, string> = { number: '#f5f3ff', algebra: '#eff6ff', ratio: '#ecfeff', stats: colors.successLight }
-const topicBorder: Record<TopicId, string> = { number: '#ddd6fe', algebra: '#bfdbfe', ratio: '#a5f3fc', stats: colors.successBorder }
+const topicBg: Record<TopicId, string> =
+  { number: TOPIC_COLOURS.number.bg, algebra: TOPIC_COLOURS.algebra.bg, ratio: TOPIC_COLOURS.ratio.bg, stats: TOPIC_COLOURS.stats.bg }
+const topicBorder: Record<TopicId, string> =
+  { number: TOPIC_COLOURS.number.border, algebra: TOPIC_COLOURS.algebra.border, ratio: TOPIC_COLOURS.ratio.border, stats: TOPIC_COLOURS.stats.border }
 
 // ─── Modal ──────────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -499,6 +506,27 @@ export default function DemoMarkingPage() {
     setStep(1)
   }
 
+  /**
+   * `?demo=1` (how the /demo tour links here) skips straight to a filled-in
+   * marks grid.
+   *
+   * Cold, this page is an empty textarea and every interesting thing it does
+   * sits behind a "Load Demo Data" button — which a first-time visitor sent a
+   * link has no particular reason to press.
+   *
+   * The URL is read off `window` in a mount effect rather than via
+   * `useSearchParams` or a server wrapper, both of which would make the route
+   * render dynamically. It stays static this way, at the cost of one extra
+   * render on arrival — which is why the set-state-in-effect rule is silenced
+   * below rather than obeyed: the effect is doing exactly what it looks like,
+   * seeding initial state from the URL once, and there is nothing to keep in
+   * sync afterwards.
+   */
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (new URLSearchParams(window.location.search).get('demo') === '1') loadDemo()
+  }, [])
+
   // ── Step 1 ──
   const goStep2 = () => {
     const names = studentInput.split('\n').map(n => n.trim()).filter(Boolean)
@@ -613,6 +641,20 @@ export default function DemoMarkingPage() {
       </header>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px 64px' }}>
+        {/* Neutral, not a warning banner — but it stays, because the page has no
+            persistence of any kind (no DB write, no localStorage) and someone is
+            about to type in a class's worth of marks. */}
+        <div style={{
+          background: colors.cardAlt, border: `1px solid ${colors.border}`,
+          borderRadius: radius.md, padding: '11px 16px', marginBottom: 20,
+        }}>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: 1.6 }}>
+            <strong style={{ color: colors.textPrimary }}>Enter the marks, keep the feedback.</strong>{' '}
+            Your marks stay in this browser and are never uploaded — so print, copy or export
+            before you close the page. Want a different paper set up? Get in touch.
+          </p>
+        </div>
+
         {/* Stepper */}
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 28 }}>
           {['Students', 'Enter Marks', 'Feedback'].map((l, i) => (
