@@ -589,12 +589,51 @@ function checkPolygon(
     }
   }
 
+  // ── Order-insensitive fallback ────────────────────────────────────────────
+  //
+  // The alignment above walks the student's taps as a CYCLE, so it only accepts
+  // a drawing whose taps go round the shape. But the prompt these questions use
+  // is "place its four corners", which says nothing about order — and a student
+  // who taps opposite corners alternately has still placed exactly the right
+  // vertices. On a live rectangle question only 8 of the 24 possible tap orders
+  // were accepted, so a correct answer was rejected two times in three.
+  //
+  // So when the cyclic pass has not matched everything, fall back to matching
+  // the taps as a SET: each tap claims a distinct canonical vertex at the same
+  // position. That is the right reading of "place the corners", and it cannot
+  // make a wrong drawing right — every tap must still land on a vertex.
+  //
+  // Only ever an improvement: it is used when it matches strictly more
+  // vertices, so a question whose taps already aligned cyclically is unchanged.
+  const setPairing: (number | null)[] = drawn.map(() => null)
+  if (!best.hits.every(Boolean)) {
+    const claimed = canonical.map(() => false)
+    let setHits = 0
+    let setEarned = 0
+    for (let s = 0; s < drawn.length; s++) {
+      const c = canonical.findIndex((el, i) => !claimed[i] && gridDist(drawn[s], el, xStep, yStep) <= tol)
+      if (c === -1) continue
+      claimed[c] = true
+      setPairing[s] = c
+      setHits++
+      setEarned += canonical[c].marks || 0
+    }
+    if (setHits > best.hitCount) {
+      best = { earned: setEarned, hitCount: setHits, hits: claimed, o: 0, dir: 1 }
+    } else {
+      setPairing.fill(null)
+    }
+  }
+  const usedSetPairing = setPairing.some(c => c !== null)
+
   const perElement = canonical.map((c, i) => ({
     correct: best.hits[i],
     marks: best.hits[i] ? c.marks || 0 : 0,
   }))
-  // Map back: student s was compared against canonical (o + dir·s) mod n.
+  // Map back: student s was compared against canonical (o + dir·s) mod n —
+  // or, when the set fallback won, against whichever vertex that tap claimed.
   const perStudent = drawn.map((_, s) => {
+    if (usedSetPairing) return setPairing[s] !== null
     if (s >= n) return false
     const c = ((best.o + best.dir * s) % n + n) % n
     return best.hits[c] && gridDist(drawn[s], canonical[c], xStep, yStep) <= tol
