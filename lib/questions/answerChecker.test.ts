@@ -152,6 +152,38 @@ describe('ratio', () => {
     expect(r.correct).toBe(false)
     expect(r.message).toMatch(/simplest/i)
   })
+  // A right-valued but unsimplified ratio is rejected whatever form it takes;
+  // these pin the REASON the student is given, since the two below are
+  // different misunderstandings rather than different arithmetic. Neither can
+  // be a question-level trap: traps run only once an answer is genuinely
+  // wrong, and these are right-valued.
+  it('names the uncancelled π when a ratio is left in terms of π', () => {
+    for (const student of ['24π:36π', '24pi:36pi', '24π : 36π']) {
+      const r = check(student, '2:3', 'ratio')
+      expect(r.correct).toBe(false)
+      expect(r.message).toMatch(/simplest/i)
+      expect(r.message).toMatch(/π/)
+    }
+  })
+  it('names whole numbers when a ratio is given as decimals', () => {
+    const r = check('75.4:113.1', '2:3', 'ratio')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/simplest/i)
+    expect(r.message).toMatch(/whole numbers/i)
+    // The π wording must NOT leak into the decimal case.
+    expect(r.message).not.toMatch(/π/)
+  })
+  it('keeps the plain wording for an ordinary common factor', () => {
+    const r = check('24:36', '2:3', 'ratio')
+    expect(r.correct).toBe(false)
+    expect(r.message).not.toMatch(/π|whole numbers/i)
+  })
+  it('leaves the fraction simplest-form message unchanged', () => {
+    const r = check('2/4', '1/2', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/simplest/i)
+    expect(r.message).not.toMatch(/π|whole numbers|plain numbers/i)
+  })
   it('ignores spaces around the colon', () => {
     expect(check('2 : 3', '2:3', 'ratio').correct).toBe(true)
   })
