@@ -231,6 +231,92 @@ describe('checkGridDraw — polygon mode', () => {
   it('fewer than 3 canonical vertices is never correct', () => {
     expect(checkGridDraw([pt(0, 0), pt(1, 1)], [el(0, 0), el(1, 1)], 'polygon', 0).correct).toBe(false)
   })
+
+  // Uneven vertex marks: a rectangle that scores only the two corners carrying
+  // the assessed dimensions, with the anchor and the implied corner at 0. A
+  // partial alignment can then earn the SAME marks as the fully-correct one, so
+  // ranking alignments by marks alone picked whichever came first and reported
+  // full marks alongside correct:false.
+  describe('uneven vertex marks', () => {
+    const rect = [el(0, 0, 0), el(6, 0, 1), el(6, 4, 0), el(0, 4, 1)]
+    const drawn = [pt(0, 0), pt(6, 0), pt(6, 4), pt(0, 4)]
+
+    it('accepts the rectangle drawn anticlockwise', () => {
+      const res = checkGridDraw(drawn, rect, 'polygon', 0)
+      expect(res.correct).toBe(true)
+      expect(res.marksEarned).toBe(2)
+    })
+    it('accepts the same rectangle drawn clockwise', () => {
+      const res = checkGridDraw([...drawn].reverse(), rect, 'polygon', 0)
+      expect(res.correct).toBe(true)
+      expect(res.marksEarned).toBe(2)
+    })
+    it('accepts it started from any corner, either winding', () => {
+      for (let o = 0; o < 4; o++) {
+        for (const seq of [drawn, [...drawn].reverse()]) {
+          const rotated = [...seq.slice(o), ...seq.slice(0, o)]
+          expect(checkGridDraw(rotated, rect, 'polygon', 0).correct).toBe(true)
+        }
+      }
+    })
+    it('never reports full marks while saying the drawing is wrong', () => {
+      // The invariant the bug broke, over every rotation and winding.
+      for (let o = 0; o < 4; o++) {
+        for (const seq of [drawn, [...drawn].reverse()]) {
+          const res = checkGridDraw([...seq.slice(o), ...seq.slice(0, o)], rect, 'polygon', 0)
+          if (res.marksEarned === res.marksTotal) expect(res.correct).toBe(true)
+        }
+      }
+    })
+    it('still gives partial marks for a genuinely wrong rectangle', () => {
+      // Right height, wrong width: the (0,4) corner scores, (6,0) does not.
+      const res = checkGridDraw([pt(0, 0), pt(5, 0), pt(5, 4), pt(0, 4)], rect, 'polygon', 0)
+      expect(res.correct).toBe(false)
+      expect(res.marksEarned).toBe(1)
+    })
+  })
+
+  // "Place its four corners" says nothing about ORDER, but the cyclic
+  // alignment only accepted taps that walk round the shape — on a live
+  // rectangle question, 16 of 24 tap orders rejected a correct drawing, and on
+  // the then-deployed build only 4 of 24 were accepted.
+  describe('vertex order does not matter', () => {
+    const rect = [el(0, 0, 0), el(7, 0, 1), el(7, 4, 0), el(0, 4, 1)]
+    const corners = [pt(0, 0), pt(7, 0), pt(7, 4), pt(0, 4)]
+    const perms = <T,>(a: T[]): T[][] => a.length <= 1 ? [a]
+      : a.flatMap((x, i) => perms([...a.slice(0, i), ...a.slice(i + 1)]).map(r => [x, ...r]))
+
+    it('accepts the correct rectangle in all 24 tap orders', () => {
+      for (const order of perms(corners)) {
+        const res = checkGridDraw(order, rect, 'polygon', 0)
+        expect(res.correct, order.map(p => `(${p.x},${p.y})`).join(' ')).toBe(true)
+        expect(res.marksEarned).toBe(2)
+      }
+    })
+    it('reports every tap as correct when the set matched', () => {
+      const res = checkGridDraw([pt(0, 0), pt(7, 4), pt(7, 0), pt(0, 4)], rect, 'polygon', 0)
+      expect(res.perStudent).toEqual([true, true, true, true])
+    })
+    it('does not rescue a wrong drawing', () => {
+      // One corner off in any order — still wrong, still 1 mark.
+      for (const order of perms([pt(0, 0), pt(7, 4), pt(6, 0), pt(0, 4)])) {
+        const res = checkGridDraw(order, rect, 'polygon', 0)
+        expect(res.correct).toBe(false)
+        expect(res.marksEarned).toBe(1)
+      }
+    })
+    it('does not let one tap claim two vertices', () => {
+      const res = checkGridDraw([pt(0, 0), pt(0, 0), pt(0, 0), pt(0, 0)], rect, 'polygon', 0)
+      expect(res.correct).toBe(false)
+      expect(res.marksEarned).toBe(0)
+    })
+    it('leaves a triangle in cyclic order exactly as it was', () => {
+      const tri = [el(1, 1), el(3, 1), el(1, 4)]
+      expect(checkGridDraw([pt(1, 1), pt(3, 1), pt(1, 4)], tri, 'polygon', 0).correct).toBe(true)
+      // …and now also accepts it tapped out of order.
+      expect(checkGridDraw([pt(3, 1), pt(1, 1), pt(1, 4)], tri, 'polygon', 0).correct).toBe(true)
+    })
+  })
 })
 
 describe('checkGridDraw — traps', () => {

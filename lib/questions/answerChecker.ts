@@ -630,6 +630,52 @@ const ROUNDING_REMINDER = (dp: number) =>
 const ROUNDING_ERROR =
   'Not quite — your answer is one out in the last decimal place. Check which way you rounded.'
 
+const NOT_SIMPLEST =
+  'Almost — that’s the right value, but give your answer in its simplest form.'
+
+/**
+ * Anything in a ratio that is not part of a plain number — a π, a unit, an
+ * algebraic letter. `normalise` has already stripped whitespace and currency.
+ */
+const RATIO_NON_NUMERIC = /[^\d:.\-/]/
+
+/**
+ * Why a right-valued ratio is not yet in its simplest form.
+ *
+ * The verdict is the same either way — all three are marked wrong when the
+ * question demanded simplest form — so this only decides what the student is
+ * TOLD. Two of the cases are worth naming because they are different
+ * misunderstandings, not different arithmetic:
+ *
+ *   "24π:36π"     the student never noticed the π is common to both parts and
+ *                 cancels. On a volume- or area-ratio question that is the
+ *                 whole point of the item.
+ *   "75.4:113.1"  the student evaluated both quantities as decimals instead of
+ *                 keeping them exact, and does not know a ratio is written with
+ *                 whole numbers.
+ *
+ * Neither can be expressed as a question-level trap: traps are only consulted
+ * once an answer is genuinely wrong, and both of these are RIGHT-valued, so
+ * they return from the simplest-form branch long before trap matching. That is
+ * why this lives in the grader.
+ *
+ * Every branch keeps the word "simplest" — the rest of the app and the tests
+ * key on it.
+ */
+function unsimplifiedRatioMessage(normStudent: string): string {
+  if (RATIO_NON_NUMERIC.test(normStudent)) {
+    return 'Almost — the value is right, but a ratio is written with plain numbers. '
+      + 'Anything both parts share cancels — a π, a unit, a common factor — so divide it out '
+      + 'and give your answer in its simplest form.'
+  }
+  const parts = parseRatio(normStudent)
+  if (parts && parts.some(p => !Number.isInteger(p))) {
+    return 'Almost — the value is right, but a ratio is written with whole numbers. '
+      + 'Scale both parts up until they are integers, then give your answer in its simplest form.'
+  }
+  return NOT_SIMPLEST
+}
+
 export function checkAnswer(
   studentAnswer: string,
   correctAnswer: string,
@@ -717,7 +763,8 @@ export function checkAnswer(
     return {
       correct: false,
       trap:    null,
-      message: 'Almost — that’s the right value, but give your answer in its simplest form.',
+      // Ratios get a reason; fractions keep the original wording.
+      message: answerType === 'ratio' ? unsimplifiedRatioMessage(normStudent) : NOT_SIMPLEST,
     }
   }
 
