@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { checkAnswer } from './answerChecker'
+import { checkAnswer, normalise } from './answerChecker'
 
 // Convenience: most calls have no traps.
 const check = (
@@ -389,5 +389,33 @@ describe('inequality equivalence', () => {
   })
   it('respects the variable side / direction', () => {
     expect(check('x≥-3/5', 'x≤-3/5', 'expression').correct).toBe(false)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Standard form is authored with '×' (U+00D7), but no keyboard offers it, so
+// students type the letter 'x' — and three published standard_form questions
+// were marking that wrong.
+describe('standard form typed with the letter x', () => {
+  const sf = '4.15 × 10<sup>5</sup>'
+
+  it('accepts x, X and × alike', () => {
+    for (const s of ['4.15 × 10^5', '4.15 x 10^5', '4.15X10^5', '4.15*10^5', '4.15 × 10⁵']) {
+      expect(check(s, sf, 'exact').correct, s).toBe(true)
+    }
+  })
+  it('still rejects a different value, however it is typed', () => {
+    expect(check('4.16 x 10^5', sf, 'exact').correct).toBe(false)
+    expect(check('4.15 x 10^6', sf, 'exact').correct).toBe(false)
+  })
+  it('leaves algebraic x alone', () => {
+    // The rule needs a digit before the x AND "10^" straight after it, so no
+    // ordinary algebra can match: none of these gains a multiplication sign.
+    for (const s of ['2x', '2x+1', '3x-4', '4x^2', 'x^2+2x+1', 'x10^5', '5x2']) {
+      expect(normalise(s), `${s} should keep its x`).not.toContain('*')
+    }
+    expect(check('1+2x', '2x+1', 'expression').correct).toBe(true)
+    expect(check('x^2+2x+1', 'x^2+2x+1', 'expression').correct).toBe(true)
+    expect(check('2x+1', '2x+1', 'expression').correct).toBe(true)
   })
 })

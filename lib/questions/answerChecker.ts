@@ -355,6 +355,14 @@ export function normalise(value: string): string {
     .replace(/!=/g, '≠')
     // Remove all whitespace
     .replace(/\s+/g, '')
+    // Standard form typed with the LETTER x: "4.15 x 10^5" → "4.15*10^5".
+    //
+    // '×' is converted above, but a keyboard does not offer it, so students
+    // type 'x' — and the answer was then marked wrong. Deliberately narrow: it
+    // fires only for <digit>x immediately followed by "10^", which is
+    // unambiguously standard form. An algebraic 'x' never has "10^" after it,
+    // so "2x", "2x+1" and "3x-4" are untouched.
+    .replace(/(\d)x(?=10\^)/g, '$1*')
     // Strip redundant brackets around a numeric surd radicand: √(2) → √2
     .replace(/√\((\d+)\)/g, '√$1')
     // Collapse explicit multiplication that GCSE notation writes implicitly:
