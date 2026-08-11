@@ -241,18 +241,30 @@ const drafts: Draft[] = [
         method_marks: 2,
       },
       {
-        // Everything right except the bound itself, which was taken a penny
-        // below the boundary. Worth its own trap: the student has understood
-        // that the true amount is strictly less than the boundary, which is
-        // the harder half — they have just drawn the wrong conclusion from it.
+        // A penny below the answer. Unusually for a trap this value does NOT
+        // identify one mistake: starting from £…49.99 and rounding partway
+        // through both land here, and nothing in the submitted number tells
+        // them apart. So it names both rather than asserting the wrong one —
+        // the exception to giving a specific diagnosis, not the rule.
         answer_template: `{{round(${G3_UB_PENNY}*${G3_MULT}, 2)}}`,
-        response: `Nearly — your method is right, but you used <strong>£{{(${G3_UB_PENNY}).toFixed(2)}}</strong> as the starting amount.<br>You are correct that the true amount is <em>less than</em> £{{${G3_UB}}}: anything from £{{${G3_LB}}} up to (but not including) £{{${G3_UB}}} rounds to £{{${G3_AMT}}}. But the <strong>upper bound is the boundary itself, £{{${G3_UB}}}</strong> — not the largest amount you could write down in pennies. Picking £{{(${G3_UB_PENNY}).toFixed(2)}} would leave out everything between it and the boundary.<br>£{{${G3_UB}}} × {{1+${G3_R}/100}}<sup>{{${G3_N}}}</sup> = <strong>£{{${G3_ANS}}}</strong>.`,
+        response: `You are a penny below. Two things commonly cause that:<br>`
+          + `• <strong>Starting from £{{(${G3_UB_PENNY}).toFixed(2)}}.</strong> You would be right that the true amount is <em>less than</em> £{{${G3_UB}}} — anything from £{{${G3_LB}}} up to (but not including) £{{${G3_UB}}} rounds to £{{${G3_AMT}}}. But the upper bound is the <strong>boundary itself, £{{${G3_UB}}}</strong>, not the largest amount you can write in whole pennies; £{{(${G3_UB_PENNY}).toFixed(2)}} would leave out everything between it and the boundary.<br>`
+          + `• <strong>Rounding partway through.</strong> Rounding each year's total to the penny before the next year loses a fraction each time. Keep the full value in your calculator and round only at the very end.<br>`
+          + `£{{${G3_UB}}} × {{1+${G3_R}/100}}<sup>{{${G3_N}}}</sup> = <strong>£{{${G3_ANS}}}</strong>.`,
         method_marks: 2,
       },
       {
         answer_template: `{{round(${G3_UB}*(1+${G3_R}*${G3_N}/100), 2)}}`,
         response: `The bound is right — £{{${G3_UB}}} — but that is simple interest. Compound interest multiplies by {{1+${G3_R}/100}} each year: £{{${G3_UB}}} × {{1+${G3_R}/100}}<sup>{{${G3_N}}}</sup> = £{{${G3_ANS}}}.`,
         method_marks: 2,
+      },
+      {
+        // Stopped after one year. Distinct from the simple-interest trap: that
+        // one applies the interest {{n}} times but without compounding, this
+        // one compounds correctly and just stops early.
+        answer_template: `{{round(${G3_UB}*(1+${G3_R}/100), 2)}}`,
+        response: `The bound is right — £{{${G3_UB}}} — but that is only <strong>one year</strong> of interest. The money is invested for {{${G3_N}}} years, so the {{${G3_R}}}% is applied {{${G3_N}}} times over, each time to the new total: £{{${G3_UB}}} × {{1+${G3_R}/100}}<sup>{{${G3_N}}}</sup> = <strong>£{{${G3_ANS}}}</strong>.`,
+        method_marks: 1,
       },
     ],
   },
