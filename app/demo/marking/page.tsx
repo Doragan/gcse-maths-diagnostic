@@ -7,97 +7,21 @@ import {
   card as cardStyle, primaryButton, secondaryButton, inputStyle, errorBox,
   pageTitle, sectionTitle,
 } from '@/lib/styles'
-import { TOPIC_COLOURS } from '@/lib/demoTopicColours'
+import { topicColourFor } from '@/lib/demoTopicColours'
+import { AQA_8300_3F_NOV24 as PAPER } from '@/lib/demoPapers/aqa-8300-3f-nov24'
+import type { PaperChallengeQuestion as ChallengeQuestion } from '@/lib/demoPapers'
 
 // ─── Topics ─────────────────────────────────────────────────────────────────
-// Colours come from the shared demo palette, which is deliberately kept clear
-// of the red/amber/green performance scale used all over this page — Statistics
-// used to be `colors.success`, so a topic wore the same green that means "good
-// score" two columns away. See lib/demoTopicColours.ts.
-const TOPICS = [
-  { id: 'number',  label: 'Number',             colour: TOPIC_COLOURS.number.fg },
-  { id: 'algebra', label: 'Algebra',            colour: TOPIC_COLOURS.algebra.fg },
-  { id: 'ratio',   label: 'Ratio & Proportion', colour: TOPIC_COLOURS.ratio.fg },
-  { id: 'stats',   label: 'Statistics',         colour: TOPIC_COLOURS.stats.fg },
-] as const
+// Topics are data now (PAPER.topics), not a hardcoded union — see
+// lib/demoPapers/types.ts for why. Colour comes from the shared demo palette
+// via the topic's LABEL (lib/demoTopicColours.ts `topicColourFor`), so it's
+// deliberately kept clear of the red/amber/green performance scale used all
+// over this page — Statistics used to be `colors.success`, so a topic wore
+// the same green that means "good score" two columns away.
+const TOPICS = PAPER.topics.map(t => ({ ...t, colour: topicColourFor(t.label).fg }))
 
-type TopicId = typeof TOPICS[number]['id']
+type TopicId = string
 const topicMap = Object.fromEntries(TOPICS.map(t => [t.id, t])) as Record<TopicId, typeof TOPICS[number]>
-
-// ─── Assessment Data (AQA 8300/3F Nov 2024) ─────────────────────────────────
-interface Question {
-  id: string
-  label: string
-  marks: number
-  topic: TopicId
-  skill: string
-  desc: string
-  visual: boolean
-}
-
-const QS: Question[] = [
-  { id: '1a', label: '1(a)', marks: 1, topic: 'number',  skill: 'Fractions',          desc: 'Quarter of 780',             visual: false },
-  { id: '1b', label: '1(b)', marks: 1, topic: 'number',  skill: 'Powers & Roots',     desc: '19 squared',                 visual: false },
-  { id: '2',  label: '2',    marks: 1, topic: 'algebra', skill: 'Simplifying',         desc: 'Simplify y+y+y',            visual: false },
-  { id: '3a', label: '3(a)', marks: 2, topic: 'ratio',   skill: 'Proportion',          desc: 'Cost of 12 apples',         visual: false },
-  { id: '3b', label: '3(b)', marks: 2, topic: 'ratio',   skill: 'Proportion',          desc: 'Cost of subset of drinks',  visual: false },
-  { id: '4a', label: '4(a)', marks: 2, topic: 'number',  skill: 'Ordering Numbers',    desc: 'Order integers & decimals', visual: false },
-  { id: '4b', label: '4(b)', marks: 2, topic: 'number',  skill: 'Ordering Fractions',  desc: 'Order fractions',           visual: false },
-  { id: '5a', label: '5(a)', marks: 1, topic: 'stats',   skill: 'Reading Charts',      desc: 'Read composite bar chart',  visual: true },
-  { id: '5b', label: '5(b)', marks: 1, topic: 'stats',   skill: 'Interpreting Charts', desc: 'Interpret bar chart',       visual: true },
-  { id: '5c', label: '5(c)', marks: 2, topic: 'stats',   skill: 'Drawing Charts',      desc: 'Complete bar chart',        visual: true },
-  { id: '6',  label: '6',    marks: 1, topic: 'ratio',   skill: 'Time Calculations',   desc: 'Arrival time reasoning',    visual: false },
-  { id: '7',  label: '7',    marks: 2, topic: 'number',  skill: 'Division in Context',  desc: 'Greatest number of items', visual: false },
-  { id: '8a', label: '8(a)', marks: 1, topic: 'algebra', skill: 'Function Machines',   desc: 'Forward through machine',   visual: false },
-  { id: '8b', label: '8(b)', marks: 1, topic: 'algebra', skill: 'Function Machines',   desc: 'Inverse of machine',        visual: false },
-  { id: '9',  label: '9',    marks: 3, topic: 'ratio',   skill: 'Unit Conversion',     desc: 'Total length in cm',        visual: false },
-  { id: '10a',label: '10(a)',marks: 1, topic: 'algebra', skill: 'Solving Equations',   desc: 'One-step equation',         visual: false },
-  { id: '10b',label: '10(b)',marks: 3, topic: 'algebra', skill: 'Solving Equations',   desc: 'Multi-step with brackets',  visual: false },
-  { id: '11a',label: '11(a)',marks: 1, topic: 'algebra', skill: 'Number Patterns',     desc: 'Complete number diagram',   visual: true },
-  { id: '11b',label: '11(b)',marks: 2, topic: 'algebra', skill: 'Inverse Operations',  desc: 'Complete diagram inverse',  visual: true },
-  { id: '11c',label: '11(c)',marks: 3, topic: 'algebra', skill: 'Algebraic Reasoning', desc: 'Find value using algebra',  visual: true },
-  { id: '12', label: '12',   marks: 2, topic: 'stats',   skill: 'Averages',            desc: 'Find the median',           visual: false },
-]
-
-// ─── B-Set (non-visual retry questions) ─────────────────────────────────────
-interface BSetQuestion {
-  skill: string
-  question: string
-}
-
-const B_SET: Record<string, BSetQuestion> = {
-  '1a': { skill: 'Fractions',         question: 'Work out 1/3 of 912' },
-  '1b': { skill: 'Powers & Roots',    question: 'Work out the value of 23²' },
-  '2':  { skill: 'Simplifying',        question: 'Simplify  p + p + p + p + p' },
-  '3a': { skill: 'Proportion',         question: '5 oranges cost £1.80. Work out the cost of 15 oranges.' },
-  '3b': { skill: 'Proportion',         question: 'The cost of 30 pens and 10 rulers is £16.00. Work out the cost of 3 pens and 1 ruler.' },
-  '4a': { skill: 'Ordering Numbers',   question: 'Write in order, smallest first:  3,  −2,  0.5,  −1' },
-  '4b': { skill: 'Ordering Fractions', question: 'Write in order, smallest first:  3/5,  1/4,  7/8,  1/2' },
-  '6':  { skill: 'Time Calculations',  question: 'Amina leaves home at 8.25 am. She travels for 25 minutes. Does she arrive by 8.45 am? Explain.' },
-  '7':  { skill: 'Division in Context', question: 'Priya has £25. A notebook costs £1.60. What is the greatest number she can buy?' },
-  '8a': { skill: 'Function Machines',  question: 'Input → ×3 → +5 → Output. Work out the output when the input is 8.' },
-  '8b': { skill: 'Function Machines',  question: 'Input → ×3 → +5 → Output. Work out the input when the output is 20.' },
-  '9':  { skill: 'Unit Conversion',    question: 'A shelf holds 8 books each 25 mm thick and 2 bookends each 18 mm thick. Total length in cm?' },
-  '10a':{ skill: 'Solving Equations',   question: 'Solve  c ÷ 5 = 12' },
-  '10b':{ skill: 'Solving Equations',   question: 'Solve  3(4e − 2) = 42' },
-  '12': { skill: 'Averages',           question: 'Find the median of: 15, 3, 9, 7, 11, 4, 7, 20, 6' },
-}
-
-// ─── Challenge Questions (Higher-tier extensions, per topic) ────────────────
-interface ChallengeQuestion { topic: TopicId; skill: string; question: string }
-
-const CHALLENGE_QS: ChallengeQuestion[] = [
-  { topic: 'number',  skill: 'Reverse Percentages',   question: 'A laptop costs £612 after a 15% discount. What was the original price?' },
-  { topic: 'number',  skill: 'Standard Form',          question: 'Write 0.00047 in standard form.' },
-  { topic: 'number',  skill: 'Surds',                  question: 'Simplify √72 + √18. Give your answer in the form a√b.' },
-  { topic: 'algebra', skill: 'Simultaneous Equations',  question: '3x + 2y = 16 and 5x − 2y = 24. Find the values of x and y.' },
-  { topic: 'algebra', skill: 'Quadratic Factorising',   question: 'Factorise x² + 5x − 14.' },
-  { topic: 'algebra', skill: 'Sequences (nth term)',     question: 'Find the nth term of the sequence 7, 11, 15, 19, ...' },
-  { topic: 'ratio',   skill: 'Compound Measures',       question: 'A car travels 156 miles in 2 hours 24 minutes. Work out the average speed in mph.' },
-  { topic: 'ratio',   skill: 'Direct Proportion',       question: 'y is directly proportional to x. When x = 5, y = 35. Find y when x = 9.' },
-  { topic: 'stats',   skill: 'Probability',             question: 'A bag contains 4 red, 3 blue and 5 green counters. Two counters are drawn without replacement. Work out the probability that both are red.' },
-  { topic: 'stats',   skill: 'Cumulative Frequency',    question: 'The median of a set of 60 values is estimated from a cumulative frequency graph. Which value on the vertical axis should you read across from?' },
-]
 
 function getChallengeQs(sm: StudentMarks, max = 2): ChallengeQuestion[] {
   // Find topics where the student scored ≥ 75%
@@ -115,7 +39,7 @@ function getChallengeQs(sm: StudentMarks, max = 2): ChallengeQuestion[] {
   const result: ChallengeQuestion[] = []
   const usedTopics = new Set<TopicId>()
 
-  for (const cq of CHALLENGE_QS) {
+  for (const cq of PAPER.challengeQuestions) {
     if (result.length >= max) break
     if (strongTopics.includes(cq.topic) && !usedTopics.has(cq.topic)) {
       result.push(cq)
@@ -125,7 +49,7 @@ function getChallengeQs(sm: StudentMarks, max = 2): ChallengeQuestion[] {
 
   // If still room, allow second from same topic
   if (result.length < max) {
-    for (const cq of CHALLENGE_QS) {
+    for (const cq of PAPER.challengeQuestions) {
       if (result.length >= max) break
       if (strongTopics.includes(cq.topic) && !result.includes(cq)) {
         result.push(cq)
@@ -135,26 +59,10 @@ function getChallengeQs(sm: StudentMarks, max = 2): ChallengeQuestion[] {
 
   return result
 }
-const DEMO_STUDENTS = [
-  'Amira Patel', 'Ben Okonkwo', 'Charlotte Evans', 'Daniel Kim',
-  'Emily Zhang', 'Finn McCarthy', 'Grace Adeyemi', 'Harry Wilson',
-]
 
-// Realistic spread: Amira strong, Ben/Charlotte developing, Daniel/Emily mixed, Finn/Grace weak, Harry very strong
-const DEMO_MARKS: Record<string, Record<string, number>> = {
-  'Amira Patel':     { '1a':1,'1b':1,'2':1,'3a':2,'3b':2,'4a':2,'4b':2,'5a':1,'5b':1,'5c':2,'6':1,'7':2,'8a':1,'8b':1,'9':3,'10a':1,'10b':3,'11a':1,'11b':2,'11c':3,'12':2 },
-  'Ben Okonkwo':     { '1a':1,'1b':1,'2':1,'3a':2,'3b':1,'4a':2,'4b':1,'5a':1,'5b':0,'5c':1,'6':1,'7':2,'8a':1,'8b':0,'9':2,'10a':1,'10b':1,'11a':1,'11b':1,'11c':0,'12':2 },
-  'Charlotte Evans': { '1a':1,'1b':1,'2':0,'3a':1,'3b':2,'4a':2,'4b':1,'5a':1,'5b':1,'5c':1,'6':1,'7':2,'8a':1,'8b':1,'9':1,'10a':1,'10b':2,'11a':0,'11b':1,'11c':1,'12':1 },
-  'Daniel Kim':      { '1a':1,'1b':0,'2':1,'3a':2,'3b':0,'4a':1,'4b':0,'5a':1,'5b':1,'5c':2,'6':0,'7':1,'8a':1,'8b':1,'9':2,'10a':1,'10b':2,'11a':1,'11b':0,'11c':0,'12':2 },
-  'Emily Zhang':     { '1a':1,'1b':1,'2':1,'3a':0,'3b':0,'4a':2,'4b':2,'5a':0,'5b':0,'5c':0,'6':1,'7':2,'8a':1,'8b':1,'9':3,'10a':1,'10b':3,'11a':1,'11b':2,'11c':2,'12':0 },
-  'Finn McCarthy':   { '1a':0,'1b':1,'2':0,'3a':1,'3b':0,'4a':1,'4b':0,'5a':1,'5b':0,'5c':0,'6':0,'7':1,'8a':1,'8b':0,'9':1,'10a':1,'10b':0,'11a':0,'11b':0,'11c':0,'12':1 },
-  'Grace Adeyemi':   { '1a':1,'1b':0,'2':1,'3a':0,'3b':0,'4a':1,'4b':1,'5a':0,'5b':1,'5c':0,'6':1,'7':0,'8a':0,'8b':0,'9':0,'10a':0,'10b':1,'11a':0,'11b':0,'11c':0,'12':1 },
-  'Harry Wilson':    { '1a':1,'1b':1,'2':1,'3a':2,'3b':2,'4a':2,'4b':2,'5a':1,'5b':1,'5c':2,'6':1,'7':2,'8a':1,'8b':1,'9':3,'10a':1,'10b':3,'11a':1,'11b':2,'11c':2,'12':2 },
-}
-
-const TITLE = 'AQA GCSE Mathematics 8300/3F'
-const SUBTITLE = 'Foundation Tier Paper 3 Calculator — November 2024'
-const SUB_TOTAL = QS.reduce((s, q) => s + q.marks, 0)
+// The paper's own title/subtitle/marks total — derived from PAPER so a
+// different config changes these without touching this file.
+const SUB_TOTAL = PAPER.questions.reduce((s, q) => s + q.marks, 0)
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 type StudentMarks = Record<string, number | ''>
@@ -182,7 +90,7 @@ interface TopicBreakdown { scored: number; avail: number }
 function topicBreak(sm: StudentMarks): Record<TopicId, TopicBreakdown> {
   const t: Record<string, TopicBreakdown> = {}
   TOPICS.forEach(tp => { t[tp.id] = { scored: 0, avail: 0 } })
-  QS.forEach(q => {
+  PAPER.questions.forEach(q => {
     const v = sm[q.id]
     t[q.topic].scored += (v === '' ? 0 : (v ?? 0))
     t[q.topic].avail += q.marks
@@ -226,8 +134,8 @@ function makeWWWEBI(sm: StudentMarks) {
 
 function classFailCounts(students: string[], marks: Record<string, StudentMarks>): Record<string, number> {
   const c: Record<string, number> = {}
-  QS.forEach(q => { c[q.id] = 0 })
-  students.forEach(n => QS.forEach(q => {
+  PAPER.questions.forEach(q => { c[q.id] = 0 })
+  students.forEach(n => PAPER.questions.forEach(q => {
     const v = marks[n]?.[q.id]
     if ((Number(v) || 0) < q.marks) c[q.id]++
   }))
@@ -237,10 +145,10 @@ function classFailCounts(students: string[], marks: Record<string, StudentMarks>
 interface RetryQuestion { skill: string; question: string; topic: string; origLabel: string }
 
 function retryQs(sm: StudentMarks, cfc: Record<string, number>, max = 4): RetryQuestion[] {
-  const failed = QS.filter(q => !q.visual && B_SET[q.id] && (Number(sm[q.id]) || 0) < q.marks)
+  const failed = PAPER.questions.filter(q => !q.visual && PAPER.retrySet[q.id] && (Number(sm[q.id]) || 0) < q.marks)
   failed.sort((a, b) => (cfc[b.id] || 0) - (cfc[a.id] || 0) || b.marks - a.marks)
   return failed.slice(0, max).map(q => ({
-    ...B_SET[q.id],
+    ...PAPER.retrySet[q.id],
     topic: topicMap[q.topic]?.label ?? '',
     origLabel: q.label,
   }))
@@ -248,7 +156,7 @@ function retryQs(sm: StudentMarks, cfc: Record<string, number>, max = 4): RetryQ
 
 // ─── CSV ────────────────────────────────────────────────────────────────────
 function csvTemplate(): string {
-  return ['Student Name', ...QS.map(q => `${q.label} (/${q.marks})`)].join(',') + '\n'
+  return ['Student Name', ...PAPER.questions.map(q => `${q.label} (/${q.marks})`)].join(',') + '\n'
 }
 
 function parseCSV(text: string): { students: string[]; marks: Record<string, StudentMarks> } | null {
@@ -262,7 +170,7 @@ function parseCSV(text: string): { students: string[]; marks: Record<string, Stu
     if (!name) continue
     students.push(name)
     marks[name] = {}
-    QS.forEach((q, qi) => {
+    PAPER.questions.forEach((q, qi) => {
       const raw = row[qi + 1]
       if (raw === undefined || raw === '') marks[name][q.id] = ''
       else { const n = parseInt(raw, 10); marks[name][q.id] = isNaN(n) ? '' : Math.min(Math.max(0, n), q.marks) }
@@ -272,10 +180,12 @@ function parseCSV(text: string): { students: string[]; marks: Record<string, Stu
 }
 
 // ─── Topic header colours ───────────────────────────────────────────────────
+// Derived from PAPER.topics (via each topic's label), same as TOPICS above —
+// a paper with a different topic set gets correct headers with no code change.
 const topicBg: Record<TopicId, string> =
-  { number: TOPIC_COLOURS.number.bg, algebra: TOPIC_COLOURS.algebra.bg, ratio: TOPIC_COLOURS.ratio.bg, stats: TOPIC_COLOURS.stats.bg }
+  Object.fromEntries(PAPER.topics.map(t => [t.id, topicColourFor(t.label).bg]))
 const topicBorder: Record<TopicId, string> =
-  { number: TOPIC_COLOURS.number.border, algebra: TOPIC_COLOURS.algebra.border, ratio: TOPIC_COLOURS.ratio.border, stats: TOPIC_COLOURS.stats.border }
+  Object.fromEntries(PAPER.topics.map(t => [t.id, topicColourFor(t.label).border]))
 
 // ─── Modal ──────────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -315,12 +225,12 @@ function PrintView({ students, marks, onClose }: {
         Use your browser's print function while this modal is open.
       </p>
       <div style={{ fontFamily: 'inherit', fontSize: font.sm, color: colors.textPrimary, lineHeight: 1.5 }}>
-        <div style={{ fontSize: font.xl, fontWeight: '700', marginBottom: 1 }}>{TITLE}</div>
-        <div style={{ fontSize: font.sm, color: colors.textSecondary, marginBottom: 16 }}>{SUBTITLE} — Student Feedback</div>
+        <div style={{ fontSize: font.xl, fontWeight: '700', marginBottom: 1 }}>{PAPER.title}</div>
+        <div style={{ fontSize: font.sm, color: colors.textSecondary, marginBottom: 16 }}>{PAPER.subtitle} — Student Feedback</div>
         {students.map(name => {
           const sm: StudentMarks = {}
-          QS.forEach(q => { sm[q.id] = marks[name][q.id] === '' ? 0 : marks[name][q.id] ?? 0 })
-          const tot = QS.reduce((s, q) => s + (typeof sm[q.id] === 'number' ? sm[q.id] as number : 0), 0)
+          PAPER.questions.forEach(q => { sm[q.id] = marks[name][q.id] === '' ? 0 : marks[name][q.id] ?? 0 })
+          const tot = PAPER.questions.reduce((s, q) => s + (typeof sm[q.id] === 'number' ? sm[q.id] as number : 0), 0)
           const pct = Math.round(tot / SUB_TOTAL * 100)
           const tb = topicBreak(sm)
           const { www, ebi } = makeWWWEBI(sm)
@@ -396,11 +306,11 @@ function StarterSheet({ students, marks, onClose }: {
   const cfc = classFailCounts(students, marks)
 
   // Get the most commonly failed non-visual questions with B-set entries
-  const topFailed = QS
-    .filter(q => !q.visual && B_SET[q.id])
+  const topFailed = PAPER.questions
+    .filter(q => !q.visual && PAPER.retrySet[q.id])
     .map(q => ({
       ...q,
-      bset: B_SET[q.id],
+      bset: PAPER.retrySet[q.id],
       failCount: cfc[q.id] || 0,
       failPct: students.length ? Math.round((cfc[q.id] || 0) / students.length * 100) : 0,
     }))
@@ -414,8 +324,8 @@ function StarterSheet({ students, marks, onClose }: {
         Use your browser's print function (Ctrl+P / Cmd+P) while this is open. These are the questions most students in the class need to revisit, with new values.
       </p>
       <div style={{ fontFamily: 'inherit', fontSize: font.sm, color: colors.textPrimary, lineHeight: 1.5 }}>
-        <div style={{ fontSize: font.xl, fontWeight: '700', marginBottom: 1 }}>{TITLE}</div>
-        <div style={{ fontSize: font.sm, color: colors.textSecondary, marginBottom: 4 }}>{SUBTITLE}</div>
+        <div style={{ fontSize: font.xl, fontWeight: '700', marginBottom: 1 }}>{PAPER.title}</div>
+        <div style={{ fontSize: font.sm, color: colors.textSecondary, marginBottom: 4 }}>{PAPER.subtitle}</div>
         <div style={{ fontSize: font.md, fontWeight: '700', color: colors.primary, marginBottom: 16 }}>
           Class Starter — Topics to Revisit
         </div>
@@ -495,14 +405,14 @@ export default function DemoMarkingPage() {
 
   // ── Load demo data ──
   const loadDemo = () => {
-    setStudents(DEMO_STUDENTS)
+    setStudents(PAPER.sampleStudents)
     const m: Record<string, StudentMarks> = {}
-    DEMO_STUDENTS.forEach(name => {
+    PAPER.sampleStudents.forEach(name => {
       m[name] = {}
-      QS.forEach(q => { m[name][q.id] = DEMO_MARKS[name]?.[q.id] ?? '' })
+      PAPER.questions.forEach(q => { m[name][q.id] = PAPER.sampleMarks[name]?.[q.id] ?? '' })
     })
     setMarks(m)
-    setStudentInput(DEMO_STUDENTS.join('\n'))
+    setStudentInput(PAPER.sampleStudents.join('\n'))
     setStep(1)
   }
 
@@ -534,7 +444,7 @@ export default function DemoMarkingPage() {
     const u = [...new Set(names)]
     setStudents(u)
     const m: Record<string, StudentMarks> = {}
-    u.forEach(n => { m[n] = {}; QS.forEach(q => { m[n][q.id] = '' }) })
+    u.forEach(n => { m[n] = {}; PAPER.questions.forEach(q => { m[n][q.id] = '' }) })
     setMarks(m)
     setStep(1)
   }
@@ -557,7 +467,7 @@ export default function DemoMarkingPage() {
 
   // ── Step 2 ──
   const setMark = (student: string, qId: string, val: string) => {
-    const q = QS.find(x => x.id === qId)!
+    const q = PAPER.questions.find(x => x.id === qId)!
     let n: number | '' = val === '' ? '' : parseInt(val, 10)
     if (n !== '' && (isNaN(n) || n < 0)) return
     if (n !== '' && n > q.marks) n = q.marks
@@ -565,7 +475,7 @@ export default function DemoMarkingPage() {
   }
 
   const total = useCallback((name: string) =>
-    QS.reduce((s, q) => { const v = marks[name]?.[q.id]; return s + (v === '' || v === undefined ? 0 : v as number) }, 0),
+    PAPER.questions.reduce((s, q) => { const v = marks[name]?.[q.id]; return s + (v === '' || v === undefined ? 0 : v as number) }, 0),
     [marks])
 
   // ── Step 3 ──
@@ -574,7 +484,7 @@ export default function DemoMarkingPage() {
     const f: typeof fb = {}
     students.forEach(name => {
       const sm: StudentMarks = {}
-      QS.forEach(q => { sm[q.id] = marks[name][q.id] === '' ? 0 : marks[name][q.id] })
+      PAPER.questions.forEach(q => { sm[q.id] = marks[name][q.id] === '' ? 0 : marks[name][q.id] })
       f[name] = { ...makeWWWEBI(sm), retries: retryQs(sm, cfc), challenges: getChallengeQs(sm) }
     })
     setFb(f); setActive(students[0]); setViewMode('overview'); setStep(2)
@@ -610,7 +520,7 @@ export default function DemoMarkingPage() {
 
   const aTb = active ? (() => {
     const sm: StudentMarks = {}
-    QS.forEach(q => { sm[q.id] = marks[active]?.[q.id] === '' ? 0 : marks[active]?.[q.id] ?? 0 })
+    PAPER.questions.forEach(q => { sm[q.id] = marks[active]?.[q.id] === '' ? 0 : marks[active]?.[q.id] ?? 0 })
     return topicBreak(sm)
   })() : null
 
@@ -632,7 +542,7 @@ export default function DemoMarkingPage() {
             <h1 style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary }}>
               Assessment Marking Tool
             </h1>
-            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>{SUBTITLE}</p>
+            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>{PAPER.subtitle}</p>
           </div>
         </div>
         <Link href="/" style={{
@@ -742,7 +652,7 @@ export default function DemoMarkingPage() {
                 <thead>
                   <tr>
                     <th style={{ ...thStyle, position: 'sticky', left: 0, zIndex: 2, minWidth: 130, background: colors.cardAlt }}>Student</th>
-                    {QS.map(q => (
+                    {PAPER.questions.map(q => (
                       <th key={q.id} style={{ ...thStyle, background: topicBg[q.topic], borderBottomColor: topicBorder[q.topic] }}
                           title={`${q.desc} [${q.skill}] — ${topicMap[q.topic].label}`}>
                         <div style={{ fontWeight: '700', fontSize: font.sm, color: topicMap[q.topic].colour }}>{q.label}</div>
@@ -764,7 +674,7 @@ export default function DemoMarkingPage() {
                           ...tdStyle, position: 'sticky', left: 0, zIndex: 1, background: colors.card,
                           textAlign: 'left', fontWeight: '600', paddingLeft: 10, whiteSpace: 'nowrap', color: colors.textPrimary,
                         }}>{name}</td>
-                        {QS.map(q => {
+                        {PAPER.questions.map(q => {
                           const v = marks[name][q.id]; const filled = v !== '' && v !== undefined
                           return (
                             <td key={q.id} style={{ ...tdStyle, background: filled ? bandBg(v as number, q.marks) : 'transparent' }}>
@@ -808,7 +718,7 @@ export default function DemoMarkingPage() {
           const classTopicBreakdown = TOPICS.map(tp => {
             let scored = 0, avail = 0
             students.forEach(name => {
-              QS.filter(q => q.topic === tp.id).forEach(q => {
+              PAPER.questions.filter(q => q.topic === tp.id).forEach(q => {
                 const v = marks[name]?.[q.id]
                 scored += (v === '' || v === undefined ? 0 : v as number)
                 avail += q.marks
@@ -817,7 +727,7 @@ export default function DemoMarkingPage() {
             return { ...tp, scored, avail, pct: avail ? Math.round(scored / avail * 100) : 0 }
           })
           const cfc = classFailCounts(students, marks)
-          const mostFailed = QS.filter(q => !q.visual && B_SET[q.id])
+          const mostFailed = PAPER.questions.filter(q => !q.visual && PAPER.retrySet[q.id])
             .map(q => ({ ...q, failCount: cfc[q.id] || 0, failPct: students.length ? Math.round((cfc[q.id] || 0) / students.length * 100) : 0 }))
             .filter(q => q.failPct > 30)
             .sort((a, b) => b.failPct - a.failPct)
@@ -954,7 +864,7 @@ export default function DemoMarkingPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {QS.map(q => {
+                          {PAPER.questions.map(q => {
                             const totalScored = students.reduce((s, n) => {
                               const v = marks[n]?.[q.id]
                               return s + (v === '' || v === undefined ? 0 : v as number)
@@ -1014,7 +924,7 @@ export default function DemoMarkingPage() {
                           {[...students].sort((a, b) => total(b) - total(a)).map((name, rank) => {
                             const t = total(name); const pct = Math.round(t / SUB_TOTAL * 100)
                             const sm: StudentMarks = {}
-                            QS.forEach(q => { sm[q.id] = marks[name]?.[q.id] === '' ? 0 : marks[name]?.[q.id] ?? 0 })
+                            PAPER.questions.forEach(q => { sm[q.id] = marks[name]?.[q.id] === '' ? 0 : marks[name]?.[q.id] ?? 0 })
                             const tb = topicBreak(sm)
                             return (
                               <tr key={name} style={{ cursor: 'pointer' }}
