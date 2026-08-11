@@ -100,6 +100,19 @@ const G3_R = '[5,4,3,6,2,7][sel]'
 const G3_N = '[3,2,4,2,5,3][sel]'
 const G3_UB = `(${G3_AMT}+50)`
 const G3_LB = `(${G3_AMT}-50)`
+/**
+ * The upper bound taken as "the largest amount you could actually have" —
+ * a penny below the true bound. The commonest bounds misconception: the true
+ * amount IS strictly less than £…50, so students reach for the biggest value
+ * that satisfies it rather than the boundary itself.
+ *
+ * Safe as a trap despite landing only 1p from the answer, and provably so
+ * rather than by luck: the two differ by 0.01 × multiplier before rounding,
+ * the multiplier always exceeds 1, and two values more than 0.01 apart cannot
+ * round to the same penny. Measured gap is 0.01 on all six draws against a
+ * 0.005 tolerance.
+ */
+const G3_UB_PENNY = `(${G3_AMT}+50-0.01)`
 const G3_MULT = `Math.pow(1+${G3_R}/100,${G3_N})`
 const G3_ANS = `round(${G3_UB}*${G3_MULT}, 2)`
 
@@ -225,6 +238,15 @@ const drafts: Draft[] = [
       {
         answer_template: `{{round(${G3_LB}*${G3_MULT}, 2)}}`,
         response: `That is the LOWER bound — you started from £{{${G3_LB}}}. To the nearest £100, the amount could be as much as £{{${G3_UB}}}, giving an upper bound of £{{${G3_ANS}}}.`,
+        method_marks: 2,
+      },
+      {
+        // Everything right except the bound itself, which was taken a penny
+        // below the boundary. Worth its own trap: the student has understood
+        // that the true amount is strictly less than the boundary, which is
+        // the harder half — they have just drawn the wrong conclusion from it.
+        answer_template: `{{round(${G3_UB_PENNY}*${G3_MULT}, 2)}}`,
+        response: `Nearly — your method is right, but you used <strong>£{{(${G3_UB_PENNY}).toFixed(2)}}</strong> as the starting amount.<br>You are correct that the true amount is <em>less than</em> £{{${G3_UB}}}: anything from £{{${G3_LB}}} up to (but not including) £{{${G3_UB}}} rounds to £{{${G3_AMT}}}. But the <strong>upper bound is the boundary itself, £{{${G3_UB}}}</strong> — not the largest amount you could write down in pennies. Picking £{{(${G3_UB_PENNY}).toFixed(2)}} would leave out everything between it and the boundary.<br>£{{${G3_UB}}} × {{1+${G3_R}/100}}<sup>{{${G3_N}}}</sup> = <strong>£{{${G3_ANS}}}</strong>.`,
         method_marks: 2,
       },
       {
