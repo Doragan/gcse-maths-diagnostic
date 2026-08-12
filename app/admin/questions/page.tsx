@@ -35,10 +35,26 @@ export default function QuestionsPage() {
   }, [])
 
   async function loadQuestions() {
-    const { data, error } = await supabase
-      .from('questions')
-      .select('id, skill_ids, difficulty, question_template, question_type, is_published, created_at')
+    const COLS = 'id, skill_ids, difficulty, question_template, question_type, is_published, created_at'
+
+    // Paper items (source_paper set) are anchors for marks-derived attempts,
+    // not authorable content — permanently unpublished, and they would
+    // otherwise bury the real drafts in the "Draft" filter one careless click
+    // from being published. See the 20260812 migration.
+    let { data, error } = await supabase
+      .from('questions').select(COLS)
+      .is('source_paper', null)
       .order('created_at', { ascending: false })
+
+    // Tolerate the window before that migration is applied: without the column
+    // the filter 400s, and an admin staring at an empty question list is a
+    // worse failure than briefly seeing an unfiltered one (which, until paper
+    // items exist, is the same list anyway).
+    if (error) {
+      ({ data, error } = await supabase
+        .from('questions').select(COLS)
+        .order('created_at', { ascending: false }))
+    }
 
     if (!error && data) setQuestions(data)
     setLoading(false)

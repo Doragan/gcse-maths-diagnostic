@@ -33,7 +33,27 @@ export type PaperQuestion = {
   label: string
   marks: number
   topic: string // a PaperTopic['id']
+  /** Display label for the marking UI, eg "Frequency Trees + Probability". */
   skill: string
+  /**
+   * The REAL skill ids this item assesses, from data/skills.ts — as opposed to
+   * `skill` above, which is only ever shown to a human.
+   *
+   * This is what makes an item trackable: a `practice_attempts` row carries
+   * `skill_ids`, and the mastery engine reads nothing else to decide which
+   * skills an answer moves. Sourced from data/exam-audit/ (ids map 1:1 onto
+   * this file's question ids), with any tagging corrections applied here and
+   * noted in the file header.
+   */
+  skillIds: string[]
+  /**
+   * How a wrong answer attributes, exactly as lib/questions/kind.ts defines it:
+   * `mastery` penalises on failure, `exam` is positive-only (credit on success,
+   * never a penalty). Multi-skill items are `exam`, so a dropped mark on a
+   * synthesis question routes to revision instead of knocking down every skill
+   * it touched.
+   */
+  kind: 'mastery' | 'exam'
   /** One-line description shown as a tooltip and in the CSV template. */
   desc: string
   /**

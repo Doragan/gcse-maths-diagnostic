@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { PAPERS, DEFAULT_PAPER_ID } from './index'
+import { skills } from '../../data/skills'
 
 // Characterisation tests, run against EVERY registered paper — the marking
 // page used to hardcode these invariants implicitly for the one paper it had;
@@ -39,6 +40,29 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     const ids = paper.questions.map(q => q.id)
     expect(new Set(ids).size).toBe(ids.length)
   })
+
+  // skillIds is what makes an item trackable — a typo here would silently
+  // credit a skill that doesn't exist, so check against the real skill graph
+  // rather than trusting the shape.
+  it('every skillId is a real skill in data/skills.ts', () => {
+    const known = new Set(skills.map(s => s.id))
+    for (const q of paper.questions) {
+      expect(q.skillIds.length, `${q.id} has no skillIds`).toBeGreaterThan(0)
+      for (const id of q.skillIds) {
+        expect(known.has(id), `${q.id} -> unknown skill "${id}"`).toBe(true)
+      }
+    }
+  })
+
+  // NB there is deliberately NO "multi-skill implies exam-kind" test here.
+  // `defaultKindForSkills` calls that a default an author may override, and the
+  // project's actual rule is narrower — exam-kind is for 2+ INDEPENDENT skills,
+  // so a pair like [enlargements, fractional_enlargements] is rightly mastery.
+  // The audit's tagging does not follow either rule consistently (the same
+  // [proportion, simple_arithmetic] pair is mastery on 3F q3a and exam on 2F
+  // q7), so asserting one here would encode an invariant the codebase does not
+  // hold. It costs nothing for now: the marks writer forces attempts to
+  // positive-only regardless of the item's own kind.
 
   it('every retrySet entry keys a real, non-visual question', () => {
     const byId = new Map(paper.questions.map(q => [q.id, q]))
