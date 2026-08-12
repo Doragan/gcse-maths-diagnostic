@@ -67,7 +67,7 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     { id: '12b', label: '12(b)', marks: 1, topic: 'algebra', skill: 'Rearranging Formulae', desc: 'Rearrange y = w − 1 to make w the subject', visual: false },
     { id: '12c', label: '12(c)', marks: 2, topic: 'algebra', skill: 'Simplifying Expressions', desc: 'Simplify fully 4(a + 2) + a', visual: false },
     { id: '13', label: '13', marks: 2, topic: 'number', skill: 'Time Calculations', desc: '1 minute 28 seconds less than 2 hours, in h/m/s', visual: false },
-    { id: '14', label: '14', marks: 4, topic: 'probdata', skill: 'Pie Charts', desc: 'Pie chart: Banana = 90°, two others = 78° and 48°; 120 chose Banana — how many chose Apple? (144°)', visual: false },
+    { id: '14', label: '14', marks: 4, topic: 'probdata', skill: 'Pie Charts', desc: 'Pie chart: Banana = 90°, two others 78° and 48°; 120 chose Banana — how many chose Apple?', visual: false },
     { id: '15a', label: '15(a)', marks: 2, topic: 'ratio', skill: 'Compound Units', desc: 'Bath graph: fills to 240 (litres) in 10 minutes — find the fill rate', visual: false },
     { id: '15b', label: '15(b)', marks: 2, topic: 'algebra', skill: 'Kinematic Graphs', desc: 'Draw the constant-then-emptying phase on the bath graph', visual: true },
     { id: '16', label: '16', marks: 2, topic: 'shape', skill: 'Symmetry', desc: 'Shade one quarter of a grid so it has exactly two lines of symmetry', visual: true },

@@ -187,8 +187,10 @@ export default function DemoTour({ demoPool, demoQuestion, stats }: {
           minutes={4}
           lookFor={<>
             You have already done the marking — this is what those marks are worth once they are
-            typed in. Look at how specific the output is: not a class average, but the exact
-            questions they dropped and a different set of retry questions for each student.
+            typed in. The one worth slowing down for: click through to any individual student and
+            look at their &ldquo;Try Again&rdquo; list. Those are not a generic worksheet — each one
+            is built from the specific questions <em>that student</em> got wrong, so two students
+            in the same class end up with two different retry sets.
           </>}
         >
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 14px', lineHeight: 1.7 }}>
@@ -198,9 +200,17 @@ export default function DemoTour({ demoPool, demoQuestion, stats }: {
           <ul style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 16px', paddingLeft: 20, lineHeight: 1.9 }}>
             <li>the questions most of the class dropped, ranked — where to spend Monday</li>
             <li>per-student &ldquo;what went well / even better if&rdquo;, editable before you send it</li>
-            <li>retry questions picked per student from the skills they personally missed</li>
+            <li>
+              <strong>a personal retry list per student</strong> — built only from questions
+              <em> they</em> missed, prioritised by whatever the rest of the class struggled with
+              too — not the same four questions handed to everyone
+            </li>
             <li>a class starter sheet built from the common gaps, and a print view</li>
           </ul>
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '0 0 16px', lineHeight: 1.6, fontStyle: 'italic' }}>
+            To see it: after generating feedback, click any name in the student list on the left —
+            the class overview doesn&apos;t show it, the individual view does.
+          </p>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 18px', lineHeight: 1.7 }}>
             That is the win you get the same afternoon. The slower one is stop 4: because marks
             attach to <em>skills</em> rather than to a single paper, they build into a picture of

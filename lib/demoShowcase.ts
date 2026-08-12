@@ -191,6 +191,13 @@ type Candidate = {
 
 const asFraction = (s: string) => s.trim().match(/^(-?\d+)\s*\/\s*(\d+)$/)
 
+/** Euclid, for reducing a fraction before testing whether it terminates. */
+function gcd(a: number, b: number): number {
+  a = Math.abs(a); b = Math.abs(b)
+  while (b) { [a, b] = [b, a % b] }
+  return a || 1
+}
+
 /** Decimal places in the first number of a rendered answer ("3.29 cm" → 2). */
 function dpOf(s: string): number {
   const m = s.match(/-?\d+(?:\.(\d+))?/)
@@ -271,12 +278,16 @@ function candidates(answer: string, type: ScalarAnswerType): Candidate[] {
         label: 'the same fraction, not cancelled down',
       })
       const value = Number(n) / Number(d)
-      // Only offer the decimal when it terminates — the grader deliberately
-      // rejects a rounded decimal for a recurring fraction, and demonstrating
-      // that needs the recurring case, which the next branch covers.
-      const asDecimal = String(value)
-      if (asDecimal.replace(/[-.]/g, '').length <= 6 && Number(asDecimal) === value) {
-        out.push({ input: asDecimal, label: 'written as a decimal' })
+      // Which branch applies turns on whether the fraction TERMINATES, so test
+      // that directly — reduce, then strip 2s and 5s, exactly as the grader's
+      // own hasTerminatingDecimal does. An earlier version guessed from the
+      // length of String(value), which quietly mislabelled the likes of 1/64
+      // (= 0.015625, terminating, but 7 digits) as recurring.
+      let den = Number(d) / gcd(Number(n), Number(d))
+      while (den % 2 === 0) den /= 2
+      while (den % 5 === 0) den /= 5
+      if (den === 1) {
+        out.push({ input: String(value), label: 'written as a decimal' })
       } else {
         out.push({ input: value.toFixed(4), label: 'a rounded decimal — this fraction never terminates' })
       }
