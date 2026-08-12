@@ -76,6 +76,21 @@ const sf = (val: string) => {
   const e = `Math.floor(Math.log10(${val}))`
   return `{{round(${val}/Math.pow(10,${e}), 2)}} × 10<sup>{{${e}}}</sup>`
 }
+/**
+ * The same value written with the mantissa ten times too big and the power one
+ * too small — "12.9 × 10³" for 1.29 × 10⁴. Same NUMBER, but not standard form,
+ * since the mantissa has to sit between 1 and 10.
+ *
+ * It grades wrong (and so can carry a trap) only because the answer type is
+ * `exact`, which compares the written form. A numeric answer type would treat
+ * the two as equal and this misconception would be invisible.
+ *
+ * Still 3 s.f., so the mantissa takes one fewer decimal place: 1.29 → 12.9.
+ */
+const sfUnnormalised = (val: string) => {
+  const e = `(Math.floor(Math.log10(${val}))-1)`
+  return `{{round(${val}/Math.pow(10,${e}), 1)}} × 10<sup>{{${e}}}</sup>`
+}
 const G1_VAL = `(${G1_A}*Math.pow(10,${G1_P})*Math.pow(1+${G1_R}/100,${G1_T}))`
 /** Trap: simple growth — r% of the START added t times, not compounded. */
 const G1_SIMPLE = `(${G1_A}*Math.pow(10,${G1_P})*(1+${G1_R}*${G1_T}/100))`
@@ -166,6 +181,14 @@ const drafts: Draft[] = [
         // of the question left undone.
         answer_template: `{{round(${G1_VAL}/Math.pow(10,Math.floor(Math.log10(${G1_VAL})))*100, 0)*Math.pow(10,Math.floor(Math.log10(${G1_VAL}))-2)}}`,
         response: `That is the right number of cells, but not in standard form. Standard form is a number between 1 and 10 multiplied by a power of 10: ${sf(G1_VAL)}.`,
+        method_marks: 2,
+      },
+      {
+        // Right number, written with the mantissa ten times too big. The growth
+        // is entirely correct — only the normalising step is missing — so this
+        // scores everything but the accuracy mark.
+        answer_template: sfUnnormalised(G1_VAL),
+        response: `Your number is right, and so is the power arithmetic — but ${sfUnnormalised(G1_VAL)} is not <em>standard form</em>. The first part has to be between <strong>1 and 10</strong>, and yours is {{round(${G1_VAL}/Math.pow(10,Math.floor(Math.log10(${G1_VAL}))-1), 1)}}.<br>Move the decimal point one place left and add one to the power to balance it: <strong>${sf(G1_VAL)}</strong>.`,
         method_marks: 2,
       },
     ],
