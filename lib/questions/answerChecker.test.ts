@@ -419,3 +419,43 @@ describe('standard form typed with the letter x', () => {
     expect(check('2x+1', '2x+1', 'expression').correct).toBe(true)
   })
 })
+
+// Same VALUE, mantissa outside 1–10. There are endlessly many such forms, so
+// they cannot each be an authored trap — the grader names the problem instead.
+describe('standard form with a non-normalised mantissa', () => {
+  const sf = '4.69 × 10<sup>6</sup>'
+
+  it('is still wrong, but says why, for a mantissa that is too small', () => {
+    const r = check('0.469*10^7', sf, 'exact')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/right value/i)
+    expect(r.message).toMatch(/between 1 and 10/i)
+    expect(r.message).toMatch(/right/i) // move the point right
+  })
+  it('handles every shift, either direction', () => {
+    for (const s of ['0.469 x 10^7', '0.0469 x 10^8', '46.9 x 10^5', '469 x 10^4', '4690 x 10^3']) {
+      const r = check(s, sf, 'exact')
+      expect(r.correct, s).toBe(false)
+      expect(r.message, s).toMatch(/between 1 and 10/i)
+    }
+  })
+  it('tells the student which way to move the point', () => {
+    expect(check('0.469 x 10^7', sf, 'exact').message).toMatch(/to the <strong>right<\/strong>/)
+    expect(check('469 x 10^4', sf, 'exact').message).toMatch(/to the <strong>left<\/strong>/)
+  })
+  it('leaves an authored trap for a particular shift in charge', () => {
+    const traps = [{ answer: '46.9 × 10<sup>5</sup>', response: 'Question-specific wording.' }]
+    const r = checkAnswer('46.9 x 10^5', sf, 'exact', null, traps, false)
+    expect(r.trap?.response).toBe('Question-specific wording.')
+  })
+  it('does NOT claim the value is right when it is not', () => {
+    // Wrong value AND non-normalised — must fall through to the generic miss.
+    const r = check('51.2 x 10^5', sf, 'exact')
+    expect(r.correct).toBe(false)
+    expect(r.message).not.toMatch(/right value/i)
+  })
+  it('does not fire for a plain number or a correct answer', () => {
+    expect(check('4690000', sf, 'exact').message).not.toMatch(/between 1 and 10/i)
+    expect(check('4.69 x 10^6', sf, 'exact').correct).toBe(true)
+  })
+})
