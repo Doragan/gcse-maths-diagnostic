@@ -355,6 +355,14 @@ export function normalise(value: string): string {
     .replace(/!=/g, '≠')
     // Remove all whitespace
     .replace(/\s+/g, '')
+    // Standard form typed with the LETTER x: "4.15 x 10^5" → "4.15*10^5".
+    //
+    // '×' is converted above, but a keyboard does not offer it, so students
+    // type 'x' — and the answer was then marked wrong. Deliberately narrow: it
+    // fires only for <digit>x immediately followed by "10^", which is
+    // unambiguously standard form. An algebraic 'x' never has "10^" after it,
+    // so "2x", "2x+1" and "3x-4" are untouched.
+    .replace(/(\d)x(?=10\^)/g, '$1*')
     // Strip redundant brackets around a numeric surd radicand: √(2) → √2
     .replace(/√\((\d+)\)/g, '√$1')
     // Collapse explicit multiplication that GCSE notation writes implicitly:
@@ -640,6 +648,14 @@ const NOT_SIMPLEST =
 const RATIO_NON_NUMERIC = /[^\d:.\-/]/
 
 /**
+ * A NORMALISED standard-form string: "4.69*10^6". `normalise` has already
+ * turned '×' (and the letter x) into '*', '<sup>n</sup>' and superscripts into
+ * '^n', and stripped whitespace, so this only has to match the canonical shape.
+ * Anchored, so anything with extra terms or units around it is not a match.
+ */
+const STANDARD_FORM = /^(-?\d+(?:\.\d+)?)\*10\^(-?\d+)$/
+
+/**
  * Why a right-valued ratio is not yet in its simplest form.
  *
  * The verdict is the same either way — all three are marked wrong when the
@@ -909,6 +925,42 @@ export function checkAnswer(
       // "Caret" is the typographer's word for it, not a student's — name the
       // key and say how to type it.
       message: `Did you mean ${correctAnswer}? Use the <strong>^</strong> symbol for powers — hold Shift and press 6. Without it, “${studentAnswer.trim()}” reads as a multiplication rather than a power.`,
+    }
+  }
+
+  // Standard form with the first number outside 1–10 — "0.469 × 10⁷" or
+  // "46.9 × 10⁵" where the answer is 4.69 × 10⁶.
+  //
+  // The VALUE is right; only the normalising step is missing, and there are
+  // endlessly many such forms (÷10, ×100, ÷100, …) so they cannot each be an
+  // authored trap. Stays WRONG — the question asked for standard form — but
+  // says which way to move the point instead of a bare "not quite".
+  //
+  // Runs AFTER trap matching on purpose: a question that authors its own trap
+  // for a particular shift keeps its richer, question-specific wording.
+  {
+    const sfC = normCorrect.match(STANDARD_FORM)
+    const sfS = normStudent.match(STANDARD_FORM)
+    if (sfC && sfS) {
+      const cm = parseFloat(sfC[1]), ce = parseInt(sfC[2], 10)
+      const sm = parseFloat(sfS[1]), se = parseInt(sfS[2], 10)
+      const cVal = cm * Math.pow(10, ce)
+      const sVal = sm * Math.pow(10, se)
+      const sameValue = Math.abs(sVal - cVal) <= 1e-9 * Math.max(1, Math.abs(cVal))
+      const canonicalNormalised = Math.abs(cm) >= 1 && Math.abs(cm) < 10
+      const studentNotNormalised = Math.abs(sm) < 1 || Math.abs(sm) >= 10
+      if (sameValue && canonicalNormalised && studentNotNormalised) {
+        const tooBig = Math.abs(sm) >= 10
+        return {
+          correct: false,
+          trap: null,
+          message: `That is the right value, but it is not in <strong>standard form</strong>: the first number has to be between 1 and 10, and yours is ${sm}.<br>`
+            + (tooBig
+              ? `Move the decimal point to the <strong>left</strong> and add to the power to balance it`
+              : `Move the decimal point to the <strong>right</strong> and take off the power to balance it`)
+            + ` — it should be <strong>${correctAnswer}</strong>.`,
+        }
+      }
     }
   }
 

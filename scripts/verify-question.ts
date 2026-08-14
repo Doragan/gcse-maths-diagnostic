@@ -963,7 +963,17 @@ async function loadQuestions(args: string[]): Promise<{ q: Q; label: string }[]>
   }
   if (args.includes('--drafts') || args.includes('--published')) {
     const published = args.includes('--published')
-    const { data, error } = await supabase.from('questions').select('*').eq('is_published', published)
+    let query = supabase.from('questions').select('*').eq('is_published', published)
+    // Paper items (source_paper set) are permanently-unpublished anchor rows
+    // for teacher-marked practice_attempts, not drafts awaiting review — they
+    // are never graded (answer_template is always '') and a CHECK constraint
+    // makes them unpublishable, so they can never appear under --published.
+    // Under --drafts they would otherwise swamp the real drafts with ~100
+    // rows per synced paper, all "failing" on an empty answer that is
+    // supposed to be empty. Same discriminator the admin question list uses
+    // to hide them (see 20260812_questions_source_paper.sql).
+    if (!published) query = query.is('source_paper', null)
+    const { data, error } = await query
     if (error) { console.error(error.message); process.exit(1) }
     return (data ?? []).map((q: Q) => ({ q, label: q.id }))
   }
