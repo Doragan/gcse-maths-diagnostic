@@ -121,6 +121,23 @@ const P3_J = '[3,6,2,5,2,4][sel]'
 const P3_K = '[2,3,4,2,3,6][sel]'
 const P3_COEF = `(${P3_P}*${P3_Q}/${P3_R})`
 const P3_IDX = `(${P3_I}+${P3_J}-${P3_K})`
+/** Undivided coefficient — the value a student gets by never applying ÷R. */
+const P3_COEF_UNDIV = `(${P3_P}*${P3_Q})`
+/** Bracket combined by multiplying instead of adding: I×J, correctly then −K. */
+const P3_IDX_MULT_BRACKET = `(${P3_I}*${P3_J}-${P3_K})`
+/** Bracket combined by adding correctly, but the outer ÷R never applied. */
+const P3_IDX_NO_DIVIDE = `(${P3_I}+${P3_J})`
+/**
+ * Multiply the bracket indices (should ADD), then literally DIVIDE the result
+ * by the outer index (should SUBTRACT) — "do to the exponent whatever
+ * operation joins the terms", rather than apply the index laws. Distinct from
+ * the multiply-bracket trap above, which correctly subtracts K afterward.
+ *
+ * Non-terminating on some draws (20÷6), so rounded to 2 dp for display — a
+ * calculator division a student would actually copy down, not a policy this
+ * question is trying to teach.
+ */
+const P3_IDX_LITERAL_DIVIDE = `round(${P3_I}*${P3_J}/${P3_K}, 2)`
 
 type Draft = {
   name: string
@@ -245,19 +262,48 @@ const drafts: Draft[] = [
       + `So the answer is <strong>{{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup></strong>.`,
     traps: [
       {
-        answer_template: `{{${P3_COEF}}}x^{{${P3_I}+${P3_J}}}`,
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_NO_DIVIDE}}}`,
         response: `The number is right, but the division has not been applied to the power. Dividing by x<sup>{{${P3_K}}}</sup> <em>subtracts</em> {{${P3_K}}}: {{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
         method_marks: 2,
       },
       {
-        answer_template: `{{${P3_COEF}}}x^{{${P3_I}*${P3_J}-${P3_K}}}`,
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_MULT_BRACKET}}}`,
         response: `You multiplied the indices. x<sup>{{${P3_I}}}</sup> means {{${P3_I}}} x's multiplied together and x<sup>{{${P3_J}}}</sup> means {{${P3_J}}}, so multiplying them gives {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}} x's in total — the indices <strong>add</strong>. Then subtract the {{${P3_K}}} you are dividing by: {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
         method_marks: 1,
       },
       {
-        answer_template: `{{${P3_P}*${P3_Q}}}x^{{${P3_IDX}}}`,
+        answer_template: `{{${P3_COEF_UNDIV}}}x^{{${P3_IDX}}}`,
         response: `The power is right, but the number still has to be divided by {{${P3_R}}}: {{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
         method_marks: 2,
+      },
+      {
+        // Multiplied the bracket AND applied ÷ literally to the exponent
+        // instead of subtracting — "whatever the symbol is, do that to the
+        // powers too". Distinct from the multiply-bracket trap above, which
+        // gets the outer step (subtract) right.
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_LITERAL_DIVIDE}}}`,
+        response: `Two mistakes in the power. First, x<sup>{{${P3_I}}}</sup> × x<sup>{{${P3_J}}}</sup> means the indices <strong>add</strong>, not multiply: {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}}. Second, dividing by x<sup>{{${P3_K}}}</sup> means <strong>subtract</strong> {{${P3_K}}} from the index — it does not mean divide the index itself by {{${P3_K}}}. Putting the correct rules together: {{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        method_marks: 1,
+      },
+      {
+        // Combines trap 1 (never divides) with trap 3 (never divides the
+        // coefficient) — i.e. the ÷Rx^K step is skipped entirely: the bracket
+        // is combined correctly and the student stops there. A single
+        // coherent error, not two independent ones layered on top of a
+        // correct method.
+        answer_template: `{{${P3_COEF_UNDIV}}}x^{{${P3_IDX_NO_DIVIDE}}}`,
+        response: `You have combined the bracket correctly — {{${P3_P}}}x<sup>{{${P3_I}}}</sup> × {{${P3_Q}}}x<sup>{{${P3_J}}}</sup> = {{${P3_COEF_UNDIV}}}x<sup>{{${P3_I}+${P3_J}}}</sup> — but the question also asks you to divide by {{${P3_R}}}x<sup>{{${P3_K}}}</sup>, and that step is missing entirely. Divide the numbers ({{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}) and subtract the index ({{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}) to get {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        method_marks: 1,
+      },
+      {
+        // Combines trap 2 (multiplies the bracket, correctly subtracts K)
+        // with trap 3 (never divides the coefficient) — two independent
+        // slips, one in each half of the answer. NOT trap 1 + trap 2: those
+        // two disagree on whether K was subtracted at all, so there is no
+        // single value that is "both" of them.
+        answer_template: `{{${P3_COEF_UNDIV}}}x^{{${P3_IDX_MULT_BRACKET}}}`,
+        response: `Two mistakes here. The bracket's indices should be <strong>added</strong>, not multiplied: {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}}, then subtract {{${P3_K}}} to get {{${P3_IDX}}}. And the {{${P3_P}}} × {{${P3_Q}}} still needs dividing by {{${P3_R}}}: {{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}. Together that gives {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        method_marks: 0,
       },
     ],
   },
