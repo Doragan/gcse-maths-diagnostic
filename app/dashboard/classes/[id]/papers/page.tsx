@@ -9,7 +9,9 @@ import { getClassMembers, type ClassMember } from '../../../../../lib/classes'
 import { PAPERS, DEFAULT_PAPER_ID } from '../../../../../lib/demoPapers'
 import { topicColourFor } from '../../../../../lib/demoTopicColours'
 import { marksTotal, type ItemMarks } from '../../../../../lib/papers/sittingMarks'
-import { recordSitting } from '../../../../../lib/papers/recordSitting'
+import {
+  recordSitting, listSittings, deleteSitting, type ExistingSitting,
+} from '../../../../../lib/papers/recordSitting'
 import {
   colors, font, radius, card as cardStyle,
   primaryButton, secondaryButton, errorBox, sectionTitle, pageTitle,
@@ -53,7 +55,16 @@ export default function ClassPapersPage() {
   const [marks, setMarks] = useState<MarksByStudent>({})
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState<{ count: number; total: number } | null>(null)
+  const [saved, setSaved] = useState<{ count: number; total: number; corrected: boolean } | null>(null)
+
+  // Already recorded for this class + paper. Surfaced BEFORE submitting,
+  // because "a resit" and "submitted twice by accident" produce identical data
+  // and only the teacher knows which it is — and a duplicate is not merely
+  // untidy: the mastery fast-track marks a skill secure at three correct
+  // attempts, so one right answer submitted three times reads as mastery.
+  const [existing, setExisting] = useState<ExistingSitting[]>([])
+  // studentId -> sittingId being corrected, when marks were loaded from one.
+  const [correcting, setCorrecting] = useState<Record<string, string>>({})
 
   const paper = PAPERS[paperId]
   const total = useMemo(() => marksTotal(paper), [paper])
@@ -76,13 +87,57 @@ export default function ClassPapersPage() {
     })
   }, [classId])
 
+  // Refresh "what's already recorded" whenever the paper changes or a write
+  // lands, so the warning can never be stale at the moment it matters.
+  async function refreshExisting(forPaper: string) {
+    try {
+      setExisting(await listSittings(classId, forPaper))
+    } catch {
+      // Non-fatal: worst case the teacher doesn't see the duplicate warning.
+      setExisting([])
+    }
+  }
+  useEffect(() => {
+    if (!loading && !notFound) refreshExisting(paperId)
+  }, [classId, paperId, loading, notFound])
+
   // Switching paper invalidates every mark: item ids differ between papers, and
   // silently carrying them over would submit marks against the wrong questions.
   function changePaper(id: string) {
     setPaperId(id)
     setMarks({})
+    setCorrecting({})
     setSaved(null)
     setError('')
+  }
+
+  /** Pull an existing sitting's marks into the grid to edit and re-save. */
+  function loadForCorrection() {
+    const next: MarksByStudent = {}
+    const ids: Record<string, string> = {}
+    for (const s of existing) {
+      // Newest-first from the API, so the first per student is the latest.
+      if (next[s.student_id]) continue
+      next[s.student_id] = { ...s.marks }
+      ids[s.student_id] = s.id
+    }
+    setMarks(next)
+    setCorrecting(ids)
+    setSaved(null)
+    setError('')
+  }
+
+  async function removeSitting(sittingId: string) {
+    if (!confirm('Delete this recorded sitting? The marks and the skill credit from it are removed.')) return
+    setError('')
+    try {
+      await deleteSitting(classId, sittingId)
+      // Stop correcting a sitting that no longer exists.
+      setCorrecting(prev => Object.fromEntries(Object.entries(prev).filter(([, v]) => v !== sittingId)))
+      await refreshExisting(paperId)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete sitting')
+    }
   }
 
   function setMark(studentId: string, itemId: string, raw: string) {
@@ -109,14 +164,26 @@ export default function ClassPapersPage() {
 
   async function submit() {
     setSaving(true); setError(''); setSaved(null)
+    const isCorrection = entered.some(m => correcting[m.student_id])
     try {
       const res = await recordSitting({
         sourcePaper: paperId,
         classId,
         satOn,
-        students: entered.map(m => ({ studentId: m.student_id, marks: marks[m.student_id] })),
+        students: entered.map(m => ({
+          studentId: m.student_id,
+          // Present only for students whose marks came from an existing
+          // sitting: the API then corrects that row and rebuilds just its
+          // attempts, instead of adding a second set.
+          sittingId: correcting[m.student_id],
+          marks: marks[m.student_id],
+        })),
       })
-      setSaved({ count: res.sittings.length, total: res.marksTotal })
+      setSaved({ count: res.sittings.length, total: res.marksTotal, corrected: isCorrection })
+      // Newly created sittings become correctable, so an immediate second click
+      // edits them rather than duplicating.
+      setCorrecting(Object.fromEntries(res.sittings.map(s => [s.studentId, s.sittingId])))
+      await refreshExisting(paperId)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to record marks')
     } finally {
@@ -202,6 +269,60 @@ export default function ClassPapersPage() {
                 {paper.questions.length} questions · {total} marks
               </div>
             </div>
+
+            {/* ── Already recorded ── */}
+            {existing.length > 0 && (
+              <div style={{
+                background: colors.warningLight, border: `1px solid ${colors.warningBorder}`,
+                borderRadius: radius.lg, padding: '16px 18px', marginBottom: 16,
+              }}>
+                <h2 style={{ ...sectionTitle, color: colors.warningText, marginBottom: 4 }}>
+                  This paper is already recorded for this class
+                </h2>
+                <p style={{ fontSize: font.base, color: colors.warningText, margin: '0 0 12px', lineHeight: 1.6 }}>
+                  Submitting again adds a <strong>second sitting</strong> — right for a resit, but if
+                  you are fixing a mistake, correct the existing one instead. Two sittings of the same
+                  paper count twice towards mastery.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                  {existing.map(s => {
+                    const who = members.find(m => m.student_id === s.student_id)?.display_name ?? 'Unknown'
+                    return (
+                      <div key={s.id} style={{
+                        display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+                        background: colors.card, border: `1px solid ${colors.border}`,
+                        borderRadius: radius.md, padding: '7px 12px', fontSize: font.base,
+                      }}>
+                        <span style={{ fontWeight: '600', flex: 1, minWidth: 140 }}>{who}</span>
+                        <span style={{ color: colors.textSecondary }}>
+                          {s.marks_earned}/{s.marks_total}
+                        </span>
+                        <span style={{ color: colors.textHint, fontSize: font.sm }}>
+                          {s.sat_on ? `sat ${new Date(s.sat_on).toLocaleDateString('en-GB')}` : 'no date'}
+                          {s.updated_at !== s.created_at ? ' · corrected' : ''}
+                        </span>
+                        <button
+                          onClick={() => removeSitting(s.id)}
+                          style={{
+                            background: 'none', border: `1px solid ${colors.dangerBorder}`,
+                            color: colors.dangerText, borderRadius: radius.sm, padding: '3px 10px',
+                            fontSize: font.sm, fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+                <button
+                  onClick={loadForCorrection}
+                  style={{ ...secondaryButton, width: 'auto' }}
+                >
+                  Load these marks to correct them
+                </button>
+              </div>
+            )}
 
             {/* ── Marks grid ── */}
             <div style={{ ...cardStyle, marginBottom: 16 }}>
@@ -301,11 +422,14 @@ export default function ClassPapersPage() {
                 borderRadius: radius.md, padding: '12px 16px', marginBottom: 12,
               }}>
                 <p style={{ fontSize: font.md, color: colors.successText, margin: 0, lineHeight: 1.6 }}>
-                  <strong>Recorded for {saved.count} student{saved.count === 1 ? '' : 's'}.</strong>{' '}
+                  <strong>
+                    {saved.corrected ? 'Corrected' : 'Recorded'} for {saved.count} student{saved.count === 1 ? '' : 's'}.
+                  </strong>{' '}
                   Their skill maps now include this paper —{' '}
                   <Link href={`/dashboard/classes/${classId}`} style={{ color: colors.successText, fontWeight: 700 }}>
                     see the class view
-                  </Link>. Submitting again records a fresh sitting, so use it for a resit rather than a correction.
+                  </Link>. Editing and submitting again now <strong>corrects</strong> this sitting rather
+                  than adding another, so a second click cannot double-count.
                 </p>
               </div>
             )}
@@ -320,8 +444,17 @@ export default function ClassPapersPage() {
                   cursor: saving || entered.length === 0 ? 'not-allowed' : 'pointer',
                 }}
               >
-                {saving ? 'Recording…' : `Record marks for ${entered.length} student${entered.length === 1 ? '' : 's'}`}
+                {saving
+                  ? 'Saving…'
+                  : entered.some(m => correcting[m.student_id])
+                    ? `Correct marks for ${entered.length} student${entered.length === 1 ? '' : 's'}`
+                    : `Record marks for ${entered.length} student${entered.length === 1 ? '' : 's'}`}
               </button>
+              {entered.some(m => correcting[m.student_id]) && (
+                <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
+                  Updating the existing sitting — no second set of marks is created.
+                </span>
+              )}
               <Link href={`/dashboard/classes/${classId}`} style={{ ...secondaryButton, width: 'auto', textDecoration: 'none', display: 'inline-block' }}>
                 Cancel
               </Link>
