@@ -228,6 +228,15 @@ const drafts: Draft[] = [
         method_marks: 3,
       },
       {
+        // Share found correctly, then stopped after one year. Distinct from the
+        // simple-interest trap above: that one applies the rate n times without
+        // compounding, this one compounds correctly and stops early. No draw
+        // has n = 1, so it is always a genuine error.
+        answer_template: `{{round(${G2_SHARE}*(1+${G2_R}/100), 2)}}`,
+        response: `Ben's share is right — £{{${G2_SHARE}}} — but that is only <strong>one year</strong> of interest. He leaves it for {{${G2_N}}} years, so the {{${G2_R}}}% is applied {{${G2_N}}} times over, each time to the new total: £{{${G2_SHARE}}} × {{1+${G2_R}/100}}<sup>{{${G2_N}}}</sup> = <strong>£{{${G2_ANS}}}</strong>.`,
+        method_marks: 2,
+      },
+      {
         answer_template: `{{${G2_SHARE}}}`,
         response: `That is Ben's share before any interest. He invests it for {{${G2_N}}} years at {{${G2_R}}}%, so it grows to £{{${G2_SHARE}}} × {{1+${G2_R}/100}}<sup>{{${G2_N}}}</sup> = £{{${G2_ANS}}}.`,
         method_marks: 2,
