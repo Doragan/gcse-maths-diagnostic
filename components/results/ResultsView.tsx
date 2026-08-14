@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { skillsById, getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { trackEvent } from '../../lib/analytics'
 import { generatePDF } from '../../lib/results/generatePDF'
@@ -232,15 +233,13 @@ export default function ResultsView({
       <div style={styles.actions}>
         <button onClick={handleDownloadPDF} style={styles.actionButton}>⬇ Download PDF</button>
         <button onClick={handleDownloadCSV} style={styles.actionButton}>⬇ Download CSV</button>
-        <button
-          onClick={() => {
-            window.open('https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header', '_blank')
-            trackEvent('feedback_clicked')
-          }}
-          style={styles.actionButton}
+        <Link
+          href="/contact?from=results"
+          onClick={() => trackEvent('feedback_clicked')}
+          style={{ ...styles.actionButton, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
         >
           💬 Give feedback
-        </button>
+        </Link>
         <button
           onClick={() => window.location.reload()}
           style={styles.actionButton}

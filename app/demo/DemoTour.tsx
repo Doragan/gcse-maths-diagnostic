@@ -8,10 +8,6 @@ import { colors, font, radius, card as cardStyle } from '../../lib/styles'
 import DemoNav from './DemoNav'
 import TourQuestion from './TourQuestion'
 
-/** The contact form already used by /for-teachers — one destination, not two. */
-const CONTACT_FORM =
-  'https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header'
-
 // ─── Stop shell ─────────────────────────────────────────────────────────────
 
 /**
@@ -282,19 +278,18 @@ export default function DemoTour({ demoPool, demoQuestion, stats }: {
             is genuinely more useful than a sign-up. Either is welcome.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => {
-                trackEvent('tour_contact_clicked')
-                window.open(CONTACT_FORM, '_blank')
-              }}
+            <Link
+              href="/contact?from=demo_tour"
+              onClick={() => trackEvent('tour_contact_clicked')}
               style={{
                 background: '#fff', color: colors.primary, border: 'none', padding: '13px 26px',
                 borderRadius: radius.md, fontSize: font.md, fontWeight: '800',
-                cursor: 'pointer', fontFamily: 'inherit',
+                cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none',
+                display: 'inline-block',
               }}
             >
               Tell me what you think
-            </button>
+            </Link>
             <Link
               href="/auth"
               onClick={() => trackEvent('tour_signup_clicked')}

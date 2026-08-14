@@ -11,6 +11,7 @@ describe('titleForPath', () => {
     expect(titleForPath('/auth')).toBe('Sign in — Mathsense')
     expect(titleForPath('/dashboard')).toBe('Teacher dashboard — Mathsense')
     expect(titleForPath('/student/dashboard')).toBe('Student dashboard — Mathsense')
+    expect(titleForPath('/contact')).toBe('Contact — Mathsense')
   })
 
   it('matches named routes before the dynamic catch-all', () => {

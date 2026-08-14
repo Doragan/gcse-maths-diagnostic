@@ -80,18 +80,14 @@ export default function StartScreen({ startDiagnostic }: Props) {
           </button>
         </Link>
 
-        <button
-          onClick={() => {
-            trackEvent('feedback_clicked')
-            window.open(
-              'https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header',
-              '_blank'
-            )
-          }}
-          style={secondaryButton}
-        >
-          Give feedback / get in touch
-        </button>
+        <Link href="/contact?from=diagnostic_start" style={{ textDecoration: 'none' }}>
+          <button
+            onClick={() => trackEvent('feedback_clicked')}
+            style={secondaryButton}
+          >
+            Give feedback / get in touch
+          </button>
+        </Link>
 		
 		<Link href="/practice" style={{ textDecoration: 'none' }}>
 		  <button style={primaryButton}>

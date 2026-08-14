@@ -160,7 +160,8 @@ export default function AboutPage() {
             Donate to Mathsense
           </button>
 
-          <button
+          <Link
+            href="/contact?from=about"
             style={{
               padding: "12px",
               borderRadius: "8px",
@@ -169,16 +170,12 @@ export default function AboutPage() {
               border: "1px solid #d1d5db",
               fontWeight: "600",
               cursor: "pointer",
+              textDecoration: "none",
+              textAlign: "center",
             }}
-            onClick={() =>
-              window.open(
-                "https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=dialog",
-                "_blank"
-              )
-            }
           >
             Give Feedback / Get in Touch
-          </button>
+          </Link>
         </div>
       </section>
     </main>
