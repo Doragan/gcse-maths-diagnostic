@@ -32,6 +32,13 @@ describe('titleForPath', () => {
     expect(titleForPath('/student/exam/9f3a-uuid')).toBe('Exam review — Mathsense')
   })
 
+  it('titles the marks-entry page ahead of the class catch-all', () => {
+    expect(titleForPath('/dashboard/classes/abc-123/papers')).toBe('Record a marked paper — Mathsense')
+    expect(titleForPath('/dashboard/classes/abc-123')).toBe('Class — Mathsense')
+    // The dynamic id must not leak into analytics.
+    expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
+  })
+
   it('titles the demo tour and its stops', () => {
     expect(titleForPath('/demo')).toBe('Demo – guided tour — Mathsense')
     expect(titleForPath('/demo/questions')).toBe('Demo – question showcase — Mathsense')

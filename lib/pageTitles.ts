@@ -70,6 +70,8 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/student$/, 'Student sign in'],
 
   // Teacher dashboard (named routes before the /dashboard/[id] catch-all)
+  // More specific first: the bare-id rule below would otherwise swallow this.
+  [/^\/dashboard\/classes\/[^/]+\/papers$/, 'Record a marked paper', '/dashboard/classes/[id]/papers'],
   [/^\/dashboard\/classes\/[^/]+$/, 'Class', '/dashboard/classes/[id]'],
   [/^\/dashboard\/classes$/, 'Classes'],
   [/^\/dashboard\/assignments\/create$/, 'Create assignment'],

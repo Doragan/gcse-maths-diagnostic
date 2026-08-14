@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
 import { getClassMembers, type ClassMember } from '../../../../lib/classes'
@@ -144,6 +145,28 @@ export default function ClassRosterPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Record a paper you have marked — the third source of skill evidence,
+          alongside self-serve practice and assignments. */}
+      <div style={{ ...styles.card, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 260 }}>
+          <h2 style={sectionTitle}>Marked a paper?</h2>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '6px 0 0', lineHeight: 1.6 }}>
+            Enter the marks and they become part of each student&apos;s skill map — full marks
+            counts as secure, and a dropped mark never pulls a skill down.
+          </p>
+        </div>
+        <Link
+          href={`/dashboard/classes/${classId}/papers`}
+          style={{
+            background: colors.primary, color: '#fff', padding: '11px 20px',
+            borderRadius: radius.md, fontSize: font.base, fontWeight: '700',
+            textDecoration: 'none', whiteSpace: 'nowrap',
+          }}
+        >
+          Record marks →
+        </Link>
       </div>
 
       {/* Teacher-marked coverage — scopes the mastery % to what's been taught */}
