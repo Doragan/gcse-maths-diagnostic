@@ -162,6 +162,18 @@ const P3_IDX_NO_DIVIDE = `(${P3_I}+${P3_J})`
  * question is trying to teach.
  */
 const P3_IDX_LITERAL_DIVIDE = `round(${P3_I}*${P3_J}/${P3_K}, 2)`
+/**
+ * The bracket's division shown as a genuine stacked fraction — matching how a
+ * real exam paper presents it — via the `frac()` template helper, in place of
+ * "(...) ÷ ...". STEM DISPLAY ONLY: the answer_template and every trap compare
+ * the SIMPLIFIED result, never the original expression, so this cannot touch
+ * grading. Built as one JS expression inside a single {{...}} block, since the
+ * engine's {{}} syntax does not nest — frac()'s two arguments are assembled by
+ * ordinary string concatenation, with numbers coerced to strings by `+`.
+ */
+const P3_FRACTION_DISPLAY =
+  `{{frac(${P3_P} + 'x<sup>' + (${P3_I}) + '</sup> × ' + ${P3_Q} + 'x<sup>' + (${P3_J}) + '</sup>', `
+  + `${P3_R} + 'x<sup>' + (${P3_K}) + '</sup>')}}`
 
 type Draft = {
   name: string
@@ -273,8 +285,9 @@ const drafts: Draft[] = [
     calculator: 'na',
     question_template:
       `<p>Simplify fully:</p>`
-      + `<p style="font-size:1.15em;">`
-      + `({{${P3_P}}}x<sup>{{${P3_I}}}</sup> × {{${P3_Q}}}x<sup>{{${P3_J}}}</sup>) ÷ {{${P3_R}}}x<sup>{{${P3_K}}}</sup>  +  {{${P3_S}}}x<sup>{{${P3_IDX}}}</sup>`
+      + `<p style="font-size:1.15em;display:flex;align-items:center;flex-wrap:wrap;gap:0.15em;">`
+      + P3_FRACTION_DISPLAY
+      + `<span>&nbsp;+&nbsp;{{${P3_S}}}x<sup>{{${P3_IDX}}}</sup></span>`
       + `</p>`,
     answer_template: `{{${P3_ANSWER_COEF}}}x^{{${P3_IDX}}}`,
     answer_type: 'expression',
