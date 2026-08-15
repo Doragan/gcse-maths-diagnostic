@@ -112,15 +112,40 @@ const P2_P = `(${P2_A}-${P2_B})`
  */
 const P2_SIGNED = `{{${P2_P} >= 0 ? '+ ' + (${P2_P}) : '− ' + (-(${P2_P}))}}`
 
-// ── P3: one algebraic fraction — coefficients AND index laws ─────────────────
+// ── P3: index laws to reach one term, THEN collect it with a given like term.
+//
+// REVISED after review: the original version was one algebraic fraction with
+// no additive structure at all, which meant simplifying_expressions (whose own
+// canonical example is "3x + 5 − x + 2y" — collecting like terms) never did
+// any real work; simplifying_indices alone accounted for the entire answer.
+// Confirmed empirically before rebuilding, not assumed: the grader's
+// expressionMatch is a REORDER equivalence only — "5x^6+3x^6" does NOT grade
+// as equal to "8x^6" — so appending a like term that must be combined is a
+// genuine, separately-gradable second skill, not just decoration.
+//
+// {{P}}x^I × {{Q}}x^J) ÷ {{R}}x^K  +  {{S}}x^IDX
+//                                        ^^^^^^ same power as the correctly
+//                                        simplified first part BY CONSTRUCTION
+// The two terms are like terms once (and only once) the index-law part is
+// done correctly, so the student must actually notice that and add the
+// coefficients — the collecting-like-terms step is load-bearing, not
+// cosmetic. Both simplifying_indices|exam and simplifying_expressions|exam
+// are independently evidenced at exactly 3 marks in the coded series
+// (n=3/5, mean=3, min=max=3), which is additional support for this shape.
 const P3_P = '[6,10,12,15,8,20][sel]'
 const P3_Q = '[4,3,2,4,9,3][sel]'
 const P3_R = '[8,5,6,10,12,15][sel]'
 const P3_I = '[5,4,7,3,6,5][sel]'
 const P3_J = '[3,6,2,5,2,4][sel]'
 const P3_K = '[2,3,4,2,3,6][sel]'
+/** Coefficient of the given extra term. Chosen (scratchpad search) so the
+ * three single-term outcomes below — answer, trap D, trap F — never coincide
+ * on any draw, and never equals COEF (which would make trap E's two terms
+ * look identical, muddying the "these are different numbers" point). */
+const P3_S = '[5,4,7,3,8,6][sel]'
 const P3_COEF = `(${P3_P}*${P3_Q}/${P3_R})`
 const P3_IDX = `(${P3_I}+${P3_J}-${P3_K})`
+const P3_ANSWER_COEF = `(${P3_COEF}+${P3_S})`
 /** Undivided coefficient — the value a student gets by never applying ÷R. */
 const P3_COEF_UNDIV = `(${P3_P}*${P3_Q})`
 /** Bracket combined by multiplying instead of adding: I×J, correctly then −K. */
@@ -130,8 +155,7 @@ const P3_IDX_NO_DIVIDE = `(${P3_I}+${P3_J})`
 /**
  * Multiply the bracket indices (should ADD), then literally DIVIDE the result
  * by the outer index (should SUBTRACT) — "do to the exponent whatever
- * operation joins the terms", rather than apply the index laws. Distinct from
- * the multiply-bracket trap above, which correctly subtracts K afterward.
+ * operation joins the terms", rather than apply the index laws.
  *
  * Non-terminating on some draws (20÷6), so rounded to 2 dp for display — a
  * calculator division a student would actually copy down, not a policy this
@@ -250,60 +274,63 @@ const drafts: Draft[] = [
     question_template:
       `<p>Simplify fully:</p>`
       + `<p style="font-size:1.15em;">`
-      + `({{${P3_P}}}x<sup>{{${P3_I}}}</sup> × {{${P3_Q}}}x<sup>{{${P3_J}}}</sup>) ÷ {{${P3_R}}}x<sup>{{${P3_K}}}</sup>`
+      + `({{${P3_P}}}x<sup>{{${P3_I}}}</sup> × {{${P3_Q}}}x<sup>{{${P3_J}}}</sup>) ÷ {{${P3_R}}}x<sup>{{${P3_K}}}</sup>  +  {{${P3_S}}}x<sup>{{${P3_IDX}}}</sup>`
       + `</p>`,
-    answer_template: `{{${P3_COEF}}}x^{{${P3_IDX}}}`,
+    answer_template: `{{${P3_ANSWER_COEF}}}x^{{${P3_IDX}}}`,
     answer_type: 'expression',
     tolerance: null,
     explanation:
-      `Deal with the numbers and the powers separately.<br>`
+      `First simplify the bracket using index laws — deal with the numbers and the powers separately.<br>`
       + `<strong>Numbers:</strong> {{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_P}*${P3_Q}}} ÷ {{${P3_R}}} = <strong>{{${P3_COEF}}}</strong>.<br>`
       + `<strong>Powers:</strong> multiplying <em>adds</em> the indices and dividing <em>subtracts</em> them: {{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = <strong>{{${P3_IDX}}}</strong>.<br>`
-      + `So the answer is <strong>{{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup></strong>.`,
+      + `So the bracket simplifies to {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.<br>`
+      + `That is now <strong>{{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup> + {{${P3_S}}}x<sup>{{${P3_IDX}}}</sup></strong> — the same power, {{${P3_IDX}}}, on both terms, so they are <strong>like terms</strong> and can be collected by adding the coefficients: {{${P3_COEF}}} + {{${P3_S}}} = <strong>{{${P3_ANSWER_COEF}}}</strong>.<br>`
+      + `So the answer is <strong>{{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup></strong>.`,
     traps: [
       {
-        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_NO_DIVIDE}}}`,
-        response: `The number is right, but the division has not been applied to the power. Dividing by x<sup>{{${P3_K}}}</sup> <em>subtracts</em> {{${P3_K}}}: {{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
-        method_marks: 2,
-      },
-      {
-        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_MULT_BRACKET}}}`,
-        response: `You multiplied the indices. x<sup>{{${P3_I}}}</sup> means {{${P3_I}}} x's multiplied together and x<sup>{{${P3_J}}}</sup> means {{${P3_J}}}, so multiplying them gives {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}} x's in total — the indices <strong>add</strong>. Then subtract the {{${P3_K}}} you are dividing by: {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        // Index-law error (forgot ÷): the resulting power (I+J) does not
+        // match the given term's power (IDX), so — done honestly — they are
+        // NOT like terms and stay as two separate terms.
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_NO_DIVIDE}}} + {{${P3_S}}}x^{{${P3_IDX}}}`,
+        response: `The number is right, but the division has not been applied to the power. Dividing by x<sup>{{${P3_K}}}</sup> <em>subtracts</em> {{${P3_K}}}: {{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup> — which now matches the given {{${P3_S}}}x<sup>{{${P3_IDX}}}</sup> and can be collected: {{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
         method_marks: 1,
       },
       {
-        answer_template: `{{${P3_COEF_UNDIV}}}x^{{${P3_IDX}}}`,
-        response: `The power is right, but the number still has to be divided by {{${P3_R}}}: {{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_MULT_BRACKET}}} + {{${P3_S}}}x^{{${P3_IDX}}}`,
+        response: `You multiplied the indices. x<sup>{{${P3_I}}}</sup> means {{${P3_I}}} x's multiplied together and x<sup>{{${P3_J}}}</sup> means {{${P3_J}}}, so multiplying them gives {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}} x's in total — the indices <strong>add</strong>. Then subtract the {{${P3_K}}} you are dividing by: {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup> — the same power as the given term, so collect them: {{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        method_marks: 1,
+      },
+      {
+        // Coefficient error only: the POWER is still correct (IDX), so the
+        // student's (wrong) first term genuinely IS a like term with the
+        // given one — done honestly, they combine, just from a wrong start.
+        answer_template: `{{${P3_COEF_UNDIV}+${P3_S}}}x^{{${P3_IDX}}}`,
+        response: `The power is right, but the number still has to be divided by {{${P3_R}}}: {{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}, not {{${P3_COEF_UNDIV}}}. That makes the bracket {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>, which collects with the given term to {{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
         method_marks: 2,
       },
       {
         // Multiplied the bracket AND applied ÷ literally to the exponent
-        // instead of subtracting — "whatever the symbol is, do that to the
-        // powers too". Distinct from the multiply-bracket trap above, which
-        // gets the outer step (subtract) right.
-        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_LITERAL_DIVIDE}}}`,
-        response: `Two mistakes in the power. First, x<sup>{{${P3_I}}}</sup> × x<sup>{{${P3_J}}}</sup> means the indices <strong>add</strong>, not multiply: {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}}. Second, dividing by x<sup>{{${P3_K}}}</sup> means <strong>subtract</strong> {{${P3_K}}} from the index — it does not mean divide the index itself by {{${P3_K}}}. Putting the correct rules together: {{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}, giving {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        // instead of subtracting. Power wrong, so left uncombined.
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX_LITERAL_DIVIDE}}} + {{${P3_S}}}x^{{${P3_IDX}}}`,
+        response: `Two mistakes in the power. First, x<sup>{{${P3_I}}}</sup> × x<sup>{{${P3_J}}}</sup> means the indices <strong>add</strong>, not multiply: {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}}. Second, dividing by x<sup>{{${P3_K}}}</sup> means <strong>subtract</strong> {{${P3_K}}} from the index — it does not mean divide the index itself by {{${P3_K}}}. The correct power is {{${P3_IDX}}}, which matches the given term: {{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
         method_marks: 1,
       },
       {
-        // Combines trap 1 (never divides) with trap 3 (never divides the
-        // coefficient) — i.e. the ÷Rx^K step is skipped entirely: the bracket
-        // is combined correctly and the student stops there. A single
-        // coherent error, not two independent ones layered on top of a
-        // correct method.
-        answer_template: `{{${P3_COEF_UNDIV}}}x^{{${P3_IDX_NO_DIVIDE}}}`,
-        response: `You have combined the bracket correctly — {{${P3_P}}}x<sup>{{${P3_I}}}</sup> × {{${P3_Q}}}x<sup>{{${P3_J}}}</sup> = {{${P3_COEF_UNDIV}}}x<sup>{{${P3_I}+${P3_J}}}</sup> — but the question also asks you to divide by {{${P3_R}}}x<sup>{{${P3_K}}}</sup>, and that step is missing entirely. Divide the numbers ({{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}) and subtract the index ({{${P3_I}}} + {{${P3_J}}} − {{${P3_K}}} = {{${P3_IDX}}}) to get {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
-        method_marks: 1,
+        // The distinctly simplifying_expressions error: the index-law part
+        // is entirely correct, but the like terms were never collected.
+        answer_template: `{{${P3_COEF}}}x^{{${P3_IDX}}} + {{${P3_S}}}x^{{${P3_IDX}}}`,
+        response: `The bracket is simplified correctly — {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup> — but that is not fully simplified yet. It has the <strong>same power</strong> as the {{${P3_S}}}x<sup>{{${P3_IDX}}}</sup> you were given, so they are like terms: add the coefficients, {{${P3_COEF}}} + {{${P3_S}}} = {{${P3_ANSWER_COEF}}}, to get one term: {{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
+        method_marks: 2,
       },
       {
-        // Combines trap 2 (multiplies the bracket, correctly subtracts K)
-        // with trap 3 (never divides the coefficient) — two independent
-        // slips, one in each half of the answer. NOT trap 1 + trap 2: those
-        // two disagree on whether K was subtracted at all, so there is no
-        // single value that is "both" of them.
-        answer_template: `{{${P3_COEF_UNDIV}}}x^{{${P3_IDX_MULT_BRACKET}}}`,
-        response: `Two mistakes here. The bracket's indices should be <strong>added</strong>, not multiplied: {{${P3_I}}} + {{${P3_J}}} = {{${P3_I}+${P3_J}}}, then subtract {{${P3_K}}} to get {{${P3_IDX}}}. And the {{${P3_P}}} × {{${P3_Q}}} still needs dividing by {{${P3_R}}}: {{${P3_P}}} × {{${P3_Q}}} ÷ {{${P3_R}}} = {{${P3_COEF}}}. Together that gives {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup>.`,
-        method_marks: 0,
+        // Also distinctly simplifying_expressions: recognised the terms as
+        // "the same x thing" but combined them the way you combine POWERS
+        // (multiply) rather than the way you combine LIKE TERMS (add) —
+        // carrying the multiplicative habit from index laws into the wrong
+        // place.
+        answer_template: `{{${P3_COEF}*${P3_S}}}x^{{${P3_IDX}}}`,
+        response: `The bracket is simplified correctly — {{${P3_COEF}}}x<sup>{{${P3_IDX}}}</sup> — and it does have the same power as {{${P3_S}}}x<sup>{{${P3_IDX}}}</sup>, so they are like terms. But collecting like terms means <strong>adding</strong> the coefficients, not multiplying: {{${P3_COEF}}} + {{${P3_S}}} = {{${P3_ANSWER_COEF}}}, giving {{${P3_ANSWER_COEF}}}x<sup>{{${P3_IDX}}}</sup>. (Multiplying the coefficients is what you'd do for x<sup>{{${P3_IDX}}}</sup> × x<sup>{{${P3_IDX}}}</sup> — a different operation from x<sup>{{${P3_IDX}}}</sup> + x<sup>{{${P3_IDX}}}</sup>.)`,
+        method_marks: 2,
       },
     ],
   },
