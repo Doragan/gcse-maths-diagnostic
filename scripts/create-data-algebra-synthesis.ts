@@ -111,6 +111,32 @@ const P2_P = `(${P2_A}-${P2_B})`
  * would sit beside it as "x² - x − 6", two different dashes in one line.
  */
 const P2_SIGNED = `{{${P2_P} >= 0 ? '+ ' + (${P2_P}) : '− ' + (-(${P2_P}))}}`
+/**
+ * Fixed-shape rectangle, parametric LABELS — same convention as the cuboid
+ * diagrams in create-plans-elevations-question.ts: the drawing never needs to
+ * match the algebra's actual proportions ("Not drawn accurately"), so there is
+ * nothing to gain and everything to lose by scaling it to a/b/r per draw.
+ * Landscape orientation is not just a style choice here, though — LEN − WID =
+ * ({{P2_R}}+{{P2_A}}) − ({{P2_R}}−{{P2_B}}) = A + B > 0 on every draw, so
+ * length genuinely does exceed width every time, and the fixed landscape
+ * shape is never geometrically contradicted by the labels sitting on it.
+ */
+const P2_RX = 70, P2_RY = 50, P2_RW = 180, P2_RH = 90
+const P2_DIAGRAM =
+  `<svg viewBox="0 0 320 190" width="100%" style="max-width:320px;height:auto;">`
+  + `<g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">`
+  + `<rect x="${P2_RX}" y="${P2_RY}" width="${P2_RW}" height="${P2_RH}"/>`
+  + `</g>`
+  + `<g fill="currentColor" font-size="14" text-anchor="middle">`
+  + `<text x="${P2_RX + P2_RW / 2}" y="${P2_RY + P2_RH + 22}">(x + {{${P2_A}}}) cm</text>`
+  + `</g>`
+  + `<g fill="currentColor" font-size="14" text-anchor="end">`
+  + `<text x="${P2_RX - 10}" y="${P2_RY + P2_RH / 2 + 5}">(x − {{${P2_B}}}) cm</text>`
+  + `</g>`
+  + `<g fill="currentColor" font-size="12" text-anchor="middle" opacity="0.75">`
+  + `<text x="${P2_RX + P2_RW / 2}" y="18">Not drawn accurately</text>`
+  + `</g>`
+  + `</svg>`
 
 // ── P3: index laws to reach one term, THEN collect it with a given like term.
 //
@@ -241,7 +267,8 @@ const drafts: Draft[] = [
     marks: 5,
     calculator: 'non_calc',
     question_template:
-      `<p>A rectangle has length <strong>(x + {{${P2_A}}}) cm</strong> and width <strong>(x − {{${P2_B}}}) cm</strong>.</p>`
+      `<p>The diagram shows a rectangle.</p>`
+      + P2_DIAGRAM
       + `<p>The area of the rectangle is <strong>{{${P2_AREA}}} cm²</strong>.</p>`
       + `<p>Work out the <strong>perimeter</strong> of the rectangle.</p>`
       + `<p>Give your answer in centimetres.</p>`,
