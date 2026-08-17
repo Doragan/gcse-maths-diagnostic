@@ -30,6 +30,28 @@ describe('skill guide registry', () => {
     }
   })
 
+  it('never lists a skill as confusable with itself', () => {
+    for (const guide of Object.values(skillGuides)) {
+      const all = [...guide.confusableWith, ...(guide.higher?.confusableWith ?? [])]
+      for (const c of all) {
+        expect(c.skillId, `${guide.skillId} is confusable with itself`).not.toBe(guide.skillId)
+      }
+    }
+  })
+
+  it('fills both halves of every comparison', () => {
+    // A comparison with an empty side renders a labelled row with nothing
+    // against it, which reads as a bug rather than as guidance.
+    for (const guide of Object.values(skillGuides)) {
+      const all = [...guide.confusableWith, ...(guide.higher?.confusableWith ?? [])]
+      for (const c of all) {
+        expect(c.thisOne?.trim(), `${guide.skillId} vs ${c.skillId}: thisOne empty`).toBeTruthy()
+        expect(c.theOther?.trim(), `${guide.skillId} vs ${c.skillId}: theOther empty`).toBeTruthy()
+        expect(c.ask?.trim(), `${guide.skillId} vs ${c.skillId}: ask empty`).toBeTruthy()
+      }
+    }
+  })
+
   it('gives every example set at least one near-miss', () => {
     // A set where everything IS the skill only confirms what the student already
     // assumed. The near-miss is what makes it a selection drill.

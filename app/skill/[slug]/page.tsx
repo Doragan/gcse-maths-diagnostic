@@ -164,6 +164,9 @@ export default function SkillGuidePage() {
   }
 
   const g = resolveGuide(guide, tier)
+  // Headings name the skill rather than saying "it". Plural rather than
+  // "a/an <skill>", so the phrasing stays grammatical for every skill name.
+  const lowerName = skill.name.toLowerCase()
   const profile = getExamProfile(skillId, board, tier)
   const showProfile = profile?.sufficient ?? false
   const provenance = sliceProvenance(board, tier)
@@ -247,22 +250,42 @@ export default function SkillGuidePage() {
 
       {/* ── Recognise ────────────────────────────────────────────────────── */}
       <section style={styles.card}>
-        <p style={styles.h}>Recognising it</p>
+        <p style={styles.h}>Recognising {lowerName} questions</p>
         <ul style={styles.list}>
           {g.recognise.map((r, i) => <li key={i} style={styles.li}>{r}</li>)}
         </ul>
       </section>
 
-      {/* ── Confusable with ──────────────────────────────────────────────── */}
+      {/* ── Confusable with ──────────────────────────────────────────────────
+          Each line is labelled with the skill it describes, rather than a
+          paragraph naming both. The student should never have to work out
+          which half of a sentence belongs to which skill. */}
       <section style={styles.card}>
-        <p style={styles.h}>Don&apos;t confuse it with</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <p style={styles.h}>Is it {lowerName}, or something else?</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {g.confusableWith.map(c => {
-            const other = skillsById[c.skillId]
+            const otherName = skillsById[c.skillId]?.name ?? c.skillId
             return (
               <div key={c.skillId} style={styles.confuse}>
-                <p style={styles.confuseTitle}>{other?.name ?? c.skillId}</p>
-                <p style={styles.confuseBody}>{c.tell}</p>
+                <p style={styles.confuseTitle}>
+                  <span style={{ color: colors.primary }}>{skill.name}</span>
+                  <span style={{ color: colors.textHint, fontWeight: '400' }}> or </span>
+                  <span style={{ color: colors.warningText }}>{otherName}</span>
+                  <span style={{ color: colors.textHint, fontWeight: '400' }}>?</span>
+                </p>
+
+                <div style={styles.contrast}>
+                  <span style={{ ...styles.contrastLabel, color: colors.primary }}>{skill.name}</span>
+                  <span style={styles.contrastText}>{c.thisOne}</span>
+
+                  <span style={{ ...styles.contrastLabel, color: colors.warningText }}>{otherName}</span>
+                  <span style={styles.contrastText}>{c.theOther}</span>
+                </div>
+
+                <p style={styles.ask}>
+                  <span style={styles.askLabel}>Ask yourself</span>
+                  {c.ask}
+                </p>
               </div>
             )
           })}
@@ -318,7 +341,7 @@ export default function SkillGuidePage() {
 
       {/* ── Method ───────────────────────────────────────────────────────── */}
       <section style={styles.card}>
-        <p style={styles.h}>The method, and why each step</p>
+        <p style={styles.h}>How to answer {lowerName} questions, and why each step</p>
         {g.steps.map((s, i) => (
           <div key={i} style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
             <div style={styles.stepN}>{i + 1}</div>
@@ -351,7 +374,7 @@ export default function SkillGuidePage() {
       {/* ── Tier 3: derived from the coded papers ────────────────────────── */}
       {showProfile && profile && (
         <section style={{ ...styles.card, background: '#f8fafc', borderColor: '#e2e8f0' }}>
-          <p style={styles.h}>How this shows up on the paper</p>
+          <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
 
           <div style={styles.stats}>
             <Stat n={`${profile.papersSeen}`} sub={`/ ${profile.papersTotal}`} label="papers it appeared in" />
@@ -411,7 +434,7 @@ export default function SkillGuidePage() {
 
       {!showProfile && (
         <section style={{ ...styles.card, background: colors.cardAlt }}>
-          <p style={styles.h}>How this shows up on the paper</p>
+          <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
           <p style={{ ...styles.muted, margin: 0 }}>
             We haven&apos;t coded enough {board} {tier === 'higher' ? 'Higher' : 'Foundation'} papers
             to say anything reliable about this skill yet. Rather than guess, we&apos;ve left it out.
@@ -421,7 +444,7 @@ export default function SkillGuidePage() {
 
       {/* ── Practise ─────────────────────────────────────────────────────── */}
       <section style={styles.card}>
-        <p style={styles.h}>Practise it</p>
+        <p style={styles.h}>Practise {lowerName}</p>
         <button
           onClick={() => {
             trackEvent('skill_guide_practise', { skill: skillId, tier })
@@ -611,8 +634,42 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: radius.md,
     padding: '12px 14px',
   },
-  confuseTitle: { fontWeight: '650', fontSize: font.base, margin: '0 0 4px', color: colors.textPrimary },
-  confuseBody: { fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: 1.5 },
+  confuseTitle: { fontWeight: '650', fontSize: font.base, margin: '0 0 10px' },
+
+  /** Two labelled rows: skill name in the left column, its description right. */
+  contrast: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(72px, auto) 1fr',
+    columnGap: '12px',
+    rowGap: '6px',
+    alignItems: 'baseline',
+  },
+  contrastLabel: {
+    fontSize: font.sm,
+    fontWeight: '700',
+    lineHeight: 1.5,
+  },
+  contrastText: {
+    fontSize: font.base,
+    color: colors.textSecondary,
+    lineHeight: 1.5,
+  },
+  ask: {
+    fontSize: font.base,
+    color: colors.textPrimary,
+    margin: '10px 0 0',
+    paddingTop: '10px',
+    borderTop: `1px solid ${colors.border}`,
+    lineHeight: 1.5,
+  },
+  askLabel: {
+    fontSize: '10.5px',
+    fontWeight: '700',
+    letterSpacing: '0.07em',
+    textTransform: 'uppercase',
+    color: colors.textHint,
+    marginRight: '7px',
+  },
 
   example: {
     border: `1px solid ${colors.border}`,

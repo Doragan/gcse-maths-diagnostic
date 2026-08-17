@@ -14,11 +14,24 @@ import type { Tier } from '../../lib/skills/examProfile'
 // is not on their paper.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * A near neighbour, and how to tell it apart.
+ *
+ * Split into three labelled fields rather than one paragraph. A paragraph that
+ * names both skills ("Ratio splits one total into parts, proportion scales
+ * between two quantities") makes the reader track which clause belongs to which
+ * skill while also learning the distinction. Splitting it lets the UI put each
+ * skill's name directly against its own line, so the referent is never in doubt.
+ */
 export type ConfusableWith = {
   /** Skill id from data/skills.ts — the name is resolved for display. */
   skillId: string
-  /** How to tell them apart, in the student's own decision language. */
-  tell: string
+  /** What THIS skill looks like. Rendered against this skill's name. */
+  thisOne: string
+  /** What the OTHER skill looks like. Rendered against the other skill's name. */
+  theOther: string
+  /** The question to ask yourself to decide between them. */
+  ask: string
 }
 
 export type MethodStep = {
