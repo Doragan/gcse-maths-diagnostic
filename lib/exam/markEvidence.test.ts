@@ -6,18 +6,25 @@ import {
 import { BY_SKILL_KIND, BY_KIND, OVERALL } from './markEvidence.data'
 
 describe('generated evidence data', () => {
-  it('carries the coded 2024 series', () => {
-    // 12 papers, 444 parts, 960 marks — the audit's own totals.
-    expect(OVERALL.n).toBe(444)
-    expect(OVERALL.mean).toBeCloseTo(2.16, 2)
+  it('carries the coded series', () => {
+    // 18 papers (2024 + June 2025), 661 parts, 1440 marks — the audit's totals.
+    expect(OVERALL.n).toBe(661)
+    expect(OVERALL.mean).toBeCloseTo(2.18, 2)
     expect(OVERALL.min).toBe(1)
     expect(OVERALL.max).toBe(5)
   })
 
   it('reproduces the kind split that motivated this change', () => {
     // Synthesis parts really are worth ~2x a single-skill part.
-    expect(BY_KIND.mastery.mean).toBeCloseTo(1.55, 2)
-    expect(BY_KIND.exam.mean).toBeCloseTo(2.82, 2)
+    //
+    // CAVEAT on what `kind` means here: the 2024 papers were coded structurally
+    // (any standalone multi-mark question), the June 2025 papers by the
+    // authoring rule (one answer fusing 2+ INDEPENDENT skills). The 2025 rule is
+    // stricter, so it moves borderline multi-step parts into `mastery` — which
+    // is why the mastery mean rose from 1.55 to 1.74. Re-tag the 2024 files if
+    // this split ever needs to be read as one consistent definition.
+    expect(BY_KIND.mastery.mean).toBeCloseTo(1.74, 2)
+    expect(BY_KIND.exam.mean).toBeCloseTo(2.91, 2)
     expect(BY_KIND.exam.mean).toBeGreaterThan(BY_KIND.mastery.mean * 1.5)
   })
 
@@ -79,7 +86,7 @@ describe('resolveQuestionMarks — fallback chain', () => {
   it('falls back to the kind average for an unknown skill', () => {
     const r = resolveQuestionMarks({ skill_ids: ['not_a_real_skill'], kind: 'exam', difficulty: 3 })
     expect(r.source).toBe('kind')
-    // exam-kind centres near 2.82, so a mid-difficulty synthesis question is 3ish
+    // exam-kind centres near 2.91, so a mid-difficulty synthesis question is 3ish
     expect(r.marks).toBeGreaterThanOrEqual(2)
   })
 
