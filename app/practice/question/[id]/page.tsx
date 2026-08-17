@@ -16,6 +16,9 @@ import ReportIssueButton from '../../../../components/practice/ReportIssueButton
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
+import { hasGuide } from '../../../../data/skillGuides'
+import { skillPath } from '../../../../lib/skills/slug'
+import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
@@ -838,6 +841,38 @@ function QuestionPage() {
               />
             </div>
           )}
+
+          {/* Skill-guide prompt (trial). Shown only when this question's skill
+              has an authored guide, and only after a wrong answer — the guide
+              is a response to getting stuck, not a thing to browse. */}
+          {!feedback.correct && question.skill_ids.some(hasGuide) && (() => {
+            const guidedId = question.skill_ids.find(hasGuide)!
+            const guidedName = skillsById[guidedId]?.name ?? 'this skill'
+            return (
+              <div style={{
+                padding: '14px 16px',
+                borderRadius: radius.lg,
+                background: colors.card,
+                border: `1px solid ${colors.border}`,
+                borderLeft: `3px solid ${colors.primary}`,
+              }}>
+                <p style={{ fontSize: font.sm, fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 6px', color: colors.primaryHover }}>
+                  New
+                </p>
+                <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 10px' }}>
+                  We&apos;ve written a guide to how {guidedName.toLowerCase()} is actually asked on
+                  the exam — how to spot it, what it gets confused with, and how to check yourself.
+                </p>
+                <a
+                  href={skillPath(guidedId)}
+                  onClick={() => trackEvent('skill_guide_prompt_click', { skill: guidedId, from: 'question_feedback' })}
+                  style={{ fontSize: font.base, color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
+                >
+                  Read the {guidedName.toLowerCase()} guide →
+                </a>
+              </div>
+            )
+          })()}
 
           {/* Animated skill progress dots */}
           {question.skill_ids.length > 0 && (() => {

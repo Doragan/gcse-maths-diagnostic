@@ -54,6 +54,11 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/diagnostic$/, 'Diagnostic'],
   [/^\/account$/, 'Account'],
 
+  // Skill guides. The slug is a readable skill id, not a token — but it is
+  // still collapsed here so GA4 reports one row for the surface. Which skill
+  // was viewed rides on the skill_guide_view event instead.
+  [/^\/skill\/[^/]+$/, 'Skill guide', '/skill/[slug]'],
+
   // Parent-pay (public, token link)
   [/^\/pay\/[^/]+$/, 'Pay for a subscription', '/pay/[token]'],
 

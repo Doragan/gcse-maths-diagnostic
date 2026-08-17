@@ -16,6 +16,11 @@ const eslintConfig = defineConfig([
     // covers app/lib/components only. (audit ④-lint / ④-junk)
     "scripts/**",
     "convertSkills.js",
+    // Agent worktrees are full repo copies, each with its own .next build
+    // output. Without this, `npm run lint` walks into every one of them and
+    // reports tens of thousands of problems from generated bundles, which
+    // makes the gate unusable — and hides real findings in the source tree.
+    ".claude/**",
   ]),
   {
     // Triage to make lint a usable gate (audit ④-lint). The rules below stay
