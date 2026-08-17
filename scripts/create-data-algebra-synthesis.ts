@@ -51,10 +51,25 @@ const DRAFT_IDS: Record<string, string> = {
 // The mean is Σ(value × b) / 12 — independent of N, which is why a student who
 // works from the ANGLES rather than the frequencies still gets it right. That
 // is legitimate, so there is deliberately no trap for it.
-const P1_B1 = '[3,3,2,4,1,4][sel]'
-const P1_B2 = '[4,2,2,3,2,5][sel]'
-const P1_B3 = '[1,2,2,3,2,2][sel]'
-const P1_B4 = '[4,5,6,2,7,1][sel]'
+//
+// REVISED after review: three of the original six b-tuples had a real defect
+// each — sel=0 had a TIED mode (two categories both the biggest sector, so
+// "the mode" was ambiguous), sel=2 had mean+1 == mode, and sel=5 had the
+// actual ANSWER (mean) exactly equal to the new mode trap — a hard collision,
+// not a cosmetic one. Found by scripting the check across all six draws
+// rather than by eye, which is exactly how the first two were missed
+// originally. Replacement b-tuples were SEARCHED (scratchpad), minimising
+// edit distance from the original subject to: unique mode, no value among
+// {mean, total, total/4, mean+1, degrees-per-family, mode} coinciding with
+// any other on the same draw, no sector over 240° (8/12), and no exact
+// duplicate of another draw's b-tuple. sel=0 keeps its original mean (1.5)
+// exactly; sel=2 and sel=5 each cost one incidental mean/mode repeat with an
+// unrelated draw, accepted as the better trade-off against a needlessly
+// extreme sector or a large jump from the original data.
+const P1_B1 = '[2,3,2,4,1,5][sel]'
+const P1_B2 = '[5,2,2,3,2,3][sel]'
+const P1_B3 = '[2,2,5,3,2,3][sel]'
+const P1_B4 = '[3,5,3,2,7,1][sel]'
 const P1_N = '[60,48,72,36,24,84][sel]'
 /** Σ(value × twelfths) with values 0,1,2,3 — the mean is this over 12. */
 const P1_SUM = `(${P1_B2}+2*${P1_B3}+3*${P1_B4})`
@@ -70,16 +85,53 @@ const P1_C = [
   `(${P1_A[0]}+${P1_A[1]}+${P1_A[2]})`,
   '360',
 ]
+/** How many degrees stand for one family — 360/N. A genuine, correct
+ * intermediate value from the "unitary method" of reading a pie chart, which
+ * is exactly what makes it a good trap: a student who computes it and stops
+ * there (mistaking it for the mean itself) has done real, valid working. */
+const P1_DEG_PER_FAM = `round(360/${P1_N}, 2)`
+/** The MODE — the child-count value (0..3) whose sector is biggest. Ties
+ * broken toward the lower index as a deterministic fallback only; the
+ * chosen data never actually ties. */
+const P1_MODE = `((${P1_B1})>=(${P1_B2})&&(${P1_B1})>=(${P1_B3})&&(${P1_B1})>=(${P1_B4})?0`
+  + `:(${P1_B2})>=(${P1_B3})&&(${P1_B2})>=(${P1_B4})?1`
+  + `:(${P1_B3})>=(${P1_B4})?2:3)`
 const CX = 150, CY = 130, R = 96
+/** Radius of the small angle-marker arc drawn near the centre of each
+ * sector — well inside the 58px radius the degree label itself sits at, so
+ * the two never compete for space even on the narrowest (60°) sectors. */
+const ANGLE_R = 24
 const ptx = (ang: string, r: number) => `{{round(${CX}+${r}*Math.sin((${ang})*Math.PI/180), 2)}}`
 const pty = (ang: string, r: number) => `{{round(${CY}-${r}*Math.cos((${ang})*Math.PI/180), 2)}}`
 const FILLS = ['#dbeafe', '#bfdbfe', '#93c5fd', '#e0e7ff']
+/**
+ * Degrees insetted from each side of the angle-marker arc. Without this the
+ * four sectors' arcs are contiguous (they span the full 360° between them)
+ * and read as one plain inner circle rather than four separate angle marks —
+ * confirmed by rendering the first attempt and looking at it, not assumed.
+ * 6° leaves a visible gap even on the tightest sector in the data (sel=4's
+ * 30° slice → an 18° arc, still a clear curve at ANGLE_R).
+ */
+const ANGLE_INSET = 6
 const sector = (i: number) => {
   const from = P1_C[i], to = P1_C[i + 1]
   const mid = `((${from}+${to})/2)`
+  const largeArc = `{{(${to})-(${from})>180?1:0}}`
+  // The angle marker sweeps a SHORTER span than the sector itself — inset
+  // from each boundary — so its own large-arc decision is computed against
+  // that narrower span, not reused from the sector's.
+  const angleFrom = `(${from}+${ANGLE_INSET})`, angleTo = `(${to}-${ANGLE_INSET})`
+  const angleLargeArc = `{{(${angleTo})-(${angleFrom})>180?1:0}}`
   return `<path d="M ${CX} ${CY} L ${ptx(from, R)} ${pty(from, R)} `
-    + `A ${R} ${R} 0 {{(${to})-(${from})>180?1:0}} 1 ${ptx(to, R)} ${pty(to, R)} Z" `
+    + `A ${R} ${R} 0 ${largeArc} 1 ${ptx(to, R)} ${pty(to, R)} Z" `
     + `fill="${FILLS[i]}" stroke="#374151" stroke-width="1.5"/>`
+    // The angle marker: a small open arc near the vertex, inset from the
+    // sector's own edges so adjacent sectors' arcs don't touch — the
+    // standard geometry-diagram convention for "this is the angle being
+    // labelled", distinct from the sector's own outline.
+    + `<path d="M ${ptx(angleFrom, ANGLE_R)} ${pty(angleFrom, ANGLE_R)} `
+    + `A ${ANGLE_R} ${ANGLE_R} 0 ${angleLargeArc} 1 ${ptx(angleTo, ANGLE_R)} ${pty(angleTo, ANGLE_R)}" `
+    + `fill="none" stroke="#374151" stroke-width="1.2"/>`
     + `<text x="${ptx(mid, 58)}" y="${pty(mid, 58)}" font-size="13" fill="#1f2937" `
     + `text-anchor="middle" dominant-baseline="middle">{{${P1_A[i]}}}°</text>`
     + `<text x="${ptx(mid, 118)}" y="${pty(mid, 118)}" font-size="12" fill="currentColor" `
@@ -234,7 +286,7 @@ const drafts: Draft[] = [
     tolerance: 0.001,
     explanation:
       `Each sector's angle is that share of the {{${P1_N}}} families, so divide by 360 and multiply by {{${P1_N}}}:<br>`
-      + `0 children: {{${P1_A[0]}}}° → {{${P1_A[0]}}} ÷ 360 × {{${P1_N}}} = <strong>{{${P1_B1}*${P1_N}/12}}</strong> families<br>`
+      + `0 children: {{${P1_A[0]}}}° → {{frac(${P1_A[0]}, 360)}} × {{${P1_N}}} = <strong>{{${P1_B1}*${P1_N}/12}}</strong> families<br>`
       + `1 child: {{${P1_A[1]}}}° → <strong>{{${P1_B2}*${P1_N}/12}}</strong> families<br>`
       + `2 children: {{${P1_A[2]}}}° → <strong>{{${P1_B3}*${P1_N}/12}}</strong> families<br>`
       + `3 children: {{${P1_A[3]}}}° → <strong>{{${P1_B4}*${P1_N}/12}}</strong> families<br>`
@@ -250,6 +302,24 @@ const drafts: Draft[] = [
         answer_template: `{{${P1_TOTAL}/4}}`,
         response: `You divided by 4 — the number of <em>sectors</em>. The mean is per <strong>family</strong>, and there are {{${P1_N}}} of them: {{${P1_TOTAL}}} ÷ {{${P1_N}}} = {{${P1_MEAN}}}.`,
         method_marks: 2,
+      },
+      {
+        // A genuine, correct intermediate value from the alternative
+        // "unitary method" (frequency = angle ÷ degrees-per-family), so this
+        // is real, on-topic working — just stopped one step early, having
+        // mistaken the RATE for the answer itself.
+        answer_template: `{{${P1_DEG_PER_FAM}}}`,
+        response: `That is how many <strong>degrees</strong> stand for one family (360 ÷ {{${P1_N}}}), not the mean number of children. It is a fair first step for an alternative method, but you still need to use it: divide each sector's angle by that to get its frequency, then find the mean of the children — total children ÷ {{${P1_N}}} = {{${P1_TOTAL}}} ÷ {{${P1_N}}} = {{${P1_MEAN}}}.`,
+        method_marks: 1,
+      },
+      {
+        // The MODE, not the mean — reading off the biggest sector rather
+        // than weighting every family. A different statistic, not a partial
+        // version of this one, so no method credit: none of the frequency-
+        // conversion steps this question actually rewards were done.
+        answer_template: `{{${P1_MODE}}}`,
+        response: `That is the <strong>mode</strong> — the most common number of children, read straight off the biggest sector — not the <strong>mean</strong>. The mean has to account for every family, not just the largest group: total children ÷ number of families = {{${P1_TOTAL}}} ÷ {{${P1_N}}} = {{${P1_MEAN}}}.`,
+        method_marks: 0,
       },
       {
         // Values read as 1,2,3,4 — the empty "0 children" sector still counted
