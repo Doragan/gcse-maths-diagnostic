@@ -25,18 +25,21 @@ export const proportionGuide: SkillGuide = {
   confusableWith: [
     {
       skillId: 'ratio',
-      tell: 'Ratio splits one total into parts. Proportion scales between two quantities. '
-          + 'Ask: is there a total being divided up, or two things moving together?',
+      thisOne: 'Two quantities that move together. Scale one up and the other scales with it.',
+      theOther: 'One total, shared out into parts that add back up to that total.',
+      ask: 'Is there a total being shared out, or two things moving together?',
     },
     {
       skillId: 'percentage_change',
-      tell: 'If the second quantity is the same kind of thing as the first — £ to £, kg to kg — '
-          + 'it is probably percentage change, not proportion.',
+      thisOne: 'The two quantities are different kinds of thing — pounds and kilograms, miles and minutes.',
+      theOther: 'Both quantities are the same kind of thing — pounds to pounds, kilograms to kilograms.',
+      ask: 'Are the two numbers the same kind of thing, or different kinds?',
     },
     {
       skillId: 'inverse_proportion',
-      tell: 'More workers, less time. If one going up makes the other go down, do not scale — '
-          + 'multiply the pair together and keep that product fixed.',
+      thisOne: 'One goes up, and the other goes up with it. Twice the flapjacks, twice the oats.',
+      theOther: 'One goes up, and the other goes down. Twice the workers, half the time.',
+      ask: 'If I double the first quantity, does the second one double too, or halve?',
     },
   ],
 
@@ -115,13 +118,15 @@ export const proportionGuide: SkillGuide = {
     confusableWith: [
       {
         skillId: 'proportion_with_powers',
-        tell: 'If y ∝ x² then doubling x multiplies y by 4, not 2. Read which quantity carries the power '
-            + 'before you scale anything.',
+        thisOne: 'y ∝ x. Double x and y doubles with it.',
+        theOther: 'y ∝ x². Double x and y goes up four times, not twice.',
+        ask: 'Is there a power on the x in the relationship — squared, cubed, or a square root?',
       },
       {
         skillId: 'growth_and_decay',
-        tell: 'Proportion scales by a fixed factor once. Growth and decay applies a factor repeatedly, '
-            + 'over time. Look for "each year" or "per hour" attached to a percentage.',
+        thisOne: 'One scale factor, applied once.',
+        theOther: 'A factor applied over and over, once per period — each year, each hour.',
+        ask: 'Does the change happen once, or repeatedly over time?',
       },
     ],
 
