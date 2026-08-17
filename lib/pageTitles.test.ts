@@ -40,6 +40,13 @@ describe('titleForPath', () => {
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
   })
 
+  it('titles a skill guide and collapses its slug', () => {
+    expect(titleForPath('/skill/proportion')).toBe('Skill guide — Mathsense')
+    expect(titleForPath('/skill/expanding-double-brackets')).toBe('Skill guide — Mathsense')
+    // Which skill was viewed rides on the event, not the path.
+    expect(normalizePath('/skill/proportion')).toBe('/skill/[slug]')
+  })
+
   it('titles the demo tour and its stops', () => {
     expect(titleForPath('/demo')).toBe('Demo – guided tour — Mathsense')
     expect(titleForPath('/demo/questions')).toBe('Demo – question showcase — Mathsense')
