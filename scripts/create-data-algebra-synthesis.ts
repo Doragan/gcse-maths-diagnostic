@@ -96,13 +96,9 @@ const P1_DEG_PER_FAM = `round(360/${P1_N}, 2)`
 const P1_MODE = `((${P1_B1})>=(${P1_B2})&&(${P1_B1})>=(${P1_B3})&&(${P1_B1})>=(${P1_B4})?0`
   + `:(${P1_B2})>=(${P1_B3})&&(${P1_B2})>=(${P1_B4})?1`
   + `:(${P1_B3})>=(${P1_B4})?2:3)`
-const CX = 150, CY = 130, R = 96
-/** Radius of the small angle-marker arc drawn near the centre of each
- * sector — well inside the 58px radius the degree label itself sits at, so
- * the two never compete for space even on the narrowest (60°) sectors. */
-const ANGLE_R = 24
-const ptx = (ang: string, r: number) => `{{round(${CX}+${r}*Math.sin((${ang})*Math.PI/180), 2)}}`
-const pty = (ang: string, r: number) => `{{round(${CY}-${r}*Math.cos((${ang})*Math.PI/180), 2)}}`
+const CX = 200, CY = 145, R = 92
+const ptx = (ang: string, r: string | number) => `{{round(${CX}+(${r})*Math.sin((${ang})*Math.PI/180), 2)}}`
+const pty = (ang: string, r: string | number) => `{{round(${CY}-(${r})*Math.cos((${ang})*Math.PI/180), 2)}}`
 const FILLS = ['#dbeafe', '#bfdbfe', '#93c5fd', '#e0e7ff']
 /**
  * Degrees insetted from each side of the angle-marker arc. Without this the
@@ -113,15 +109,56 @@ const FILLS = ['#dbeafe', '#bfdbfe', '#93c5fd', '#e0e7ff']
  * 30° slice → an 18° arc, still a clear curve at ANGLE_R).
  */
 const ANGLE_INSET = 6
+/**
+ * The four angle-marker arcs are drawn at DIFFERENT radii: at a shared radius
+ * they read as one plain inner circle rather than four separate angle marks,
+ * even with the inset gaps between them.
+ *
+ * Which sector gets which radius is decided by WIDTH, widest sector innermost.
+ * Arc length is radius × span, so the narrowest sector needs the outermost
+ * radius to show a readable curve rather than a nub — sel=4's 30° sector spans
+ * just 18° after the inset, which is 7px at radius 22 but 16px at radius 52.
+ * Ranking also guarantees the radii are a permutation of these four values, so
+ * no two sectors can collide; simply nudging a too-short arc outward instead
+ * put sel=4's sector 0 at 47.8 hard against its neighbour's 52.
+ */
+const ARC_RADII = [22, 32, 42, 52]
+/** Rank of sector i by angle, widest first, ties broken toward the lower
+ * index (adjacent equal sectors are common — sel=1 has two 60° slices). */
+const arcRank = (i: number) => '(' + [0, 1, 2, 3].filter(j => j !== i)
+  .map(j => `((${P1_A[j]})${j < i ? '>=' : '>'}(${P1_A[i]})?1:0)`).join('+') + ')'
+/** Widest degree label, "210°" at font-size 13. */
+const DEG_LABEL_W = 30
+/** Clearance between the degree label and its own arc. */
+const DEG_LABEL_GAP = 15
 const sector = (i: number) => {
   const from = P1_C[i], to = P1_C[i + 1]
   const mid = `((${from}+${to})/2)`
-  const largeArc = `{{(${to})-(${from})>180?1:0}}`
+  const span = `((${to})-(${from}))`
+  const largeArc = `{{${span}>180?1:0}}`
   // The angle marker sweeps a SHORTER span than the sector itself — inset
   // from each boundary — so its own large-arc decision is computed against
   // that narrower span, not reused from the sector's.
   const angleFrom = `(${from}+${ANGLE_INSET})`, angleTo = `(${to}-${ANGLE_INSET})`
   const angleLargeArc = `{{(${angleTo})-(${angleFrom})>180?1:0}}`
+  const arcR = `[${ARC_RADII.join(',')}][${arcRank(i)}]`
+  // The degree label sits just outside ITS OWN arc rather than at a shared
+  // radius, so each label plainly belongs to the arc it annotates. A narrow
+  // sector has no room for the text that close in, so the radius is also
+  // floored at the point where the sector is DEG_LABEL_W wide — and capped
+  // short of the rim so it never straddles the outline.
+  const degR = `Math.min(${R - 16}, Math.max((${arcR})+${DEG_LABEL_GAP},`
+    + ` ${DEG_LABEL_W}/(2*Math.sin(${span}/2*Math.PI/180))))`
+  // Outer category label. Anchoring it in the MIDDLE is what made these
+  // collide with the pie: a label beside the circle grows both ways, so its
+  // inner half reaches back over the rim however far out it is pushed
+  // (8 of the 24 labels across the six draws did exactly that). Anchoring it
+  // away from the circle instead means it only ever grows outward.
+  const sinMid = `Math.sin((${mid})*Math.PI/180)`
+  const outAnchor = `{{${sinMid}>0.3?'start':(${sinMid}<-0.3?'end':'middle')}}`
+  // Middle-anchored labels (near the top and bottom, where there is no side
+  // to grow into) need the extra clearance instead.
+  const outR = `(Math.abs(${sinMid})>0.3?${R + 10}:${R + 18})`
   return `<path d="M ${CX} ${CY} L ${ptx(from, R)} ${pty(from, R)} `
     + `A ${R} ${R} 0 ${largeArc} 1 ${ptx(to, R)} ${pty(to, R)} Z" `
     + `fill="${FILLS[i]}" stroke="#374151" stroke-width="1.5"/>`
@@ -129,13 +166,14 @@ const sector = (i: number) => {
     // sector's own edges so adjacent sectors' arcs don't touch — the
     // standard geometry-diagram convention for "this is the angle being
     // labelled", distinct from the sector's own outline.
-    + `<path d="M ${ptx(angleFrom, ANGLE_R)} ${pty(angleFrom, ANGLE_R)} `
-    + `A ${ANGLE_R} ${ANGLE_R} 0 ${angleLargeArc} 1 ${ptx(angleTo, ANGLE_R)} ${pty(angleTo, ANGLE_R)}" `
+    + `<path d="M ${ptx(angleFrom, arcR)} ${pty(angleFrom, arcR)} `
+    + `A {{round(${arcR}, 2)}} {{round(${arcR}, 2)}} 0 ${angleLargeArc} 1 `
+    + `${ptx(angleTo, arcR)} ${pty(angleTo, arcR)}" `
     + `fill="none" stroke="#374151" stroke-width="1.2"/>`
-    + `<text x="${ptx(mid, 58)}" y="${pty(mid, 58)}" font-size="13" fill="#1f2937" `
+    + `<text x="${ptx(mid, degR)}" y="${pty(mid, degR)}" font-size="13" fill="#1f2937" `
     + `text-anchor="middle" dominant-baseline="middle">{{${P1_A[i]}}}°</text>`
-    + `<text x="${ptx(mid, 118)}" y="${pty(mid, 118)}" font-size="12" fill="currentColor" `
-    + `text-anchor="middle" dominant-baseline="middle">${i} child${i === 1 ? '' : 'ren'}</text>`
+    + `<text x="${ptx(mid, outR)}" y="${pty(mid, outR)}" font-size="12" fill="currentColor" `
+    + `text-anchor="${outAnchor}" dominant-baseline="middle">${i} child${i === 1 ? '' : 'ren'}</text>`
 }
 
 // ── P2: rectangle with algebraic sides, area given → find the perimeter ──────
@@ -277,7 +315,7 @@ const drafts: Draft[] = [
     question_template:
       `<p>{{${P1_N}}} families were asked how many children they have.</p>`
       + `<p>The pie chart shows the results.</p>`
-      + `<svg viewBox="0 0 300 275" width="100%" style="max-width:300px;height:auto;">`
+      + `<svg viewBox="0 0 400 300" width="100%" style="max-width:380px;height:auto;">`
       + [0, 1, 2, 3].map(sector).join('')
       + `</svg>`
       + `<p>Work out the <strong>mean</strong> number of children per family.</p>`,
