@@ -101,15 +101,6 @@ const ptx = (ang: string, r: string | number) => `{{round(${CX}+(${r})*Math.sin(
 const pty = (ang: string, r: string | number) => `{{round(${CY}-(${r})*Math.cos((${ang})*Math.PI/180), 2)}}`
 const FILLS = ['#dbeafe', '#bfdbfe', '#93c5fd', '#e0e7ff']
 /**
- * Degrees insetted from each side of the angle-marker arc. Without this the
- * four sectors' arcs are contiguous (they span the full 360° between them)
- * and read as one plain inner circle rather than four separate angle marks —
- * confirmed by rendering the first attempt and looking at it, not assumed.
- * 6° leaves a visible gap even on the tightest sector in the data (sel=4's
- * 30° slice → an 18° arc, still a clear curve at ANGLE_R).
- */
-const ANGLE_INSET = 6
-/**
  * The four angle-marker arcs are drawn at DIFFERENT radii: at a shared radius
  * they read as one plain inner circle rather than four separate angle marks,
  * even with the inset gaps between them.
@@ -136,11 +127,10 @@ const sector = (i: number) => {
   const mid = `((${from}+${to})/2)`
   const span = `((${to})-(${from}))`
   const largeArc = `{{${span}>180?1:0}}`
-  // The angle marker sweeps a SHORTER span than the sector itself — inset
-  // from each boundary — so its own large-arc decision is computed against
-  // that narrower span, not reused from the sector's.
-  const angleFrom = `(${from}+${ANGLE_INSET})`, angleTo = `(${to}-${ANGLE_INSET})`
-  const angleLargeArc = `{{(${angleTo})-(${angleFrom})>180?1:0}}`
+  // The angle marker now spans the FULL sector, edge to edge — touching both
+  // straight boundary lines, the standard convention for "this is the angle
+  // being labelled". Distinct radii per sector (below) are what keep
+  // adjacent arcs from merging into one ring, not an inset gap.
   const arcR = `[${ARC_RADII.join(',')}][${arcRank(i)}]`
   // The degree label sits just outside ITS OWN arc rather than at a shared
   // radius, so each label plainly belongs to the arc it annotates. A narrow
@@ -162,13 +152,11 @@ const sector = (i: number) => {
   return `<path d="M ${CX} ${CY} L ${ptx(from, R)} ${pty(from, R)} `
     + `A ${R} ${R} 0 ${largeArc} 1 ${ptx(to, R)} ${pty(to, R)} Z" `
     + `fill="${FILLS[i]}" stroke="#374151" stroke-width="1.5"/>`
-    // The angle marker: a small open arc near the vertex, inset from the
-    // sector's own edges so adjacent sectors' arcs don't touch — the
-    // standard geometry-diagram convention for "this is the angle being
-    // labelled", distinct from the sector's own outline.
-    + `<path d="M ${ptx(angleFrom, arcR)} ${pty(angleFrom, arcR)} `
-    + `A {{round(${arcR}, 2)}} {{round(${arcR}, 2)}} 0 ${angleLargeArc} 1 `
-    + `${ptx(angleTo, arcR)} ${pty(angleTo, arcR)}" `
+    // The angle marker: an open arc spanning the full sector, from one
+    // boundary line to the other.
+    + `<path d="M ${ptx(from, arcR)} ${pty(from, arcR)} `
+    + `A {{round(${arcR}, 2)}} {{round(${arcR}, 2)}} 0 ${largeArc} 1 `
+    + `${ptx(to, arcR)} ${pty(to, arcR)}" `
     + `fill="none" stroke="#374151" stroke-width="1.2"/>`
     + `<text x="${ptx(mid, degR)}" y="${pty(mid, degR)}" font-size="13" fill="#1f2937" `
     + `text-anchor="middle" dominant-baseline="middle">{{${P1_A[i]}}}°</text>`
