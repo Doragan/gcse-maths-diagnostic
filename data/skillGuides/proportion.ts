@@ -3,10 +3,15 @@ import type { SkillGuide } from './types'
 // ─────────────────────────────────────────────────────────────────────────────
 // Proportion — the first authored guide, written as the trial for the format.
 //
-// Chosen because the coded 2024 papers make it the strongest case: it appears
-// in every Foundation paper, it is never once asked plainly, and its mark
+// Chosen because the coded papers make it the strongest case: it appears in
+// every Foundation paper, it is almost never asked plainly, and its mark
 // schemes chain. That is a skill where execution is easy and SELECTION is the
 // whole difficulty — exactly what the recognise/confusable fields exist for.
+//
+// Do not restate the bare-framing rate here or in `recognise`: the page's
+// headline claim is computed from the coded audit, so an authored number goes
+// stale the moment a new series lands. (June 2025 moved it 0% -> 6% Foundation,
+// 0% -> 4% Higher — band "never" -> "rarely", same student-facing advice.)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const proportionGuide: SkillGuide = {
