@@ -88,23 +88,70 @@ export const FRAMING_LABELS: Record<string, string> = {
 }
 
 /**
- * The headline sentence about how often the skill is asked plainly. Derived
- * from the band, so a newly coded series rewrites it without anyone editing
- * copy. Deliberately not authored per skill.
+ * How the skill is dressed when it is NOT asked outright, phrased as the tail
+ * of a sentence ("It will usually be …").
+ *
+ * Derived from whichever framing dominates rather than assumed. The claim used
+ * to hardcode "written as a real-world problem", which is true for proportion
+ * but would be a plain falsehood for a skill dominated by multi_route or
+ * decision_justify. Returns null when there is nothing but bare framing, so
+ * callers can drop the clause instead of inventing one.
+ */
+function dominantDressing(p: SkillExamProfile): string | null {
+  // Every phrase must read correctly after "be", because it is dropped into
+  // three different frames: "It will usually be ___", "more often it will be
+  // ___", and "though it is sometimes ___". Keep them short participle phrases
+  // with no trailing clause — a "…, so …" tail parses in the first frame and
+  // falls apart in the third.
+  const PHRASES: Record<string, string> = {
+    real_world:       'written as a real-world problem',
+    multi_route:      'solvable more than one way',
+    decision_justify: 'asked as a decision you have to justify',
+    consequence:      'framed as what happens when something else changes',
+    given_formula:    'given with the formula supplied, leaving you to choose the inputs',
+    inverse_operand:  'run backwards, giving you the answer and asking for the input',
+  }
+
+  const top = Object.entries(p.framing)
+    .filter(([k]) => k !== 'bare')
+    .sort((a, b) => b[1] - a[1])[0]
+
+  return top ? (PHRASES[top[0]] ?? null) : null
+}
+
+/**
+ * The headline sentence about how often the skill is asked plainly.
+ *
+ * Both halves are derived — the band from the bare percentage, the dressing
+ * from the dominant framing — so a newly coded series rewrites this without
+ * anyone editing copy. That is the whole point: when the 2025 papers added
+ * three bare proportion questions, this moved from "never" to "rarely" on its
+ * own. Deliberately not authored per skill.
  */
 export function bareClaim(p: SkillExamProfile, skillName: string): string {
   const lower = skillName.toLowerCase()
+  const dressing = dominantDressing(p)
+  const told = `directly told that a question is about ${lower}`
+
   switch (p.bareBand) {
     case 'never':
-      return `You're rarely directly told that a question is about ${lower}. It will usually be written as a real-world problem.`
+      return dressing
+        ? `You're never directly told that a question is about ${lower}. It will always be ${dressing}.`
+        : `You're never ${told}.`
     case 'rarely':
-      return `You are rarely told it is a ${lower} question — it is nearly always dressed as something else.`
+      return dressing
+        ? `You're rarely ${told}. It will usually be ${dressing}.`
+        : `You're rarely ${told}.`
     case 'sometimes':
-      return `Sometimes you are asked outright, but most of the time ${lower} is dressed as something else.`
+      return dressing
+        ? `You're sometimes ${told}, but more often it will be ${dressing}.`
+        : `You're sometimes ${told}.`
     case 'usually':
-      return `Usually you are asked outright, though it is sometimes wrapped in a context.`
+      return dressing
+        ? `You're usually ${told}, though it is sometimes ${dressing}.`
+        : `You're usually ${told}.`
     case 'almost always':
-      return `You are almost always asked outright — recognising it is not the hard part here.`
+      return `You're almost always ${told} — recognising it isn't the hard part here.`
   }
 }
 
