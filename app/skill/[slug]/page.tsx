@@ -385,7 +385,7 @@ export default function SkillGuidePage() {
                 : `${profile.markRange[0]}–${profile.markRange[1]}`}
               label="marks per question"
             />
-            <Stat n={`${profile.barePct}`} sub="%" label="asked plainly" />
+            <Stat n={`${profile.barePct}`} sub="%" label="asked straight out" />
           </div>
 
           {dressedTotal > 0 && (
@@ -436,8 +436,8 @@ export default function SkillGuidePage() {
         <section style={{ ...styles.card, background: colors.cardAlt }}>
           <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
           <p style={{ ...styles.muted, margin: 0 }}>
-            We haven&apos;t coded enough {board} {tier === 'higher' ? 'Higher' : 'Foundation'} papers
-            to say anything reliable about this skill yet. Rather than guess, we&apos;ve left it out.
+            We haven&apos;t been through enough {board} {tier === 'higher' ? 'Higher' : 'Foundation'} papers
+            to tell you anything useful about {lowerName} yet. We&apos;d rather leave this out than guess.
           </p>
         </section>
       )}

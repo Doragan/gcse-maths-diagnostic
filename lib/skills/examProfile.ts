@@ -76,35 +76,90 @@ export function sliceProvenance(board: string, tier: Tier) {
 /**
  * The framing labels as a student would read them. Keys match the `framing`
  * vocabulary in the coded papers.
+ *
+ * These are the taxonomy's own terms translated out of analyst language —
+ * a student reads "more than one way through", not "multi_route".
  */
 export const FRAMING_LABELS: Record<string, string> = {
-  bare:             'Asked plainly',
-  real_world:       'Wrapped in a context',
-  multi_route:      'More than one valid route',
-  decision_justify: 'Decide and justify',
-  consequence:      'What happens if something changes',
-  given_formula:    'Formula given, inputs to choose',
-  inverse_operand:  'Given the answer, find the input',
+  bare:             'Asked straight out',
+  real_world:       'A real-life situation',
+  multi_route:      'More than one way through',
+  decision_justify: 'Pick an answer, then explain why',
+  consequence:      'What happens when something changes',
+  given_formula:    'Formula given, you pick the inputs',
+  inverse_operand:  'Given the answer, work backwards',
 }
 
 /**
- * The headline sentence about how often the skill is asked plainly. Derived
- * from the band, so a newly coded series rewrites it without anyone editing
- * copy. Deliberately not authored per skill.
+ * How the skill is dressed when it is NOT asked outright, phrased as the tail
+ * of a sentence ("It will usually be …").
+ *
+ * Derived from whichever framing dominates rather than assumed. The claim used
+ * to hardcode "written as a real-world problem", which is true for proportion
+ * but would be a plain falsehood for a skill dominated by multi_route or
+ * decision_justify. Returns null when there is nothing but bare framing, so
+ * callers can drop the clause instead of inventing one.
+ */
+function dominantDressing(p: SkillExamProfile): string | null {
+  // Every phrase follows "it's", because that is the frame in all four bands
+  // that use one ("it's nearly always ___", "most of the time it's ___", and
+  // so on). Keep them noun phrases so they slot in without rewriting.
+  const PHRASES: Record<string, string> = {
+    real_world:       'wrapped up in a real-life situation',
+    multi_route:      'a question with more than one way through',
+    decision_justify: 'a question where you pick an answer and then explain why',
+    consequence:      'a question about what happens when something else changes',
+    given_formula:    'a question that hands you the formula and leaves you to fill it in',
+    inverse_operand:  'a question that gives you the answer and asks you to work backwards',
+  }
+
+  const top = Object.entries(p.framing)
+    .filter(([k]) => k !== 'bare')
+    .sort((a, b) => b[1] - a[1])[0]
+
+  return top ? (PHRASES[top[0]] ?? null) : null
+}
+
+/**
+ * The headline sentence about how often the skill is asked plainly.
+ *
+ * Both halves are derived — the band from the bare percentage, the dressing
+ * from the dominant framing — so a newly coded series rewrites this without
+ * anyone editing copy. That is the whole point: when the 2025 papers added
+ * three bare proportion questions, this moved from "never" to "rarely" on its
+ * own. Deliberately not authored per skill.
  */
 export function bareClaim(p: SkillExamProfile, skillName: string): string {
   const lower = skillName.toLowerCase()
+  const dressing = dominantDressing(p)
+  // "that you're doing proportion" rather than "that a question is about
+  // proportion": it is how a teacher actually says it, and it sidesteps the
+  // a/an problem that "it's a(n) <skill> question" would create.
+  const told = `told straight out that you're doing ${lower}`
+
   switch (p.bareBand) {
+    // Note there is no "never" wording, even at 0%. Absence across a handful
+    // of series is not evidence it cannot come up, and a student who then
+    // meets one has been badly served. The strongest claim we make is
+    // "almost never".
     case 'never':
-      return `You're rarely directly told that a question is about ${lower}. It will usually be written as a real-world problem.`
+      return dressing
+        ? `You'll almost never be ${told} — it's nearly always ${dressing}.`
+        : `You'll almost never be ${told}.`
     case 'rarely':
-      return `You are rarely told it is a ${lower} question — it is nearly always dressed as something else.`
+      return dressing
+        ? `You'll only occasionally be ${told}. Most of the time it's ${dressing}.`
+        : `You'll only occasionally be ${told}.`
     case 'sometimes':
-      return `Sometimes you are asked outright, but most of the time ${lower} is dressed as something else.`
+      return dressing
+        ? `Sometimes you'll be ${told}, but more often it's ${dressing}.`
+        : `Sometimes you'll be ${told}, but more often you won't.`
     case 'usually':
-      return `Usually you are asked outright, though it is sometimes wrapped in a context.`
+      return dressing
+        ? `Most of the time you'll be ${told}, though now and then it's ${dressing}.`
+        : `Most of the time you'll be ${told}.`
     case 'almost always':
-      return `You are almost always asked outright — recognising it is not the hard part here.`
+      return `You'll nearly always be ${told}, so spotting it isn't the tricky bit.`
   }
 }
 
@@ -112,7 +167,7 @@ export function bareClaim(p: SkillExamProfile, skillName: string): string {
 export function chainClaim(p: SkillExamProfile): string | null {
   if (p.chainedPct < 25) return null
   const how = p.chainedPct >= 60 ? 'usually' : 'often'
-  return `The marks ${how} chain, so a wrong first step can block credit on everything after it.`
+  return `The marks ${how} build on each other, so a slip early on can cost you the ones after it too.`
 }
 
 /** Calculator split, phrased. Null when there is no clear lean. */
@@ -121,9 +176,9 @@ export function calcClaim(p: SkillExamProfile): string | null {
   const non = p.calc.non_calc ?? 0
   const total = calc + non
   if (total < 3) return null
-  if (calc / total >= 0.75) return 'Nearly always on a calculator paper.'
-  if (non / total >= 0.75) return 'Nearly always on a non-calculator paper.'
-  return 'Appears on both calculator and non-calculator papers.'
+  if (calc / total >= 0.75) return 'It nearly always turns up on a calculator paper.'
+  if (non / total >= 0.75) return 'It nearly always turns up on a non-calculator paper.'
+  return 'It turns up on both calculator and non-calculator papers.'
 }
 
 /** Framing counts as sorted display rows, excluding `bare`. */
