@@ -29,7 +29,7 @@ const ALL_BANDS: BareBand[] = ['never', 'rarely', 'sometimes', 'usually', 'almos
 describe('bareClaim', () => {
   it('names the skill in lower case rather than saying "it"', () => {
     const s = bareClaim(profile(), 'Proportion')
-    expect(s).toContain('about proportion')
+    expect(s).toContain("you're doing proportion")
     expect(s).not.toContain('Proportion')
   })
 
@@ -41,28 +41,36 @@ describe('bareClaim', () => {
     expect(new Set(claims).size).toBe(ALL_BANDS.length)
   })
 
-  it('does not use hedging language for the never band', () => {
-    const never = bareClaim(profile({ bareBand: 'never', barePct: 0 }), 'Proportion')
-    expect(never).toContain('never')
-    expect(never).not.toContain('rarely')
-    expect(never).not.toContain('sometimes')
+  it('never makes an absolute claim, even at 0% bare', () => {
+    // Absence across a handful of series is not evidence a skill cannot be
+    // asked outright. A student who is told "never" and then meets one in the
+    // exam has been actively misled, so the strongest wording is "almost never".
+    for (const bareBand of ALL_BANDS) {
+      const s = bareClaim(profile({ bareBand, barePct: bareBand === 'never' ? 0 : 20 }), 'Proportion')
+      // "never" is only ever allowed immediately after "almost".
+      expect(s, bareBand).not.toMatch(/(?<!almost )\bnever\b/)
+      // No absolute claim about the dressing either ("it's always wrapped…").
+      expect(s, bareBand).not.toMatch(/it's always\b/)
+    }
+    expect(bareClaim(profile({ bareBand: 'never', barePct: 0 }), 'Proportion'))
+      .toContain('almost never')
   })
 
   it('derives the dressing from the dominant framing, not a fixed phrase', () => {
     const realWorld = bareClaim(
       profile({ framing: { real_world: 20, multi_route: 3 } }), 'Proportion')
-    expect(realWorld).toContain('real-world problem')
+    expect(realWorld).toContain('real-life situation')
 
     // Same band, different dominant framing -> a different, still-true claim.
     const multiRoute = bareClaim(
       profile({ framing: { multi_route: 20, real_world: 3 } }), 'Proportion')
-    expect(multiRoute).toContain('solvable more than one way')
-    expect(multiRoute).not.toContain('real-world problem')
+    expect(multiRoute).toContain('more than one way through')
+    expect(multiRoute).not.toContain('real-life situation')
 
     const justify = bareClaim(
       profile({ framing: { decision_justify: 9, real_world: 2 } }), 'Proportion')
-    expect(justify).toContain('justify')
-    expect(justify).not.toContain('real-world problem')
+    expect(justify).toContain('explain why')
+    expect(justify).not.toContain('real-life situation')
   })
 
   it('ignores bare when picking the dressing, even when bare dominates', () => {
@@ -92,8 +100,12 @@ describe('bareClaim', () => {
       'real_world', 'multi_route', 'decision_justify',
       'consequence', 'given_formula', 'inverse_operand',
     ]
+    // 'almost always' is excluded: it never takes a dressing, and carries its
+    // own trailing clause ("…, so spotting it isn't the tricky bit").
+    const DRESSED_BANDS = ALL_BANDS.filter(b => b !== 'almost always')
+
     for (const framing of FRAMINGS) {
-      for (const bareBand of ALL_BANDS) {
+      for (const bareBand of DRESSED_BANDS) {
         const s = bareClaim(profile({ bareBand, framing: { [framing]: 12, bare: 1 } }), 'Proportion')
         expect(s, `${framing} / ${bareBand}`).not.toContain(', so ')
         expect(s, `${framing} / ${bareBand}`).not.toContain('  ')
