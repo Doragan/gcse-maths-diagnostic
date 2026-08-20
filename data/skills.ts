@@ -610,6 +610,7 @@ export const skills: Skill[] = [
     "name": "Sector Calculations",
     "topic": "Shape and Space",
     "prerequisites": [
+      "parts_of_a_circle",
       "circumfrence_of_a_circle",
       "area_of_a_circle",
       "angles_on_lines_and_circles",
