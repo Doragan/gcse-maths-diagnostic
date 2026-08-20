@@ -270,11 +270,12 @@ describe('candidateOf', () => {
 
   it('uses nominal marks for single-part questions by difficulty', () => {
     // These come from lib/exam/markEvidence.data.ts, so they move when a new
-    // series is coded. Coding the 2023 papers lifted the mid-difficulty value
-    // from 2 to 3 (mastery mean 1.74 -> 1.87 across 30 papers). What the test
-    // pins is the ramp, not the literals: marks must not fall as difficulty rises.
+    // series is coded, and when `kind` is redefined. Those shifts have nudged them
+    // upward again (mastery mean 1.74 -> 1.87 -> 2.01 as papers were added and
+    // `kind` was re-tagged). What the test pins is the RAMP, not the literals:
+    // marks must not fall as difficulty rises.
     const seq = [1, 3, 4].map(d => candidateOf({ ...base, difficulty: d })!.marks)
-    expect(seq).toEqual([1, 3, 3])
+    expect(seq).toEqual([2, 3, 3])
     for (let i = 1; i < seq.length; i++) expect(seq[i]).toBeGreaterThanOrEqual(seq[i - 1])
   })
 
