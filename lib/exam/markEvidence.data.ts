@@ -174,8 +174,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "areas_of_squares_and_rectangles|exam": {
-  "n": 9,
-  "mean": 3.78,
+  "n": 10,
+  "mean": 3.8,
   "min": 3,
   "max": 5,
   "splits": [
@@ -184,13 +184,13 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "areas_of_squares_and_rectangles|mastery": {
-  "n": 4,
-  "mean": 1.75,
+  "n": 6,
+  "mean": 1.83,
   "min": 1,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "B2"
+   "B2 (B1 tick alone)",
+   "M1 M1dep A1"
   ]
  },
  "areas_of_triangles|exam": {
@@ -557,6 +557,16 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   "splits": [
    "M1 A1",
    "B1 M1 M1dep A1"
+  ]
+ },
+ "counting_without_listing|mastery": {
+  "n": 3,
+  "mean": 2.33,
+  "min": 2,
+  "max": 3,
+  "splits": [
+   "M1 A1",
+   "M1 M1 A1"
   ]
  },
  "cumulative_frequency|exam": {
@@ -1411,13 +1421,13 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "prime_factor_decomposition|mastery": {
-  "n": 4,
-  "mean": 2,
+  "n": 6,
+  "mean": 2.33,
   "min": 1,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "B1"
+   "B3 (B2 four of five conditions, B1 three)",
+   "M1 M1dep A1"
   ]
  },
  "probability_spaces|exam": {
@@ -1439,14 +1449,23 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "M1 A1 A1ft (construct spinner + P)"
   ]
  },
+ "properties_of_3d_solids|exam": {
+  "n": 1,
+  "mean": 4,
+  "min": 4,
+  "max": 4,
+  "splits": [
+   "M1 M1dep M1dep A1"
+  ]
+ },
  "properties_of_3d_solids|mastery": {
-  "n": 7,
-  "mean": 1.14,
+  "n": 9,
+  "mean": 1.33,
   "min": 1,
   "max": 2,
   "splits": [
-   "B1 (faces)",
-   "B1 (edges)"
+   "B2 (B1 tick alone)",
+   "B1 (faces)"
   ]
  },
  "proportion_with_powers|exam": {
@@ -2068,22 +2087,12 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "surface_area_of_a_cylinder|exam": {
-  "n": 2,
-  "mean": 3.5,
+  "n": 1,
+  "mean": 3,
   "min": 3,
-  "max": 4,
+  "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 M1dep M1dep A1"
-  ]
- },
- "surface_area_of_a_cylinder|mastery": {
-  "n": 2,
-  "mean": 2,
-  "min": 2,
-  "max": 2,
-  "splits": [
-   "B2 (B1 tick alone)"
+   "M1 M1dep A1"
   ]
  },
  "surface_area_of_a_sphere|exam": {
@@ -2125,13 +2134,13 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "systematic_listing|mastery": {
-  "n": 11,
-  "mean": 2,
+  "n": 8,
+  "mean": 1.88,
   "min": 1,
   "max": 3,
   "splits": [
-   "M1 A1",
-   "B2 (B1 three or four of the five correct)"
+   "B2 (B1 three or four of the five correct)",
+   "B2 (B1 one spinner fully labelled)"
   ]
  },
  "time_calculations|exam": {
@@ -2320,13 +2329,13 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "volume_of_a_prism|exam": {
-  "n": 7,
-  "mean": 3.29,
+  "n": 6,
+  "mean": 3.17,
   "min": 2,
   "max": 5,
   "splits": [
    "M1 A1",
-   "M1 M1dep M1dep A1"
+   "M1 A1 A1"
   ]
  },
  "volume_of_a_prism|mastery": {

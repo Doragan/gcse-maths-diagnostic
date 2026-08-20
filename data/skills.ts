@@ -671,8 +671,8 @@ export const skills: Skill[] = [
     "prerequisites": [
       "factors_and_multiples"
     ],
-"exampleQuestion": "Write 36 as a product of its prime factors",
-"exampleAnswer": "2 x 2 x 3 x 3 or 2² x 3²"
+"exampleQuestion": "Write 36 as a product of its prime factors. Then: two prime numbers multiply to give an even number between 50 and 60 — what are they?",
+"exampleAnswer": "36 = 2 x 2 x 3 x 3 or 2² x 3². The two primes are 2 and 29 (2 x 29 = 58) — the same structure run in reverse."
   },
     {
     "id": "lowest_common_multiple",
@@ -1596,6 +1596,16 @@ export const skills: Skill[] = [
     "prerequisites": [],
     "exampleQuestion": "A pizza is made by choosing 3 different toppings from: ham (H), sweetcorn (S), onion (O), mushroom (M). List all the possible combinations of 3 toppings.",
     "exampleAnswer": "HSO, HSM, HOM, SOM (4 combinations)"
+  },
+  {
+    "id": "counting_without_listing",
+    "name": "Counting Without Listing",
+    "topic": "Probability and Data",
+    "prerequisites": [
+      "systematic_listing"
+    ],
+    "exampleQuestion": "A 4-digit code uses the digits 1 to 6. Digits may repeat, but the code must be even. How many possible codes are there?",
+    "exampleAnswer": "6 x 6 x 6 x 3 = 648"
   },
   {
     "id": "frequency_trees",
