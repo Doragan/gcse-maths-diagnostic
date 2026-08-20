@@ -574,6 +574,14 @@ export const skills: Skill[] = [
 
   },
   {
+    "id": "parts_of_a_circle",
+    "name": "Parts of a Circle",
+    "topic": "Shape and Space",
+    "prerequisites": [],
+    "exampleQuestion": "Name the straight line that joins two points on a circle without passing through the centre. If a circle has diameter 20 cm, what is its radius?",
+    "exampleAnswer": "A chord. The radius is 10 cm — the radius is always half the diameter."
+  },
+  {
     "id": "circumfrence_of_a_circle",
     "name": "Circumfrence of a Circle",
     "topic": "Shape and Space",

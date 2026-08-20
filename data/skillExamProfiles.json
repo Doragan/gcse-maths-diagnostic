@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T19:12:19.957Z",
+  "generatedAt": "2026-08-20T19:23:41.861Z",
   "minParts": 4,
   "slices": [
     {
@@ -29,8 +29,8 @@
         "November 2023",
         "November 2024"
       ],
-      "skillsPresent": 101,
-      "skillsSufficient": 63
+      "skillsPresent": 102,
+      "skillsSufficient": 64
     },
     {
       "board": "AQA",
@@ -59,8 +59,8 @@
         "November 2023",
         "November 2024"
       ],
-      "skillsPresent": 143,
-      "skillsSufficient": 91
+      "skillsPresent": 144,
+      "skillsSufficient": 92
     }
   ],
   "profiles": {
@@ -3575,6 +3575,43 @@
         "run_one_machine_backwards_only",
         "operation_order",
         "inverse_operations"
+      ],
+      "sufficient": true
+    },
+    "AQA|Foundation|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "AQA",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 5,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {
+        "bare": 4,
+        "decision_justify": 1
+      },
+      "barePct": 80,
+      "bareBand": "usually",
+      "calc": {
+        "na": 4
+      },
+      "markSplits": [
+        "B1 B1 (name two regions)",
+        "B1 (show radius from diameter)",
+        "B1 (tick: could be any of the three)",
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "segment_vs_sector",
+        "state_without_halving",
+        "assume_chord_always_longer",
+        "diameter_named_instead_of_chord",
+        "tangent_named_instead_of_chord"
       ],
       "sufficient": true
     },
@@ -8982,48 +9019,43 @@
       "skillId": "sector_calculations",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 8,
-      "marks": 17,
-      "papersSeen": 5,
+      "parts": 4,
+      "marks": 12,
+      "papersSeen": 3,
       "papersTotal": 15,
       "markRange": [
         1,
         5
       ],
       "framing": {
-        "bare": 7,
+        "bare": 3,
         "inverse_operand": 1,
         "multi_route": 2,
         "consequence": 1,
         "decision_justify": 2
       },
-      "barePct": 54,
-      "bareBand": "usually",
+      "barePct": 33,
+      "bareBand": "sometimes",
       "calc": {
         "non_calc": 2,
-        "na": 5,
-        "calc": 1
+        "calc": 1,
+        "na": 1
       },
       "markSplits": [
         "M1 M1dep A1",
-        "B1 region A + B1 region B",
         "B1 (tick: smaller than part (a))",
         "M1 A1 M1 A1 A1"
       ],
-      "chainedPct": 25,
+      "chainedPct": 50,
       "traps": [
         "uses_area_not_arc",
         "drops_pi",
-        "segment_sector_confusion",
-        "arc_chord_confusion",
         "radius_from_circumference",
         "forget_the_quarter_fraction",
         "assume_unchanged",
         "use_diameter_for_radius",
         "forget_the_sector_fraction",
-        "compare_in_unlike_forms",
-        "diameter_radius_confusion",
-        "tangent_chord_confusion"
+        "compare_in_unlike_forms"
       ],
       "sufficient": true
     },
@@ -9220,6 +9252,43 @@
         "factor_pair_error",
         "substitution_sign_error",
         "pair_x_with_correct_y"
+      ],
+      "sufficient": true
+    },
+    "AQA|Higher|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 8,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {
+        "bare": 5
+      },
+      "barePct": 100,
+      "bareBand": "almost always",
+      "calc": {
+        "na": 5
+      },
+      "markSplits": [
+        "B1 region A + B1 region B",
+        "B3 (B1 per correct match)",
+        "B1 (diameter)",
+        "B1 (segment)"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "segment_sector_confusion",
+        "arc_chord_confusion",
+        "segment_vs_sector",
+        "chord_vs_tangent",
+        "diameter_radius_confusion",
+        "tangent_chord_confusion"
       ],
       "sufficient": true
     },

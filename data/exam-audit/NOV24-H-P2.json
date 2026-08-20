@@ -14,8 +14,8 @@
   "rows": [
     {
       "q": "1", "part": "a", "marks": 1,
-      "skill_ids": ["sector_calculations"],
-      "skill_gap": "no dedicated 'circle parts vocabulary' (diameter/radius/chord/tangent/arc/segment) skill node",
+      "skill_ids": ["parts_of_a_circle"],
+      "skill_gap": null,
       "answer_form": "multiple_choice",
       "framing": ["bare"],
       "calc": "na", "multi_part": true, "back_ref": false, "kind": "mastery",
@@ -26,8 +26,8 @@
     },
     {
       "q": "1", "part": "b", "marks": 1,
-      "skill_ids": ["sector_calculations"],
-      "skill_gap": "no dedicated 'circle parts vocabulary' skill node",
+      "skill_ids": ["parts_of_a_circle"],
+      "skill_gap": null,
       "answer_form": "multiple_choice",
       "framing": ["bare"],
       "calc": "na", "multi_part": true, "back_ref": false, "kind": "mastery",
@@ -38,8 +38,8 @@
     },
     {
       "q": "1", "part": "c", "marks": 1,
-      "skill_ids": ["sector_calculations"],
-      "skill_gap": "no dedicated 'circle parts vocabulary' skill node",
+      "skill_ids": ["parts_of_a_circle"],
+      "skill_gap": null,
       "answer_form": "multiple_choice",
       "framing": ["bare"],
       "calc": "na", "multi_part": true, "back_ref": false, "kind": "mastery",

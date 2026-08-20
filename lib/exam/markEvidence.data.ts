@@ -1314,6 +1314,16 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B3 (B2 two of the three coefficients, B1 one)"
   ]
  },
+ "parts_of_a_circle|mastery": {
+  "n": 9,
+  "mean": 1.44,
+  "min": 1,
+  "max": 3,
+  "splits": [
+   "B1 B1 (name two regions)",
+   "B1 region A + B1 region B"
+  ]
+ },
  "percentage_change|exam": {
   "n": 7,
   "mean": 4.57,
@@ -1744,8 +1754,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "sector_calculations|mastery": {
-  "n": 11,
-  "mean": 2.36,
+  "n": 7,
+  "mean": 3,
   "min": 1,
   "max": 5,
   "splits": [

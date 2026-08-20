@@ -14,8 +14,8 @@
   "rows": [
     {
       "q": "1", "part": null, "marks": 2,
-      "skill_ids": ["sector_calculations"],
-      "skill_gap": "no dedicated 'circle parts vocabulary' (segment/sector/arc/chord/tangent naming) skill node",
+      "skill_ids": ["parts_of_a_circle"],
+      "skill_gap": null,
       "answer_form": "multiple_choice",
       "framing": ["bare"],
       "calc": "na", "multi_part": false, "back_ref": false, "kind": "mastery",
