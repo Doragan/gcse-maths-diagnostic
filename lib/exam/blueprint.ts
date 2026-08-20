@@ -3,8 +3,8 @@
 //
 // It used to be ~11 fixed slots by difficulty band, with the mark total falling
 // out wherever it landed (measured 19–35). Real papers work the other way round:
-// every one of the 12 coded 2024 papers is exactly 80 marks, with the question
-// count as the free variable (25–27 questions, 28–46 parts). Marks are what a
+// every one of the 30 coded papers is exactly 80 marks, with the question
+// count as the free variable (23–29 questions, 28–46 parts). Marks are what a
 // student is scored on and what the score trend plots, so marks are what should
 // be fixed — a 19-mark paper and a 35-mark paper are not the same assessment.
 //
@@ -84,4 +84,4 @@ export const BLUEPRINTS: Record<Tier, ExamBlueprint> = {
 
 // Marks per question are not decided here. The flat NOMINAL_MARKS table that
 // used to live in this file ({1:1, 2:1, 3:2, 4:3}) was a guess; marks now come
-// from lib/exam/markEvidence.ts, priced against the coded 2024 series.
+// from lib/exam/markEvidence.ts, priced against the coded series (30 papers).

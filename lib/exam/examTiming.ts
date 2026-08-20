@@ -17,7 +17,7 @@
  * functions what it means.
  */
 
-/** 90 minutes ÷ 80 marks, from every paper in the coded 2024 series. */
+/** 90 minutes ÷ 80 marks, from every one of the 30 coded papers. */
 export const EXAM_SECONDS_PER_MARK = (90 * 60) / 80
 
 /**

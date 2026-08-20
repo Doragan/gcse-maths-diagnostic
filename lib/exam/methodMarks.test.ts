@@ -5,7 +5,7 @@ import { methodMarkShare } from './markEvidence'
 /**
  * Three-state marks: a wrong final answer is not automatically worth zero.
  *
- * Across the coded 2024 series 232 of 960 marks (24%) are METHOD marks, awarded
+ * Across the 30 coded papers 601 of 2400 marks (25%) are METHOD marks, awarded
  * for a sound approach behind a wrong answer. Auto-grading cannot read working,
  * so those marks are split three ways: confirmed (a trap proves the method),
  * unknown (we cannot tell), or lost.

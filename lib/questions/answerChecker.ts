@@ -18,10 +18,11 @@ export type CheckResult = {
    * the skill map credit the maths they actually did.
    *
    * EXAM scoring is where it costs: gradeUnits drops the accuracy mark and
-   * keeps the method marks. That mirrors real schemes, where across the 17
-   * coded 2024 parts involving units not one awards a mark for units alone —
-   * they always ride on the final A1/B1, so an answer that does not carry the
-   * unit the question asked for cannot have that mark.
+   * keeps the method marks. That mirrors real schemes: across the 30 coded
+   * papers, every scheme that mentions units attaches the requirement to the
+   * final accuracy mark ("units required" on an A1) and not one awards a mark
+   * for units alone — they always ride on the final A1/B1, so an answer that
+   * does not carry the unit the question asked for cannot have that mark.
    */
   unitsIssue?: 'missing' | 'wrong'
 }

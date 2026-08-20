@@ -3,7 +3,7 @@
  * a grid; we compare them to the canonical elements. Pure module, no DOM —
  * used by the practice flow, the exam runner and the verification harness.
  *
- * Marking philosophy (matches the coded 2024 mark schemes in
+ * Marking philosophy (matches the coded mark schemes in
  * data/exam-audit/ — plotting questions are B2 "fully correct line, B1
  * partial for correctly plotted points" or M1 M1 A1):
  *   - each correctly placed element earns its own marks (the M/B method marks)

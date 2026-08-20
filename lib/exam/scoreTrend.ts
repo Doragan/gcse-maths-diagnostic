@@ -4,7 +4,7 @@
  * The skill map answers "which topics do I need to work on". This answers "how
  * would I score on a paper, and is that improving" — which only became a fair
  * question once papers were made comparable: marks are now priced against the
- * coded 2024 series (markEvidence.ts) and every paper is assembled to the same
+ * coded series (markEvidence.ts) and every paper is assembled to the same
  * ~25-mark budget (blueprint.ts), so a 60% is a 60% across papers rather than an
  * artefact of one paper happening to be longer.
  *
