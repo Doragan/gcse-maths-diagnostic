@@ -1,5 +1,7 @@
 import type { SkillGuide } from './types'
 import { proportionGuide } from './proportion'
+import { ratioGuide } from './ratio'
+import { compoundUnitsGuide } from './compoundUnits'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored skill guides.
@@ -12,6 +14,8 @@ import { proportionGuide } from './proportion'
 
 export const skillGuides: Record<string, SkillGuide> = {
   [proportionGuide.skillId]: proportionGuide,
+  [ratioGuide.skillId]: ratioGuide,
+  [compoundUnitsGuide.skillId]: compoundUnitsGuide,
 }
 
 export const getGuide = (skillId: string): SkillGuide | null => skillGuides[skillId] ?? null

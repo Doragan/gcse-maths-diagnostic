@@ -46,6 +46,15 @@ export const proportionGuide: SkillGuide = {
       theOther: 'One goes up, and the other goes down. Twice the workers, half the time.',
       ask: 'If I double the first quantity, does the second one double too, or halve?',
     },
+    {
+      // Deliberately framed on the ANSWER's units rather than the inputs', so it
+      // does not collide with the percentage_change card above, which turns on
+      // whether the two given quantities are alike.
+      skillId: 'compound_units',
+      thisOne: 'You are asked for more of something you were already given — more grams, more pounds.',
+      theOther: 'You are asked for a rate that joins both quantities — grams per cm³, miles per hour.',
+      ask: 'Does the answer need two units joined by "per", or just one?',
+    },
   ],
 
   // Two that are proportion, two that look like it and are not. The near-misses

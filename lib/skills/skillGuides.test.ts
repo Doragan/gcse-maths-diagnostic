@@ -52,6 +52,30 @@ describe('skill guide registry', () => {
     }
   })
 
+  it('keeps confusable pairings reciprocal between authored guides', () => {
+    // If A tells the student it is confusable with B, then B's page must say
+    // the same about A. Otherwise a student who arrives from the other
+    // direction never sees the distinction, and the two pages can drift into
+    // describing the same pair differently.
+    //
+    // Only enforced where BOTH guides exist — pointing at a skill with no guide
+    // yet is normal and stays allowed.
+    const namesOf = (g: (typeof skillGuides)[string]) =>
+      [...g.confusableWith, ...(g.higher?.confusableWith ?? [])].map(c => c.skillId)
+
+    const oneWay: string[] = []
+    for (const guide of Object.values(skillGuides)) {
+      for (const other of namesOf(guide)) {
+        const target = skillGuides[other]
+        if (!target) continue
+        if (!namesOf(target).includes(guide.skillId)) {
+          oneWay.push(`${guide.skillId} -> ${other}, but ${other} does not name ${guide.skillId}`)
+        }
+      }
+    }
+    expect(oneWay, 'one-directional confusable pairings').toEqual([])
+  })
+
   it('gives every example set at least one near-miss', () => {
     // A set where everything IS the skill only confirms what the student already
     // assumed. The near-miss is what makes it a selection drill.
