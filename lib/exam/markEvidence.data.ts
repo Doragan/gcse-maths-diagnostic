@@ -86,19 +86,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B2 (B1 a correct angle on the diagram)"
   ]
  },
- "angles_in_polygons|exam": {
-  "n": 2,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "M1 M1 A1 (No + values)",
-   "M1 M1dep A1"
-  ]
- },
  "angles_in_polygons|mastery": {
-  "n": 9,
-  "mean": 1.67,
+  "n": 11,
+  "mean": 1.91,
   "min": 1,
   "max": 3,
   "splits": [
@@ -107,38 +97,37 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "angles_on_lines_and_circles|exam": {
-  "n": 4,
+  "n": 2,
   "mean": 3,
   "min": 2,
   "max": 4,
   "splits": [
    "B2 (B1 a correct share step or the angle sum)",
-   "M1 M1 A1 (No + values)"
+   "M1 equation + M1dep collect + M1dep solve + A1 ratio"
   ]
  },
  "angles_on_lines_and_circles|mastery": {
-  "n": 7,
-  "mean": 2.86,
+  "n": 9,
+  "mean": 2.89,
   "min": 1,
   "max": 4,
   "splits": [
    "M1 M1dep A1",
-   "M1 M1dep M1 A1"
+   "M1 M1 A1 (No + values)"
   ]
  },
  "area_of_a_circle|exam": {
-  "n": 4,
-  "mean": 2.75,
+  "n": 1,
+  "mean": 1,
   "min": 1,
-  "max": 4,
+  "max": 1,
   "splits": [
-   "M1 A1",
    "B1"
   ]
  },
  "area_of_a_circle|mastery": {
-  "n": 4,
-  "mean": 3.25,
+  "n": 7,
+  "mean": 3.29,
   "min": 1,
   "max": 5,
   "splits": [
@@ -185,8 +174,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "areas_of_squares_and_rectangles|exam": {
-  "n": 9,
-  "mean": 3.78,
+  "n": 10,
+  "mean": 3.8,
   "min": 3,
   "max": 5,
   "splits": [
@@ -195,13 +184,13 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "areas_of_squares_and_rectangles|mastery": {
-  "n": 4,
-  "mean": 1.75,
+  "n": 6,
+  "mean": 1.83,
   "min": 1,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "B2"
+   "B2 (B1 tick alone)",
+   "M1 M1dep A1"
   ]
  },
  "areas_of_triangles|exam": {
@@ -243,38 +232,19 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 (compass direction or 3-figure bearing)"
   ]
  },
- "box_plots|exam": {
-  "n": 1,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "B3 (B2/B1 partial plots)"
-  ]
- },
  "box_plots|mastery": {
-  "n": 3,
-  "mean": 2.67,
+  "n": 4,
+  "mean": 2.75,
   "min": 1,
   "max": 4,
   "splits": [
    "B1 B1 B1ft",
-   "B1"
-  ]
- },
- "calculating_simple_probability|exam": {
-  "n": 7,
-  "mean": 2.29,
-  "min": 1,
-  "max": 3,
-  "splits": [
-   "M1 A1 A1ft (construct spinner + P)",
-   "B1 (value) B1 (reason: most trials)"
+   "B3 (B2/B1 partial plots)"
   ]
  },
  "calculating_simple_probability|mastery": {
-  "n": 22,
-  "mean": 1.55,
+  "n": 29,
+  "mean": 1.72,
   "min": 1,
   "max": 4,
   "splits": [
@@ -320,27 +290,34 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "circle_theorem_cyclic_quadrilateral|exam": {
-  "n": 2,
-  "mean": 3.5,
+  "n": 1,
+  "mean": 3,
   "min": 3,
+  "max": 3,
+  "splits": [
+   "M1 M1dep A1"
+  ]
+ },
+ "circle_theorem_cyclic_quadrilateral|mastery": {
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "M1 M1dep A1",
    "M3 chain of angles + A1 (13:17)"
   ]
  },
  "circle_theorem_tangent|exam": {
-  "n": 2,
-  "mean": 3.5,
-  "min": 3,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "M1 M1dep A1",
    "M1 M1 M1dep A1"
   ]
  },
  "circle_theorem_tangent|mastery": {
-  "n": 1,
+  "n": 2,
   "mean": 3,
   "min": 3,
   "max": 3,
@@ -368,18 +345,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "combined_events|exam": {
-  "n": 6,
-  "mean": 3.17,
+  "n": 3,
+  "mean": 3,
   "min": 2,
   "max": 4,
   "splits": [
-   "M1 M1dep A1ft",
-   "M1 M1dep A1"
+   "M1 M1dep A1",
+   "M1 M1 M1dep A1"
   ]
  },
  "combined_events|mastery": {
-  "n": 7,
-  "mean": 2,
+  "n": 10,
+  "mean": 2.4,
   "min": 1,
   "max": 4,
   "splits": [
@@ -427,49 +404,49 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "compound_units|exam": {
-  "n": 17,
-  "mean": 3.41,
-  "min": 1,
+  "n": 13,
+  "mean": 3.46,
+  "min": 2,
   "max": 5,
   "splits": [
    "M1 M1 M1dep A1",
-   "B1 M2 M1dep A1ft"
+   "M1 M1dep A1"
   ]
  },
  "compound_units|mastery": {
-  "n": 14,
-  "mean": 2.79,
+  "n": 18,
+  "mean": 2.89,
   "min": 1,
-  "max": 4,
+  "max": 5,
   "splits": [
    "M1 A1",
    "M1 M1dep M1dep A1"
   ]
  },
  "conditional_probability|exam": {
-  "n": 4,
-  "mean": 3.25,
-  "min": 1,
+  "n": 2,
+  "mean": 4.5,
+  "min": 4,
   "max": 5,
   "splits": [
-   "B1ft",
-   "M1 M1dep M1dep M1 A1"
+   "M1 M1dep M1dep M1 A1",
+   "M1 M1 M1dep A1"
   ]
  },
  "conditional_probability|mastery": {
-  "n": 2,
-  "mean": 2.5,
+  "n": 4,
+  "mean": 2.25,
   "min": 1,
   "max": 4,
   "splits": [
    "M1 M1 A1 A1ft",
-   "B1"
+   "B1ft"
   ]
  },
  "congruence_and_similarity|exam": {
-  "n": 5,
-  "mean": 3.6,
-  "min": 1,
+  "n": 4,
+  "mean": 4.25,
+  "min": 4,
   "max": 5,
   "splits": [
    "M1 M1dep M1dep A1",
@@ -477,8 +454,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "congruence_and_similarity|mastery": {
-  "n": 14,
-  "mean": 1.71,
+  "n": 15,
+  "mean": 1.67,
   "min": 1,
   "max": 4,
   "splits": [
@@ -486,18 +463,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "M1 A1"
   ]
  },
- "constructions|exam": {
-  "n": 2,
-  "mean": 2.5,
-  "min": 2,
-  "max": 3,
-  "splits": [
-   "B2 (accurate drawing)",
-   "B3 semicircle ends radius 4 + connecting lines"
-  ]
- },
  "constructions|mastery": {
-  "n": 2,
+  "n": 4,
   "mean": 2.5,
   "min": 1,
   "max": 4,
@@ -516,18 +483,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "converting_fractions_to_decimals|exam": {
-  "n": 2,
-  "mean": 2.5,
-  "min": 2,
+  "n": 1,
+  "mean": 3,
+  "min": 3,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 division to >=2 places + A1 (2.45 recurring)"
+   "M1 M1dep A1"
   ]
  },
  "converting_fractions_to_decimals|mastery": {
-  "n": 4,
-  "mean": 1.75,
+  "n": 5,
+  "mean": 1.8,
   "min": 1,
   "max": 3,
   "splits": [
@@ -556,18 +522,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "coordinates|exam": {
-  "n": 5,
-  "mean": 3.4,
+  "n": 2,
+  "mean": 3,
   "min": 3,
-  "max": 4,
+  "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 A1 A1"
+   "M1 M1dep A1"
   ]
  },
  "coordinates|mastery": {
-  "n": 21,
-  "mean": 1.62,
+  "n": 24,
+  "mean": 1.88,
   "min": 1,
   "max": 5,
   "splits": [
@@ -576,18 +541,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "cosine_rule|exam": {
-  "n": 3,
-  "mean": 3,
-  "min": 2,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "M1 M1dep M1dep A1",
-   "M1 squares + M1 cos60 + A1 (56)"
+   "M1 M1dep M1dep A1"
   ]
  },
  "cosine_rule|mastery": {
-  "n": 2,
-  "mean": 3,
+  "n": 4,
+  "mean": 2.75,
   "min": 2,
   "max": 4,
   "splits": [
@@ -595,39 +559,47 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 M1 M1dep A1"
   ]
  },
+ "counting_without_listing|mastery": {
+  "n": 3,
+  "mean": 2.33,
+  "min": 2,
+  "max": 3,
+  "splits": [
+   "M1 A1",
+   "M1 M1 A1"
+  ]
+ },
  "cumulative_frequency|exam": {
-  "n": 2,
-  "mean": 3.5,
-  "min": 3,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "B1 cf values + B2ft plot points and curve",
    "B1ft median + B1ft compare + B1ft IQR + B1ft compare"
   ]
  },
  "cumulative_frequency|mastery": {
-  "n": 5,
-  "mean": 1.8,
+  "n": 6,
+  "mean": 2,
   "min": 1,
-  "max": 2,
+  "max": 3,
   "splits": [
    "B1 (all four values)",
    "B1ft B1"
   ]
  },
  "decimals|exam": {
-  "n": 2,
-  "mean": 2.5,
-  "min": 2,
+  "n": 1,
+  "mean": 3,
+  "min": 3,
   "max": 3,
   "splits": [
-   "M1 A1 B1ft",
-   "M1 A1 (use given product + place value)"
+   "M1 A1 B1ft"
   ]
  },
  "decimals|mastery": {
-  "n": 12,
-  "mean": 1.33,
+  "n": 13,
+  "mean": 1.38,
   "min": 1,
   "max": 2,
   "splits": [
@@ -654,22 +626,22 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "direct_proportion|exam": {
-  "n": 3,
-  "mean": 2.67,
-  "min": 1,
+  "n": 1,
+  "mean": 5,
+  "min": 5,
   "max": 5,
   "splits": [
-   "B1",
-   "B2 (B1 partial)"
+   "M1 M1dep A1 M1 A1ft"
   ]
  },
  "direct_proportion|mastery": {
-  "n": 1,
-  "mean": 1,
+  "n": 3,
+  "mean": 1.33,
   "min": 1,
-  "max": 1,
+  "max": 2,
   "splits": [
-   "B1 (X directly proportional to 1/Y)"
+   "B1",
+   "B2 (B1 partial)"
   ]
  },
  "dividing_fractions|exam": {
@@ -693,41 +665,32 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "enlargements|exam": {
-  "n": 4,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "B1 B1 B1 (name + SF + centre)",
-   "B1 B1 B1"
+   "B1 B1 B1 (name, angle or scale factor, centre)"
   ]
  },
  "enlargements|mastery": {
-  "n": 4,
-  "mean": 2.25,
+  "n": 7,
+  "mean": 2.57,
   "min": 1,
   "max": 3,
   "splits": [
    "B1 B1 B1 (name, scale factor, centre)",
-   "B1"
-  ]
- },
- "equation_of_a_circle|exam": {
-  "n": 1,
-  "mean": 2,
-  "min": 2,
-  "max": 2,
-  "splits": [
-   "M1 radius from diameter + A1 (x^2+y^2=324)"
+   "B1 B1 B1 (name + SF + centre)"
   ]
  },
  "equation_of_a_circle|mastery": {
-  "n": 2,
-  "mean": 1,
+  "n": 3,
+  "mean": 1.33,
   "min": 1,
-  "max": 1,
+  "max": 2,
   "splits": [
-   "B1"
+   "B1",
+   "M1 radius from diameter + A1 (x^2+y^2=324)"
   ]
  },
  "estimating|exam": {
@@ -751,37 +714,28 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "exact_trig_values|exam": {
-  "n": 3,
-  "mean": 3.67,
+  "n": 2,
+  "mean": 3.5,
   "min": 3,
   "max": 4,
   "splits": [
    "M1 M1 M1dep A1",
-   "M1 M1dep M1dep A1"
+   "M2 A1 (M1 one or two correct exact values)"
   ]
  },
  "exact_trig_values|mastery": {
-  "n": 4,
-  "mean": 1.5,
+  "n": 5,
+  "mean": 2,
   "min": 1,
-  "max": 3,
+  "max": 4,
   "splits": [
    "B1",
-   "B1 (circle one of four)"
-  ]
- },
- "expanding_brackets|exam": {
-  "n": 1,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "M1 one term + M1dep two terms + A1 to integer"
+   "M1 M1dep M1dep A1"
   ]
  },
  "expanding_brackets|mastery": {
-  "n": 11,
-  "mean": 2.27,
+  "n": 12,
+  "mean": 2.33,
   "min": 1,
   "max": 4,
   "splits": [
@@ -790,8 +744,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "expanding_double_brackets|exam": {
-  "n": 7,
-  "mean": 3.57,
+  "n": 4,
+  "mean": 3.75,
   "min": 3,
   "max": 4,
   "splits": [
@@ -800,33 +754,32 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "expanding_double_brackets|mastery": {
-  "n": 4,
-  "mean": 2.75,
+  "n": 7,
+  "mean": 3,
   "min": 2,
-  "max": 3,
+  "max": 4,
   "splits": [
    "M1 M1dep A1",
    "M1 A1"
   ]
  },
  "expected_outcomes|exam": {
-  "n": 2,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
    "M1 M1dep A1ft"
   ]
  },
  "expected_outcomes|mastery": {
-  "n": 5,
-  "mean": 1.8,
+  "n": 6,
+  "mean": 2,
   "min": 1,
-  "max": 2,
+  "max": 3,
   "splits": [
    "M1 A1",
-   "B1"
+   "M1 M1dep A1"
   ]
  },
  "factorising_quadratics|mastery": {
@@ -849,18 +802,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 (circle one of four)"
   ]
  },
- "factors_and_multiples|exam": {
-  "n": 1,
-  "mean": 2,
-  "min": 2,
-  "max": 2,
-  "splits": [
-   "B2 two valid numbers (B1 one)"
-  ]
- },
  "factors_and_multiples|mastery": {
-  "n": 15,
-  "mean": 1.93,
+  "n": 16,
+  "mean": 1.94,
   "min": 1,
   "max": 3,
   "splits": [
@@ -868,30 +812,20 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B3 (B2 four of five conditions, B1 three)"
   ]
  },
- "finding_the_nth_term|exam": {
-  "n": 2,
-  "mean": 3,
-  "min": 2,
-  "max": 4,
-  "splits": [
-   "M1 M1dep M1dep A1",
-   "B2"
-  ]
- },
  "finding_the_nth_term|mastery": {
-  "n": 4,
-  "mean": 2.25,
+  "n": 6,
+  "mean": 2.5,
   "min": 1,
-  "max": 3,
+  "max": 4,
   "splits": [
    "M1 A2 (A1 for correct coefficient with wrong constant)",
    "B2 (B1 correct coefficient with wrong constant)"
   ]
  },
  "forming_expressions_and_formulae|exam": {
-  "n": 9,
-  "mean": 3.67,
-  "min": 2,
+  "n": 7,
+  "mean": 4.14,
+  "min": 3,
   "max": 5,
   "splits": [
    "M1 M1 M1dep M1dep A1",
@@ -899,8 +833,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "forming_expressions_and_formulae|mastery": {
-  "n": 7,
-  "mean": 2.29,
+  "n": 9,
+  "mean": 2.22,
   "min": 1,
   "max": 4,
   "splits": [
@@ -928,18 +862,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1"
   ]
  },
- "fractional_enlargements|exam": {
-  "n": 1,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "B3 negative enlargement, centre (0,0), correct vertices"
-  ]
- },
  "fractional_enlargements|mastery": {
-  "n": 4,
-  "mean": 2.25,
+  "n": 5,
+  "mean": 2.4,
   "min": 1,
   "max": 3,
   "splits": [
@@ -948,18 +873,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "fractions_decimals_and_percentages|exam": {
-  "n": 7,
-  "mean": 3.14,
-  "min": 2,
+  "n": 4,
+  "mean": 3.5,
+  "min": 3,
   "max": 4,
   "splits": [
-   "M1 M1dep A1",
-   "M1 M1 M1dep A1"
+   "M1 M1 M1dep A1",
+   "M1 M1dep A1"
   ]
  },
  "fractions_decimals_and_percentages|mastery": {
-  "n": 21,
-  "mean": 1.9,
+  "n": 24,
+  "mean": 2,
   "min": 1,
   "max": 3,
   "splits": [
@@ -968,9 +893,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "fractions_of_amounts|exam": {
-  "n": 13,
-  "mean": 3.54,
-  "min": 2,
+  "n": 5,
+  "mean": 4,
+  "min": 3,
   "max": 5,
   "splits": [
    "M1 M1dep A1",
@@ -978,8 +903,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "fractions_of_amounts|mastery": {
-  "n": 13,
-  "mean": 2.69,
+  "n": 21,
+  "mean": 2.9,
   "min": 1,
   "max": 4,
   "splits": [
@@ -988,37 +913,28 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "frequency_trees|exam": {
-  "n": 6,
-  "mean": 4,
+  "n": 4,
+  "mean": 3.75,
   "min": 3,
-  "max": 5,
+  "max": 4,
   "splits": [
    "M1 A1 B1 B1ft",
    "B1 B1 B1ft"
   ]
  },
  "frequency_trees|mastery": {
-  "n": 1,
-  "mean": 2,
-  "min": 2,
-  "max": 2,
-  "splits": [
-   "B2ft"
-  ]
- },
- "function_machines|exam": {
   "n": 3,
-  "mean": 1,
-  "min": 1,
-  "max": 1,
+  "mean": 3.67,
+  "min": 2,
+  "max": 5,
   "splits": [
-   "B1 (two operations, correct order)",
-   "B1 (-8)"
+   "B1 B1 B1ft B1ft B1ft",
+   "B1 B1 B1ft B1ft"
   ]
  },
  "function_machines|mastery": {
-  "n": 15,
-  "mean": 1.47,
+  "n": 18,
+  "mean": 1.39,
   "min": 1,
   "max": 4,
   "splits": [
@@ -1047,20 +963,19 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "graph_transformations|exam": {
-  "n": 5,
-  "mean": 1.6,
-  "min": 1,
-  "max": 3,
+  "n": 1,
+  "mean": 2,
+  "min": 2,
+  "max": 2,
   "splits": [
-   "B2 (7,8), B1 per coordinate",
-   "B1 (y = x^2 + 2)"
+   "B2 (7,8), B1 per coordinate"
   ]
  },
  "graph_transformations|mastery": {
-  "n": 7,
-  "mean": 1.14,
+  "n": 11,
+  "mean": 1.27,
   "min": 1,
-  "max": 2,
+  "max": 3,
   "splits": [
    "B1",
    "B1 (mark intention)"
@@ -1086,23 +1001,23 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "growth_and_decay|exam": {
-  "n": 7,
-  "mean": 2.86,
+  "n": 2,
+  "mean": 3.5,
+  "min": 3,
+  "max": 4,
+  "splits": [
+   "M1 M1dep A1",
+   "M1 M1dep M1dep A1"
+  ]
+ },
+ "growth_and_decay|mastery": {
+  "n": 10,
+  "mean": 2.9,
   "min": 2,
   "max": 4,
   "splits": [
    "M1 M1dep A1",
-   "M1 A1 (show >= double)"
-  ]
- },
- "growth_and_decay|mastery": {
-  "n": 5,
-  "mean": 3.2,
-  "min": 3,
-  "max": 4,
-  "splits": [
-   "M1 M1 A1",
-   "M1 M1dep A1"
+   "M1 M1 A1"
   ]
  },
  "highest_common_factor|mastery": {
@@ -1114,18 +1029,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1"
   ]
  },
- "histograms|exam": {
-  "n": 1,
-  "mean": 4,
-  "min": 4,
-  "max": 4,
-  "splits": [
-   "M1 one freq density + M1dep >=3 densities + M1dep >=3 bars + A1 full histogram"
-  ]
- },
  "histograms|mastery": {
-  "n": 3,
-  "mean": 3.33,
+  "n": 4,
+  "mean": 3.5,
   "min": 3,
   "max": 4,
   "splits": [
@@ -1134,8 +1040,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "indices|exam": {
-  "n": 5,
-  "mean": 2.8,
+  "n": 4,
+  "mean": 2.75,
   "min": 2,
   "max": 3,
   "splits": [
@@ -1144,8 +1050,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "indices|mastery": {
-  "n": 36,
-  "mean": 1.75,
+  "n": 37,
+  "mean": 1.78,
   "min": 1,
   "max": 3,
   "splits": [
@@ -1154,43 +1060,42 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "inequalities|exam": {
-  "n": 5,
-  "mean": 2.6,
-  "min": 1,
+  "n": 2,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "B1",
-   "B4 (B1 per correct line, final mark for the region)"
+   "B4 (B1 per correct line, final mark for the region)",
+   "M1 M1dep M1dep A1"
   ]
  },
  "inequalities|mastery": {
-  "n": 11,
-  "mean": 1.73,
+  "n": 14,
+  "mean": 1.71,
   "min": 1,
   "max": 3,
   "splits": [
-   "M1 A1",
-   "B2 (B1 a pair satisfying two of the three conditions)"
+   "B1",
+   "M1 A1"
   ]
  },
  "interquartile_range|exam": {
-  "n": 3,
-  "mean": 3,
-  "min": 2,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "B1 B1",
-   "B3 (B2/B1 partial plots)"
+   "B1ft median + B1ft compare + B1ft IQR + B1ft compare"
   ]
  },
  "interquartile_range|mastery": {
-  "n": 3,
-  "mean": 2.67,
+  "n": 5,
+  "mean": 2.6,
   "min": 2,
   "max": 4,
   "splits": [
    "B2 (B1 a value consistent with one stated relation)",
-   "M1 A1"
+   "B1 B1"
   ]
  },
  "inverse_functions|exam": {
@@ -1204,20 +1109,19 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "inverse_proportion|exam": {
-  "n": 4,
-  "mean": 2.75,
-  "min": 1,
+  "n": 1,
+  "mean": 5,
+  "min": 5,
   "max": 5,
   "splits": [
-   "B2 (B1 partial)",
    "M1 M1dep A1 M1 A1ft"
   ]
  },
  "inverse_proportion|mastery": {
-  "n": 10,
-  "mean": 1.4,
+  "n": 13,
+  "mean": 1.54,
   "min": 1,
-  "max": 2,
+  "max": 3,
   "splits": [
    "B1 (a correct point substituted with a verdict)",
    "B1 (tick meaning of constant)"
@@ -1244,18 +1148,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "iteration|exam": {
-  "n": 2,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 equation for u1 + A1 (u1=6) + B1 (u3=7)"
+   "M1 M1dep A1"
   ]
  },
  "iteration|mastery": {
-  "n": 3,
-  "mean": 2,
+  "n": 4,
+  "mean": 2.25,
   "min": 1,
   "max": 3,
   "splits": [
@@ -1264,20 +1167,20 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "kinematic_graphs|exam": {
-  "n": 7,
-  "mean": 2.57,
-  "min": 1,
+  "n": 3,
+  "mean": 3,
+  "min": 3,
   "max": 3,
   "splits": [
-   "M1 M1dep A1 (gradient = speed)",
-   "M1 interval read + M1dep gradient + A1"
+   "M1 interval read + M1dep gradient + A1",
+   "B1 B1ft B1ft"
   ]
  },
  "kinematic_graphs|mastery": {
-  "n": 7,
-  "mean": 1.57,
+  "n": 11,
+  "mean": 1.82,
   "min": 1,
-  "max": 2,
+  "max": 3,
   "splits": [
    "B1",
    "M1 A1"
@@ -1303,46 +1206,30 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B2 (B1 one correct perimeter)"
   ]
  },
- "loci|exam": {
-  "n": 1,
-  "mean": 3,
+ "loci|mastery": {
+  "n": 2,
+  "mean": 3.5,
   "min": 3,
-  "max": 3,
+  "max": 4,
   "splits": [
+   "B4 (B1 per correct construction, final mark for the region)",
    "B3 semicircle ends radius 4 + connecting lines"
   ]
  },
- "loci|mastery": {
-  "n": 1,
-  "mean": 4,
-  "min": 4,
-  "max": 4,
-  "splits": [
-   "B4 (B1 per correct construction, final mark for the region)"
-  ]
- },
- "lowest_common_multiple|exam": {
-  "n": 1,
-  "mean": 2,
-  "min": 2,
+ "lowest_common_multiple|mastery": {
+  "n": 3,
+  "mean": 1.33,
+  "min": 1,
   "max": 2,
   "splits": [
+   "B1",
    "B2 two valid numbers (B1 one)"
   ]
  },
- "lowest_common_multiple|mastery": {
-  "n": 2,
-  "mean": 1,
-  "min": 1,
-  "max": 1,
-  "splits": [
-   "B1"
-  ]
- },
  "mean|exam": {
-  "n": 6,
-  "mean": 4.17,
-  "min": 3,
+  "n": 5,
+  "mean": 4.4,
+  "min": 4,
   "max": 5,
   "splits": [
    "M1 M1 M1dep M1dep A1",
@@ -1350,8 +1237,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "mean|mastery": {
-  "n": 13,
-  "mean": 2.38,
+  "n": 14,
+  "mean": 2.43,
   "min": 1,
   "max": 3,
   "splits": [
@@ -1359,38 +1246,29 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 (valid reason)"
   ]
  },
- "measuring_lines_and_angles|exam": {
-  "n": 1,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "B1 M1 A1ft (measure then x3)"
-  ]
- },
  "measuring_lines_and_angles|mastery": {
-  "n": 7,
-  "mean": 1,
+  "n": 8,
+  "mean": 1.25,
   "min": 1,
-  "max": 1,
+  "max": 3,
   "splits": [
    "B1 (range [54, 58])",
    "B1 (range [48, 52])"
   ]
  },
  "median|exam": {
-  "n": 4,
-  "mean": 3,
-  "min": 2,
+  "n": 2,
+  "mean": 3.5,
+  "min": 3,
   "max": 4,
   "splits": [
-   "B1 B1",
-   "B3 (B1 per condition met)"
+   "B3 (B1 per condition met)",
+   "B1ft median + B1ft compare + B1ft IQR + B1ft compare"
   ]
  },
  "median|mastery": {
-  "n": 8,
-  "mean": 2,
+  "n": 10,
+  "mean": 2.1,
   "min": 1,
   "max": 4,
   "splits": [
@@ -1399,20 +1277,19 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "mode|exam": {
-  "n": 2,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "B3 (B1 per condition met)",
-   "B3 (B1 per correct row)"
+   "B3 (B1 per condition met)"
   ]
  },
  "mode|mastery": {
-  "n": 2,
-  "mean": 1.5,
+  "n": 3,
+  "mean": 2,
   "min": 1,
-  "max": 2,
+  "max": 3,
   "splits": [
    "B1",
    "B2 (B1 a valid coin set or the modal value of their set)"
@@ -1437,48 +1314,57 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B3 (B2 two of the three coefficients, B1 one)"
   ]
  },
- "percentage_change|exam": {
-  "n": 10,
-  "mean": 4,
+ "parts_of_a_circle|mastery": {
+  "n": 9,
+  "mean": 1.44,
   "min": 1,
+  "max": 3,
+  "splits": [
+   "B1 B1 (name two regions)",
+   "B1 region A + B1 region B"
+  ]
+ },
+ "percentage_change|exam": {
+  "n": 7,
+  "mean": 4.57,
+  "min": 4,
   "max": 5,
   "splits": [
-   "M1 M1dep M1dep A1",
-   "M1 M1 M1 M1dep A1"
+   "M1 M1 M1 M1dep A1",
+   "M1 M1dep M1 A1"
   ]
  },
  "percentage_change|mastery": {
-  "n": 8,
-  "mean": 3,
+  "n": 11,
+  "mean": 2.91,
   "min": 1,
   "max": 4,
   "splits": [
-   "M2 A1 (M1 correct first step)",
-   "M1 M1 M1dep A1"
+   "M1 M1dep M1dep A1",
+   "M2 A1 (M1 correct first step)"
   ]
  },
  "perpendicular_gradients|exam": {
-  "n": 3,
-  "mean": 3.33,
-  "min": 2,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "M1 M1 M1dep A1",
-   "M1 both gradients + A1 (Yes + negative-reciprocal reason)"
+   "M1 M1 M1dep A1"
   ]
  },
  "perpendicular_gradients|mastery": {
-  "n": 2,
+  "n": 4,
   "mean": 3,
   "min": 1,
   "max": 5,
   "splits": [
    "M1 M1 M1dep M1dep A1",
-   "B1"
+   "M1 M1 M1dep A1"
   ]
  },
  "pie_charts|exam": {
-  "n": 3,
+  "n": 2,
   "mean": 4,
   "min": 4,
   "max": 4,
@@ -1487,33 +1373,33 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "pie_charts|mastery": {
-  "n": 6,
-  "mean": 2.33,
+  "n": 7,
+  "mean": 2.57,
   "min": 1,
-  "max": 3,
+  "max": 4,
   "splits": [
    "M1 M1dep A1",
    "B1 (No + valid reason)"
   ]
  },
  "plans_and_elevations|exam": {
-  "n": 5,
-  "mean": 2.2,
+  "n": 2,
+  "mean": 2.5,
   "min": 2,
   "max": 3,
   "splits": [
    "M1 A1 A1",
-   "M1 A1 (compute dim + draw)"
+   "M1 A1"
   ]
  },
  "plans_and_elevations|mastery": {
-  "n": 2,
+  "n": 5,
   "mean": 2,
   "min": 2,
   "max": 2,
   "splits": [
-   "B2 (plan = circle)",
-   "B2 (elevation = rectangle)"
+   "M1 A1 (compute dim + draw)",
+   "B2 (plan = circle)"
   ]
  },
  "plotting_straight_line_graphs|exam": {
@@ -1545,48 +1431,56 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "prime_factor_decomposition|mastery": {
-  "n": 4,
-  "mean": 2,
-  "min": 1,
-  "max": 3,
-  "splits": [
-   "M1 M1dep A1",
-   "B1"
-  ]
- },
- "probability_spaces|exam": {
-  "n": 3,
+  "n": 6,
   "mean": 2.33,
   "min": 1,
   "max": 3,
   "splits": [
-   "M1 A1 A1ft (construct spinner + P)",
-   "B1 valid reason"
+   "B3 (B2 four of five conditions, B1 three)",
+   "M1 M1dep A1"
+  ]
+ },
+ "probability_spaces|exam": {
+  "n": 1,
+  "mean": 3,
+  "min": 3,
+  "max": 3,
+  "splits": [
+   "M1 M1dep A1ft"
   ]
  },
  "probability_spaces|mastery": {
-  "n": 4,
+  "n": 6,
   "mean": 2,
   "min": 1,
   "max": 3,
   "splits": [
    "M1 A1",
-   "B1 (reason)"
+   "M1 A1 A1ft (construct spinner + P)"
+  ]
+ },
+ "properties_of_3d_solids|exam": {
+  "n": 1,
+  "mean": 4,
+  "min": 4,
+  "max": 4,
+  "splits": [
+   "M1 M1dep M1dep A1"
   ]
  },
  "properties_of_3d_solids|mastery": {
-  "n": 7,
-  "mean": 1.14,
+  "n": 9,
+  "mean": 1.33,
   "min": 1,
   "max": 2,
   "splits": [
-   "B1 (faces)",
-   "B1 (edges)"
+   "B2 (B1 tick alone)",
+   "B1 (faces)"
   ]
  },
  "proportion_with_powers|exam": {
-  "n": 4,
-  "mean": 3.75,
+  "n": 3,
+  "mean": 3.67,
   "min": 2,
   "max": 5,
   "splits": [
@@ -1595,28 +1489,28 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "proportion_with_powers|mastery": {
-  "n": 2,
-  "mean": 2,
+  "n": 3,
+  "mean": 2.67,
   "min": 1,
-  "max": 3,
+  "max": 4,
   "splits": [
    "M1 M1dep A1",
    "B1 (No + valid reason)"
   ]
  },
  "proportion|exam": {
-  "n": 29,
-  "mean": 3.45,
+  "n": 21,
+  "mean": 3.57,
   "min": 2,
   "max": 5,
   "splits": [
-   "M1 M1dep A1",
-   "M1 M1dep M1 A1"
+   "M1 M1dep M1 A1",
+   "M1 A1"
   ]
  },
  "proportion|mastery": {
-  "n": 22,
-  "mean": 2.36,
+  "n": 30,
+  "mean": 2.57,
   "min": 1,
   "max": 5,
   "splits": [
@@ -1625,37 +1519,28 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "pythagoras_theorem|exam": {
-  "n": 6,
-  "mean": 3,
-  "min": 2,
+  "n": 2,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "M1 M1dep A1",
-   "M1 M1 M1dep A1"
+   "M1 M1 M1dep A1",
+   "M1 M1dep A1 A1ft"
   ]
  },
  "pythagoras_theorem|mastery": {
-  "n": 4,
-  "mean": 3.25,
-  "min": 3,
+  "n": 8,
+  "mean": 2.88,
+  "min": 2,
   "max": 4,
   "splits": [
    "M1 M1dep A1",
    "M1 M1dep M1dep A1"
   ]
  },
- "quadratic_functions|exam": {
-  "n": 1,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "B3 (B1 per correct match)"
-  ]
- },
  "quadratic_functions|mastery": {
-  "n": 13,
-  "mean": 2,
+  "n": 14,
+  "mean": 2.07,
   "min": 1,
   "max": 3,
   "splits": [
@@ -1683,18 +1568,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "range|exam": {
-  "n": 2,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "B3 (B1 per condition met)",
-   "B3 (B1 per correct row)"
+   "B3 (B1 per condition met)"
   ]
  },
  "range|mastery": {
-  "n": 8,
-  "mean": 1.88,
+  "n": 9,
+  "mean": 2,
   "min": 1,
   "max": 3,
   "splits": [
@@ -1703,8 +1587,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "ratio|exam": {
-  "n": 23,
-  "mean": 3.26,
+  "n": 17,
+  "mean": 3.29,
   "min": 2,
   "max": 5,
   "splits": [
@@ -1713,18 +1597,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "ratio|mastery": {
-  "n": 32,
-  "mean": 2.28,
+  "n": 38,
+  "mean": 2.42,
   "min": 1,
   "max": 4,
   "splits": [
-   "B1",
-   "M1 M1dep A1"
+   "M1 M1dep A1",
+   "B1"
   ]
  },
  "rearranging_formulae|exam": {
-  "n": 4,
-  "mean": 3.25,
+  "n": 3,
+  "mean": 3.33,
   "min": 3,
   "max": 4,
   "splits": [
@@ -1733,8 +1617,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "rearranging_formulae|mastery": {
-  "n": 6,
-  "mean": 2.5,
+  "n": 7,
+  "mean": 2.57,
   "min": 1,
   "max": 4,
   "splits": [
@@ -1753,18 +1637,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "recurring_decimals_to_fractions|exam": {
-  "n": 3,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 x10^n + M1dep subtract + A1 (7/45)"
+   "M1 M1dep A1"
   ]
  },
  "recurring_decimals_to_fractions|mastery": {
-  "n": 2,
-  "mean": 2,
+  "n": 4,
+  "mean": 2.5,
   "min": 1,
   "max": 3,
   "splits": [
@@ -1782,28 +1665,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B2 (B1 a correct reflection without the mirror line)"
   ]
  },
- "relative_frequency|exam": {
-  "n": 4,
-  "mean": 2,
+ "relative_frequency|mastery": {
+  "n": 12,
+  "mean": 1.58,
   "min": 1,
   "max": 3,
-  "splits": [
-   "B1 (value) B1 (reason: most trials)",
-   "B1 value (52/200) + B1 reason (most trials)"
-  ]
- },
- "relative_frequency|mastery": {
-  "n": 8,
-  "mean": 1.38,
-  "min": 1,
-  "max": 2,
   "splits": [
    "M1 A1",
    "B1 (choice + valid reason)"
   ]
  },
  "reverse_percentage|exam": {
-  "n": 2,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
@@ -1812,7 +1685,7 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "reverse_percentage|mastery": {
-  "n": 7,
+  "n": 8,
   "mean": 3,
   "min": 2,
   "max": 4,
@@ -1840,43 +1713,24 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 B1 (angle and vector)"
   ]
  },
- "rounding|exam": {
-  "n": 3,
-  "mean": 1,
-  "min": 1,
-  "max": 1,
-  "splits": [
-   "B1",
-   "B1 valid explanation (round up needed)"
-  ]
- },
  "rounding|mastery": {
-  "n": 3,
-  "mean": 2,
-  "min": 2,
+  "n": 6,
+  "mean": 1.5,
+  "min": 1,
   "max": 2,
   "splits": [
-   "B1 B1 (pick from list of 4)",
-   "M1 A1"
-  ]
- },
- "sampling|exam": {
-  "n": 1,
-  "mean": 1,
-  "min": 1,
-  "max": 1,
-  "splits": [
-   "B1"
+   "B1",
+   "B1 B1 (pick from list of 4)"
   ]
  },
  "sampling|mastery": {
-  "n": 2,
+  "n": 3,
   "mean": 1,
   "min": 1,
   "max": 1,
   "splits": [
    "B1 (reason)",
-   "B1 (bias or sample size)"
+   "B1"
   ]
  },
  "scatter_graphs|exam": {
@@ -1899,18 +1753,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 (circle one of four)"
   ]
  },
- "sector_calculations|exam": {
-  "n": 1,
-  "mean": 3,
-  "min": 3,
-  "max": 3,
-  "splits": [
-   "M1 M1dep A1"
-  ]
- },
  "sector_calculations|mastery": {
-  "n": 10,
-  "mean": 2.3,
+  "n": 7,
+  "mean": 3,
   "min": 1,
   "max": 5,
   "splits": [
@@ -1919,23 +1764,23 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "sequences|exam": {
-  "n": 4,
-  "mean": 3,
+  "n": 3,
+  "mean": 2.67,
   "min": 2,
-  "max": 4,
+  "max": 3,
   "splits": [
    "B1 B1ft B1",
-   "M1 M1dep M1dep A1"
+   "M1 A1"
   ]
  },
  "sequences|mastery": {
-  "n": 22,
-  "mean": 1.41,
+  "n": 23,
+  "mean": 1.52,
   "min": 1,
   "max": 4,
   "splits": [
    "B1",
-   "B1 B1ft"
+   "M1 M1dep M1dep A1"
   ]
  },
  "significant_figures|mastery": {
@@ -1949,38 +1794,36 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "simple_arithmetic|exam": {
-  "n": 13,
-  "mean": 3.54,
-  "min": 2,
-  "max": 5,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
+  "max": 4,
   "splits": [
-   "M1 M1dep M1dep A1",
-   "M1 M1dep A1"
+   "M1 M1dep M1 A1"
   ]
  },
  "simple_arithmetic|mastery": {
-  "n": 66,
-  "mean": 2.3,
+  "n": 78,
+  "mean": 2.49,
   "min": 1,
   "max": 5,
   "splits": [
    "B1",
-   "M1 A1"
+   "M1 M1dep M1dep A1"
   ]
  },
  "simple_charts|exam": {
-  "n": 4,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "M1 M1 A1",
    "M1 M1dep A1"
   ]
  },
  "simple_charts|mastery": {
-  "n": 13,
-  "mean": 2.15,
+  "n": 16,
+  "mean": 2.31,
   "min": 1,
   "max": 4,
   "splits": [
@@ -1989,18 +1832,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "simplifying_expressions|exam": {
-  "n": 7,
+  "n": 4,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
    "B1 B1ft B1",
-   "B1 B1ft B1ft"
+   "B3 (match algebra to description)"
   ]
  },
  "simplifying_expressions|mastery": {
-  "n": 25,
-  "mean": 2,
+  "n": 28,
+  "mean": 2.11,
   "min": 1,
   "max": 4,
   "splits": [
@@ -2009,7 +1852,7 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "simplifying_fractions|exam": {
-  "n": 2,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
@@ -2018,33 +1861,32 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "simplifying_fractions|mastery": {
-  "n": 5,
-  "mean": 2,
+  "n": 6,
+  "mean": 2.17,
   "min": 1,
   "max": 4,
   "splits": [
    "B2 (B1 an unsimplified equivalent)",
-   "B2 (B1 unsimplified equivalent)"
+   "M1 A1 B1ft"
   ]
  },
  "simplifying_indices|exam": {
-  "n": 3,
+  "n": 1,
   "mean": 3,
   "min": 3,
   "max": 3,
   "splits": [
-   "B1 B1 B1",
-   "B3 (B1 per correct match)"
+   "B1 each of three simplified terms"
   ]
  },
  "simplifying_indices|mastery": {
-  "n": 12,
-  "mean": 1.75,
+  "n": 14,
+  "mean": 1.93,
   "min": 1,
   "max": 3,
   "splits": [
    "B1",
-   "M1 M1dep A1"
+   "B1 B1 B1"
   ]
  },
  "simplifying_ratio|exam": {
@@ -2077,18 +1919,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "simultaneous_equations|exam": {
-  "n": 2,
-  "mean": 3.5,
+  "n": 1,
+  "mean": 3,
   "min": 3,
-  "max": 4,
+  "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 M1dep M1dep A1"
+   "M1 M1dep A1"
   ]
  },
  "simultaneous_equations|mastery": {
-  "n": 5,
-  "mean": 3.4,
+  "n": 6,
+  "mean": 3.5,
   "min": 3,
   "max": 4,
   "splits": [
@@ -2097,23 +1938,22 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "sine_rule|exam": {
-  "n": 2,
-  "mean": 3.5,
-  "min": 3,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "M1 M1dep A1 A1ft",
-   "M1 M1dep A1"
+   "M1 M1dep A1 A1ft"
   ]
  },
  "sine_rule|mastery": {
-  "n": 2,
-  "mean": 2.5,
+  "n": 3,
+  "mean": 2.67,
   "min": 2,
   "max": 3,
   "splits": [
-   "M1 A1",
-   "M1 sine rule setup + M1dep rearrange + A1 (~34.5)"
+   "M1 M1dep A1",
+   "M1 A1"
   ]
  },
  "sketching_functions|mastery": {
@@ -2127,18 +1967,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "solving_linear_equations|exam": {
-  "n": 14,
-  "mean": 3.71,
+  "n": 11,
+  "mean": 3.91,
   "min": 2,
   "max": 5,
   "splits": [
    "M1 M1 M1dep M1dep A1",
-   "M1 A1 A1ft"
+   "M1 M1dep M1dep A1"
   ]
  },
  "solving_linear_equations|mastery": {
-  "n": 20,
-  "mean": 1.9,
+  "n": 23,
+  "mean": 2.04,
   "min": 1,
   "max": 4,
   "splits": [
@@ -2147,8 +1987,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "solving_quadratic_equations_factorising|exam": {
-  "n": 9,
-  "mean": 4.44,
+  "n": 8,
+  "mean": 4.5,
   "min": 4,
   "max": 5,
   "splits": [
@@ -2157,31 +1997,23 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "solving_quadratic_equations_factorising|mastery": {
-  "n": 1,
-  "mean": 1,
+  "n": 2,
+  "mean": 2.5,
   "min": 1,
-  "max": 1,
-  "splits": [
-   "B1 (either order)"
-  ]
- },
- "solving_quadratic_equations_quadratic_equation|exam": {
-  "n": 1,
-  "mean": 4,
-  "min": 4,
   "max": 4,
   "splits": [
-   "M1 expand + M1dep equation + M1dep rearrange + A1 d,e,f"
+   "B1 (either order)",
+   "M1 expand + M1dep rearrange to =0 + M1 factorise/formula + A1 (-1 and 10)"
   ]
  },
  "solving_quadratic_equations_quadratic_equation|mastery": {
-  "n": 3,
-  "mean": 3,
+  "n": 4,
+  "mean": 3.25,
   "min": 2,
   "max": 4,
   "splits": [
    "M1 M1dep A1",
-   "M1 A1"
+   "M1 expand + M1dep equation + M1dep rearrange + A1 d,e,f"
   ]
  },
  "standard_form|exam": {
@@ -2204,19 +2036,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B2"
   ]
  },
- "substitution|exam": {
-  "n": 3,
-  "mean": 2,
-  "min": 1,
-  "max": 3,
-  "splits": [
-   "B1",
-   "M1 substitute x=100 into cubic + A1ft (6294624)"
-  ]
- },
  "substitution|mastery": {
-  "n": 19,
-  "mean": 2.11,
+  "n": 22,
+  "mean": 2.09,
   "min": 1,
   "max": 3,
   "splits": [
@@ -2225,27 +2047,28 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "surds_expanding_and_rationalising|exam": {
-  "n": 3,
-  "mean": 3.33,
+  "n": 2,
+  "mean": 3.5,
   "min": 3,
   "max": 4,
   "splits": [
    "M1 M1 M1dep A1",
-   "M1 M1dep A1"
+   "M2 A1 (M1 one or two correct exact values)"
   ]
  },
  "surds_expanding_and_rationalising|mastery": {
-  "n": 1,
-  "mean": 2,
+  "n": 2,
+  "mean": 2.5,
   "min": 2,
-  "max": 2,
+  "max": 3,
   "splits": [
+   "M1 M1dep A1",
    "M1 rationalise + A1 (4 root 5)"
   ]
  },
  "surds_simplifying|exam": {
-  "n": 4,
-  "mean": 2.75,
+  "n": 3,
+  "mean": 3,
   "min": 2,
   "max": 4,
   "splits": [
@@ -2254,8 +2077,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "surds_simplifying|mastery": {
-  "n": 3,
-  "mean": 2.33,
+  "n": 4,
+  "mean": 2.25,
   "min": 1,
   "max": 3,
   "splits": [
@@ -2263,41 +2086,23 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1"
   ]
  },
- "surface_area_of_a_cone|exam": {
-  "n": 1,
+ "surface_area_of_a_cone|mastery": {
+  "n": 2,
   "mean": 1,
   "min": 1,
   "max": 1,
   "splits": [
+   "B1 (identify error)",
    "B1"
   ]
  },
- "surface_area_of_a_cone|mastery": {
-  "n": 1,
-  "mean": 1,
-  "min": 1,
-  "max": 1,
-  "splits": [
-   "B1 (identify error)"
-  ]
- },
  "surface_area_of_a_cylinder|exam": {
-  "n": 2,
-  "mean": 3.5,
+  "n": 1,
+  "mean": 3,
   "min": 3,
-  "max": 4,
+  "max": 3,
   "splits": [
-   "M1 M1dep A1",
-   "M1 M1dep M1dep A1"
-  ]
- },
- "surface_area_of_a_cylinder|mastery": {
-  "n": 2,
-  "mean": 2,
-  "min": 2,
-  "max": 2,
-  "splits": [
-   "B2 (B1 tick alone)"
+   "M1 M1dep A1"
   ]
  },
  "surface_area_of_a_sphere|exam": {
@@ -2310,58 +2115,56 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "symmetry|exam": {
-  "n": 3,
-  "mean": 2.67,
-  "min": 2,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "B4",
-   "B2 (shade for 2 lines symmetry)"
+   "B4"
   ]
  },
  "symmetry|mastery": {
-  "n": 5,
-  "mean": 1.2,
+  "n": 7,
+  "mean": 1.43,
   "min": 1,
   "max": 2,
   "splits": [
    "B1",
-   "B2 (draw 2 lines symmetry)"
+   "B2 (shade for 2 lines symmetry)"
   ]
  },
  "systematic_listing|exam": {
-  "n": 4,
-  "mean": 2.75,
-  "min": 2,
-  "max": 4,
-  "splits": [
-   "B3 (constraint-graded)",
-   "M1 A1"
-  ]
- },
- "systematic_listing|mastery": {
-  "n": 10,
-  "mean": 2,
-  "min": 1,
-  "max": 3,
-  "splits": [
-   "M1 A1",
-   "B2 (B1 three or four of the five correct)"
-  ]
- },
- "time_calculations|exam": {
-  "n": 2,
+  "n": 3,
   "mean": 3,
   "min": 2,
   "max": 4,
   "splits": [
-   "M1 M1 M1dep A1",
-   "B2 (h/m/s)"
+   "B3 (constraint-graded)",
+   "M1 M1 M1dep A1"
+  ]
+ },
+ "systematic_listing|mastery": {
+  "n": 8,
+  "mean": 1.88,
+  "min": 1,
+  "max": 3,
+  "splits": [
+   "B2 (B1 three or four of the five correct)",
+   "B2 (B1 one spinner fully labelled)"
+  ]
+ },
+ "time_calculations|exam": {
+  "n": 1,
+  "mean": 4,
+  "min": 4,
+  "max": 4,
+  "splits": [
+   "M1 M1 M1dep A1"
   ]
  },
  "time_calculations|mastery": {
-  "n": 9,
-  "mean": 2.11,
+  "n": 10,
+  "mean": 2.1,
   "min": 1,
   "max": 4,
   "splits": [
@@ -2370,18 +2173,17 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "time_series|exam": {
-  "n": 5,
-  "mean": 2,
-  "min": 1,
+  "n": 2,
+  "mean": 3,
+  "min": 3,
   "max": 3,
   "splits": [
-   "B1 M1 A1ft",
-   "B1"
+   "B1 M1 A1ft"
   ]
  },
  "time_series|mastery": {
-  "n": 7,
-  "mean": 1.71,
+  "n": 10,
+  "mean": 1.6,
   "min": 1,
   "max": 2,
   "splits": [
@@ -2399,40 +2201,21 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B2 (B1 one component correct or a described translation)"
   ]
  },
- "tree_diagrams|exam": {
-  "n": 3,
-  "mean": 3,
-  "min": 2,
-  "max": 4,
-  "splits": [
-   "M1 M1dep A1ft",
-   "B1 Section A branches + B1 Section B branches"
-  ]
- },
  "tree_diagrams|mastery": {
-  "n": 11,
-  "mean": 1.91,
+  "n": 14,
+  "mean": 2.14,
   "min": 1,
-  "max": 2,
+  "max": 4,
   "splits": [
    "B1 B1",
    "M1 A1"
   ]
  },
- "trig_graphs|exam": {
-  "n": 1,
-  "mean": 2,
-  "min": 2,
-  "max": 2,
-  "splits": [
-   "M1 (180-78.69 or 360-78.69) + A1 both values"
-  ]
- },
  "trig_graphs|mastery": {
-  "n": 3,
-  "mean": 1,
+  "n": 4,
+  "mean": 1.25,
   "min": 1,
-  "max": 1,
+  "max": 2,
   "splits": [
    "B1 (tick one of four)",
    "B1 (258.69)"
@@ -2447,18 +2230,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "M1 M1dep A1"
   ]
  },
- "trigonometry_missing_angles|exam": {
-  "n": 1,
-  "mean": 4,
-  "min": 4,
-  "max": 4,
-  "splits": [
-   "M1 tan + M1dep side + M1dep sine + A1 (angle x)"
-  ]
- },
  "trigonometry_missing_angles|mastery": {
-  "n": 3,
-  "mean": 3.33,
+  "n": 4,
+  "mean": 3.5,
   "min": 3,
   "max": 4,
   "splits": [
@@ -2466,19 +2240,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "M1 M1dep M1dep A1"
   ]
  },
- "trigonometry_missing_sides|exam": {
-  "n": 3,
-  "mean": 3.33,
-  "min": 3,
-  "max": 4,
-  "splits": [
-   "M1 M1dep A1",
-   "M1 tan + M1dep side + M1dep sine + A1 (angle x)"
-  ]
- },
  "trigonometry_missing_sides|mastery": {
-  "n": 7,
-  "mean": 3.14,
+  "n": 10,
+  "mean": 3.2,
   "min": 3,
   "max": 4,
   "splits": [
@@ -2487,18 +2251,18 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "understanding_straight_line_graphs|exam": {
-  "n": 10,
-  "mean": 3.1,
-  "min": 1,
+  "n": 2,
+  "mean": 3.5,
+  "min": 3,
   "max": 4,
   "splits": [
-   "M1 M1 M1dep A1",
-   "M1 M1 A1"
+   "M1 M1 A1",
+   "M1 M1 M1dep A1"
   ]
  },
  "understanding_straight_line_graphs|mastery": {
-  "n": 16,
-  "mean": 1.69,
+  "n": 24,
+  "mean": 2.13,
   "min": 1,
   "max": 5,
   "splits": [
@@ -2506,49 +2270,48 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
    "B1 (any parallel line, not the same line)"
   ]
  },
- "upper_and_lower_bounds|exam": {
-  "n": 6,
-  "mean": 2,
-  "min": 1,
-  "max": 3,
-  "splits": [
-   "B1",
-   "B2 (error interval, two bound boxes)"
-  ]
- },
  "upper_and_lower_bounds|mastery": {
-  "n": 12,
-  "mean": 2.17,
+  "n": 18,
+  "mean": 2.11,
   "min": 1,
   "max": 4,
   "splits": [
-   "B2 (B1 one bound in the correct position)",
-   "B1"
+   "B1",
+   "B2 (B1 one bound in the correct position)"
   ]
  },
  "vector_proof|exam": {
-  "n": 3,
+  "n": 2,
   "mean": 4,
   "min": 3,
   "max": 5,
   "splits": [
-   "M1 one expr + M1dep two exprs + A1 simplify + A1 parallel indication",
-   "B5 (banded B1-B4 by which correct vectors are stated)"
+   "B5 (banded B1-B4 by which correct vectors are stated)",
+   "M1 M1dep A1"
+  ]
+ },
+ "vector_proof|mastery": {
+  "n": 1,
+  "mean": 4,
+  "min": 4,
+  "max": 4,
+  "splits": [
+   "M1 one expr + M1dep two exprs + A1 simplify + A1 parallel indication"
   ]
  },
  "vectors|exam": {
-  "n": 3,
+  "n": 2,
   "mean": 4,
   "min": 3,
   "max": 5,
   "splits": [
-   "M1 one expr + M1dep two exprs + A1 simplify + A1 parallel indication",
-   "B5 (banded B1-B4 by which correct vectors are stated)"
+   "B5 (banded B1-B4 by which correct vectors are stated)",
+   "M1 M1dep A1"
   ]
  },
  "vectors|mastery": {
-  "n": 8,
-  "mean": 1.63,
+  "n": 9,
+  "mean": 1.89,
   "min": 1,
   "max": 4,
   "splits": [
@@ -2557,38 +2320,37 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "venn_diagrams|exam": {
-  "n": 4,
-  "mean": 3,
-  "min": 1,
+  "n": 1,
+  "mean": 4,
+  "min": 4,
   "max": 4,
   "splits": [
-   "B3",
-   "B1 shade intersection"
+   "B4 (B1 per correct region)"
   ]
  },
  "venn_diagrams|mastery": {
-  "n": 15,
-  "mean": 1.53,
+  "n": 18,
+  "mean": 1.72,
   "min": 1,
-  "max": 3,
+  "max": 4,
   "splits": [
    "B1",
    "M1 A1"
   ]
  },
  "volume_of_a_prism|exam": {
-  "n": 8,
-  "mean": 3.13,
+  "n": 6,
+  "mean": 3.17,
   "min": 2,
   "max": 5,
   "splits": [
    "M1 A1",
-   "M1 M1dep M1dep A1"
+   "M1 A1 A1"
   ]
  },
  "volume_of_a_prism|mastery": {
-  "n": 4,
-  "mean": 3,
+  "n": 5,
+  "mean": 2.8,
   "min": 2,
   "max": 4,
   "splits": [
@@ -2615,9 +2377,9 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "volume_of_a_sphere|exam": {
-  "n": 4,
-  "mean": 3.25,
-  "min": 2,
+  "n": 3,
+  "mean": 3.67,
+  "min": 3,
   "max": 4,
   "splits": [
    "M1 M1 M1dep A1",
@@ -2625,8 +2387,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
   ]
  },
  "volume_of_a_sphere|mastery": {
-  "n": 3,
-  "mean": 3.33,
+  "n": 4,
+  "mean": 3,
   "min": 2,
   "max": 4,
   "splits": [
@@ -2639,8 +2401,8 @@ export const BY_SKILL_KIND: Record<string, MarkStats> = {
 /** Fallback when a skill has too little evidence of its own. */
 export const BY_KIND: Record<string, MarkStats> = {
  "mastery": {
-  "n": 788,
-  "mean": 1.87,
+  "n": 960,
+  "mean": 2.01,
   "min": 1,
   "max": 5,
   "splits": [
@@ -2649,8 +2411,8 @@ export const BY_KIND: Record<string, MarkStats> = {
   ]
  },
  "exam": {
-  "n": 307,
-  "mean": 3.01,
+  "n": 135,
+  "mean": 3.47,
   "min": 1,
   "max": 5,
   "splits": [

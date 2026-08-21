@@ -255,8 +255,8 @@ describe('candidateOf', () => {
   const base = { id: 'q', skill_ids: ['simple_arithmetic'], difficulty: 2, calculator: 'na', kind: 'mastery', question_type: 'numeric', parts: null }
 
   it('admits multiple-choice questions, priced at one mark', () => {
-    // Real papers carry MC — 22 parts / 30 marks across the coded 2024 series,
-    // 17 of them worth exactly 1. Picking from a list shows no working, so
+    // Real papers carry MC — 52 parts / 60 marks across the 30 coded papers,
+    // 47 of them worth exactly 1. Picking from a list shows no working, so
     // there is no method to credit and nothing to build a bigger scheme on.
     const c = candidateOf({ ...base, question_type: 'multiple_choice' })
     expect(c).not.toBeNull()
@@ -270,11 +270,12 @@ describe('candidateOf', () => {
 
   it('uses nominal marks for single-part questions by difficulty', () => {
     // These come from lib/exam/markEvidence.data.ts, so they move when a new
-    // series is coded. Coding the 2023 papers lifted the mid-difficulty value
-    // from 2 to 3 (mastery mean 1.74 -> 1.87 across 30 papers). What the test
-    // pins is the ramp, not the literals: marks must not fall as difficulty rises.
+    // series is coded, and when `kind` is redefined. Those shifts have nudged them
+    // upward again (mastery mean 1.74 -> 1.87 -> 2.01 as papers were added and
+    // `kind` was re-tagged). What the test pins is the RAMP, not the literals:
+    // marks must not fall as difficulty rises.
     const seq = [1, 3, 4].map(d => candidateOf({ ...base, difficulty: d })!.marks)
-    expect(seq).toEqual([1, 3, 3])
+    expect(seq).toEqual([2, 3, 3])
     for (let i = 1; i < seq.length; i++) expect(seq[i]).toBeGreaterThanOrEqual(seq[i - 1])
   })
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T16:55:25.822Z",
+  "generatedAt": "2026-08-20T19:23:41.861Z",
   "minParts": 4,
   "slices": [
     {
@@ -30,7 +30,7 @@
         "November 2024"
       ],
       "skillsPresent": 102,
-      "skillsSufficient": 63
+      "skillsSufficient": 64
     },
     {
       "board": "AQA",
@@ -59,8 +59,8 @@
         "November 2023",
         "November 2024"
       ],
-      "skillsPresent": 142,
-      "skillsSufficient": 91
+      "skillsPresent": 144,
+      "skillsSufficient": 92
     }
   ],
   "profiles": {
@@ -1114,8 +1114,8 @@
       "skillId": "areas_of_squares_and_rectangles",
       "board": "AQA",
       "tier": "Foundation",
-      "parts": 10,
-      "marks": 29,
+      "parts": 11,
+      "marks": 31,
       "papersSeen": 9,
       "papersTotal": 15,
       "markRange": [
@@ -1126,15 +1126,15 @@
         "bare": 6,
         "multi_route": 7,
         "inverse_operand": 1,
-        "decision_justify": 2,
-        "consequence": 2
+        "decision_justify": 3,
+        "consequence": 3
       },
-      "barePct": 33,
+      "barePct": 30,
       "bareBand": "sometimes",
       "calc": {
         "non_calc": 2,
         "calc": 5,
-        "na": 3
+        "na": 4
       },
       "markSplits": [
         "M1 M1dep A1",
@@ -1142,13 +1142,15 @@
         "M1 M1dep M1 M1dep A1 (form/solve + area)",
         "M1 M1dep M1dep A1"
       ],
-      "chainedPct": 60,
+      "chainedPct": 55,
       "traps": [
         "use_perimeter_not_area",
         "give_the_unshaded_percentage",
         "stop_before_converting_to_a_percentage",
         "forget_the_half_in_the_triangle_area",
         "divide_by_the_wrong_side",
+        "volume_ratio_assumed_to_carry_to_surface_area",
+        "reason_omits_the_hidden_faces",
         "same_shape_redrawn",
         "keep_negative_root",
         "area_reasoning_for_perimeter",
@@ -1431,6 +1433,42 @@
       ],
       "sufficient": true
     },
+    "AQA|Foundation|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "AQA",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 15,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {
+        "bare": 2,
+        "inverse_operand": 2,
+        "decision_justify": 1
+      },
+      "barePct": 40,
+      "bareBand": "sometimes",
+      "calc": {
+        "non_calc": 2
+      },
+      "markSplits": [
+        "M1 M1dep A1",
+        "B3 (B2 four of five conditions, B1 three)"
+      ],
+      "chainedPct": 50,
+      "traps": [
+        "non_prime_factor_used",
+        "product_outside_the_stated_range",
+        "product_not_even",
+        "give_the_power_not_the_index",
+        "answer_without_working_scores_nothing"
+      ],
+      "sufficient": false
+    },
     "AQA|Foundation|fractions_of_amounts": {
       "skillId": "fractions_of_amounts",
       "board": "AQA",
@@ -1541,37 +1579,6 @@
         "apply_one_rate_to_both_quantities"
       ],
       "sufficient": true
-    },
-    "AQA|Foundation|prime_factor_decomposition": {
-      "skillId": "prime_factor_decomposition",
-      "board": "AQA",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 15,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {
-        "bare": 1,
-        "inverse_operand": 1
-      },
-      "barePct": 50,
-      "bareBand": "usually",
-      "calc": {
-        "non_calc": 1
-      },
-      "markSplits": [
-        "M1 M1dep A1"
-      ],
-      "chainedPct": 100,
-      "traps": [
-        "give_the_power_not_the_index",
-        "answer_without_working_scores_nothing"
-      ],
-      "sufficient": false
     },
     "AQA|Foundation|expanding_brackets": {
       "skillId": "expanding_brackets",
@@ -2882,36 +2889,43 @@
       ],
       "sufficient": false
     },
-    "AQA|Foundation|surface_area_of_a_cylinder": {
-      "skillId": "surface_area_of_a_cylinder",
+    "AQA|Foundation|properties_of_3d_solids": {
+      "skillId": "properties_of_3d_solids",
       "board": "AQA",
       "tier": "Foundation",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
+      "parts": 7,
+      "marks": 9,
+      "papersSeen": 5,
       "papersTotal": 15,
       "markRange": [
-        2,
+        1,
         2
       ],
       "framing": {
         "decision_justify": 1,
-        "consequence": 1
+        "consequence": 1,
+        "bare": 6
       },
-      "barePct": 0,
-      "bareBand": "never",
+      "barePct": 75,
+      "bareBand": "usually",
       "calc": {
-        "na": 1
+        "na": 7
       },
       "markSplits": [
-        "B2 (B1 tick alone)"
+        "B2 (B1 tick alone)",
+        "B1 (faces)",
+        "B1 (edges)",
+        "B1 (vertices)"
       ],
       "chainedPct": 0,
       "traps": [
         "volume_ratio_assumed_to_carry_to_surface_area",
-        "reason_omits_the_hidden_faces"
+        "reason_omits_the_hidden_faces",
+        "wrong_face_dimensions",
+        "overlapping_faces",
+        "count_faces_or_vertices_instead"
       ],
-      "sufficient": false
+      "sufficient": true
     },
     "AQA|Foundation|quadratic_functions": {
       "skillId": "quadratic_functions",
@@ -3564,6 +3578,43 @@
       ],
       "sufficient": true
     },
+    "AQA|Foundation|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "AQA",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 5,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {
+        "bare": 4,
+        "decision_justify": 1
+      },
+      "barePct": 80,
+      "bareBand": "usually",
+      "calc": {
+        "na": 4
+      },
+      "markSplits": [
+        "B1 B1 (name two regions)",
+        "B1 (show radius from diameter)",
+        "B1 (tick: could be any of the three)",
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "segment_vs_sector",
+        "state_without_halving",
+        "assume_chord_always_longer",
+        "diameter_named_instead_of_chord",
+        "tangent_named_instead_of_chord"
+      ],
+      "sufficient": true
+    },
     "AQA|Foundation|tree_diagrams": {
       "skillId": "tree_diagrams",
       "board": "AQA",
@@ -3831,40 +3882,6 @@
         "use_one_sample_only",
         "reason_must_reference_number_of_trials",
         "most_trials"
-      ],
-      "sufficient": true
-    },
-    "AQA|Foundation|properties_of_3d_solids": {
-      "skillId": "properties_of_3d_solids",
-      "board": "AQA",
-      "tier": "Foundation",
-      "parts": 6,
-      "marks": 7,
-      "papersSeen": 4,
-      "papersTotal": 15,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {
-        "bare": 6
-      },
-      "barePct": 100,
-      "bareBand": "almost always",
-      "calc": {
-        "na": 6
-      },
-      "markSplits": [
-        "B1 (faces)",
-        "B1 (edges)",
-        "B1 (vertices)",
-        "B2 (B1 one or two correct rectangles)"
-      ],
-      "chainedPct": 0,
-      "traps": [
-        "wrong_face_dimensions",
-        "overlapping_faces",
-        "count_faces_or_vertices_instead"
       ],
       "sufficient": true
     },
@@ -4768,6 +4785,51 @@
       ],
       "sufficient": true
     },
+    "AQA|Higher|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 11,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {
+        "bare": 5,
+        "inverse_operand": 2,
+        "decision_justify": 1,
+        "consequence": 1
+      },
+      "barePct": 56,
+      "bareBand": "usually",
+      "calc": {
+        "non_calc": 2,
+        "calc": 2,
+        "na": 1
+      },
+      "markSplits": [
+        "M1 M1dep A1",
+        "B3 (B2 four of five conditions, B1 three)",
+        "B3",
+        "B1"
+      ],
+      "chainedPct": 20,
+      "traps": [
+        "non_prime_factor_used",
+        "product_outside_the_stated_range",
+        "product_not_even",
+        "give_the_power_not_the_index",
+        "answer_without_working_scores_nothing",
+        "prime_assignment_swap",
+        "cube_index_misjudge",
+        "include_one_as_a_factor",
+        "list_factors_without_multiplying"
+      ],
+      "sufficient": true
+    },
     "AQA|Higher|factors_and_multiples": {
       "skillId": "factors_and_multiples",
       "board": "AQA",
@@ -4943,46 +5005,6 @@
         "divide_by_the_total_hours_not_the_remainder",
         "half_of_total_first",
         "wrong_ratio_part"
-      ],
-      "sufficient": true
-    },
-    "AQA|Higher|prime_factor_decomposition": {
-      "skillId": "prime_factor_decomposition",
-      "board": "AQA",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 8,
-      "papersSeen": 3,
-      "papersTotal": 15,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {
-        "bare": 4,
-        "inverse_operand": 1,
-        "consequence": 1
-      },
-      "barePct": 67,
-      "bareBand": "usually",
-      "calc": {
-        "non_calc": 1,
-        "calc": 2,
-        "na": 1
-      },
-      "markSplits": [
-        "M1 M1dep A1",
-        "B3",
-        "B1"
-      ],
-      "chainedPct": 25,
-      "traps": [
-        "give_the_power_not_the_index",
-        "answer_without_working_scores_nothing",
-        "prime_assignment_swap",
-        "cube_index_misjudge",
-        "include_one_as_a_factor",
-        "list_factors_without_multiplying"
       ],
       "sufficient": true
     },
@@ -5749,42 +5771,31 @@
       "skillId": "surface_area_of_a_cylinder",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 3,
-      "marks": 9,
-      "papersSeen": 3,
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
       "papersTotal": 15,
       "markRange": [
-        2,
-        4
+        3,
+        3
       ],
       "framing": {
         "bare": 1,
-        "given_formula": 2,
-        "multi_route": 2,
-        "decision_justify": 1,
-        "consequence": 1,
-        "inverse_operand": 1
+        "given_formula": 1,
+        "multi_route": 1
       },
-      "barePct": 13,
-      "bareBand": "rarely",
+      "barePct": 33,
+      "bareBand": "sometimes",
       "calc": {
-        "non_calc": 1,
-        "na": 1,
-        "calc": 1
+        "non_calc": 1
       },
       "markSplits": [
-        "M1 M1dep A1",
-        "M1 M1dep M1dep A1",
-        "B2 (B1 tick alone)"
+        "M1 M1dep A1"
       ],
-      "chainedPct": 67,
+      "chainedPct": 100,
       "traps": [
         "forget_the_flat_face_of_the_hemisphere",
-        "halve_the_sphere_area_without_adding_the_disc",
-        "volume_ratio_assumed_to_carry_to_surface_area",
-        "reason_omits_the_hidden_faces",
-        "forget_the_two_hexagonal_faces",
-        "round_up_past_the_inequality_boundary"
+        "halve_the_sphere_area_without_adding_the_disc"
       ],
       "sufficient": false
     },
@@ -5883,52 +5894,41 @@
       ],
       "sufficient": true
     },
-    "AQA|Higher|systematic_listing": {
-      "skillId": "systematic_listing",
+    "AQA|Higher|counting_without_listing": {
+      "skillId": "counting_without_listing",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 6,
-      "marks": 15,
-      "papersSeen": 6,
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 3,
       "papersTotal": 15,
       "markRange": [
         2,
-        4
+        3
       ],
       "framing": {
         "bare": 3,
-        "multi_route": 4,
-        "real_world": 2,
-        "consequence": 2,
-        "decision_justify": 1
+        "multi_route": 3,
+        "consequence": 1
       },
-      "barePct": 25,
+      "barePct": 43,
       "bareBand": "sometimes",
       "calc": {
         "non_calc": 1,
-        "calc": 5
+        "calc": 2
       },
       "markSplits": [
-        "M1 M1 M1dep A1",
         "M1 A1",
-        "M1 M1 A1",
-        "M1 list combinations + A1 (8/12 oe)"
+        "M1 M1 A1"
       ],
-      "chainedPct": 17,
+      "chainedPct": 0,
       "traps": [
         "ignore_the_odd_last_digit_constraint",
         "add_instead_of_multiply",
-        "allowed_repeats_625",
-        "wrong_digit_count",
         "allow_zero_as_a_first_digit",
-        "give_the_valid_codes_not_the_invalid_ones",
-        "assume_replacement",
-        "miss_a_winning_route",
-        "stop_after_two_tiles",
-        "miss_combinations",
-        "with_vs_without_order"
+        "give_the_valid_codes_not_the_invalid_ones"
       ],
-      "sufficient": true
+      "sufficient": false
     },
     "AQA|Higher|completing_the_square": {
       "skillId": "completing_the_square",
@@ -7792,6 +7792,96 @@
       ],
       "sufficient": true
     },
+    "AQA|Higher|areas_of_squares_and_rectangles": {
+      "skillId": "areas_of_squares_and_rectangles",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 18,
+      "papersSeen": 5,
+      "papersTotal": 15,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {
+        "decision_justify": 1,
+        "consequence": 1,
+        "bare": 2,
+        "multi_route": 4,
+        "given_formula": 1,
+        "inverse_operand": 1,
+        "real_world": 1
+      },
+      "barePct": 18,
+      "bareBand": "sometimes",
+      "calc": {
+        "na": 1,
+        "non_calc": 2,
+        "calc": 2
+      },
+      "markSplits": [
+        "M1 M1dep M1 A1",
+        "M1 M1dep A1",
+        "M1 M1dep M1dep A1",
+        "M1 area scale + M1dep area + M1/M2 cost per area + A1 (47.04)"
+      ],
+      "chainedPct": 80,
+      "traps": [
+        "volume_ratio_assumed_to_carry_to_surface_area",
+        "reason_omits_the_hidden_faces",
+        "use_perimeter_not_area",
+        "keep_negative_root",
+        "forget_the_half_for_the_triangle",
+        "ratio_reversed",
+        "forget_the_two_hexagonal_faces",
+        "round_up_past_the_inequality_boundary",
+        "area_scale_factor_squared",
+        "standard_form_cost_rate"
+      ],
+      "sufficient": true
+    },
+    "AQA|Higher|properties_of_3d_solids": {
+      "skillId": "properties_of_3d_solids",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {
+        "decision_justify": 1,
+        "consequence": 1,
+        "given_formula": 1,
+        "inverse_operand": 1,
+        "multi_route": 1,
+        "bare": 1
+      },
+      "barePct": 17,
+      "bareBand": "sometimes",
+      "calc": {
+        "na": 2,
+        "calc": 1
+      },
+      "markSplits": [
+        "M1 M1dep M1dep A1",
+        "B2 (B1 tick alone)",
+        "B1 (8 faces)"
+      ],
+      "chainedPct": 33,
+      "traps": [
+        "volume_ratio_assumed_to_carry_to_surface_area",
+        "reason_omits_the_hidden_faces",
+        "forget_the_two_hexagonal_faces",
+        "round_up_past_the_inequality_boundary",
+        "miscount_faces"
+      ],
+      "sufficient": false
+    },
     "AQA|Higher|quadratic_functions": {
       "skillId": "quadratic_functions",
       "board": "AQA",
@@ -8455,9 +8545,9 @@
       "skillId": "volume_of_a_prism",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 10,
-      "marks": 32,
-      "papersSeen": 7,
+      "parts": 9,
+      "marks": 28,
+      "papersSeen": 6,
       "papersTotal": 15,
       "markRange": [
         2,
@@ -8465,16 +8555,15 @@
       ],
       "framing": {
         "bare": 4,
-        "multi_route": 7,
+        "multi_route": 6,
         "real_world": 2,
         "consequence": 2,
-        "given_formula": 3,
-        "inverse_operand": 1
+        "given_formula": 2
       },
-      "barePct": 21,
+      "barePct": 25,
       "bareBand": "sometimes",
       "calc": {
-        "calc": 9,
+        "calc": 8,
         "non_calc": 1
       },
       "markSplits": [
@@ -8483,7 +8572,7 @@
         "M1 M1 M1dep A1",
         "M1 M1dep M1dep A1"
       ],
-      "chainedPct": 60,
+      "chainedPct": 56,
       "traps": [
         "assume_the_solid_is_a_full_cuboid",
         "minimum_case_not_considered",
@@ -8502,8 +8591,6 @@
         "use_the_slant_edge_as_a_height",
         "length_scale_factor_used_for_volume",
         "scale_factor_inverted",
-        "forget_the_two_hexagonal_faces",
-        "round_up_past_the_inequality_boundary",
         "confuse_volume_and_area",
         "wrong_dimension"
       ],
@@ -8932,48 +9019,43 @@
       "skillId": "sector_calculations",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 8,
-      "marks": 17,
-      "papersSeen": 5,
+      "parts": 4,
+      "marks": 12,
+      "papersSeen": 3,
       "papersTotal": 15,
       "markRange": [
         1,
         5
       ],
       "framing": {
-        "bare": 7,
+        "bare": 3,
         "inverse_operand": 1,
         "multi_route": 2,
         "consequence": 1,
         "decision_justify": 2
       },
-      "barePct": 54,
-      "bareBand": "usually",
+      "barePct": 33,
+      "bareBand": "sometimes",
       "calc": {
         "non_calc": 2,
-        "na": 5,
-        "calc": 1
+        "calc": 1,
+        "na": 1
       },
       "markSplits": [
         "M1 M1dep A1",
-        "B1 region A + B1 region B",
         "B1 (tick: smaller than part (a))",
         "M1 A1 M1 A1 A1"
       ],
-      "chainedPct": 25,
+      "chainedPct": 50,
       "traps": [
         "uses_area_not_arc",
         "drops_pi",
-        "segment_sector_confusion",
-        "arc_chord_confusion",
         "radius_from_circumference",
         "forget_the_quarter_fraction",
         "assume_unchanged",
         "use_diameter_for_radius",
         "forget_the_sector_fraction",
-        "compare_in_unlike_forms",
-        "diameter_radius_confusion",
-        "tangent_chord_confusion"
+        "compare_in_unlike_forms"
       ],
       "sufficient": true
     },
@@ -9170,6 +9252,43 @@
         "factor_pair_error",
         "substitution_sign_error",
         "pair_x_with_correct_y"
+      ],
+      "sufficient": true
+    },
+    "AQA|Higher|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 8,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {
+        "bare": 5
+      },
+      "barePct": 100,
+      "bareBand": "almost always",
+      "calc": {
+        "na": 5
+      },
+      "markSplits": [
+        "B1 region A + B1 region B",
+        "B3 (B1 per correct match)",
+        "B1 (diameter)",
+        "B1 (segment)"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "segment_sector_confusion",
+        "arc_chord_confusion",
+        "segment_vs_sector",
+        "chord_vs_tangent",
+        "diameter_radius_confusion",
+        "tangent_chord_confusion"
       ],
       "sufficient": true
     },
@@ -9491,6 +9610,46 @@
       ],
       "sufficient": true
     },
+    "AQA|Higher|systematic_listing": {
+      "skillId": "systematic_listing",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 8,
+      "papersSeen": 3,
+      "papersTotal": 15,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {
+        "real_world": 2,
+        "consequence": 1,
+        "multi_route": 1,
+        "decision_justify": 1
+      },
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "calc": 3
+      },
+      "markSplits": [
+        "M1 M1 M1dep A1",
+        "M1 A1",
+        "M1 list combinations + A1 (8/12 oe)"
+      ],
+      "chainedPct": 33,
+      "traps": [
+        "allowed_repeats_625",
+        "wrong_digit_count",
+        "assume_replacement",
+        "miss_a_winning_route",
+        "stop_after_two_tiles",
+        "miss_combinations",
+        "with_vs_without_order"
+      ],
+      "sufficient": false
+    },
     "AQA|Higher|reflections": {
       "skillId": "reflections",
       "board": "AQA",
@@ -9629,45 +9788,6 @@
         "match_wrong_terms"
       ],
       "sufficient": true
-    },
-    "AQA|Higher|areas_of_squares_and_rectangles": {
-      "skillId": "areas_of_squares_and_rectangles",
-      "board": "AQA",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 12,
-      "papersSeen": 3,
-      "papersTotal": 15,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {
-        "bare": 2,
-        "multi_route": 3,
-        "real_world": 1
-      },
-      "barePct": 33,
-      "bareBand": "sometimes",
-      "calc": {
-        "non_calc": 2,
-        "calc": 1
-      },
-      "markSplits": [
-        "M1 M1dep M1 A1",
-        "M1 M1dep A1",
-        "M1 area scale + M1dep area + M1/M2 cost per area + A1 (47.04)"
-      ],
-      "chainedPct": 100,
-      "traps": [
-        "use_perimeter_not_area",
-        "keep_negative_root",
-        "forget_the_half_for_the_triangle",
-        "ratio_reversed",
-        "area_scale_factor_squared",
-        "standard_form_cost_rate"
-      ],
-      "sufficient": false
     },
     "AQA|Higher|rotations": {
       "skillId": "rotations",
@@ -10449,35 +10569,6 @@
       "traps": [
         "range_unchanged_under_shift",
         "treat_spread_like_average"
-      ],
-      "sufficient": false
-    },
-    "AQA|Higher|properties_of_3d_solids": {
-      "skillId": "properties_of_3d_solids",
-      "board": "AQA",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 1,
-      "papersSeen": 1,
-      "papersTotal": 15,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {
-        "bare": 1
-      },
-      "barePct": 100,
-      "bareBand": "almost always",
-      "calc": {
-        "na": 1
-      },
-      "markSplits": [
-        "B1 (8 faces)"
-      ],
-      "chainedPct": 0,
-      "traps": [
-        "miscount_faces"
       ],
       "sufficient": false
     },

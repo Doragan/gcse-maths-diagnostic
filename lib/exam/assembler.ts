@@ -216,9 +216,9 @@ export type CandidateSource = {
 /**
  * What a multiple-choice question is worth on a paper.
  *
- * Real GCSE papers DO carry multiple choice — 22 parts / 30 marks across the
- * coded 2024 series, 0–6 marks per paper — so admitting them is faithful, not a
- * shortcut. But 17 of those 22 parts are worth exactly 1 mark, and the reason
+ * Real GCSE papers DO carry multiple choice — 52 parts / 60 marks across the
+ * 30 coded papers, 0–6 marks per paper — so admitting them is faithful, not a
+ * shortcut. But 47 of those 52 parts are worth exactly 1 mark, and the reason
  * generalises: picking from a list shows no working, so there is no method to
  * credit and nothing to build a 3-mark scheme on. Priced at 1 unless the author
  * says otherwise.

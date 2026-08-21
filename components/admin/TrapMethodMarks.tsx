@@ -5,8 +5,8 @@ import { colors, font, radius } from '../../lib/styles'
 /**
  * Author control: how many METHOD marks this trap proves the student earned.
  *
- * Real mark schemes pay for a sound approach behind a wrong answer — 24% of the
- * marks on the coded 2024 papers. Auto-grading cannot read working, but a trap
+ * Real mark schemes pay for a sound approach behind a wrong answer — 25% of the
+ * marks on the 30 coded papers. Auto-grading cannot read working, but a trap
  * is an anticipated wrong answer, so a trap firing sometimes tells us exactly
  * how far the student got.
  *
