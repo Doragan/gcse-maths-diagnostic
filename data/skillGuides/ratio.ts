@@ -26,10 +26,19 @@ export const ratioGuide: SkillGuide = {
     'One total shared into parts, where the parts add back up to the whole.',
 
   recognise: [
-    'The colon form printed in the question — "in the ratio 3 : 5" — is the strongest tell, '
-      + 'and unlike most skills it is usually there in plain sight.',
-    'Words that mean splitting one thing up: share, split, divide between, for every.',
-    'There is a single total, and the parts you are asked about must add back up to it.',
+    {
+      text: 'The colon form printed in the question is the strongest tell, and unlike most skills '
+        + 'it is usually there in plain sight.',
+      example: '… divide £4500 in the ratio 4 : 5 …',
+    },
+    {
+      text: 'Words that mean splitting one thing up: share, split, divide between, for every.',
+      example: 'Rana and Sam share the prize money between them.',
+    },
+    {
+      text: 'There is a single total, and the parts you are asked about must add back up to it.',
+      example: 'A 20 kg bag of mix contains cement and sand.',
+    },
   ],
 
   confusableWith: [
@@ -117,13 +126,22 @@ export const ratioGuide: SkillGuide = {
   ],
 
   higher: {
-    note:
-      'On Higher the ratio is often unknown or changing — you are given a situation before and after '
-      + 'something happens, and have to work backwards to the original amounts.',
+    note: {
+      text: 'On Higher the ratio is often unknown or changing — you are given a situation before and '
+        + 'after something happens, and have to work backwards to the original amounts.',
+      example: 'The ratio of red to blue is 5 : 3. After 4 red are removed, the ratio becomes 3 : 2.',
+    },
 
     recognise: [
-      'The ratio changes partway through: "after 5 counters are removed the ratio becomes 3 : 2".',
-      'The parts are given as expressions rather than numbers, or the answer is asked for as a ratio in terms of n.',
+      {
+        text: 'The ratio changes partway through, and you are given both the before and the after.',
+        example: '… after 5 counters are removed, the ratio becomes 3 : 2 …',
+      },
+      {
+        text: 'The parts are given as expressions rather than numbers, or the answer is asked for '
+          + 'as a ratio in terms of n.',
+        example: 'Write the ratio of the perimeters in the form n : 1.',
+      },
     ],
 
     confusableWith: [

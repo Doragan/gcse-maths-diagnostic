@@ -21,10 +21,19 @@ export const proportionGuide: SkillGuide = {
     'Two quantities that scale together — scale one, and the other scales by the same factor.',
 
   recognise: [
-    'Two quantities where one scales with the other, and you are given three of the four numbers.',
-    'In a context question the word "proportion" almost never appears. Look for recipe, best buy, '
-      + 'exchange rate, per, each, at this rate.',
-    'A unit on the answer line — per kg, per hour, £/litre — is the single strongest tell.',
+    {
+      text: 'Two quantities where one scales with the other, and you are given three of the four numbers.',
+      example: '6 books weigh 2.4 kg. Work out the weight of 15 books.',
+    },
+    {
+      text: 'In a context question the word "proportion" almost never appears. Look for recipe, '
+        + 'best buy, exchange rate, per, each, at this rate.',
+      example: 'A recipe for 4 people uses 300 g of rice.',
+    },
+    {
+      text: 'A unit on the answer line is the single strongest tell.',
+      example: 'Answer ________ litres',
+    },
   ],
 
   confusableWith: [
@@ -120,13 +129,22 @@ export const proportionGuide: SkillGuide = {
   ],
 
   higher: {
-    note:
-      'On Higher, proportion is usually written algebraically rather than scaled arithmetically, '
-      + 'and the two quantities are often not in a simple 1:1 relationship.',
+    note: {
+      text: 'On Higher, proportion is usually written algebraically rather than scaled arithmetically, '
+        + 'and the two quantities are often not in a simple 1:1 relationship.',
+      example: 'y is proportional to x². When x = 3, y = 45. Find y when x = 5.',
+    },
 
     recognise: [
-      'The symbol ∝, or the words "is proportional to" / "varies as" — on Higher these are stated outright.',
-      'A power in the relationship: proportional to the square, to the cube, or to the square root.',
+      {
+        text: 'The symbol ∝, or the words "is proportional to" / "varies as" — on Higher these are '
+          + 'stated outright rather than hidden in a context.',
+        example: 'T is directly proportional to the square root of L.',
+      },
+      {
+        text: 'A power in the relationship: proportional to the square, to the cube, or to the square root.',
+        example: 'The mass is proportional to the cube of the radius.',
+      },
     ],
 
     confusableWith: [

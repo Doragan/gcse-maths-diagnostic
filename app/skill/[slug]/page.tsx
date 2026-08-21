@@ -244,15 +244,28 @@ export default function SkillGuidePage() {
       {g.higherNote && (
         <section style={{ ...styles.card, background: colors.warningLight, borderColor: colors.warningBorder }}>
           <p style={{ ...styles.h, color: colors.warningText }}>What changes on Higher</p>
-          <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>{g.higherNote}</p>
+          <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>{g.higherNote.text}</p>
+          {g.higherNote.example && (
+            <p style={{ ...styles.specimen, borderColor: colors.warningBorder, background: '#fffdf5' }}>
+              {g.higherNote.example}
+            </p>
+          )}
         </section>
       )}
 
-      {/* ── Recognise ────────────────────────────────────────────────────── */}
+      {/* ── Recognise ──────────────────────────────────────────────────────
+          Each cue carries an optional fragment showing the pattern as it
+          appears on a paper. A cue on its own describes a pattern in the
+          abstract, which is easy to agree with and hard to spot in the exam. */}
       <section style={styles.card}>
         <p style={styles.h}>Recognising {lowerName} questions</p>
-        <ul style={styles.list}>
-          {g.recognise.map((r, i) => <li key={i} style={styles.li}>{r}</li>)}
+        <ul style={{ ...styles.list, gap: '14px' }}>
+          {g.recognise.map((r, i) => (
+            <li key={i} style={styles.li}>
+              {r.text}
+              {r.example && <span style={styles.specimen}>{r.example}</span>}
+            </li>
+          ))}
         </ul>
       </section>
 
@@ -627,6 +640,24 @@ const styles: Record<string, React.CSSProperties> = {
 
   list: { margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px' },
   li: { fontSize: font.base, color: colors.textPrimary, lineHeight: 1.55 },
+
+  /**
+   * A fragment shown as it would appear on a paper. Deliberately set apart from
+   * the surrounding advice — it is a specimen, not another sentence of guidance,
+   * and a student skimming should be able to tell the two apart at a glance.
+   */
+  specimen: {
+    display: 'block',
+    marginTop: '6px',
+    padding: '8px 12px',
+    background: colors.cardAlt,
+    borderLeft: `3px solid ${colors.borderStrong}`,
+    borderRadius: `0 ${radius.sm} ${radius.sm} 0`,
+    fontSize: font.base,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    lineHeight: 1.5,
+  },
 
   confuse: {
     border: `1px solid ${colors.border}`,

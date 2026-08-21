@@ -26,12 +26,21 @@ export const compoundUnitsGuide: SkillGuide = {
     'A rate that ties two different measures together — miles per hour, grams per cm³, pounds per kilogram.',
 
   recognise: [
-    'The word "per", or a unit written as a fraction: km/h, g/cm³, £/kg. If the answer line has one '
-      + 'of these, the question is asking for a rate.',
-    'Two quantities of genuinely different kinds that have to be combined — a distance and a time, '
-      + 'a mass and a volume, a price and a weight.',
-    'A comparison between two options where the amounts are not alike — "which is better value", '
-      + '"which is faster", "which is denser".',
+    {
+      text: 'The word "per", or a unit written as a fraction. If the answer line has one of these, '
+        + 'the question is asking for a rate.',
+      example: 'Answer ________ g/cm³',
+    },
+    {
+      text: 'Two quantities of genuinely different kinds that have to be combined — a distance and '
+        + 'a time, a mass and a volume, a price and a weight.',
+      example: 'The journey is 150 km and takes 2 hours 30 minutes.',
+    },
+    {
+      text: 'A comparison between two options where the amounts are not alike, so they cannot be '
+        + 'compared until each is reduced to a rate.',
+      example: 'Which pack is better value? Show your working.',
+    },
   ],
 
   confusableWith: [
@@ -110,13 +119,21 @@ export const compoundUnitsGuide: SkillGuide = {
   ],
 
   higher: {
-    note:
-      'On Higher, rates rarely stand alone. They arrive as the gradient of a graph, or wrapped around '
-      + 'a volume formula, so the rate is one step inside a longer problem.',
+    note: {
+      text: 'On Higher, rates rarely stand alone. They arrive as the gradient of a graph, or wrapped '
+        + 'around a volume formula, so the rate is one step inside a longer problem.',
+      example: 'The metal has density 8.9 g/cm³. Work out the mass of the hemisphere.',
+    },
 
     recognise: [
-      'A distance–time or velocity–time graph — the gradient of the line IS the rate.',
-      'Density given alongside a volume formula: sphere, cone, cylinder or prism.',
+      {
+        text: 'A distance–time or velocity–time graph, where the gradient of the line IS the rate.',
+        example: 'Work out the gradient of the line between t = 2 and t = 6.',
+      },
+      {
+        text: 'Density given alongside a volume formula — sphere, cone, cylinder or prism.',
+        example: 'A solid cone of radius 5 cm is made from wood of density 0.7 g/cm³.',
+      },
     ],
 
     confusableWith: [
