@@ -11,6 +11,8 @@ import {
   sliceProvenance, codedBoards, type Tier,
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
+import { getStudentProfile } from '../../../lib/auth'
+import { isPaidStudent } from '../../../lib/entitlements'
 import { trackEvent, getSessionId } from '../../../lib/analytics'
 import { colors, font, radius, primaryButton, secondaryButton, inputStyle } from '../../../lib/styles'
 
@@ -32,6 +34,18 @@ const DEFAULT_BOARD = 'AQA'
 
 type Rating = 'useful' | 'not_useful'
 
+/**
+ * The three jobs a student is here to do, in the order they do them.
+ * Named for the job, not for what the content is filed under.
+ */
+type Stage = 'spot' | 'do' | 'check'
+
+const STAGES: { id: Stage; label: string; blurb: string }[] = [
+  { id: 'spot',  label: 'Spot it',  blurb: 'Recognising it, and telling it apart' },
+  { id: 'do',    label: 'Do it',    blurb: 'The method, and why each step' },
+  { id: 'check', label: 'Check it', blurb: 'Before you write the answer down' },
+]
+
 export default function SkillGuidePage() {
   const router = useRouter()
   const params = useParams()
@@ -45,9 +59,40 @@ export default function SkillGuidePage() {
   const [board] = useState<string>(DEFAULT_BOARD)
   const [recent, setRecent] = useState<{ correct: boolean }[] | null>(null)
   const [studentId, setStudentId] = useState<string | null>(null)
+  /** Whether this student can drill one chosen skill — a premium focus mode. */
+  const [canFocus, setCanFocus] = useState(false)
 
   /** Indices of example stems whose verdict has been revealed. */
   const [revealed, setRevealed] = useState<number[]>([])
+
+  /**
+   * The page is three stages, not six sections, because grouping by SECTION
+   * would split recognising the question from telling it apart from its
+   * neighbours — and that pair is the whole argument for the page. Grouping by
+   * what the student is trying to do keeps them together.
+   *
+   * A `#do` or `#check` hash selects that stage on arrival, so a link fired
+   * from a trap can land the student on the part that just went wrong rather
+   * than at the top of a long page.
+   */
+  const [stage, setStage] = useState<Stage>('spot')
+
+  useEffect(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : ''
+    if (hash === 'spot' || hash === 'do' || hash === 'check') setStage(hash)
+  }, [])
+
+  function changeStage(next: Stage) {
+    setStage(next)
+    if (typeof window !== 'undefined') history.replaceState(null, '', `#${next}`)
+    trackEvent('skill_guide_stage', { skill: skillId, tier, stage: next })
+  }
+
+  /** Feedback is a trial instrument, not content — closed until wanted. */
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+
+  /** The stage after this one, for the forward pointer. Null on the last. */
+  const nextStage = STAGES[STAGES.findIndex(s => s.id === stage) + 1] ?? null
 
   const [rating, setRating]       = useState<Rating | null>(null)
   const [comment, setComment]     = useState('')
@@ -63,18 +108,23 @@ export default function SkillGuidePage() {
     trackEvent('skill_guide_view', { skill: skillId, tier, board })
   }, [skillId, guide, tier, board])
 
-  // The student's recent attempts on this skill, for the standing strip.
-  // Best-effort: signed-out visitors simply don't see it.
+  // The student's recent attempts on this skill, plus whether they can
+  // actually use skill-targeted practice. Best-effort: signed-out visitors
+  // simply don't see the standing strip.
   useEffect(() => {
     if (!skillId) return
     ;(async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setRecent([]); return }
-      setStudentId(user.id)
+      const profile = await getStudentProfile()
+      if (!profile) { setRecent([]); return }
+      setStudentId(profile.id)
+      // Drilling one chosen skill is a premium focus mode (see selectFocus in
+      // /practice). The CTA below has to know, or it promises something the
+      // student will not get.
+      setCanFocus(isPaidStudent(profile))
       const { data } = await supabase
         .from('practice_attempts')
         .select('correct, attempted_at')
-        .eq('student_id', user.id)
+        .eq('student_id', profile.id)
         .contains('skill_ids', [skillId])
         .order('attempted_at', { ascending: false })
         .limit(5)
@@ -183,10 +233,37 @@ export default function SkillGuidePage() {
         ← Back
       </button>
 
-      {/* ── Title and standing ───────────────────────────────────────────── */}
+      {/* ── Title and standing ─────────────────────────────────────────────
+          The tier switch lives up here as a small setting rather than a
+          full-width control of its own. It is a once-per-student choice that
+          persists, and when it was styled like the stage tabs — blue when
+          selected, white when not — the two read as the same kind of thing and
+          the navigation stopped looking like navigation. */}
       <section style={styles.card}>
-        <p style={styles.kicker}>{skill.topic}</p>
-        <h1 style={styles.title}>{skill.name}</h1>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 200px' }}>
+            <p style={styles.kicker}>{skill.topic}</p>
+            <h1 style={styles.title}>{skill.name}</h1>
+          </div>
+          <div style={styles.tierSwitch} role="group" aria-label="Which paper are you sitting?">
+            {(['foundation', 'higher'] as Tier[]).map(t => (
+              <button
+                key={t}
+                onClick={() => changeTier(t)}
+                aria-pressed={tier === t}
+                style={{
+                  ...styles.tierBtn,
+                  background: tier === t ? colors.card : 'transparent',
+                  color: tier === t ? colors.textPrimary : colors.textHint,
+                  boxShadow: tier === t ? '0 1px 2px rgba(16,24,40,.09)' : 'none',
+                  fontWeight: tier === t ? '650' : '500',
+                }}
+              >
+                {t === 'foundation' ? 'Foundation' : 'Higher'}
+              </button>
+            ))}
+          </div>
+        </div>
         <p style={{ ...styles.muted, marginBottom: '14px' }}>{g.summary}</p>
 
         {recent && recent.length > 0 && (
@@ -210,38 +287,50 @@ export default function SkillGuidePage() {
         )}
       </section>
 
-      {/* ── Tier switch ──────────────────────────────────────────────────── */}
-      <section style={styles.card}>
-        <p style={styles.h}>Which paper are you sitting?</p>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {(['foundation', 'higher'] as Tier[]).map(t => (
+
+      {/* ── Stage tabs ───────────────────────────────────────────────────
+          A genuine tab strip: numbered, underlined, and sitting directly on
+          the content it governs with no gap. Filled pills read as a toggle —
+          "pick one setting" — which is what made these indistinguishable from
+          the tier switch. An underline reads as "this panel belongs to me".
+          Numbering also tells a student arriving fresh that there are three
+          parts and which one they are on. */}
+      <nav style={styles.tabs} aria-label="Which part of this skill">
+        {STAGES.map((s, i) => {
+          const on = stage === s.id
+          return (
             <button
-              key={t}
-              onClick={() => changeTier(t)}
+              key={s.id}
+              onClick={() => changeStage(s.id)}
+              aria-current={on ? 'page' : undefined}
               style={{
-                flex: 1,
-                padding: '9px 14px',
-                borderRadius: radius.md,
-                border: `1px solid ${tier === t ? colors.primary : colors.borderStrong}`,
-                background: tier === t ? colors.primary : colors.card,
-                color: tier === t ? '#ffffff' : colors.textPrimary,
-                fontWeight: '600',
-                fontSize: font.base,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
+                ...styles.tab,
+                color: on ? colors.primaryHover : colors.textSecondary,
+                borderBottomColor: on ? colors.primary : 'transparent',
+                background: on ? colors.card : 'transparent',
               }}
             >
-              {t === 'foundation' ? 'Foundation' : 'Higher'}
+              <span style={{
+                ...styles.tabNum,
+                background: on ? colors.primary : colors.border,
+                color: on ? '#ffffff' : colors.textSecondary,
+              }}>
+                {i + 1}
+              </span>
+              <span style={{ fontWeight: on ? '700' : '600', fontSize: font.md }}>{s.label}</span>
             </button>
-          ))}
-        </div>
-        <p style={{ ...styles.hint, marginTop: '8px' }}>
-          This changes what&apos;s shown below and is remembered on this device.
-          {codedBoards().length === 1 && ` Exam data is ${codedBoards()[0]} only for now.`}
-        </p>
-      </section>
+          )
+        })}
+      </nav>
 
-      {g.higherNote && (
+      {/* One line naming what this stage is for, plus a forward pointer. The
+          pointer is the fix for "a student may not realise there is more":
+          every stage advertises the next one by name. */}
+      <p style={styles.stageBlurb}>
+        {STAGES.find(s => s.id === stage)!.blurb}
+      </p>
+
+      {stage === 'spot' && g.higherNote && (
         <section style={{ ...styles.card, background: colors.warningLight, borderColor: colors.warningBorder }}>
           <p style={{ ...styles.h, color: colors.warningText }}>What changes on Higher</p>
           <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>{g.higherNote.text}</p>
@@ -253,10 +342,16 @@ export default function SkillGuidePage() {
         </section>
       )}
 
+      {/* ══ SPOT IT ═══════════════════════════════════════════════════════
+          Recognise, tell apart, then judge some stems. These three stay
+          together because the distinction between a skill and its neighbour
+          is only meaningful alongside the cues for the skill itself. */}
+
       {/* ── Recognise ──────────────────────────────────────────────────────
           Each cue carries an optional fragment showing the pattern as it
           appears on a paper. A cue on its own describes a pattern in the
           abstract, which is easy to agree with and hard to spot in the exam. */}
+      {stage === 'spot' && (
       <section style={styles.card}>
         <p style={styles.h}>Recognising {lowerName} questions</p>
         <ul style={{ ...styles.list, gap: '14px' }}>
@@ -268,11 +363,13 @@ export default function SkillGuidePage() {
           ))}
         </ul>
       </section>
+      )}
 
       {/* ── Confusable with ──────────────────────────────────────────────────
           Each line is labelled with the skill it describes, rather than a
           paragraph naming both. The student should never have to work out
           which half of a sentence belongs to which skill. */}
+      {stage === 'spot' && (
       <section style={styles.card}>
         <p style={styles.h}>Is it {lowerName}, or something else?</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -304,8 +401,10 @@ export default function SkillGuidePage() {
           })}
         </div>
       </section>
+      )}
 
       {/* ── Judge the stems ──────────────────────────────────────────────── */}
+      {stage === 'spot' && (
       <section style={styles.card}>
         <p style={styles.h}>Which of these are {skill.name.toLowerCase()} questions?</p>
         <p style={{ ...styles.hint, marginBottom: '12px' }}>
@@ -351,8 +450,10 @@ export default function SkillGuidePage() {
           })}
         </div>
       </section>
+      )}
 
-      {/* ── Method ───────────────────────────────────────────────────────── */}
+      {/* ══ DO IT ═════════════════════════════════════════════════════════ */}
+      {stage === 'do' && (
       <section style={styles.card}>
         <p style={styles.h}>How to answer {lowerName} questions, and why each step</p>
         {g.steps.map((s, i) => (
@@ -370,8 +471,12 @@ export default function SkillGuidePage() {
           </div>
         ))}
       </section>
+      )}
 
-      {/* ── Check ────────────────────────────────────────────────────────── */}
+      {/* ══ CHECK IT ══════════════════════════════════════════════════════
+          The self-check, then what the papers actually show. Both answer
+          "am I right / what should I expect", which is one job. */}
+      {stage === 'check' && (
       <section style={{ ...styles.card, background: colors.cardAlt }}>
         <p style={styles.h}>Before you write the answer down</p>
         <ul style={{ ...styles.list, listStyle: 'none', paddingLeft: 0 }}>
@@ -383,9 +488,10 @@ export default function SkillGuidePage() {
           ))}
         </ul>
       </section>
+      )}
 
       {/* ── Tier 3: derived from the coded papers ────────────────────────── */}
-      {showProfile && profile && (
+      {stage === 'check' && showProfile && profile && (
         <section style={{ ...styles.card, background: '#f8fafc', borderColor: '#e2e8f0' }}>
           <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
 
@@ -445,7 +551,7 @@ export default function SkillGuidePage() {
         </section>
       )}
 
-      {!showProfile && (
+      {stage === 'check' && !showProfile && (
         <section style={{ ...styles.card, background: colors.cardAlt }}>
           <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
           <p style={{ ...styles.muted, margin: 0 }}>
@@ -455,31 +561,92 @@ export default function SkillGuidePage() {
         </section>
       )}
 
-      {/* ── Practise ─────────────────────────────────────────────────────── */}
-      <section style={styles.card}>
-        <p style={styles.h}>Practise {lowerName}</p>
-        <button
-          onClick={() => {
-            trackEvent('skill_guide_practise', { skill: skillId, tier })
-            router.push(`/practice?skillId=${skillId}`)
-          }}
-          style={primaryButton}
-        >
-          Practise {skill.name.toLowerCase()}
+      {/* ── On to the next stage ───────────────────────────────────────────
+          Named, not a bare arrow. A student who reads one stage and stops was
+          never told the other two existed; this says what is in them. */}
+      {nextStage && (
+        <button onClick={() => changeStage(nextStage.id)} style={styles.nextStage}>
+          <span>
+            <span style={styles.nextLabel}>Next</span>
+            <span style={{ fontWeight: '650', fontSize: font.md, color: colors.textPrimary }}>
+              {nextStage.label}
+            </span>
+          </span>
+          <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
+            {nextStage.blurb} →
+          </span>
         </button>
+      )}
+
+      {/* ── Practise ───────────────────────────────────────────────────────
+          Targeting one skill is a premium focus mode: /practice only honours
+          ?skillId= for paid students and silently ignores it otherwise. The
+          button used to promise "Practise ratio" to everyone and quietly hand
+          free students a mixed session instead, which is the one behaviour
+          worse than either honest option. Now it says what each will get, and
+          matches the show-but-locked pattern /practice already uses. */}
+      <section style={styles.card}>
+        <p style={styles.h}>
+          {canFocus ? `Practise ${lowerName}` : 'Practise'}
+        </p>
+
+        {canFocus ? (
+          <button
+            onClick={() => {
+              trackEvent('skill_guide_practise', { skill: skillId, tier, targeted: true })
+              router.push(`/practice?skillId=${skillId}`)
+            }}
+            style={primaryButton}
+          >
+            Practise {lowerName}
+          </button>
+        ) : (
+          <>
+            <p style={{ ...styles.muted, marginBottom: '12px' }}>
+              A mixed session picked for you. Choosing one skill to drill is part of
+              Premium.
+            </p>
+            <button
+              onClick={() => {
+                trackEvent('skill_guide_practise', { skill: skillId, tier, targeted: false })
+                router.push('/practice')
+              }}
+              style={primaryButton}
+            >
+              Start a practice session
+            </button>
+            <button
+              onClick={() => {
+                trackEvent('skill_guide_upgrade_click', { skill: skillId, tier })
+                router.push(studentId ? '/student/upgrade' : '/student')
+              }}
+              style={{ ...secondaryButton, width: '100%', marginTop: '8px' }}
+            >
+              {studentId ? `Drill ${lowerName} on its own` : 'Sign in to drill one skill'}
+            </button>
+          </>
+        )}
       </section>
 
-      {/* ── Trial feedback ───────────────────────────────────────────────── */}
-      <section style={{ ...styles.card, borderColor: colors.primary }}>
+      {/* ── Trial feedback ───────────────────────────────────────────────
+          Collapsed until wanted. Expanded it was the second-tallest thing on
+          the page at ~460px, and it is a trial instrument rather than content
+          the student came for. */}
+      <Collapsible
+        id="feedback"
+        title="Is this page useful?"
+        hint="tell us"
+        open={feedbackOpen}
+        onToggle={() => setFeedbackOpen(o => !o)}
+      >
         {sent ? (
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
             ✓ Thanks — that goes straight to the person who wrote this page.
           </p>
         ) : (
           <>
-            <p style={{ ...styles.h, marginBottom: '4px' }}>Is this page useful?</p>
             <p style={{ ...styles.hint, marginBottom: '12px' }}>
-              This page is new and we&apos;re trying it on one skill first. What you say here
+              This page is new and we&apos;re trying it on a few skills first. What you say here
               decides whether we write them for the rest.
             </p>
 
@@ -541,13 +708,56 @@ export default function SkillGuidePage() {
             </button>
           </>
         )}
-      </section>
+      </Collapsible>
 
     </main>
   )
 }
 
 // ── Small presentational pieces ──────────────────────────────────────────────
+
+/**
+ * A section the student opens when they want it.
+ *
+ * The header is a real <button> with aria-expanded rather than a styled div,
+ * so it is reachable and operable from the keyboard and announced correctly.
+ * The `hint` tells the student what is inside before they commit to opening —
+ * "3 steps" is the difference between an informed choice and a mystery box.
+ */
+function Collapsible({
+  id, title, hint, open, onToggle, background, children,
+}: {
+  id: string
+  title: string
+  hint: string
+  open: boolean
+  onToggle: () => void
+  background?: string
+  children: React.ReactNode
+}) {
+  return (
+    <section id={id} style={{ ...styles.card, background: background ?? colors.card, padding: open ? '20px' : '4px 20px' }}>
+      <button
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={`${id}-body`}
+        style={styles.collapseHeader}
+      >
+        <span style={{ ...styles.h, margin: 0, textAlign: 'left' }}>{title}</span>
+        <span style={styles.collapseHint}>
+          {!open && <span style={{ marginRight: '8px' }}>{hint}</span>}
+          <span aria-hidden="true" style={{
+            display: 'inline-block',
+            transform: open ? 'rotate(180deg)' : 'none',
+            fontSize: '11px',
+            color: colors.textSecondary,
+          }}>▼</span>
+        </span>
+      </button>
+      {open && <div id={`${id}-body`} style={{ paddingTop: '4px' }}>{children}</div>}
+    </section>
+  )
+}
 
 function Stat({ n, sub, label }: { n: string; sub?: string; label: string }) {
   return (
@@ -768,4 +978,105 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   dots: { display: 'inline-flex', gap: '4px', verticalAlign: 'middle' },
+
+  /** Segmented control — a setting, deliberately quieter than the tab strip. */
+  tierSwitch: {
+    flex: 'none',
+    display: 'inline-flex',
+    gap: '2px',
+    padding: '3px',
+    background: colors.background,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.md,
+  },
+  tierBtn: {
+    padding: '5px 11px',
+    borderRadius: radius.sm,
+    border: 'none',
+    fontSize: font.sm,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    whiteSpace: 'nowrap',
+  },
+
+  tabs: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    borderBottom: `2px solid ${colors.border}`,
+    marginBottom: 0,
+  },
+  tab: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    padding: '13px 8px',
+    border: 'none',
+    borderBottom: '3px solid',
+    marginBottom: '-2px',
+    borderRadius: `${radius.md} ${radius.md} 0 0`,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
+  tabNum: {
+    flex: 'none',
+    width: '20px', height: '20px',
+    borderRadius: '50%',
+    fontSize: '11px',
+    fontWeight: '700',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontVariantNumeric: 'tabular-nums',
+  },
+  stageBlurb: {
+    margin: '0 0 4px',
+    padding: '10px 4px 0',
+    fontSize: font.base,
+    color: colors.textSecondary,
+  },
+
+  nextStage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '3px',
+    width: '100%',
+    padding: '14px 18px',
+    background: colors.card,
+    border: `1px dashed ${colors.borderStrong}`,
+    borderRadius: radius.lg,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    textAlign: 'left',
+  },
+  nextLabel: {
+    fontSize: '10.5px',
+    fontWeight: '700',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: colors.primary,
+    marginRight: '8px',
+  },
+
+  collapseHeader: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
+    background: 'none',
+    border: 'none',
+    padding: '14px 0',
+    margin: 0,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    textAlign: 'left',
+  },
+  collapseHint: {
+    flex: 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+    fontSize: font.sm,
+    color: colors.textHint,
+    whiteSpace: 'nowrap',
+  },
 }
