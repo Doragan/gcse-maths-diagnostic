@@ -15,6 +15,25 @@ import type { Tier } from '../../lib/skills/examProfile'
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
+ * Something to notice, and — where it helps — what it actually looks like on
+ * the paper.
+ *
+ * A cue on its own describes a pattern in the abstract ("words that mean
+ * splitting one thing up"), which is exactly the kind of advice a student nods
+ * along to and then fails to spot in the exam. The fragment shows the pattern
+ * in situ.
+ *
+ * Keep `example` to a SHORT fragment in the style of the paper — a phrase or a
+ * single sentence, not a full question with numbers to work. Full questions
+ * belong in `examples`, where the student judges them. Fragments here are
+ * original, never transcribed from a real paper.
+ */
+export type Cue = {
+  text: string
+  example?: string
+}
+
+/**
  * A near neighbour, and how to tell it apart.
  *
  * Split into three labelled fields rather than one paragraph. A paragraph that
@@ -70,7 +89,7 @@ export type SkillGuide = {
   skillId: string
   /** One line under the title: what this skill actually is. */
   summary: string
-  recognise: string[]
+  recognise: Cue[]
   confusableWith: ConfusableWith[]
   /** Stems to judge against the cues above, including at least one near-miss. */
   examples: SkillExample[]
@@ -83,8 +102,8 @@ export type SkillGuide = {
    */
   higher?: {
     /** Shown above the Higher additions to explain what changes at this tier. */
-    note?: string
-    recognise?: string[]
+    note?: Cue
+    recognise?: Cue[]
     confusableWith?: ConfusableWith[]
     examples?: SkillExample[]
     steps?: MethodStep[]
@@ -96,12 +115,12 @@ export type SkillGuide = {
 export type ResolvedGuide = {
   skillId: string
   summary: string
-  recognise: string[]
+  recognise: Cue[]
   confusableWith: ConfusableWith[]
   examples: SkillExample[]
   steps: MethodStep[]
   check: string[]
-  higherNote: string | null
+  higherNote: Cue | null
   /** How many of the steps came from the Higher block, for labelling. */
   higherStepCount: number
 }

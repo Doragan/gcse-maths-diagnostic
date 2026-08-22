@@ -52,6 +52,55 @@ describe('skill guide registry', () => {
     }
   })
 
+  it('keeps recognition cues illustrated, and their examples short', () => {
+    // Cue examples are FRAGMENTS showing the pattern in situ — a phrase or one
+    // sentence. Full questions with numbers to work belong in `examples`, where
+    // the student judges them. Without a cap these drift into being second
+    // worked examples, which is what made the section unwieldy in the first place.
+    for (const guide of Object.values(skillGuides)) {
+      const cues = [
+        ...guide.recognise,
+        ...(guide.higher?.recognise ?? []),
+        ...(guide.higher?.note ? [guide.higher.note] : []),
+      ]
+      const illustrated = cues.filter(c => c.example)
+      expect(illustrated.length, `${guide.skillId} has no illustrated cues`).toBeGreaterThan(0)
+
+      for (const c of cues) {
+        expect(c.text?.trim(), `${guide.skillId}: cue with no text`).toBeTruthy()
+        if (!c.example) continue
+        expect(
+          c.example.length,
+          `${guide.skillId}: cue example too long to be a fragment — "${c.example.slice(0, 40)}…"`,
+        ).toBeLessThanOrEqual(120)
+      }
+    }
+  })
+
+  it('keeps confusable pairings reciprocal between authored guides', () => {
+    // If A tells the student it is confusable with B, then B's page must say
+    // the same about A. Otherwise a student who arrives from the other
+    // direction never sees the distinction, and the two pages can drift into
+    // describing the same pair differently.
+    //
+    // Only enforced where BOTH guides exist — pointing at a skill with no guide
+    // yet is normal and stays allowed.
+    const namesOf = (g: (typeof skillGuides)[string]) =>
+      [...g.confusableWith, ...(g.higher?.confusableWith ?? [])].map(c => c.skillId)
+
+    const oneWay: string[] = []
+    for (const guide of Object.values(skillGuides)) {
+      for (const other of namesOf(guide)) {
+        const target = skillGuides[other]
+        if (!target) continue
+        if (!namesOf(target).includes(guide.skillId)) {
+          oneWay.push(`${guide.skillId} -> ${other}, but ${other} does not name ${guide.skillId}`)
+        }
+      }
+    }
+    expect(oneWay, 'one-directional confusable pairings').toEqual([])
+  })
+
   it('gives every example set at least one near-miss', () => {
     // A set where everything IS the skill only confirms what the student already
     // assumed. The near-miss is what makes it a selection drill.

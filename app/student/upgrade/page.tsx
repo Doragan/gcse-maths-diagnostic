@@ -8,7 +8,10 @@ import {
   colors, font, radius,
   primaryButton, secondaryButton, pageContainer,
 } from '../../../lib/styles'
-import { PLANS, FEATURES, planPricing, seatsLeftLabel, type Plan } from '../../../lib/studentPlans'
+import {
+  PLANS, FEATURES, planPricing, seatsLeftLabel, wantedFeatureLabel, type Plan,
+} from '../../../lib/studentPlans'
+import { skillsById } from '../../../lib/skills/skillGraph'
 import { trackEvent } from '../../../lib/analytics'
 
 export default function StudentUpgradePage() {
@@ -19,6 +22,13 @@ export default function StudentUpgradePage() {
   const [upgraded, setUpgraded] = useState(false)
   // Founder seats remaining for the exam pass (null = still loading / unknown).
   const [seatsLeft, setSeatsLeft] = useState<number | null>(null)
+
+  /**
+   * What the student was trying to do when they were sent here, from
+   * `?want=` (+ `?skill=` where it names one). Every locked feature that
+   * routes to this page should say which feature it was.
+   */
+  const [wantedLabel, setWantedLabel] = useState<string | null>(null)
 
   // "Ask a parent to pay" — a shareable link the student forwards.
   const [parentLink, setParentLink] = useState<string | null>(null)
@@ -31,6 +41,11 @@ export default function StudentUpgradePage() {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search)
         if (params.get('upgraded') === 'true') setUpgraded(true)
+        const skillId = params.get('skill')
+        setWantedLabel(wantedFeatureLabel(
+          params.get('want'),
+          skillId ? skillsById[skillId]?.name ?? null : null,
+        ))
       }
     })
     // Founder-seat count for the exam-pass sale framing (aggregate, no PII).
@@ -147,6 +162,22 @@ export default function StudentUpgradePage() {
   return (
     <main style={pageContainer}>
       <div style={styles.card}>
+
+        {/* What the student was trying to do when they hit the paywall.
+            Landing on a generic pricing page with no acknowledgement reads as
+            a dead end — they asked for one specific thing and got a sales
+            pitch. Driven by query params so every entry point can say its
+            own piece. */}
+        {wantedLabel && (
+          <div style={styles.wanted}>
+            <p style={{ margin: 0, fontSize: font.base, color: colors.primaryHover, fontWeight: '600' }}>
+              {wantedLabel}
+            </p>
+            <p style={{ margin: '3px 0 0', fontSize: font.sm, color: colors.textSecondary }}>
+              It&apos;s part of Premium, along with everything below.
+            </p>
+          </div>
+        )}
 
         <div>
           <h1 style={{ fontSize: font['2xl'], fontWeight: '700', margin: 0, color: colors.textPrimary }}>
@@ -297,6 +328,12 @@ export default function StudentUpgradePage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
+  wanted: {
+    background: '#eff6ff',
+    border: `1px solid #c3d5fb`,
+    borderRadius: radius.md,
+    padding: '12px 14px',
+  },
   card: {
     background: colors.card,
     borderRadius: radius.lg,
