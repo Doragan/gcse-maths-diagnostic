@@ -226,12 +226,26 @@ export default function SkillGuidePage() {
   return (
     <main style={styles.page}>
 
-      <button
-        onClick={() => router.back()}
-        style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base, alignSelf: 'flex-start' }}
-      >
-        ← Back
-      </button>
+      <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-start' }}>
+        <button
+          onClick={() => router.back()}
+          style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+        >
+          ← Back
+        </button>
+        {/* A real link, not a router.push — this is the one internal path to
+            the index, and it should be crawlable. */}
+        <a
+          href="/skills"
+          onClick={() => trackEvent('skill_guide_index_click', { skill: skillId, tier })}
+          style={{
+            ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base,
+            textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
+          }}
+        >
+          All skills
+        </a>
+      </div>
 
       {/* ── Title and standing ─────────────────────────────────────────────
           The tier switch lives up here as a small setting rather than a

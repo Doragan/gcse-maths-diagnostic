@@ -40,6 +40,13 @@ describe('titleForPath', () => {
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
   })
 
+  it('keeps the skill index distinct from an individual guide', () => {
+    // /skills must not be swallowed by the /skill/[slug] pattern, or the index
+    // and every guide collapse into one row in the analytics.
+    expect(titleForPath('/skills')).toBe('All skills — Mathsense')
+    expect(normalizePath('/skills')).toBe('/skills')
+  })
+
   it('titles a skill guide and collapses its slug', () => {
     expect(titleForPath('/skill/proportion')).toBe('Skill guide — Mathsense')
     expect(titleForPath('/skill/expanding-double-brackets')).toBe('Skill guide — Mathsense')
