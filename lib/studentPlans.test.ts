@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { PLANS, planPricing, seatsLeftLabel, FOUNDER_SEAT_CAP } from './studentPlans'
+import { PLANS, planPricing, seatsLeftLabel, wantedFeatureLabel, FOUNDER_SEAT_CAP } from './studentPlans'
 
 const exam = PLANS.find(p => p.id === 'exam')!
 const annual = PLANS.find(p => p.id === 'annual')!
@@ -45,5 +45,31 @@ describe('seatsLeftLabel', () => {
   it('renders nothing when unknown or closed', () => {
     expect(seatsLeftLabel(null)).toBeNull()
     expect(seatsLeftLabel(0)).toBeNull()
+  })
+})
+
+describe('wantedFeatureLabel', () => {
+  it('names the skill the student reached for', () => {
+    expect(wantedFeatureLabel('skill', 'Ratio'))
+      .toBe('You wanted to drill ratio on its own.')
+  })
+
+  it('falls back to a generic line when the skill is unknown', () => {
+    // A ?want=skill with a skill id that no longer resolves must still say
+    // something true rather than "drill null on its own".
+    expect(wantedFeatureLabel('skill', null))
+      .toBe('You wanted to drill one skill on its own.')
+  })
+
+  it('covers the other locked focus modes', () => {
+    expect(wantedFeatureLabel('topic', null)).toContain('whole topic')
+    expect(wantedFeatureLabel('weakspots', null)).toContain('weak spots')
+  })
+
+  it('shows nothing for an absent or unrecognised want', () => {
+    // Degrades to the plain pricing page rather than asserting something wrong.
+    expect(wantedFeatureLabel(null, null)).toBeNull()
+    expect(wantedFeatureLabel(undefined, null)).toBeNull()
+    expect(wantedFeatureLabel('something-invented', null)).toBeNull()
   })
 })

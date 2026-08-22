@@ -253,7 +253,13 @@ export default function PracticePage() {
     if (mode === 'auto') { setFocusMode('auto'); return }
     if (!isPaid) {
       // Show-but-locked: send free users to upgrade, anonymous users to login.
-      router.push(student ? '/student/upgrade' : '/student')
+      // Pass which locked mode they reached for — the upgrade page opens by
+      // naming it, instead of showing a generic pitch to someone who asked
+      // for one specific thing.
+      const want = mode === 'skill' && focusSkillId
+        ? `?want=skill&skill=${focusSkillId}`
+        : `?want=${mode}`
+      router.push(student ? `/student/upgrade${want}` : '/student')
       return
     }
     setFocusMode(mode)

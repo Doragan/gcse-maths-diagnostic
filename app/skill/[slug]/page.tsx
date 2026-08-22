@@ -618,7 +618,9 @@ export default function SkillGuidePage() {
             <button
               onClick={() => {
                 trackEvent('skill_guide_upgrade_click', { skill: skillId, tier })
-                router.push(studentId ? '/student/upgrade' : '/student')
+                // Carry what they were trying to do, so the upgrade page opens
+                // by naming it rather than with a generic pitch.
+                router.push(studentId ? `/student/upgrade?want=skill&skill=${skillId}` : '/student')
               }}
               style={{ ...secondaryButton, width: '100%', marginTop: '8px' }}
             >
