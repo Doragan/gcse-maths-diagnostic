@@ -88,9 +88,6 @@ export default function SkillBriefingPage() {
     trackEvent('skill_briefing_stage', { skill: skillId, tier, stage: next })
   }
 
-  /** Feedback is a trial instrument, not content — closed until wanted. */
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
-
   /** The stage after this one, for the forward pointer. Null on the last. */
   const nextStage = STAGES[STAGES.findIndex(s => s.id === stage) + 1] ?? null
 
@@ -144,19 +141,26 @@ export default function SkillBriefingPage() {
     trackEvent('skill_briefing_example_reveal', { skill: skillId, tier, index })
   }
 
-  async function sendFeedback() {
-    if (sending || (!rating && !comment.trim())) return
+  /**
+   * Record the rating the instant it is clicked.
+   *
+   * It used to ride along with the comment form and only reach analytics when
+   * "Send feedback" was pressed, which threw away every rating from a student
+   * who clicked a thumb and stopped there — almost certainly most of them.
+   * The rating is the measurement that matters; the comment is a bonus.
+   */
+  function rate(value: Rating) {
+    if (rating === value) return
+    setRating(value)
+    trackEvent('skill_briefing_rating', { skill: skillId, tier, board, rating: value, stage })
+  }
+
+  /** Post the optional free text. The rating is already recorded by `rate`. */
+  async function sendComment() {
+    if (sending || !comment.trim()) return
     setSending(true)
 
-    if (rating) {
-      trackEvent('skill_briefing_rating', {
-        skill: skillId, tier, board, rating, with_comment: Boolean(comment.trim()),
-      })
-    }
-
-    // The endpoint requires a message, so a bare rating stays an analytics
-    // event and never posts an empty note.
-    if (comment.trim()) {
+    {
       try {
         await fetch('/api/feedback', {
           method: 'POST',
@@ -647,33 +651,37 @@ export default function SkillBriefingPage() {
         )}
       </section>
 
-      {/* ── Trial feedback ───────────────────────────────────────────────
-          Collapsed until wanted. Expanded it was the second-tallest thing on
-          the page at ~460px, and it is a trial instrument rather than content
-          the student came for. */}
-      <Collapsible
-        id="feedback"
-        title="Is this page useful?"
-        hint="tell us"
-        open={feedbackOpen}
-        onToggle={() => setFeedbackOpen(o => !o)}
-      >
+      {/* ── Was this useful? ─────────────────────────────────────────────
+          Always visible, on every stage, and the rating is recorded the
+          moment it is clicked.
+
+          Both of those are fixes rather than preferences. It used to be a
+          collapsed section carrying the whole form, and the rating only
+          reached analytics when "Send feedback" was pressed — so a student
+          who opened it, clicked "Yes, useful" and stopped, which is the
+          natural thing to do, recorded nothing at all. Across five days and
+          39 page views this instrument captured zero ratings; a buried
+          control that also discards the common interaction is enough to
+          explain that on its own.
+
+          The comment box only appears once a rating is given, so the resting
+          height is a prompt and two buttons rather than ~460px of form. */}
+      <section style={{ ...styles.card, borderColor: colors.primary }}>
         {sent ? (
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
             ✓ Thanks — that goes straight to the person who wrote this page.
           </p>
         ) : (
           <>
-            <p style={{ ...styles.hint, marginBottom: '12px' }}>
-              This page is new and we&apos;re trying it on a few skills first. What you say here
-              decides whether we write them for the rest.
+            <p style={{ ...styles.h, marginBottom: '10px' }}>
+              {rating ? 'Thanks. Anything you want to add?' : 'Was this useful?'}
             </p>
 
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-              {([['useful', 'Yes, useful'], ['not_useful', 'Not really']] as [Rating, string][]).map(([value, label]) => (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {([['useful', '👍  Yes'], ['not_useful', '👎  Not really']] as [Rating, string][]).map(([value, label]) => (
                 <button
                   key={value}
-                  onClick={() => setRating(rating === value ? null : value)}
+                  onClick={() => rate(value)}
                   aria-pressed={rating === value}
                   style={{
                     ...secondaryButton,
@@ -688,95 +696,56 @@ export default function SkillBriefingPage() {
               ))}
             </div>
 
-            <label htmlFor="briefing-comment" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
-              {rating === 'not_useful'
-                ? 'What would have helped instead?'
-                : 'What was missing, confusing, or worth keeping?'}
-            </label>
-            <textarea
-              id="briefing-comment"
-              value={comment}
-              onChange={e => setComment(e.target.value)}
-              rows={4}
-              placeholder="Anything at all — even one line is useful."
-              style={{ ...inputStyle, resize: 'vertical', marginBottom: '10px', lineHeight: 1.5 }}
-            />
+            {rating && (
+              <div style={{ marginTop: '14px' }}>
+                <label htmlFor="briefing-comment" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
+                  {rating === 'not_useful'
+                    ? 'What would have helped instead?'
+                    : 'What was missing, confusing, or worth keeping?'}
+                </label>
+                <textarea
+                  id="briefing-comment"
+                  value={comment}
+                  onChange={e => setComment(e.target.value)}
+                  rows={3}
+                  placeholder="Optional — even one line is useful."
+                  style={{ ...inputStyle, resize: 'vertical', marginBottom: '10px', lineHeight: 1.5 }}
+                />
 
-            <label htmlFor="briefing-reply" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
-              Email, if you&apos;d like a reply (optional)
-            </label>
-            <input
-              id="briefing-reply"
-              type="email"
-              value={replyTo}
-              onChange={e => setReplyTo(e.target.value)}
-              placeholder="you@example.com"
-              style={{ ...inputStyle, marginBottom: '12px' }}
-            />
+                <label htmlFor="briefing-reply" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
+                  Email, if you&apos;d like a reply (optional)
+                </label>
+                <input
+                  id="briefing-reply"
+                  type="email"
+                  value={replyTo}
+                  onChange={e => setReplyTo(e.target.value)}
+                  placeholder="you@example.com"
+                  style={{ ...inputStyle, marginBottom: '12px' }}
+                />
 
-            <button
-              onClick={sendFeedback}
-              disabled={sending || (!rating && !comment.trim())}
-              style={{
-                ...primaryButton,
-                opacity: sending || (!rating && !comment.trim()) ? 0.6 : 1,
-                cursor: sending || (!rating && !comment.trim()) ? 'default' : 'pointer',
-              }}
-            >
-              {sending ? 'Sending…' : 'Send feedback'}
-            </button>
+                <button
+                  onClick={sendComment}
+                  disabled={sending || !comment.trim()}
+                  style={{
+                    ...primaryButton,
+                    opacity: sending || !comment.trim() ? 0.6 : 1,
+                    cursor: sending || !comment.trim() ? 'default' : 'pointer',
+                  }}
+                >
+                  {sending ? 'Sending…' : 'Send'}
+                </button>
+              </div>
+            )}
           </>
         )}
-      </Collapsible>
+      </section>
 
     </main>
   )
 }
 
 // ── Small presentational pieces ──────────────────────────────────────────────
-
-/**
- * A section the student opens when they want it.
- *
- * The header is a real <button> with aria-expanded rather than a styled div,
- * so it is reachable and operable from the keyboard and announced correctly.
- * The `hint` tells the student what is inside before they commit to opening —
- * "3 steps" is the difference between an informed choice and a mystery box.
- */
-function Collapsible({
-  id, title, hint, open, onToggle, background, children,
-}: {
-  id: string
-  title: string
-  hint: string
-  open: boolean
-  onToggle: () => void
-  background?: string
-  children: React.ReactNode
-}) {
-  return (
-    <section id={id} style={{ ...styles.card, background: background ?? colors.card, padding: open ? '20px' : '4px 20px' }}>
-      <button
-        onClick={onToggle}
-        aria-expanded={open}
-        aria-controls={`${id}-body`}
-        style={styles.collapseHeader}
-      >
-        <span style={{ ...styles.h, margin: 0, textAlign: 'left' }}>{title}</span>
-        <span style={styles.collapseHint}>
-          {!open && <span style={{ marginRight: '8px' }}>{hint}</span>}
-          <span aria-hidden="true" style={{
-            display: 'inline-block',
-            transform: open ? 'rotate(180deg)' : 'none',
-            fontSize: '11px',
-            color: colors.textSecondary,
-          }}>▼</span>
-        </span>
-      </button>
-      {open && <div id={`${id}-body`} style={{ paddingTop: '4px' }}>{children}</div>}
-    </section>
-  )
-}
 
 function Stat({ n, sub, label }: { n: string; sub?: string; label: string }) {
   return (
@@ -1076,26 +1045,4 @@ const styles: Record<string, React.CSSProperties> = {
     marginRight: '8px',
   },
 
-  collapseHeader: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '12px',
-    background: 'none',
-    border: 'none',
-    padding: '14px 0',
-    margin: 0,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    textAlign: 'left',
-  },
-  collapseHint: {
-    flex: 'none',
-    display: 'inline-flex',
-    alignItems: 'center',
-    fontSize: font.sm,
-    color: colors.textHint,
-    whiteSpace: 'nowrap',
-  },
 }
