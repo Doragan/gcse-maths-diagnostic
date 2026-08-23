@@ -111,34 +111,71 @@ export const growthAndDecayBriefing: SkillBriefing = {
   ],
 
   higher: {
+    // Counted across the nine coded Higher rows rather than inferred from the
+    // trap labels: four run the multiplier backwards, five are forward
+    // calculations like Foundation's. What actually separates the tiers is not
+    // direction but company — on Higher the skill arrives inside a given model,
+    // an iteration or a function, and carries 3–4 chained marks.
     note: {
-      text: 'On Higher the unknown is usually the rate or the number of periods rather than the final '
-        + 'value, so the work is running the multiplier backwards.',
-      example: 'A population grows from 4000 to 5324 in 3 years. Work out the annual percentage rate.',
+      text: 'On Higher the arithmetic is the same, but it rarely stands on its own. You are usually handed '
+        + 'a model to work with, or growth and decay turns up inside something else — an iteration, a '
+        + 'function, a repayment. Sometimes the rate or the number of years is the missing piece.',
+      example: 'The value V after t years is given by V = 8000 × 0.85ᵗ.',
     },
 
     recognise: [
       {
-        text: 'The start and end values are both given and the rate is what is missing.',
-        example: 'Work out the annual rate of decay.',
+        text: 'A model handed to you in symbols, where the work is using it rather than building it.',
+        example: 'The number of bacteria N after h hours is N = 500 × 1.6ʰ.',
       },
       {
-        text: 'The number of periods is unknown — "how many years until…", "the least number of years".',
+        text: 'Growth or decay arriving inside other work — an iteration, a function, a loan with '
+          + 'repayments, or growth in one part and decay in another.',
+        example: 'Each year interest is added, and then a repayment is made.',
+      },
+      {
+        text: 'The rate or the number of years is what is missing, so the multiplier has to run backwards.',
         example: 'Find the least number of years for the value to fall below £5000.',
+      },
+    ],
+
+    confusableWith: [
+      {
+        skillId: 'iteration',
+        thisOne: 'One multiplier applied a fixed number of times, and you can jump straight to the end '
+          + 'with a power.',
+        theOther: 'Each step depends on the last in a way a power cannot skip — a repayment, or a formula '
+          + 'fed its own output.',
+        ask: 'Can I get to year 5 in one calculation, or do I have to walk through every year?',
       },
     ],
 
     examples: [
       {
+        stem: 'The value £V of a machine after t years is given by V = 18000 × 0.82ᵗ. '
+          + 'Work out its value after 3 years.',
+        isThisSkill: true,
+        cue: 'The model is handed to you — 18000 is the start, 0.82 the multiplier. The only work is '
+          + 'raising it to the right power.',
+      },
+      {
         stem: 'A machine bought for £18,000 is worth £11,664 after 2 years. '
           + 'Work out the annual rate of depreciation.',
         isThisSkill: true,
-        cue: 'Both ends are given and the rate is missing — divide, take the square root, then turn the '
+        cue: 'Both ends given and the rate missing — divide, take the square root, then turn the '
           + 'multiplier back into a percentage.',
       },
     ],
 
     steps: [
+      {
+        do: 'If you are handed a model, read the start and the multiplier straight off it.',
+        because:
+          'In V = 8000 × 0.85ᵗ the 8000 is the starting value and 0.85 is the multiplier — there is '
+          + 'nothing to build, and the marks are for using it correctly rather than deriving it.',
+        watch:
+          'Reading 0.85 as the rate. It is the multiplier; the rate is the 15% that is missing from it.',
+      },
       {
         do: 'For an unknown rate, divide the end by the start and take the nth root.',
         because:
@@ -159,6 +196,8 @@ export const growthAndDecayBriefing: SkillBriefing = {
     ],
 
     check: [
+      'If you were given a model, put t = 0 into it. You should get the starting value back — if you '
+        + 'do not, you have misread which number is which.',
       'Run your rate forwards for the full number of periods. You should land back on the value you '
         + 'were given.',
       'For a "how many years" answer, check the year before as well — it must NOT have crossed the target, '
