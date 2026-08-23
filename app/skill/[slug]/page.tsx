@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { skillsById } from '../../../lib/skills/skillGraph'
 import { slugToSkillId } from '../../../lib/skills/slug'
-import { getGuide, resolveGuide } from '../../../data/skillGuides'
+import { getBriefing, resolveBriefing } from '../../../data/skillBriefings'
 import {
   getExamProfile, dressedFramings, bareClaim, chainClaim, calcClaim,
   sliceProvenance, codedBoards, type Tier,
@@ -17,7 +17,7 @@ import { trackEvent, getSessionId } from '../../../lib/analytics'
 import { colors, font, radius, primaryButton, secondaryButton, inputStyle } from '../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// The skill page — trial of the tier 2 + tier 3 format on a single skill.
+// An exam briefing for one skill — what the exam does with it, how to spot it,
 //
 // Section order is deliberate and follows what a stuck student needs first:
 //   recognise -> confusable -> judge some stems -> method -> check
@@ -25,8 +25,8 @@ import { colors, font, radius, primaryButton, secondaryButton, inputStyle } from
 // most defensible content on the page but it answers "what should I expect",
 // not "what do I do now", so it reads as context rather than an opener.
 //
-// Nothing links here except the contextual prompt on the question page, so the
-// trial stays contained until the format has been reviewed.
+// Reachable from /skills, and from the prompt shown after a wrong answer on a
+// skill that has one.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Only AQA has coded papers today. Kept explicit so the gap is visible. */
@@ -46,14 +46,14 @@ const STAGES: { id: Stage; label: string; blurb: string }[] = [
   { id: 'check', label: 'Check it', blurb: 'Before you write the answer down' },
 ]
 
-export default function SkillGuidePage() {
+export default function SkillBriefingPage() {
   const router = useRouter()
   const params = useParams()
   const slug = String(params.slug ?? '')
 
   const skillId = slugToSkillId(slug)
   const skill = skillId ? skillsById[skillId] : null
-  const guide = skillId ? getGuide(skillId) : null
+  const briefing = skillId ? getBriefing(skillId) : null
 
   const [tier, setTierState] = useState<Tier>('foundation')
   const [board] = useState<string>(DEFAULT_BOARD)
@@ -85,7 +85,7 @@ export default function SkillGuidePage() {
   function changeStage(next: Stage) {
     setStage(next)
     if (typeof window !== 'undefined') history.replaceState(null, '', `#${next}`)
-    trackEvent('skill_guide_stage', { skill: skillId, tier, stage: next })
+    trackEvent('skill_briefing_stage', { skill: skillId, tier, stage: next })
   }
 
   /** Feedback is a trial instrument, not content — closed until wanted. */
@@ -104,9 +104,9 @@ export default function SkillGuidePage() {
   useEffect(() => { setTierState(getTier()) }, [])
 
   useEffect(() => {
-    if (!skillId || !guide) return
-    trackEvent('skill_guide_view', { skill: skillId, tier, board })
-  }, [skillId, guide, tier, board])
+    if (!skillId || !briefing) return
+    trackEvent('skill_briefing_view', { skill: skillId, tier, board })
+  }, [skillId, briefing, tier, board])
 
   // The student's recent attempts on this skill, plus whether they can
   // actually use skill-targeted practice. Best-effort: signed-out visitors
@@ -136,12 +136,12 @@ export default function SkillGuidePage() {
     setTierState(next)
     persistTier(next)
     setRevealed([])   // the example set changes with the tier
-    trackEvent('skill_guide_tier_change', { skill: skillId, tier: next })
+    trackEvent('skill_briefing_tier_change', { skill: skillId, tier: next })
   }
 
   function reveal(index: number) {
     setRevealed(prev => (prev.includes(index) ? prev : [...prev, index]))
-    trackEvent('skill_guide_example_reveal', { skill: skillId, tier, index })
+    trackEvent('skill_briefing_example_reveal', { skill: skillId, tier, index })
   }
 
   async function sendFeedback() {
@@ -149,7 +149,7 @@ export default function SkillGuidePage() {
     setSending(true)
 
     if (rating) {
-      trackEvent('skill_guide_rating', {
+      trackEvent('skill_briefing_rating', {
         skill: skillId, tier, board, rating, with_comment: Boolean(comment.trim()),
       })
     }
@@ -164,7 +164,7 @@ export default function SkillGuidePage() {
           body: JSON.stringify({
             message:   comment.trim(),
             category:  rating === 'useful' ? 'praise' : rating === 'not_useful' ? 'idea' : 'other',
-            context:   `skill_guide:${skillId}:${tier}`,
+            context:   `skill_briefing:${skillId}:${tier}`,
             email:     replyTo.trim() || null,
             userId:    studentId,
             sessionId: getSessionId(),
@@ -179,7 +179,7 @@ export default function SkillGuidePage() {
     setSent(true)
   }
 
-  // ── Unknown skill, or a skill with no guide written yet ────────────────────
+  // ── Unknown skill, or a skill with no briefing written yet ────────────────────
   if (!skillId || !skill) {
     return (
       <main style={styles.page}>
@@ -194,14 +194,14 @@ export default function SkillGuidePage() {
     )
   }
 
-  if (!guide) {
+  if (!briefing) {
     return (
       <main style={styles.page}>
         <p style={styles.kicker}>{skill.topic}</p>
         <h1 style={styles.title}>{skill.name}</h1>
         <p style={styles.muted}>
-          There&apos;s no written guide for this skill yet — we&apos;re trialling the format on
-          one skill first. You can still practise it.
+          There&apos;s no exam briefing for this skill yet — we&apos;re writing them a few
+          skills at a time. You can still practise it.
         </p>
         <button
           onClick={() => router.push(`/practice?skillId=${skillId}`)}
@@ -213,7 +213,7 @@ export default function SkillGuidePage() {
     )
   }
 
-  const g = resolveGuide(guide, tier)
+  const g = resolveBriefing(briefing, tier)
   // Headings name the skill rather than saying "it". Plural rather than
   // "a/an <skill>", so the phrasing stays grammatical for every skill name.
   const lowerName = skill.name.toLowerCase()
@@ -226,12 +226,26 @@ export default function SkillGuidePage() {
   return (
     <main style={styles.page}>
 
-      <button
-        onClick={() => router.back()}
-        style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base, alignSelf: 'flex-start' }}
-      >
-        ← Back
-      </button>
+      <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-start' }}>
+        <button
+          onClick={() => router.back()}
+          style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+        >
+          ← Back
+        </button>
+        {/* A real link, not a router.push — this is the one internal path to
+            the index, and it should be crawlable. */}
+        <a
+          href="/skills"
+          onClick={() => trackEvent('skill_briefing_index_click', { skill: skillId, tier })}
+          style={{
+            ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base,
+            textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
+          }}
+        >
+          All skills
+        </a>
+      </div>
 
       {/* ── Title and standing ─────────────────────────────────────────────
           The tier switch lives up here as a small setting rather than a
@@ -242,7 +256,10 @@ export default function SkillGuidePage() {
       <section style={styles.card}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 200px' }}>
-            <p style={styles.kicker}>{skill.topic}</p>
+            {/* "Exam briefing" rather than "guide": a guide implies a full
+                tutorial that teaches the topic from scratch, and this does not
+                do that. It prepares you for how the skill is examined. */}
+            <p style={styles.kicker}>Exam briefing · {skill.topic}</p>
             <h1 style={styles.title}>{skill.name}</h1>
           </div>
           <div style={styles.tierSwitch} role="group" aria-label="Which paper are you sitting?">
@@ -593,7 +610,7 @@ export default function SkillGuidePage() {
         {canFocus ? (
           <button
             onClick={() => {
-              trackEvent('skill_guide_practise', { skill: skillId, tier, targeted: true })
+              trackEvent('skill_briefing_practise', { skill: skillId, tier, targeted: true })
               router.push(`/practice?skillId=${skillId}`)
             }}
             style={primaryButton}
@@ -608,7 +625,7 @@ export default function SkillGuidePage() {
             </p>
             <button
               onClick={() => {
-                trackEvent('skill_guide_practise', { skill: skillId, tier, targeted: false })
+                trackEvent('skill_briefing_practise', { skill: skillId, tier, targeted: false })
                 router.push('/practice')
               }}
               style={primaryButton}
@@ -617,7 +634,7 @@ export default function SkillGuidePage() {
             </button>
             <button
               onClick={() => {
-                trackEvent('skill_guide_upgrade_click', { skill: skillId, tier })
+                trackEvent('skill_briefing_upgrade_click', { skill: skillId, tier })
                 // Carry what they were trying to do, so the upgrade page opens
                 // by naming it rather than with a generic pitch.
                 router.push(studentId ? `/student/upgrade?want=skill&skill=${skillId}` : '/student')
@@ -671,13 +688,13 @@ export default function SkillGuidePage() {
               ))}
             </div>
 
-            <label htmlFor="guide-comment" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
+            <label htmlFor="briefing-comment" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
               {rating === 'not_useful'
                 ? 'What would have helped instead?'
                 : 'What was missing, confusing, or worth keeping?'}
             </label>
             <textarea
-              id="guide-comment"
+              id="briefing-comment"
               value={comment}
               onChange={e => setComment(e.target.value)}
               rows={4}
@@ -685,11 +702,11 @@ export default function SkillGuidePage() {
               style={{ ...inputStyle, resize: 'vertical', marginBottom: '10px', lineHeight: 1.5 }}
             />
 
-            <label htmlFor="guide-reply" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
+            <label htmlFor="briefing-reply" style={{ ...styles.hint, display: 'block', marginBottom: '5px' }}>
               Email, if you&apos;d like a reply (optional)
             </label>
             <input
-              id="guide-reply"
+              id="briefing-reply"
               type="email"
               value={replyTo}
               onChange={e => setReplyTo(e.target.value)}

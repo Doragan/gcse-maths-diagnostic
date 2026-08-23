@@ -1,7 +1,7 @@
-import type { SkillGuide } from './types'
+import type { SkillBriefing } from './types'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Proportion — the first authored guide, written as the trial for the format.
+// Proportion — the first authored briefing, written as the trial for the format.
 //
 // Chosen because the coded papers make it the strongest case: it appears in
 // every Foundation paper, it is almost never asked plainly, and its mark
@@ -14,7 +14,7 @@ import type { SkillGuide } from './types'
 // 0% -> 4% Higher — band "never" -> "rarely", same student-facing advice.)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const proportionGuide: SkillGuide = {
+export const proportionBriefing: SkillBriefing = {
   skillId: 'proportion',
 
   summary:

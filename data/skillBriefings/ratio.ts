@@ -1,7 +1,7 @@
-import type { SkillGuide } from './types'
+import type { SkillBriefing } from './types'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Ratio — second authored guide, and the mirror of `proportion`.
+// Ratio — second authored briefing, and the mirror of `proportion`.
 //
 // The `proportion` guide already names ratio as its nearest neighbour, so the
 // comparison here is deliberately the same distinction told from the other
@@ -19,7 +19,7 @@ import type { SkillGuide } from './types'
 // computes its own headline claim from the audit.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const ratioGuide: SkillGuide = {
+export const ratioBriefing: SkillBriefing = {
   skillId: 'ratio',
 
   summary:
