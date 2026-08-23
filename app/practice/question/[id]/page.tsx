@@ -16,7 +16,7 @@ import ReportIssueButton from '../../../../components/practice/ReportIssueButton
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
-import { hasGuide } from '../../../../data/skillGuides'
+import { hasBriefing } from '../../../../data/skillBriefings'
 import { skillPath } from '../../../../lib/skills/slug'
 import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
@@ -842,12 +842,12 @@ function QuestionPage() {
             </div>
           )}
 
-          {/* Skill-guide prompt (trial). Shown only when this question's skill
-              has an authored guide, and only after a wrong answer — the guide
-              is a response to getting stuck, not a thing to browse. */}
-          {!feedback.correct && question.skill_ids.some(hasGuide) && (() => {
-            const guidedId = question.skill_ids.find(hasGuide)!
-            const guidedName = skillsById[guidedId]?.name ?? 'this skill'
+          {/* Exam-briefing prompt. Shown only when this question's skill has an
+              authored briefing, and only after a wrong answer — the briefing is
+              a response to getting stuck, not a thing to browse. */}
+          {!feedback.correct && question.skill_ids.some(hasBriefing) && (() => {
+            const briefedId = question.skill_ids.find(hasBriefing)!
+            const briefedName = skillsById[briefedId]?.name ?? 'this skill'
             return (
               <div style={{
                 padding: '14px 16px',
@@ -860,15 +860,15 @@ function QuestionPage() {
                   New
                 </p>
                 <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 10px' }}>
-                  We&apos;ve written a guide to how {guidedName.toLowerCase()} is actually asked on
-                  the exam — how to spot it, what it gets confused with, and how to check yourself.
+                  We&apos;ve written an exam briefing on {briefedName.toLowerCase()} — how to spot
+                  the question, what it gets confused with, and how to check yourself.
                 </p>
                 <a
-                  href={skillPath(guidedId)}
-                  onClick={() => trackEvent('skill_guide_prompt_click', { skill: guidedId, from: 'question_feedback' })}
+                  href={skillPath(briefedId)}
+                  onClick={() => trackEvent('skill_briefing_prompt_click', { skill: briefedId, from: 'question_feedback' })}
                   style={{ fontSize: font.base, color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
                 >
-                  Read the {guidedName.toLowerCase()} guide →
+                  Read the {briefedName.toLowerCase()} briefing →
                 </a>
               </div>
             )

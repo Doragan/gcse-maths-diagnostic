@@ -85,7 +85,7 @@ export type SkillExample = {
   actuallySkillId?: string
 }
 
-export type SkillGuide = {
+export type SkillBriefing = {
   skillId: string
   /** One line under the title: what this skill actually is. */
   summary: string
@@ -112,7 +112,7 @@ export type SkillGuide = {
 }
 
 /** A guide flattened for one tier, ready to render. */
-export type ResolvedGuide = {
+export type ResolvedBriefing = {
   skillId: string
   summary: string
   recognise: Cue[]
@@ -125,7 +125,7 @@ export type ResolvedGuide = {
   higherStepCount: number
 }
 
-export function resolveGuide(guide: SkillGuide, tier: Tier): ResolvedGuide {
+export function resolveBriefing(guide: SkillBriefing, tier: Tier): ResolvedBriefing {
   const h = tier === 'higher' ? guide.higher : undefined
 
   return {

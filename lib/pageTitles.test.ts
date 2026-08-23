@@ -48,8 +48,8 @@ describe('titleForPath', () => {
   })
 
   it('titles a skill guide and collapses its slug', () => {
-    expect(titleForPath('/skill/proportion')).toBe('Skill guide — Mathsense')
-    expect(titleForPath('/skill/expanding-double-brackets')).toBe('Skill guide — Mathsense')
+    expect(titleForPath('/skill/proportion')).toBe('Exam briefing — Mathsense')
+    expect(titleForPath('/skill/expanding-double-brackets')).toBe('Exam briefing — Mathsense')
     // Which skill was viewed rides on the event, not the path.
     expect(normalizePath('/skill/proportion')).toBe('/skill/[slug]')
   })

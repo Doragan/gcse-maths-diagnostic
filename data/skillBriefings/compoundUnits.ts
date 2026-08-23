@@ -1,7 +1,7 @@
-import type { SkillGuide } from './types'
+import type { SkillBriefing } from './types'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Compound units — third authored guide, and the hardest recognition case in
+// Compound units — third authored briefing, and the hardest recognition case in
 // the cluster.
 //
 // Across all 30 coded papers this skill is asked outright ZERO times on either
@@ -19,7 +19,7 @@ import type { SkillGuide } from './types'
 // computes its own headline claim from the audit.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const compoundUnitsGuide: SkillGuide = {
+export const compoundUnitsBriefing: SkillBriefing = {
   skillId: 'compound_units',
 
   summary:

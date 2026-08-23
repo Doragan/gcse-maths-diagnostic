@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest'
-import { getGuide, hasGuide, resolveGuide, skillGuides } from '../../data/skillGuides'
+import { getBriefing, hasBriefing, resolveBriefing, skillBriefings } from '../../data/skillBriefings'
 import { skillsById } from './skillGraph'
 import { skillIdToSlug, slugToSkillId } from './slug'
 
 describe('skill guide registry', () => {
   it('only registers guides for real skills', () => {
-    for (const skillId of Object.keys(skillGuides)) {
+    for (const skillId of Object.keys(skillBriefings)) {
       expect(skillsById[skillId], `${skillId} is not a skill in data/skills.ts`).toBeDefined()
     }
   })
 
   it('reports guides that do not exist as absent', () => {
-    expect(hasGuide('proportion')).toBe(true)
-    expect(hasGuide('completely_made_up_skill')).toBe(false)
-    expect(getGuide('completely_made_up_skill')).toBeNull()
+    expect(hasBriefing('proportion')).toBe(true)
+    expect(hasBriefing('completely_made_up_skill')).toBe(false)
+    expect(getBriefing('completely_made_up_skill')).toBeNull()
   })
 
   it('points every confusable and near-miss at a real skill', () => {
-    for (const guide of Object.values(skillGuides)) {
+    for (const guide of Object.values(skillBriefings)) {
       const referenced = [
         ...guide.confusableWith.map(c => c.skillId),
         ...guide.examples.flatMap(e => (e.actuallySkillId ? [e.actuallySkillId] : [])),
@@ -31,7 +31,7 @@ describe('skill guide registry', () => {
   })
 
   it('never lists a skill as confusable with itself', () => {
-    for (const guide of Object.values(skillGuides)) {
+    for (const guide of Object.values(skillBriefings)) {
       const all = [...guide.confusableWith, ...(guide.higher?.confusableWith ?? [])]
       for (const c of all) {
         expect(c.skillId, `${guide.skillId} is confusable with itself`).not.toBe(guide.skillId)
@@ -42,7 +42,7 @@ describe('skill guide registry', () => {
   it('fills both halves of every comparison', () => {
     // A comparison with an empty side renders a labelled row with nothing
     // against it, which reads as a bug rather than as guidance.
-    for (const guide of Object.values(skillGuides)) {
+    for (const guide of Object.values(skillBriefings)) {
       const all = [...guide.confusableWith, ...(guide.higher?.confusableWith ?? [])]
       for (const c of all) {
         expect(c.thisOne?.trim(), `${guide.skillId} vs ${c.skillId}: thisOne empty`).toBeTruthy()
@@ -57,7 +57,7 @@ describe('skill guide registry', () => {
     // sentence. Full questions with numbers to work belong in `examples`, where
     // the student judges them. Without a cap these drift into being second
     // worked examples, which is what made the section unwieldy in the first place.
-    for (const guide of Object.values(skillGuides)) {
+    for (const guide of Object.values(skillBriefings)) {
       const cues = [
         ...guide.recognise,
         ...(guide.higher?.recognise ?? []),
@@ -85,13 +85,13 @@ describe('skill guide registry', () => {
     //
     // Only enforced where BOTH guides exist — pointing at a skill with no guide
     // yet is normal and stays allowed.
-    const namesOf = (g: (typeof skillGuides)[string]) =>
+    const namesOf = (g: (typeof skillBriefings)[string]) =>
       [...g.confusableWith, ...(g.higher?.confusableWith ?? [])].map(c => c.skillId)
 
     const oneWay: string[] = []
-    for (const guide of Object.values(skillGuides)) {
+    for (const guide of Object.values(skillBriefings)) {
       for (const other of namesOf(guide)) {
-        const target = skillGuides[other]
+        const target = skillBriefings[other]
         if (!target) continue
         if (!namesOf(target).includes(guide.skillId)) {
           oneWay.push(`${guide.skillId} -> ${other}, but ${other} does not name ${guide.skillId}`)
@@ -104,7 +104,7 @@ describe('skill guide registry', () => {
   it('gives every example set at least one near-miss', () => {
     // A set where everything IS the skill only confirms what the student already
     // assumed. The near-miss is what makes it a selection drill.
-    for (const guide of Object.values(skillGuides)) {
+    for (const guide of Object.values(skillBriefings)) {
       const foundation = guide.examples
       expect(foundation.some(e => !e.isThisSkill), `${guide.skillId} has no near-miss`).toBe(true)
       // A near-miss must say what it actually is, or the tell has nowhere to land.
@@ -115,20 +115,20 @@ describe('skill guide registry', () => {
   })
 })
 
-describe('resolveGuide', () => {
-  const guide = getGuide('proportion')!
+describe('resolveBriefing', () => {
+  const briefing = getBriefing('proportion')!
 
   it('gives Foundation the shared content only', () => {
-    const g = resolveGuide(guide, 'foundation')
-    expect(g.recognise).toEqual(guide.recognise)
-    expect(g.examples).toEqual(guide.examples)
-    expect(g.steps).toEqual(guide.steps)
+    const g = resolveBriefing(briefing, 'foundation')
+    expect(g.recognise).toEqual(briefing.recognise)
+    expect(g.examples).toEqual(briefing.examples)
+    expect(g.steps).toEqual(briefing.steps)
     expect(g.higherNote).toBeNull()
   })
 
   it('merges the Higher block on top of the shared content', () => {
-    const f = resolveGuide(guide, 'foundation')
-    const h = resolveGuide(guide, 'higher')
+    const f = resolveBriefing(briefing, 'foundation')
+    const h = resolveBriefing(briefing, 'higher')
 
     // Merge, never replace — the Foundation method is still the method.
     expect(h.steps.slice(0, f.steps.length)).toEqual(f.steps)

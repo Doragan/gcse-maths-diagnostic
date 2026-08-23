@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { skills } from '../../data/skills'
 import { foundationSkillIds, higherOnlySkillIds } from '../../data/courses'
-import { hasGuide, guidedSkillIds } from '../../data/skillGuides'
+import { hasBriefing, briefedSkillIds } from '../../data/skillBriefings'
 import { skillPath } from '../../lib/skills/slug'
 import { getTier, setTier as persistTier } from '../../lib/skills/tierPreference'
 import { calculateMastery, type MasteryStatus } from '../../lib/skills/masteryEngine'
@@ -15,24 +15,24 @@ import { colors, font, radius, secondaryButton } from '../../lib/styles'
 import type { Tier } from '../../lib/skills/examProfile'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// The skill index — the first route that makes the guide pages reachable.
+// The skill index — the first route that makes the briefing pages reachable.
 //
 // Until now /skill/[slug] was linked from exactly one place: the prompt shown
-// after a wrong answer on a guided skill. A student who simply wanted to revise
-// ratio could not get there, and the pages had no internal links pointing at
-// them at all.
+// after a wrong answer on a skill that had one. A student who simply wanted to
+// revise ratio could not get there, and nothing internal pointed at them at all.
+
 //
-// It lists the WHOLE curriculum rather than only the three skills with guides.
+// It lists the WHOLE curriculum rather than only the three skills that have one.
 // A three-item page is not a map, and the point of this page is to show a
 // student the shape of what they are learning and where they stand in it. Only
-// guided skills are links; the rest are listed with their mastery so the page
-// is useful now and gets more useful as guides are written.
+// briefed skills are links; the rest are listed with their mastery so the page
+// is useful now and gets more useful as briefings are written.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Topic display order — roughly the order they are taught. */
 const TOPIC_ORDER = ['Number', 'Algebra', 'Ratio and Proportion', 'Shape and Space', 'Probability and Data']
 
-type Filter = 'all' | 'guides' | 'weak'
+type Filter = 'all' | 'briefings' | 'weak'
 
 export default function SkillsIndexPage() {
   const router = useRouter()
@@ -80,7 +80,7 @@ export default function SkillsIndexPage() {
   const grouped = useMemo(() => {
     const visible = skills
       .filter(s => inTier.has(s.id))
-      .filter(s => filter !== 'guides' || hasGuide(s.id))
+      .filter(s => filter !== 'briefings' || hasBriefing(s.id))
       .filter(s => filter !== 'weak' || mastery[s.id] === 'needs_practice')
 
     const byTopic: Record<string, typeof skills> = {}
@@ -92,7 +92,7 @@ export default function SkillsIndexPage() {
       .map(t => ({ topic: t, list: byTopic[t] }))
   }, [inTier, filter, mastery])
 
-  const guideCount = guidedSkillIds().filter(id => inTier.has(id)).length
+  const briefingCount = briefedSkillIds().filter(id => inTier.has(id)).length
   const totalVisible = grouped.reduce((n, g) => n + g.list.length, 0)
 
   return (
@@ -101,11 +101,11 @@ export default function SkillsIndexPage() {
       <header>
         <h1 style={styles.title}>Every skill on the course</h1>
         <p style={styles.sub}>
-          {guideCount > 0
-            ? `${guideCount} ${guideCount === 1 ? 'skill has' : 'skills have'} a written guide so far —
+          {briefingCount > 0
+            ? `${briefingCount} ${briefingCount === 1 ? 'skill has' : 'skills have'} an exam briefing so far —
                how to spot the question, what it gets confused with, and how to check yourself.
                We're adding more.`
-            : 'Written guides are on the way.'}
+            : 'Exam briefings are on the way.'}
         </p>
       </header>
 
@@ -133,7 +133,7 @@ export default function SkillsIndexPage() {
         <div style={styles.filters}>
           {([
             ['all', 'All skills'],
-            ['guides', 'Has a guide'],
+            ['briefings', 'Has a briefing'],
             ...(signedIn ? [['weak', 'Needs practice'] as [Filter, string]] : []),
           ] as [Filter, string][]).map(([id, label]) => (
             <button
@@ -153,6 +153,24 @@ export default function SkillsIndexPage() {
         </div>
       </section>
 
+      {/* Spells out the colour scheme, so the tint is a shortcut for a reader
+          who has learnt it rather than the only way to know. Only shown when
+          there is mastery to colour. */}
+      {signedIn && Object.keys(mastery).length > 0 && (
+        <div style={styles.legend}>
+          {(['mastered', 'in_progress', 'needs_practice'] as MasteryStatus[]).map(s => (
+            <span key={s} style={styles.legendItem}>
+              <span style={{
+                ...styles.legendSwatch,
+                background: STATUS_TINT[s].bg,
+                borderLeft: `3px solid ${STATUS_TINT[s].edge}`,
+              }} />
+              {LABEL[s]}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* ── The map ──────────────────────────────────────────────────────── */}
       {totalVisible === 0 ? (
         <section style={styles.card}>
@@ -171,38 +189,56 @@ export default function SkillsIndexPage() {
 
           <ul style={styles.grid}>
             {list.map(s => {
-              const guided = hasGuide(s.id)
+              const briefed = hasBriefing(s.id)
               const status = mastery[s.id]
+              // The whole row carries the mastery colour rather than a dot at
+              // the end of it: across a hundred-odd rows a small dot is far
+              // harder to scan than a tinted band, and the eye can pick out a
+              // run of weak skills in a topic at a glance.
+              const tint = status ? STATUS_TINT[status] : null
+              const rowStyle: React.CSSProperties = {
+                ...styles.link,
+                background: tint?.bg ?? 'transparent',
+                borderLeft: `3px solid ${tint?.edge ?? 'transparent'}`,
+              }
               const row = (
                 <>
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{
                       fontSize: font.base,
-                      fontWeight: guided ? '600' : '500',
-                      color: guided ? colors.primary : colors.textPrimary,
+                      fontWeight: briefed ? '600' : '500',
+                      color: briefed ? colors.primary : colors.textPrimary,
                     }}>
                       {s.name}
                     </span>
-                    {guided && <span style={styles.guideBadge}>Guide</span>}
+                    {briefed && <span style={styles.briefingBadge}>Briefing</span>}
                   </span>
-                  {status && <span style={{ ...styles.dot, background: DOT[status] }} title={LABEL[status]} />}
                 </>
               )
 
+              // Colour alone must not carry the meaning — the status is named
+              // for a screen reader and on hover, and the legend above spells
+              // the scheme out.
+              const label = status ? `${s.name} — ${LABEL[status]}` : s.name
+
               return (
                 <li key={s.id} style={styles.item}>
-                  {guided ? (
+                  {briefed ? (
                     <a
                       href={skillPath(s.id)}
-                      onClick={() => trackEvent('skills_index_guide_click', { skill: s.id, tier })}
-                      style={styles.link}
+                      onClick={() => trackEvent('skills_index_briefing_click', { skill: s.id, tier })}
+                      style={rowStyle}
+                      title={label}
+                      aria-label={label}
                     >
                       {row}
                     </a>
                   ) : (
-                    // Not a link: /skill/<id> without a guide is a dead end, and
+                    // Not a link: /skill/<id> without a briefing is a dead end, and
                     // 151 of those would be dead ends for search engines too.
-                    <span style={{ ...styles.link, cursor: 'default' }}>{row}</span>
+                    <span style={{ ...rowStyle, cursor: 'default' }} title={label} aria-label={label}>
+                      {row}
+                    </span>
                   )}
                 </li>
               )
@@ -218,10 +254,17 @@ export default function SkillsIndexPage() {
   )
 }
 
-const DOT: Record<MasteryStatus, string> = {
-  mastered: colors.success,
-  in_progress: colors.warning,
-  needs_practice: colors.dangerBorder,
+/**
+ * Row tint per mastery status: a pale band with a stronger left edge.
+ *
+ * The band has to stay light enough that the skill name — and the blue of a
+ * briefed skill — reads cleanly on top of it, so the saturation lives in the
+ * 3px edge rather than the fill.
+ */
+const STATUS_TINT: Record<MasteryStatus, { bg: string; edge: string }> = {
+  mastered:       { bg: colors.successLight, edge: colors.success },
+  in_progress:    { bg: colors.warningLight, edge: colors.warning },
+  needs_practice: { bg: colors.dangerLight,  edge: colors.danger },
 }
 const LABEL: Record<MasteryStatus, string> = {
   mastered: 'Secure',
@@ -313,7 +356,7 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: 'none',
     color: 'inherit',
   },
-  guideBadge: {
+  briefingBadge: {
     marginLeft: '7px',
     fontSize: '10px',
     fontWeight: '700',
@@ -326,5 +369,19 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #c3d5fb',
     whiteSpace: 'nowrap',
   },
-  dot: { flex: 'none', width: '8px', height: '8px', borderRadius: '50%' },
+  legend: {
+    display: 'flex',
+    gap: '16px',
+    flexWrap: 'wrap',
+    fontSize: font.sm,
+    color: colors.textSecondary,
+    padding: '0 2px',
+  },
+  legendItem: { display: 'inline-flex', alignItems: 'center', gap: '6px' },
+  legendSwatch: {
+    display: 'inline-block',
+    width: '22px',
+    height: '13px',
+    borderRadius: '0 3px 3px 0',
+  },
 }
