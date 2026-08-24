@@ -156,6 +156,110 @@ function sortedSolutions(s: string): string {
 }
 
 /**
+ * Split on a character at bracket depth 0 only.
+ * "(a+b)/(c-d)" on '/' → ["(a+b)", "(c-d)"]   "a/(b/c)" → ["a", "(b/c)"]
+ */
+function splitTopLevel(s: string, ch: string): string[] {
+  const parts: string[] = []
+  let depth = 0
+  let current = ''
+  for (const c of s) {
+    if (c === '(') { depth++; current += c }
+    else if (c === ')') { depth--; current += c }
+    else if (c === ch && depth === 0) { parts.push(current); current = '' }
+    else current += c
+  }
+  parts.push(current)
+  return parts
+}
+
+/**
+ * Remove brackets that enclose the WHOLE string, so "(y-1)" and "y-1" compare
+ * equal. Leaves "(x+2)(x+3)" alone: its leading '(' closes in the middle, so
+ * the outer brackets are not a single wrapper.
+ */
+function stripOuterBrackets(s: string): string {
+  let out = s
+  for (let guard = 0; guard < 8; guard++) {
+    if (!out.startsWith('(') || !out.endsWith(')')) return out
+    let depth = 0
+    let wraps = true
+    for (let i = 0; i < out.length; i++) {
+      if (out[i] === '(') depth++
+      else if (out[i] === ')') {
+        depth--
+        if (depth === 0 && i < out.length - 1) { wraps = false; break }
+      }
+    }
+    if (!wraps || depth !== 0) return out
+    out = out.slice(1, -1)
+  }
+  return out
+}
+
+/** Flip the sign of every additive term. "-4-3y" → "4+3y", "1-y" → "-1+y". */
+function negateTerms(s: string): string {
+  return splitTerms(s)
+    .map((t, i) => {
+      const flipped = t.startsWith('-') ? '+' + t.slice(1)
+        : t.startsWith('+') ? '-' + t.slice(1)
+          : '-' + t
+      return i === 0 && flipped.startsWith('+') ? flipped.slice(1) : flipped
+    })
+    .join('')
+}
+
+/** Commutativity checks for one side of a fraction (no top-level '/' left). */
+function partMatch(a: string, b: string): boolean {
+  if (a === b) return true
+  if (sortedTerms(a) === sortedTerms(b)) return true
+  if (sortedFactors(a) === sortedFactors(b)) return true
+  return false
+}
+
+/**
+ * Compare two fractions part by part.
+ *
+ * `sortedTerms` splits on +/- at depth 0 only, so when the whole answer is a
+ * single fraction it sees one term and no reordering is ever considered:
+ * "(3y+4)/(y-1)" was marked wrong against "(4+3y)/(y-1)". Splitting on the
+ * top-level '/' first lets the existing sorters do their job on each side.
+ *
+ * Also tries negating both sides together. That is an identity rather than a
+ * heuristic — (-p)/(-q) is p/q for any q ≠ 0 — and it is what makes
+ * "(-4-3y)/(1-y)" match "(4+3y)/(y-1)". Nothing else about signs is attempted;
+ * a general CAS is deliberately out of scope on this project.
+ */
+function fractionPartsMatch(a: string, b: string): boolean {
+  const pa = splitTopLevel(a, '/').map(stripOuterBrackets)
+  const pb = splitTopLevel(b, '/').map(stripOuterBrackets)
+  if (pa.length < 2 || pa.length !== pb.length) return false
+  if (pa.some(p => p === '') || pb.some(p => p === '')) return false
+
+  if (pa.every((p, i) => partMatch(p, pb[i]))) return true
+
+  // Negate numerator and denominator together — only meaningful for a simple
+  // two-part fraction, where it is exactly the (-p)/(-q) = p/q identity.
+  if (pa.length === 2) {
+    const flipped = [negateTerms(pa[0]), negateTerms(pa[1])]
+    if (flipped.every((p, i) => partMatch(p, pb[i]))) return true
+  }
+  return false
+}
+
+/**
+ * A leading "x =" on an otherwise bare expression, as in "x=(4+3y)/(y-1)".
+ * Returns null for anything with a second '=' — a solution list such as
+ * "x=-3andx=-2", or simultaneous answers like "x=2,y=3", must be left for
+ * `sortedSolutions`.
+ */
+function assignmentPrefix(s: string): { letter: string; rest: string } | null {
+  const m = s.match(/^([a-z])=(.+)$/)
+  if (!m || m[2].includes('=')) return null
+  return { letter: m[1], rest: m[2] }
+}
+
+/**
  * Try all commutativity-aware equivalence checks in turn.
  * Used for answer_type === 'expression'.
  */
@@ -165,9 +269,22 @@ function expressionMatch(a: string, b: string): boolean {
   // Don't run the term/factor sorters on them — the leading '-' of a bound would be
   // mis-split as an additive term.
   if (INEQUALITY_OP.test(a) || INEQUALITY_OP.test(b)) return inequalityMatch(a, b)
+
+  // "x = <expression>" is a common way to write a rearrangement and was marked
+  // wrong. Strip the subject from BOTH sides, so it works whichever side wrote
+  // it — but not when the two name DIFFERENT subjects, or "y=5" would be
+  // accepted for "x=5". The stripped remainder contains no '=', so this
+  // recurses at most once.
+  const pa = assignmentPrefix(a)
+  const pb = assignmentPrefix(b)
+  if ((pa || pb) && !(pa && pb && pa.letter !== pb.letter)) {
+    return expressionMatch(pa ? pa.rest : a, pb ? pb.rest : b)
+  }
+
   if (sortedTerms(a)   === sortedTerms(b))   return true
   if (sortedFactors(a) === sortedFactors(b)) return true
   if (sortedSolutions(a) === sortedSolutions(b)) return true
+  if (fractionPartsMatch(a, b)) return true
   return false
 }
 
@@ -366,6 +483,18 @@ export function normalise(value: string): string {
     .replace(/(\d)x(?=10\^)/g, '$1*')
     // Strip redundant brackets around a numeric surd radicand: √(2) → √2
     .replace(/√\((\d+)\)/g, '√$1')
+    // A coefficient of 1 written explicitly: "1*y" → "y".
+    //
+    // Templates produce this whenever a parameter lands on 1 — "({{a}}+{{b}}*y)"
+    // at b=1 renders "(2+1*y)" — and no student writes it, so the canonical
+    // answer became unmatchable. Must run BEFORE the '*' collapse below, which
+    // would otherwise turn it into "1y" first.
+    //
+    // Guards: not after a digit or decimal point, so "11*y" and "0.1*y" are
+    // untouched; not after '^', so an index of 1 in a prime factorisation
+    // ("2^1*x") keeps its exponent. The lookahead is what makes this safe for
+    // units — nobody writes "1*cm", so "1cm" is never reached.
+    .replace(/(^|[^\d.^])1\*(?=[a-zπ√(])/g, '$1')
     // Collapse explicit multiplication that GCSE notation writes implicitly:
     //   135*π → 135π   3*√2 → 3√2   3*x → 3x   2*(x+3) → 2(x+3)   (x+2)*(x+3) → (x+2)(x+3)
     // Only fires when the right side begins a letter / π / √ / '(' so that

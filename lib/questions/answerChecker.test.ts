@@ -459,3 +459,119 @@ describe('standard form with a non-normalised mantissa', () => {
     expect(check('4.69 x 10^6', sf, 'exact').correct).toBe(true)
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FRACTION-SHAPED EXPRESSIONS
+//
+// `sortedTerms` splits on +/- at bracket depth 0, so when the whole answer is a
+// single fraction it sees exactly one term and no reordering is ever tried.
+// Correct rearrangements were marked wrong. Found on question
+// 61956a8d (rearranging_formulae, "({{a}}+{{b}}*y)/(y-1)").
+// ─────────────────────────────────────────────────────────────────────────────
+describe('expression: fractions', () => {
+  const CANON = '(4+3*y)/(y-1)'
+
+  it('accepts the canonical form', () => {
+    expect(check('(4+3y)/(y-1)', CANON, 'expression').correct).toBe(true)
+  })
+
+  it('accepts the numerator written in the other order', () => {
+    // At least as natural a way to write it, and previously marked wrong.
+    expect(check('(3y+4)/(y-1)', CANON, 'expression').correct).toBe(true)
+  })
+
+  it('accepts both parts negated together', () => {
+    // (-p)/(-q) === p/q is an identity, not a heuristic.
+    expect(check('(-4-3y)/(1-y)', CANON, 'expression').correct).toBe(true)
+    expect(check('(-3y-4)/(1-y)', CANON, 'expression').correct).toBe(true)
+  })
+
+  it('ignores brackets that wrap a whole part', () => {
+    expect(check('7/(y-1)', '(7)/(y-1)', 'expression').correct).toBe(true)
+    expect(check('(7)/(y-1)', '7/(y-1)', 'expression').correct).toBe(true)
+  })
+
+  it('rejects a fraction that is genuinely different', () => {
+    expect(check('(4+3y)/(y+1)', CANON, 'expression').correct).toBe(false)  // denominator
+    expect(check('(4-3y)/(y-1)', CANON, 'expression').correct).toBe(false)  // sign of a term
+    expect(check('(3+4y)/(y-1)', CANON, 'expression').correct).toBe(false)  // coefficients swapped
+  })
+
+  it('rejects negating only one part', () => {
+    // -p/q is not p/q. Only negating BOTH is value-preserving.
+    expect(check('(-4-3y)/(y-1)', CANON, 'expression').correct).toBe(false)
+    expect(check('(4+3y)/(1-y)', CANON, 'expression').correct).toBe(false)
+  })
+
+  it('does not treat a different number of parts as equal', () => {
+    expect(check('4+3y', CANON, 'expression').correct).toBe(false)
+    expect(check('4/3/y', CANON, 'expression').correct).toBe(false)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// A COEFFICIENT OF 1 WRITTEN EXPLICITLY
+//
+// A template like "({{a}}+{{b}}*y)" renders "1*y" whenever b lands on 1. No
+// student writes that, so the canonical answer was unmatchable at those values.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('expression: explicit coefficient of 1', () => {
+  it('treats 1*y as y', () => {
+    expect(normalise('(2+1*y)/(y-1)')).toBe('(2+y)/(y-1)')
+    expect(check('(2+y)/(y-1)', '(2+1*y)/(y-1)', 'expression').correct).toBe(true)
+    expect(check('(y+2)/(y-1)', '(2+1*y)/(y-1)', 'expression').correct).toBe(true)
+  })
+
+  it('leaves a multi-digit or decimal coefficient alone', () => {
+    expect(normalise('11*y')).toBe('11y')
+    expect(normalise('21*y')).toBe('21y')
+    expect(normalise('0.1*y')).toBe('0.1y')
+  })
+
+  it('leaves an index of 1 in a prime factorisation alone', () => {
+    // "2^1*x" must keep its exponent — stripping "1*" there would give "2^x".
+    expect(normalise('2^1*x')).toBe('2^1x')
+    expect(normalise('2^1*3')).toBe('2^1*3')
+  })
+
+  it('never touches a unit, because "1*cm" is not written', () => {
+    expect(normalise('1cm')).toBe('1cm')
+    expect(check('1cm', '1cm', 'exact').correct).toBe(true)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// "x =" IN FRONT OF AN EXPRESSION
+//
+// A common habit when the question says "make x the subject", and previously
+// marked wrong. Stripped from BOTH sides so it works whichever side wrote it.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('expression: leading "x ="', () => {
+  const CANON = '(4+3*y)/(y-1)'
+
+  it('accepts a subject the student added', () => {
+    expect(check('x=(4+3y)/(y-1)', CANON, 'expression').correct).toBe(true)
+    expect(check('x = (3y+4)/(y-1)', CANON, 'expression').correct).toBe(true)
+  })
+
+  it('accepts a bare expression when the canonical answer carries the subject', () => {
+    expect(check('5', 'x=5', 'expression').correct).toBe(true)
+    expect(check('x=5', 'x=5', 'expression').correct).toBe(true)
+  })
+
+  it('still distinguishes different subjects', () => {
+    // Stripping blindly would accept "y=5" for "x=5".
+    expect(check('y=5', 'x=5', 'expression').correct).toBe(false)
+    expect(check('t=2a+1', 'x=2a+1', 'expression').correct).toBe(false)
+  })
+
+  it('leaves solution lists to sortedSolutions', () => {
+    expect(check('x=-2andx=-3', 'x=-3andx=-2', 'expression').correct).toBe(true)
+    expect(check('y=3,x=2', 'x=2,y=3', 'expression').correct).toBe(true)
+  })
+
+  it('does not strip anything from an inequality', () => {
+    expect(check('x≤5', 'x≤5', 'expression').correct).toBe(true)
+    expect(check('x≥5', 'x≤5', 'expression').correct).toBe(false)
+  })
+})
