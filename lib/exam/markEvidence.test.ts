@@ -6,18 +6,28 @@ import {
 import { BY_SKILL_KIND, BY_KIND, OVERALL } from './markEvidence.data'
 
 describe('generated evidence data', () => {
-  it('carries the coded 2024 series', () => {
-    // 12 papers, 444 parts, 960 marks — the audit's own totals.
-    expect(OVERALL.n).toBe(444)
-    expect(OVERALL.mean).toBeCloseTo(2.16, 2)
+  it('carries the coded series', () => {
+    // 30 papers (2023 + 2024 + June 2025), 1095 parts, 2400 marks.
+    expect(OVERALL.n).toBe(1095)
+    expect(OVERALL.mean).toBeCloseTo(2.19, 2)
     expect(OVERALL.min).toBe(1)
     expect(OVERALL.max).toBe(5)
   })
 
   it('reproduces the kind split that motivated this change', () => {
     // Synthesis parts really are worth ~2x a single-skill part.
-    expect(BY_KIND.mastery.mean).toBeCloseTo(1.55, 2)
-    expect(BY_KIND.exam.mean).toBeCloseTo(2.82, 2)
+    //
+    // All thirty coded papers now use one definition of `kind`: the authoring
+    // rule, where a part is `exam` only if ONE answer fuses 2+ INDEPENDENT
+    // skills — independence checked against the prerequisite graph in
+    // data/skills.ts. (The 2024 papers were originally coded structurally, as
+    // any standalone multi-mark question, and were re-tagged to match.)
+    //
+    // The stricter rule leaves far fewer exam parts (135 of 1095) but separates
+    // the two kinds more sharply, which is the whole point of conditioning on
+    // it: 3.47 against 2.01 is a real difference in what a part is worth.
+    expect(BY_KIND.mastery.mean).toBeCloseTo(2.01, 2)
+    expect(BY_KIND.exam.mean).toBeCloseTo(3.47, 2)
     expect(BY_KIND.exam.mean).toBeGreaterThan(BY_KIND.mastery.mean * 1.5)
   })
 
@@ -79,7 +89,7 @@ describe('resolveQuestionMarks — fallback chain', () => {
   it('falls back to the kind average for an unknown skill', () => {
     const r = resolveQuestionMarks({ skill_ids: ['not_a_real_skill'], kind: 'exam', difficulty: 3 })
     expect(r.source).toBe('kind')
-    // exam-kind centres near 2.82, so a mid-difficulty synthesis question is 3ish
+    // exam-kind centres near 3.47, so a mid-difficulty synthesis question is 3ish
     expect(r.marks).toBeGreaterThanOrEqual(2)
   })
 

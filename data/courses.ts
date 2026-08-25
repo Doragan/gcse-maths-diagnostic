@@ -40,6 +40,19 @@ export const foundationSkillIds = [
   "combined_events", "probability_spaces", "tree_diagrams",
   "proportion", "ratio", "compound_units", "direct_proportion",
   "inverse_proportion", "growth_and_decay",
+  // Added 2026-08-21. These skills existed in data/skills.ts but were in no tier
+  // list, so they never entered the practice pool — and, worse, any skill with
+  // one of them as a PREREQUISITE could never satisfy getAccessibleSkillIds
+  // (which requires every prerequisite to have been attempted). That silently
+  // gated 12 in-pool skills, `ratio` and `pythagoras_theorem` among them.
+  // Tier placement is taken from the coded exam audit: a skill appearing on any
+  // Foundation paper is Foundation. See courses.test.ts, which now fails if a
+  // skill is ever added to skills.ts without being placed here.
+  "lengths_and_perimeters", "parts_of_a_circle", "properties_of_3d_solids",
+  "plans_and_elevations", "symmetry", "coordinates",
+  "function_machines", "forming_expressions_and_formulae", "rearranging_formulae",
+  "systematic_listing", "frequency_trees", "relative_frequency",
+  "time_calculations", "reciprocals", "simplifying_ratio", "exact_trig_values",
 ]
 
 export const higherOnlySkillIds = [
@@ -57,6 +70,9 @@ export const higherOnlySkillIds = [
   "venn_diagrams", "conditional_probability", "histograms",
   "cumulative_frequency", "box_plots", "interquartile_range",
   "reverse_percentage", "proportion_with_powers",
+  // Added 2026-08-21 alongside the Foundation additions above. These three
+  // appear ONLY on Higher papers across all 30 coded series.
+  "perpendicular_gradients", "trig_graphs", "counting_without_listing",
 ]
 
 export const courses: Course[] = [

@@ -1,0 +1,163 @@
+import { describe, it, expect } from 'vitest'
+import { getBriefing, hasBriefing, resolveBriefing, skillBriefings } from '../../data/skillBriefings'
+import { skillsById } from './skillGraph'
+import { skillIdToSlug, slugToSkillId } from './slug'
+
+describe('skill guide registry', () => {
+  it('only registers guides for real skills', () => {
+    for (const skillId of Object.keys(skillBriefings)) {
+      expect(skillsById[skillId], `${skillId} is not a skill in data/skills.ts`).toBeDefined()
+    }
+  })
+
+  it('reports guides that do not exist as absent', () => {
+    expect(hasBriefing('proportion')).toBe(true)
+    expect(hasBriefing('completely_made_up_skill')).toBe(false)
+    expect(getBriefing('completely_made_up_skill')).toBeNull()
+  })
+
+  it('points every confusable and near-miss at a real skill', () => {
+    for (const guide of Object.values(skillBriefings)) {
+      const referenced = [
+        ...guide.confusableWith.map(c => c.skillId),
+        ...guide.examples.flatMap(e => (e.actuallySkillId ? [e.actuallySkillId] : [])),
+        ...(guide.higher?.confusableWith ?? []).map(c => c.skillId),
+        ...(guide.higher?.examples ?? []).flatMap(e => (e.actuallySkillId ? [e.actuallySkillId] : [])),
+      ]
+      for (const id of referenced) {
+        expect(skillsById[id], `${guide.skillId} references unknown skill ${id}`).toBeDefined()
+      }
+    }
+  })
+
+  it('never lists a skill as confusable with itself', () => {
+    for (const guide of Object.values(skillBriefings)) {
+      const all = [...guide.confusableWith, ...(guide.higher?.confusableWith ?? [])]
+      for (const c of all) {
+        expect(c.skillId, `${guide.skillId} is confusable with itself`).not.toBe(guide.skillId)
+      }
+    }
+  })
+
+  it('fills both halves of every comparison', () => {
+    // A comparison with an empty side renders a labelled row with nothing
+    // against it, which reads as a bug rather than as guidance.
+    for (const guide of Object.values(skillBriefings)) {
+      const all = [...guide.confusableWith, ...(guide.higher?.confusableWith ?? [])]
+      for (const c of all) {
+        expect(c.thisOne?.trim(), `${guide.skillId} vs ${c.skillId}: thisOne empty`).toBeTruthy()
+        expect(c.theOther?.trim(), `${guide.skillId} vs ${c.skillId}: theOther empty`).toBeTruthy()
+        expect(c.ask?.trim(), `${guide.skillId} vs ${c.skillId}: ask empty`).toBeTruthy()
+      }
+    }
+  })
+
+  it('keeps recognition cues illustrated, and their examples short', () => {
+    // Cue examples are FRAGMENTS showing the pattern in situ — a phrase or one
+    // sentence. Full questions with numbers to work belong in `examples`, where
+    // the student judges them. Without a cap these drift into being second
+    // worked examples, which is what made the section unwieldy in the first place.
+    for (const guide of Object.values(skillBriefings)) {
+      const cues = [
+        ...guide.recognise,
+        ...(guide.higher?.recognise ?? []),
+        ...(guide.higher?.note ? [guide.higher.note] : []),
+      ]
+      const illustrated = cues.filter(c => c.example)
+      expect(illustrated.length, `${guide.skillId} has no illustrated cues`).toBeGreaterThan(0)
+
+      for (const c of cues) {
+        expect(c.text?.trim(), `${guide.skillId}: cue with no text`).toBeTruthy()
+        if (!c.example) continue
+        expect(
+          c.example.length,
+          `${guide.skillId}: cue example too long to be a fragment — "${c.example.slice(0, 40)}…"`,
+        ).toBeLessThanOrEqual(120)
+      }
+    }
+  })
+
+  it('keeps confusable pairings reciprocal between authored guides', () => {
+    // If A tells the student it is confusable with B, then B's page must say
+    // the same about A. Otherwise a student who arrives from the other
+    // direction never sees the distinction, and the two pages can drift into
+    // describing the same pair differently.
+    //
+    // Only enforced where BOTH guides exist — pointing at a skill with no guide
+    // yet is normal and stays allowed.
+    const namesOf = (g: (typeof skillBriefings)[string]) =>
+      [...g.confusableWith, ...(g.higher?.confusableWith ?? [])].map(c => c.skillId)
+
+    const oneWay: string[] = []
+    for (const guide of Object.values(skillBriefings)) {
+      for (const other of namesOf(guide)) {
+        const target = skillBriefings[other]
+        if (!target) continue
+        if (!namesOf(target).includes(guide.skillId)) {
+          oneWay.push(`${guide.skillId} -> ${other}, but ${other} does not name ${guide.skillId}`)
+        }
+      }
+    }
+    expect(oneWay, 'one-directional confusable pairings').toEqual([])
+  })
+
+  it('gives every example set at least one near-miss', () => {
+    // A set where everything IS the skill only confirms what the student already
+    // assumed. The near-miss is what makes it a selection drill.
+    for (const guide of Object.values(skillBriefings)) {
+      const foundation = guide.examples
+      expect(foundation.some(e => !e.isThisSkill), `${guide.skillId} has no near-miss`).toBe(true)
+      // A near-miss must say what it actually is, or the tell has nowhere to land.
+      for (const e of foundation.filter(e => !e.isThisSkill)) {
+        expect(e.actuallySkillId, `near-miss "${e.stem}" has no actuallySkillId`).toBeTruthy()
+      }
+    }
+  })
+})
+
+describe('resolveBriefing', () => {
+  const briefing = getBriefing('proportion')!
+
+  it('gives Foundation the shared content only', () => {
+    const g = resolveBriefing(briefing, 'foundation')
+    expect(g.recognise).toEqual(briefing.recognise)
+    expect(g.examples).toEqual(briefing.examples)
+    expect(g.steps).toEqual(briefing.steps)
+    expect(g.higherNote).toBeNull()
+  })
+
+  it('merges the Higher block on top of the shared content', () => {
+    const f = resolveBriefing(briefing, 'foundation')
+    const h = resolveBriefing(briefing, 'higher')
+
+    // Merge, never replace — the Foundation method is still the method.
+    expect(h.steps.slice(0, f.steps.length)).toEqual(f.steps)
+    expect(h.recognise.slice(0, f.recognise.length)).toEqual(f.recognise)
+    expect(h.examples.slice(0, f.examples.length)).toEqual(f.examples)
+
+    expect(h.steps.length).toBeGreaterThan(f.steps.length)
+    expect(h.examples.length).toBeGreaterThan(f.examples.length)
+    expect(h.higherNote).toBeTruthy()
+    expect(h.higherStepCount).toBe(h.steps.length - f.steps.length)
+  })
+})
+
+describe('skill slugs', () => {
+  it('round-trips every skill id through its URL slug', () => {
+    for (const skillId of Object.keys(skillsById)) {
+      expect(slugToSkillId(skillIdToSlug(skillId))).toBe(skillId)
+    }
+  })
+
+  it('uses hyphens, not underscores, in the URL', () => {
+    expect(skillIdToSlug('expanding_double_brackets')).toBe('expanding-double-brackets')
+  })
+
+  it('still resolves the underscore form, so old links land', () => {
+    expect(slugToSkillId('expanding_double_brackets')).toBe('expanding_double_brackets')
+  })
+
+  it('rejects an unknown slug rather than inventing a skill', () => {
+    expect(slugToSkillId('not-a-real-skill')).toBeNull()
+  })
+})

@@ -90,3 +90,34 @@ export function seatsLeftLabel(seatsLeft: number | null): string | null {
   if (seatsLeft === null || seatsLeft <= 0) return null
   return `${seatsLeft} of ${FOUNDER_SEAT_CAP} founder seats left`
 }
+
+/**
+ * Turns the `?want=` on /student/upgrade into the sentence the student needs
+ * to see first.
+ *
+ * Every locked feature that routes to the upgrade page should say which
+ * feature it was. Landing on a generic pricing page with no acknowledgement
+ * reads as a dead end: the student asked for one specific thing and got a
+ * sales pitch.
+ *
+ * Unknown or absent values return null so the banner is skipped — a bad or
+ * hand-edited link degrades to the plain pricing page rather than asserting
+ * something wrong.
+ */
+export function wantedFeatureLabel(
+  want: string | null | undefined,
+  skillName: string | null | undefined,
+): string | null {
+  switch (want) {
+    case 'skill':
+      return skillName
+        ? `You wanted to drill ${skillName.toLowerCase()} on its own.`
+        : 'You wanted to drill one skill on its own.'
+    case 'topic':
+      return 'You wanted to drill a whole topic.'
+    case 'weakspots':
+      return 'You wanted a session built from your weak spots.'
+    default:
+      return null
+  }
+}

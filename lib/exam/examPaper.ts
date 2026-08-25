@@ -122,7 +122,7 @@ export type UnitResult = {
  *
  * `earned` is the confirmed floor — every mark we can prove. `unknown` is what a
  * real examiner would likely add for method behind the wrong answers; it is an
- * expectation drawn from the coded 2024 papers (see methodMarkShare), not a
+ * expectation drawn from the coded papers (see methodMarkShare), not a
  * ceiling, and deliberately never folded into `earned`.
  */
 export type PaperScore = {

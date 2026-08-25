@@ -16,6 +16,9 @@ import ReportIssueButton from '../../../../components/practice/ReportIssueButton
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
+import { hasBriefing } from '../../../../data/skillBriefings'
+import { skillPath } from '../../../../lib/skills/slug'
+import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
@@ -838,6 +841,38 @@ function QuestionPage() {
               />
             </div>
           )}
+
+          {/* Exam-briefing prompt. Shown only when this question's skill has an
+              authored briefing, and only after a wrong answer — the briefing is
+              a response to getting stuck, not a thing to browse. */}
+          {!feedback.correct && question.skill_ids.some(hasBriefing) && (() => {
+            const briefedId = question.skill_ids.find(hasBriefing)!
+            const briefedName = skillsById[briefedId]?.name ?? 'this skill'
+            return (
+              <div style={{
+                padding: '14px 16px',
+                borderRadius: radius.lg,
+                background: colors.card,
+                border: `1px solid ${colors.border}`,
+                borderLeft: `3px solid ${colors.primary}`,
+              }}>
+                <p style={{ fontSize: font.sm, fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 6px', color: colors.primaryHover }}>
+                  New
+                </p>
+                <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 10px' }}>
+                  We&apos;ve written an exam briefing on {briefedName.toLowerCase()} — how to spot
+                  the question, what it gets confused with, and how to check yourself.
+                </p>
+                <a
+                  href={skillPath(briefedId)}
+                  onClick={() => trackEvent('skill_briefing_prompt_click', { skill: briefedId, from: 'question_feedback' })}
+                  style={{ fontSize: font.base, color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
+                >
+                  Read the {briefedName.toLowerCase()} briefing →
+                </a>
+              </div>
+            )
+          })()}
 
           {/* Animated skill progress dots */}
           {question.skill_ids.length > 0 && (() => {

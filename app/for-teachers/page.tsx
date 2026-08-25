@@ -73,11 +73,9 @@ export default function ForTeachersPage() {
             >
               Teacher login →
             </Link>
-            <button
-              onClick={() => {
-                trackEvent('teacher_contact_clicked')
-                window.open('https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header', '_blank')
-              }}
+            <Link
+              href="/contact?from=for_teachers_hero"
+              onClick={() => trackEvent('teacher_contact_clicked')}
               style={{
                 background: 'transparent',
                 border: `2px solid ${colors.borderStrong}`,
@@ -87,10 +85,12 @@ export default function ForTeachersPage() {
                 fontSize: font.lg,
                 fontWeight: '700',
                 cursor: 'pointer',
+                textDecoration: 'none',
+                display: 'inline-block',
               }}
             >
               Get in touch
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -402,11 +402,9 @@ export default function ForTeachersPage() {
             >
               Teacher login
             </Link>
-            <button
-              onClick={() => {
-                trackEvent('teacher_bottom_contact_clicked')
-                window.open('https://docs.google.com/forms/d/e/1FAIpQLSfF384C-gVaBWWiv4fItf1XDrP-pbfCteCCL758q5UskBX_NA/viewform?usp=header', '_blank')
-              }}
+            <Link
+              href="/contact?from=for_teachers_bottom"
+              onClick={() => trackEvent('teacher_bottom_contact_clicked')}
               style={{
                 background: 'transparent',
                 border: '2px solid rgba(255,255,255,0.5)',
@@ -416,10 +414,12 @@ export default function ForTeachersPage() {
                 fontSize: font.lg,
                 fontWeight: '700',
                 cursor: 'pointer',
+                textDecoration: 'none',
+                display: 'inline-block',
               }}
             >
               Get in touch
-            </button>
+            </Link>
           </div>
         </div>
       </section>

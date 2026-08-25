@@ -3,12 +3,13 @@
  *
  * Until now a single-part question's marks came from a flat guess by difficulty
  * (`NOMINAL_MARKS` = {1:1, 2:1, 3:2, 4:3}), which averaged ~1.8 marks/part
- * against a real-exam average of 2.16, and ignored `kind` entirely even though
- * real synthesis parts are worth nearly twice a single-skill part (2.82 vs 1.55).
- * 85% of the published bank was priced that way.
+ * against a real-exam average of 2.19, and ignored `kind` entirely even though
+ * real synthesis parts are worth well over half again a single-skill part
+ * (3.47 vs 2.01). 85% of the published bank was priced that way.
  *
- * This module replaces the guess with evidence from the coded 2024 series
- * (data/exam-audit/, precomputed into markEvidence.data.ts).
+ * This module replaces the guess with evidence from the coded series — 30
+ * papers, 1095 parts, 2400 marks (data/exam-audit/, precomputed into
+ * markEvidence.data.ts).
  *
  * WHAT IT CAN AND CANNOT DO. The scoping analysis found that a real question's
  * marks are the count of creditable steps in its solution — `mark_split` (B1,
@@ -113,7 +114,7 @@ export function resolveQuestionMarks(q: {
  *
  * This is the size of auto-grading's blind spot. We mark a final answer right or
  * wrong; a real examiner also reads the working and pays for a sound approach.
- * Across the coded 2024 series that is 232 of 960 marks — 24% of every paper —
+ * Across the coded papers that is 601 of 2400 marks — 25% of every paper —
  * so scoring a wrong answer as a flat zero is not merely conservative, it is
  * systematically low by about a quarter.
  *

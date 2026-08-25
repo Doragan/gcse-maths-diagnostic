@@ -29,6 +29,7 @@ const RULES: [RegExp, string, string?][] = [
   // Marketing / legal
   [/^\/about$/, 'About'],
   [/^\/for-teachers$/, 'For teachers'],
+  [/^\/contact$/, 'Contact'],
   [/^\/privacy\/complaints$/, 'Privacy complaints'],
   [/^\/privacy$/, 'Privacy policy'],
   [/^\/terms$/, 'Terms of service'],
@@ -52,6 +53,14 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/practice$/, 'GCSE Maths practice'],
   [/^\/diagnostic$/, 'Diagnostic'],
   [/^\/account$/, 'Account'],
+
+  // Skill guides. The slug is a readable skill id, not a token — but it is
+  // still collapsed here so GA4 reports one row for the surface. Which skill
+  // was viewed rides on the skill_briefing_view event instead.
+  // The index sits at /skills and must be matched BEFORE the singular pattern
+  // so it keeps its own row rather than being swallowed.
+  [/^\/skills$/, 'All skills'],
+  [/^\/skill\/[^/]+$/, 'Exam briefing', '/skill/[slug]'],
 
   // Parent-pay (public, token link)
   [/^\/pay\/[^/]+$/, 'Pay for a subscription', '/pay/[token]'],

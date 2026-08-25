@@ -11,6 +11,7 @@ describe('titleForPath', () => {
     expect(titleForPath('/auth')).toBe('Sign in — Mathsense')
     expect(titleForPath('/dashboard')).toBe('Teacher dashboard — Mathsense')
     expect(titleForPath('/student/dashboard')).toBe('Student dashboard — Mathsense')
+    expect(titleForPath('/contact')).toBe('Contact — Mathsense')
   })
 
   it('matches named routes before the dynamic catch-all', () => {
@@ -37,6 +38,20 @@ describe('titleForPath', () => {
     expect(titleForPath('/dashboard/classes/abc-123')).toBe('Class — Mathsense')
     // The dynamic id must not leak into analytics.
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
+  })
+
+  it('keeps the skill index distinct from an individual guide', () => {
+    // /skills must not be swallowed by the /skill/[slug] pattern, or the index
+    // and every guide collapse into one row in the analytics.
+    expect(titleForPath('/skills')).toBe('All skills — Mathsense')
+    expect(normalizePath('/skills')).toBe('/skills')
+  })
+
+  it('titles a skill guide and collapses its slug', () => {
+    expect(titleForPath('/skill/proportion')).toBe('Exam briefing — Mathsense')
+    expect(titleForPath('/skill/expanding-double-brackets')).toBe('Exam briefing — Mathsense')
+    // Which skill was viewed rides on the event, not the path.
+    expect(normalizePath('/skill/proportion')).toBe('/skill/[slug]')
   })
 
   it('titles the demo tour and its stops', () => {
