@@ -7,7 +7,17 @@ export type CheckResult = {
    * exam scoring can pay for a sound method behind a wrong answer; it is absent
    * on unmarked traps and ignored entirely in practice, which grades binary.
    */
-  trap: { response: string; method_marks?: number } | null
+  trap: {
+    response: string
+    method_marks?: number
+    /**
+     * Shared id for WHY this was wrong, from data/misconceptions.ts. Null on
+     * an untagged trap, which is normal — the vocabulary is applied
+     * incrementally and a trap that fits nothing existing stays untagged
+     * rather than minting a one-off id.
+     */
+    misconception?: string | null
+  } | null
   message: string
   /**
    * The value is right but the units are not: either omitted ("400" for
@@ -827,7 +837,7 @@ export function checkAnswer(
   correctAnswer: string,
   answerType: ScalarAnswerType,
   tolerance: number | null,
-  traps: { answer: string, response: string, method_marks?: number }[],
+  traps: { answer: string, response: string, method_marks?: number, misconception?: string | null }[],
   // Whether the question demanded simplest form. Drives the "not simplified"
   // nudge for fraction/ratio answers. Defaults true → current behaviour preserved.
   requireSimplest: boolean = true
