@@ -36,7 +36,7 @@ type Question = {
   answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest?: boolean
-  traps: { answer_template: string, response: string }[]
+  traps: { answer_template: string, response: string, misconception?: string | null }[]
   explanation: string | null
   image_url: string | null
   is_published: boolean
@@ -309,7 +309,14 @@ function QuestionPage() {
     } catch { /* prefetch is best-effort */ }
   }
 
-  async function recordAttempt(correct: boolean) {
+  /**
+   * @param misconception  Shared id for WHY the answer was wrong, from the
+   *   trap that fired. Null when correct, when no trap matched, or when the
+   *   matching trap is not tagged. Stored so a mistake can be counted ACROSS
+   *   sessions and skills — the attempt row previously recorded only that an
+   *   answer was wrong, never how, so that history did not exist.
+   */
+  async function recordAttempt(correct: boolean, misconception: string | null = null) {
     if (!question) return
 
     // Session stats (read from storage to avoid stale-closure issue)
@@ -380,6 +387,7 @@ function QuestionPage() {
         skill_ids: question.skill_ids,
         correct,
         kind: question.kind ?? 'mastery',
+        misconception,
       })
     if (paError) console.error('Failed to record practice attempt:', paError.message) // audit L5
 
@@ -437,7 +445,7 @@ function QuestionPage() {
       explanation: rendered.explanation,
     })
     detectMastery(result.correct)
-    recordAttempt(result.correct)
+    recordAttempt(result.correct, result.trap?.misconception ?? null)
   }
 
   function handleShare() {
@@ -755,7 +763,7 @@ function QuestionPage() {
 						explanation: rendered.explanation,
 					  })
 					  detectMastery(result.correct)
-					  recordAttempt(result.correct)
+					  recordAttempt(result.correct, result.trap?.misconception ?? null)
 					}}
 					style={{
 					  ...secondaryButton,
