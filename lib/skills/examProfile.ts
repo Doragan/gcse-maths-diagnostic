@@ -31,7 +31,6 @@ export type SkillExamProfile = {
 }
 
 type Manifest = {
-  generatedAt: string
   minParts: number
   slices: { board: string; tier: string; papers: string[]; series: string[]; skillsPresent: number; skillsSufficient: number }[]
   profiles: Record<string, SkillExamProfile>
@@ -48,7 +47,6 @@ const auditTier = (tier: Tier) => (tier === 'higher' ? 'Higher' : 'Foundation')
 export const codedBoards = (): string[] =>
   [...new Set(data.slices.map(s => s.board))].sort()
 
-export const generatedAt = () => data.generatedAt
 export const minParts = () => data.minParts
 
 /**
