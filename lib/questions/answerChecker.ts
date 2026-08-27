@@ -1,4 +1,5 @@
 import type { ScalarAnswerType } from './answerTypes'
+import { detectPiEstimate, usesSubstitutablePi } from './piEstimate'
 
 export type CheckResult = {
   correct: boolean
@@ -840,9 +841,19 @@ export function checkAnswer(
   traps: { answer: string, response: string, method_marks?: number, misconception?: string | null }[],
   // Whether the question demanded simplest form. Drives the "not simplified"
   // nudge for fraction/ratio answers. Defaults true → current behaviour preserved.
-  requireSimplest: boolean = true
+  requireSimplest: boolean = true,
+  /**
+   * The question's UNRENDERED answer template, when the caller has it.
+   *
+   * Its only job is to say whether the answer is built from π, which gates the
+   * poor-estimate check below. Optional on purpose: a caller that does not pass
+   * it gets exactly the previous behaviour, so wiring this through the surfaces
+   * one at a time cannot break the ones not yet reached.
+   */
+  answerTemplate?: string,
 ): CheckResult {
   const tol         = tolerance ?? 0
+  const usesPi      = usesSubstitutablePi(answerTemplate)
   const normStudent = normalise(studentAnswer)
   const normCorrect = normalise(correctAnswer)
 
@@ -951,6 +962,30 @@ export function checkAnswer(
     return { correct: true, trap: null, message: ROUNDING_REMINDER(rounding.dp) }
   }
 
+  // Which value the student used for π. Only asked on a question whose answer
+  // is built from π — the caller supplies the template — because the test is a
+  // ratio, and on a question with no π in it a ratio that close to 1 is an
+  // arithmetic slip rather than evidence of anything.
+  const piEstimate = usesPi && answerType === 'numeric'
+    ? detectPiEstimate(extractNumber(studentAnswer), extractNumber(correctAnswer), tol, correctAnswer)
+    : null
+
+  // A good estimate is CORRECT. 3.142 is what a non-calculator paper supplies
+  // and what a mark scheme accepts, and the accuracy tolerance cannot express
+  // that on its own: the gap 3.142 opens grows with the answer, so a tolerance
+  // wide enough to accept it on a large draw would accept 3.14 on a small one.
+  // Hence the nudge rather than the mark — the π key removes the worry
+  // entirely, on a question where it might matter more.
+  if (piEstimate?.acceptable) {
+    return {
+      correct: true,
+      trap: null,
+      ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
+      message: `Correct — you have used ${piEstimate.label} for π, which is accurate enough here. `
+        + 'The π key on your calculator is worth the habit though: it carries the full value, so the accuracy mark is never in question.',
+    }
+  }
+
   // For non-numeric answer types the main comparison includes units, so any
   // units mismatch fails `isCorrect` — whether the student OMITTED expected
   // units, or ADDED units where the canonical answer carries none (e.g. a
@@ -1043,6 +1078,28 @@ export function checkAnswer(
       if (strippedMatch) {
         return { correct: false, trap, message: trap.response }
       }
+    }
+  }
+
+  // A poor estimate for π. After the authored traps, so a trap written for this
+  // question always wins — and because a trap match is the far more specific
+  // claim, that ordering also removes most of what could otherwise be a
+  // coincidence: the answers likeliest to sit near a π ratio by accident are
+  // exactly the ones a trap has already intercepted.
+  //
+  // No `method_marks`: the method IS sound and an exam should pay for it, but
+  // how many marks that is depends on the question's tariff, which the grader
+  // does not see. Better to leave the mark unclaimed than invent a number.
+  if (piEstimate && !piEstimate.acceptable) {
+    return {
+      correct: false,
+      trap: {
+        response: '',
+        misconception: 'used_a_poor_pi_estimate',
+      },
+      message: `Your method looks right — but ${piEstimate.label} is not an accurate enough value for π, `
+        + 'and the answer lands outside what the question accepts. Use the <strong>π</strong> key on your '
+        + 'calculator; if you are working without one, 3.142 is the least you should use.',
     }
   }
 

@@ -5,23 +5,33 @@ import { evaluateTemplate, generateValues } from '../lib/questions/paramEngine'
 import { checkAnswer } from '../lib/questions/answerChecker'
 import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
 import { checkGridDraw } from '../lib/questions/gridDraw'
+import { demandedRounding } from '../lib/questions/rounding'
 import { evidenceFor, resolveQuestionMarks } from '../lib/exam/markEvidence'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Bank health check (audit ②/Phase 4). Re-run after any authoring batch:
-//   npx tsx scripts/audit-bank.ts
+//   npx tsx scripts/audit-bank.ts             published only
+//   npx tsx scripts/audit-bank.ts --drafts    include unpublished drafts
 //
-// Renders every published question across DRAWS parameter sets and reports:
+// Renders every question in scope across DRAWS parameter sets and reports:
 //   • render errors, invalid answer types, missing skills, empty answers
 //   • trap collisions classified ALWAYS-broken vs SOMETIMES-coincidental
 //   • numeric answers that render unrounded (dp > 4) with a tight tolerance —
-//     likely unmatchable (the "irrational answer" worry)
+//     likely unmatchable (the "irrational answer" worry), and the opposite:
+//     tolerances WIDER than the rounding the question's own wording demands
 //   • skill-graph integrity (cycles / dupes / missing prereqs / dangling ids)
 //   • coverage: skills with no published question
 // Read-only — no writes.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DRAWS = 25
+/**
+ * Drafts are excluded by default — this is a health check on what students can
+ * actually reach. Pass --drafts to sweep the whole table instead, which is what
+ * you want when auditing a class of defect rather than the live bank: a broken
+ * draft is cheaper to fix before it is published than after.
+ */
+const INCLUDE_DRAFTS = process.argv.includes('--drafts')
 const VALID_ANSWER_TYPES: readonly string[] = SCALAR_ANSWER_TYPES
 const ids = new Set(skills.map(s => s.id))
 const byId = Object.fromEntries(skills.map(s => [s.id, s]))
@@ -69,20 +79,30 @@ function auditGraph() {
 }
 
 async function auditBank() {
-  section(`② QUESTION BANK (published, ${DRAWS} draws)`)
-  const { data, error } = await supabase
+  section(`② QUESTION BANK (${INCLUDE_DRAFTS ? 'published + drafts' : 'published'}, ${DRAWS} draws)`)
+  const base = supabase
     .from('questions')
     .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, traps, parts, is_published, difficulty, kind, marks')
-    .eq('is_published', true)
+  const { data, error } = await (INCLUDE_DRAFTS ? base : base.eq('is_published', true))
   if (error || !data) { console.error(error); process.exit(1) }
 
   const renderErrors: string[] = [], badType: string[] = [], dangling: string[] = []
   const noSkills: string[] = [], emptyAns: string[] = [], unrounded: string[] = []
+  // Keyed by answer slot, not by draw: the same slot flags on every draw with
+  // a different rendered value, and 25 lines saying one thing is 24 too many.
+  const slackTol = new Map<string, string>()
+  const stubs: string[] = []
   const markOutliers: string[] = [], noMarkEvidence: string[] = []
   const usedSkills = new Set<string>()
   const trapHits = new Map<string, { hits: number; total: number; desc: string }>()
 
   for (const q of data) {
+    // An unstarted draft — a stem captured from a coded paper with no answer
+    // authored yet — is not a defect, it is a to-do. Reporting every one of
+    // them as "empty rendered answer" would bury the handful of real ones and
+    // make --drafts not worth running.
+    if (!q.is_published && !String(q.answer_template ?? '').trim()
+        && !(Array.isArray(q.parts) && q.parts.length)) { stubs.push(q.id); continue }
     if (!q.skill_ids?.length) noSkills.push(q.id)
     for (const sid of q.skill_ids ?? []) { usedSkills.add(sid); if (!ids.has(sid)) dangling.push(`${q.id} → ${sid}`) }
 
@@ -108,9 +128,12 @@ async function auditBank() {
           ? (Array.isArray(p.blanks) ? p.blanks : []).map((b: any, bi: number) => ({
               ans: b.answer_template, type: b.answer_type ?? 'numeric', tol: b.tolerance ?? null,
               traps: b.traps ?? [], label: `part ${'abcdefgh'[i]} blank ${b.label ?? bi + 1}`,
+              text: `${q.question_template ?? ''} ${p.prompt ?? ''} ${b.prompt ?? ''}`,
             }))
-          : [{ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}` }])
-      : [{ ans: q.answer_template, type: q.answer_type, tol: q.tolerance, traps: q.traps ?? [], label: 'answer' }]
+          : [{ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}`,
+              text: `${q.question_template ?? ''} ${p.prompt ?? ''}` }])
+      : [{ ans: q.answer_template, type: q.answer_type, tol: q.tolerance, traps: q.traps ?? [], label: 'answer',
+          text: q.question_template ?? '' }]
 
     // Grid parts: per draw, every axis/element must evaluate finite + on-grid
     // + on-lattice (tolerance 0), and the canonical must self-grade.
@@ -133,6 +156,29 @@ async function auditBank() {
         // Irrational/over-precise numeric answer with a tight tolerance → likely unmatchable.
         if (u.type === 'numeric' && decimalPlaces(ans) > 4 && (u.tol == null || u.tol < 0.001)) {
           unrounded.push(`${q.id} ${u.label}: renders "${ans}" (${decimalPlaces(ans)} dp), tol=${u.tol ?? 'null'} — no round()?`)
+        }
+
+        // …and the mirror of it: a tolerance so WIDE it accepts answers the
+        // question itself calls wrong. A question that asks for 1 d.p. and
+        // carries tol=0.5 marks 8.1 and 8.6 alike — the rounding it is testing
+        // is the one thing it cannot fail you on. One unit of the last place
+        // is the generous end of reasonable (it absorbs a student who rounded
+        // the other way, or typed an extra digit); past that the tolerance is
+        // no longer slack, it is a different question.
+        if (u.type === 'numeric' && u.tol != null) {
+          const tol = Number(u.tol)
+          const demand = demandedRounding(u.text ?? '')
+          const value = parseFloat(ans.replace(/[^0-9.eE+-]/g, ''))
+          if (demand && tol > 0 && Number.isFinite(value)) {
+            const unit = demand.unit(value)
+            const key = `${q.id}|${u.label}`
+            if (tol > unit * 1.0000001 && !slackTol.has(key)) {
+              slackTol.set(key,
+                `${q.id} ${u.label}: asks for ${demand.phrase} (last place ${unit}) but tol=${tol}` +
+                ` — ${Math.round(tol / unit)}× too wide; e.g. accepts ${+(value - tol).toFixed(6)}…${+(value + tol).toFixed(6)} for "${ans}"`
+              )
+            }
+          }
         }
 
         for (const t of u.traps) {
@@ -190,11 +236,13 @@ async function auditBank() {
     }
   }
 
-  console.log(`published questions: ${data.length}`)
+  console.log(`questions checked: ${data.length}${INCLUDE_DRAFTS ? ` (incl. ${data.filter(q => !q.is_published).length} drafts)` : ''}`)
+  if (INCLUDE_DRAFTS) console.log(`skipped ${stubs.length} unstarted drafts (stem captured, no answer authored yet)`)
   report('render errors', renderErrors); report('invalid answer_type', badType)
   report('dangling skill_ids', dangling); report('questions with no skills', noSkills)
   report('empty rendered answers', emptyAns)
   report('🔶 unrounded numeric answers (tight tolerance — may be unmatchable)', unrounded)
+  report('🔴 tolerance wider than the rounding the question asks for', [...slackTol.values()], 40)
   report('🔶 marks outside the range real papers award for that material', markOutliers)
   report('🔶 no coded exam evidence for these skills (marks from the kind average)', noMarkEvidence)
 

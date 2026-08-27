@@ -94,7 +94,14 @@ export type SkillExamProfile = {
 }
 
 export type ProfileManifest = {
-  generatedAt: string
+  // Deliberately no `generatedAt`. A wall-clock stamp changed on every run, so
+  // the file diffed even when not one profile had moved — which made "is this
+  // stale?" unanswerable from `git diff` and cost real time during the grader
+  // work, where a regenerated file had to be inspected by hand to establish
+  // that only the timestamp differed. Provenance lives in `slices[].papers`
+  // and `slices[].series`, which are deterministic and say something more
+  // useful (what it was built FROM, not when); when it was regenerated is the
+  // commit date, which git already records precisely.
   minParts: number
   /** Which papers each board × tier slice was built from. */
   slices: {
@@ -247,7 +254,6 @@ function build(): ProfileManifest {
   }
 
   return {
-    generatedAt: new Date().toISOString(),
     minParts: MIN_PARTS,
     slices: slices.sort((a, b) => (a.board + a.tier).localeCompare(b.board + b.tier)),
     profiles,

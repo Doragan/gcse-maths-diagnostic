@@ -17,6 +17,9 @@ export type BlankCheck = {
   label: string
   student: string // raw student input; '' / whitespace = unanswered
   answer: string // RENDERED canonical answer
+  // UNRENDERED template for that answer. Only used to tell whether the answer
+  // is built from π, which gates the poor-π-estimate check in the grader.
+  answer_template?: string
   answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest: boolean
@@ -84,7 +87,7 @@ export function checkMultiBlank(blanks: BlankCheck[]): MultiBlankResult {
     if (b.student.trim() === '') {
       return { label: b.label, student: b.student, correct: false, trap: null, message: 'Not answered.' }
     }
-    const res = checkAnswer(b.student, b.answer, b.answer_type, b.tolerance, b.traps, b.requires_simplest)
+    const res = checkAnswer(b.student, b.answer, b.answer_type, b.tolerance, b.traps, b.requires_simplest, b.answer_template)
     return { label: b.label, student: b.student, ...res }
   })
 
@@ -104,7 +107,7 @@ export function checkMultiBlank(blanks: BlankCheck[]): MultiBlankResult {
     // exactly as they do for the canonical answer. Traps are dropped: a value
     // that legitimately follows through isn't a misconception, so trap
     // feedback would actively mislead.
-    const res = checkAnswer(b.student, expected, b.answer_type, b.tolerance, [], b.requires_simplest)
+    const res = checkAnswer(b.student, expected, b.answer_type, b.tolerance, [], b.requires_simplest, b.answer_template)
     if (!res.correct) continue
     results[i] = {
       label: b.label,

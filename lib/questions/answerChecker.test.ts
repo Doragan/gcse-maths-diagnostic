@@ -575,3 +575,49 @@ describe('expression: leading "x ="', () => {
     expect(check('x≥5', 'x≤5', 'expression').correct).toBe(false)
   })
 })
+
+describe('poor estimates for π', () => {
+  // Area of a circle, r = 10: π gives 314.16, 3.14 gives 314.00, 3.142 gives 314.20.
+  const CORRECT = '314.16 cm²'
+  const TEMPLATE = '{{round(Math.PI * r * r, 2)}} cm²'
+
+  it('rejects 3.14 and names it', () => {
+    const res = checkAnswer('314', CORRECT, 'numeric', 0.005, [], false, TEMPLATE)
+    expect(res.correct).toBe(false)
+    expect(res.message).toContain('3.14')
+    expect(res.message).toContain('π')
+    expect(res.trap?.misconception).toBe('used_a_poor_pi_estimate')
+  })
+
+  it('accepts 3.142, which a mark scheme would', () => {
+    const res = checkAnswer('314.2', CORRECT, 'numeric', 0.005, [], false, TEMPLATE)
+    expect(res.correct).toBe(true)
+    expect(res.message).toContain('3.142')
+  })
+
+  it('says nothing about π without the template, so unwired callers are unchanged', () => {
+    const res = checkAnswer('314', CORRECT, 'numeric', 0.005, [], false)
+    expect(res.correct).toBe(false)
+    expect(res.message).not.toContain('3.14')
+    expect(res.trap).toBeNull()
+  })
+
+  it('never fires on a question with no π in its answer', () => {
+    // Same numbers, a template with no π: the ratio is identical, so this is
+    // the check that the gate — not the arithmetic — is what keeps it quiet.
+    const res = checkAnswer('314', CORRECT, 'numeric', 0.005, [], false, '{{round(a * b, 2)}} cm²')
+    expect(res.message).not.toContain('3.14')
+    expect(res.trap).toBeNull()
+  })
+
+  it('lets an authored trap win, since it is the more specific claim', () => {
+    const traps = [{ answer: '314', response: 'You used the diameter.', misconception: 'diameter_for_radius' }]
+    const res = checkAnswer('314', CORRECT, 'numeric', 0.005, traps, false, TEMPLATE)
+    expect(res.trap?.misconception).toBe('diameter_for_radius')
+    expect(res.message).toBe('You used the diameter.')
+  })
+
+  it('still marks the real answer correct', () => {
+    expect(checkAnswer('314.16', CORRECT, 'numeric', 0.005, [], false, TEMPLATE).correct).toBe(true)
+  })
+})

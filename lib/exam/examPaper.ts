@@ -30,6 +30,11 @@ export type Unit = {
   label: string | null          // "(a)" etc. for multi-part; null for single-part
   promptHtml: string            // part prompt (multi-part) or '' (single, uses header)
   correctAnswer: string
+  /**
+   * The UNRENDERED answer template. Carried so the grader can tell whether the
+   * answer is built from π, which gates the poor-π-estimate check.
+   */
+  answerTemplate?: string
   answerType: AnswerType
   tolerance: number | null
   requiresSimplest: boolean
@@ -244,6 +249,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
           promptHtml: [b === 0 ? stripLeadingLetter(r.parts[i].prompt, i) : "", rb[b]?.prompt ?? '']
             .filter(Boolean).join(' '),
           correctAnswer: rb[b]?.answer ?? '',
+          answerTemplate: blank.answer_template,
           answerType: blank.answer_type,
           tolerance: blank.tolerance,
           requiresSimplest: blank.requires_simplest ?? false,
@@ -290,6 +296,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
         label: partLetter(i),
         promptHtml: stripLeadingLetter(r.parts[i].prompt, i),
         correctAnswer: r.parts[i].answer,
+        answerTemplate: p.answer_template,
         answerType: p.answer_type,
         tolerance: p.tolerance,
         requiresSimplest: p.requires_simplest ?? false,
@@ -338,6 +345,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
       label: null,
       promptHtml: '',
       correctAnswer: r.answer,
+      answerTemplate: q.answer_template,
       answerType: q.answer_type,
       tolerance: q.tolerance,
       requiresSimplest: q.requires_simplest ?? false,
@@ -497,7 +505,7 @@ export function gradeUnits(
         }
         continue
       }
-      const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest)
+      const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest, u.answerTemplate)
       if (check.correct) {
         // Units missing or wrong. The maths is sound, so it stays `correct`
         // and the skill map credits it in full — the unit is rarely the skill
