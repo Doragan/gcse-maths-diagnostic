@@ -63,14 +63,26 @@ export const misconceptions: Misconception[] = [
   },
   {
     id: 'added_instead_of_operating',
-    name: 'Added the two quantities',
-    description: 'Treated a rate or a scaling as an addition — "speed is distance plus time", or adding the percentage figure straight onto the amount.',
+    name: 'Added where a different operation was needed',
+    description: 'Reached for addition when the method wanted something else — "speed is distance plus time", the two short sides of a right angle added instead of squared, the quartiles added instead of subtracted.',
   },
   {
     id: 'averaged_the_rates',
-    name: 'Averaged the rates',
-    description: 'Took the mean of two speeds instead of total distance ÷ total time, so the two legs were weighted equally when they were not.',
+    name: 'Averaged the averages',
+    description: 'Took a plain mean of two rates or two averages that needed weighting — two speeds instead of total distance ÷ total time, or the mean of two class means when the classes are different sizes.',
     seededFrom: 'average_the_two_speeds',
+  },
+  {
+    id: 'subtracted_in_the_wrong_order',
+    name: 'Subtracted the wrong way round',
+    description: 'Took a − b where the question needed b − a, so a change or difference came out with the wrong sign.',
+    seededFrom: 'sign_pair_reversed',
+  },
+  {
+    id: 'sign_error',
+    name: 'Sign error',
+    description: 'Dropped or flipped a sign while rearranging or expanding — the method is right and one minus is not.',
+    seededFrom: 'sign_error',
   },
 
   // ── Stopping early ────────────────────────────────────────────────────────
@@ -84,6 +96,111 @@ export const misconceptions: Misconception[] = [
     name: 'Stopped one step early',
     description: 'Applied a repeated change one time fewer than the question asked — the value after 3 years when 4 were required.',
     seededFrom: 'single_year_only',
+  },
+  {
+    id: 'omitted_a_final_step',
+    name: 'Left out the last step',
+    description: 'The working is right, but one required operation or component is missing — the square root after Pythagoras, the ½ on a triangle, the halving of a midpoint, the ×100 to a percentage, a fixed fee left off a formula.',
+  },
+  {
+    id: 'answered_a_different_quantity',
+    name: 'Answered a different quantity',
+    description: 'Worked out something real and correct, but not the thing asked for — the mode when the mean was wanted, "both" when the question said "neither", February\'s figure when March was asked.',
+  },
+
+  // ── Method and structure ──────────────────────────────────────────────────
+  {
+    id: 'steps_in_wrong_order',
+    name: 'Undid the operations in the wrong order',
+    description: 'Applied inverse operations out of sequence when rearranging — divided before subtracting, or inverted a fraction before isolating it.',
+    seededFrom: 'order_of_operations',
+  },
+  {
+    id: 'power_confused_with_multiply',
+    name: 'Confused a power with multiplying',
+    description: 'Treated an index as a multiplier or the reverse — read x² as 2x, cubed by multiplying by three, or multiplied indices where they should be added.',
+    seededFrom: 'square_vs_double',
+  },
+  {
+    id: 'wrong_shape_formula',
+    name: 'Used the formula for a different shape',
+    description: 'Applied the wrong area or volume formula — treated a triangular cross-section as a rectangle, or a hemisphere as a whole sphere.',
+  },
+  {
+    id: 'missed_a_dimension',
+    name: 'Left out a dimension',
+    description: 'Multiplied only two of the three dimensions for a volume, or otherwise used fewer measurements than the shape needs.',
+  },
+  {
+    id: 'wrong_trig_ratio',
+    name: 'Used the wrong trig ratio',
+    description: 'Picked sin, cos or tan against the wrong pair of sides — usually from mislabelling which side is opposite, adjacent or the hypotenuse.',
+    seededFrom: 'wrong_trig_ratio',
+  },
+
+  // ── Probability, sets and data ────────────────────────────────────────────
+  {
+    id: 'wrong_denominator',
+    name: 'Divided by the wrong total',
+    description: 'Formed a probability or a mean over the wrong denominator — the remaining items rather than all of them, or the number of categories rather than the number of things.',
+    seededFrom: 'divide_by_the_wrong_count',
+  },
+  {
+    id: 'used_only_one_branch',
+    name: 'Used only one branch',
+    description: 'Read a single path through a tree or table where the question needed several combined — one branch of a frequency tree, or one outcome of two.',
+  },
+  {
+    id: 'double_counted_the_overlap',
+    name: 'Double-counted the overlap',
+    description: 'Added or subtracted the intersection of two sets twice, so members of both groups were counted or removed more than once.',
+    seededFrom: 'overlap_counted_twice',
+  },
+  {
+    id: 'wrong_angle_rule',
+    name: 'Used the wrong angle fact',
+    description: 'Applied the wrong angle rule, or the right one backwards — 360° where 180° applies, equal where supplementary, twice where half, the interior angle where the exterior was asked.',
+    seededFrom: 'use_360_not_180',
+  },
+  {
+    id: 'diameter_for_radius',
+    name: 'Diameter used for the radius',
+    description: 'Put the diameter into a formula that needs the radius, or the reverse — the commonest slip in every circle calculation.',
+    seededFrom: 'use_diameter_for_radius',
+  },
+  {
+    id: 'fraction_operation_confused',
+    name: 'Did a different fraction operation',
+    description: 'Performed the wrong operation on the fractions — added tops and bottoms separately, multiplied when adding, or flipped the wrong fraction when dividing.',
+    seededFrom: 'add_numerators_without_a_common_denominator',
+  },
+  {
+    id: 'misremembered_the_formula',
+    name: 'Misremembered the formula',
+    description: 'Recalled the formula wrongly — πr for an area, n × 180° for a polygon, a plus where the cosine rule has a minus. Distinct from using the right formula on the wrong shape.',
+  },
+  {
+    id: 'converted_with_the_wrong_factor',
+    name: 'Converted with the wrong factor',
+    description: 'Attempted the unit conversion but with the wrong number or in the wrong direction — 100 where 1000, ÷60 where ×60, dividing where multiplying was needed.',
+    seededFrom: 'invert_the_conversion',
+  },
+  {
+    id: 'calculator_in_radians',
+    name: 'Calculator in the wrong mode',
+    description: 'Evaluated a trig function with the calculator set to radians rather than degrees, so the value is right for the wrong angle unit.',
+    seededFrom: 'calculator_in_radians',
+  },
+  {
+    id: 'misread_the_scale',
+    name: 'Misread the scale',
+    description: 'Took values straight off a graph or diagram without allowing for its scale or interval — reading gridline counts as units, or ignoring a ×10 axis.',
+    seededFrom: 'misread_the_scale_interval',
+  },
+  {
+    id: 'used_the_stated_value_not_the_bound',
+    name: 'Used the stated value, not its bound',
+    description: 'Calculated with the rounded figure given in the question when the answer required its upper or lower bound.',
   },
 
   // ── Percentages ───────────────────────────────────────────────────────────
