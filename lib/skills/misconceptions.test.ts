@@ -38,7 +38,12 @@ describe('misconception registry', () => {
     // of which 79% appear once; that is what this must not become. If this
     // assertion starts failing, the question is whether the new entries really
     // recur across skills — not whether to raise the number.
-    expect(misconceptions.length).toBeLessThanOrEqual(40)
+    //
+    // Raised from 40 to 41 for `used_a_poor_pi_estimate`, which met that test
+    // rather than dodged it: it applies to every circle-derived skill in the
+    // bank — area, circumference, arc and sector, sphere, cone, cylinder,
+    // frustum — which is wider recurrence than most entries already here.
+    expect(misconceptions.length).toBeLessThanOrEqual(41)
   })
 
   it('resolves ids and tolerates an untagged trap', () => {

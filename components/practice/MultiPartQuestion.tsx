@@ -234,6 +234,7 @@ export default function MultiPartQuestion({
         label: b.label,
         student: blankAnswers[i] ?? '',
         answer: renderedBlanks[i]?.answer ?? '',
+        answer_template: b.answer_template,
         answer_type: b.answer_type,
         tolerance: b.tolerance,
         requires_simplest: b.requires_simplest ?? false,
@@ -264,6 +265,7 @@ export default function MultiPartQuestion({
         part.tolerance,
         renderedPart.traps,
         part.requires_simplest ?? false,
+        part.answer_template,
       )
       outcome = {
         answer, correct: result.correct, message: result.message,

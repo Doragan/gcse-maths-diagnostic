@@ -283,6 +283,11 @@ export const misconceptions: Misconception[] = [
     description: 'Combined upper and lower bounds the wrong way for the quantity asked — dividing by the larger bound to find an upper limit.',
     seededFrom: 'bounds_reversed',
   },
+  {
+    id: 'used_a_poor_pi_estimate',
+    name: 'Used too rough a value for π',
+    description: 'Worked the formula correctly but substituted 3.14 or 22/7 for π, landing outside the accuracy the question asks for. Recurs across every circle-derived skill — area, circumference, arc and sector, sphere, cone, cylinder, frustum — and is the one misconception detected from the answer itself rather than an authored trap.',
+  },
 ]
 
 export const misconceptionsById: Record<string, Misconception> =

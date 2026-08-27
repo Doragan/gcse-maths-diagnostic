@@ -437,6 +437,7 @@ function QuestionPage() {
       question.tolerance,
       rendered.traps,
       question.requires_simplest ?? false,
+      question.answer_template,
     )
 
     setFeedback({
@@ -755,6 +756,7 @@ function QuestionPage() {
 						question.tolerance,
 						rendered.traps,
 						question.requires_simplest ?? false,
+						question.answer_template,
 					  )
 					  setAnswer(opt)
 					  setFeedback({
