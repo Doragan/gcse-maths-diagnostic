@@ -19,23 +19,37 @@ The risks are in the **safety nets, source-of-truth, and content depth**:
    and several of the heaviest skills sit at one question (E1/E2).
    **Superseded 2026-08-08 — see the content-coverage restatement below.**
 
-### Content coverage — restated 2026-08-08
-The bank has roughly doubled since this audit (133 → **242 published**, 113 →
-**139 of 152 skills covered**) and the engine gained the equivalence grader,
+### Content coverage — restated 2026-08-08, figures refreshed 2026-08-26
+The bank has roughly doubled since this audit (133 → **256 published**, 113 →
+**140 of 154 skills covered**) and the engine gained the equivalence grader,
 `multi_blank` and `grid_draw`. Finding 4 above is obsolete:
 
-- **Zero-coverage is closed** — 10 exam-tested skills remain at zero, worth
-  **29 primary marks** (not 33 / ~280). Eight need drawing or free-text marking;
-  only `trig_graphs` and `sketching_functions` are authorable-and-untouched.
+- **Zero-coverage is largely closed, but the set grew** — **13** exam-tested
+  skills now sit at zero published questions (was 10 on 2026-08-08), for the
+  same reason as the depth figure below: coding the 2023 series enlarged the
+  exam-tested set. Verified 2026-08-26, the full list is `algebraic_proof`,
+  `box_plots`, `constructions`, `counting_without_listing`, `loci`,
+  `parts_of_a_circle`, `rotations`, `scatter_graphs`, `sketching_functions`,
+  `translations`, `trig_graphs`, `trigonometry_3d`, `vector_proof`. The old
+  "8 blocked / only `trig_graphs` + `sketching_functions` authorable" split no
+  longer matches this list and **needs re-deriving against current capability**
+  — several of the additions (`rotations`, `translations`, `box_plots`,
+  `scatter_graphs`) look like `grid_draw` candidates rather than hard blocks.
+  The **29 primary marks** figure is from 2026-08-08 and was not recomputed.
 - **The gap moved from breadth to shape** — real papers are **63 % exam-kind
-  (synthesis) marks**; the bank is **12 %** (30 of 242, after the first content
-  batch — was 9 %). `growth_and_decay`, `tree_diagrams`, `simplifying_indices`,
-  `pie_charts` and `venn_diagrams` are the heaviest synthesis skills still at
-  **zero**; `proportion`, `ratio`, `compound_units` and `kinematic_graphs` were
-  cleared by batch 1.
-- **Depth is the live problem** — 83 exam-tested skills sit at 1–2 questions,
-  50 at exactly one.
-- **Shipped capability is unexploited** — 6 `multi_blank` parts, 6 `grid_draw`
+  (synthesis) marks**; the bank is **17 %** (43 of 256, after six content
+  batches — was 9 %, then 12 %). **Every skill named in the original synthesis
+  queue now has exam-kind coverage**: `proportion`, `ratio`, `compound_units`
+  and `kinematic_graphs` (batch 1), `growth_and_decay` (batch 4), `pie_charts`,
+  `forming_expressions_and_formulae` and `simplifying_indices` (batch 5),
+  `rearranging_formulae`, `tree_diagrams` and `venn_diagrams` (batch 6). The
+  next synthesis targets have to be re-derived — see Phase 5 step 1.
+- **Depth is the live problem, and it got worse** — **91** of the 145
+  exam-tested skills sit at 1–2 questions, **59** at exactly one (was 83 / 50
+  on 2026-08-08). The bank grew, but the *denominator* grew faster: coding the
+  2023 series enlarged the known exam-tested set, so more thin skills are now
+  visible. Recomputed against `data/exam-audit/` + the live bank 2026-08-26.
+- **Shipped capability is unexploited** — 6 `multi_blank` parts, 8 `grid_draw`
   parts and 3 `mark_bands` parts across the whole bank, against ~86 marks of
   coded exam traffic that `grid_draw`'s eight modes now fit.
 
@@ -57,10 +71,10 @@ dependents ≥ 8). Detail in `05-exam-coverage.md`; blocked set in
 | L1 | ✅ FIXED | Multi-part questions excluded from diagnostic selection |
 | L2 | 🟠 Med | Prerequisite inference overrides direct needs_practice evidence on 1 correct answer (design ruling needed) |
 | D1 | ✅ 9/12 FIXED | Deleted 9 broken traps; `round(x±0.01)` replaced by a grader rounding check. 3 remain = Bucket C (left for user investigation) |
-| E1 | ✅ LARGELY CLOSED | _(was: 33 zero-coverage skills / ~280 marks / 18 authorable)_ **Restated 2026-08-08: 10 exam-tested skills at zero, 29 primary marks.** 8 need drawing or free-text marking; only `trig_graphs` + `sketching_functions` are authorable-and-untouched |
-| E2 | 🟠 Med | **Now the live content backlog.** 83 exam-tested skills at 1–2 questions, 50 at exactly one. Top by primary marks: `inverse_proportion` 18, `tree_diagrams` 15, `simplifying_indices` 13, `time_series` 12, `reverse_percentage` 12 (near-root excluded; `simple_charts` 19 / `calculating_simple_probability` 19 / `fractions_decimals_and_percentages` 16 are hand-overrides) |
-| E5 | 🟠 Med | **New 2026-08-08 — synthesis shortfall.** Papers are 63 % exam-kind marks; bank was 9 % exam-kind questions. **Batch 1 published 2026-08-09** — 9 synthesis questions across `proportion` (0→3), `ratio` (1→4) and `compound_units` (3→7), lifting the bank to 12 % (30 of 242). `growth_and_decay` is now the heaviest skill at zero, then `tree_diagrams`, `simplifying_indices`, `pie_charts`, `venn_diagrams` |
-| E6 | 🟠 Med | **New 2026-08-08 — shipped capability unexploited.** 6 `multi_blank` + 6 `grid_draw` + 3 `mark_bands` parts across 242 questions; ~308 of 479 previously app-blocked marks are authorable today. The `app_gap_note` text in `data/exam-audit/` is stale and must be cross-checked against current capability |
+| E1 | 🟠 REOPENED | _(was: 33 zero-coverage skills / ~280 marks / 18 authorable; restated 2026-08-08 to 10 / 29 marks)_ **Recounted 2026-08-26: 13 exam-tested skills at zero** — the set grew when the 2023 series was coded, so this is no longer "largely closed". Full list in the coverage restatement above; the blocked-vs-authorable split needs re-deriving, and the 29-marks figure was not recomputed |
+| E2 | 🟠 Med | **Now the live content backlog.** _(recomputed 2026-08-26)_ **91** of 145 exam-tested skills at 1–2 questions, **59** at exactly one — up from 83 / 50, because coding the 2023 series enlarged the exam-tested set faster than the bank grew. Top by primary marks, keeping only those **still thin**: `inverse_proportion` 18, `time_series` 12, `reverse_percentage` 12 (near-root excluded; `simple_charts` 19 / `calculating_simple_probability` 19 / `fractions_decimals_and_percentages` 16 are hand-overrides). `tree_diagrams` 15, `kinematic_graphs` 14 and `simplifying_indices` 13 have since reached 3–4 questions and drop off the thin list |
+| E5 | 🟠 Med | **New 2026-08-08 — synthesis shortfall.** Papers are 63 % exam-kind marks; bank was 9 % exam-kind questions. **Six batches published to 2026-08-26**, lifting the bank to 17 % (43 of 256). The original queue is fully cleared — `proportion`/`ratio`/`compound_units` (batch 1), `growth_and_decay` (4), `pie_charts`/`forming_expressions_and_formulae`/`simplifying_indices` (5), `rearranging_formulae`/`tree_diagrams`/`venn_diagrams` (6). **Batch 6 also reset the house style** — the decision-framed shape it inherited was rejected on review; see Phase 5 step 1 |
+| E6 | 🟠 Med | **New 2026-08-08 — shipped capability unexploited.** _(counts re-verified 2026-08-26)_ 6 `multi_blank` + 8 `grid_draw` + 3 `mark_bands` parts across 256 questions; ~308 of 479 previously app-blocked marks are authorable today. The `app_gap_note` text in `data/exam-audit/` is stale and must be cross-checked against current capability |
 | ④-lint | ✅ DONE | 146 → 0 errors; pragmatic rules → warnings; CI lint now blocking |
 | L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
 | L4 | ✅ FIXED | Multi-part drill question remounts via a reparam nonce ("Next" now re-serves it) |
@@ -167,32 +181,81 @@ parked step 5 have shipped. The superseded version is preserved in
 Ordering principle is unchanged: exam marks per unit of authoring effort — but
 scored on **primary marks with near-root skills excluded**, not involvement.
 
-1. ✅ **Synthesis on the heaviest skills (E5)** — batch 1 published 2026-08-09:
-   `proportion`, `ratio` and `compound_units`, 9 questions, one script per
-   skill (`scripts/create-*-synthesis.ts`, each with `--json` for pre-insert
-   verification and a targeted `--update <name>`). The decision-framed items
-   ask for a single markable number rather than decomposing into parts, so the
-   student still chooses the comparison strategy. **Next: `growth_and_decay`
-   (10 primary marks, zero synthesis), then `tree_diagrams`,
-   `simplifying_indices`, `pie_charts`, `venn_diagrams`,
-   `forming_expressions_and_formulae`, `rearranging_formulae`.**
+1. ✅ **Synthesis on the heaviest skills (E5)** — six batches published, the
+   original queue fully cleared (see the E5 row for the per-batch breakdown).
+   One script per batch (`scripts/create-*-synthesis.ts`, each with `--json`
+   for pre-insert verification and a targeted `--update <name>`, which never
+   touches `is_published`).
+
+   **House style, corrected 2026-08-26 — read this before authoring another.**
+   Batch 1 established a *decision-framed* shape ("compare two options, then
+   compute on the winner") and earlier revisions of this document recommended
+   it. **It was rejected on review and must not be reused.** Two problems:
+   - It is **severable**. Tell the student the intermediate ("use School Y")
+     and what remains is a complete, standard, single-skill question — the two
+     halves never touch. That is a pipeline, not synthesis.
+   - The handoff has to be **narrated** ("a researcher uses whichever school
+     has the greater proportion…"), which reads as a spec of the method rather
+     than a question. Real papers almost never state the order of operations.
+
+   **The test to apply:** if you tell the student the intermediate result, is
+   what is left a complete single-skill question? If yes it is a pipeline.
+   Pipelines are fine occasionally — real papers set them — but they must not
+   be the house style, and must never be signposted.
+
+   **Two shapes that work**, both proven in batch 6:
+   - **Change of base** — one quantity a proportion of the whole, the other a
+     percentage of a *subset*, so reading the base correctly *is* reading the
+     structure. A base error is then simultaneously an arithmetic and a
+     structural error, with no seam to cut along (`5d2c02c1`).
+   - **Reverse / constraint — the more reliable of the two.** Give the *output*
+     and ask for an *input*, applying the first skill to an **unknown**. The
+     intermediate then cannot be evaluated even in principle, so severability
+     is satisfied by construction rather than by careful wording (`83bbf6f5`).
+     Accept that it may pull in a light third skill (a linear solve) — that is
+     what buys the coupling, and it matches real Higher items.
+
    Apply the project's synthesis rule: `exam` kind only where one answer needs
    two *independent* skills. Expect the usable pairings to thin out as you move
    down a prerequisite chain — `ratio` had most of its commonly-paired partners
-   barred for sitting in its own closure.
-2. **Thicken the thin list (E2) top-down by primary marks** —
-   `inverse_proportion` (18), `tree_diagrams` (15), `kinematic_graphs` (14),
-   `simplifying_indices` (13), `time_series` (12), `reverse_percentage` (12),
-   `systematic_listing` (10), `completing_the_square` (10), then down. Add the
-   three hand-overrides the near-root rule wrongly filters out: `simple_charts`
-   (19), `calculating_simple_probability` (19),
-   `fractions_decimals_and_percentages` (16).
+   barred for sitting in its own closure, and batch 6 hit the same wall harder:
+   **every** coded row pairing `tree_diagrams` or `venn_diagrams` uses
+   `combined_events` / `calculating_simple_probability`, both of which are
+   their *prerequisites*, so the evidenced pairings were all barred. Check the
+   closure **first** — before scoping a question, not after.
+
+   **Next targets have to be re-derived.** Taking E2's primary-marks ranking
+   above and keeping only those still at **zero** exam-kind coverage (verified
+   against the live bank 2026-08-26): `simple_charts` 19 (hand-override),
+   `inverse_proportion` 18, `time_series` 12, `reverse_percentage` 12,
+   `systematic_listing` 10, `completing_the_square` 10. `tree_diagrams` (15),
+   `kinematic_graphs` (14) and `simplifying_indices` (13) have since been
+   cleared and drop out of that list.
+2. **Thicken the thin list (E2) top-down by primary marks** — _(pruned
+   2026-08-26 against the live bank)_ `inverse_proportion` (18),
+   `time_series` (12), `reverse_percentage` (12), `systematic_listing` (10),
+   `completing_the_square` (10), then down. Add the three hand-overrides the
+   near-root rule wrongly filters out: `simple_charts` (19),
+   `calculating_simple_probability` (19),
+   `fractions_decimals_and_percentages` (16). `tree_diagrams` (15),
+   `kinematic_graphs` (14) and `simplifying_indices` (13) were on this list and
+   have since reached 3–4 questions each — dropped. Note the list as a whole
+   got *longer*, not shorter: 91 exam-tested skills now sit at 1–2 questions
+   (was 83), since coding the 2023 series added more thin skills than the six
+   content batches cleared.
 3. **Exploit `grid_draw` (E6)** — ~86 marks of coded traffic fit its eight modes
-   against 6 parts built. Lead with `plans_and_elevations` (12 marks, still zero
-   coverage), then `symmetry` drawing, `time_series`, `cumulative_frequency`,
-   `simple_charts`, `enlargements`/`translations`/`reflections`,
-   `scatter_graphs` (plot side only).
-4. **Close E1's authorable tail** — `trig_graphs` (3), `sketching_functions` (2).
+   against **8** parts built _(recounted 2026-08-26)_. `plans_and_elevations`
+   (12 marks) is no longer zero-coverage and drops off the lead. Remaining:
+   `symmetry` drawing, `time_series`, `cumulative_frequency`, `simple_charts`,
+   `enlargements`/`translations`/`reflections`, `scatter_graphs` (plot side
+   only). Note `translations`, `rotations`, `box_plots` and `scatter_graphs`
+   are all in the reopened E1 zero-coverage list, so this step and step 4 now
+   overlap — doing `grid_draw` work clears part of E1 as a side effect.
+4. **Close E1's authorable tail** — was `trig_graphs` (3) +
+   `sketching_functions` (2); both still untouched. But E1 reopened at 13
+   zero-coverage skills (2026-08-26), so **re-derive which of the other 11 are
+   authorable today** before working this step — the 2026-08-08 "8 are blocked"
+   split predates both the 2023 coding and current `grid_draw` capability.
 5. **Watchlist (E4):** revisit the circle-parts-vocabulary node when the 2025
    series is coded (5 recurrences already inside 2024).
 6. **Still parked behind app gaps** (~104 marks, down from ~295): free-text /
