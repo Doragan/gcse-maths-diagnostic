@@ -17,6 +17,8 @@ import type { PartAnswerType, ScalarAnswerType } from './answerTypes'
 export type PartTrap = {
   answer_template: string
   response: string
+  /** Shared id for WHY this was wrong, from data/misconceptions.ts. */
+  misconception?: string | null
   /**
    * Method marks this trap proves the student earned, for exam scoring.
    *

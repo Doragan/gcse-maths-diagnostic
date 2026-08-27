@@ -105,6 +105,28 @@ describe('renderQuestion / renderMultiPartQuestion', () => {
     expect(r.explanation).toContain('12')
     expect(r.generatedValues).toEqual({ a: 3, b: 4 })
   })
+  it('carries a trap misconception id through rendering', () => {
+    // Regression: renderTrap built a fresh object with only answer/response/
+    // method_marks, so `misconception` — added to the DB row, to CheckResult
+    // and to checkAnswer's traps parameter — was silently dropped at exactly
+    // this point. Every tagged trap fired with the id stripped between the
+    // database and the grader, and recordAttempt always wrote null. Found by
+    // a real student attempt producing null where a tagged trap should have
+    // fired; the earlier "verification" had bypassed renderTrap by calling
+    // evaluateTemplate directly, so it never touched the drop point.
+    const r = renderQuestion(
+      'q', '9',
+      [{ answer_template: '{{a}}', response: 'wrong', misconception: 'stopped_at_an_intermediate' }],
+      null, {}, { a: 3 },
+    )
+    expect(r.traps[0].misconception).toBe('stopped_at_an_intermediate')
+  })
+
+  it('leaves misconception absent on an untagged trap rather than inventing one', () => {
+    const r = renderQuestion('q', '9', [{ answer_template: '{{a}}', response: 'wrong' }], null, {}, { a: 3 })
+    expect(r.traps[0].misconception).toBeUndefined()
+  })
+
   it('renders every part against ONE shared value set so later parts can reuse values', () => {
     const r = renderMultiPartQuestion(
       'Stem with {{a}}.',
@@ -116,6 +138,21 @@ describe('renderQuestion / renderMultiPartQuestion', () => {
     )
     expect(r.stem).toBe('Stem with 5.')
     expect(r.parts.map(p => p.answer)).toEqual(['10', '6'])
+  })
+  it('carries a part-level trap misconception id through rendering', () => {
+    // Same regression as the question-level test above, on the OTHER path
+    // through renderTrap — part-level traps route through here, not
+    // renderQuestion, and MultiPartQuestion.tsx records its own attempt row
+    // independently of the single-part page.
+    const r = renderMultiPartQuestion(
+      'Stem with {{a}}.',
+      [{
+        prompt: 'double {{a}}', answer_template: '{{a * 2}}', explanation: null,
+        traps: [{ answer_template: '{{a}}', response: 'wrong', misconception: 'stopped_at_an_intermediate' }],
+      }],
+      {}, { a: 5 },
+    )
+    expect(r.parts[0].traps[0].misconception).toBe('stopped_at_an_intermediate')
   })
   it('renders a part (and blank) with NO traps array without throwing', () => {
     // A multi_blank part carries its traps on the blanks, so the part-level

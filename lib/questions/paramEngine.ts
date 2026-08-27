@@ -253,12 +253,15 @@ export type TrapTemplate = {
   response: string
   /** Method marks the trap proves; see PartTrap in lib/questions/parts.ts. */
   method_marks?: number
+  /** Shared id for WHY this was wrong, from data/misconceptions.ts. See renderTrap. */
+  misconception?: string | null
 }
 
 export type RenderedTrap = {
   answer: string
   response: string
   method_marks?: number
+  misconception?: string | null
 }
 
 /**
@@ -267,17 +270,27 @@ export type RenderedTrap = {
  * Centralised because traps hang off four levels (question, part, blank, grid)
  * and a field dropped at any one of them fails silently — the trap still
  * matches, it just quietly loses whatever the omitted field controlled. That is
- * exactly how `style`/`dir` were lost on number-line traps.
+ * exactly how `style`/`dir` were lost on number-line traps, and how
+ * `misconception` was lost here: it was added to the DB row, to CheckResult
+ * and to checkAnswer's traps parameter, but not to this function, so every
+ * tagged trap fired with the id silently stripped between the database and
+ * the grader. `recordAttempt` always wrote null. Caught because a real test
+ * attempt produced null where a tagged trap should have fired; the unit
+ * probe that first "confirmed" this had bypassed renderTrap by calling
+ * evaluateTemplate directly, so it never touched this drop point.
  *
  * `method_marks` is omitted when unset rather than defaulted to 0: unset means
  * "we don't know what method this proves", which is a different claim from
  * "this proves none", and the exam scorer treats them differently.
+ * `misconception` is copied as-is (including undefined) since null and
+ * "not present" are both legitimately "untagged".
  */
 export function renderTrap(t: TrapTemplate, generated: Record<string, number>): RenderedTrap {
   return {
     answer: evaluateTemplate(t.answer_template, generated),
     response: evaluateTemplate(t.response, generated),
     ...(typeof t.method_marks === 'number' ? { method_marks: t.method_marks } : {}),
+    misconception: t.misconception,
   }
 }
 

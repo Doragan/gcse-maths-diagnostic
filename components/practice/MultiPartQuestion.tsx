@@ -43,6 +43,8 @@ type PartOutcome = {
   // Targeted feedback when the drawing matched an authored wrong drawing.
   // Additive — it explains the score line rather than replacing it.
   trapResponse?: string
+  /** Shared id for WHY this was wrong, from data/misconceptions.ts — see recordPartAttempt. */
+  misconception?: string | null
 }
 
 type Props = {
@@ -150,7 +152,7 @@ export default function MultiPartQuestion({
   const correctCount = outcomes.filter(o => o?.correct).length
   const allAnswered = outcomes.every(o => o !== null)
 
-  async function recordPartAttempt(part: QuestionPart, correct: boolean) {
+  async function recordPartAttempt(part: QuestionPart, correct: boolean, misconception: string | null = null) {
     onSessionAttempt(correct)
     if (!studentId) return
 
@@ -162,6 +164,7 @@ export default function MultiPartQuestion({
       skill_ids: part.skill_ids,
       correct,
       kind: part.kind ?? 'mastery',
+      misconception,
     })
     if (error) console.error('Failed to record part attempt:', error.message) // audit L5
   }
@@ -262,7 +265,10 @@ export default function MultiPartQuestion({
         renderedPart.traps,
         part.requires_simplest ?? false,
       )
-      outcome = { answer, correct: result.correct, message: result.message }
+      outcome = {
+        answer, correct: result.correct, message: result.message,
+        misconception: result.trap?.misconception ?? null,
+      }
     }
 
     const next = [...outcomes]
@@ -270,8 +276,10 @@ export default function MultiPartQuestion({
     setOutcomes(next)
     // ONE practice_attempts row per part regardless of blank count — for a
     // multi_blank part, correct = every blank correct (partial credit lives in
-    // the exam-marks layer, not the mastery substrate).
-    recordPartAttempt(part, outcome.correct)
+    // the exam-marks layer, not the mastery substrate). A multi_blank part has
+    // no single misconception to attribute (each blank has its own verdict),
+    // so outcome.misconception is only ever set on the scalar branch above.
+    recordPartAttempt(part, outcome.correct, outcome.misconception ?? null)
     if (isLastPart) {
       recordAssignmentRollup(next.every(o => o?.correct === true))
       // The whole multi-part question counts as ONE toward the anonymous sign-up
