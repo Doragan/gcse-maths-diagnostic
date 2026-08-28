@@ -70,16 +70,45 @@ export function toggleDevMode(): boolean {
  * can be tested — but they're stamped `internal: true` so queries can exclude them
  * (`and properties->>'internal' is null`) for a clean external-traffic baseline.
  *
- * Persistent and per-browser (localStorage), so it covers every tab — the
- * long-lived admin tab and any fresh public-site testing tab alike, without
- * relying on hitting an /admin path. Set once per browser you test in:
- *   localStorage.setItem('mathsense_internal', '1')   // flag this browser
- *   localStorage.removeItem('mathsense_internal')      // unflag
- * Won't carry into incognito, another browser, or another device.
+ * Three ways it turns on, in the order checked:
+ *
+ * 1. **localhost**, automatically. There is ONE Supabase project, so `npm run dev`
+ *    writes to the same `analytics_events` table as production — local development
+ *    was silently polluting the external-traffic baseline. Real visitors are never
+ *    on localhost, so this is free to assume. It also covers the one case the
+ *    other two cannot: the *first* page_view of a session, which fires on load
+ *    before any console command or in-page code could run.
+ *
+ * 2. **localStorage**, for a deployed browser you test in repeatedly:
+ *      localStorage.setItem('mathsense_internal', '1')   // flag this browser
+ *      localStorage.removeItem('mathsense_internal')      // unflag
+ *
+ * 3. **`?mathsense_internal=1` on the URL**, for a browser you cannot run a console
+ *    command in before the first page_view fires — notably an automated/agent
+ *    session opening the LIVE site to check something in production. Checked
+ *    synchronously, and this runs inside trackEvent, so it stamps the page_view
+ *    it arrives on. It seeds the localStorage flag so the label survives onward
+ *    client-side navigation, where Next's <Link> won't carry a query string.
+ *    (Sharing one name with the key above so the two can't drift apart.)
+ *
+ * None of these carry into incognito, another browser, or another device.
+ *
+ * Not a security control — it only labels analytics rows, and is deliberately easy
+ * to set. The storage access is guarded because this runs on EVERY tracked event:
+ * a storage failure (quota, blocked cookies) must not take tracking down with it.
  */
 export function isInternal(): boolean {
   if (typeof window === 'undefined') return false
-  return localStorage.getItem(INTERNAL_KEY) === '1'
+  const { hostname, search } = window.location
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]') return true
+  try {
+    if (localStorage.getItem(INTERNAL_KEY) === '1') return true
+    if (new URLSearchParams(search).get(INTERNAL_KEY) === '1') {
+      localStorage.setItem(INTERNAL_KEY, '1')
+      return true
+    }
+  } catch { /* storage unavailable — fall through as external */ }
+  return false
 }
 
 // ── Campaign attribution (first-touch) ─────────────────────────────────────────
