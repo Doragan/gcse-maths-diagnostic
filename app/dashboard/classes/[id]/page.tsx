@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
-import { getClassMembers, type ClassMember } from '../../../../lib/classes'
+import { getClassMembers, rotateClassCode, type ClassMember } from '../../../../lib/classes'
 import ClassAnalytics from '../../../../components/ClassAnalytics'
 import ClassCoverage from '../../../../components/ClassCoverage'
 import {
@@ -23,6 +23,8 @@ export default function ClassRosterPage() {
   const [members, setMembers] = useState<ClassMember[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [rotating, setRotating] = useState(false)
+  const [rotateError, setRotateError] = useState('')
   // Bumped when coverage edits are committed → remounts ClassAnalytics to refetch.
   const [coverageVersion, setCoverageVersion] = useState(0)
 
@@ -51,6 +53,27 @@ export default function ClassRosterPage() {
   const joinUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/student/classes?code=${code}`
     : ''
+
+  async function handleRotate() {
+    // Worth a confirm: the old code and every link already shared stop working
+    // the moment this returns, and the teacher may have posted it somewhere
+    // they can't easily update.
+    if (!confirm(
+      `Generate a new join code for "${className}"?\n\n`
+      + `The current code (${code}) and any links you have already shared will stop working.\n\n`
+      + `Students already in the class stay in it — only new joins are affected.`
+    )) return
+
+    setRotating(true)
+    setRotateError('')
+    try {
+      setCode(await rotateClassCode(classId))
+    } catch (err) {
+      setRotateError(err instanceof Error ? err.message : 'Could not generate a new code')
+    } finally {
+      setRotating(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -95,11 +118,28 @@ export default function ClassRosterPage() {
       {/* Join code — the thing teachers share with the class */}
       <div style={card}>
         <h2 style={sectionTitle}>Join code</h2>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '40px', fontWeight: '700', color: colors.primary, letterSpacing: '0.15em' }}>
             {code}
           </span>
+          <button
+            onClick={handleRotate}
+            disabled={rotating}
+            style={{
+              ...secondaryButton,
+              width: 'auto', padding: '8px 14px', fontSize: font.sm,
+              opacity: rotating ? 0.6 : 1,
+              cursor: rotating ? 'default' : 'pointer',
+            }}
+          >
+            {rotating ? 'Generating…' : 'New code'}
+          </button>
         </div>
+        {rotateError && (
+          <p style={{ fontSize: font.sm, color: colors.dangerText, margin: '8px 0 0' }}>
+            {rotateError}
+          </p>
+        )}
         <p style={{ fontSize: font.sm, color: colors.textHint, margin: '10px 0 0', lineHeight: '1.6' }}>
           Students sign in at <strong>{typeof window !== 'undefined' ? window.location.host : 'mathsense.net'}/student</strong>,
           open <strong>My classes</strong>, and enter this code. Or share this link:
