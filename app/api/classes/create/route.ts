@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { generateClassCode } from '../../../../lib/classCode'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Server-side class creation.
@@ -11,13 +12,6 @@ import { NextResponse } from 'next/server'
 // INSERT on `classes` is REVOKE'd from anon/authenticated, so creation MUST go
 // through here.
 // ─────────────────────────────────────────────────────────────────────────────
-
-function generateCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)]
-  return code
-}
 
 export async function POST(req: Request) {
   try {
@@ -72,7 +66,7 @@ export async function POST(req: Request) {
     for (let attempt = 0; attempt < 5; attempt++) {
       const { data, error } = await admin
         .from('classes')
-        .insert({ name, code: generateCode(), teacher_id: user.id })
+        .insert({ name, code: generateClassCode(), teacher_id: user.id })
         .select()
         .single()
       if (!error) { created = data; break }

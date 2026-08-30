@@ -62,6 +62,29 @@ export async function getTeacherClasses(): Promise<TeacherClass[]> {
   return (data ?? []) as TeacherClass[]
 }
 
+/**
+ * Mint a new join code for a class, invalidating the old one immediately.
+ *
+ * Existing members are unaffected — membership is by class_id, not by code — so
+ * this revokes a leaked code without disrupting anyone already in the class.
+ * Returns the new code.
+ */
+export async function rotateClassCode(classId: string): Promise<string> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch(`/api/classes/${classId}/rotate-code`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+
+  const json = await res.json().catch(() => null)
+  if (!res.ok || !json?.code) {
+    throw new Error(json?.error ?? `Could not generate a new code (HTTP ${res.status})`)
+  }
+  return json.code as string
+}
+
 export async function getClassMembers(classId: string): Promise<ClassMember[]> {
   const session = await getSession()
   if (!session) throw new Error('Not signed in')
