@@ -22,6 +22,7 @@ import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import { calculatorValuesFor, type CalculatorFilter } from '../../../../lib/questions/calculator'
 import { getCalculatorFilter } from '../../../../lib/questions/calculatorPreference'
+import { pickStepUp, type StepUpCandidate } from '../../../../lib/skills/stepUp'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
@@ -179,6 +180,11 @@ function QuestionPage() {
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
   const [priorSkillAttempts, setPriorSkillAttempts] = useState<{ correct: boolean }[]>([])
   const [newlyMasteredSkill, setNewlyMasteredSkill] = useState<string | null>(null)
+  // A multi-part question using the skill just mastered — the "step up" offered
+  // alongside the celebration. Null until one is found, and stays null when the
+  // bank has none for that skill (roughly a third of the time), in which case
+  // the celebration renders exactly as it did before.
+  const [stepUp, setStepUp] = useState<{ id: string; parts: number } | null>(null)
   const [dotsPhase, setDotsPhase] = useState<'before' | 'after'>('before')
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 })
   const [sessionSkills, setSessionSkills] = useState<Record<string, {
@@ -220,6 +226,56 @@ function QuestionPage() {
       .limit(5)
       .then(({ data }) => setPriorSkillAttempts(data ?? []))
   }, [studentId, question?.id])
+
+  // Look for a step up once a skill is mastered. Deliberately AFTER the fact
+  // rather than prefetched with the question: mastery is rare (57 events across
+  // the whole user base to date), so speculatively querying on every question
+  // would be one wasted round-trip per question to save a wait that almost never
+  // happens. The celebration is already on screen while this resolves.
+  useEffect(() => {
+    if (!newlyMasteredSkill) { setStepUp(null); return }
+    let cancelled = false
+    ;(async () => {
+      const { data } = await supabase
+        .from('questions')
+        .select('id, difficulty, skill_ids, parts')
+        .eq('is_published', true)
+        .overlaps('skill_ids', [newlyMasteredSkill])
+      if (cancelled || !data) return
+
+      const candidates: StepUpCandidate[] = data.map(row => {
+        const parts = Array.isArray(row.parts) ? row.parts : []
+        return {
+          id: row.id as string,
+          difficulty: row.difficulty as number,
+          skillIds: (row.skill_ids ?? []) as string[],
+          partKinds: parts.map((p: { kind?: 'mastery' | 'exam' }) => p.kind ?? 'mastery'),
+          partCount: parts.length,
+        }
+      })
+      // Skills the student has actually met, so the pick avoids dragging in an
+      // untouched one. sessionSkills is what this session has covered; it is a
+      // floor, not the full history, which only makes the choice more cautious.
+      const pick = pickStepUp(
+        newlyMasteredSkill,
+        candidates,
+        Object.keys(sessionSkills),
+        [id],                      // never re-offer the question just answered
+      )
+      // Track the OFFER, not just the click. Uptake is only meaningful as a
+      // rate — "3 students tried it" says nothing without the denominator, and
+      // whether this moment is one students want is exactly the open question.
+      // `found: false` is recorded too, so a low take-up can be told apart from
+      // a bank that had nothing to offer.
+      trackEvent('stepup_offered', {
+        skill_id: newlyMasteredSkill,
+        found: !!pick,
+        ...(pick ? { question_id: pick.id, parts: pick.partCount } : {}),
+      })
+      if (pick) setStepUp({ id: pick.id, parts: pick.partCount })
+    })()
+    return () => { cancelled = true }
+  }, [newlyMasteredSkill, id])
 
   // Animate dots from "before" → "after" shortly after feedback appears
   useEffect(() => {
@@ -1001,6 +1057,34 @@ function QuestionPage() {
               <p style={{ fontSize: font.base, color: colors.successText, margin: 0 }}>
                 {skillsById[newlyMasteredSkill]?.name ?? newlyMasteredSkill}
               </p>
+
+              {/* The step up. Offered, never forced — "Next question" stays the
+                  primary action, so a student who just wants to keep going is
+                  not made to decide anything. */}
+              {stepUp && (
+                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${colors.successBorder}` }}>
+                  <p style={{ fontSize: font.sm, color: colors.successText, margin: '0 0 8px', lineHeight: 1.5 }}>
+                    Ready for a longer one? This {stepUp.parts}-part question uses it the way an exam would.
+                  </p>
+                  <button
+                    onClick={() => {
+                      trackEvent('stepup_accepted', {
+                        skill_id: newlyMasteredSkill,
+                        question_id: stepUp.id,
+                        parts: stepUp.parts,
+                      })
+                      router.push(`/practice/question/${stepUp.id}`)
+                    }}
+                    style={{
+                      ...secondaryButton,
+                      width: 'auto', padding: '8px 16px', fontSize: font.base,
+                      background: colors.card,
+                    }}
+                  >
+                    Try the longer question →
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
