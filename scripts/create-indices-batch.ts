@@ -133,27 +133,56 @@ const RD_D = `(${RD_A}*${RD_A}-${RD_B}*${RD_B})`
 const RD_ANS = `Math.sqrt(${RD_D})`
 
 // ── Q3: smallest multiplier that makes an index-form number square ──────────
-// Exactly TWO of the three indices are odd on every draw. That is a hard
-// constraint, not a convenience:
-//   - three odd indices would make the answer 2 x 3 x 5 = 30, colliding with
-//     the "multiplied by every prime" trap, so a wrong method would score;
-//   - one odd index would make the answer a single prime, colliding with
-//     whichever "only fixed one of them" trap names that prime.
-// With exactly two, the answer is always a product of two distinct primes and
-// every partial-fix trap is guaranteed distinct from it.
-const SQ_A = '[3,2,1,4,3,1][sel]'
-const SQ_B = '[2,3,1,1,2,3][sel]'
-const SQ_C = '[1,1,4,1,3,2][sel]'
-/** Smallest prime carrying an odd index. If 2's index is odd it is 2; if not,
- *  the two odd indices must be 3's and 5's, so it is 3. */
-const SQ_LO = `(${SQ_A}%2?2:3)`
-/** Largest prime carrying an odd index, by the mirror argument. */
-const SQ_HI = `(${SQ_C}%2?5:3)`
-const SQ_K = `(${SQ_LO}*${SQ_HI})`
-/** The one prime whose index is already even — the "fixed the wrong one" trap. */
-const SQ_EVEN = `(${SQ_A}%2?(${SQ_B}%2?5:3):2)`
+//
+// ── WHY ONE OF THE PRIMES IS A LETTER ───────────────────────────────────────
+//
+// First authored with all three primes concrete (n = 2^3 x 3^2 x 5, k = 10).
+// That version is BRUTE-FORCEABLE and so does not test what it claims to: a
+// student can evaluate n = 360, run down the square numbers they know, hit
+// 3600, and divide to get k = 10 without ever thinking about an index. The
+// answer is right and the reasoning never happened — worthless as a diagnosis,
+// and it rewards a method that collapses the moment the numbers get big.
+//
+// Leaving p unevaluated removes the option completely: there is no number to
+// search and no square to recognise, so "square <=> every index even" is the
+// only route to an answer.
+//
+// ── AND WHY ONLY ONE ───────────────────────────────────────────────────────
+//
+// The natural move is to letter ALL of them (n = p^3 x q^2 x r, k = pr). The
+// GRADER CANNOT MARK THAT FAIRLY, verified against it directly: normalise()
+// collapses letter*letter to implicit multiplication ("p*r" -> "pr") — which is
+// deliberate, so that numeric products like 2^2*3*5 keep their '*' for factor
+// splitting — and splitFactors() then cannot split adjacent letters, so
+// sortedFactors() has nothing to sort. The upshot is that "rp" and "r*p" are
+// both REJECTED against a canonical "p*r". A student who writes the two primes
+// in the other order is correct and would be marked wrong.
+//
+// With a single letter the exposure vanishes: every answer and every trap is a
+// numeric coefficient times p ("2p", "30p", "3600p^2"), and coefficient-first
+// is universal — nobody writes "p2". Fixing the engine to sort adjacent
+// single-letter factors would enable the all-letters version, but that is a
+// change to the shared grader and does not belong in a content batch.
+//
+// Exactly ONE of the three numeric indices is odd on every draw. p contributes
+// the second odd index (it is a different prime, so its index is 1), which is
+// what "greater than 5" in the stem is for — without it p could BE 2, 3 or 5,
+// the indices would merge and the answer would change.
+const SQ_A = '[3,2,2,3,4,4][sel]'
+const SQ_B = '[2,3,2,4,1,2][sel]'
+const SQ_C = '[2,2,3,2,2,3][sel]'
+/** The one NUMERIC prime carrying an odd index — the partner p needs. */
+const SQ_ODD = `(${SQ_A}%2?2:(${SQ_B}%2?3:5))`
+/**
+ * A numeric prime whose index is already even — the "fixed the wrong one" trap.
+ * When 2's index is odd every other index is even (exactly one is odd), so 3 is
+ * guaranteed available; otherwise 2 itself is.
+ */
+const SQ_EVEN = `(${SQ_A}%2?3:2)`
+/** The numeric part of n; p is carried separately since it never evaluates. */
 const SQ_N = `((2**${SQ_A})*(3**${SQ_B})*(5**${SQ_C}))`
-const SQ_NK = `(${SQ_N}*${SQ_K})`
+/** Numeric part of n x k. A perfect square on every draw, by construction. */
+const SQ_NK = `(${SQ_N}*${SQ_ODD})`
 const SQ_ROOT = `Math.sqrt(${SQ_NK})`
 /** Renders p^i the way a paper would — bare when the index is 1. */
 const pw = (p: number, i: string) => `{{${i}>1?'${p}<sup>'+${i}+'</sup>':'${p}'}}`
@@ -363,78 +392,94 @@ const drafts: Draft[] = [
     name: 'square-multiplier-from-index-form',
     skill_ids: ['indices', 'prime_factor_decomposition'],
     difficulty: 5,
-    marks: 3,
+    // TWO marks, not the three the evidenced rows carry. Marks are the count of
+    // creditable steps (markEvidence.ts), and this solution has two:
+    //   B1  the odd indices are on {{SQ_ODD}} and p — equivalently, ANY correct
+    //       k, including a non-minimal one such as 4p^2
+    //   B1  k = {{SQ_ODD}}p
+    // Nothing sits between them; the second follows immediately from the first.
+    // The 3-mark rows this item was modelled on (JUN23-F-P1 q21, JUN23-H-P1 q7,
+    // JUN24-H-P3 q17a) hand the student a PLAIN NUMBER and make them produce the
+    // prime factorisation — that work is what their third mark pays for, and
+    // this stem gives the factorisation away. The sibling prime-cube-factor-pair
+    // legitimately keeps 3 for exactly that reason: it does start from a plain
+    // number. resolveQuestionMarks(['indices','prime_factor_decomposition'],
+    // 'exam', 5) independently returns 2.
+    marks: 2,
     kind: 'exam',
     calculator: 'non_calc',
     question_template:
-      `<p><strong>n = ${pw(2, SQ_A)} × ${pw(3, SQ_B)} × ${pw(5, SQ_C)}</strong></p>`
+      `<p>p is a prime number greater than 5.</p>`
+      + `<p><strong>n = ${pw(2, SQ_A)} × ${pw(3, SQ_B)} × ${pw(5, SQ_C)} × p</strong></p>`
       // "positive" is load-bearing, not padding: 0 is a square number (0 = 0²),
       // so "k is a whole number" would make k = 0 the honest smallest answer.
       + `<p>k is a positive whole number, and n × k is a square number.</p>`
       + `<p>Work out the smallest possible value of k.</p>`,
-    answer_template: `{{${SQ_K}}}`,
-    answer_type: 'numeric',
-    tolerance: 0,
+    answer_template: `{{${SQ_ODD}}}p`,
+    answer_type: 'expression',
+    tolerance: null,
     traps: [
       {
-        answer_template: `{{2*3*5}}`,
+        answer_template: `30p`,
         response:
           `You gave every prime a partner. {{${SQ_EVEN}}} does not need one — its index is already even, `
           + `so multiplying by it would make that index ODD and break the square.<br>`
-          + `Only {{${SQ_LO}}} and {{${SQ_HI}}} have odd indices, so k = {{${SQ_LO}}} × {{${SQ_HI}}} = <strong>{{${SQ_K}}}</strong>.`,
-        method_marks: 1,
-      },
-      {
-        answer_template: `{{${SQ_LO}}}`,
-        response:
-          `You fixed the {{${SQ_LO}}} but left {{${SQ_HI}}} with an odd index, so n × {{${SQ_LO}}} is still not square. `
-          + `Both odd indices have to be raised: k = {{${SQ_LO}}} × {{${SQ_HI}}} = <strong>{{${SQ_K}}}</strong>.`,
-        method_marks: 1,
-      },
-      {
-        answer_template: `{{${SQ_HI}}}`,
-        response:
-          `You fixed the {{${SQ_HI}}} but left {{${SQ_LO}}} with an odd index, so n × {{${SQ_HI}}} is still not square. `
-          + `Both odd indices have to be raised: k = {{${SQ_LO}}} × {{${SQ_HI}}} = <strong>{{${SQ_K}}}</strong>.`,
-        method_marks: 1,
-      },
-      {
-        answer_template: `{{${SQ_EVEN}}}`,
-        response:
-          `{{${SQ_EVEN}}} is the one prime you should leave alone — its index is already even. `
-          + `Multiplying by it makes that index odd. The odd indices belong to {{${SQ_LO}}} and {{${SQ_HI}}}, `
-          + `so k = <strong>{{${SQ_K}}}</strong>.`,
+          + `Only {{${SQ_ODD}}} and p have odd indices, so k = <strong>{{${SQ_ODD}}}p</strong>.`,
+        // 0, not 1: this student never applied the parity test at all, which is
+        // the entire skill. Knowing k is built from n's primes is not a step.
         method_marks: 0,
       },
       {
-        answer_template: `{{${SQ_NK}}}`,
+        answer_template: `{{${SQ_ODD}}}`,
+        response:
+          `You fixed the {{${SQ_ODD}}} but left p with an odd index. p appears once, and once is odd, `
+          + `so n × {{${SQ_ODD}}} is still not a square. k = <strong>{{${SQ_ODD}}}p</strong>.`,
+        method_marks: 1,
+      },
+      {
+        answer_template: `p`,
+        response:
+          `You fixed the p but left {{${SQ_ODD}}} with an odd index, so n × p is still not a square. `
+          + `Both odd indices have to be raised: k = <strong>{{${SQ_ODD}}}p</strong>.`,
+        method_marks: 1,
+      },
+      {
+        answer_template: `{{${SQ_EVEN}}}p`,
+        response:
+          `You picked the wrong prime to pair with p. {{${SQ_EVEN}}} already has an even index, so multiplying `
+          + `by it makes that index odd. It is {{${SQ_ODD}}} whose index is odd, so k = <strong>{{${SQ_ODD}}}p</strong>.`,
+        method_marks: 1,
+      },
+      {
+        answer_template: `{{${SQ_NK}}}p^2`,
         response:
           `That is n × k, the square number itself — the question asks for the multiplier k. `
-          + `n × <strong>{{${SQ_K}}}</strong> = {{${SQ_NK}}} = {{${SQ_ROOT}}}<sup>2</sup>, so k = <strong>{{${SQ_K}}}</strong>.`,
-        method_marks: 2,
+          + `n × <strong>{{${SQ_ODD}}}p</strong> = {{${SQ_NK}}}p<sup>2</sup> = ({{${SQ_ROOT}}}p)<sup>2</sup>, so k = <strong>{{${SQ_ODD}}}p</strong>.`,
+        // Complete correct reasoning, wrong quantity reported — the classic M1 A0.
+        method_marks: 1,
       },
       {
-        answer_template: `{{${SQ_ROOT}}}`,
+        answer_template: `{{${SQ_ROOT}}}p`,
         response:
-          `That is the number being squared: {{${SQ_ROOT}}}<sup>2</sup> = {{${SQ_NK}}} = n × k. `
-          + `The question asks for k, the multiplier: <strong>{{${SQ_K}}}</strong>.`,
-        method_marks: 2,
+          `That is the number being squared: ({{${SQ_ROOT}}}p)<sup>2</sup> = {{${SQ_NK}}}p<sup>2</sup> = n × k. `
+          + `The question asks for k, the multiplier: <strong>{{${SQ_ODD}}}p</strong>.`,
+        method_marks: 1,
       },
       {
-        answer_template: `{{${SQ_K}*${SQ_K}}}`,
+        answer_template: `{{${SQ_ODD}*${SQ_ODD}}}p^2`,
         response:
           `You squared each prime you needed. An odd index only has to go UP BY ONE to become even, `
-          + `so one of each is enough: k = {{${SQ_LO}}} × {{${SQ_HI}}} = <strong>{{${SQ_K}}}</strong>. `
-          + `Using {{${SQ_K}*${SQ_K}}} does give a square, but it is not the smallest.`,
+          + `so one of each is enough: k = <strong>{{${SQ_ODD}}}p</strong>. `
+          + `Multiplying by {{${SQ_ODD}*${SQ_ODD}}}p<sup>2</sup> does give a square, but it is not the smallest.`,
         method_marks: 1,
       },
     ],
     explanation:
       `A number is a square exactly when every index in its prime factorisation is even.<br>`
-      + `n = ${pw(2, SQ_A)} × ${pw(3, SQ_B)} × ${pw(5, SQ_C)}, so the odd indices belong to {{${SQ_LO}}} and {{${SQ_HI}}}; `
-      + `{{${SQ_EVEN}}} is already even and must be left alone.<br>`
-      + `Raising each odd index by one needs one more {{${SQ_LO}}} and one more {{${SQ_HI}}}, so k = {{${SQ_LO}}} × {{${SQ_HI}}} = <strong>{{${SQ_K}}}</strong>.<br>`
-      + `Check: n × {{${SQ_K}}} = {{${SQ_NK}}} = {{${SQ_ROOT}}}<sup>2</sup>.`,
+      + `p is prime and greater than 5, so it is a different prime from 2, 3 and 5 — it appears once, and an index of 1 is odd.<br>`
+      + `Among the others only {{${SQ_ODD}}} has an odd index; {{${SQ_EVEN}}} is already even and must be left alone.<br>`
+      + `Raising each odd index by one needs one more {{${SQ_ODD}}} and one more p, so k = <strong>{{${SQ_ODD}}}p</strong>.<br>`
+      + `Check: n × {{${SQ_ODD}}}p = {{${SQ_NK}}}p<sup>2</sup> = ({{${SQ_ROOT}}}p)<sup>2</sup>.`,
   },
 
   // ───────────────────────────────────────────────────────────────────────────
