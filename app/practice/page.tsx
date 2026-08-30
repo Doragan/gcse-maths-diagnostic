@@ -50,6 +50,12 @@ export default function PracticePage() {
   // directly in the initializer would mismatch server-rendered HTML during
   // hydration, since the server never sees a stored value.
   const [calcFilter, setCalcFilterState] = useState<CalculatorFilter>('mixed')
+  // Whether that correction has happened yet. The count query waits for it:
+  // counting under the default Mixed and then again under the stored filter
+  // put two queries in flight at once, and the slower one won — which showed
+  // the Mixed count beside a Calculator-selected toggle, intermittently and
+  // depending purely on which response landed last.
+  const [prefsReady, setPrefsReady] = useState(false)
   const [questionCount, setQuestionCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [student, setStudent] = useState<StudentProfile | null>(null)
@@ -93,11 +99,13 @@ export default function PracticePage() {
   // state declaration above for why this isn't done in the initializer).
   useEffect(() => {
     setCalcFilterState(getCalculatorFilter())
+    setPrefsReady(true)
   }, [])
 
   useEffect(() => {
+    if (!prefsReady) return
     loadQuestionCount()
-  }, [tier, calcFilter])
+  }, [tier, calcFilter, prefsReady])
 
   // Warm the question-page route bundle while the student is still choosing
   // their tier/focus, so the Start → first-question navigation only waits on
@@ -122,9 +130,15 @@ export default function PracticePage() {
   // shouldn't re-query (and re-flash "Loading…") for a combination we've
   // already counted this session.
   const countCache = useRef<Map<string, number>>(new Map())
+  // The selection the displayed count belongs to. Two toggles now feed this
+  // query, so a student flipping between them can have several uncached
+  // counts in flight at once; without this, an earlier slow response could
+  // land last and leave a count that contradicts the visible selection.
+  const latestCountKey = useRef('')
 
   async function loadQuestionCount() {
     const cacheKey = `${tier}|${calcFilter}`
+    latestCountKey.current = cacheKey
     const cached = countCache.current.get(cacheKey)
     if (cached !== undefined) {
       setQuestionCount(cached)
@@ -142,7 +156,10 @@ export default function PracticePage() {
     if (calcValues) query = query.in('calculator', calcValues)
     const { count } = await query
     const c = count ?? 0
+    // Cache regardless — the number is correct for ITS key, just possibly no
+    // longer the one on screen. Only the display is gated.
     countCache.current.set(cacheKey, c)
+    if (latestCountKey.current !== cacheKey) return
     setQuestionCount(c)
     setLoading(false)
   }
@@ -340,60 +357,69 @@ export default function PracticePage() {
           )}
         </div>
 
-        {/* Tier selector */}
-        <div>
-          <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: '0 0 8px' }}>
-            Choose your level
-          </p>
-          <div style={styles.toggle}>
-            {(['foundation', 'higher', 'both'] as Tier[]).map(t => (
-              <button
-                key={t}
-                onClick={() => {
-                  setTier(t)
-                  // Clear focus targets that may no longer exist in the new tier.
-                  setFocusSkillId('')
-                  setFocusTopic('')
-                }}
-                style={{
-                  ...styles.toggleButton,
-                  background: tier === t ? colors.primary : 'transparent',
-                  color: tier === t ? '#ffffff' : colors.textSecondary,
-                }}
-              >
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </button>
-            ))}
+        {/* Tier selector, with the calculator filter beneath it as a quiet
+            refinement. Grouped in one block with a tighter internal gap than
+            the card's, because they are not two questions of equal weight:
+            tier defines the whole session, calculator only narrows which
+            questions within it are eligible. Giving the second one the same
+            full-width filled control made it read as an equally consequential
+            choice, and pushed the actual Start button further down the card. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div>
+            <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: '0 0 8px' }}>
+              Choose your level
+            </p>
+            <div style={styles.toggle}>
+              {(['foundation', 'higher', 'both'] as Tier[]).map(t => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    setTier(t)
+                    // Clear focus targets that may no longer exist in the new tier.
+                    setFocusSkillId('')
+                    setFocusTopic('')
+                  }}
+                  style={{
+                    ...styles.toggleButton,
+                    background: tier === t ? colors.primary : 'transparent',
+                    color: tier === t ? '#ffffff' : colors.textSecondary,
+                  }}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Calculator filter */}
-        <div>
-          <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: '0 0 8px' }}>
-            Calculator
-          </p>
-          <div style={styles.toggle}>
-            {CALCULATOR_FILTERS.map(f => (
-              <button
-                key={f}
-                onClick={() => {
-                  setCalcFilterState(f)
-                  setCalculatorFilter(f)
-                  // Same reasoning as the tier toggle: a focus target that had
-                  // questions under the old filter may have none under the new
-                  // one (e.g. a 100%-calc skill under Non-calculator).
-                  setFocusSkillId('')
-                  setFocusTopic('')
-                }}
-                style={{
-                  ...styles.toggleButton,
-                  background: calcFilter === f ? colors.primary : 'transparent',
-                  color: calcFilter === f ? '#ffffff' : colors.textSecondary,
-                }}
-              >
-                {CALCULATOR_FILTER_LABELS[f]}
-              </button>
-            ))}
+          <div style={styles.calcRow}>
+            <span style={styles.calcLabel}>Calculator</span>
+            <div style={styles.calcGroup}>
+              {CALCULATOR_FILTERS.map(f => {
+                const selected = calcFilter === f
+                return (
+                  <button
+                    key={f}
+                    onClick={() => {
+                      setCalcFilterState(f)
+                      setCalculatorFilter(f)
+                      // Same reasoning as the tier toggle: a focus target that had
+                      // questions under the old filter may have none under the new
+                      // one (e.g. a 100%-calc skill under Non-calculator).
+                      setFocusSkillId('')
+                      setFocusTopic('')
+                    }}
+                    style={{
+                      ...styles.calcButton,
+                      background: selected ? '#eff6ff' : 'transparent',
+                      color: selected ? colors.primary : colors.textHint,
+                      fontWeight: selected ? '600' : '500',
+                    }}
+                  >
+                    {CALCULATOR_FILTER_LABELS[f]}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
 
@@ -547,6 +573,33 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: font.base,
     fontWeight: '600',
     cursor: 'pointer',
+    whiteSpace: 'nowrap' as const,
+  },
+  // Calculator filter — a quiet inline row, not a second full-width control.
+  // Wraps to its own line on narrow screens rather than squashing the labels.
+  calcRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap' as const,
+    gap: '4px 10px',
+  },
+  calcLabel: {
+    fontSize: font.sm,
+    fontWeight: '500',
+    color: colors.textSecondary,
+  },
+  calcGroup: {
+    display: 'flex',
+    gap: '2px',
+  },
+  calcButton: {
+    padding: '5px 10px',
+    border: 'none',
+    borderRadius: radius.full,
+    fontSize: font.sm,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
     whiteSpace: 'nowrap' as const,
   },
   focusGrid: {
