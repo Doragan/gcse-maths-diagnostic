@@ -202,15 +202,40 @@ was always about discrimination, not marking. And a fix is only proposed from an
 EXHAUSTIVE enumeration; on a sample, a constraint removing the collisions you
 happened to see proves nothing.
 
-### 3. The 175 unset zeros
+### 3. ~~The 175 unset zeros~~ — DONE 2026-08-30 (173 of 175 written)
 
-Traps judged wrong-method in the review pass, deliberately left unset so they
-keep contributing uncertainty rather than asserting "no method here" (the user's
-ruling — a wrong award inflates a score, a missing one merely widens a band).
+Traps judged wrong-method in the review pass, originally left unset so they kept
+contributing uncertainty rather than asserting "no method here" (a wrong award
+inflates a score, a missing one merely widens a band). Converted on the user's
+call, which tightens the band.
 
-Converting them would tighten the band and make the score more precise. Do it
-only with an appetite for reviewing them; the proposal at
-`11-trap-method-marks.json` already holds a `method_marks: 0` for each.
+**173 written, 2 deliberately not.** The proposal was five weeks old and the
+bank had moved under it — misconception tagging wrote to every trap, the
+tolerance sweep rewrote tolerances — so each write was gated on the stored
+`answer_template` still matching the text that was judged, not on the index
+alone. That check earned its keep twice:
+
+- `042fa99f q:2` — the question carried a DUPLICATE trap in July
+  (`{{round(s * B / A, 2)}}` and the same value with a `" cm"` suffix). The
+  duplicate has since been deleted, so the slot no longer exists. `q:1` is the
+  survivor, matched cleanly, and was written.
+- `570e1004 p1:1` — rewritten since the judgement, from
+  `{{r+r}}/{{(r+b)+(r+b)}}` to `{{2*r}}/{{r+b}}`. Those catch DIFFERENT student
+  errors (adding numerators and denominators separately, versus adding the two
+  branch probabilities correctly), so the July verdict does not transfer. Left
+  unset — the conservative direction, per the original ruling.
+
+Effect: **108.5 marks of band-uncertainty removed** across the bank (0.63 per
+trap; 65.8 of it on 2-mark parts, which is where most traps live). All 173 sit
+on parts worth ≥2 marks, so none is a no-op — `methodCredit` returns 0/0 for a
+1-mark part whether or not the trap carries a number.
+
+Bank-wide distribution after the pass: 243 awards, 186 explicit zeros, 279
+still unset — so 61% of traps now carry an explicit judgement, up from 36%.
+
+Verified: every touched question fingerprinted with `method_marks` stripped,
+before and after — no other field moved, no publication state changed, and
+`audit-bank` still reports 0 render errors and 0 broken traps.
 
 ### 4. Content bug: a trap with no feedback
 
