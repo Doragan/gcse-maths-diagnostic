@@ -114,16 +114,75 @@ framed as a step up rather than more practice. Fills the empty quadrant of the
 content, existing grading, existing per-part attribution. Measurable: does
 anyone take it up?
 
-**Increment 2 — the style dimension (the real precondition).**
+**Increment 2 — the style dimension. DO NOT BUILD YET — see below.**
 Add framing to `questions` and tag the bank, reusing the audit's vocabulary so
 bank and papers finally speak one language. Partly rule-based off question
 wording, like the misconception pass. Only after this can "style gap vs skill
-gap" mean anything.
+gap" mean anything — but its payoff was measured after this plan was first
+written, and it is currently near-zero.
 
 **Increment 3 — the adaptive loop proper.**
 Now the recorded design becomes buildable: mastered skills select the question,
 dropped marks are attributed to style or skill, and routing has somewhere to
 route to. Gated on Increment 2 and on synthesis reach improving.
+
+## What the style-tagging pass would actually buy — measured
+
+Added after the plan above was first written, in answer to "what is the payoff
+of that tagging exercise?". Three candidate payoffs were proposed; **two were
+measured and do not hold, and the third is statistically impossible today.**
+The honest answer is that the pass currently buys almost nothing.
+
+### Payoff A — "the bank practises bare when the paper dresses up". FALSE.
+
+The app already tells students how a skill is dressed on the real paper (skill
+briefings, `bareClaim` in `lib/skills/examProfile.ts`). The worry was that we
+say "it's nearly always wrapped in a real-life situation" and then serve bare
+drill — an integrity gap worth fixing.
+
+Measured across the 57 profiled skills with ≥2 published questions, using a
+crude but honest bare/dressed proxy on the question text: **the bank averages 18
+points LESS bare than the real paper.** Only 2 skills are ≥40 points barer.
+The bank is, if anything, already more dressed-up than reality. There is no
+integrity gap to close.
+
+### Payoff B — personalised style diagnosis. NOT POSSIBLE AT CURRENT ENGAGEMENT.
+
+"You can do percentages bare, but fall over when they are in context" needs
+several attempts at **both** framings of the **same** skill for **one** student.
+
+Across the 38 students with ≥5 attempts, over 772 (student, skill) pairs:
+
+| | |
+|---|---|
+| Median attempts on a given skill | **1** |
+| Pairs with ≥4 attempts — the bare minimum to split by framing at all | **107 (14%)** |
+
+A median of one attempt per skill cannot be split into two framings, let alone
+support a claim about the difference between them. This is a data-volume
+ceiling, not a tagging problem: **no amount of tagging creates the signal.**
+One student clears the bar (the paying customer: 416 attempts, 40 skills with
+≥4) — the feature would exist for exactly one person.
+
+### Payoff C — selection by framing mix. REAL BUT MARGINAL.
+
+Serving practice in the framing mix the paper actually uses would work
+mechanically. But per Payoff A the bank's mix is already roughly right, so the
+gain is small.
+
+### What WOULD make it pay, and the trigger to watch
+
+**Aggregate style analysis pools across students and so needs far less
+per-student data**: "students in general drop marks on real-world percentage
+questions" is answerable at today's volumes. That is a **content-authoring
+signal for the author, not a student-facing feature** — a different and much
+cheaper thing than the design assumed, and the only version of this that pays
+off now.
+
+The trigger for the student-facing version is engagement depth, and it is
+measurable: re-run the median-attempts-per-skill figure. **When the median
+reaches ~6 and a decent share of pairs clear 8, Payoff B becomes real.** It is
+1 today.
 
 ## Decisions needed before building
 
@@ -133,14 +192,26 @@ route to. Gated on Increment 2 and on synthesis reach improving.
 2. **Where does it surface?** Dashboard prompt after a mastery event, an option
    on `/practice`, or a distinct "step up" entry point. This is the actual
    product question; the selection logic is easy by comparison.
-3. **Is the style taxonomy worth a 256-question tagging pass?** It is the
-   precondition for the feature as designed. Worth deciding deliberately rather
-   than discovering mid-build — and worth weighing against the fact that the
-   whole exam-mode design currently serves one paying student.
+3. ~~**Is the style taxonomy worth a 256-question tagging pass?**~~ **ANSWERED:
+   no, not yet.** See the measured payoffs above — two of the three do not hold
+   and the third needs roughly six times the per-skill engagement we have. The
+   only version that pays today is aggregate analysis for authoring, which does
+   not need the student-facing feature at all.
 
 ## Recommendation
 
-Build **Increment 1**, defer 2 and 3. The recorded design is sound in shape but
-its preconditions are two steps away, and one of them (the style dimension) is
-a content pass rather than an engineering task. Meanwhile the middle rung is
-sitting unused in the bank with 71% reach.
+Build **Increment 1**. Do not build 2 or 3.
+
+Increment 1 stands on its own: it uses content that already exists, needs no
+schema change, and reaches 71% of engaged students. It is worth doing whatever
+happens to the rest of the design.
+
+Increments 2 and 3 are **blocked on engagement, not on engineering**. The
+recorded design is sound in shape, but it assumes a student with enough history
+to have a diagnosable *style*, and the median student has one attempt per skill.
+Building the taxonomy now would produce a correct, well-tested dimension that
+nothing could yet read anything out of.
+
+The trigger is written above and is cheap to re-check: median attempts per
+skill ≈ 6. Until then this plan is on the shelf deliberately, with the reason
+recorded rather than re-derived.
