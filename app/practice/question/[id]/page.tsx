@@ -20,6 +20,8 @@ import { hasBriefing } from '../../../../data/skillBriefings'
 import { skillPath } from '../../../../lib/skills/slug'
 import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
+import { calculatorValuesFor, type CalculatorFilter } from '../../../../lib/questions/calculator'
+import { getCalculatorFilter } from '../../../../lib/questions/calculatorPreference'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
@@ -55,7 +57,7 @@ type FeedbackState = {
 // The practice flow loads a fresh page per question. These caches stop us from
 // re-querying things that don't change between questions:
 //   • questionCache — full question rows by id (warmed by prefetch on load)
-//   • poolCache     — the set of published question ids for a given skill set
+//   • poolCache     — the set of published question ids for a given skill set + calculator filter
 const questionCache = new Map<string, Question>()
 const poolCache = new Map<string, string[]>()
 
@@ -88,16 +90,24 @@ function resolveSkillIds(): string[] {
 }
 
 /** Fetches (and caches for the session) the published question-id pool. */
-async function fetchQuestionPool(skillIds: string[]): Promise<string[]> {
-  const key = [...skillIds].sort().join(',')
+async function fetchQuestionPool(skillIds: string[], calcFilter: CalculatorFilter): Promise<string[]> {
+  // Calculator mode is part of the cache key — without it, switching the
+  // filter mid-session (the toggle lives on /practice, but sessionStorage
+  // persists across the question-page navigations this cache spans) would
+  // silently keep serving the pool cached under whichever mode was active
+  // when this skill set was first fetched.
+  const key = `${[...skillIds].sort().join(',')}|${calcFilter}`
   const cached = poolCache.get(key)
   if (cached) return cached
 
-  const { data } = await supabase
+  const calcValues = calculatorValuesFor(calcFilter)
+  let query = supabase
     .from('questions')
     .select('id')
     .eq('is_published', true)
     .overlaps('skill_ids', skillIds)
+  if (calcValues) query = query.in('calculator', calcValues)
+  const { data } = await query
 
   const ids = (data ?? []).map(q => q.id as string)
   poolCache.set(key, ids)
@@ -290,7 +300,7 @@ function QuestionPage() {
   // uses the exact question we prefetched. Fire-and-forget; failures are silent.
   async function prepareNext(currentId: string) {
     try {
-      const pool = await fetchQuestionPool(resolveSkillIds())
+      const pool = await fetchQuestionPool(resolveSkillIds(), getCalculatorFilter())
       const others = pool.filter(qid => qid !== currentId)
       if (others.length === 0) { nextPick.current = null; return }
 
@@ -540,7 +550,7 @@ function QuestionPage() {
     if (assignmentId) { await nextAssignmentQuestion(); return }
 
     // The pool is cached for the session, so this is usually instant.
-    const pool = await fetchQuestionPool(resolveSkillIds())
+    const pool = await fetchQuestionPool(resolveSkillIds(), getCalculatorFilter())
 
     // Prefer a question other than the current one for variety. Use the
     // already-prefetched pick when it's still valid so navigation is instant.
