@@ -153,3 +153,34 @@ All three match this doc's recommendations. Scoping is complete; nothing here bl
 - **No migration.** Tests: preference get/set (`tierPreference.ts` itself has
   no test file today, so this would be the first — worth adding both), and the
   extracted eligibility predicate's three cases.
+
+## Built — and one asymmetry worth recording (2026-08-30)
+
+Built with a genuinely new, symmetric rule rather than a reuse of
+`calcEligible` (see `calculator-practice-toggle` / PR #38 for why: the
+assembler's rule models paper structure and would make Calculator mode behave
+identically to Mixed). `calculatorValuesFor` in `lib/questions/calculator.ts`
+excludes `non_calc` from Calculator mode and `calc` from Non-calculator mode;
+`na` is eligible under both.
+
+**The Foundation pool is 53% `na`** (110 of 206), so the toggle narrows the
+pool far less than its three-way UI implies:
+
+| filter | admits | count |
+|---|---|---|
+| Mixed | everything | 206 |
+| Non-calculator | 47 `non_calc` + 110 `na` | 157 |
+| Calculator | 49 `calc` + 110 `na` | 159 |
+
+Non-calculator and Calculator overlap in their shared 110 `na` questions,
+which is why the two counts don't sum to Mixed's — raised by the user after
+shipping, checked against the live bank rather than reasoned about, and left
+as-is deliberately. The two modes are not equally strong: **Non-calculator is
+a real guarantee** (nothing in it needs a calculator, the reason the toggle
+exists). **Calculator is weak** — it only removes the 47 questions a
+calculator would trivialise, so a student picking it still gets mostly
+calculator-neutral content rather than a pool concentrated on genuine
+calculator practice. Narrowing it to `calc` alone (49 for Foundation, thin but
+usable) was offered and explicitly declined for now — revisit if the current
+behaviour turns out to disappoint students expecting calculator-paper drilling
+specifically.
