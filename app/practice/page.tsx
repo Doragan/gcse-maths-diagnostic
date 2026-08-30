@@ -9,6 +9,8 @@ import { calculateMastery, getWeightedSkillPool, getAccessibleSkillIds, getNeeds
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { isPaidStudent } from '../../lib/entitlements'
 import { skills } from '../../data/skills'
+import { CALCULATOR_FILTERS, CALCULATOR_FILTER_LABELS, calculatorValuesFor, type CalculatorFilter } from '../../lib/questions/calculator'
+import { getCalculatorFilter, setCalculatorFilter } from '../../lib/questions/calculatorPreference'
 
 import {
   colors, font, radius,
@@ -43,6 +45,11 @@ type StudentProfile = {
 export default function PracticePage() {
   const router = useRouter()
   const [tier, setTier] = useState<Tier>('foundation')
+  // Defaults to Mixed (matches getCalculatorFilter()'s own SSR fallback) and
+  // is corrected from localStorage in the effect below. Reading localStorage
+  // directly in the initializer would mismatch server-rendered HTML during
+  // hydration, since the server never sees a stored value.
+  const [calcFilter, setCalcFilterState] = useState<CalculatorFilter>('mixed')
   const [questionCount, setQuestionCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [student, setStudent] = useState<StudentProfile | null>(null)
@@ -82,9 +89,15 @@ export default function PracticePage() {
     })
   }, [])
 
+  // Correct the calculator filter from localStorage after mount (see the
+  // state declaration above for why this isn't done in the initializer).
+  useEffect(() => {
+    setCalcFilterState(getCalculatorFilter())
+  }, [])
+
   useEffect(() => {
     loadQuestionCount()
-  }, [tier])
+  }, [tier, calcFilter])
 
   // Warm the question-page route bundle while the student is still choosing
   // their tier/focus, so the Start → first-question navigation only waits on
@@ -105,12 +118,14 @@ export default function PracticePage() {
     return () => { cancelled = true }
   }, [router])
 
-  // Per-tier count cache — flipping the tier toggle shouldn't re-query (and
-  // re-flash "Loading…") for a tier we've already counted this session.
-  const countCache = useRef<Map<Tier, number>>(new Map())
+  // Per-(tier, calculator-filter) count cache — flipping either toggle
+  // shouldn't re-query (and re-flash "Loading…") for a combination we've
+  // already counted this session.
+  const countCache = useRef<Map<string, number>>(new Map())
 
   async function loadQuestionCount() {
-    const cached = countCache.current.get(tier)
+    const cacheKey = `${tier}|${calcFilter}`
+    const cached = countCache.current.get(cacheKey)
     if (cached !== undefined) {
       setQuestionCount(cached)
       setLoading(false)
@@ -118,13 +133,16 @@ export default function PracticePage() {
     }
     setLoading(true)
     const skillIds = getSkillIds(tier)
-    const { count } = await supabase
+    let query = supabase
       .from('questions')
       .select('id', { count: 'exact', head: true })
       .eq('is_published', true)
       .overlaps('skill_ids', skillIds)
+    const calcValues = calculatorValuesFor(calcFilter)
+    if (calcValues) query = query.in('calculator', calcValues)
+    const { count } = await query
     const c = count ?? 0
-    countCache.current.set(tier, c)
+    countCache.current.set(cacheKey, c)
     setQuestionCount(c)
     setLoading(false)
   }
@@ -226,19 +244,28 @@ export default function PracticePage() {
     // Anonymous users: targetSkillIds remains allSkillIds — no attempt data,
     // so prerequisite filtering is not possible.
 
-    const { data } = await supabase
+    const calcValues = calculatorValuesFor(calcFilter)
+    let mainQuery = supabase
       .from('questions')
       .select('id')
       .eq('is_published', true)
       .overlaps('skill_ids', targetSkillIds)
+    if (calcValues) mainQuery = mainQuery.in('calculator', calcValues)
+    const { data } = await mainQuery
 
     if (!data || data.length === 0) {
-      // Fallback: if the accessible pool has no questions yet, use the full tier pool
-      const { data: fallback } = await supabase
+      // Fallback: if the accessible pool has no questions yet, use the full
+      // tier pool — but keep the calculator filter. Dropping it here would
+      // silently hand a non-calc student a calculator-only question the
+      // moment their narrower pool (skill focus, weak spots, ...) runs dry,
+      // which is worse than just having fewer questions to fall back on.
+      let fallbackQuery = supabase
         .from('questions')
         .select('id')
         .eq('is_published', true)
         .overlaps('skill_ids', allSkillIds)
+      if (calcValues) fallbackQuery = fallbackQuery.in('calculator', calcValues)
+      const { data: fallback } = await fallbackQuery
       if (!fallback || fallback.length === 0) return
       const random = fallback[Math.floor(Math.random() * fallback.length)]
       router.push(`/practice/question/${random.id}`)
@@ -335,6 +362,36 @@ export default function PracticePage() {
                 }}
               >
                 {t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Calculator filter */}
+        <div>
+          <p style={{ fontSize: font.base, fontWeight: '500', color: colors.textPrimary, margin: '0 0 8px' }}>
+            Calculator
+          </p>
+          <div style={styles.toggle}>
+            {CALCULATOR_FILTERS.map(f => (
+              <button
+                key={f}
+                onClick={() => {
+                  setCalcFilterState(f)
+                  setCalculatorFilter(f)
+                  // Same reasoning as the tier toggle: a focus target that had
+                  // questions under the old filter may have none under the new
+                  // one (e.g. a 100%-calc skill under Non-calculator).
+                  setFocusSkillId('')
+                  setFocusTopic('')
+                }}
+                style={{
+                  ...styles.toggleButton,
+                  background: calcFilter === f ? colors.primary : 'transparent',
+                  color: calcFilter === f ? '#ffffff' : colors.textSecondary,
+                }}
+              >
+                {CALCULATOR_FILTER_LABELS[f]}
               </button>
             ))}
           </div>
