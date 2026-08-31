@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   calculateMastery, inferPrerequisiteMastery, getAccessibleSkillIds,
   getNeedsPracticeSkillIds, getWeightedSkillPool, applyPrerequisiteCredit,
+  masteryStatusFor, attemptsToMastery,
 } from './masteryEngine'
 
 // Helper to build attempts with increasing timestamps (oldest first).
@@ -222,5 +223,85 @@ describe('getNeedsPracticeSkillIds + getWeightedSkillPool', () => {
   it('falls back to the full pool when everything is mastered', () => {
     const allDone = { a: { skillId: 'a', status: 'mastered' as const, recentAttempts: 5, recentCorrect: 5 } }
     expect(getWeightedSkillPool(allDone, ['a'])).toEqual(['a'])
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The rule as a standalone function. It was extracted because the practice
+// question page re-implemented it inline three times and only ever had the
+// 5-window half — so the fast-track never lit the "Skill mastered!"
+// celebration, silently skipping 19 of 76 real mastery events.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('masteryStatusFor', () => {
+  const seq = (...correct: boolean[]) => correct.map(c => ({ correct: c }))
+  const C = true, W = false
+
+  it('masters on the rolling window: 4 of the last 5', () => {
+    expect(masteryStatusFor(seq(C, C, C, C, W))).toBe('mastered')
+    expect(masteryStatusFor(seq(C, C, C, W, W))).toBe('needs_practice')
+  })
+
+  it('masters on the fast-track: the FIRST three all correct', () => {
+    // Most-recent-first, so the earliest three are at the end.
+    expect(masteryStatusFor(seq(C, C, C))).toBe('mastered')
+    expect(masteryStatusFor(seq(W, C, C, C))).toBe('mastered')  // slip AFTER the run
+  })
+
+  it('does not fast-track when the earliest three were not all correct', () => {
+    // The wrong answer is the OLDEST here, so the first three are not clean.
+    expect(masteryStatusFor(seq(C, C, C, W))).toBe('in_progress')
+    expect(masteryStatusFor(seq(C, C, W))).toBe('in_progress')
+  })
+
+  it('needs three attempts before the fast-track can apply', () => {
+    expect(masteryStatusFor(seq(C, C))).toBe('in_progress')
+    expect(masteryStatusFor(seq(C))).toBe('in_progress')
+    expect(masteryStatusFor([])).toBe('in_progress')
+  })
+
+  it('hands over to the window at the 5th attempt', () => {
+    // Fast-tracked at 4, then a SECOND slip at the 5th demotes it.
+    expect(masteryStatusFor(seq(W, C, C, C))).toBe('mastered')
+    expect(masteryStatusFor(seq(W, W, C, C, C))).toBe('needs_practice')
+  })
+
+  it('is unaffected by truncation to the 5 most recent', () => {
+    // Callers may hold only 5. firstThree is consulted only below 5, where a
+    // caller necessarily has all of them — so a truncated 5 is always safe.
+    const long = seq(C, C, C, C, W, W, W, W)
+    expect(masteryStatusFor(long)).toBe('mastered')
+    expect(masteryStatusFor(long.slice(0, 5))).toBe('mastered')
+  })
+})
+
+describe('attemptsToMastery', () => {
+  const seq = (...correct: boolean[]) => correct.map(c => ({ correct: c }))
+  const C = true, W = false
+
+  it('is 0 when already mastered', () => {
+    expect(attemptsToMastery(seq(C, C, C))).toBe(0)
+  })
+
+  it('counts the fast-track correctly — the bug the naive formula had', () => {
+    // One correct answer in: the fast-track needs TWO more, not the three that
+    // "4 − correct" would have promised.
+    expect(attemptsToMastery(seq(C))).toBe(2)
+    expect(attemptsToMastery(seq(C, C))).toBe(1)
+  })
+
+  it('counts the window path once the fast-track is missed', () => {
+    // First attempt wrong → the fast-track is gone for good (it is one-shot on
+    // the EARLIEST three), so the only route is a full window: 5 attempts with
+    // 4 correct, which from one wrong answer means four more. Not three — the
+    // wrong answer stays in the window and has to be outvoted.
+    expect(attemptsToMastery(seq(W))).toBe(4)
+  })
+
+  it('counts what the rolling window still needs', () => {
+    expect(attemptsToMastery(seq(C, C, C, W, W))).toBe(1)
+  })
+
+  it('never promises more than a fresh window', () => {
+    expect(attemptsToMastery(seq(W, W, W, W, W))).toBeLessThanOrEqual(5)
   })
 })

@@ -34,6 +34,55 @@ type Attempt = {
  *   three don't change); the rolling rule takes over at the 5th attempt, so a
  *   SECOND slip — 4/5 failed — is what demotes it.
  */
+/**
+ * THE mastery rule, for one skill, over its attempts MOST RECENT FIRST.
+ *
+ * Extracted so there is exactly one definition. The practice question page used
+ * to re-implement it inline — three times — and only ever had the 5-window half,
+ * so the fast-track never lit the "Skill mastered!" celebration: 19 of 76 real
+ * mastery events passed silently, and they are the capable students the
+ * fast-track was added for in the first place.
+ *
+ * TRUNCATION IS SAFE, and deliberately so: callers may pass only the most recent
+ * 5. `firstThree` is consulted ONLY when total < 5, and a caller holding fewer
+ * than 5 is necessarily holding all of them. Above that the rolling window
+ * governs and the earliest attempts are irrelevant.
+ *
+ * Callers must apply the exam-kind filter themselves (a wrong `exam` attempt is
+ * a no-op and must not enter the sequence) — see calculateMastery below.
+ */
+export function masteryStatusFor(mostRecentFirst: { correct: boolean }[]): MasteryStatus {
+  const total = mostRecentFirst.length
+  if (total >= 5) {
+    // Rolling window: 4 of the last 5 → mastered, else needs_practice.
+    return mostRecentFirst.slice(0, 5).filter(a => a.correct).length >= 4
+      ? 'mastered'
+      : 'needs_practice'
+  }
+  // Fast-track: the first three attempts all correct → mastered early. The
+  // array is most-recent-first, so its LAST three are the earliest three.
+  const firstThree = mostRecentFirst.slice(-3)
+  return total >= 3 && firstThree.every(a => a.correct) ? 'mastered' : 'in_progress'
+}
+
+/**
+ * How many more consecutive correct answers would reach `mastered`, or 0 if it
+ * already is. Capped at 5 (nothing needs more than a fresh window).
+ *
+ * Simulated against masteryStatusFor rather than reasoned about, so it cannot
+ * drift from the rule it is describing. The naive "4 − correct" was wrong for a
+ * student on the fast-track path: one correct answer in, it promised three more
+ * when two would do.
+ */
+export function attemptsToMastery(mostRecentFirst: { correct: boolean }[]): number {
+  if (masteryStatusFor(mostRecentFirst) === 'mastered') return 0
+  for (let n = 1; n <= 5; n++) {
+    const withMore = [...Array(n).fill({ correct: true }), ...mostRecentFirst]
+    if (masteryStatusFor(withMore) === 'mastered') return n
+  }
+  return 5
+}
+
 export function calculateMastery(attempts: Attempt[]): Record<string, SkillMastery> {
   const bySkill: Record<string, { correct: boolean; attempted_at: string }[]> = {}
 
@@ -61,18 +110,7 @@ export function calculateMastery(attempts: Attempt[]): Record<string, SkillMaste
     const recentCorrect = lastFive.filter(a => a.correct).length
     const recentAttempts = lastFive.length
 
-    let status: MasteryStatus
-    if (total >= 5) {
-      // Rolling window: 4 of the last 5 → mastered, else needs_practice.
-      status = recentCorrect >= 4 ? 'mastered' : 'needs_practice'
-    } else {
-      // Fast-track: the first three attempts all correct → mastered early.
-      // `sorted` is most-recent-first, so its last 3 entries are the earliest
-      // three. Under 3 attempts can never fast-track.
-      const firstThree = sorted.slice(-3)
-      const fastTracked = total >= 3 && firstThree.every(a => a.correct)
-      status = fastTracked ? 'mastered' : 'in_progress'
-    }
+    const status = masteryStatusFor(sorted)
 
     mastery[skillId] = { skillId, status, recentAttempts, recentCorrect }
   }
