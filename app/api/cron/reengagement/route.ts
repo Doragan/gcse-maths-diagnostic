@@ -4,16 +4,18 @@ import { createClient } from '@supabase/supabase-js'
 import { skills } from '../../../../data/skills'
 import { buildReengagementEmail } from '../../../../lib/email/reengagement'
 import {
-  REENGAGEMENT_COOLDOWN_DAYS, cooldownCutoff, dueForContact, sentOnDate,
+  BASE_COOLDOWN_DAYS, MAX_SENDS_PER_LAPSE, dueForContact, sentOnDate,
 } from '../../../../lib/email/cadence'
 
 // Daily re-engagement cron. Emails opted-in students who practised but haven't
 // returned in N days. Triggered by Vercel Cron (see vercel.json), which sends an
 // `Authorization: Bearer <CRON_SECRET>` header when CRON_SECRET is configured.
 //
-// A student may receive this at most once per COOLDOWN_DAYS (14). That cadence
-// is applied here rather than in the selector, because a rolling window can't be
-// an index — see lib/email/cadence.ts. The database still backs it with
+// The cadence TAPERS — 14 days to the second email, then 28, 56, 112, then
+// silence after the fifth. Sends stop counting once the student practises
+// again, so returning resets the sequence. Applied here rather than in the
+// selector, because a rolling window can't be an index — see
+// lib/email/cadence.ts. The database still backs it with
 // `unique (student_id, sent_on)`, which catches a same-day double run.
 //
 // Per project convention, the admin Supabase client and Resend are instantiated
@@ -83,23 +85,33 @@ export async function GET(req: NextRequest) {
 
   const cohort = (data as LapsedStudent[] | null) ?? []
 
-  // ── Cadence: drop anyone contacted inside the cooldown ───────────────────────
+  // ── Cadence: where is each candidate in the taper? ───────────────────────────
   // The selector no longer knows about sends at all, so this is the whole cap.
-  // Filtered BEFORE the batch slice, or cooled-down students could occupy the
-  // batch on every run and starve someone never contacted.
-  const cooldownDays = parseInt(process.env.REENGAGEMENT_COOLDOWN_DAYS || '', 10)
-    || REENGAGEMENT_COOLDOWN_DAYS
-  const { data: recent, error: recentErr } = await supabase
+  // The full send history is needed (not just recent rows) because the gap
+  // depends on how many have already gone unanswered this lapse. Scoped to the
+  // cohort, so it stays proportional to who is actually in play.
+  const cooldownDays = parseInt(process.env.REENGAGEMENT_COOLDOWN_DAYS || '', 10) || BASE_COOLDOWN_DAYS
+  const maxSends     = parseInt(process.env.REENGAGEMENT_MAX_SENDS || '', 10) || MAX_SENDS_PER_LAPSE
+
+  const { data: history, error: histErr } = await supabase
     .from('reengagement_sends')
-    .select('student_id')
-    .gte('sent_at', cooldownCutoff(Date.now(), cooldownDays).toISOString())
-  if (recentErr) {
-    console.error('[reengagement] cooldown lookup failed:', recentErr.message)
-    return NextResponse.json({ error: 'Cooldown check failed' }, { status: 500 })
+    .select('student_id, sent_at')
+    .in('student_id', cohort.map(s => s.student_id))
+  if (histErr) {
+    console.error('[reengagement] send-history lookup failed:', histErr.message)
+    return NextResponse.json({ error: 'Cadence check failed' }, { status: 500 })
   }
-  const cooling = new Set((recent ?? []).map(r => r.student_id as string))
+  const sendsByStudent = new Map<string, number[]>()
+  for (const r of history ?? []) {
+    const id = r.student_id as string
+    if (!sendsByStudent.has(id)) sendsByStudent.set(id, [])
+    sendsByStudent.get(id)!.push(Date.parse(r.sent_at as string))
+  }
+
+  // Filtered BEFORE the batch slice, or students still waiting out their gap
+  // could occupy the batch on every run and starve someone never contacted.
   const batchLimit = parseInt(process.env.REENGAGEMENT_BATCH_LIMIT || '', 10) || DEFAULT_BATCH_LIMIT
-  const due = dueForContact(cohort, cooling)
+  const due = dueForContact(cohort, sendsByStudent, Date.now(), cooldownDays, maxSends)
   const batch = due.slice(0, batchLimit)
 
   let sent = 0
@@ -172,12 +184,12 @@ export async function GET(req: NextRequest) {
     sent++
   }
 
-  // `cooling` is reported separately so a quiet run is legible: a cohort of 8
-  // with 8 cooling down is the cap working, not a broken selector.
-  console.log(`[reengagement] run complete — cohort=${cohort.length} cooling=${cooling.size} due=${due.length} sent=${sent} failed=${failed}`)
+  // `due` is reported alongside `cohort` so a quiet run is legible: a cohort of
+  // 8 with 0 due is the taper working, not a broken selector.
+  console.log(`[reengagement] run complete — cohort=${cohort.length} due=${due.length} sent=${sent} failed=${failed}`)
   return NextResponse.json({
     ok: true,
-    cohort: cohort.length, cooling: cooling.size, due: due.length,
-    cooldownDays, batchLimit, sent, failed,
+    cohort: cohort.length, due: due.length,
+    cooldownDays, maxSends, batchLimit, sent, failed,
   })
 }
