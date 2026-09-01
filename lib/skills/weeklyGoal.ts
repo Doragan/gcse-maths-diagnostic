@@ -47,7 +47,7 @@ export type WeeklyGoalProgress = {
  * happens in the small hours of a Monday. A daily streak faced that risk every
  * night; here it is one boundary in seven.
  */
-function mondayOf(ms: number): number {
+export function mondayOf(ms: number): number {
   const d = new Date(ms)
   const daysSinceMonday = (d.getUTCDay() + 6) % 7 // getUTCDay: 0=Sunday
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - daysSinceMonday * 86400000
@@ -86,4 +86,14 @@ export function computeWeeklyGoal(
 /** How many more questions this week to hit the goal. 0 once met. */
 export function questionsToGoal(progress: WeeklyGoalProgress): number {
   return Math.max(0, progress.goal - progress.answered)
+}
+
+/**
+ * The current week's Monday as an ISO date (`YYYY-MM-DD`), for anything that
+ * needs to name a week rather than measure one — the nudge cron's ledger key,
+ * for instance. Derived from `mondayOf`, so a week means the same thing in the
+ * database as it does on the dashboard.
+ */
+export function weekStartDate(ms: number = Date.now()): string {
+  return new Date(mondayOf(ms)).toISOString().slice(0, 10)
 }

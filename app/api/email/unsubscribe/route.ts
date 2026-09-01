@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { parseSendKind, SEND_TABLE, SEND_ANALYTICS, type SendKind } from '../../../../lib/email/sendKind'
 
-// One-click unsubscribe for re-engagement emails. The link carries an opaque
-// send-id token (?s=<uuid>) — we resolve it to the student and flip their
-// auth user_metadata.email_reminders to false. Consent is opt-in, so this is the
-// off-switch; it's honoured by the cron's selector immediately.
+// One-click unsubscribe for the practice emails. The link carries an opaque
+// send-id token (?s=<uuid>) and a channel (&k=) — we resolve it to the student
+// and flip their auth user_metadata.email_reminders to false. Consent is opt-in,
+// so this is the off-switch; it's honoured by both crons' selectors immediately.
+//
+// One switch covers BOTH channels on purpose. "Practice reminders" is a single
+// thing from the student's point of view, and a granular preference centre would
+// make opting out harder — the wrong direction for a service used by children.
 //
 // GET  → flip + render a small human confirmation page (in-body link click).
 // POST → flip + 200 (RFC 8058 List-Unsubscribe-Post one-click, sent by mail
@@ -12,7 +17,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-async function unsubscribe(sendId: string | null): Promise<'ok' | 'invalid' | 'error'> {
+async function unsubscribe(sendId: string | null, kind: SendKind): Promise<'ok' | 'invalid' | 'error'> {
   if (!sendId) return 'invalid'
   try {
     const supabase = createClient(
@@ -21,7 +26,7 @@ async function unsubscribe(sendId: string | null): Promise<'ok' | 'invalid' | 'e
     )
 
     const { data: row } = await supabase
-      .from('reengagement_sends')
+      .from(SEND_TABLE[kind])
       .select('student_id')
       .eq('id', sendId)
       .single()
@@ -41,8 +46,8 @@ async function unsubscribe(sendId: string | null): Promise<'ok' | 'invalid' | 'e
     }
 
     await supabase.from('analytics_events').insert({
-      event:      'reengagement_email_unsubscribed',
-      path:       '/email/reengagement',
+      event:      `${SEND_ANALYTICS[kind].prefix}_unsubscribed`,
+      path:       SEND_ANALYTICS[kind].path,
       session_id: sendId,
       properties: { send_id: sendId, student_id: studentId },
     })
@@ -70,7 +75,10 @@ function page(title: string, body: string): NextResponse {
 }
 
 export async function GET(req: NextRequest) {
-  const result = await unsubscribe(req.nextUrl.searchParams.get('s'))
+  const result = await unsubscribe(
+    req.nextUrl.searchParams.get('s'),
+    parseSendKind(req.nextUrl.searchParams.get('k')),
+  )
   if (result === 'ok') {
     return page('You’re unsubscribed', 'You won’t get practice-reminder emails any more. You can turn them back on any time from your dashboard settings.')
   }
@@ -81,6 +89,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const result = await unsubscribe(req.nextUrl.searchParams.get('s'))
+  const result = await unsubscribe(
+    req.nextUrl.searchParams.get('s'),
+    parseSendKind(req.nextUrl.searchParams.get('k')),
+  )
   return NextResponse.json({ ok: result === 'ok' }, { status: result === 'ok' ? 200 : 400 })
 }
