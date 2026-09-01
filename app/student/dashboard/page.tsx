@@ -8,6 +8,7 @@ import { trackEvent } from '../../../lib/analytics'
 import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
+import { computeWeeklyGoal, WEEKLY_GOAL, type WeeklyGoalProgress } from '../../../lib/skills/weeklyGoal'
 import { skills } from '../../../data/skills'
 import { isPaidStudent } from '../../../lib/entitlements'
 import FeedbackWidget from '../../../components/FeedbackWidget'
@@ -50,25 +51,6 @@ const TOPIC_COLORS: Record<string, string> = {
   'Probability and Data': colors.success,
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function computeStreak(attempts: { attempted_at: string }[]): number {
-  if (attempts.length === 0) return 0
-  const days = [...new Set(attempts.map(a => a.attempted_at.substring(0, 10)))].sort().reverse()
-  const today = new Date().toISOString().substring(0, 10)
-  const yesterday = new Date(Date.now() - 86400000).toISOString().substring(0, 10)
-  if (days[0] !== today && days[0] !== yesterday) return 0
-  let streak = 1
-  for (let i = 1; i < days.length; i++) {
-    const diff = Math.round(
-      (new Date(days[i - 1]).getTime() - new Date(days[i]).getTime()) / 86400000
-    )
-    if (diff === 1) streak++
-    else break
-  }
-  return streak
-}
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function StudentDashboardPage() {
@@ -81,7 +63,7 @@ export default function StudentDashboardPage() {
   const [needsPracticeCount, setNeedsPracticeCount] = useState(0)
   const [weakSpots, setWeakSpots] = useState<{ id: string; name: string }[]>([])
   const [progressSeries, setProgressSeries] = useState<ProgressSeries | null>(null)
-  const [streak, setStreak] = useState(0)
+  const [weekly, setWeekly] = useState<WeeklyGoalProgress | null>(null)
   const [hideUntested, setHideUntested] = useState(false)
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
@@ -119,7 +101,7 @@ export default function StudentDashboardPage() {
       if (attempts && attempts.length > 0) {
         setTotalAttempts(attempts.length)
         setCorrectAttempts(attempts.filter((a: any) => a.correct).length)
-        setStreak(computeStreak(attempts))
+        setWeekly(computeWeeklyGoal(attempts))
         setProgressSeries(buildProgressSeries(attempts, getPrerequisiteTree))
 
         // Practice-context inference: credit each prerequisite 3 attempts-worth
@@ -241,6 +223,12 @@ export default function StudentDashboardPage() {
   const accuracy = totalAttempts > 0
     ? Math.round((correctAttempts / totalAttempts) * 100)
     : null
+
+  // `weekly` stays null until the attempts land (and for a student with none at
+  // all), so the card reads as a fresh week rather than blank.
+  const weeklyAnswered = weekly?.answered ?? 0
+  const weeklyStreak = weekly?.streak ?? 0
+  const weeklyMet = weekly?.met ?? false
 
   const hasAttempts = totalAttempts > 0
 
@@ -425,10 +413,25 @@ export default function StudentDashboardPage() {
             value={masteredCount.toString()}
             color={masteredCount > 0 ? colors.successText : undefined}
           />
+          {/*
+            The weekly goal doubles as the streak: the value is this week's
+            progress, the label is the run of weeks behind it. A student with no
+            attempts sees "0/10" rather than a dash — a target to hit reads as an
+            invitation in a way an empty counter does not.
+
+            Label kept terse because this grid is four fixed columns — 60px each
+            on a 375px phone, which is already the limit for "Questions". Measured:
+            "🔥 3 weeks" holds one line like its neighbours, where "🔥 3-week
+            streak" wrapped to three.
+          */}
           <Stat
-            label={streak > 1 ? '🔥 Streak' : 'Streak'}
-            value={streak > 0 ? `${streak}d` : '—'}
-            color={streak > 1 ? colors.warningText : undefined}
+            label={weeklyStreak > 0 ? `🔥 ${weeklyStreak} week${weeklyStreak === 1 ? '' : 's'}` : 'This week'}
+            value={`${weeklyAnswered}/${WEEKLY_GOAL}`}
+            color={
+              weeklyMet ? colors.successText
+              : weeklyStreak > 0 ? colors.warningText
+              : undefined
+            }
           />
         </div>
       </div>
