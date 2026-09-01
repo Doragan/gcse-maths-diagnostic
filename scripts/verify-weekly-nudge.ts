@@ -11,9 +11,10 @@
  * Prints aggregate counts and opaque student ids only — never an email address
  * or a display name.
  */
+import './env'
 import { createClient } from '@supabase/supabase-js'
 import { WEEKLY_GOAL, mondayOf, weekStartDate } from '../lib/skills/weeklyGoal'
-import { buildWeeklyNudgeEmail } from '../lib/email/weeklyNudge'
+import { buildWeeklyNudgeEmail, nudgeActiveDays } from '../lib/email/weeklyNudge'
 
 const url     = process.env.NEXT_PUBLIC_SUPABASE_URL
 const service = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -24,8 +25,12 @@ if (!url || !service) {
   process.exit(1)
 }
 
-const ACTIVE_DAYS  = parseInt(process.env.REENGAGEMENT_DAYS || '', 10) || 4
-const MIN_PROGRESS = parseInt(process.env.WEEKLY_NUDGE_MIN_PROGRESS || '', 10) || 3
+// Derive exactly as the cron does, or the dry run reports a cohort the cron
+// would not actually produce.
+const RELAXED      = process.argv.includes('--relaxed')
+const LAPSED_DAYS  = parseInt(process.env.REENGAGEMENT_DAYS || '', 10) || 4
+const ACTIVE_DAYS  = RELAXED ? 3650 : nudgeActiveDays(LAPSED_DAYS)
+const MIN_PROGRESS = RELAXED ? 1 : (parseInt(process.env.WEEKLY_NUDGE_MIN_PROGRESS || '', 10) || 3)
 const GOAL         = parseInt(process.env.WEEKLY_GOAL || '', 10) || WEEKLY_GOAL
 
 async function main() {
@@ -35,7 +40,12 @@ async function main() {
   const weekKey   = weekStartDate(now)
 
   console.log(`Week beginning ${weekKey} (UTC Monday)`)
-  console.log(`goal=${GOAL}  min_progress=${MIN_PROGRESS}  active_days=${ACTIVE_DAYS}\n`)
+  console.log(`goal=${GOAL}  min_progress=${MIN_PROGRESS}  active_days=${ACTIVE_DAYS}`)
+  if (RELAXED) {
+    console.log('--relaxed: NOT the cron\'s thresholds. Proves the query runs and shows')
+    console.log('           who WOULD qualify on a wider window — never what will send.')
+  }
+  console.log()
 
   // ── 1. The selector ─────────────────────────────────────────────────────────
   const { data, error } = await supabase.rpc('get_weekly_goal_candidates', {
