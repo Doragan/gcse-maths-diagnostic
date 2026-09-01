@@ -23,6 +23,7 @@ import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import { calculatorValuesFor, type CalculatorFilter } from '../../../../lib/questions/calculator'
 import { getCalculatorFilter } from '../../../../lib/questions/calculatorPreference'
 import { pickStepUp, type StepUpCandidate } from '../../../../lib/skills/stepUp'
+import { masteryStatusFor, attemptsToMastery } from '../../../../lib/skills/masteryEngine'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
@@ -215,16 +216,23 @@ function QuestionPage() {
 
   // Fetch the student's 5 most recent attempts for this question's primary skill,
   // so we can detect the exact moment mastery is reached client-side.
+  //
+  // `kind` is selected because a WRONG exam-kind attempt is positive-only — the
+  // engine drops it entirely — so counting it here would put this page's window
+  // out of step with the mastery it is trying to report. Five is enough for both
+  // halves of the rule: see masteryStatusFor on why truncation is safe.
   useEffect(() => {
     if (!studentId || !question || question.skill_ids.length === 0) return
     supabase
       .from('practice_attempts')
-      .select('correct')
+      .select('correct, kind')
       .eq('student_id', studentId)
       .contains('skill_ids', [question.skill_ids[0]])
       .order('attempted_at', { ascending: false })
       .limit(5)
-      .then(({ data }) => setPriorSkillAttempts(data ?? []))
+      .then(({ data }) => setPriorSkillAttempts(
+        (data ?? []).filter(a => !(a.kind === 'exam' && !a.correct))
+      ))
   }, [studentId, question?.id])
 
   // Look for a step up once a skill is mastered. Deliberately AFTER the fact
@@ -478,11 +486,11 @@ function QuestionPage() {
   // no extra round-trip needed.
   function detectMastery(correct: boolean) {
     if (!correct || !question || question.skill_ids.length === 0) return
-    const allAttempts = [{ correct: true }, ...priorSkillAttempts]
-    const lastFive    = allAttempts.slice(0, 5)
-    const masteredNow = lastFive.length >= 5 && lastFive.filter(a => a.correct).length >= 4
-    const prevFive    = priorSkillAttempts.slice(0, 5)
-    const wasMastered = prevFive.length >= 5 && prevFive.filter(a => a.correct).length >= 4
+    // masteryStatusFor is the engine's own rule, so this fires on the fast-track
+    // (first three correct) as well as the rolling window. It previously only
+    // knew the window, and silently skipped a quarter of real mastery events.
+    const masteredNow = masteryStatusFor([{ correct: true }, ...priorSkillAttempts]) === 'mastered'
+    const wasMastered = masteryStatusFor(priorSkillAttempts) === 'mastered'
     if (masteredNow && !wasMastered) {
       setNewlyMasteredSkill(question.skill_ids[0])
       // Persist mastery flag for the session summary (preserve window counts)
@@ -959,7 +967,9 @@ function QuestionPage() {
             const beforeWindow = priorSkillAttempts.slice(0, 5).reverse()
             const afterWindow  = [{ correct: feedback.correct }, ...priorSkillAttempts].slice(0, 5).reverse()
             const correctAfter = afterWindow.filter(a => a.correct).length
-            const isMastered   = afterWindow.length >= 5 && correctAfter >= 4
+            // Same rule as the celebration and the engine — otherwise the badge
+            // could read "3/4 correct" beside a "Skill mastered!" banner.
+            const isMastered   = masteryStatusFor([{ correct: feedback.correct }, ...priorSkillAttempts]) === 'mastered'
             const gained       = correctAfter - beforeWindow.filter(a => a.correct).length
 
             return (
@@ -1027,11 +1037,14 @@ function QuestionPage() {
                   })}
 
                   {/* "Need N more" hint — only when answer was correct and not yet mastered */}
-                  {feedback.correct && !isMastered && dotsPhase === 'after' && (
-                    <span style={{ fontSize: '11px', color: colors.textHint, marginLeft: '4px' }}>
-                      {4 - correctAfter} more to master
-                    </span>
-                  )}
+                  {feedback.correct && !isMastered && dotsPhase === 'after' && (() => {
+                    const needed = attemptsToMastery([{ correct: feedback.correct }, ...priorSkillAttempts])
+                    return (
+                      <span style={{ fontSize: '11px', color: colors.textHint, marginLeft: '4px' }}>
+                        {needed} more to master
+                      </span>
+                    )
+                  })()}
                   {gained > 0 && isMastered && dotsPhase === 'after' && (
                     <span style={{ fontSize: '11px', color: colors.successText, marginLeft: '4px', fontWeight: '600' }}>
                       🎯
