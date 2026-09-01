@@ -22,6 +22,8 @@ import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import { calculatorValuesFor, type CalculatorFilter } from '../../../../lib/questions/calculator'
 import { getCalculatorFilter } from '../../../../lib/questions/calculatorPreference'
+import { isCheckpoint, closestToMastery, SESSION_LENGTH } from '../../../../lib/practice/session'
+import { computeWeeklyGoal } from '../../../../lib/skills/weeklyGoal'
 import { pickStepUp, type StepUpCandidate } from '../../../../lib/skills/stepUp'
 import { masteryStatusFor, attemptsToMastery } from '../../../../lib/skills/masteryEngine'
 import type { QuestionPart } from '../../../../lib/questions/parts'
@@ -196,6 +198,19 @@ function QuestionPage() {
     totalInWindow: number
   }>>({})
   const [showSessionSummary, setShowSessionSummary] = useState(false)
+  // Questions answered as of the answer currently on screen. Distinct from
+  // sessionStats.total, which keeps climbing — this is pinned when the answer is
+  // recorded, so the checkpoint banner belongs to THIS question and doesn't
+  // reappear on the next one.
+  const [answeredAtFeedback, setAnsweredAtFeedback] = useState(0)
+  // This week's progress, fetched only when the summary opens. Null while
+  // loading or for an anonymous student, in which case the line is omitted
+  // rather than guessed at.
+  const [weekly, setWeekly] = useState<{ answered: number; goal: number } | null>(null)
+  // How the summary was opened, which decides what "Keep practising" means:
+  // continue to the next question (the checkpoint interrupted that), or simply
+  // close (they opened it themselves mid-question).
+  const [summarySource, setSummarySource] = useState<'checkpoint' | 'manual'>('manual')
   // Bumped when re-serving the CURRENT question with fresh params. The MultiPart
   // component is keyed on it so it remounts (its render useMemo keys on the
   // question id, which doesn't change on a reparametrise). Without this, "Next
@@ -401,6 +416,7 @@ function QuestionPage() {
     sessionStorage.setItem('session_total',   newTotal.toString())
     sessionStorage.setItem('session_correct', newCorrect.toString())
     setSessionStats({ correct: newCorrect, total: newTotal })
+    setAnsweredAtFeedback(newTotal)
 
     // Track per-skill session progress
     const primarySkillId = question.skill_ids[0]
@@ -609,6 +625,50 @@ function QuestionPage() {
     }
   }
 
+  /**
+   * What "Next question →" does. At a checkpoint it opens the summary instead of
+   * advancing — the one moment a session has a shape, and the student is already
+   * signalling they're moving on, so nothing is interrupted.
+   *
+   * Shown once per checkpoint: "Keep practising" must not bounce straight back
+   * into it, and neither should a student who reaches 20 after dismissing 10.
+   * Assignments are excluded — those have their own defined end.
+   */
+  const checkpointShownFor = useRef(0)
+
+  async function handleNextQuestion() {
+    if (
+      !assignmentId &&
+      isCheckpoint(answeredAtFeedback) &&
+      checkpointShownFor.current !== answeredAtFeedback
+    ) {
+      checkpointShownFor.current = answeredAtFeedback
+      openSummary('checkpoint')
+      return
+    }
+    await nextQuestion()
+  }
+
+  function openSummary(source: 'checkpoint' | 'manual') {
+    setSummarySource(source)
+    setShowSessionSummary(true)
+    trackEvent('session_summary_opened', { source, answered: sessionStats.total })
+
+    // This week's progress against the goal — the summary's "where you are"
+    // line. One query, only when the summary actually opens, and only for a
+    // signed-in student (an anonymous one has no history to count).
+    if (!studentId) return
+    supabase
+      .from('practice_attempts')
+      .select('attempted_at')
+      .eq('student_id', studentId)
+      .then(({ data }) => {
+        if (!data) return
+        const w = computeWeeklyGoal(data as { attempted_at: string }[])
+        setWeekly({ answered: w.answered, goal: w.goal })
+      })
+  }
+
   async function nextQuestion() {
     // In assignment context, navigate directly to the next unanswered question.
     if (assignmentId) { await nextAssignmentQuestion(); return }
@@ -790,7 +850,7 @@ function QuestionPage() {
               {sessionStats.correct}/{sessionStats.total} ✓
             </p>
             <button
-              onClick={() => setShowSessionSummary(true)}
+              onClick={() => openSummary('manual')}
               style={{ fontSize: '11px', color: colors.primary, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: '600', textDecoration: 'underline' }}
             >
               End session
@@ -1101,13 +1161,45 @@ function QuestionPage() {
             </div>
           )}
 
+          {/*
+            The checkpoint. Deliberately an inline banner rather than a modal
+            that fires on answering: a pop-up would cover the explanation for the
+            question they just did, and a student who got it wrong needs to read
+            that more than they need a scoreboard. This sits where their eyes
+            already are, and only invites.
+          */}
+          {!assignmentId && isCheckpoint(answeredAtFeedback) && !showSessionSummary && (
+            <div style={{
+              margin: '0 0 12px', padding: '12px 14px',
+              background: colors.successLight,
+              border: `1px solid ${colors.successBorder}`,
+              borderRadius: radius.md,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              gap: '10px', flexWrap: 'wrap' as const,
+            }}>
+              <span style={{ fontSize: font.base, color: colors.textPrimary, fontWeight: '500' }}>
+                That&rsquo;s {answeredAtFeedback} questions{answeredAtFeedback === SESSION_LENGTH ? ' — a full session' : ''}.
+              </span>
+              <button
+                onClick={() => { checkpointShownFor.current = answeredAtFeedback; openSummary('checkpoint') }}
+                style={{
+                  fontSize: font.sm, fontWeight: '600', color: colors.successText,
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  textDecoration: 'underline',
+                }}
+              >
+                See how you did →
+              </button>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
 			  {!feedback.correct && (
 				<button onClick={tryAgain} style={{ ...secondaryButton, flex: 1 }}>
 				  Try again
 				</button>
 			  )}
-			  <button onClick={nextQuestion} style={{ ...primaryButton, flex: 1 }}>
+			  <button onClick={handleNextQuestion} style={{ ...primaryButton, flex: 1 }}>
 				Next question →
 			  </button>
 			  <button onClick={handleShare} style={{ ...secondaryButton, flex: 1 }}>
@@ -1160,6 +1252,7 @@ function QuestionPage() {
           ? Math.round((sessionStats.correct / sessionStats.total) * 100) : 0
         const masteredSkills  = Object.entries(sessionSkills).filter(([, d]) => d.masteredThisSession)
         const practicedSkills = Object.entries(sessionSkills).filter(([, d]) => !d.masteredThisSession)
+        const nextUp = closestToMastery(sessionSkills)
         const accentColor = accuracy >= 70 ? colors.successText : accuracy >= 40 ? colors.warning : colors.dangerText
         const barColor    = accuracy >= 70 ? colors.success    : accuracy >= 40 ? colors.warning : colors.danger
 
@@ -1285,6 +1378,39 @@ function QuestionPage() {
                 </div>
               )}
 
+              {/*
+                Where this week stands, and the one thing worth coming back for.
+                The forward-looking line is deliberately specific: a named skill
+                one answer from mastery is an open loop, where "see you soon" is
+                nothing. Both are omitted rather than padded when there's no
+                honest number — an anonymous student has no week, and not every
+                session leaves a skill close enough to promise.
+              */}
+              {(weekly || nextUp) && (
+                <div style={{
+                  padding: '14px 16px',
+                  background: colors.cardAlt,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: radius.md,
+                  display: 'flex', flexDirection: 'column' as const, gap: '6px',
+                }}>
+                  {weekly && (
+                    <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>
+                      <strong>{weekly.answered}/{weekly.goal}</strong> this week
+                      {weekly.answered >= weekly.goal
+                        ? ' — goal reached 🎉'
+                        : ` — ${weekly.goal - weekly.answered} to go`}
+                    </p>
+                  )}
+                  {nextUp && (
+                    <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+                      Next time: {nextUp.remaining} more on{' '}
+                      <strong>{skillsById[nextUp.skillId]?.name ?? nextUp.skillId}</strong> to master it.
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Action buttons */}
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
                 <button
@@ -1294,7 +1420,12 @@ function QuestionPage() {
                   {studentId ? 'Return to Dashboard' : 'Back to Practice Home'}
                 </button>
                 <button
-                  onClick={() => setShowSessionSummary(false)}
+                  onClick={() => {
+                    setShowSessionSummary(false)
+                    // A checkpoint interrupted "Next question", so continuing
+                    // means actually going there. Opened by hand, it just closes.
+                    if (summarySource === 'checkpoint') void nextQuestion()
+                  }}
                   style={secondaryButton}
                 >
                   Keep practising
