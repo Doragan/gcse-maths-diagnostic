@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { parseSendKind, SEND_TABLE, SEND_DESTINATION, SEND_ANALYTICS } from '../../../../lib/email/sendKind'
 
-// Click-tracking redirect for the re-engagement email CTA. The email's button
-// points here with an opaque send-id token (?s=<uuid>) — no student id / PII in
-// the URL. We record the click, then 302 to the dashboard (the CTA target is
-// fixed server-side, so this can't be abused as an open redirect).
+// Click-tracking redirect for the practice emails' CTA. The button points here
+// with an opaque send-id token (?s=<uuid>) and a channel (&k=) — no student id /
+// PII in the URL. We record the click, then 302 to that channel's destination.
+//
+// The destination is looked up from a fixed server-side map keyed by the
+// channel, never taken from the request, so this cannot be an open redirect.
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
-  const dashboard = `${siteUrl}/student/dashboard`
+  const kind = parseSendKind(req.nextUrl.searchParams.get('k'))
+  const destination = `${siteUrl}${SEND_DESTINATION[kind]}`
   const sendId = req.nextUrl.searchParams.get('s')
 
-  // Always end up at the dashboard — tracking is best-effort and must never
+  // Always end up at the destination — tracking is best-effort and must never
   // block the student from getting where they're going.
   if (sendId) {
     try {
@@ -21,8 +25,9 @@ export async function GET(req: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
       )
+      const table = SEND_TABLE[kind]
       const { data: row } = await supabase
-        .from('reengagement_sends')
+        .from(table)
         .select('id, student_id, clicked_at')
         .eq('id', sendId)
         .single()
@@ -31,13 +36,13 @@ export async function GET(req: NextRequest) {
         // Only stamp the first click (the funnel cares about clicked-or-not).
         if (!row.clicked_at) {
           await supabase
-            .from('reengagement_sends')
+            .from(table)
             .update({ clicked_at: new Date().toISOString() })
             .eq('id', sendId)
         }
         await supabase.from('analytics_events').insert({
-          event:      'reengagement_email_clicked',
-          path:       '/email/reengagement',
+          event:      `${SEND_ANALYTICS[kind].prefix}_clicked`,
+          path:       SEND_ANALYTICS[kind].path,
           session_id: sendId,
           properties: { send_id: sendId, student_id: row.student_id },
         })
@@ -47,5 +52,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(dashboard, { status: 302 })
+  return NextResponse.redirect(destination, { status: 302 })
 }

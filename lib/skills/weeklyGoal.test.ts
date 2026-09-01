@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeWeeklyGoal, questionsToGoal, WEEKLY_GOAL } from './weeklyGoal'
+import { computeWeeklyGoal, questionsToGoal, weekStartDate, WEEKLY_GOAL } from './weeklyGoal'
 
 // Wednesday 2026-09-02, midday UTC. Its week runs Mon 2026-08-31 → Sun 2026-09-06.
 const WED = Date.UTC(2026, 8, 2, 12, 0, 0)
@@ -113,5 +113,25 @@ describe('questionsToGoal', () => {
   })
   it('is 0 once met, and never negative', () => {
     expect(questionsToGoal(computeWeeklyGoal(on(WED, 14), WED))).toBe(0)
+  })
+})
+
+describe('weekStartDate', () => {
+  it('names the Monday of the week containing the instant', () => {
+    expect(weekStartDate(WED)).toBe('2026-08-31')
+  })
+  it('is stable across every day of one week, and steps on Monday', () => {
+    const monday = Date.UTC(2026, 7, 31, 0, 0, 0)
+    for (let d = 0; d < 7; d++) {
+      expect(weekStartDate(monday + d * DAY + 13 * 3600000)).toBe('2026-08-31')
+    }
+    expect(weekStartDate(monday + 7 * DAY)).toBe('2026-09-07')
+  })
+  it('agrees with the window computeWeeklyGoal actually counts', () => {
+    // The ledger key and the counting window must name the same week, or the
+    // frequency cap would guard a different week from the one being reported.
+    const start = Date.parse(`${weekStartDate(WED)}T00:00:00.000Z`)
+    expect(computeWeeklyGoal(on(start, 1), WED).answered).toBe(1)
+    expect(computeWeeklyGoal(on(start - 1, 1), WED).answered).toBe(0)
   })
 })
