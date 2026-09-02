@@ -261,3 +261,85 @@ describe('computeUsage — premium access vs actual customers', () => {
     expect(r.totals.conversions).toBe(0)
   })
 })
+
+describe('computeUsage — acquisition (the pre-signup funnel)', () => {
+  const ev = (event: string, session: string, daysAgo = 1, props: any = null) =>
+    ({ event, session_id: session, created_at: iso(ago(daysAgo)), properties: props })
+
+  it('is null when no analytics rows are supplied', () => {
+    expect(computeUsage({ students: [], attempts: [], sends: [], now: NOW }).acquisition).toBeNull()
+  })
+
+  it('counts SESSIONS, not events — the mistake this exists to prevent', () => {
+    // One visitor answering seven demo questions is one interested session, not
+    // seven. Counting events made a 6% engagement rate look like 40%.
+    const analytics = [
+      ev('page_view', 's1'),
+      ...Array.from({ length: 7 }, () => ev('demo_question_answered', 's1')),
+    ]
+    const a = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW }).acquisition!
+    expect(a.steps.find(s => s.label.includes('demo'))!.sessions).toBe(1)
+  })
+
+  it('excludes internal traffic, so our own testing is not counted as demand', () => {
+    const analytics = [
+      ev('page_view', 'real'),
+      ev('page_view', 'mine', 1, { internal: true }),
+    ]
+    const a = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW }).acquisition!
+    expect(a.steps[0].sessions).toBe(1)
+  })
+
+  it('ignores rows with no session id rather than counting them as one visit', () => {
+    const analytics = [ev('page_view', 'a'), { event: 'page_view', session_id: null, created_at: iso(ago(1)) }]
+    const a = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW }).acquisition!
+    expect(a.steps[0].sessions).toBe(1)
+  })
+
+  it('expresses each step as a share of ALL VISITS, never of the row above', () => {
+    const analytics = [
+      ...['a', 'b', 'c', 'd'].map(s => ev('page_view', s)),
+      ...['a'].map(s => ev('demo_question_answered', s)),
+    ]
+    const a = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW }).acquisition!
+    expect(a.steps[0].ofVisits).toBeNull()          // nothing above the first step
+    expect(a.steps[1].ofVisits).toBeCloseTo(0.25)
+  })
+
+  it('does not divide by zero when a step above it is empty', () => {
+    const analytics = [ev('signup_success', 'a')]
+    const a = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW }).acquisition!
+    for (const s of a.steps) expect(s.ofVisits === null || Number.isFinite(s.ofVisits)).toBe(true)
+  })
+
+  it('tracks visits and signups per week, on the same weeks as the rest of the report', () => {
+    const analytics = [ev('page_view', 'a', 0), ev('signup_success', 'a', 0), ev('page_view', 'b', 8)]
+    const r = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW, weeks: 3 })
+    expect(r.acquisition!.weekly.map(w => w.weekStart)).toEqual(r.weekly.map(w => w.weekStart))
+    expect(r.acquisition!.weekly.at(-1)).toMatchObject({ visits: 1, signups: 1 })
+  })
+})
+
+describe('acquisition — the ratio can never exceed 100%', () => {
+  const ev = (event: string, session: string) =>
+    ({ event, session_id: session, created_at: iso(ago(1)) })
+
+  it('holds even when a later step has MORE sessions than an earlier one', () => {
+    // The live case that made "share of the previous row" wrong: the /practice
+    // prompt is reached by more sessions than the homepage demo, which produced
+    // 211%. Against all visits it stays a real proportion.
+    const analytics = [
+      ...['a', 'b', 'c', 'd'].map(s => ev('page_view', s)),
+      ev('demo_question_answered', 'a'),
+      ...['a', 'b', 'c'].map(s => ev('practice_signup_prompt_shown', s)),
+    ]
+    const a = computeUsage({ students: [], attempts: [], sends: [], analytics, now: NOW }).acquisition!
+    const demo   = a.steps.find(s => s.label.includes('demo'))!
+    const prompt = a.steps.find(s => s.label.includes('sign up'))!
+    expect(prompt.sessions).toBeGreaterThan(demo.sessions)  // not nested
+    expect(prompt.ofVisits).toBeCloseTo(0.75)
+    for (const s of a.steps) {
+      if (s.ofVisits !== null) expect(s.ofVisits).toBeLessThanOrEqual(1)
+    }
+  })
+})
