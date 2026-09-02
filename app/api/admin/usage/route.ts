@@ -61,8 +61,14 @@ export async function GET(req: Request) {
     // Only the columns the report needs. `students` deliberately does not
     // select display_name, and auth.users is not touched at all.
     const { data: students, error: sErr } = await admin
-      .from('students').select('id, created_at, subscription_tier')
+      .from('students').select('id, created_at, subscription_tier, paid_until')
     if (sErr) throw new Error(`students: ${sErr.message}`)
+
+    // Purchases the webhook has seen since conversion tracking was added.
+    const { count: conversions } = await admin
+      .from('analytics_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('event', 'subscription_started')
 
     const attempts: { student_id: string; attempted_at: string }[] = []
     for (let from = 0; ; from += PAGE) {
@@ -90,6 +96,7 @@ export async function GET(req: Request) {
     const report = computeUsage({
       students: students ?? [],
       attempts,
+      conversions: conversions ?? 0,
       sends: [
         { channel: 'Re-engagement', rows: await sendsFor('reengagement_sends') },
         { channel: 'Weekly nudge',  rows: await sendsFor('weekly_nudge_sends') },

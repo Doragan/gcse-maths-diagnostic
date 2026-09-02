@@ -10,8 +10,9 @@ const NOW = Date.UTC(2026, 8, 2, 12, 0, 0)
 const ago = (days: number) => NOW - days * DAY
 const iso = (ms: number) => new Date(ms).toISOString()
 
-const student = (id: string, signedUpDaysAgo: number, tier = 'free'): UsageStudent =>
-  ({ id, created_at: iso(ago(signedUpDaysAgo)), subscription_tier: tier })
+const student = (id: string, signedUpDaysAgo: number, tier = 'free', paidUntilDaysAhead = 30): UsageStudent =>
+  ({ id, created_at: iso(ago(signedUpDaysAgo)), subscription_tier: tier,
+     paid_until: tier === 'paid' ? iso(NOW + paidUntilDaysAhead * DAY) : null })
 
 /** n attempts for `id`, one per day working backwards from `daysAgo`. */
 const attemptsOn = (id: string, daysAgoList: number[]): UsageAttempt[] =>
@@ -26,7 +27,7 @@ describe('computeUsage — totals', () => {
       now: NOW,
     })
     expect(r.totals.students).toBe(2)
-    expect(r.totals.paidStudents).toBe(1)
+    expect(r.totals.withPremiumAccess).toBe(1)
     expect(r.totals.attempts).toBe(2)
   })
 
@@ -214,5 +215,49 @@ describe('computeUsage — bad data', () => {
     expect(r.totals.students).toBe(2)
     expect(r.totals.attempts).toBe(2)   // raw count, honest about what was fetched
     expect(r.cohorts).toHaveLength(1)   // only the parseable signup formed a cohort
+  })
+})
+
+describe('computeUsage — premium access vs actual customers', () => {
+  const raw = (id: string, tier: string, paidUntil: string | null): UsageStudent =>
+    ({ id, created_at: iso(ago(60)), subscription_tier: tier, paid_until: paidUntil })
+
+  it('excludes a "paid" tier with a NULL paid_until', () => {
+    // The real case that made this wrong: a Stripe subscription was created but
+    // invoice.payment_succeeded never landed, so the tier says paid while the
+    // app itself treats them as free.
+    const r = computeUsage({ students: [raw('a', 'paid', null)], attempts: [], sends: [], now: NOW })
+    expect(r.totals.withPremiumAccess).toBe(0)
+  })
+
+  it('excludes a "paid" tier that has expired', () => {
+    const r = computeUsage({
+      students: [raw('a', 'paid', iso(ago(1)))], attempts: [], sends: [], now: NOW,
+    })
+    expect(r.totals.withPremiumAccess).toBe(0)
+  })
+
+  it('counts a paid tier with a future paid_until', () => {
+    const r = computeUsage({
+      students: [raw('a', 'paid', iso(NOW + 5 * DAY))], attempts: [], sends: [], now: NOW,
+    })
+    expect(r.totals.withPremiumAccess).toBe(1)
+  })
+
+  it('keeps tracked purchases separate from access', () => {
+    // Access includes comped and manually-granted accounts, which nothing in
+    // the schema distinguishes from purchases. The two numbers must not be
+    // conflated, and neither is derivable from the other.
+    const r = computeUsage({
+      students: [raw('a', 'paid', iso(NOW + DAY)), raw('b', 'paid', iso(NOW + DAY))],
+      attempts: [], sends: [], conversions: 1, now: NOW,
+    })
+    expect(r.totals.withPremiumAccess).toBe(2)
+    expect(r.totals.conversions).toBe(1)
+  })
+
+  it('reports zero tracked purchases rather than undefined when none are passed', () => {
+    const r = computeUsage({ students: [], attempts: [], sends: [], now: NOW })
+    expect(r.totals.conversions).toBe(0)
   })
 })
