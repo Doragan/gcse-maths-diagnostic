@@ -234,7 +234,10 @@ function DemoQuestion({ initialPool, initialQuestion }: {
             {answered >= 2 && result && (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
                 <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
-                  👏 You&apos;ve got the hang of it. Keep going — practise all {SKILL_COUNT} skills with the same instant feedback.
+                  {/* Not "practise all N skills": the map TRACKS 154, but 14 have no
+                      published question yet, so that specific promise isn't true. The
+                      skill-map copy elsewhere says "watch N skills" — which is. */}
+                  👏 You&apos;ve got the hang of it. Keep going — practise across the whole GCSE syllabus with the same instant feedback.
                 </p>
                 <Link
                   href="/practice"
@@ -715,11 +718,21 @@ export default function Landing({ demoPool, demoQuestion }: {
             they&rsquo;re stuck on, and whether that&rsquo;s moving week to week.
           </p>
 
+          {/*
+            No price among these. It used to sit here as a third column, so
+            "Free, properly" and "£1.49 a month" appeared side by side in
+            identical type — which reads as a contradiction rather than a tier,
+            and makes a first-time visitor wonder which one is the catch. The
+            price is still stated, below the call to action, subordinate to it.
+          */}
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' as const, marginBottom: '26px' }}>
             {[
-              ['Free, properly', 'The whole question bank, unlimited practice, no card to start. Most students never need to pay.'],
-              [MONTHLY_PRICE ? `${MONTHLY_PRICE} a month` : 'Paid plans', 'Cancel any time. Unlocks progress trends over time and targeted weak-spot sessions.'],
-              ['Nothing to install', 'Works in a browser on a phone, tablet or laptop. No app, no adverts, no data sold.'],
+              ['Free to use', 'The whole question bank and unlimited practice. No card needed, and no trial that quietly ends.'],
+              ['Nothing to install', 'Works in a browser on a phone, tablet or laptop. No adverts, and no data sold.'],
+              // "every skill on the syllabus" would be an overclaim: 14 of the
+              // 154 tracked skills have no published question yet. Both tiers
+              // and the syllabus mapping are true as stated.
+              ['Built for their exam', 'Foundation and Higher tiers, mapped to the GCSE syllabus — not a general maths app.'],
             ].map(([title, body]) => (
               <div key={title} style={{ flex: '1 1 200px' }}>
                 <p style={{ fontSize: font.base, fontWeight: '700', color: colors.textPrimary, margin: '0 0 6px' }}>{title}</p>
@@ -739,6 +752,21 @@ export default function Landing({ demoPool, demoQuestion }: {
           >
             Set up a free account →
           </Link>
+
+          {/*
+            The price, once, quietly, after the ask — so a parent who wants to
+            know what this eventually costs can find it without it competing
+            with the free offer. Framed as optional because it is: the free tier
+            is the whole question bank, and the subscription buys the tracking
+            on top.
+          */}
+          {MONTHLY_PRICE && (
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: '16px 0 0', lineHeight: 1.6, maxWidth: '540px' }}>
+              There&rsquo;s an optional subscription at {MONTHLY_PRICE} a month for progress
+              trends over time and targeted weak-spot sessions. Cancel any time — and plenty
+              of students get what they need without it.
+            </p>
+          )}
         </div>
       </section>
 
