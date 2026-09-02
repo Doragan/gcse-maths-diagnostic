@@ -66,6 +66,47 @@ export type CohortRow = {
   retained: number      // still answering 28+ days after signing up
 }
 
+/**
+ * One analytics row, for the pre-signup funnel.
+ *
+ * `session_id` is per browser TAB (it lives in sessionStorage — see
+ * lib/analytics.ts), so the unit here is a visit, not a person. The same human
+ * returning tomorrow is two visits, and one who opens a second tab is two at
+ * once. That makes it the right denominator for "did this arrival engage" and
+ * the wrong one for anything about people.
+ */
+export type AcquisitionEvent = {
+  event: string
+  session_id: string | null
+  created_at: string
+  properties?: Record<string, unknown> | null
+}
+
+export type AcquisitionStep = {
+  label: string
+  sessions: number
+  /**
+   * Share of ALL visits, not of the row above.
+   *
+   * "Of the row above" was the obvious choice and it is wrong here: the steps
+   * are parallel paths, not a chain. The homepage demo and the /practice
+   * sign-up prompt are separate entry points, and more sessions reach practice
+   * directly than ever touch the demo — which produced a nonsensical 211% when
+   * run against live data. Every step IS a subset of "visited", so this ratio
+   * cannot exceed 100% and answers the question actually worth asking: what
+   * share of arrivals get this far.
+   *
+   * Null on the Visited row, which is the denominator.
+   */
+  ofVisits: number | null
+}
+
+export type Acquisition = {
+  windowDays: number
+  steps: AcquisitionStep[]
+  weekly: { weekStart: string; visits: number; signups: number }[]
+}
+
 export type EmailFunnelRow = {
   channel: string
   sends: number
@@ -124,7 +165,31 @@ export type UsageReport = {
   weekly: WeeklyRow[]
   cohorts: CohortRow[]
   email: EmailFunnelRow[]
+  /**
+   * The funnel BEFORE signup, which the other tables cannot see at all:
+   * `students` starts at the signup, and an anonymous student's practice never
+   * reaches `practice_attempts` (it is held in local storage until they create
+   * an account). Absent when no analytics rows were supplied.
+   */
+  acquisition: Acquisition | null
 }
+
+/**
+ * Session-level funnel steps, in order. Each counts DISTINCT sessions that fired
+ * the event at least once — deliberately not event counts, which conflate
+ * interest with volume: 1,415 demo answers sounds like 1,415 interested people
+ * and was in fact 203 sessions answering about seven questions each.
+ *
+ * Labelled by WHERE each happens, because the middle two are separate entry
+ * points rather than consecutive stages: a visitor can go straight to /practice
+ * without ever touching the homepage demo, and more of them do.
+ */
+const FUNNEL_STEPS: { label: string; event: string }[] = [
+  { label: 'Visited',                    event: 'page_view' },
+  { label: 'Tried the homepage demo',    event: 'demo_question_answered' },
+  { label: 'Practised enough to be asked to sign up', event: 'practice_signup_prompt_shown' },
+  { label: 'Signed up',                  event: 'signup_success' },
+]
 
 /** UTC calendar date of an instant — the unit "came back on another day" counts. */
 const dayKey = (ms: number) => new Date(ms).toISOString().slice(0, 10)
@@ -137,6 +202,9 @@ export function computeUsage(input: {
   sends: { channel: string; rows: UsageSend[] }[]
   /** Count of `subscription_started` analytics events. */
   conversions?: number
+  /** Analytics rows for the pre-signup funnel. Omit to leave `acquisition` null. */
+  analytics?: AcquisitionEvent[]
+  acquisitionWindowDays?: number
   now?: number
   weeks?: number
 }): UsageReport {
@@ -250,5 +318,51 @@ export function computeUsage(input: {
     weekly,
     cohorts,
     email,
+    acquisition: input.analytics
+      ? computeAcquisition(input.analytics, weekStarts, input.acquisitionWindowDays ?? 60)
+      : null,
+  }
+}
+
+function computeAcquisition(
+  events: AcquisitionEvent[],
+  weekStarts: string[],
+  windowDays: number,
+): Acquisition {
+  // Drop the maintainer's own browsing. lib/analytics.ts stamps `internal: true`
+  // on every event from a flagged browser expressly so it can be excluded from
+  // external-traffic figures — a page that counts our own testing as demand is
+  // worse than no page.
+  const external = events.filter(e => e.properties?.internal !== true && e.session_id)
+
+  const sessionsFor = (event: string) =>
+    new Set(external.filter(e => e.event === event).map(e => e.session_id as string)).size
+
+  const visits = sessionsFor(FUNNEL_STEPS[0].event)
+  const steps: AcquisitionStep[] = FUNNEL_STEPS.map(({ label, event }, i) => ({
+    label,
+    sessions: sessionsFor(event),
+    ofVisits: i === 0 || visits === 0 ? null : sessionsFor(event) / visits,
+  }))
+
+  const visitsByWeek = new Map<string, Set<string>>()
+  const signupsByWeek = new Map<string, number>()
+  for (const e of external) {
+    const t = Date.parse(e.created_at)
+    if (!Number.isFinite(t)) continue
+    const w = weekKey(t)
+    if (!visitsByWeek.has(w)) visitsByWeek.set(w, new Set())
+    visitsByWeek.get(w)!.add(e.session_id as string)
+    if (e.event === 'signup_success') signupsByWeek.set(w, (signupsByWeek.get(w) ?? 0) + 1)
+  }
+
+  return {
+    windowDays,
+    steps,
+    weekly: weekStarts.map(w => ({
+      weekStart: w,
+      visits: visitsByWeek.get(w)?.size ?? 0,
+      signups: signupsByWeek.get(w) ?? 0,
+    })),
   }
 }

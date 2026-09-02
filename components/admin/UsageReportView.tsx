@@ -18,7 +18,7 @@ import { colors, font, radius, card, sectionTitle } from '../../lib/styles'
 const pct = (n: number) => `${Math.round(n * 100)}%`
 
 export default function UsageReportView({ report }: { report: UsageReport }) {
-  const { totals, weekly, cohorts, email } = report
+  const { totals, weekly, cohorts, email, acquisition } = report
   const peakAttempts = Math.max(1, ...weekly.map(w => w.attempts))
 
   return (
@@ -52,18 +52,66 @@ export default function UsageReportView({ report }: { report: UsageReport }) {
         </p>
       </div>
 
+      {/*
+        Before signup. The rest of this page starts at the signup, which is
+        already several steps in — and an anonymous student's practice never
+        reaches practice_attempts at all, so without this section the largest
+        drop-off in the product is simply invisible.
+      */}
+      {acquisition && (
+        <div style={card}>
+          <h2 style={sectionTitle}>Getting to a signup</h2>
+          <div style={styles.scroller}>
+            <table style={styles.table}>
+              <thead>
+                <tr><Th>Step</Th><Th right>Sessions</Th><Th right>Of visits</Th></tr>
+              </thead>
+              <tbody>
+                {acquisition.steps.map(s => (
+                  <tr key={s.label}>
+                    <Td>{s.label}</Td>
+                    <Td right>{s.sessions.toLocaleString()}</Td>
+                    <Td right>
+                      {s.ofVisits === null
+                        ? <span style={{ color: colors.textHint }}>—</span>
+                        : pct(s.ofVisits)}
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={styles.note}>
+            Last {acquisition.windowDays} days. Counted in <strong>sessions</strong>, not events —
+            a visitor answering seven demo questions is one interested session, not seven.
+            A session is a browser tab, so the same person returning tomorrow counts twice.
+            Internal traffic is excluded. The middle two rows are separate entry points
+            rather than consecutive stages — more people reach practice directly than ever
+            touch the homepage demo — so each is shown as a share of all visits.
+          </p>
+        </div>
+      )}
+
       {/* Weekly activity — where a campaign starting or stopping shows up. */}
       <div style={card}>
         <h2 style={sectionTitle}>By week</h2>
         <div style={styles.scroller}>
           <table style={styles.table}>
             <thead>
-              <tr><Th>Week</Th><Th right>Signups</Th><Th right>Active</Th><Th right>Questions</Th><Th> </Th></tr>
+              <tr>
+                <Th>Week</Th>
+                {acquisition && <Th right>Visits</Th>}
+                <Th right>Signups</Th><Th right>Active</Th><Th right>Questions</Th><Th> </Th>
+              </tr>
             </thead>
             <tbody>
-              {weekly.map(w => (
+              {weekly.map((w, i) => (
                 <tr key={w.weekStart}>
                   <Td>{w.weekStart}</Td>
+                  {/* Traffic beside outcomes: a campaign starting shows up here
+                      first, and a week where visits hold but signups fall is a
+                      different problem from one where both drop. */}
+                  {acquisition && <Td right>{acquisition.weekly[i]?.visits.toLocaleString() || '—'}</Td>}
                   <Td right>{w.signups || '—'}</Td>
                   <Td right>{w.activeStudents || '—'}</Td>
                   <Td right>{w.attempts || '—'}</Td>
