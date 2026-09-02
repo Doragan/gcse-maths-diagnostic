@@ -5,10 +5,15 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-// Opens a Stripe Customer Billing Portal session so a monthly subscriber can
-// update their card or cancel. Only recurring plans (monthly/annual) store a
-// stripe_customer_id (the one-off Exam pass has nothing recurring to manage),
-// so callers without one get a 400.
+// Opens a Stripe Customer Billing Portal session so a subscriber can update
+// their card, view invoices or cancel. Callers with no stripe_customer_id get
+// a 400 — there is no Stripe customer to open a portal for.
+//
+// The customer id is NO LONGER a proxy for "has a subscription": one-off exam
+// passes now record one too, so that they can be traced back to Stripe. The UI
+// gates the "Manage subscription" link on stripe_subscription_id instead. This
+// route deliberately still accepts any customer, so a subscriber who has
+// cancelled can reach their invoices.
 //
 // NOTE: the portal must be enabled once per mode in Stripe → Settings → Billing
 // → Customer portal. If it isn't, Stripe throws a configuration error here.

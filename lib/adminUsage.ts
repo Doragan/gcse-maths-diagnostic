@@ -20,6 +20,7 @@
  * module, so none can reach the page.
  */
 import { mondayOf } from './skills/weeklyGoal'
+import { isPaidStudent } from './entitlements'
 
 const DAY = 86400000
 
@@ -27,6 +28,7 @@ export type UsageStudent = {
   id: string
   created_at: string
   subscription_tier?: string | null
+  paid_until?: string | null
 }
 
 export type UsageAttempt = {
@@ -94,7 +96,24 @@ export type UsageReport = {
   generatedAt: string
   totals: {
     students: number
-    paidStudents: number
+    /**
+     * Students who currently HAVE premium access, via `isPaidStudent` — the
+     * same rule the app gates features on, rather than a second definition.
+     *
+     * NOT the same as customers. Manual grants, comped accounts and test
+     * checkouts all land here and are indistinguishable from purchases: the
+     * exam-pass branch of the Stripe webhook records neither a customer id nor
+     * a subscription id, so a real one-off purchase looks exactly like an
+     * account someone set to paid by hand. Nothing in the schema records HOW
+     * access was granted. Hence `conversions` below.
+     */
+    withPremiumAccess: number
+    /**
+     * Purchases seen by the webhook since conversion tracking was added
+     * (2026-09-02). Trustworthy, but only forward-looking — it cannot
+     * distinguish the grants that predate it, which is why both are shown.
+     */
+    conversions: number
     attempts: number
     /** Distinct students with an attempt in the last 7 days. */
     activeLast7: number
@@ -116,6 +135,8 @@ export function computeUsage(input: {
   students: UsageStudent[]
   attempts: UsageAttempt[]
   sends: { channel: string; rows: UsageSend[] }[]
+  /** Count of `subscription_started` analytics events. */
+  conversions?: number
   now?: number
   weeks?: number
 }): UsageReport {
@@ -212,7 +233,15 @@ export function computeUsage(input: {
     generatedAt: new Date(now).toISOString(),
     totals: {
       students: input.students.length,
-      paidStudents: input.students.filter(s => s.subscription_tier === 'paid').length,
+      // Routed through isPaidStudent rather than re-checking the tier column.
+      // A bare `subscription_tier === 'paid'` also counts a student whose
+      // paid_until is null or in the past — someone the app itself treats as
+      // free — which overstated this figure before.
+      withPremiumAccess: input.students.filter(s => isPaidStudent({
+        subscription_tier: s.subscription_tier === 'paid' ? 'paid' : 'free',
+        paid_until: s.paid_until ?? null,
+      })).length,
+      conversions: input.conversions ?? 0,
       attempts: input.attempts.length,
       activeLast7,
       everReturned,

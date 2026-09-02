@@ -39,9 +39,17 @@ export default function UsageReportView({ report }: { report: UsageReport }) {
         </p>
         <div style={styles.statsGrid}>
           <Stat label="Active last 7 days" value={String(totals.activeLast7)} />
-          <Stat label="Paying" value={String(totals.paidStudents)} />
+          <Stat label="Premium access" value={String(totals.withPremiumAccess)} />
+          <Stat label="Tracked purchases" value={String(totals.conversions)} />
           <Stat label="Questions answered" value={totals.attempts.toLocaleString()} />
         </div>
+        <p style={styles.note}>
+          &ldquo;Premium access&rdquo; is who the app lets through, which includes comped and
+          manually-granted accounts — nothing in the schema records how access was
+          given, so those are indistinguishable from purchases. &ldquo;Tracked purchases&rdquo;
+          counts only what the Stripe webhook has recorded since 2 September 2026, so
+          it is trustworthy but starts from zero rather than counting earlier customers.
+        </p>
       </div>
 
       {/* Weekly activity — where a campaign starting or stopping shows up. */}
