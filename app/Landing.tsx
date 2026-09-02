@@ -6,7 +6,24 @@ import { trackEvent } from '../lib/analytics'
 import { renderOne, type DemoQ, type Rendered } from '../lib/demoQuestions'
 import { checkAnswer } from '../lib/questions/answerChecker'
 import { skillsById } from '../lib/skills/skillGraph'
+import { PLANS } from '../lib/studentPlans'
 import { colors, font, radius } from '../lib/styles'
+
+/**
+ * Counted from the skill graph, never typed in. The page claimed 152 in three
+ * places while `data/skills.ts` held 150 — a wrong number on a maths product is
+ * a bad look, and hardcoding it is what let the two drift apart in the first
+ * place. `skillsById` is already imported for the demo, so this costs nothing.
+ */
+const SKILL_COUNT = Object.keys(skillsById).length
+
+/**
+ * Read from the plan table rather than written into the copy, for the same
+ * reason as SKILL_COUNT: a price quoted on the landing page and charged at the
+ * checkout must not be able to disagree. Falls back to hiding the figure rather
+ * than printing a wrong one if the plan is ever renamed.
+ */
+const MONTHLY_PRICE = PLANS.find(p => p.id === 'monthly')?.price ?? null
 
 // ── Demo Question — real engine, varied questions from the live bank ──────────
 
@@ -217,7 +234,7 @@ function DemoQuestion({ initialPool, initialQuestion }: {
             {answered >= 2 && result && (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px dashed ${colors.border}`, textAlign: 'center' as const }}>
                 <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 10px', lineHeight: 1.55 }}>
-                  👏 You&apos;ve got the hang of it. Keep going — practise all 152 skills with the same instant feedback.
+                  👏 You&apos;ve got the hang of it. Keep going — practise all {SKILL_COUNT} skills with the same instant feedback.
                 </p>
                 <Link
                   href="/practice"
@@ -355,7 +372,14 @@ export default function Landing({ demoPool, demoQuestion }: {
             lineHeight: '1.08',
             letterSpacing: '-0.03em',
           }}>
-            The smarter way to<br />revise GCSE Maths.
+            {/*
+              Leads with the thing nothing else does. "The smarter way to revise
+              GCSE Maths" is the category, and every competitor's headline says
+              it — the differentiated claim (it names the mistake you made) was
+              buried in the subhead below. "GCSE Maths" stays in the H1 for ad
+              relevance; only the promise changed.
+            */}
+            GCSE Maths that tells you<br /><em style={{ fontStyle: 'normal', textDecoration: 'underline', textDecorationThickness: '4px', textUnderlineOffset: '6px', textDecorationColor: 'rgba(255,255,255,0.45)' }}>why</em> you got it wrong.
           </h1>
 
           <p style={{
@@ -367,7 +391,7 @@ export default function Landing({ demoPool, demoQuestion }: {
             marginLeft: 'auto',
             marginRight: 'auto',
           }}>
-            When you slip on a common mistake, it tells you exactly what went wrong — not just &ldquo;wrong, try again.&rdquo; <strong style={{ color: '#fff' }}>Try one now</strong> — no sign-up needed.
+            Every question knows the mistakes students actually make. Slip on one and it names it — not just &ldquo;wrong, try again.&rdquo; <strong style={{ color: '#fff' }}>Try one now</strong> — no sign-up needed.
           </p>
 
           {/* Live, interactive demo — leads with doing, not reading */}
@@ -441,9 +465,13 @@ export default function Landing({ demoPool, demoQuestion }: {
           flexWrap: 'wrap' as const,
         }}>
           {[
-            { number: '152', label: 'GCSE Maths skills' },
-            { number: '5–10', label: 'minute sessions' },
-            { number: '100%', label: 'free to start' },
+            { number: String(SKILL_COUNT), label: 'GCSE Maths skills' },
+            { number: '10', label: 'questions a session' },
+            // Counted 2026-09-01: 716 authored traps across 263 published
+            // questions. Stated as a floor because the bank only grows, so this
+            // can never become an overclaim between refreshes — and it puts a
+            // number on the one thing the product does that others don't.
+            { number: '700+', label: 'mistakes it can name' },
           ].map(({ number, label }) => (
             <div key={label} style={{ textAlign: 'center' as const }}>
               <p style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: '800', color: colors.primary, margin: '0 0 2px', letterSpacing: '-0.03em' }}>{number}</p>
@@ -481,7 +509,7 @@ export default function Landing({ demoPool, demoQuestion }: {
               {
                 emoji: '📈',
                 title: 'Track your mastery',
-                body: "Watch 152 skills move from 'not started' to 'mastered'. See your progress build question by question, session by session.",
+                body: `Watch ${SKILL_COUNT} skills move from 'not started' to 'mastered'. See your progress build question by question, session by session.`,
               },
             ].map(({ emoji, title, body }) => (
               <div key={title} style={{
@@ -530,7 +558,7 @@ export default function Landing({ demoPool, demoQuestion }: {
               {
                 n: '3',
                 title: 'Create a free account to keep going',
-                body: 'Save your progress and get questions targeted at your weak skills. Watch 152 skills go from \'not started\' to \'mastered\'.',
+                body: `Save your progress and get questions targeted at your weak skills. Watch ${SKILL_COUNT} skills go from 'not started' to 'mastered'.`,
               },
             ].map(({ n, title, body }, i) => (
               <div key={n} style={{ display: 'flex', gap: '20px' }}>
@@ -572,6 +600,145 @@ export default function Landing({ demoPool, demoQuestion }: {
               Start practising free →
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/*
+        ── After the first session ───────────────────────────────────────────
+        The page used to stop at "try a question", which sells the demo rather
+        than the product. Measured over 56 students, 38 answered 6+ questions on
+        their first day and only 10 ever came back — so the thing a visitor most
+        needs to see is that there IS a second session, and what it looks like.
+
+        These are the real components' styles, showing real numbers a student
+        would see. Mock-ups that flatter beyond what ships would be a promise
+        the product then breaks on day one.
+      */}
+      <section style={{ padding: 'clamp(48px, 8vw, 80px) 24px', background: '#f8fafc' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <h2 style={{
+            fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: '800',
+            textAlign: 'center' as const, color: colors.textPrimary,
+            margin: '0 0 12px', letterSpacing: '-0.02em',
+          }}>
+            It remembers, so you don&rsquo;t have to
+          </h2>
+          <p style={{
+            fontSize: font.lg, color: colors.textSecondary, textAlign: 'center' as const,
+            margin: '0 auto 44px', maxWidth: '540px', lineHeight: 1.6,
+          }}>
+            Come back tomorrow and it already knows what you found hard.
+            No re-testing, no starting again.
+          </p>
+
+          <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap' as const }}>
+            {/* Mastery dots — the same five-dot row the practice page draws */}
+            <div style={{ flex: '1 1 240px', background: '#fff', borderRadius: radius.lg, border: `1px solid ${colors.border}`, padding: '22px 20px' }}>
+              <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.textHint, margin: '0 0 14px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                Every skill, tracked
+              </p>
+              {[
+                { name: 'Pythagoras’ Theorem', correct: 5, label: 'Mastered', tone: colors.successText },
+                { name: 'Rounding', correct: 3, label: '1 more', tone: colors.textHint },
+                { name: 'Standard Form', correct: 1, label: 'Needs work', tone: colors.dangerText },
+              ].map(({ name, correct, label, tone }) => (
+                <div key={name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '12px' }}>
+                  <div>
+                    <p style={{ fontSize: font.sm, color: colors.textPrimary, margin: '0 0 5px', fontWeight: '500' }}>{name}</p>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      {[0, 1, 2, 3, 4].map(i => (
+                        <div key={i} style={{
+                          width: 11, height: 11, borderRadius: '50%',
+                          background: i < correct ? colors.success : colors.border,
+                        }} />
+                      ))}
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: tone, flexShrink: 0 }}>{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Weekly goal — the dashboard's own stat card */}
+            <div style={{ flex: '1 1 240px', background: '#fff', borderRadius: radius.lg, border: `1px solid ${colors.border}`, padding: '22px 20px' }}>
+              <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.textHint, margin: '0 0 14px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                A goal you can actually hit
+              </p>
+              <p style={{ fontSize: '44px', fontWeight: '800', color: colors.successText, margin: '0 0 2px', lineHeight: 1 }}>
+                10/10
+              </p>
+              <p style={{ fontSize: font.sm, color: colors.textHint, margin: '0 0 16px' }}>🔥 3 weeks</p>
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, lineHeight: 1.6 }}>
+                Ten questions a week — about one sitting. Miss a week and you pick up where you left off,
+                not back at zero.
+              </p>
+            </div>
+
+            {/* Session summary — what the end of a session actually shows */}
+            <div style={{ flex: '1 1 240px', background: '#fff', borderRadius: radius.lg, border: `1px solid ${colors.border}`, padding: '22px 20px' }}>
+              <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.textHint, margin: '0 0 14px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                Every session, summed up
+              </p>
+              <p style={{ fontSize: '34px', fontWeight: '800', color: colors.textPrimary, margin: '0 0 10px', lineHeight: 1 }}>
+                8<span style={{ fontSize: font.lg, color: colors.textHint }}>/10</span>
+              </p>
+              <div style={{ background: colors.successLight, border: `1px solid ${colors.successBorder}`, borderRadius: radius.md, padding: '9px 12px', marginBottom: '10px' }}>
+                <p style={{ fontSize: font.sm, color: colors.successText, margin: 0, fontWeight: '600' }}>
+                  🎉 Mastered: Pythagoras&rsquo; Theorem
+                </p>
+              </div>
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, lineHeight: 1.6 }}>
+                Next time: 1 more on <strong>Rounding</strong> to master it.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/*
+        ── For parents ───────────────────────────────────────────────────────
+        The hero and demo speak to the student, because the student is the one
+        who has to want to use it. This strip is for whoever is deciding whether
+        to pay: what it costs, what they can see, and what happens if they do
+        nothing. Deliberately plain — no urgency, no "limited time".
+      */}
+      <section style={{ padding: 'clamp(40px, 6vw, 64px) 24px', background: '#ffffff', borderTop: `1px solid ${colors.border}` }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
+          <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.07em' }}>
+            For parents
+          </p>
+          <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 30px)', fontWeight: '800', color: colors.textPrimary, margin: '0 0 14px', letterSpacing: '-0.02em' }}>
+            You can see whether it&rsquo;s working
+          </h2>
+          <p style={{ fontSize: font.lg, color: colors.textSecondary, margin: '0 0 24px', lineHeight: 1.65 }}>
+            Not &ldquo;they spent 20 minutes on it&rdquo; — which skills they&rsquo;ve mastered, which ones
+            they&rsquo;re stuck on, and whether that&rsquo;s moving week to week.
+          </p>
+
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' as const, marginBottom: '26px' }}>
+            {[
+              ['Free, properly', 'The whole question bank, unlimited practice, no card to start. Most students never need to pay.'],
+              [MONTHLY_PRICE ? `${MONTHLY_PRICE} a month` : 'Paid plans', 'Cancel any time. Unlocks progress trends over time and targeted weak-spot sessions.'],
+              ['Nothing to install', 'Works in a browser on a phone, tablet or laptop. No app, no adverts, no data sold.'],
+            ].map(([title, body]) => (
+              <div key={title} style={{ flex: '1 1 200px' }}>
+                <p style={{ fontSize: font.base, fontWeight: '700', color: colors.textPrimary, margin: '0 0 6px' }}>{title}</p>
+                <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, lineHeight: 1.6 }}>{body}</p>
+              </div>
+            ))}
+          </div>
+
+          <Link
+            href="/student"
+            onClick={() => trackEvent('parent_signup_clicked')}
+            style={{
+              background: colors.primary, color: '#fff', padding: '13px 26px',
+              borderRadius: radius.md, fontSize: font.base, fontWeight: '700',
+              textDecoration: 'none', display: 'inline-block',
+            }}
+          >
+            Set up a free account →
+          </Link>
         </div>
       </section>
 
