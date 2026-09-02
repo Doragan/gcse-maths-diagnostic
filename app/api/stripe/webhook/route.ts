@@ -50,6 +50,30 @@ export async function POST(req: Request) {
     console.warn(`[stripe webhook] idempotency check unavailable (${seen.error.code ?? '?'}) — processing without dedupe`)
   }
 
+  /**
+   * Record a conversion for the usage report. BEST-EFFORT ONLY — deliberately
+   * not wrapped in applyOrFail, and its failure is swallowed.
+   *
+   * `students` has `subscription_tier` and `paid_until` but no `paid_at`, and
+   * `stripe_events` is an idempotency ledger holding only (id, processed_at),
+   * so nothing currently records WHEN a student converted. This makes that
+   * answerable from here on; it cannot backfill the existing subscribers.
+   *
+   * Analytics must never be able to fail a payment: an error here would turn a
+   * successful entitlement grant into a 500, and Stripe would retry a webhook
+   * whose real work already succeeded. The idempotency check upstream means a
+   * retry cannot double-count this either.
+   */
+  async function recordConversion(studentId: string, plan: string) {
+    const { error } = await adminClient.from('analytics_events').insert({
+      event: 'subscription_started',
+      path: '/stripe/webhook',
+      session_id: event.id,          // Stripe's event id: stable, and not a student's
+      properties: { student_id: studentId, plan },
+    })
+    if (error) console.warn(`[stripe webhook] conversion event not recorded: ${error.message}`)
+  }
+
   // Run a Supabase write and turn a DB failure into a 500 so Stripe RETRIES
   // (instead of the old behaviour: swallow the error, return 200, and leave a
   // paying customer with no access). Returns a 500 response on failure, else null.
@@ -88,6 +112,7 @@ export async function POST(req: Request) {
             stripe_subscription_id: session.subscription as string,
           }).eq('id', studentId))
         if (fail) return fail
+        await recordConversion(studentId, plan)
       } else {
         // One-off payment (exam season pass — fixed expiry, no renewal).
         const fail = await applyOrFail('student exam pass grant', () =>
@@ -96,6 +121,7 @@ export async function POST(req: Request) {
             paid_until: STUDENT_EXAM_PASS_UNTIL,
           }).eq('id', studentId))
         if (fail) return fail
+        await recordConversion(studentId, plan)
       }
     }
   }

@@ -45,6 +45,19 @@ export default function AdminPage() {
           Manage questions
         </button>
       </div>
+
+      <div style={card}>
+        <h2 style={sectionTitle}>Usage</h2>
+        <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+          Signups, weekly activity, the day-2 return rate and the email funnel.
+        </p>
+        <button
+          onClick={() => router.push('/admin/usage')}
+          style={{ ...primaryButton, marginTop: '8px' }}
+        >
+          View usage
+        </button>
+      </div>
     </main>
   )
 }
