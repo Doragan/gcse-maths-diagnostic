@@ -53,11 +53,23 @@ export async function POST(req: Request) {
         plan,
         founder: String(founder),
       },
-      ...(isSubscription && {
-        subscription_data: {
-          metadata: { student_id: user.id, plan },
-        },
-      }),
+      ...(isSubscription
+        ? {
+            subscription_data: {
+              metadata: { student_id: user.id, plan },
+            },
+          }
+        : {
+            // One-off (exam pass). Subscription mode always creates a Customer;
+            // payment mode defaults to `if_required`, which with only
+            // customer_email set means NO Customer is created at all — so the
+            // webhook had nothing to store and an exam-pass buyer could not be
+            // linked back to Stripe from the app afterwards.
+            //
+            // Only valid in payment mode: sending it alongside a subscription
+            // is an error from Stripe, hence the branch rather than a spread.
+            customer_creation: 'always' as const,
+          }),
     })
 
     return NextResponse.json({ url: session.url })

@@ -28,6 +28,8 @@ type StudentProfile = {
   paid_until: string | null
   /** Set only for monthly subscribers — used to gate the "Manage subscription" link. */
   stripe_customer_id: string | null
+  /** Set only while a recurring subscription exists — the gate on "Manage subscription". */
+  stripe_subscription_id: string | null
 }
 
 type ExtendedStatus = MasteryStatus | 'not_started'
@@ -631,9 +633,14 @@ export default function StudentDashboardPage() {
         )}
       </div>
 
-      {/* Manage subscription — monthly subscribers only (one-off buyers have
-          nothing recurring to cancel, so no stripe_customer_id is stored). */}
-      {isPaid && profile.stripe_customer_id && (
+      {/* Manage subscription — recurring subscribers only.
+          Gated on stripe_subscription_id, not stripe_customer_id. It used to be
+          the customer id, which worked only because the exam pass stored none;
+          now that a one-off purchase records its customer (so the buyer can be
+          traced back to Stripe at all), that test would offer a portal with
+          nothing in it. The subscription id is the thing that actually means
+          "something recurring exists", and the webhook nulls it on cancel. */}
+      {isPaid && profile.stripe_subscription_id && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4px' }}>
           <button
             onClick={manageSubscription}
