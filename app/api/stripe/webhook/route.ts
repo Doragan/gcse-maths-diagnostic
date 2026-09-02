@@ -115,10 +115,21 @@ export async function POST(req: Request) {
         await recordConversion(studentId, plan)
       } else {
         // One-off payment (exam season pass — fixed expiry, no renewal).
+        //
+        // The customer id is stored even though there is nothing to renew: it
+        // is the only link from a student row back to Stripe, without which an
+        // exam-pass buyer cannot be looked up, refunded against, or told apart
+        // from an account someone granted by hand. There is no subscription id
+        // because a one-off payment creates no subscription.
+        //
+        // Written only when present, so a session that somehow arrives without
+        // a Customer cannot null out a value already on the row.
+        const customerId = typeof session.customer === 'string' ? session.customer : null
         const fail = await applyOrFail('student exam pass grant', () =>
           adminClient.from('students').update({
             subscription_tier: 'paid',
             paid_until: STUDENT_EXAM_PASS_UNTIL,
+            ...(customerId ? { stripe_customer_id: customerId } : {}),
           }).eq('id', studentId))
         if (fail) return fail
         await recordConversion(studentId, plan)
