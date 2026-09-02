@@ -10,7 +10,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run test",
-    "check:landing": "tsx scripts/check-landing-copy.ts"
+    "check:landing": "npx tsx scripts/check-landing-copy.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",
