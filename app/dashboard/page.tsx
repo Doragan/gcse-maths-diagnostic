@@ -28,9 +28,10 @@ export default function DashboardPage() {
   const [newCourseId, setNewCourseId] = useState('gcse_foundation')
 
   const [userEmail, setUserEmail] = useState('')
+  // Kept only to acknowledge a returning `?upgraded=true` from a pass bought
+  // before checkout closed. Nothing on this page is gated on it any more.
   const [isPaid, setIsPaid] = useState(false)
-  const [freeAssessmentsUsed, setFreeAssessmentsUsed] = useState(0)
-  
+
   const [isAdmin, setIsAdmin] = useState(false)
 
 useEffect(() => {
@@ -40,7 +41,7 @@ useEffect(() => {
 
     const { data: teacher } = await supabase
       .from('teachers')
-      .select('paid_until, free_assessments_used, is_admin')
+      .select('paid_until, is_admin')
       .eq('id', session.user.id)
       .single()
 
@@ -55,7 +56,6 @@ useEffect(() => {
 
     const paid = teacher.paid_until && new Date(teacher.paid_until) > new Date()
     setIsPaid(!!paid)
-    setFreeAssessmentsUsed(teacher.free_assessments_used ?? 0)
     setIsAdmin(teacher.is_admin ?? false)
 
     loadAssessments()
@@ -74,21 +74,16 @@ useEffect(() => {
   async function createAssessment() {
   if (!newTitle.trim()) return
 
-  // Check if they need to pay
-  if (!isPaid && freeAssessmentsUsed >= 1) {
-    router.push('/dashboard/upgrade')
-    return
-  }
-
   setCreating(true)
   setCreateError('')
   try {
     const session = await getSession()
     if (!session) { router.push('/auth'); return }
 
-    // Creation, the free-limit check, and the usage counter are all enforced
-    // server-side (app/api/assessments/create). The client no longer writes
-    // teachers.free_assessments_used directly.
+    // Creation runs server-side (app/api/assessments/create) under the service
+    // role, so the client never writes teachers.free_assessments_used. There is
+    // no longer a limit to enforce — diagnostics are free — but the route stays
+    // for that write boundary.
     const res = await fetch('/api/assessments/create', {
       method: 'POST',
       headers: {
@@ -97,12 +92,6 @@ useEffect(() => {
       },
       body: JSON.stringify({ title: newTitle.trim(), courseId: newCourseId }),
     })
-
-    if (res.status === 402) {
-      // Free limit reached (enforced by the server).
-      router.push('/dashboard/upgrade')
-      return
-    }
 
     const json = await res.json().catch(() => null)
     if (!res.ok || !json?.assessment) {
@@ -115,9 +104,6 @@ useEffect(() => {
     setAssessments(prev => [json.assessment, ...prev])
     setNewTitle('')
     setNewCourseId('gcse_foundation')
-    if (typeof json.freeAssessmentsUsed === 'number') {
-      setFreeAssessmentsUsed(json.freeAssessmentsUsed)
-    }
   } catch (e: any) {
     setCreateError(`Network error: ${e?.message ?? e}`)
   } finally {
@@ -190,32 +176,9 @@ useEffect(() => {
 		  {userEmail}
 		</p>
 		
-		{!isPaid && (
-  <div style={{
-    padding: '12px 16px',
-    borderRadius: radius.md,
-    background: freeAssessmentsUsed >= 1 ? colors.warningLight : colors.background,
-    border: `1px solid ${freeAssessmentsUsed >= 1 ? colors.warningBorder : colors.border}`,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '12px',
-  }}>
-    <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>
-      {freeAssessmentsUsed >= 1
-        ? 'You have used your free diagnostic. Upgrade to create more.'
-        : 'You have 1 free class diagnostic included.'}
-    </p>
-    {freeAssessmentsUsed >= 1 && (
-      <button
-        onClick={() => router.push('/dashboard/upgrade')}
-        style={{ ...primaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base, whiteSpace: 'nowrap' as const }}
-      >
-        Upgrade — £10
-      </button>
-    )}
-  </div>
-)}
+		{/* The "1 free diagnostic, then £10" banner used to sit here. Class
+		    diagnostics are free now, so there is nothing to warn about and
+		    nothing to sell — an unlimited feature needs no counter. */}
 
 {isPaid && new URLSearchParams(window.location.search).get('upgraded') === 'true' && (
   <div style={{
