@@ -60,10 +60,17 @@ import {
  * gets a sentence that praises and instructs at once, the way a teacher writes
  * it.
  *
- * These edges remain the weakest-justified numbers in the sheet: they are
- * plausible, not derived. Banding a topic against the STUDENT'S OWN overall
- * rate would be defensible in a way a fixed bar is not — a fixed 60% flatters a
- * strong student and buries a weak one — and is recorded as an open decision.
+ * THESE NUMBERS ARE NOT DERIVED FROM ANYTHING, and that is a settled decision
+ * rather than an oversight (user ruling, 2026-09-04): with no sittings on
+ * record, no band could be justified better, so a plausible one is as good as
+ * this gets. Do not churn them on taste alone.
+ *
+ * What would actually justify them is the same thing the cohort-relative
+ * feature waits on — marked papers on record (docs/audit/16, "Cohort-relative
+ * feedback"). Once a paper has been sat enough times, a band stops being a
+ * guess and becomes a distribution: "below what most students score on this
+ * topic" is defensible in a way "below 60%" never is. Revisit then, with data,
+ * not before.
  */
 export const NEAR_MISS_RATIO = 0.6
 export const STRUGGLING_RATIO = 0.35

@@ -419,6 +419,19 @@ version is a new source for an existing type, not new feedback code.
 **No urgency.** That seam exists today, and adding an optional argument later is
 additive. This is recorded, not deferred under protest.
 
+**It also carries the feedback bands with it.** The sheet decides whether a
+topic reads as a near miss, a half, or not-yet-clicked using fixed shares of its
+marks — 0.6 and 0.35 in `lib/papers/wwwEbi.ts`. Those numbers are not derived
+from anything, and the ruling (2026-09-04) is to keep them: **with no sittings on
+record, no band could be justified better**, so churning them on taste would be
+motion without improvement.
+
+The data that makes cohort praise possible is the same data that makes the bands
+defensible. Once a paper has been sat enough times, "below what most students
+score on this topic" replaces "below 60%" — a real statement about difficulty
+rather than a round number. So the bands are not a permanent compromise; they
+are the placeholder that the first tranche of stored sittings retires.
+
 **Three rules to settle before it is built**, all easy to get wrong:
 
 1. **A minimum cohort size.** In a class of four, "75% of the class got this
