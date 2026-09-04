@@ -1,0 +1,70 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 5 (Non-calculator)",
+    "series": "June 2025",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-05-jun25",
+    "paper_title": "OCR GCSE Mathematics J560/05",
+    "paper_subtitle": "Higher Tier Paper 5 Non-calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (J560/05, Thursday 15 May 2025). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "THIS is OCR's non-calculator Higher paper, not paper 4. Higher partner of J560/02. 100 marks, read from the [N] part markers in the QP margin."
+  },
+  "coding_notes": [
+    "TIER CROSSOVER: q1, q2, q5, q6, q8 and q9 are the same questions as J560/02 q15, q16, q18, q19, q21 and q24, with identical marks and identical tags. q7a is a near-twin of J560/02 q20 (draw a line to solve a pair of simultaneous equations) but uses different equations and carries an extra part, so it is coded separately.",
+    "q11 (is a 10 cm cube of steel plausible, by estimation) tagged compound_units + estimating + volume_of_a_prism: density supplies the compound unit, the mark scheme rewards rounding 7.9 to 8, and the cube's volume is the bridge. There is no cube-root node, and none of the three is a good sole tag.",
+    "q13 (p proportional to the square root of m) tagged proportion_with_powers — a root is a power, and the node's example is the same shape of problem.",
+    "q17b (error interval for the RANGE of grouped masses) tagged range + upper_and_lower_bounds. Neither alone covers it: the grouped intervals fix the bounds and the range is what those bounds are placed on.",
+    "q21a (state the assumption behind multiplying two identical probabilities) tagged combined_events — the assumption IS independence, which is that node's content.",
+    "q21b (probability about the contents of a bag after two sweets are eaten) tagged tree_diagrams rather than conditional_probability: the mark scheme's method is products along branches with a changing denominator, and tree_diagrams credits four skills where conditional_probability credits seven.",
+    "q22 tagged cosine_rule + area_of_triangle_sine. The exact value of sin 45 also earns a mark, but exact_trig_values was left off rather than credit a third skill for one mark."
+  ],
+  "rows": [
+    { "q": "1",  "part": "a",  "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "multiply two negative decimals" },
+    { "q": "1",  "part": "b",  "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "divide one decimal by another" },
+
+    { "q": "2",  "part": null, "marks": 3, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "combine two scores out of different totals and compare with a percentage threshold" },
+    { "q": "3",  "part": null, "marks": 3, "skill_ids": ["rotations"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "describe a rotation fully from two positions of a triangle on a grid" },
+
+    { "q": "4",  "part": "a",  "marks": 1, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "solve a one-step linear inequality" },
+    { "q": "4",  "part": "b",  "marks": 2, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "show an inequality solution on a number line" },
+
+    { "q": "5",  "part": null, "marks": 3, "skill_ids": ["adding_and_subtracting_fractions", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "find an unknown denominator in a mixed-number fraction equation" },
+
+    { "q": "6",  "part": "a",  "marks": 4, "skill_ids": ["sequences", "lowest_common_multiple"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "how many terms two arithmetic sequences share below a limit" },
+    { "q": "6",  "part": "b",  "marks": 2, "skill_ids": ["finding_the_nth_term"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "nth term of an arithmetic sequence" },
+
+    { "q": "7",  "part": "a",  "marks": 4, "skill_ids": ["simultaneous_equations", "plotting_straight_line_graphs"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "draw a second line on a grid and read off the solution of a pair of simultaneous equations" },
+    { "q": "7",  "part": "b",  "marks": 2, "skill_ids": ["simultaneous_equations", "understanding_straight_line_graphs"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "decide whether a pair of simultaneous equations has no solution, by comparing gradients" },
+
+    { "q": "8",  "part": null, "marks": 5, "skill_ids": ["ratio"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "test a claim about the total of a three-part ratio given one difference, with working" },
+    { "q": "9",  "part": null, "marks": 6, "skill_ids": ["gathering_and_organising_data", "percentage_change", "fractions_of_amounts"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "design and complete a two-way table, with entries derived by a fraction, a percentage increase and an addition" },
+
+    { "q": "10", "part": null, "marks": 4, "skill_ids": ["forming_expressions_and_formulae", "simplifying_expressions"], "kind": "exam", "answer_form": "expression", "app_gap_note": "form and simplify an expression for a total of three chained ages" },
+    { "q": "11", "part": null, "marks": 5, "skill_ids": ["compound_units", "estimating", "volume_of_a_prism"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "use estimation and a density to test a claim about the side length of a solid cube" },
+    { "q": "12", "part": null, "marks": 4, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "prove two triangles congruent inside an equilateral triangle with a perpendicular" },
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["proportion_with_powers"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "value of a variable directly proportional to the square root of another" },
+
+    { "q": "14", "part": "a",  "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "evaluate a number raised to a fractional power" },
+    { "q": "14", "part": "b",  "marks": 4, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "simplify a product involving a bracket raised to a negative power" },
+
+    { "q": "15", "part": "a",  "marks": 3, "skill_ids": ["completing_the_square"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write a quadratic in completed-square form" },
+    { "q": "15", "part": "b",  "marks": 2, "skill_ids": ["completing_the_square"], "kind": "mastery", "answer_form": "coordinate", "app_gap_note": "turning point read off a completed square" },
+
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "change the subject where the new subject appears on both sides of a fraction" },
+
+    { "q": "17", "part": "a",  "marks": 4, "skill_ids": ["histograms"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "complete a grouped frequency table and its histogram from partial information" },
+    { "q": "17", "part": "b",  "marks": 2, "skill_ids": ["range", "upper_and_lower_bounds"], "kind": "exam", "answer_form": "expression", "app_gap_note": "error interval for the range of a grouped distribution given the largest value" },
+
+    { "q": "18", "part": null, "marks": 5, "skill_ids": ["recurring_decimals_to_fractions", "dividing_fractions"], "kind": "exam", "answer_form": "fraction", "app_gap_note": "divide one recurring decimal by another, answer as a mixed number" },
+    { "q": "19", "part": null, "marks": 5, "skill_ids": ["sector_calculations", "area_of_a_circle"], "kind": "exam", "answer_form": "expression", "app_gap_note": "total area of a sector joined to a semicircle, given the sector's area, in terms of pi" },
+    { "q": "20", "part": null, "marks": 4, "skill_ids": ["algebraic_fractions"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "simplify an algebraic fraction by factorising both quadratics" },
+
+    { "q": "21", "part": "a",  "marks": 1, "skill_ids": ["combined_events"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "state the assumption behind multiplying two unchanged probabilities" },
+    { "q": "21", "part": "b",  "marks": 5, "skill_ids": ["tree_diagrams"], "kind": "exam", "answer_form": "fraction", "app_gap_note": "probability about the remaining contents of a bag after two items are removed without replacement" },
+
+    { "q": "22", "part": null, "marks": 6, "skill_ids": ["cosine_rule", "area_of_triangle_sine"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "area of one triangle in a quadrilateral, the shared diagonal coming from the cosine rule" }
+  ]
+}
