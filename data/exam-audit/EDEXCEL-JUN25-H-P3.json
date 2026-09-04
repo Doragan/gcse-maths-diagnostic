@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 3 (Calculator)",
+    "series": "June 2025",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-3h-jun25",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/3H",
+    "paper_subtitle": "Higher Tier Paper 3 Calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (1MA1_3H_2506). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "Marks per part read from the question paper's own part totals and checked against the printed 80. Questions 1 to 8 are the overlap questions shared with 3F (3F q22 to q30) and are tagged identically there."
+  },
+  "coding_notes": [
+    "q7 tagged coordinates alone, matching the same question on 3F. The mark scheme's second step is a proportional step along the segment, but tagging proportion would credit the whole fractions-and-percentages chain beneath it.",
+    "q10 tagged exact_calculations + significant_figures: the item is a calculator-entry question whose second demand is the rounding. Neither trig node is tagged — the calculator does the trigonometry and nothing about triangles is tested.",
+    "q13 (match four equations to their graph shapes) tagged sketching_functions: recognising the shape of a cubic, a reciprocal, a negative quadratic and an exponential is what that node covers, and the taxonomy has no separate 'recognise graph shapes' skill.",
+    "q15 (at least two of three with replacement) tagged combined_events + systematic_listing. combined_events is the multiplication of independent probabilities; systematic_listing is the enumeration of the three orderings, and it is a root skill so it costs nothing extra. tree_diagrams was rejected because it would additionally credit frequency_trees.",
+    "q17 tagged algebraic_fractions + solving_linear_equations — combining two algebraic fractions over a common denominator, then solving what is left.",
+    "q20 tagged circle_theorem_angle_at_centre + circle_theorem_cyclic_quadrilateral, the two theorems the mark scheme names for the two routes through the question.",
+    "q22 tagged equation_of_a_circle + perpendicular_gradients: the tangent point is found from the radius perpendicular to the given line."
+  ],
+  "rows": [
+    { "q": "1",  "part": null, "marks": 2, "skill_ids": ["frequency_diagrams", "grouped_frequency_tables"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "draw a frequency polygon from a grouped frequency table" },
+
+    { "q": "2",  "part": "a",  "marks": 1, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "identify the error in a worked change of subject" },
+    { "q": "2",  "part": "b",  "marks": 2, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "factorise fully a two-term expression in two letters" },
+
+    { "q": "3",  "part": null, "marks": 3, "skill_ids": ["percentage_change"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "percentage profit from a bulk cost and a per-unit selling price" },
+    { "q": "4",  "part": null, "marks": 4, "skill_ids": ["compound_units", "converting_measurements"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "compare unit prices across two currencies and two mass units" },
+    { "q": "5",  "part": null, "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "error interval for a value rounded to one decimal place" },
+    { "q": "6",  "part": null, "marks": 3, "skill_ids": ["compound_units", "time_calculations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "average speed from a distance and a time given in hours and minutes" },
+    { "q": "7",  "part": null, "marks": 3, "skill_ids": ["coordinates"], "kind": "exam", "answer_form": "coordinate", "app_gap_note": "coordinates of a point extending a line segment by a fraction of its length" },
+    { "q": "8",  "part": null, "marks": 5, "skill_ids": ["area_of_a_trapezium", "pythagoras_theorem"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "perimeter of a trapezium from its area and two of its sides" },
+
+    { "q": "9",  "part": "a",  "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a number given in standard form as an ordinary number" },
+    { "q": "9",  "part": "b",  "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a small decimal in standard form" },
+
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["exact_calculations", "significant_figures"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "evaluate a compound expression on a calculator and round to three significant figures" },
+
+    { "q": "11", "part": "a",  "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "unknown index from an equation written in powers of one base" },
+    { "q": "11", "part": "b",  "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "evaluate a fractional power of a numerical coefficient and a letter" },
+
+    { "q": "12", "part": "a",  "marks": 1, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "judge a claimed method for reversing a percentage increase" },
+    { "q": "12", "part": "b",  "marks": 3, "skill_ids": ["reverse_percentage"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "work back through a percentage fall followed by a percentage rise" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "table_complete", "app_gap_note": "match four equations to the shapes of their graphs" },
+    { "q": "14", "part": null, "marks": 2, "skill_ids": ["area_of_triangle_sine"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "area of a triangle from two sides and the included angle" },
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["combined_events", "systematic_listing"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "probability of at least two successes in three trials with replacement" },
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["volume_of_a_pyramid_and_cone", "volume_of_a_prism"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "height of a cone from the total volume of a cone-and-cylinder solid" },
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["algebraic_fractions", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "solve an equation carrying two algebraic fractions" },
+
+    { "q": "18", "part": "a",  "marks": 4, "skill_ids": ["venn_diagrams"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "complete a three-set Venn diagram from overlapping totals" },
+    { "q": "18", "part": "b",  "marks": 2, "skill_ids": ["conditional_probability"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "conditional probability read off a completed Venn diagram" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["upper_and_lower_bounds"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "upper bound of a count from two rounded measurements" },
+    { "q": "20", "part": null, "marks": 4, "skill_ids": ["circle_theorem_angle_at_centre", "circle_theorem_cyclic_quadrilateral"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "angle in a circle, quoting the circle theorems used" },
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations_quadratic"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "solve a linear and a quadratic pair of simultaneous equations" },
+    { "q": "22", "part": null, "marks": 4, "skill_ids": ["equation_of_a_circle", "perpendicular_gradients"], "kind": "exam", "answer_form": "coordinate", "app_gap_note": "point of tangency between a given line and a circle centred at the origin" },
+    { "q": "23", "part": null, "marks": 5, "skill_ids": ["vector_proof"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "scalar in a vector expression from a collinearity condition" }
+  ]
+}

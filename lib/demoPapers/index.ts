@@ -10,6 +10,11 @@ import { AQA_8300_3F_NOV24 } from './aqa-8300-3f-nov24'
 // Edexcel — coded from the published QP and mark scheme; the JSON's
 // coding_notes record the tagging judgements it needed.
 import { EDEXCEL_1MA1_1F_JUN25 } from './edexcel-1ma1-1f-jun25'
+import { EDEXCEL_1MA1_2F_JUN25 } from './edexcel-1ma1-2f-jun25'
+import { EDEXCEL_1MA1_3F_JUN25 } from './edexcel-1ma1-3f-jun25'
+import { EDEXCEL_1MA1_1H_JUN25 } from './edexcel-1ma1-1h-jun25'
+import { EDEXCEL_1MA1_2H_JUN25 } from './edexcel-1ma1-2h-jun25'
+import { EDEXCEL_1MA1_3H_JUN25 } from './edexcel-1ma1-3h-jun25'
 
 // AQA Foundation.
 import { AQA_8300_1F_JUN25 } from './aqa-8300-1f-jun25'
@@ -82,6 +87,11 @@ export type { PaperConfig, PaperTopic, PaperQuestion, PaperRetryQuestion, PaperC
 export const PAPERS: Record<string, PaperConfig> = {
   // June 2025
   [EDEXCEL_1MA1_1F_JUN25.id]: EDEXCEL_1MA1_1F_JUN25,
+  [EDEXCEL_1MA1_2F_JUN25.id]: EDEXCEL_1MA1_2F_JUN25,
+  [EDEXCEL_1MA1_3F_JUN25.id]: EDEXCEL_1MA1_3F_JUN25,
+  [EDEXCEL_1MA1_1H_JUN25.id]: EDEXCEL_1MA1_1H_JUN25,
+  [EDEXCEL_1MA1_2H_JUN25.id]: EDEXCEL_1MA1_2H_JUN25,
+  [EDEXCEL_1MA1_3H_JUN25.id]: EDEXCEL_1MA1_3H_JUN25,
   [AQA_8300_1F_JUN25.id]: AQA_8300_1F_JUN25,
   [AQA_8300_2F_JUN25.id]: AQA_8300_2F_JUN25,
   [AQA_8300_3F_JUN25.id]: AQA_8300_3F_JUN25,
