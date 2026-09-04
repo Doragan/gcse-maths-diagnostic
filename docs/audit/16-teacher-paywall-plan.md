@@ -4,6 +4,8 @@ _Scoped 2026-09-03. NOT BUILT. Written after `99255e0` made class diagnostics
 free and closed the £10 pass, which left the teacher side with no paid tier at
 all — deliberately, until this is worked out._
 
+_**Superseded in part.** Part 6 (2026-09-04) records the decided model — free to use, paid to keep. Read Parts 6–10 first; Parts 1–5 stand except where Part 6 corrects them._
+
 ## The decision in one line
 
 **Everything shown in the teacher demo goes behind the paywall.** The free tier
@@ -147,3 +149,230 @@ No gating has been built. The £10 pass stays closed rather than being reopened
 against the old fixed end date (31 Dec 2026), which decayed as the season ran
 down — a teacher buying in November would have paid £10 for six weeks. The closed
 checkout is the honest state until there is a decided thing to sell.
+
+---
+
+# Part 6 — The model, decided (2026-09-04)
+
+**Free to use, paid to keep.** A teacher can mark a paper and generate feedback
+sheets without paying. What they cannot do for free is *keep* it — no stored
+sitting, no history, no analysis over time.
+
+This is Part 5's freemium framing applied to the marking tool specifically,
+rather than to diagnostics. It survives the invoice problem for the reason Part 5
+gave: the lapse behaviour is "your data stops accumulating", not "your dashboard
+went dark", which is the difference between an annoyance and a crisis when the
+cause is an unpaid invoice rather than a decision.
+
+Four smaller decisions taken at the same time:
+
+- Marks arrive by **upload or direct entry** (see Part 9 — "upload" is the one
+  genuinely unscoped word in this plan).
+- **Other exam boards are needed.** Today everything is AQA.
+- **WWW/EBI is one feedback format, not the format.** Others should be possible.
+  Not required for first launch, but it constrains the design now (Part 9).
+- **Partial papers**: a teacher often sets part of a paper. Setup gets a "full
+  paper" checkbox, ticked by default, which can be unticked to select questions.
+
+## Corrections to Parts 1–5
+
+Three cost assumptions above are wrong, all in the same direction — the work is
+cheaper than the earlier scoping thought.
+
+1. **Export is built.** Part 5 says the freemium option's "one dependency is not
+   built: CSV/PDF export". It is: `lib/results/generatePDF.ts` (jsPDF +
+   jspdf-autotable, over `buildTopicGrid`), wired up by
+   `components/results/DownloadButtons.tsx` for diagnostic results. It needs
+   pointing at paper data, not writing.
+
+2. **A feedback sheet is assembly, not generation.** Part 1 calls WWW/EBI "the
+   product writing a teacher's feedback for them", implying prose generation.
+   `PaperConfig` already carries, per question: `marks`, `topic`, a human `skill`
+   label, a `desc`, and real `skillIds` — plus a **`retrySet`** (a same-skill
+   retry question for every non-visual item) and **`challengeQuestions`** per
+   topic. "Dropped marks to named skills to questions to practise to PDF" joins
+   data that exists to a generator that exists.
+
+3. **The catalogue, not the paywall, is why `paper_sittings` has 0 rows.** The
+   paper picker exists (`app/dashboard/classes/[id]/papers/page.tsx:251`). There
+   is just almost nothing to pick: the registry holds **three papers, all AQA
+   Foundation, November 2024**. A department marking a mock in autumn 2026 needs
+   Higher, or a recent series, or another board. This is a sufficient explanation
+   for nobody ever having marked a paper, and it does not require the "typing 30
+   students' marks is an evening's work" hypothesis to be true.
+
+# Part 7 — What "paid to keep" does to the architecture
+
+**The free tier is a new, simpler path — not a degraded version of the existing
+one.** Today the only way to mark a paper is `POST /api/papers/sittings`, which
+is write-first by design: it creates a `paper_sittings` row *and* derives
+`practice_attempts` to feed the mastery engine. There is no way to mark a paper
+and keep nothing.
+
+So the split is:
+
+| | Free (ephemeral) | Paid (kept) |
+|---|---|---|
+| Marks in | typed or uploaded | same |
+| Sheets out | yes | yes |
+| `paper_sittings` row | **none** | written |
+| `practice_attempts` | **none** | derived, feeds mastery |
+| Needs a class | **no** | yes — attempts are per `student_id` |
+| Needs student accounts | **no** — names only | yes |
+| Needs a teacher account | **no** (see below) | yes |
+
+Four consequences worth taking seriously:
+
+1. **The feedback generator must not depend on having persisted anything.** It
+   takes `(paper, selected items, marks per student)` and returns sheets — a pure
+   function, testable without auth or a database. That is the same instinct that
+   already put the marking rules in `lib/papers/sittingMarks.ts` ("so they can be
+   tested without standing up auth and a live class"). Build it there, and both
+   paths call it.
+
+2. **The paywall lands on one write, not seven reads.** Part 3 lists ~7 routes
+   plus a migration to `get_class_skill_mastery`. For *this* product the gate is
+   `POST /api/papers/sittings` — which already authenticates and proves class
+   ownership, so it is one paid check on one route. The RPC problem is real but
+   belongs to the **dashboard**, which is downstream of this and not day one.
+
+3. **Sign-up answers itself.** The chain is: free = ephemeral = no class = no
+   student accounts = nothing an account could hold. So requiring sign-up to mark
+   is pure friction with nothing to show for it. But "keep this" *is* an account —
+   that is literally what keeping means here. **Recommendation: no sign-up to
+   mark and download; the account is what the "keep these" button asks for.**
+   That puts the ask at the moment the teacher is holding thirty finished sheets,
+   which is the strongest position it will ever be in, and it is honest rather
+   than a toll gate. It also serves the stated reason for wanting sign-up — a
+   teacher who has saved something has a reason to come back; one who was forced
+   to register before seeing anything does not.
+
+4. **An ephemeral path with no accounts needs abuse thinking that the current
+   route gets for free.** `POST /api/papers/sittings` is protected by bearer auth
+   and class ownership. An unauthenticated "mark a paper, get PDFs" endpoint has
+   neither. Not a blocker — it is compute-only with no data to leak — but it wants
+   a rate limit before it is public.
+
+# Part 8 — Two paid tiers, and the one that already exists in code
+
+The instinct in Part 6 is right that an individual teacher should not get the
+school model. The clean split falls out of "paid to keep":
+
+| | Individual teacher (card) | School / department (invoice) |
+|---|---|---|
+| Keep sittings, history, trends | yes — their own classes | yes — all staff |
+| Class analytics dashboard | yes | yes |
+| **Students get premium accounts** | **no** | **yes**, for class members |
+| Billing | Stripe, self-serve | PO and bank transfer, manual grant |
+| Unit | one teacher | an organisation |
+
+This answers Part 4's question 6 (keep Stripe?) with **yes, for the individual
+tier only** — and it gives the land-and-expand path: a teacher pays for their own
+persistence, it works, the school buys the version where the students get
+accounts too.
+
+**The student half of the school tier is already designed.**
+`lib/entitlements.ts` defines access as a union of a personal grant and a *class*
+grant: `activeClassMembership` is documented as "True when the student currently
+belongs to a class that grants premium. Undefined/false until classes exist
+(Phase 2)", with paused personal grants and banked time
+(`paid_remaining_seconds`) so an already-paying student loses nothing by joining
+a class. It is covered by tests and **passed by no real call site**. The school
+tier described here is exactly the thing that hook was left for.
+
+The individual tier needs no organisation table — `teachers` is the unit. The
+school tier does. Deciding the individual tier ships first therefore defers the
+migration in Part 2 without painting over it.
+
+# Part 9 — The four smaller decisions, and what each costs
+
+## "Upload" is two different products
+
+This is the largest unscoped word in the plan, and the two readings differ by an
+order of magnitude:
+
+- **A CSV of marks** — a spreadsheet of students by question marks. Small, and
+  half-anticipated already: `PaperQuestion.desc` is documented as appearing "in
+  the CSV template", so the idea has a foothold. Days.
+- **A photographed or scanned marked paper** — reading a teacher's ticks and mark
+  totals off paper. Vision work, per-board layout variance, and a wrong read is
+  worse than no read because it silently corrupts a student's sheet. A different
+  project.
+
+**This needs a decision before anything is built**, because the free tier's whole
+appeal rests on how marks get in. If the answer is "typing thirty students into a
+grid", the tool's 0 rows may not be a catalogue problem after all.
+
+## Exam boards: AQA Higher is nearly free, other boards are not
+
+All **30** papers in `data/exam-audit/` are AQA — 15 Foundation, 15 Higher — and
+each row already carries `q`, `part`, `marks`, `skill_ids` and `kind`, which is
+most of a `PaperQuestion`. So:
+
+- **AQA Higher**: 15 papers coded, 0 in the registry. Largely a derivation.
+- **Recent AQA Foundation series**: same.
+- **Edexcel / OCR**: no data at all. Coding a paper from scratch, per paper.
+  Worth confirming which board the target schools actually sit before paying that
+  cost — it is the item most likely to decide whether a given school can use this
+  at all.
+
+Per paper the derivation gap is: topic grouping, the human-facing `skill` and
+`desc` labels, the `visual` flag, and the hand-written `retrySet` — that last one
+being the part that makes the feedback sheet good rather than merely correct.
+
+## Partial papers: one concrete bug, one real ambiguity
+
+`deriveAttempts` already handles partial marking correctly — it iterates the marks
+actually supplied, so unset questions simply produce no attempt rows, and every
+row is positive-only so nothing is penalised for not being set.
+
+Two things do not:
+
+- **`marksTotal(paper)` sums every question on the paper**
+  (`lib/papers/sittingMarks.ts:61`). With eight questions set out of thirty, a
+  student scoring 34 of an available 42 would read as 34/80. The denominator has
+  to come from the selection, not the paper.
+- **"Not set" and "scored zero" must be distinguishable.** If selection is
+  inferred from which item ids carry marks, a teacher who leaves blanks meaning
+  zero silently shrinks the paper. **Store the selected item ids explicitly on the
+  sitting** rather than inferring them from key presence.
+
+And for the sheet itself: a skill that was never assessed must not read as a skill
+with no problem. Sheets need to state coverage, and to separate "dropped marks
+here" from "not assessed".
+
+## Feedback formats: separate evidence from presentation now
+
+WWW/EBI being one format of several costs nothing to allow today and is expensive
+to retrofit. Split the generator in two:
+
+- **Evidence** (per student, format-agnostic): marks by item, skills with dropped
+  marks, skills fully secure, what was covered, suggested retry questions from
+  `retrySet`, challenge questions for strong topics.
+- **Presentation**: a formatter over that evidence. WWW/EBI is the first one; the
+  demo's fixture strings become its output rather than its specification.
+
+This also settles Part 4's question 4 honestly. WWW/EBI stops being a not-built
+demo feature and becomes the first formatter — but **the To Do list is still
+fixture-only and unclaimed by this plan**, and should come out of the demo unless
+something intends to build it.
+
+# Part 10 — Still open after this
+
+1. **What does "upload" mean?** (Part 9.) Blocking.
+2. **Does the individual teacher tier ship before the school tier?** Recommended
+   yes — it needs no organisation table, and it is the cheaper half of the same
+   entitlement model.
+3. **What does an individual teacher pay, and per what?** Per month, per year, per
+   paper marked? "Paid to keep" prices naturally per seat per year; a department
+   invoice does too.
+4. **Trial shape for schools** (old question 1) — still open, but less urgent:
+   under this model the entire marking-and-sheets flow is already free to
+   evaluate, with their own students, forever. What a trial adds is *keeping*.
+5. **Late invoices** (old question 3) — the lapse behaviour is now "stops
+   accumulating, existing data stays readable" unless decided otherwise. Cheaper
+   and kinder than a cut-off; needs confirming.
+6. **Rate limiting the unauthenticated marking endpoint** (Part 7, consequence 4).
+
+Old questions 2 and 5 are answered: the unit is *both* (Part 8), and students keep
+their own data because student practice was never teacher-owned.
