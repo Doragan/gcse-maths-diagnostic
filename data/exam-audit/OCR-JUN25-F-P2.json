@@ -1,0 +1,543 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Non-calculator)",
+    "series": "June 2025",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-02-jun25",
+    "paper_title": "OCR GCSE Mathematics J560/02",
+    "paper_subtitle": "Foundation Tier Paper 2 Non-calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (J560/02, Thursday 15 May 2025). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "THIS is OCR's non-calculator Foundation paper, not paper 1 — the opposite of AQA and Edexcel. 100 marks, read from the [N] part markers in the QP margin."
+  },
+  "coding_notes": [
+    "q4a(i) (name two 2D shapes from their pictures) is UNTAGGED: it is the known 'properties of 2D shapes' gap — data/skills.ts has properties_of_3d_solids with no 2D counterpart. Topic stated so its 2 marks still land under Shape and Space.",
+    "q4b (add notation to a triangle to show it is isosceles) is UNTAGGED, like q4a(i): it is the same properties-of-2D-shapes gap. It was first tagged angles_on_lines_and_circles because the paper had already spent its one-untagged budget on q4a(i) — the mark scheme does accept equal base angles labelled 70/70/40, but the skill under test is knowing what isosceles MEANS. The cap has since been raised to 3 precisely because it was forcing this kind of tag. Topic stated so its mark still lands under Shape and Space.",
+    "q4a(ii) tagged symmetry — order of rotational symmetry is exactly that node's own example, and it costs no prerequisites.",
+    "q11 tagged time_calculations first so the item files under Number: the demand is converting two mixed minute-and-second durations to a common unit before forming the fraction.",
+    "q19a (how many terms two arithmetic sequences share) tagged sequences + lowest_common_multiple — the mark scheme's efficient route is the LCM of the two common differences, and it credits listing equally.",
+    "q22 (complete a congruence proof for two triangles in a rectangle) tagged congruence_and_similarity; the missing piece is naming the congruence condition, which that node covers.",
+    "q26 (sector area to circle area in a given ratio, answer non-calculator) tagged sector_calculations + area_of_a_circle.",
+    "q14b tagged compound_units FIRST: the distance-per-litre rate is the primary demand, and putting it first files the 5 marks under Ratio and Proportion where the specification puts rates. With fractions_of_amounts leading it landed under Number, which on this paper is already inflated to 40% of the marks by data/skills.ts filing percentages, unit conversion and indices under Number — the classification oddity docs/coding-a-paper.md already records."
+  ],
+  "rows": [
+    {
+      "q": "1",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "factors_and_multiples"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "identify the prime number in a list"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "identify the square number in a list"
+    },
+    {
+      "q": "1",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "find two numbers in a list with a given difference"
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "areas_of_triangles"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "area of a right-angled triangle from base and height"
+    },
+    {
+      "q": "3",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "multiplying_fractions"
+      ],
+      "kind": "mastery",
+      "answer_form": "fraction",
+      "app_gap_note": "half of a unit fraction"
+    },
+    {
+      "q": "3",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "adding_and_subtracting_fractions"
+      ],
+      "kind": "mastery",
+      "answer_form": "fraction",
+      "app_gap_note": "add two fractions with the same denominator"
+    },
+    {
+      "q": "4",
+      "part": "ai",
+      "marks": 2,
+      "skill_ids": [],
+      "topic": "shape",
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "name two 2D shapes from their pictures"
+    },
+    {
+      "q": "4",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "symmetry"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "order of rotational symmetry of a 2D shape"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "add notation to a triangle to show it is isosceles",
+      "topic": "shape"
+    },
+    {
+      "q": "5",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simple_charts"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "read one value off a bar chart"
+    },
+    {
+      "q": "5",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "simple_charts"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "difference between two bars on a bar chart"
+    },
+    {
+      "q": "5",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "simple_charts"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_plot",
+      "app_gap_note": "complete a bar chart from a given figure"
+    },
+    {
+      "q": "5",
+      "part": "d",
+      "marks": 2,
+      "skill_ids": [
+        "percentage_change",
+        "simple_charts"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "test a percentage-decrease claim against two bars, with working"
+    },
+    {
+      "q": "6",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "order of operations with a product"
+    },
+    {
+      "q": "6",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "order of operations with a square and a negative"
+    },
+    {
+      "q": "6",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "insert one pair of brackets to make a calculation correct"
+    },
+    {
+      "q": "7",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "converting_fractions_to_decimals"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write an improper fraction as a decimal"
+    },
+    {
+      "q": "7",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write a decimal as a percentage"
+    },
+    {
+      "q": "7",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "irregular_and_improper_fractions"
+      ],
+      "kind": "mastery",
+      "answer_form": "fraction",
+      "app_gap_note": "write an improper fraction as a mixed number"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "converting_measurements",
+        "simple_arithmetic"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "equalise two volumes given in different metric units"
+    },
+    {
+      "q": "9",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_expressions"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "collect like terms in two letters"
+    },
+    {
+      "q": "9",
+      "part": "bi",
+      "marks": 1,
+      "skill_ids": [
+        "expanding_brackets"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "expand a single bracket with a numeric multiplier"
+    },
+    {
+      "q": "9",
+      "part": "bii",
+      "marks": 2,
+      "skill_ids": [
+        "expanding_brackets"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "expand a single bracket with an algebraic multiplier"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "estimating",
+        "significant_figures"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "estimate a three-term calculation by rounding each value to 1 significant figure"
+    },
+    {
+      "q": "11",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "time_calculations",
+        "simplifying_fractions"
+      ],
+      "kind": "exam",
+      "answer_form": "fraction",
+      "app_gap_note": "one duration as a fraction of another, in its simplest form"
+    },
+    {
+      "q": "12",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "understanding_straight_line_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "gradient from an equation in y = mx + c form"
+    },
+    {
+      "q": "12",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "substitution"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "value of y for a given x from a linear equation"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "rearranging_formulae"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "change the subject of a two-step linear formula"
+    },
+    {
+      "q": "13",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "rotations"
+      ],
+      "kind": "mastery",
+      "answer_form": "coordinate",
+      "app_gap_note": "coordinates of a vertex after a rotation about a given centre"
+    },
+    {
+      "q": "14",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "select three notes from a set of denominations making an exact total"
+    },
+    {
+      "q": "14",
+      "part": "b",
+      "marks": 5,
+      "skill_ids": [
+        "compound_units",
+        "fractions_of_amounts",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "fraction of a fuel tank used, converted through a distance-per-litre rate and then between miles and kilometres"
+    },
+    {
+      "q": "15",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "decimals"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "multiply two negative decimals"
+    },
+    {
+      "q": "15",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "decimals"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "divide one decimal by another"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "mastery",
+      "answer_form": "show_that",
+      "app_gap_note": "combine two scores out of different totals and compare with a percentage threshold"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "inequalities"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "solve a two-step linear inequality"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "adding_and_subtracting_fractions",
+        "solving_linear_equations"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "find an unknown denominator in a mixed-number fraction equation"
+    },
+    {
+      "q": "19",
+      "part": "a",
+      "marks": 4,
+      "skill_ids": [
+        "sequences",
+        "lowest_common_multiple"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "how many terms two arithmetic sequences share below a limit"
+    },
+    {
+      "q": "19",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "finding_the_nth_term"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "nth term of an arithmetic sequence"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "simultaneous_equations",
+        "plotting_straight_line_graphs"
+      ],
+      "kind": "exam",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw a second line on a grid and read off the solution of a pair of simultaneous equations"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "ratio"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "test a claim about the total of a three-part ratio given one difference, with working"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "congruence_and_similarity"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "complete a congruence proof for two triangles formed by a rectangle's diagonal"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "fractional_and_negative_indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "fraction",
+      "app_gap_note": "evaluate an integer raised to a negative power"
+    },
+    {
+      "q": "24",
+      "part": null,
+      "marks": 6,
+      "skill_ids": [
+        "gathering_and_organising_data",
+        "percentage_change",
+        "fractions_of_amounts"
+      ],
+      "kind": "exam",
+      "answer_form": "draw_plot",
+      "app_gap_note": "design and complete a two-way table, with entries derived by a fraction, a percentage increase and an addition"
+    },
+    {
+      "q": "25",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "complete a two-stage tree diagram with independent probabilities"
+    },
+    {
+      "q": "25",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "tree_diagrams"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "probability of exactly one success across two independent trials"
+    },
+    {
+      "q": "26",
+      "part": null,
+      "marks": 6,
+      "skill_ids": [
+        "sector_calculations",
+        "area_of_a_circle"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "radius of a circle whose area is in a given ratio to the area of a sector"
+    }
+  ]
+}

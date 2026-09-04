@@ -47,11 +47,34 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   it('every skillId is a real skill in data/skills.ts', () => {
     const known = new Set(skills.map(s => s.id))
     for (const q of paper.questions) {
-      expect(q.skillIds.length, `${q.id} has no skillIds`).toBeGreaterThan(0)
       for (const id of q.skillIds) {
         expect(known.has(id), `${q.id} -> unknown skill "${id}"`).toBe(true)
       }
     }
+  })
+
+  // A question with NO skill tag is allowed, because the taxonomy has real
+  // holes — no outlier-identification node, no 2D counterpart to
+  // properties_of_3d_solids — and the honest response is to leave such a
+  // question untagged rather than credit the nearest skill. A student would
+  // otherwise be recorded as having demonstrated something they never showed,
+  // and a false positive in the skill map is worse than a gap in it. The marks
+  // still count towards the score and the topic.
+  //
+  // THE CAP WAS RAISED FROM 1 TO 3 (2026-09-04) BECAUSE 1 CAUSED A MIS-TAG.
+  // OCR J560/02 q4 has two items in the properties-of-2D-shapes gap, and the
+  // session coding it tagged the second to angles_on_lines_and_circles with the
+  // note "this paper's untagged budget is one" — exactly the pressure this cap
+  // was meant to prevent, applied by the cap itself. A limit that forces the
+  // failure it guards against is set wrong.
+  //
+  // Three still catches the regression that matters: a generator that stops
+  // reading skill_ids would untag thirty or forty items on a paper, not three.
+  // If a paper ever needs a fourth, that is a signal to add the missing skill
+  // rather than to raise this again.
+  it('has at most three untagged questions, and tags the rest', () => {
+    const untagged = paper.questions.filter(q => q.skillIds.length === 0)
+    expect(untagged.length, `untagged: ${untagged.map(q => q.id).join(', ')}`).toBeLessThanOrEqual(3)
   })
 
   // NB there is deliberately NO "multi-skill implies exam-kind" test here.
@@ -73,7 +96,19 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     }
   })
 
-  it('every non-visual question has a retrySet entry', () => {
+  // ALL OR NOTHING, rather than always-all.
+  //
+  // A paper generated from data/exam-audit/ has no retrySet at all: retry
+  // questions are written from question text and the audit transcribes none.
+  // That is a documented state — the feedback sheet omits its "Practise these"
+  // section rather than printing an empty heading — and it is not what this
+  // test was ever guarding against.
+  //
+  // The real defect is PARTIAL coverage: a paper that offers practice questions
+  // for some dropped marks and silently not for others, so a student is told to
+  // practise question 4 and told nothing about question 11. That still fails.
+  it('offers retry questions for every non-visual question, or for none', () => {
+    if (Object.keys(paper.retrySet).length === 0) return
     for (const q of paper.questions) {
       if (!q.visual) expect(paper.retrySet[q.id], `${q.id} has no retry question`).toBeDefined()
     }

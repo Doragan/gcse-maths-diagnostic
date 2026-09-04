@@ -4,20 +4,19 @@ import { NextResponse } from 'next/server'
 // ─────────────────────────────────────────────────────────────────────────────
 // Server-side assessment creation.
 //
-// Why this exists: the free-tier limit and the free_assessments_used counter
-// used to be enforced/incremented in the browser with the anon key, which made
-// them trivially bypassable (skip the check, or PATCH the counter back to 0).
-// This route runs the whole flow under the service role:
+// Originally this existed to enforce a one-diagnostic free limit server-side,
+// because the browser was doing it with the anon key and it was trivially
+// bypassable. THE LIMIT IS GONE — class diagnostics are free — but the route
+// stays: creation still belongs under the service role so the client never
+// writes teachers.free_assessments_used, and that column stays REVOKE'd from
+// anon/authenticated.
+//
 //   1. validate the caller's JWT,
-//   2. read paid status + free usage authoritatively,
-//   3. enforce the free limit,
-//   4. insert the assessment,
-//   5. increment the counter.
-// The client no longer writes teachers.free_assessments_used, so that column
-// can be REVOKE'd from anon/authenticated.
+//   2. confirm they are a teacher,
+//   3. insert the assessment,
+//   4. count it.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FREE_LIMIT = 1
 const ALLOWED_COURSES = ['gcse_foundation', 'gcse_higher']
 
 function generateCode(): string {
@@ -75,16 +74,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    const isPaid = teacher.paid_until != null && new Date(teacher.paid_until) > new Date()
     const used = teacher.free_assessments_used ?? 0
 
-    // ── 4. Enforce the free limit server-side ──────────────────────────────────
-    if (!isPaid && used >= FREE_LIMIT) {
-      return NextResponse.json(
-        { error: 'Free limit reached', code: 'LIMIT_REACHED' },
-        { status: 402 },
-      )
-    }
+    // ── 4. No limit: class diagnostics are free ────────────────────────────────
+    // The 402 that used to live here gated the wrong thing. The diagnostic is
+    // self-reported and deliberately the LOWEST-weight signal the product has —
+    // it was demoted to one input among many on the student side — so charging
+    // for it put the paywall on the weakest feature while the genuinely useful
+    // teacher work (class mastery, assignments, paper marking) was never gated
+    // at all. A teacher's first experience is now the whole thing.
+    //
+    // The teacher checkout is disabled alongside this, since the pass had
+    // nothing else to sell. See app/api/stripe/checkout.
 
     // ── 5. Insert the assessment (retry a few times on code collision) ─────────
     let assessment: any = null
@@ -105,18 +106,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to create assessment' }, { status: 500 })
     }
 
-    // ── 6. Increment the free counter (non-paid only) ──────────────────────────
-    // Note: read-then-write, not atomic. Worst case under a deliberate race a
-    // teacher gets one extra free assessment. See the RPC hardening note.
-    let freeUsed = used
-    if (!isPaid) {
-      freeUsed = used + 1
-      const { error: incErr } = await admin
-        .from('teachers')
-        .update({ free_assessments_used: freeUsed })
-        .eq('id', user.id)
-      if (incErr) console.error('free counter increment failed:', incErr)
-    }
+    // ── 6. Count diagnostics run ───────────────────────────────────────────────
+    // The column outlives the limit it was named for: nothing gates on it now,
+    // so it is simply how many diagnostics this teacher has run. Kept because
+    // it is the only record of that, and dropping it would lose the history for
+    // no gain. The old read-then-write race no longer matters — an off-by-one
+    // in a counter that grants nothing is not a bug worth an RPC.
+    const freeUsed = used + 1
+    const { error: incErr } = await admin
+      .from('teachers')
+      .update({ free_assessments_used: freeUsed })
+      .eq('id', user.id)
+    if (incErr) console.error('diagnostic counter increment failed:', incErr)
 
     return NextResponse.json({ assessment, freeAssessmentsUsed: freeUsed })
   } catch (err: any) {

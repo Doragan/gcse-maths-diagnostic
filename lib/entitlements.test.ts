@@ -32,3 +32,17 @@ describe('isPaidStudent', () => {
     expect(isPaidStudent({ subscription_tier: 'paid', paid_until: null, activeClassMembership: true })).toBe(true)
   })
 })
+
+describe('isPaidStudent — injected clock', () => {
+  // Without this, a report built around a fixed `now` silently answered against
+  // the real clock, so its own paid students expired as the wall clock moved
+  // past them.
+  const FIXED = Date.UTC(2026, 8, 2, 12, 0, 0)
+  const at = (ms: number) => new Date(ms).toISOString()
+
+  it('judges paid_until against the supplied instant, not the real clock', () => {
+    const s = { subscription_tier: 'paid' as const, paid_until: at(FIXED + 86_400_000) }
+    expect(isPaidStudent(s, FIXED)).toBe(true)
+    expect(isPaidStudent(s, FIXED + 2 * 86_400_000)).toBe(false)
+  })
+})

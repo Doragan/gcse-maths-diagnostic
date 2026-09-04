@@ -2,8 +2,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { PAPERS } from '../../../../lib/demoPapers'
 import {
-  validateEntries, deriveAttempts, marksEarned, marksTotal,
-  type StudentEntry,
+  validateEntries, deriveAttempts, marksEarned, marksTotal, selectedItems,
+  type StudentEntry, type ItemSelection,
 } from '../../../../lib/papers/sittingMarks'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ export async function GET(req: Request) {
 
     let q = auth.ctx.admin
       .from('paper_sittings')
-      .select('id, student_id, source_paper, sat_on, created_at, updated_at, marks, marks_earned, marks_total')
+      .select('id, student_id, source_paper, sat_on, created_at, updated_at, marks, marks_earned, marks_total, selected_items')
       .eq('class_id', classId)
       .order('created_at', { ascending: false })
     if (sourcePaper) q = q.eq('source_paper', sourcePaper)
@@ -153,6 +153,11 @@ export async function POST(req: Request) {
     const classId = typeof body?.classId === 'string' ? body.classId : ''
     const satOn = typeof body?.satOn === 'string' ? body.satOn : null
     const entries: StudentEntry[] = Array.isArray(body?.students) ? body.students : []
+    // Absent means the whole paper — the default, and what every caller meant
+    // before partial papers existed.
+    const selection: ItemSelection = Array.isArray(body?.selectedItems)
+      ? body.selectedItems.filter((id: unknown): id is string => typeof id === 'string')
+      : null
 
     const paper = PAPERS[sourcePaper]
     if (!paper) return NextResponse.json({ error: 'Unknown paper' }, { status: 400 })
@@ -166,14 +171,17 @@ export async function POST(req: Request) {
 
     // Reject the whole submission before writing anything, so one bad mark
     // cannot leave half a class recorded.
-    const validation = validateEntries(paper, entries)
+    const validation = validateEntries(paper, entries, selection)
     if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 })
 
     const auth = await authoriseClass(req, classId)
     if (!auth.ok) return auth.res
     const { admin, userId } = auth.ctx
 
-    const totalMarks = marksTotal(paper)
+    // From the SELECTION, not the paper: with eight questions set out of thirty,
+    // a student scoring 34 of an available 42 would otherwise store as 34/80 —
+    // and that figure feeds the class average.
+    const totalMarks = marksTotal(paper, selection)
 
     // ── Authorise: every student must be an ACTIVE member of that class ──────
     const { data: members } = await admin
@@ -199,7 +207,10 @@ export async function POST(req: Request) {
       const m = a.question_template?.match(/^\[[^#]+#([^\]]+)\]/)
       if (m) questionIdByItem.set(m[1], a.id)
     }
-    const unanchored = paper.questions.filter(q => !questionIdByItem.has(q.id)).map(q => q.id)
+    // Only the items actually set need an anchor row — a paper part-way through
+    // being anchored is still usable for the section that is ready.
+    const unanchored = selectedItems(paper, selection)
+      .filter(q => !questionIdByItem.has(q.id)).map(q => q.id)
     if (unanchored.length) {
       console.error(`paper ${sourcePaper} missing anchor rows for: ${unanchored.join(', ')}`)
       return NextResponse.json({ error: 'This paper is not set up for tracking yet' }, { status: 409 })
@@ -226,7 +237,8 @@ export async function POST(req: Request) {
         const { error: upErr } = await admin
           .from('paper_sittings')
           .update({ marks, marks_earned: earned, marks_total: totalMarks,
-                    sat_on: satOn, updated_at: new Date().toISOString() })
+                    selected_items: selection, sat_on: satOn,
+                    updated_at: new Date().toISOString() })
           .eq('id', sittingId)
         if (upErr) {
           console.error('sitting update failed:', upErr)
@@ -242,6 +254,7 @@ export async function POST(req: Request) {
             student_id: e.studentId, source_paper: sourcePaper, class_id: classId,
             marked_by: userId, sat_on: satOn,
             marks, marks_earned: earned, marks_total: totalMarks,
+            selected_items: selection,
           })
           .select('id').single()
         if (insErr || !created) {

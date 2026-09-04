@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2025",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-2f-jun25",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/2F",
+    "paper_subtitle": "Foundation Tier Paper 2 Calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (1MA1_2F_2506). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "Marks per part read from the question paper's own part totals and checked against the printed 80. Questions 20 to 27 are the overlap questions shared with 2H (2H q1 to q8) and are tagged identically there."
+  },
+  "coding_notes": [
+    "q1 (weeks to days) tagged time_calculations rather than converting_measurements: the latter is the metric-units node, and nothing metric is involved.",
+    "q5 (choose a sensible metric unit for a length and for a mass) tagged converting_measurements. No 'choose an appropriate unit' node exists, but knowing which unit fits a quantity sits squarely inside that skill's territory.",
+    "q7 (cost rule given in words, cost known, find the number bought) tagged solving_linear_equations. Tagged substitution in the first pass, which the mark scheme rules out: it awards M1 for 330 / 55 only, and states that 55 x 6 = 330 on the answer line scores M1A0 — the forward-substitution route earns nothing. Forming and solving 55n = 330 is what is rewarded. The extra prerequisite cost over substitution is one skill (substitution itself), and 2F q13b already uses this node for a two-step equation; the only difference here is that the equation arrives as a rule in context rather than written algebraically.",
+    "q13a tagged indices rather than simplifying_indices — writing a repeated product in index form is index notation, not the index laws.",
+    "q16a (speed from a distance-time graph, answer in a different time unit) tagged kinematic_graphs first so the item files under Algebra with the rest of the graph work, with compound_units second for the unit change.",
+    "q22b (effect on the number of bags when each bag covers less) is tagged with its parent question's skill, areas_of_compound_shapes. The mark is for a statement about the consequence rather than for new mathematics, and splitting it into Number would scatter one question across two topic columns.",
+    "q24 tagged reverse_percentage although the decrease is given as a fraction: the mark scheme's routes are 'recognise 8000 is four fifths' and 'recognise 8000 is 80%', and reverse_percentage is the taxonomy's only node for working back to an original amount."
+  ],
+  "rows": [
+    { "q": "1",  "part": null, "marks": 1, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "convert a number of weeks into days" },
+    { "q": "2",  "part": null, "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "simplify a product of a number and an algebraic term" },
+    { "q": "3",  "part": null, "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a decimal as a percentage" },
+    { "q": "4",  "part": null, "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "order a mix of positive and negative values" },
+
+    { "q": "5",  "part": "i",  "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "choose a sensible metric unit for a very large length" },
+    { "q": "5",  "part": "ii", "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "choose a sensible metric unit for a very small mass" },
+
+    { "q": "6",  "part": null, "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "find three equal unknowns from a total and one known value" },
+    { "q": "7",  "part": null, "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "find the input of a given cost rule from its output" },
+
+    { "q": "8",  "part": "a",  "marks": 1, "skill_ids": ["mode"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "mode of a list of values" },
+    { "q": "8",  "part": "b",  "marks": 2, "skill_ids": ["range"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "range of a list of values" },
+
+    { "q": "9",  "part": "i",  "marks": 2, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing angle where several angles meet on a straight line" },
+    { "q": "9",  "part": "ii", "marks": 1, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "give the angle fact that justifies the previous part" },
+
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["simplifying_ratio", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "ratio", "app_gap_note": "turn a percentage into a simplified ratio of the two parts" },
+
+    { "q": "11", "part": "a",  "marks": 2, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "compare a total of two durations in minutes against a bound in hours" },
+    { "q": "11", "part": "b",  "marks": 2, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "distance from a steady speed and a time" },
+
+    { "q": "12", "part": null, "marks": 3, "skill_ids": ["gathering_and_organising_data"], "kind": "exam", "answer_form": "table_complete", "app_gap_note": "complete a two-way table from partial totals" },
+
+    { "q": "13", "part": "a",  "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write a repeated product in index form" },
+    { "q": "13", "part": "b",  "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a two-step linear equation" },
+
+    { "q": "14", "part": "a",  "marks": 3, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "draw an accurate pie chart from a frequency table" },
+    { "q": "14", "part": "b",  "marks": 1, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "judge a claim that compares sector angles across two different pie charts" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["calculating_simple_probability"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "how many of one colour were added, given the resulting probability" },
+
+    { "q": "16", "part": "a",  "marks": 2, "skill_ids": ["kinematic_graphs", "compound_units"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "speed in a different time unit read off a distance-time graph" },
+    { "q": "16", "part": "b",  "marks": 1, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "add a stationary period to a distance-time graph" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "the remaining share of a cost once a percentage of it is met elsewhere" },
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["volume_of_a_prism", "areas_of_squares_and_rectangles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "surface area of a cube worked back from its volume" },
+
+    { "q": "19", "part": "a",  "marks": 1, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "largest integer satisfying an inequality shown on a number line" },
+    { "q": "19", "part": "b",  "marks": 2, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "show a double-ended inequality on a number line" },
+
+    { "q": "20", "part": "a",  "marks": 2, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write a number as a product of its prime factors" },
+    { "q": "20", "part": "b",  "marks": 2, "skill_ids": ["lowest_common_multiple"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "lowest common multiple of two numbers" },
+
+    { "q": "21", "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "share an amount in a three-part ratio" },
+
+    { "q": "22", "part": "a",  "marks": 4, "skill_ids": ["areas_of_compound_shapes", "area_of_a_circle", "areas_of_triangles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "bags needed to cover a triangle with a circle removed, rounding up" },
+    { "q": "22", "part": "b",  "marks": 1, "skill_ids": ["areas_of_compound_shapes"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "effect on the number of bags when each bag covers less" },
+
+    { "q": "23", "part": null, "marks": 1, "skill_ids": ["loci"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain a mistake in shading the region at least a fixed distance from a point" },
+    { "q": "24", "part": null, "marks": 3, "skill_ids": ["reverse_percentage"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "original amount from a fractional decrease and the new amount" },
+    { "q": "25", "part": null, "marks": 5, "skill_ids": ["mean", "ratio"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "unknown value in one list, given the ratio between two lists' means" },
+    { "q": "26", "part": null, "marks": 2, "skill_ids": ["trigonometry_missing_angles"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "angle in a right-angled triangle from two given sides" },
+    { "q": "27", "part": null, "marks": 3, "skill_ids": ["compound_units"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "how many items of known density and volume fit under a mass limit" },
+    { "q": "28", "part": null, "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "sketch a vertically translated quadratic" },
+    { "q": "29", "part": null, "marks": 3, "skill_ids": ["sequences", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "unknown multiplier in a Fibonacci-style sequence from a later term" }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 6 (Calculator)",
+    "series": "June 2025",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-06-jun25",
+    "paper_title": "OCR GCSE Mathematics J560/06",
+    "paper_subtitle": "Higher Tier Paper 6 Calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (J560/06, Thursday 15 May 2025). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "Higher partner of J560/03. 100 marks, read from the [N] part markers in the QP margin."
+  },
+  "coding_notes": [
+    "TIER CROSSOVER: q1, q2, q3, q4, q6, q8 and q9 are the same questions as J560/03 q16, q17, q18, q23, q24, q25 and q26, with identical marks and identical tags.",
+    "q10 (a cube whose surface area equals a sphere's) tagged surface_area_of_a_sphere + areas_of_squares_and_rectangles: the taxonomy has surface area nodes for spheres, cones and cylinders but NONE for a cuboid or cube, so the 6x-squared half is carried by areas_of_squares_and_rectangles. A genuine gap.",
+    "q16a (sketch y = -x squared) tagged quadratic_functions, whose own example is sketching a quadratic. It credits nine skills, including factorising_quadratics, which a student sketching a bare parabola has not demonstrated — but sketching_functions credits Understanding Straight Line Graphs instead, which is no better. The exact node was preferred.",
+    "q20a and q20b (area under a rate-of-flow graph, then the average rate over the whole period) tagged kinematic_graphs — the same nearest-fit substitution as J560/04 q21: no node exists for area under a non-kinematic rate graph, and kinematic_graphs is the only node about reading rates off graphs.",
+    "q23 (T = ab^n from two points on a cooling curve) tagged growth_and_decay rather than the doc's fractional_and_negative_indices suggestion for exponential graphs: the demand here is an initial value and a per-minute multiplier, which is exactly growth and decay, and the cube root is incidental.",
+    "q12 (kinematics formulae supplied) tagged substitution + solving_linear_equations, NOT kinematic_graphs — there is no graph, only two formulae to substitute into in sequence.",
+    "q14 (write a large number as a product of primes, given one power) tagged prime_factor_decomposition + indices.",
+    "q7 and q25 both mix a ratio with percentages of the whole; both are tagged ratio first so they file under Ratio and Proportion, with the percentage skill second."
+  ],
+  "rows": [
+    { "q": "1",  "part": "a",  "marks": 1, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "complete a sample space table for the product of two dice" },
+    { "q": "1",  "part": "b",  "marks": 2, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "probability of a multiple from a completed sample space" },
+
+    { "q": "2",  "part": null, "marks": 2, "skill_ids": ["translations"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "translate a shape by a given column vector" },
+
+    { "q": "3",  "part": "a",  "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "percentage reduction between two prices" },
+    { "q": "3",  "part": "b",  "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain why a graph with a truncated vertical axis is misleading" },
+
+    { "q": "4",  "part": null, "marks": 2, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "draw an accurate plan view of a triangular prism" },
+    { "q": "5",  "part": null, "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "exam", "answer_form": "free_text", "app_gap_note": "identify the smallest of three negative powers and explain the error in a base-size argument" },
+
+    { "q": "6",  "part": "a",  "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "error interval for a length given to the nearest centimetre" },
+    { "q": "6",  "part": "b",  "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "compare two error intervals to show an object may not fit" },
+
+    { "q": "7",  "part": null, "marks": 6, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "total membership from a percentage for one group, a ratio between the other two and a difference" },
+
+    { "q": "8",  "part": null, "marks": 2, "skill_ids": ["constructions"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "construct the perpendicular from a point to a line" },
+
+    { "q": "9",  "part": "a",  "marks": 3, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a linear equation with the unknown on both sides" },
+    { "q": "9",  "part": "b",  "marks": 3, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a quadratic equation by factorising" },
+
+    { "q": "10", "part": null, "marks": 5, "skill_ids": ["surface_area_of_a_sphere", "areas_of_squares_and_rectangles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "side of a cube whose surface area equals that of a given sphere" },
+    { "q": "11", "part": null, "marks": 4, "skill_ids": ["growth_and_decay", "reverse_percentage"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "initial investment from its value after two years of compound interest" },
+    { "q": "12", "part": null, "marks": 4, "skill_ids": ["substitution", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "distance from two supplied kinematics formulae, the acceleration found first" },
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing length in a pair of nested similar triangles" },
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["prime_factor_decomposition", "indices"], "kind": "exam", "answer_form": "expression", "app_gap_note": "write a large number as a product of prime powers, given one factorisation" },
+
+    { "q": "15", "part": "a",  "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "complete a two-stage tree diagram without replacement" },
+    { "q": "15", "part": "b",  "marks": 3, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "probability of two matching selections without replacement" },
+
+    { "q": "16", "part": "a",  "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "sketch a negative quadratic on unlabelled axes" },
+    { "q": "16", "part": "b",  "marks": 1, "skill_ids": ["trig_graphs"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "give a possible equation for a sketched trigonometric graph" },
+
+    { "q": "17", "part": "a",  "marks": 1, "skill_ids": ["box_plots"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "percentage above the upper quartile of a box plot" },
+    { "q": "17", "part": "b",  "marks": 2, "skill_ids": ["box_plots"], "kind": "exam", "answer_form": "free_text", "app_gap_note": "compare two distributions on average, citing values from their box plots" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["counting_without_listing"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "count even four-digit codes with no repeated digit" },
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["fractional_enlargements"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "enlarge a shape by a negative scale factor about a given centre" },
+
+    { "q": "20", "part": "a",  "marks": 1, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "show a volume from the area under a constant section of a rate-of-flow graph" },
+    { "q": "20", "part": "b",  "marks": 4, "skill_ids": ["kinematic_graphs", "compound_units"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "average rate of flow over the whole period from the total area under the graph" },
+
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations_quadratic", "equation_of_a_circle"], "kind": "exam", "answer_form": "coordinate", "app_gap_note": "exact intersections of a line through the origin with a circle centred on the origin" },
+    { "q": "22", "part": null, "marks": 6, "skill_ids": ["trigonometry_3d"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "sloping edge of a square-based pyramid from the base length and the angle to the base" },
+    { "q": "23", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "initial value and multiplier of an exponential model from two points on its curve" },
+
+    { "q": "24", "part": "a",  "marks": 3, "skill_ids": ["iteration"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "show a quartic equation has a root between two integers, by sign change" },
+    { "q": "24", "part": "b",  "marks": 4, "skill_ids": ["iteration"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "locate that root to one decimal place by trial and improvement" },
+
+    { "q": "25", "part": null, "marks": 6, "skill_ids": ["ratio", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "compare two conditional proportions built from a ratio and two percentages of the whole" }
+  ]
+}

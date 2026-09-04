@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2025",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-2h-jun25",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/2H",
+    "paper_subtitle": "Higher Tier Paper 2 Calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (1MA1_2H_2506). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "Marks per part read from the question paper's own part totals and checked against the printed 80. Questions 1 to 8 are the overlap questions shared with 2F (2F q20 to q27) and are tagged identically there."
+  },
+  "coding_notes": [
+    "q9 (expand a bracket by a term carrying a negative index) tagged fractional_and_negative_indices first, which files the item under Number even though it looks like algebra. The taxonomy puts every index skill under Number, and the negative index is what the question is actually testing.",
+    "q12c (whether a median of 35 means some value is 35) tagged median rather than box_plots: the claim is about what a median is, and box_plots would additionally credit cumulative_frequency for a one-mark statement.",
+    "q16 (two mathematically similar jars) tagged congruence_and_similarity. There is no 'similar solids / area and volume scale factors' node; this is the nearest, and it is the only one that claims anything true about the student.",
+    "q17 (constant of an exponential curve from a point with a negative x-coordinate) tagged fractional_and_negative_indices. The taxonomy has no exponential-graph node, and the mark scheme's whole method is inverting k to the power -1, which is exactly that skill.",
+    "q20 tagged understanding_straight_line_graphs + ratio: the point is found by dividing a segment in a ratio, then the line through it is handled in y = mx + c form. First skill chosen so the item files under Algebra with the gradient work.",
+    "q22 tagged equation_of_a_circle + translations; the sketch has to show the translated centre and the new y-axis intercepts."
+  ],
+  "rows": [
+    { "q": "1",  "part": "a",  "marks": 2, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write a number as a product of its prime factors" },
+    { "q": "1",  "part": "b",  "marks": 2, "skill_ids": ["lowest_common_multiple"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "lowest common multiple of two numbers" },
+
+    { "q": "2",  "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "share an amount in a three-part ratio" },
+
+    { "q": "3",  "part": "a",  "marks": 4, "skill_ids": ["areas_of_compound_shapes", "area_of_a_circle", "areas_of_triangles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "bags needed to cover a triangle with a circle removed, rounding up" },
+    { "q": "3",  "part": "b",  "marks": 1, "skill_ids": ["areas_of_compound_shapes"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "effect on the number of bags when each bag covers less" },
+
+    { "q": "4",  "part": null, "marks": 1, "skill_ids": ["loci"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain a mistake in shading the region at least a fixed distance from a point" },
+    { "q": "5",  "part": null, "marks": 3, "skill_ids": ["reverse_percentage"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "original amount from a fractional decrease and the new amount" },
+    { "q": "6",  "part": null, "marks": 5, "skill_ids": ["mean", "ratio"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "unknown value in one list, given the ratio between two lists' means" },
+    { "q": "7",  "part": null, "marks": 2, "skill_ids": ["trigonometry_missing_angles"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "angle in a right-angled triangle from two given sides" },
+    { "q": "8",  "part": null, "marks": 3, "skill_ids": ["compound_units"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "how many items of known density and volume fit under a mass limit" },
+
+    { "q": "9",  "part": null, "marks": 2, "skill_ids": ["fractional_and_negative_indices", "expanding_brackets"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "expand a bracket by a term with a negative index and identify the coefficients" },
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a linear equation carrying a fractional term" },
+
+    { "q": "11", "part": "a",  "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "complete a probability tree for two independent events" },
+    { "q": "11", "part": "b",  "marks": 3, "skill_ids": ["tree_diagrams"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "probability that exactly one of two independent events happens" },
+
+    { "q": "12", "part": "a",  "marks": 3, "skill_ids": ["box_plots"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "draw a box plot from a five-figure summary" },
+    { "q": "12", "part": "b",  "marks": 1, "skill_ids": ["box_plots"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "how many of a population lie between the quartiles" },
+    { "q": "12", "part": "c",  "marks": 1, "skill_ids": ["median"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "judge a claim about what a median implies about the data values" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "expand a product of three linear brackets into a cubic" },
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["counting_without_listing"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "count the ways of awarding ordered prizes across two separate groups" },
+
+    { "q": "15", "part": "a",  "marks": 4, "skill_ids": ["inequalities", "plotting_straight_line_graphs"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "shade and label the region satisfying four inequalities" },
+    { "q": "15", "part": "b",  "marks": 1, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "identify the redundant inequality of a set" },
+
+    { "q": "16", "part": "a",  "marks": 4, "skill_ids": ["congruence_and_similarity"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "length in a pair of similar solids from their volumes" },
+    { "q": "16", "part": "b",  "marks": 1, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "exact surface-area multiplier between two similar solids" },
+
+    { "q": "17", "part": null, "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "constant of an exponential curve from a point with a negative x-coordinate" },
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "project a population forwards with a constant multiplier and compare against a bound" },
+    { "q": "19", "part": null, "marks": 4, "skill_ids": ["trigonometry_3d"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "angle inside a cuboid, built from two right-angled triangles on its faces" },
+    { "q": "20", "part": null, "marks": 5, "skill_ids": ["understanding_straight_line_graphs", "ratio"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "point dividing a line segment in a ratio, then a line of given gradient through it" },
+    { "q": "21", "part": null, "marks": 2, "skill_ids": ["quadratic_inequalities"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "solve a quadratic inequality already given in factorised form" },
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["equation_of_a_circle", "translations"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "sketch a translated circle, marking its centre and its axis intercepts" },
+    { "q": "23", "part": null, "marks": 5, "skill_ids": ["cosine_rule", "sine_rule"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "angle in a quadrilateral via the cosine rule on one triangle then the sine rule on two others" }
+  ]
+}

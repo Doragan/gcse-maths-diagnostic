@@ -29,6 +29,7 @@ const RULES: [RegExp, string, string?][] = [
   // Marketing / legal
   [/^\/about$/, 'About'],
   [/^\/for-teachers$/, 'For teachers'],
+  [/^\/mark$/, 'Mark a paper'],
   [/^\/contact$/, 'Contact'],
   [/^\/privacy\/complaints$/, 'Privacy complaints'],
   [/^\/privacy$/, 'Privacy policy'],
