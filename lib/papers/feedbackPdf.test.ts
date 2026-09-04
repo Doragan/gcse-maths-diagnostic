@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe } from './feedbackPdf'
 import { buildClassEvidence, buildStudentEvidence } from './feedbackEvidence'
-import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
+import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
 import type { PaperConfig } from '../demoPapers'
 import type { WwwEbiSheet } from './wwwEbi'
 
@@ -88,7 +88,7 @@ describe('buildFeedbackPdf', () => {
       coverage:
         'Based on 8 of 30 questions (42 of 80 marks). Anything not on those questions was not assessed.',
       www: Array.from({ length: MAX_WWW }, (_, i) => `Good attempt at Topic ${i} (6/10).`),
-      ebi: Array.from({ length: MAX_EBI }, (_, i) => `Revise Topic ${i} — 2/10 marks.`),
+      ebi: Array.from({ length: MAX_EBI_TOPICS + 1 }, (_, i) => `It looks like you found Topic ${i} difficult, picking up around half of the 10 marks. This would be a good place to revise properly.`),
       practice: Array.from({ length: MAX_PRACTICE }, (_, i) => ({
         skill: `Skill ${i}`,
         // Longer than any question in lib/demoPapers.
