@@ -1,18 +1,31 @@
 import type { PaperConfig } from './types'
 
-// Foundation — hand-authored, and the only ones carrying retry and challenge
-// questions (see the note on PAPERS below).
+// ── Hand-authored ───────────────────────────────────────────────────────────
+// The only papers carrying retrySet and challengeQuestions. See PAPERS below.
 import { AQA_8300_1F_NOV24 } from './aqa-8300-1f-nov24'
 import { AQA_8300_2F_NOV24 } from './aqa-8300-2f-nov24'
 import { AQA_8300_3F_NOV24 } from './aqa-8300-3f-nov24'
 
-// Edexcel — generated from data/exam-audit/ the same way. Coded from the
-// published QP and mark scheme; see the JSON's coding_notes for the three
-// tagging judgements it needed.
+// ── Generated from data/exam-audit/ by scripts/generate-paper-from-audit.ts ──
+// Edexcel — coded from the published QP and mark scheme; the JSON's
+// coding_notes record the tagging judgements it needed.
 import { EDEXCEL_1MA1_1F_JUN25 } from './edexcel-1ma1-1f-jun25'
 
-// AQA Higher — generated from data/exam-audit/ by
-// scripts/generate-paper-from-audit.ts.
+// AQA Foundation.
+import { AQA_8300_1F_JUN25 } from './aqa-8300-1f-jun25'
+import { AQA_8300_2F_JUN25 } from './aqa-8300-2f-jun25'
+import { AQA_8300_3F_JUN25 } from './aqa-8300-3f-jun25'
+import { AQA_8300_1F_JUN24 } from './aqa-8300-1f-jun24'
+import { AQA_8300_2F_JUN24 } from './aqa-8300-2f-jun24'
+import { AQA_8300_3F_JUN24 } from './aqa-8300-3f-jun24'
+import { AQA_8300_1F_NOV23 } from './aqa-8300-1f-nov23'
+import { AQA_8300_2F_NOV23 } from './aqa-8300-2f-nov23'
+import { AQA_8300_3F_NOV23 } from './aqa-8300-3f-nov23'
+import { AQA_8300_1F_JUN23 } from './aqa-8300-1f-jun23'
+import { AQA_8300_2F_JUN23 } from './aqa-8300-2f-jun23'
+import { AQA_8300_3F_JUN23 } from './aqa-8300-3f-jun23'
+
+// AQA Higher.
 import { AQA_8300_1H_JUN25 } from './aqa-8300-1h-jun25'
 import { AQA_8300_2H_JUN25 } from './aqa-8300-2h-jun25'
 import { AQA_8300_3H_JUN25 } from './aqa-8300-3h-jun25'
@@ -35,16 +48,19 @@ export type { PaperConfig, PaperTopic, PaperQuestion, PaperRetryQuestion, PaperC
  * Every paper the marking tool knows about, keyed by id.
  *
  * ORDER MATTERS — the paper picker renders Object.values(PAPERS) as it stands,
- * so this list is NEWEST SERIES FIRST. A teacher marking an autumn mock reaches
- * for the most recent papers, and scrolling past three years of history to find
- * them is the sort of friction that ends with the tool unused.
+ * so this list is NEWEST SERIES FIRST, and Foundation before Higher within a
+ * series. A teacher marking an autumn mock reaches for the most recent papers,
+ * and scrolling past three years of history to find them is the sort of
+ * friction that ends with the tool unused.
  *
  * TWO KINDS OF PAPER LIVE HERE, and the difference shows on a feedback sheet —
  * the split is HAND-AUTHORED vs GENERATED, not tier and not board:
  *
  *   • The three AQA Foundation Nov 2024 papers are HAND-AUTHORED and carry
  *     `retrySet` and `challengeQuestions`, so their sheets include "Practise
- *     these" and "Push yourself".
+ *     these" and "Push yourself". They are also why NOV24-F-P1..3 are NOT
+ *     generated from the audit, though the coding exists: regenerating them
+ *     would replace a richer paper with a poorer one.
  *
  *   • Everything else is GENERATED from data/exam-audit/, which transcribes no
  *     exam text. Those sheets carry the score, coverage, topic and skill
@@ -53,7 +69,9 @@ export type { PaperConfig, PaperTopic, PaperQuestion, PaperRetryQuestion, PaperC
  *     generated file turns its section back on with no other change.
  *
  * Adding a paper is still "write a file matching PaperConfig, add it here" —
- * for an audited paper, the script writes the file for you.
+ * for an audited paper the script writes the file for you. The full procedure,
+ * including how to code a paper that is not in the audit yet, is in
+ * docs/coding-a-paper.md.
  *
  * NOTE FOR THE PAID PATH: recording a sitting also needs anchor rows in the
  * `questions` table, created by scripts/sync-paper-items.ts. Until that has
@@ -64,6 +82,9 @@ export type { PaperConfig, PaperTopic, PaperQuestion, PaperRetryQuestion, PaperC
 export const PAPERS: Record<string, PaperConfig> = {
   // June 2025
   [EDEXCEL_1MA1_1F_JUN25.id]: EDEXCEL_1MA1_1F_JUN25,
+  [AQA_8300_1F_JUN25.id]: AQA_8300_1F_JUN25,
+  [AQA_8300_2F_JUN25.id]: AQA_8300_2F_JUN25,
+  [AQA_8300_3F_JUN25.id]: AQA_8300_3F_JUN25,
   [AQA_8300_1H_JUN25.id]: AQA_8300_1H_JUN25,
   [AQA_8300_2H_JUN25.id]: AQA_8300_2H_JUN25,
   [AQA_8300_3H_JUN25.id]: AQA_8300_3H_JUN25,
@@ -77,16 +98,25 @@ export const PAPERS: Record<string, PaperConfig> = {
   [AQA_8300_3H_NOV24.id]: AQA_8300_3H_NOV24,
 
   // June 2024
+  [AQA_8300_1F_JUN24.id]: AQA_8300_1F_JUN24,
+  [AQA_8300_2F_JUN24.id]: AQA_8300_2F_JUN24,
+  [AQA_8300_3F_JUN24.id]: AQA_8300_3F_JUN24,
   [AQA_8300_1H_JUN24.id]: AQA_8300_1H_JUN24,
   [AQA_8300_2H_JUN24.id]: AQA_8300_2H_JUN24,
   [AQA_8300_3H_JUN24.id]: AQA_8300_3H_JUN24,
 
   // November 2023
+  [AQA_8300_1F_NOV23.id]: AQA_8300_1F_NOV23,
+  [AQA_8300_2F_NOV23.id]: AQA_8300_2F_NOV23,
+  [AQA_8300_3F_NOV23.id]: AQA_8300_3F_NOV23,
   [AQA_8300_1H_NOV23.id]: AQA_8300_1H_NOV23,
   [AQA_8300_2H_NOV23.id]: AQA_8300_2H_NOV23,
   [AQA_8300_3H_NOV23.id]: AQA_8300_3H_NOV23,
 
   // June 2023
+  [AQA_8300_1F_JUN23.id]: AQA_8300_1F_JUN23,
+  [AQA_8300_2F_JUN23.id]: AQA_8300_2F_JUN23,
+  [AQA_8300_3F_JUN23.id]: AQA_8300_3F_JUN23,
   [AQA_8300_1H_JUN23.id]: AQA_8300_1H_JUN23,
   [AQA_8300_2H_JUN23.id]: AQA_8300_2H_JUN23,
   [AQA_8300_3H_JUN23.id]: AQA_8300_3H_JUN23,
