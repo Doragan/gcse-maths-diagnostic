@@ -47,6 +47,16 @@ import {
 export const REVISE_TOPIC_RATIO = 0.6
 
 /**
+ * Extension questions go only to students at or above this share of the WHOLE
+ * paper, however well an individual topic went.
+ *
+ * Set to match the strong-topic bar so one number means one thing: "doing
+ * well". On the Foundation papers in lib/demoPapers that is a comfortable
+ * grade 5 and the top of the class, which is who "push yourself" is for.
+ */
+export const CHALLENGE_OVERALL_RATIO = 0.8
+
+/**
  * Caps. A feedback sheet is read in the thirty seconds before a lesson, and a
  * teacher who wanted twelve bullet points would have written them. Worst- and
  * best-first ordering upstream means a cap keeps the most important lines.
@@ -100,6 +110,23 @@ function byWeakness(a: TopicEvidence, b: TopicEvidence): number {
 /** A skill's share of its own marks — the bar its EBI line is judged against. */
 function skillRatio(s: SkillEvidence): number {
   return s.available > 0 ? s.earned / s.available : 0
+}
+
+/**
+ * Whether this student should be offered extension work at all.
+ *
+ * A STRONG TOPIC IS NOT ENOUGH. Judged on topics alone, a student at 57% who
+ * happened to take a small statistics section cleanly was handed challenge
+ * questions — which is the wrong instruction for them twice over: their time
+ * belongs on the practice list, and a harder question on top of a paper they
+ * struggled with reads as the sheet not having looked at their marks.
+ *
+ * So the gate is the OVERALL paper, and the topic bar applies on top of it:
+ * push-yourself work goes to students already doing well, on the parts they
+ * are doing best.
+ */
+function highAchieving(evidence: StudentEvidence): boolean {
+  return evidence.available > 0 && evidence.earned / evidence.available >= CHALLENGE_OVERALL_RATIO
 }
 
 /**
@@ -157,8 +184,12 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
   }
 
   // ── Even better if ────────────────────────────────────────────────────────
+  // Marks are written "(earned/available)" on EVERY line, praise and criticism
+  // alike. The first draft mixed "(6/8)" with "— 6/13 marks", copying the demo
+  // fixture's wording, and on a real sheet the inconsistency reads as two
+  // different things being measured.
   const ebi: string[] = [
-    ...weak.map(t => `Revise ${t.label} — ${t.earned}/${t.available} marks.`),
+    ...weak.map(t => `Revise ${topicWithMarks(t)}.`),
     // Skill-level actions, worst first. A skill at or above the strong bar is
     // excluded even though it dropped a mark: nagging about 6 of 7 buries the
     // lines that matter.
@@ -176,9 +207,10 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
     practice: evidence.practice
       .slice(0, MAX_PRACTICE)
       .map(p => ({ skill: p.skill, question: p.question })),
-    challenge: evidence.challenges
-      .slice(0, MAX_CHALLENGE)
-      .map(c => ({ skill: c.skill, question: c.question })),
+    // Extension work is for students who are actually ahead — see the constant.
+    challenge: highAchieving(evidence)
+      ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))
+      : [],
   }
 }
 

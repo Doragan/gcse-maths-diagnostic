@@ -120,8 +120,8 @@ describe('even better if', () => {
   it('names a weak topic with its marks, worst first', () => {
     // Algebra 1/8 = 0.125, Statistics 1/3 = 0.33.
     const s = sheetFor({ '1': 5, '2': 1, '3': 4, '4': 1 })
-    expect(s.ebi[0]).toBe('Revise Algebra — 1/8 marks.')
-    expect(s.ebi).toContain('Revise Statistics — 1/3 marks.')
+    expect(s.ebi[0]).toBe('Revise Algebra (1/8).')
+    expect(s.ebi).toContain('Revise Statistics (1/3).')
   })
 
   it('adds skill-level actions for what to practise', () => {
@@ -172,14 +172,48 @@ describe('practice and challenge', () => {
     expect(s.practice[0].skill).toBe('Equations')
   })
 
-  it('offers challenges only where a topic is strong', () => {
-    // Number 5/5 strong, Ratio 1/4 not.
-    const s = sheetFor({ '1': 5, '2': 4, '3': 1, '4': 2 })
-    expect(s.challenge.map(c => c.skill)).toEqual(['Standard Form'])
+  it('offers challenges to a student doing well overall, on their strong topics', () => {
+    // 19/20 = 95% overall; Number 5/5 and Ratio 4/4 both strong.
+    const s = sheetFor({ '1': 5, '2': 7, '3': 4, '4': 3 })
+    expect(s.challenge.map(c => c.skill)).toEqual(['Standard Form', 'Reverse Percentages'])
+  })
+
+  // The regression this guards: judged on topics alone, a struggling student
+  // who happened to take one small section cleanly was handed extension work.
+  it('withholds challenges from a struggling student who aced one topic', () => {
+    // 5/20 = 25% overall, but Number is 5/5.
+    const s = sheetFor({ '1': 5, '2': 0, '3': 0, '4': 0 })
+    expect(s.www.some(l => l.startsWith('Strong work on Number'))).toBe(true)
+    expect(s.challenge).toEqual([])
   })
 
   it('offers no challenge when nothing is strong', () => {
     expect(sheetFor({ '1': 1, '2': 1, '3': 1, '4': 1 }).challenge).toEqual([])
+  })
+
+  it('still requires a strong TOPIC, not just a strong paper', () => {
+    // 17/20 = 85% overall, but spread evenly — no topic reaches the bar and
+    // the paper has no challenge question for Algebra anyway.
+    const s = sheetFor({ '1': 4, '2': 7, '3': 3, '4': 3 })
+    expect(s.challenge.map(c => c.skill)).not.toContain('Reverse Percentages')
+  })
+})
+
+describe('marks are written the same way everywhere', () => {
+  // The sheet mixed "(6/8)" with "— 6/13 marks", which on paper reads as two
+  // different things being measured.
+  it('uses (earned/available) on every line and never "n/m marks"', () => {
+    for (const marks of [
+      { '1': 5, '2': 8, '3': 4, '4': 3 },
+      { '1': 4, '2': 5, '3': 2, '4': 1 },
+      { '1': 0, '2': 1, '3': 0, '4': 0 },
+    ]) {
+      const s = sheetFor(marks)
+      for (const line of [...s.www, ...s.ebi]) {
+        expect(line).not.toMatch(/\d+\/\d+\s*marks/)
+        if (/\d+\/\d+/.test(line)) expect(line).toMatch(/\(\d+\/\d+\)\.$/)
+      }
+    }
   })
 })
 

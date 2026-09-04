@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildFeedbackPdf, feedbackPdfFilename } from './feedbackPdf'
+import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe } from './feedbackPdf'
 import { buildClassEvidence, buildStudentEvidence } from './feedbackEvidence'
 import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
 import type { PaperConfig } from '../demoPapers'
@@ -133,6 +133,41 @@ describe('buildFeedbackPdf', () => {
     const together = buildFeedbackPdf([enormous, short], options).getNumberOfPages()
     // Whatever the first student took, the second adds exactly one more page.
     expect(together).toBe(alone + 1)
+  })
+})
+
+describe('toPdfSafe', () => {
+  // jsPDF's built-in fonts are WinAnsi only. An undrawable character does not
+  // fail loudly — it renders as a fallback glyph, which is what made a practice
+  // question appear in the wrong font on a real sheet.
+  it('replaces the MINUS SIGN that broke a real practice question', () => {
+    // U+2212, not the ASCII hyphen it resembles.
+    expect(toPdfSafe('Solve  3(4e − 2) = 42')).toBe('Solve  3(4e - 2) = 42')
+  })
+
+  it('gives every undrawable character in the paper data a readable form', () => {
+    expect(toPdfSafe('Work out the value of √81')).toBe('Work out the value of sqrt81')
+    expect(toPdfSafe('Simplify fully ⅓p × 9q')).toBe('Simplify fully 1/3p × 9q')
+    expect(toPdfSafe('Input → ×3 → +5 → Output')).toBe('Input -> ×3 -> +5 -> Output')
+    expect(toPdfSafe('Convert 0.4̇5̇ (recurring)')).toBe('Convert 0.45 (recurring)')
+    expect(toPdfSafe('area of a circle, π')).toBe('area of a circle, pi')
+    expect(toPdfSafe('x ≥ 4')).toBe('x >= 4')
+  })
+
+  it('leaves the maths typography WinAnsi can already draw', () => {
+    expect(toPdfSafe('£612 × 3 ÷ 2, 19² and 5³ at 90°, ½')).toBe('£612 × 3 ÷ 2, 19² and 5³ at 90°, ½')
+  })
+
+  it('keeps the CP1252 characters whose codepoints exceed 0xFF', () => {
+    // The em dash is in every paper subtitle; a naive ">0xFF is unsafe" rule
+    // would blank it.
+    expect(toPdfSafe('Paper 3 Calculator — November 2024'))
+      .toBe('Paper 3 Calculator — November 2024')
+    expect(toPdfSafe('and so on…')).toBe('and so on…')
+  })
+
+  it('drops anything else rather than drawing a wrong symbol', () => {
+    expect(toPdfSafe('a ∮ b')).toBe('a   b')
   })
 })
 
