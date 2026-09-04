@@ -1,9 +1,9 @@
 # Coding an exam paper for the marking tool
 
 How to turn a real GCSE maths paper into something `/mark` and the teacher
-dashboard can use. Written after coding the fifteen AQA Higher papers and
-Edexcel 1MA1 June 2025 (all six papers), so the awkward bits below are the ones
-actually hit rather than the ones imagined.
+dashboard can use. Written and then refined across forty-two papers — AQA 8300,
+Edexcel 1MA1 and OCR J560 — so the awkward bits below are the ones actually hit
+rather than the ones imagined.
 
 **The whole job is one JSON file.** A script turns it into a `PaperConfig`; you
 never write TypeScript.
@@ -31,7 +31,7 @@ length conversion"), never the question.
 `data/skills.ts` genuinely has no node for, leave `skill_ids` empty and say so in
 `coding_notes`. A student credited with a skill they never demonstrated corrupts
 the mastery map, which is the thing the whole product is for; a gap merely leaves
-it quiet. The registry test allows **one** untagged item per paper.
+it quiet. The registry test allows **up to three** untagged items per paper.
 
 *The judgement is "outside the taxonomy" vs "inside an existing skill's
 territory".* Naming an angle as acute has no node of its own but sits inside
@@ -80,11 +80,26 @@ pdftotext -layout "Question paper.pdf" qp.txt
 pdftotext -layout "Mark scheme.pdf" ms.txt
 ```
 
-**Take the marks from the QUESTION PAPER, not the mark scheme.** The QP prints
-`(Total for Question N is X marks)` after each question and a bare `(N)` after
-each part. The mark scheme gives marks as codes — `B1`, `M1`, `P1`, `C1` — which
-`-layout` extraction scatters across lines, so summing them is guesswork. Find
-every total at once:
+**Take the marks from the QUESTION PAPER, not the mark scheme.** The mark scheme
+gives marks as codes — `B1`, `M1`, `P1`, `C1` — which `-layout` extraction
+scatters across lines, so summing them is guesswork.
+
+**How the QP prints them is per-board, and one board gives you no anchor at
+all:**
+
+| Board | Per part | Per question | Whole paper |
+|---|---|---|---|
+| AQA | `[N marks]` | — | `TOTAL 80` |
+| Edexcel | `(N)` | `(Total for Question N is X marks)` | `TOTAL FOR PAPER IS 80 MARKS` |
+| **OCR** | `[N]` | **none** | none printed |
+
+On OCR there is no per-question total to check the parts against — the
+whole-paper sum is the *only* verification available, which promotes rule 3
+above from a convenience to the thing holding the coding together. Sum every
+`[N]` and confirm it hits the published total exactly (100 for OCR J560, 80 for
+AQA 8300 and Edexcel 1MA1) before you trust anything.
+
+Find every total at once:
 
 ```bash
 grep -n "Total for Question" qp.txt
@@ -98,12 +113,14 @@ furniture that makes it unreadable:
 sed 's/DO NOT WRITE IN THIS AREA//g; s/\.\{4,\}/…/g; s/  \+/ /g' qp.txt | grep -v '^\s*$'
 ```
 
-**Trust the per-question total; check the per-part `(N)` against it.** The
-`(Total for Question N is X marks)` line is reliable. The bare `(N)` part markers
-are printed in the margin and `-layout` extraction sometimes interleaves them
-across a page break, attaching a part total to the wrong question — this happened
-twice on Edexcel 2F alone. Always confirm that a question's parts sum to its
-stated total.
+**Where a per-question total exists, trust it and check the parts against it.**
+On Edexcel the `(Total for Question N is X marks)` line is reliable, while the
+bare `(N)` part markers sit in the margin and `-layout` extraction sometimes
+interleaves them across a page break, attaching a part total to the wrong
+question — twice on 2F alone. Extraction quality does vary by board: across six
+OCR papers no marker was ever misattached. Either way, confirm that a
+question's parts sum to its stated total, and that the paper sums to its
+published one.
 
 Expect mangled maths: fractions arrive as their numerators and denominators on
 separate lines, and minus signs, `×` and `£` often come through as `�`. Usually
@@ -237,17 +254,20 @@ retry question that stands alone in words, the item is not visual.**
 
 ## Code a tier pair together — and use the overlap as a free check
 
-Roughly **a third of each Edexcel Foundation paper reappears verbatim on its
-Higher partner**, at the crossover where Foundation ends and Higher begins. From
-June 2025:
+**Both Edexcel and OCR reuse a chunk of each Foundation paper on its Higher
+partner**, at the crossover where the tiers meet. AQA does not, so confirm it
+per board rather than assuming.
 
-| Foundation | is also | Higher |
-|---|---|---|
-| 2F q20–q27 | = | 2H q1–q8 |
-| 3F q22–q30 | = | 3H q1–q8 |
-| 1F q22–q24 | = | 1H q4–q6 |
+**Edexcel puts the shared questions in a contiguous block**, which makes them
+easy to spot (June 2025: 2F q20–q27 = 2H q1–q8; 3F q22–q30 = 3H q1–q8; 1F
+q22–q24 = 1H q4–q6).
 
-Two consequences:
+**OCR interleaves them.** June 2025 shares a comparable proportion — six
+questions from 01 into 04, six from 02 into 05, seven from 03 into 06 — but they
+are scattered through the Higher paper with brand-new questions between them.
+You have to match them individually.
+
+Two consequences either way:
 
 - **Code the pair in one sitting**, so the shared questions get identical skill
   tags. Tagging them weeks apart is how the same question ends up credited two
@@ -255,9 +275,6 @@ Two consequences:
 - **It is the cheapest cross-check you have.** The marks must match item for
   item, even though the question numbers differ. A mismatch means one of the two
   codings is wrong, and you find out immediately instead of never.
-
-AQA does not overlap its tiers this way, so this is a per-board fact worth
-confirming rather than assuming.
 
 ## Checking it
 
@@ -336,6 +353,11 @@ paper; two are genuinely outside the taxonomy and left untagged:
 | Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
 | **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision |
 | **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
+| **Rate of change on a NON-kinematic graph** | tagged `kinematic_graphs` — the only node about reading a rate off a graph. **11 marks** across OCR 04 q21 and 06 q20 (tangent gradient, area under a rate-of-flow graph). The largest single mis-fit in the set |
+| **Surface area of a cuboid or cube** | spheres, cones and cylinders each have a node; cuboids do not |
+| **Equation vs identity** | tagged `expanding_double_brackets`, since expanding is the only way to tell them apart |
+| **Misleading graph** (truncated axis) | tagged `simple_charts` |
+| **Currency conversion** | tagged `proportion` |
 | **Similar solids** (area and volume scale factors) | tagged `congruence_and_similarity`, a poor fit — 5 marks on Edexcel 2H q16 |
 | **Exponential graphs** (y = k^x) | no node at all; tagged `fractional_and_negative_indices` where the method is inverting a power |
 | **Dividing a polynomial by a monomial** | falls between `simplifying_expressions` and `algebraic_fractions` |

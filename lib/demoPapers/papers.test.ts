@@ -53,20 +53,28 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     }
   })
 
-  // A question with NO skill tag is allowed, but only just.
+  // A question with NO skill tag is allowed, because the taxonomy has real
+  // holes — no outlier-identification node, no 2D counterpart to
+  // properties_of_3d_solids — and the honest response is to leave such a
+  // question untagged rather than credit the nearest skill. A student would
+  // otherwise be recorded as having demonstrated something they never showed,
+  // and a false positive in the skill map is worse than a gap in it. The marks
+  // still count towards the score and the topic.
   //
-  // The audit records a real hole in the taxonomy for one Higher question
-  // ("no outlier-identification node"), and the honest response is to leave it
-  // untagged rather than credit the nearest skill: a student who spots an
-  // outlier would otherwise be recorded as having demonstrated data handling
-  // they never showed, and a false positive in the skill map is worse than a
-  // gap in it. The marks still count towards the score and the topic.
+  // THE CAP WAS RAISED FROM 1 TO 3 (2026-09-04) BECAUSE 1 CAUSED A MIS-TAG.
+  // OCR J560/02 q4 has two items in the properties-of-2D-shapes gap, and the
+  // session coding it tagged the second to angles_on_lines_and_circles with the
+  // note "this paper's untagged budget is one" — exactly the pressure this cap
+  // was meant to prevent, applied by the cap itself. A limit that forces the
+  // failure it guards against is set wrong.
   //
-  // Capped at one per paper so the real regression this guards — a generator
-  // that stops reading skill_ids and quietly untags everything — still fails.
-  it('has at most one untagged question, and tags the rest', () => {
+  // Three still catches the regression that matters: a generator that stops
+  // reading skill_ids would untag thirty or forty items on a paper, not three.
+  // If a paper ever needs a fourth, that is a signal to add the missing skill
+  // rather than to raise this again.
+  it('has at most three untagged questions, and tags the rest', () => {
     const untagged = paper.questions.filter(q => q.skillIds.length === 0)
-    expect(untagged.length, `untagged: ${untagged.map(q => q.id).join(', ')}`).toBeLessThanOrEqual(1)
+    expect(untagged.length, `untagged: ${untagged.map(q => q.id).join(', ')}`).toBeLessThanOrEqual(3)
   })
 
   // NB there is deliberately NO "multi-skill implies exam-kind" test here.
