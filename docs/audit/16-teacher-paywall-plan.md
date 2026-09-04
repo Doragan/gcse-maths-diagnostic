@@ -166,8 +166,8 @@ cause is an unpaid invoice rather than a decision.
 
 Four smaller decisions taken at the same time:
 
-- Marks arrive by **upload or direct entry** (see Part 9 — "upload" is the one
-  genuinely unscoped word in this plan).
+- Marks arrive by **upload or direct entry**, where upload means **a CSV of
+  marks** (Part 9); reading a scanned or photographed marked paper is deferred.
 - **Other exam boards are needed.** Today everything is AQA.
 - **WWW/EBI is one feedback format, not the format.** Others should be possible.
   Not required for first launch, but it constrains the design now (Part 9).
@@ -286,22 +286,22 @@ migration in Part 2 without painting over it.
 
 # Part 9 — The four smaller decisions, and what each costs
 
-## "Upload" is two different products
+## Upload means a CSV of marks — DECIDED
 
-This is the largest unscoped word in the plan, and the two readings differ by an
-order of magnitude:
+"Upload" had two readings an order of magnitude apart, and the decision is the
+cheaper one: **a CSV of marks**, a spreadsheet of students by question marks,
+uploaded instead of typed. It is half-anticipated already — `PaperQuestion.desc`
+is documented as appearing "in the CSV template", so the idea has a foothold.
 
-- **A CSV of marks** — a spreadsheet of students by question marks. Small, and
-  half-anticipated already: `PaperQuestion.desc` is documented as appearing "in
-  the CSV template", so the idea has a foothold. Days.
-- **A photographed or scanned marked paper** — reading a teacher's ticks and mark
-  totals off paper. Vision work, per-board layout variance, and a wrong read is
-  worse than no read because it silently corrupts a student's sheet. A different
-  project.
+The rejected reading, recorded so it is not re-litigated: **a photographed or
+scanned marked paper**, read with vision. Per-board layout variance, and a wrong
+read is worse than no read because it silently corrupts a student's sheet. Not
+ruled out forever, but separately scoped and not part of this.
 
-**This needs a decision before anything is built**, because the free tier's whole
-appeal rests on how marks get in. If the answer is "typing thirty students into a
-grid", the tool's 0 rows may not be a catalogue problem after all.
+Why this matters more than its size suggests: the free tier's whole appeal rests
+on how marks get in. If the only way in is typing thirty students into a grid,
+then `paper_sittings` having 0 rows may never have been a catalogue problem at
+all, and CSV import is the fix for the actual cause rather than a convenience.
 
 ## Exam boards: AQA Higher is nearly free, other boards are not
 
@@ -359,7 +359,8 @@ something intends to build it.
 
 # Part 10 — Still open after this
 
-1. **What does "upload" mean?** (Part 9.) Blocking.
+1. ~~What does "upload" mean?~~ **Decided: a CSV of marks** (Part 9). Scanning a
+   marked paper is deferred, not adopted.
 2. **Does the individual teacher tier ship before the school tier?** Recommended
    yes — it needs no organisation table, and it is the cheaper half of the same
    entitlement model.
