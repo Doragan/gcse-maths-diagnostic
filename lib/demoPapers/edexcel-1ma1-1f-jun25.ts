@@ -17,6 +17,9 @@ import type { PaperConfig } from './types'
  *
  * `desc` is the audit's own note about what each question asks for, not the
  * question text.
+ *
+ * KNOWN GAPS in this paper, carried here so they survive regeneration:
+ *   • item 8(a) is untagged by design — filed under Shape and Space, contributing 1 mark(s) with no skill evidence. Check coding_notes says why.
  */
 export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
   id: 'edexcel-1ma1-1f-jun25',
@@ -36,12 +39,12 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
     { id: '2',   label: '2',     marks: 1,  topic: 'number',   skill: 'Converting Fractions to Decimals',                                 skillIds: ['converting_fractions_to_decimals'], kind: 'mastery', visual: false, desc: 'write a simple fraction as a decimal' },
     { id: '3',   label: '3',     marks: 1,  topic: 'number',   skill: 'Converting Measurements',                                          skillIds: ['converting_measurements'], kind: 'mastery', visual: false, desc: 'metric length conversion' },
     { id: '4',   label: '4',     marks: 1,  topic: 'number',   skill: 'Factors and Multiples',                                            skillIds: ['factors_and_multiples'], kind: 'mastery', visual: false, desc: 'give a multiple within a range' },
-    { id: '5',   label: '5',     marks: 1,  topic: 'shape',    skill: 'Measuring Lines and Angles',                                       skillIds: ['measuring_lines_and_angles'], kind: 'mastery', visual: false, desc: 'name the type of a given angle' },
+    { id: '5',   label: '5',     marks: 1,  topic: 'shape',    skill: 'Angles on lines and Circles',                                      skillIds: ['angles_on_lines_and_circles'], kind: 'mastery', visual: false, desc: 'name the type of a given angle' },
     { id: '6a',  label: '6(a)',  marks: 1,  topic: 'number',   skill: 'Simple Arithmetic',                                                skillIds: ['simple_arithmetic'], kind: 'mastery', visual: false, desc: 'read two values from a table and add' },
     { id: '6b',  label: '6(b)',  marks: 3,  topic: 'number',   skill: 'Simple Arithmetic',                                                skillIds: ['simple_arithmetic'], kind: 'exam', visual: false, desc: 'compare two totals against a multiplicative claim, with working' },
     { id: '7a',  label: '7(a)',  marks: 2,  topic: 'probdata', skill: 'Simple Charts',                                                    skillIds: ['simple_charts'], kind: 'mastery', visual: true, desc: 'complete a bar chart from given figures' },
     { id: '7b',  label: '7(b)',  marks: 3,  topic: 'number',   skill: 'Simple Arithmetic + Simple Charts',                                skillIds: ['simple_arithmetic', 'simple_charts'], kind: 'exam', visual: false, desc: 'total mixed-denomination money read from a chart, compared with a bound' },
-    { id: '8a',  label: '8(a)',  marks: 1,  topic: 'shape',    skill: 'Symmetry (Line and Rotational)',                                   skillIds: ['symmetry'], kind: 'mastery', visual: true, desc: 'complete a kite on a grid from two given sides' },
+    { id: '8a',  label: '8(a)',  marks: 1,  topic: 'shape',    skill: 'Untagged',                                                         skillIds: [], kind: 'mastery', visual: true, desc: 'complete a kite on a grid from two given sides' },
     { id: '8b',  label: '8(b)',  marks: 1,  topic: 'shape',    skill: 'Properties of 3D Solids',                                          skillIds: ['properties_of_3d_solids'], kind: 'mastery', visual: false, desc: 'name a solid from its picture' },
     { id: '9a',  label: '9(a)',  marks: 1,  topic: 'algebra',  skill: 'Forming Expressions and Formulae',                                 skillIds: ['forming_expressions_and_formulae'], kind: 'mastery', visual: false, desc: 'write an expression for an age, given a difference' },
     { id: '9b',  label: '9(b)',  marks: 1,  topic: 'algebra',  skill: 'Forming Expressions and Formulae',                                 skillIds: ['forming_expressions_and_formulae'], kind: 'mastery', visual: false, desc: 'write an expression for an age, given a multiple' },

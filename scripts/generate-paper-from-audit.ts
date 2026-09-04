@@ -86,6 +86,15 @@ type AuditRow = {
   kind: 'mastery' | 'exam'
   answer_form?: string
   app_gap_note?: string | null
+  /**
+   * Topic id, overriding the one the first skill would imply.
+   *
+   * Exists for the UNTAGGED case. A question the taxonomy has no node for still
+   * belongs to a topic, and without this it lands in the fallback — so a kite
+   * question would be filed under Probability and Data, which is worse on a
+   * feedback sheet than the missing skill it is standing in for.
+   */
+  topic?: string
 }
 
 type AuditMeta = Record<string, unknown>
@@ -111,7 +120,16 @@ const TOPIC_BY_SKILL_TOPIC: Record<string, { id: string; label: string }> = {
   'Probability and Data': { id: 'probdata', label: 'Probability and Data' },
 }
 
-/** Where an item with no skill tag lands. Reported loudly so it can be fixed. */
+/** The same topics, addressable by id for a row's explicit `topic` override. */
+const TOPIC_BY_ID: Record<string, { id: string; label: string }> =
+  Object.fromEntries(Object.values(TOPIC_BY_SKILL_TOPIC).map(t => [t.id, t]))
+
+/**
+ * Where an item with no skill tag and no explicit topic lands.
+ *
+ * A last resort, and reported loudly: an untagged item should say which topic
+ * it belongs to rather than accept this.
+ */
 const UNTAGGED_TOPIC = { id: 'probdata', label: 'Probability and Data' }
 
 const SERIES_NAMES: Record<string, string> = {
@@ -218,15 +236,30 @@ function build(auditId: string): { source: string; slug: string; constName: stri
 
     // Topic comes from the FIRST skill: a multi-skill item can straddle two
     // topics and the mark scheme gives no way to split it, so the primary skill
-    // decides which column the question sits in.
+    // decides which column the question sits in. An explicit `topic` overrides
+    // that, which is how an untagged item still lands in the right column.
+    let explicitTopic: { id: string; label: string } | undefined
+    if (typeof row.topic === 'string') {
+      explicitTopic = TOPIC_BY_ID[row.topic]
+      if (!explicitTopic) {
+        warnings.push(
+          `item ${label}: unknown topic "${row.topic}" — expected one of ${Object.keys(TOPIC_BY_ID).join(', ')}`,
+        )
+      }
+    }
     const primary = skillIds.map(s => skillById.get(s)).find(Boolean)
-    const topic = primary
-      ? TOPIC_BY_SKILL_TOPIC[primary.topic] ?? UNTAGGED_TOPIC
-      : UNTAGGED_TOPIC
+    const topic = explicitTopic
+      ?? (primary ? TOPIC_BY_SKILL_TOPIC[primary.topic] ?? UNTAGGED_TOPIC : UNTAGGED_TOPIC)
+
     if (!primary) {
       warnings.push(
-        `item ${label} has no skill tag — filed under ${topic.label}, contributes ${row.marks} mark(s) ` +
-        `to the total but no skill evidence. Worth a hand correction.`,
+        explicitTopic
+          // Deliberate: the taxonomy has no node for this question, and the
+          // topic was stated so the marks still land in the right column.
+          ? `item ${label} is untagged by design — filed under ${topic.label}, contributing ` +
+            `${row.marks} mark(s) with no skill evidence. Check coding_notes says why.`
+          : `item ${label} has no skill tag AND no topic — falling back to ${topic.label}, which is ` +
+            `probably wrong. Give it a "topic" even if the taxonomy has no skill for it.`,
       )
     }
     topicsUsed.set(topic.id, topic.label)

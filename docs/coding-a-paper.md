@@ -34,9 +34,35 @@ the mastery map, which is the thing the whole product is for; a gap merely leave
 it quiet. The registry test allows **one** untagged item per paper.
 
 *The judgement is "outside the taxonomy" vs "inside an existing skill's
-territory".* Naming an angle as acute has no node of its own, but it sits inside
-`measuring_lines_and_angles` — tag it, and note it. Identifying an outlier (AQA
-JUN25-H-P3 q2) sits inside nothing — leave it.
+territory".* Naming an angle as acute has no node of its own but sits inside
+`angles_on_lines_and_circles` — tag it, and note it. Completing a kite is about
+knowing what a kite *is*, and the taxonomy has `properties_of_3d_solids` with no
+2D equivalent — leave it untagged, and give it a `topic`.
+
+**An untagged item still needs a `topic`.** Without one it falls back to
+Probability and Data, so a kite question would be filed under statistics — worse
+on a feedback sheet than the missing skill it stands in for. Its marks still
+count towards the score and the topic total.
+
+### Prefer the LOWEST skill that honestly covers the question
+
+Crediting a skill propagates backwards through its whole transitive prerequisite
+tree (`lib/skills/masteryEngine.ts`), so a tag credits everything underneath it
+too. Tagging high silently over-credits. Check the cost before choosing:
+
+```bash
+npx tsx -e "import{getPrerequisiteTree}from'./lib/skills/skillGraph';console.log(getPrerequisiteTree('reflections'))"
+```
+
+Two real examples from Edexcel 1MA1/1F:
+
+- Completing a kite is genuinely a *reflection*, but `reflections` credits
+  **eight** skills including Understanding Straight Line Graphs and Function
+  Machines. A Foundation student would be recorded as understanding `y = mx + c`
+  for drawing half a kite.
+- Naming an angle was first tagged `measuring_lines_and_angles` (3 skills), whose
+  own example is using a protractor. `angles_on_lines_and_circles` is its
+  prerequisite, credits 2, and claims only that the student knows angle sizes.
 
 **3. The marks must sum to the paper's printed total.** This is the cheapest
 possible check that you have not skipped a part, and the generator reports a
@@ -100,12 +126,17 @@ One JSON in `data/exam-audit/`, named for the paper (`EDEXCEL-JUN25-F-P1.json`).
     "source": "Coded from the published QP and mark scheme (…). Derived metadata only. No exam question text transcribed."
   },
   "coding_notes": [
-    "q5 tagged measuring_lines_and_angles: no 'classify an angle' node exists."
+    "q5 tagged angles_on_lines_and_circles: no 'classify an angle' node exists.",
+    "q8a UNTAGGED: quadrilateral properties, and there is no 2D counterpart to properties_of_3d_solids. Topic stated so the marks still land under Shape and Space."
   ],
   "rows": [
     { "q": "1", "part": null, "marks": 1,
       "skill_ids": ["simplifying_expressions"], "kind": "mastery",
-      "answer_form": "expression", "app_gap_note": "collect repeated like terms" }
+      "answer_form": "expression", "app_gap_note": "collect repeated like terms" },
+
+    { "q": "8", "part": "a", "marks": 1,
+      "skill_ids": [], "topic": "shape", "kind": "mastery",
+      "answer_form": "draw_shape", "app_gap_note": "complete a kite on a grid" }
   ]
 }
 ```
@@ -142,6 +173,7 @@ which has held since the audit began.
 | `kind` | yes | `"mastery"` or `"exam"`. |
 | `answer_form` | no | Only `draw*` is read, to set `visual`. |
 | `app_gap_note` | no | Becomes `desc`, the marking grid's tooltip. |
+| `topic` | when untagged | One of `number`, `algebra`, `ratio`, `shape`, `probdata`. Overrides the topic the first skill implies; required in practice for an untagged item. |
 
 **`q` + `part` become the item id and label**: `"12"` + `"a"` → id `12a`, label
 `12(a)`. Ids must be unique; the generator reports duplicates.
@@ -229,9 +261,18 @@ tracking yet".
 node -e "const s=require('fs').readFileSync('data/skills.ts','utf8');for(const m of s.matchAll(/\"id\":\s*\"([^\"]+)\",\s*\n\s*\"name\":\s*\"([^\"]+)\"/g))console.log(m[1],'—',m[2])"
 ```
 
-**Known gaps found so far**, all worth filling if Foundation papers keep hitting
-them: classifying an angle by type, properties of quadrilaterals, stem and leaf
-diagrams, identifying an outlier.
+**Known gaps found so far.** Two are covered by a nearby skill and noted in the
+paper; two are genuinely outside the taxonomy and left untagged:
+
+| Gap | Handling |
+|---|---|
+| Classifying an angle by type | tagged `angles_on_lines_and_circles` |
+| Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
+| **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision |
+| **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
+
+One more oddity: every Probability-and-Data path bottoms out in `sampling`, so
+tagging any data question also credits "can explain why a survey is biased".
 
 ### Number (31)
 

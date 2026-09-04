@@ -13,8 +13,8 @@
     "note": "First non-AQA paper. Marks per part read from the question paper's own part totals and checked against the printed 80. Three tagging judgements are recorded in coding_notes below rather than left implicit."
   },
   "coding_notes": [
-    "q5 (name the type of a 53 degree angle) tagged measuring_lines_and_angles: the taxonomy has no 'classify an angle' node, and this is the nearest genuine skill rather than an invented one.",
-    "q8a (complete a kite on a grid from two given sides) tagged symmetry: the task is reflecting the given sides, and there is no quadrilateral-properties node.",
+    "q5 (name the type of a 53 degree angle) tagged angles_on_lines_and_circles: no 'classify an angle' node exists. NOT measuring_lines_and_angles, which sits above it in the prerequisite tree and whose own example is using a protractor — naming an angle demonstrates nothing about that.",
+    "q8a (complete a kite on a grid) is UNTAGGED: it is a question about the properties of a quadrilateral, and the taxonomy has properties_of_3d_solids with no 2D equivalent. Tagged symmetry in the first pass, which was wrong — a kite has a line of symmetry, but the question is about knowing what a kite is. Topic stated explicitly so its marks still count under Shape and Space.",
     "q18 (construct a stem and leaf diagram) tagged gathering_and_organising_data: no stem-and-leaf node exists, but organising raw data into a diagram is squarely what that skill covers."
   ],
   "rows": [
@@ -22,7 +22,7 @@
     { "q": "2",  "part": null, "marks": 1, "skill_ids": ["converting_fractions_to_decimals"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a simple fraction as a decimal" },
     { "q": "3",  "part": null, "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "metric length conversion" },
     { "q": "4",  "part": null, "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "give a multiple within a range" },
-    { "q": "5",  "part": null, "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name the type of a given angle" },
+    { "q": "5",  "part": null, "marks": 1, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name the type of a given angle" },
 
     { "q": "6",  "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "read two values from a table and add" },
     { "q": "6",  "part": "b", "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "compare two totals against a multiplicative claim, with working" },
@@ -30,7 +30,7 @@
     { "q": "7",  "part": "a", "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "complete a bar chart from given figures" },
     { "q": "7",  "part": "b", "marks": 3, "skill_ids": ["simple_arithmetic", "simple_charts"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "total mixed-denomination money read from a chart, compared with a bound" },
 
-    { "q": "8",  "part": "a", "marks": 1, "skill_ids": ["symmetry"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "complete a kite on a grid from two given sides" },
+    { "q": "8",  "part": "a", "marks": 1, "skill_ids": [], "topic": "shape", "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "complete a kite on a grid from two given sides" },
     { "q": "8",  "part": "b", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name a solid from its picture" },
 
     { "q": "9",  "part": "a", "marks": 1, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write an expression for an age, given a difference" },
