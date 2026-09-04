@@ -95,6 +95,59 @@ export default function ForTeachersPage() {
         </div>
       </section>
 
+      {/* ── Free marking tool ───────────────────────────────────────────────────
+          Placed directly under the hero because it is the only thing on this
+          page a teacher can USE today: no account, no class, no setup. Everything
+          else here asks them to log in or book a conversation first.
+
+          The copy says what the tool does NOT do (nothing is saved, and only a
+          few papers are loaded) on purpose. A teacher who clicks through
+          expecting their own November mock and finds three AQA Foundation papers
+          bounces and does not come back; one who was told first might still try
+          it on a past paper. ───────────────────────────────────────────────── */}
+      <section style={{ padding: 'clamp(40px, 7vw, 64px) 24px' }}>
+        <div style={{
+          maxWidth: '880px', margin: '0 auto',
+          background: '#ffffff', borderRadius: radius.lg,
+          border: `2px solid ${colors.primary}`,
+          padding: 'clamp(24px, 4vw, 36px)',
+        }}>
+          <p style={{ fontSize: font.sm, fontWeight: '700', color: colors.primary, margin: '0 0 12px', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
+            Free — no account needed
+          </p>
+          <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 30px)', fontWeight: '800', color: colors.textPrimary, margin: '0 0 14px', letterSpacing: '-0.02em' }}>
+            Already marked a paper? Turn it into feedback sheets.
+          </h2>
+          <p style={{ fontSize: font.md, color: colors.textSecondary, margin: '0 0 10px', lineHeight: '1.7', maxWidth: '620px' }}>
+            Enter the marks you already have — type them in or paste a CSV — and download
+            a sheet for every student: what went well, what to work on, and questions to
+            practise. One page each, ready to hand out. No sign-up, and no limit on how
+            many papers you do.
+          </p>
+          <p style={{ fontSize: font.base, color: colors.textHint, margin: '0 0 24px', lineHeight: '1.65', maxWidth: '620px' }}>
+            Nothing is saved, so there is nothing to cancel. AQA Foundation papers to
+            begin with, with more being added — an account is what lets you keep the
+            marks and compare one paper with the next.
+          </p>
+          <Link
+            href="/mark"
+            onClick={() => trackEvent('teacher_free_marking_clicked')}
+            style={{
+              background: colors.primary,
+              color: '#fff',
+              padding: '13px 28px',
+              borderRadius: radius.md,
+              fontSize: font.lg,
+              fontWeight: '800',
+              textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >
+            Mark a paper →
+          </Link>
+        </div>
+      </section>
+
       {/* ── Features ─────────────────────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 8vw, 80px) 24px' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto' }}>
@@ -430,6 +483,7 @@ export default function ForTeachersPage() {
           <Link href="/" style={{ fontSize: font.xl, fontWeight: '800', color: '#ffffff', textDecoration: 'none', letterSpacing: '-0.02em' }}>Mathsense</Link>
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const, justifyContent: 'center' }}>
             <Link href="/" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontSize: font.sm }}>Home</Link>
+            <Link href="/mark" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontSize: font.sm }}>Mark a paper</Link>
             <Link href="/diagnostic" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontSize: font.sm }}>Student diagnostic</Link>
             <Link href="/student" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontSize: font.sm }}>Student login</Link>
             <Link href="/privacy" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontSize: font.sm }}>Privacy</Link>
