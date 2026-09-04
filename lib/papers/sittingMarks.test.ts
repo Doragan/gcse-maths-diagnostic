@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateEntries, deriveAttempts, marksEarned, marksTotal } from './sittingMarks'
+import { validateEntries, deriveAttempts, marksEarned, marksTotal, selectedItems } from './sittingMarks'
 import type { PaperConfig } from '../demoPapers'
 
 // A tiny stand-in paper: one 1-mark item, one 3-mark item, one multi-skill item.
@@ -116,5 +116,69 @@ describe('mark totals', () => {
 
   it('sums the paper\'s available marks', () => {
     expect(marksTotal(paper)).toBe(6)
+  })
+
+  // The bug this guards: with part of a paper set, a student scoring 4 of an
+  // available 4 read as 4/6 — not a worse mark, the wrong mark.
+  it('sums only the selection when part of the paper was set', () => {
+    expect(marksTotal(paper, ['1', '2'])).toBe(4)
+    expect(marksTotal(paper, ['3'])).toBe(2)
+    expect(marksTotal(paper, [])).toBe(0)
+  })
+
+  it('treats null and undefined as the whole paper', () => {
+    expect(marksTotal(paper, null)).toBe(6)
+    expect(marksTotal(paper, undefined)).toBe(6)
+  })
+
+  it('ignores a selected id the paper does not have', () => {
+    // validateEntries rejects this; marksTotal must not invent marks for it.
+    expect(marksTotal(paper, ['1', '99'])).toBe(1)
+  })
+})
+
+describe('selectedItems', () => {
+  it('returns every question when there is no selection', () => {
+    expect(selectedItems(paper, null).map(q => q.id)).toEqual(['1', '2', '3'])
+  })
+
+  it('narrows to the selection in PAPER order, not selection order', () => {
+    // A teacher ticking questions out of order did not mean to reorder them —
+    // a feedback sheet reads down the paper.
+    expect(selectedItems(paper, ['3', '1']).map(q => q.id)).toEqual(['1', '3'])
+  })
+})
+
+describe('validateEntries with a selection', () => {
+  it('accepts marks confined to the selection', () => {
+    expect(validateEntries(paper, [{ studentId: 's', marks: { '1': 1 } }], ['1', '2']))
+      .toEqual({ ok: true })
+  })
+
+  it('rejects a mark for a question that was not set', () => {
+    // Otherwise it counts into marksEarned while adding nothing to marksTotal,
+    // producing a score over 100%.
+    const r = validateEntries(paper, [{ studentId: 's', marks: { '3': 2 } }], ['1'])
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.error).toContain('not set')
+  })
+
+  it('rejects an empty selection before the database check constraint does', () => {
+    const r = validateEntries(paper, [{ studentId: 's', marks: {} }], [])
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.error).toContain('at least one')
+  })
+
+  it('rejects a selection naming a question the paper does not have', () => {
+    expect(validateEntries(paper, [{ studentId: 's', marks: {} }], ['99']).ok).toBe(false)
+  })
+
+  it('still enforces the mark range inside a selection', () => {
+    expect(validateEntries(paper, [{ studentId: 's', marks: { '2': 4 } }], ['2']).ok).toBe(false)
+  })
+
+  it('is unchanged when no selection is passed', () => {
+    expect(validateEntries(paper, [{ studentId: 's', marks: { '1': 1, '3': 2 } }]))
+      .toEqual({ ok: true })
   })
 })

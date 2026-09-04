@@ -1,5 +1,5 @@
 import { getSession } from '../auth'
-import type { ItemMarks } from './sittingMarks'
+import type { ItemMarks, ItemSelection } from './sittingMarks'
 
 // Client helper for POST /api/papers/sittings, mirroring getClassMembers in
 // lib/classes.ts: the write is a cross-account one (a teacher creating rows
@@ -31,6 +31,8 @@ export type ExistingSitting = {
   marks: ItemMarks
   marks_earned: number
   marks_total: number
+  /** Which questions were set; NULL means the whole paper. */
+  selected_items: string[] | null
 }
 
 /**
@@ -84,6 +86,12 @@ export async function recordSitting(input: {
   classId: string
   /** YYYY-MM-DD, when the class actually sat it — not when it was typed in. */
   satOn?: string | null
+  /**
+   * Which questions were set. Omit for the whole paper — the default, and what
+   * the "full paper" checkbox leaves it as. The denominator comes from this,
+   * so it must be passed whenever only part of a paper was given.
+   */
+  selectedItems?: ItemSelection
   students: SittingSubmission[]
 }): Promise<{ sittings: RecordedSitting[]; marksTotal: number }> {
   const session = await getSession()

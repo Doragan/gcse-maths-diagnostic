@@ -11,11 +11,38 @@ import type { PaperConfig } from '../demoPapers'
 
 export type ItemMarks = Record<string, number>
 
+/**
+ * Which of a paper's items were actually set.
+ *
+ * `null`/`undefined` means the whole paper — the default, and what every call
+ * site meant before partial papers existed. An array is an explicit subset, in
+ * the teacher's chosen order.
+ *
+ * WHY THIS IS PASSED AROUND RATHER THAN INFERRED from which item ids carry
+ * marks: "not set" and "scored zero" are different, and inferring cannot tell
+ * them apart. A teacher who writes 0 into every blank would silently shrink the
+ * paper, moving the denominator under a student who simply did badly.
+ */
+export type ItemSelection = readonly string[] | null | undefined
+
 export type StudentEntry = {
   studentId: string
   /** Present when correcting an existing sitting rather than creating one. */
   sittingId?: string
   marks: ItemMarks
+}
+
+/**
+ * The paper's items narrowed to the selection, in paper order.
+ *
+ * Paper order rather than selection order: a feedback sheet reads down the
+ * paper, and a teacher who ticks questions out of order did not mean to
+ * reorder them.
+ */
+export function selectedItems(paper: PaperConfig, selection: ItemSelection) {
+  if (!selection) return paper.questions
+  const wanted = new Set(selection)
+  return paper.questions.filter(q => wanted.has(q.id))
 }
 
 /**
@@ -25,10 +52,26 @@ export type StudentEntry = {
 export function validateEntries(
   paper: PaperConfig,
   entries: StudentEntry[],
+  selection?: ItemSelection,
 ): { ok: true } | { ok: false; error: string } {
   if (!entries.length) return { ok: false, error: 'No students supplied' }
 
   const itemById = new Map(paper.questions.map(q => [q.id, q]))
+
+  if (selection) {
+    // An empty selection would produce a zero denominator, which the
+    // paper_sittings check constraint (marks_total > 0) rejects at the
+    // database anyway — better to say so here than to fail on insert.
+    if (!selection.length) {
+      return { ok: false, error: 'Select at least one question' }
+    }
+    for (const itemId of selection) {
+      if (!itemById.has(itemId)) {
+        return { ok: false, error: `Unknown item "${itemId}" for ${paper.id}` }
+      }
+    }
+  }
+  const inSelection = selection ? new Set(selection) : null
 
   for (const e of entries) {
     if (typeof e?.studentId !== 'string' || !e.studentId) {
@@ -38,6 +81,13 @@ export function validateEntries(
       const item = itemById.get(itemId)
       if (!item) {
         return { ok: false, error: `Unknown item "${itemId}" for ${paper.id}` }
+      }
+      // A mark for a question that was not set would be counted into
+      // marksEarned while contributing nothing to marksTotal — a score over
+      // 100%. Reject rather than silently drop it: it means the caller and the
+      // teacher disagree about what was set.
+      if (inSelection && !inSelection.has(itemId)) {
+        return { ok: false, error: `Item "${itemId}" was not set on this paper` }
       }
       // Whole numbers only: exam marks are integers, and a fractional mark
       // would round unpredictably into the full-marks comparison below.
@@ -57,9 +107,15 @@ export function marksEarned(marks: ItemMarks): number {
   return Object.values(marks).reduce((s, m) => s + m, 0)
 }
 
-/** Every mark available on the paper. */
-export function marksTotal(paper: PaperConfig): number {
-  return paper.questions.reduce((s, q) => s + q.marks, 0)
+/**
+ * Every mark available — on the whole paper, or on just the items that were set.
+ *
+ * The denominator MUST come from the selection, not the paper. Eight questions
+ * set out of thirty and a student scoring 34 of an available 42 otherwise reads
+ * as 34/80, which is not a worse mark for that student — it is the wrong mark.
+ */
+export function marksTotal(paper: PaperConfig, selection?: ItemSelection): number {
+  return selectedItems(paper, selection).reduce((s, q) => s + q.marks, 0)
 }
 
 export type DerivedAttempt = {
