@@ -388,6 +388,49 @@ split. A student on 6 of 7 for equations belongs in what-went-well and the flag
 excludes them. Split praise on the marks (`earned`/`available`, or a topic's
 `ratio`) and reserve the flag for sentences that really are "dropped nothing".
 
+## Cohort-relative feedback — NOT BUILT, and cheap to add later
+
+Raised 2026-09-04: praise a student for getting something right that most of the
+class got wrong, and later extend that to averages across many sittings.
+
+**Three sources of "normal", and they map onto the tiers exactly:**
+
+| Norm source | What it needs | Tier |
+|---|---|---|
+| This class, this sitting | nothing — the papers are marked in one batch | **free** |
+| This teacher's past sittings | stored sittings | **paid** |
+| Every sitting, every school | storage plus scale | later |
+
+The first is the surprise: it is genuinely free-compatible. A teacher marking
+thirty papers has the whole cohort in memory at once, so "most of the class
+dropped 11(c), and you did not" needs no database. It strengthens the free tier
+without touching what paid sells, because every comparison that is *across time*
+— this class against last year's, this paper against its own history — still
+needs keeping. The line already drawn holds.
+
+**One type serves all three.** Per-item cohort statistics (how many took it, how
+many scored full marks, the mean share of its marks) are the same shape whether
+computed from the batch in hand or read back from stored sittings. Compute it in
+`buildClassEvidence`, which already receives every student's marks, and pass it
+into `buildStudentEvidence` as an optional argument. The formatter reads the
+derived signal and never learns where the numbers came from — so the paid
+version is a new source for an existing type, not new feedback code.
+
+**No urgency.** That seam exists today, and adding an optional argument later is
+additive. This is recorded, not deferred under protest.
+
+**Three rules to settle before it is built**, all easy to get wrong:
+
+1. **A minimum cohort size.** In a class of four, "75% of the class got this
+   wrong" is three people. Below some threshold the claim must not be made.
+2. **Cohort data may only ADD PRAISE, never sharpen criticism.** Enforced in the
+   evidence layer, not left to a formatter's judgement. "Most of your class got
+   this right and you did not" is true, and it is not something a child should
+   read on a sheet they take home. The asymmetry is the whole point of the
+   feature as it was asked for.
+3. **Never name or imply another student.** Aggregates only — and note that in a
+   small class "one other person also got it" identifies someone.
+
 ## Feedback formats: separate evidence from presentation now
 
 WWW/EBI being one format of several costs nothing to allow today and is expensive
