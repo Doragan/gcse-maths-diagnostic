@@ -2,8 +2,8 @@
 
 How to turn a real GCSE maths paper into something `/mark` and the teacher
 dashboard can use. Written after coding the fifteen AQA Higher papers and
-Edexcel 1MA1/1F June 2025, so the awkward bits below are the ones actually hit
-rather than the ones imagined.
+Edexcel 1MA1 June 2025 (all six papers), so the awkward bits below are the ones
+actually hit rather than the ones imagined.
 
 **The whole job is one JSON file.** A script turns it into a `PaperConfig`; you
 never write TypeScript.
@@ -98,10 +98,22 @@ furniture that makes it unreadable:
 sed 's/DO NOT WRITE IN THIS AREA//g; s/\.\{4,\}/…/g; s/  \+/ /g' qp.txt | grep -v '^\s*$'
 ```
 
+**Trust the per-question total; check the per-part `(N)` against it.** The
+`(Total for Question N is X marks)` line is reliable. The bare `(N)` part markers
+are printed in the margin and `-layout` extraction sometimes interleaves them
+across a page break, attaching a part total to the wrong question — this happened
+twice on Edexcel 2F alone. Always confirm that a question's parts sum to its
+stated total.
+
 Expect mangled maths: fractions arrive as their numerators and denominators on
 separate lines, and minus signs, `×` and `£` often come through as `�`. Usually
 the surrounding words disambiguate; where they do not, the mark scheme's answer
 does.
+
+**And when neither does** — it happens; Edexcel 1H q7a survived both — tag from
+what the mark scheme *rewards* rather than from what the question appears to say.
+The accepted answers pin down the skill even when the printed expression is
+unrecoverable. Say so in `coding_notes` when you have had to do this.
 
 ---
 
@@ -178,6 +190,17 @@ which has held since the audit began.
 **`q` + `part` become the item id and label**: `"12"` + `"a"` → id `12a`, label
 `12(a)`. Ids must be unique; the generator reports duplicates.
 
+**Parts nest more deeply than a single letter, outside AQA.** No AQA file goes
+beyond `a`–`d`, but Edexcel prints `(a)(i)` / `(a)(ii)`, and also numbers
+*unlettered* questions `(i)` / `(ii)` with no `(a)` at all. The convention set by
+the June 2025 Edexcel papers, and to keep to:
+
+| Printed as | `part` | id | label |
+|---|---|---|---|
+| `12 (a)` | `"a"` | `12a` | `12(a)` |
+| `12 (a)(i)` | `"ai"` | `12ai` | `12(ai)` |
+| `5 (i)` (no letter) | `"i"` | `5i` | `5(i)` |
+
 **The FIRST skill id decides the topic column.** A multi-skill item can straddle
 two topics and the mark scheme gives no way to split it, so put the skill the
 question is *mainly* about first. A map-scale question tagged
@@ -192,6 +215,30 @@ answer needs two or more *independent* skills, `mastery` otherwise.
 no text-only retry question could replace it. Anything else is ignored.
 
 ---
+
+## Code a tier pair together — and use the overlap as a free check
+
+Roughly **a third of each Edexcel Foundation paper reappears verbatim on its
+Higher partner**, at the crossover where Foundation ends and Higher begins. From
+June 2025:
+
+| Foundation | is also | Higher |
+|---|---|---|
+| 2F q20–q27 | = | 2H q1–q8 |
+| 3F q22–q30 | = | 3H q1–q8 |
+| 1F q22–q24 | = | 1H q4–q6 |
+
+Two consequences:
+
+- **Code the pair in one sitting**, so the shared questions get identical skill
+  tags. Tagging them weeks apart is how the same question ends up credited two
+  different ways on two papers.
+- **It is the cheapest cross-check you have.** The marks must match item for
+  item, even though the question numbers differ. A mismatch means one of the two
+  codings is wrong, and you find out immediately instead of never.
+
+AQA does not overlap its tiers this way, so this is a per-board fact worth
+confirming rather than assuming.
 
 ## Checking it
 
@@ -270,9 +317,20 @@ paper; two are genuinely outside the taxonomy and left untagged:
 | Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
 | **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision |
 | **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
+| **Similar solids** (area and volume scale factors) | tagged `congruence_and_similarity`, a poor fit — 5 marks on Edexcel 2H q16 |
+| **Exponential graphs** (y = k^x) | no node at all; tagged `fractional_and_negative_indices` where the method is inverting a power |
+| **Dividing a polynomial by a monomial** | falls between `simplifying_expressions` and `algebraic_fractions` |
+| **Place value**, and **roots** as distinct from powers | tagged `decimals` and `indices` respectively |
+| **Forming** a fraction from a context | every fraction node covers operating ON one, not writing one down |
 
-One more oddity: every Probability-and-Data path bottoms out in `sampling`, so
-tagging any data question also credits "can explain why a survey is biased".
+Two oddities that are classification decisions in `data/skills.ts` rather than
+tagging errors, but both show on a feedback sheet:
+
+- Every Probability-and-Data path bottoms out in `sampling`, so tagging any data
+  question also credits "can explain why a survey is biased".
+- Every index skill is filed under **Number**, so index-law algebra lands in the
+  Number column. With `percentage_change` also under Number, this pushed Edexcel
+  3F's Number share to 36% against a 22-28% published weighting.
 
 ### Number (31)
 
