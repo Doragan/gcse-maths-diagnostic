@@ -36,6 +36,43 @@ import { skills } from '../data/skills'
 // artefacts: correct a tagging mistake in place and note it in the file header,
 // exactly as the hand-authored papers do. Re-running would overwrite such a
 // correction, so the script refuses to clobber an existing file without --force.
+//
+// ── ADDING A PAPER FROM ANOTHER BOARD (Edexcel, OCR, …) ─────────────────────
+//
+// Drop a JSON file into data/exam-audit/ with the shape below. The full audit
+// schema has some fifteen fields per row because it also feeds the exam
+// COVERAGE analysis; a paper only needs these:
+//
+//   {
+//     "meta": {
+//       "paper_slug":     "edexcel-1ma1-1h-jun24",
+//       "paper_title":    "Edexcel GCSE Mathematics 1MA1/1H",
+//       "paper_subtitle": "Higher Tier Paper 1 Non-calculator — June 2024",
+//       "total_marks": 80
+//     },
+//     "rows": [
+//       { "q": "1", "part": null, "marks": 2, "skill_ids": ["indices"], "kind": "mastery",
+//         "answer_form": "numeric", "app_gap_note": "single numeric answer" }
+//     ]
+//   }
+//
+//   • paper_slug / paper_title / paper_subtitle — REQUIRED together for a
+//     non-AQA paper, and the reason is in identify() below: boards number
+//     papers and arrange calculator rules differently, and a script that
+//     guessed would label a calculator paper "Non-calculator" with complete
+//     confidence. Whoever has the paper open states what it is.
+//   • q / part / marks — part is null for an unlettered question.
+//   • skill_ids — ids from data/skills.ts. VALIDATED: an unknown id is
+//     reported, and the topic column comes from the first skill's own topic.
+//   • kind — "mastery" or "exam".
+//   • answer_form — optional; only "draw*" is used, to set `visual`.
+//   • app_gap_note — optional; becomes `desc`, the marking grid's tooltip.
+//   • total_marks — optional but worth giving: a mismatch against the summed
+//     rows is reported, which is the cheapest way to catch a half-coded paper.
+//
+// NO EXAM TEXT. The audit is derived metadata by design — question numbers,
+// marks and skills are facts about a paper, not a reproduction of it. Keep it
+// that way.
 // ─────────────────────────────────────────────────────────────────────────────
 
 type AuditRow = {
@@ -78,21 +115,56 @@ const SERIES_NAMES: Record<string, string> = {
   JUN: 'June', NOV: 'November',
 }
 
+/** "edexcel-1ma1-1h-jun24" → "EDEXCEL_1MA1_1H_JUN24". */
+function constNameFor(slug: string): string {
+  return slug.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+}
+
 /**
- * Everything identifying a paper, taken from the FILENAME.
+ * Everything identifying a paper.
  *
- * The `meta` block is not consistent enough to rely on: across the fifteen
- * Higher papers `paper` appears as "1", as 1, and as "Paper 1 (Non-calculator)",
- * and the calculator flag as "non_calc", "calc", true and false. The filename
- * (NOV24-H-P1) has said the same thing the same way in every file since the
- * audit began.
+ * EXPLICIT IDENTITY WINS. A file may state `paper_slug`, `paper_title` and
+ * `paper_subtitle` in its meta, and then this script needs to know nothing
+ * about the board it came from. That is the ONLY supported route for a
+ * non-AQA paper, deliberately: every board numbers its papers differently and
+ * arranges its calculator rules differently, and a script that guessed those
+ * would put "Non-calculator" on a calculator paper with total confidence. The
+ * person reading the paper states what it is.
+ *
+ * Otherwise it falls back to inferring an AQA 8300 paper from the FILENAME, as
+ * the thirty audit files are named (NOV24-H-P1). Their `meta` blocks are not
+ * consistent enough to rely on — across the fifteen Higher papers `paper`
+ * appears as "1", as 1, and as "Paper 1 (Non-calculator)", and the calculator
+ * flag as "non_calc", "calc", true and false — but the filename has said the
+ * same thing the same way in every file since the audit began.
  */
-function identify(auditId: string) {
+function identify(auditId: string, meta: AuditMeta) {
+  const slug = typeof meta.paper_slug === 'string' ? meta.paper_slug : null
+  const title = typeof meta.paper_title === 'string' ? meta.paper_title : null
+  const subtitle = typeof meta.paper_subtitle === 'string' ? meta.paper_subtitle : null
+
+  if (slug || title || subtitle) {
+    if (!slug || !title || !subtitle) {
+      throw new Error(
+        `${auditId}: paper_slug, paper_title and paper_subtitle must be given together ` +
+        `(got ${[slug && 'slug', title && 'title', subtitle && 'subtitle'].filter(Boolean).join(', ') || 'none'}). ` +
+        `A half-identified paper would be filed under a name nobody chose.`,
+      )
+    }
+    return { auditId, slug, constName: constNameFor(slug), title, subtitle }
+  }
+
   const m = /^([A-Z]{3})(\d{2})-([HF])-P(\d)$/.exec(auditId)
-  if (!m) throw new Error(`"${auditId}" is not an audit paper id, e.g. NOV24-H-P1`)
+  if (!m) {
+    throw new Error(
+      `"${auditId}" is not an AQA audit filename (e.g. NOV24-H-P1), so it must state ` +
+      `paper_slug, paper_title and paper_subtitle in its meta block.`,
+    )
+  }
   const [, monthCode, yy, tierCode, paperNo] = m
   const tier = tierCode === 'H' ? 'Higher' : 'Foundation'
-  // AQA 8300: paper 1 is non-calculator, papers 2 and 3 allow one.
+  // AQA 8300 only: paper 1 is non-calculator, papers 2 and 3 allow one. This
+  // is why other boards must identify themselves rather than be inferred.
   const calc = paperNo === '1' ? 'Non-calculator' : 'Calculator'
   const seriesSlug = `${monthCode.toLowerCase()}${yy}`
   return {
@@ -123,10 +195,10 @@ function pad(s: string, n: number): string {
 type Warning = string
 
 function build(auditId: string): { source: string; slug: string; constName: string; warnings: Warning[] } {
-  const id = identify(auditId)
   const file = join(AUDIT_DIR, `${auditId}.json`)
   if (!existsSync(file)) throw new Error(`No audit file at ${file}`)
   const audit: Audit = JSON.parse(readFileSync(file, 'utf8'))
+  const id = identify(auditId, audit.meta)
   const warnings: Warning[] = []
 
   const seen = new Set<string>()
