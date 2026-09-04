@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Non-calculator)",
+    "series": "June 2025",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-1f-jun25",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/1F",
+    "paper_subtitle": "Foundation Tier Paper 1 Non-calculator — June 2025",
+    "source": "Coded from the published QP and mark scheme (1MA1_1F_2506). Derived metadata only — question numbers, marks and skill tags. No exam question text transcribed.",
+    "note": "First non-AQA paper. Marks per part read from the question paper's own part totals and checked against the printed 80. Three tagging judgements are recorded in coding_notes below rather than left implicit."
+  },
+  "coding_notes": [
+    "q5 (name the type of a 53 degree angle) tagged measuring_lines_and_angles: the taxonomy has no 'classify an angle' node, and this is the nearest genuine skill rather than an invented one.",
+    "q8a (complete a kite on a grid from two given sides) tagged symmetry: the task is reflecting the given sides, and there is no quadrilateral-properties node.",
+    "q18 (construct a stem and leaf diagram) tagged gathering_and_organising_data: no stem-and-leaf node exists, but organising raw data into a diagram is squarely what that skill covers."
+  ],
+  "rows": [
+    { "q": "1",  "part": null, "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "collect repeated like terms" },
+    { "q": "2",  "part": null, "marks": 1, "skill_ids": ["converting_fractions_to_decimals"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a simple fraction as a decimal" },
+    { "q": "3",  "part": null, "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "metric length conversion" },
+    { "q": "4",  "part": null, "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "give a multiple within a range" },
+    { "q": "5",  "part": null, "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name the type of a given angle" },
+
+    { "q": "6",  "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "read two values from a table and add" },
+    { "q": "6",  "part": "b", "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "compare two totals against a multiplicative claim, with working" },
+
+    { "q": "7",  "part": "a", "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "complete a bar chart from given figures" },
+    { "q": "7",  "part": "b", "marks": 3, "skill_ids": ["simple_arithmetic", "simple_charts"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "total mixed-denomination money read from a chart, compared with a bound" },
+
+    { "q": "8",  "part": "a", "marks": 1, "skill_ids": ["symmetry"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "complete a kite on a grid from two given sides" },
+    { "q": "8",  "part": "b", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name a solid from its picture" },
+
+    { "q": "9",  "part": "a", "marks": 1, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write an expression for an age, given a difference" },
+    { "q": "9",  "part": "b", "marks": 1, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write an expression for an age, given a multiple" },
+    { "q": "9",  "part": "c", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a one-step equation" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["rounding"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "round to the nearest thousand" },
+    { "q": "10", "part": "b", "marks": 2, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "estimate a product by rounding both factors" },
+
+    { "q": "11", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "subtract fractions with different denominators" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "find a fraction of a quantity" },
+
+    { "q": "12", "part": "a", "marks": 3, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "compare journey durations from a timetable, with working" },
+    { "q": "12", "part": "b", "marks": 2, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "waiting time from a timetable with a stated delay" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "forward through a two-step machine" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "inverse through a two-step machine, negative output" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["ratio", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "map scale applied to a real length, answer in a different unit" },
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "written multiplication of a decimal by a two-digit integer" },
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["alternate_and_corresponding_angles", "angles_on_lines_and_circles"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "prove two lines parallel, giving an angle reason at each stage" },
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "scale a recipe and check four quantities against what is available" },
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["gathering_and_organising_data"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "construct a stem and leaf diagram, including a key" },
+    { "q": "19", "part": null, "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "highest common factor of two numbers" },
+
+    { "q": "20", "part": "a", "marks": 3, "skill_ids": ["probability_spaces", "calculating_simple_probability"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "missing probability from a table, given a ratio between two outcomes" },
+    { "q": "20", "part": "b", "marks": 2, "skill_ids": ["expected_outcomes"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "total population from a known probability and its frequency" },
+
+    { "q": "21", "part": "a", "marks": 2, "skill_ids": ["substitution", "quadratic_functions"], "kind": "mastery", "answer_form": "table_complete", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "21", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "plot a quadratic curve over a given domain" },
+    { "q": "21", "part": "c", "marks": 1, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "coordinate", "app_gap_note": "read the turning point off a drawn curve" },
+
+    { "q": "22", "part": "a", "marks": 5, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "chain two ratios through a fractional part of a total" },
+    { "q": "22", "part": "b", "marks": 1, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "state whether a change to one quantity affects a ratio, with a reason" },
+
+    { "q": "23", "part": null, "marks": 3, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "add two numbers in standard form, answer in standard form" },
+    { "q": "24", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "exterior_angles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "number of sides of a regular polygon from an interior angle built up from a triangle and a square" },
+    { "q": "25", "part": null, "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "equation of a drawn line in y = mx + c form" },
+    { "q": "26", "part": null, "marks": 2, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "linear combination of two column vectors" }
+  ]
+}

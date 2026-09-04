@@ -6,7 +6,12 @@ import { AQA_8300_1F_NOV24 } from './aqa-8300-1f-nov24'
 import { AQA_8300_2F_NOV24 } from './aqa-8300-2f-nov24'
 import { AQA_8300_3F_NOV24 } from './aqa-8300-3f-nov24'
 
-// Higher — generated from data/exam-audit/ by
+// Edexcel — generated from data/exam-audit/ the same way. Coded from the
+// published QP and mark scheme; see the JSON's coding_notes for the three
+// tagging judgements it needed.
+import { EDEXCEL_1MA1_1F_JUN25 } from './edexcel-1ma1-1f-jun25'
+
+// AQA Higher — generated from data/exam-audit/ by
 // scripts/generate-paper-from-audit.ts.
 import { AQA_8300_1H_JUN25 } from './aqa-8300-1h-jun25'
 import { AQA_8300_2H_JUN25 } from './aqa-8300-2h-jun25'
@@ -34,17 +39,18 @@ export type { PaperConfig, PaperTopic, PaperQuestion, PaperRetryQuestion, PaperC
  * for the most recent papers, and scrolling past three years of history to find
  * them is the sort of friction that ends with the tool unused.
  *
- * TWO KINDS OF PAPER LIVE HERE, and the difference shows on a feedback sheet:
+ * TWO KINDS OF PAPER LIVE HERE, and the difference shows on a feedback sheet —
+ * the split is HAND-AUTHORED vs GENERATED, not tier and not board:
  *
- *   • The three Foundation papers are HAND-AUTHORED and carry `retrySet` and
- *     `challengeQuestions`, so their sheets include "Practise these" and "Push
- *     yourself".
+ *   • The three AQA Foundation Nov 2024 papers are HAND-AUTHORED and carry
+ *     `retrySet` and `challengeQuestions`, so their sheets include "Practise
+ *     these" and "Push yourself".
  *
- *   • The fifteen Higher papers are GENERATED from data/exam-audit/, which
- *     transcribes no exam text. Their sheets carry the score, coverage, topic
- *     and skill breakdown and the WWW/EBI prose, and simply omit those two
- *     sections rather than printing empty headings. Filling in either object in
- *     a generated file turns its section back on with no other change.
+ *   • Everything else is GENERATED from data/exam-audit/, which transcribes no
+ *     exam text. Those sheets carry the score, coverage, topic and skill
+ *     breakdown and the WWW/EBI prose, and simply omit those two sections
+ *     rather than printing empty headings. Filling in either object in a
+ *     generated file turns its section back on with no other change.
  *
  * Adding a paper is still "write a file matching PaperConfig, add it here" —
  * for an audited paper, the script writes the file for you.
@@ -57,6 +63,7 @@ export type { PaperConfig, PaperTopic, PaperQuestion, PaperRetryQuestion, PaperC
  */
 export const PAPERS: Record<string, PaperConfig> = {
   // June 2025
+  [EDEXCEL_1MA1_1F_JUN25.id]: EDEXCEL_1MA1_1F_JUN25,
   [AQA_8300_1H_JUN25.id]: AQA_8300_1H_JUN25,
   [AQA_8300_2H_JUN25.id]: AQA_8300_2H_JUN25,
   [AQA_8300_3H_JUN25.id]: AQA_8300_3H_JUN25,
