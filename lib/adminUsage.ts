@@ -308,7 +308,7 @@ export function computeUsage(input: {
       withPremiumAccess: input.students.filter(s => isPaidStudent({
         subscription_tier: s.subscription_tier === 'paid' ? 'paid' : 'free',
         paid_until: s.paid_until ?? null,
-      })).length,
+      }, now)).length,
       conversions: input.conversions ?? 0,
       attempts: input.attempts.length,
       activeLast7,

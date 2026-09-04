@@ -28,7 +28,12 @@ export type StudentEntitlementInputs = {
   activeClassMembership?: boolean
 }
 
-export function isPaidStudent(s: StudentEntitlementInputs): boolean {
+/**
+ * `now` (epoch ms) defaults to the real clock. Pass it from anything that
+ * already reasons about a fixed point in time — reports, tests — so the answer
+ * depends on that timestamp rather than on when the code happens to run.
+ */
+export function isPaidStudent(s: StudentEntitlementInputs, now: number = Date.now()): boolean {
   // Class grant takes precedence and is independent of the personal grant.
   if (s.activeClassMembership) return true
 
@@ -36,6 +41,6 @@ export function isPaidStudent(s: StudentEntitlementInputs): boolean {
   return (
     s.subscription_tier === 'paid' &&
     s.paid_until != null &&
-    new Date(s.paid_until) > new Date()
+    Date.parse(s.paid_until) > now
   )
 }
