@@ -39,6 +39,9 @@ import { skills } from '../data/skills'
 //
 // ── ADDING A PAPER FROM ANOTHER BOARD (Edexcel, OCR, …) ─────────────────────
 //
+// FULL PROCEDURE: docs/coding-a-paper.md — how to get the marks out of a PDF,
+// which source to trust for them, and how to decide a tagging judgement.
+//
 // Drop a JSON file into data/exam-audit/ with the shape below. The full audit
 // schema has some fifteen fields per row because it also feeds the exam
 // COVERAGE analysis; a paper only needs these:
