@@ -106,14 +106,29 @@ describe('buildStudentEvidence — skills', () => {
     expect(e.skills.reduce((s, k) => s + k.available, 0)).toBeGreaterThan(e.available)
   })
 
-  it('treats a skill as secure only on full marks, matching the mastery rule', () => {
+  it('sets fullMarks only on full marks, matching the derived-attempt rule', () => {
     const e = buildStudentEvidence(paper, mostlyRight, 'stu')
-    expect(e.skills.find(s => s.skillId === 'indices')!.secure).toBe(true)
-    // 3 of 4 on Q3 is not a skill the student has.
-    expect(e.skills.find(s => s.skillId === 'solving_linear_equations')!.secure).toBe(false)
+    expect(e.skills.find(s => s.skillId === 'indices')!.fullMarks).toBe(true)
+    // 3 of 4 on Q3 earns no credit in deriveAttempts, so it must not read as
+    // full marks here either — the sheet and the skill map have to agree.
+    expect(e.skills.find(s => s.skillId === 'solving_linear_equations')!.fullMarks).toBe(false)
   })
 
-  it('marks a skill insecure when ANY of its items dropped a mark', () => {
+  // The flag is descriptive, not a verdict: one paper cannot say a skill is
+  // secure. A near miss and a blank both clear the flag, and the difference
+  // between them lives in the marks, which is where a formatter must look.
+  it('keeps a near miss distinguishable from a zero', () => {
+    const nearMiss = buildStudentEvidence(paper, { '3': 3 }, 'stu', ['3'])
+      .skills.find(s => s.skillId === 'solving_linear_equations')!
+    const blank = buildStudentEvidence(paper, { '3': 0 }, 'stu', ['3'])
+      .skills.find(s => s.skillId === 'solving_linear_equations')!
+
+    expect(nearMiss.fullMarks).toBe(blank.fullMarks) // both false
+    expect(nearMiss.marksLost).toBe(1)
+    expect(blank.marksLost).toBe(4)
+  })
+
+  it('clears fullMarks when ANY of its items dropped a mark', () => {
     const twoItemSkill = {
       ...paper,
       questions: [
@@ -123,17 +138,17 @@ describe('buildStudentEvidence — skills', () => {
     } as unknown as PaperConfig
     const e = buildStudentEvidence(twoItemSkill, { a: 2, b: 1 }, 'stu')
     const skill = e.skills.find(s => s.skillId === 'indices')!
-    expect(skill.secure).toBe(false)
+    expect(skill.fullMarks).toBe(false)
     expect(skill.earned).toBe(3)
     expect(skill.available).toBe(4)
   })
 
-  it('orders skills worst first and splits them into secure and dropped', () => {
+  it('orders skills worst first and splits them into full-marks and dropped', () => {
     const e = buildStudentEvidence(paper, mostlyRight, 'stu')
     expect(e.skills[0].skillId).toBe('solving_linear_equations')
     expect(e.droppedSkills.map(s => s.skillId)).toEqual(['solving_linear_equations'])
-    expect(e.secureSkills.every(s => s.marksLost === 0)).toBe(true)
-    expect(e.secureSkills.length + e.droppedSkills.length).toBe(e.skills.length)
+    expect(e.fullMarkSkills.every(s => s.marksLost === 0)).toBe(true)
+    expect(e.fullMarkSkills.length + e.droppedSkills.length).toBe(e.skills.length)
   })
 
   it('names skills from the skill graph, falling back to the paper wording', () => {

@@ -17,13 +17,29 @@ import { marksEarned, selectedItems, type ItemMarks, type ItemSelection } from '
 // free path generates sheets and writes nothing, so the generator cannot be
 // allowed to depend on a persisted sitting.
 //
+// NOTHING HERE IS A MASTERY VERDICT, and the wording is chosen to keep it that
+// way. One paper is one observation. "Secure", "mastered" and "still shaky" are
+// judgements about a student over TIME — the mastery engine wants repeated
+// correct attempts before it will say a skill is held — and a single sitting
+// cannot support them however well it went. So this layer reports only what the
+// paper shows: `fullMarks` means full marks on every item assessing that skill
+// ON THIS PAPER, and claims nothing beyond it.
+//
+// That line is also where the product's two tiers genuinely differ. With no
+// history kept, the honest sentence is "full marks on every equations question
+// on this paper". "Equations is secure" needs the accumulated attempts that
+// only a kept sitting provides — so the paid sheet says something the free one
+// cannot truthfully say, rather than something it has merely been stopped from
+// saying. A mastery verdict, when one is wanted, comes from the engine over
+// stored attempts, not from here.
+//
 // TWO RULES INHERITED FROM MARKING, deliberately not re-litigated here:
 //
-//   • FULL MARKS ONLY counts as secure. Three out of four is not a skill the
-//     student has. deriveAttempts() already collapses marks this way when it
-//     feeds the mastery engine, and a sheet that called a skill secure while
-//     the engine recorded it as not-yet would be the product contradicting
-//     itself in front of a teacher.
+//   • FULL MARKS ONLY counts as evidence for a skill. Three out of four earns
+//     nothing, because deriveAttempts() collapses marks that way when it feeds
+//     the mastery engine — `correct: mark === item.marks`. Using a softer bar
+//     here would put the sheet and the student's skill map into disagreement
+//     over the very same marks.
 //
 //   • A MULTI-SKILL ITEM COUNTS IN FULL TOWARD EVERY SKILL IT ASSESSES, exactly
 //     as deriveAttempts stamps the item's result onto each of its skill ids.
@@ -75,8 +91,14 @@ export type SkillEvidence = {
   earned: number
   available: number
   marksLost: number
-  /** Full marks on EVERY item assessing this skill. */
-  secure: boolean
+  /**
+   * Full marks on EVERY item assessing this skill, on this paper.
+   *
+   * Descriptive, not a verdict: it is emphatically NOT "the student has this
+   * skill". That claim needs history (see the file header). Named for what it
+   * measures so a formatter cannot borrow authority the single paper lacks.
+   */
+  fullMarks: boolean
   itemIds: string[]
 }
 
@@ -124,9 +146,16 @@ export type StudentEvidence = {
   topics: TopicEvidence[]
   /** Every skill assessed, worst first. */
   skills: SkillEvidence[]
-  /** Full marks everywhere they appeared — the WWW candidates. */
-  secureSkills: SkillEvidence[]
-  /** Lost at least one mark, worst first — the EBI candidates. */
+  /**
+   * Full marks everywhere they appeared on this paper.
+   *
+   * NOT simply "the WWW list". A student on 6 of 7 for equations belongs in
+   * what-went-well too, and this boolean excludes them. A formatter writing
+   * praise should split on the marks — `earned`/`available` are right here —
+   * and use this flag only where the sentence really is "dropped nothing".
+   */
+  fullMarkSkills: SkillEvidence[]
+  /** Lost at least one mark, worst first. */
   droppedSkills: SkillEvidence[]
   /**
    * Skills the paper assesses that this selection did NOT.
@@ -224,7 +253,7 @@ export function buildStudentEvidence(
       earned: acc.earned,
       available: acc.available,
       marksLost: acc.available - acc.earned,
-      secure: acc.allFull,
+      fullMarks: acc.allFull,
       itemIds: acc.itemIds,
     }))
     // Worst first, then by how much the paper weighted it, then by id so the
@@ -280,8 +309,8 @@ export function buildStudentEvidence(
     items,
     topics,
     skills,
-    secureSkills: skills.filter(s => s.secure),
-    droppedSkills: skills.filter(s => !s.secure),
+    fullMarkSkills: skills.filter(s => s.fullMarks),
+    droppedSkills: skills.filter(s => !s.fullMarks),
     unassessedSkillIds,
     practice,
     challenges,
