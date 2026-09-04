@@ -14,7 +14,10 @@
   },
   "coding_notes": [
     "q5 (name the type of a 53 degree angle) tagged angles_on_lines_and_circles: no 'classify an angle' node exists. NOT measuring_lines_and_angles, which sits above it in the prerequisite tree and whose own example is using a protractor — naming an angle demonstrates nothing about that.",
-    "q8a (complete a kite on a grid) is UNTAGGED: it is a question about the properties of a quadrilateral, and the taxonomy has properties_of_3d_solids with no 2D equivalent. Tagged symmetry in the first pass, which was wrong — a kite has a line of symmetry, but the question is about knowing what a kite is. Topic stated explicitly so its marks still count under Shape and Space.",
+    "q8a (complete a kite on a grid) is UNTAGGED: it is a question about the properties of a quadrilateral, and the taxonomy has properties_of_3d_solids with no 2D equivalent. Tagged symmetry in the first pass, which was wrong — a kite has a line of symmetry, but the question is about knowing what a kite is. Topic stated explicitly so its marks still count under Shape and Space. It looks inconsistent with 3F q9b, which IS tagged coordinates for a comparable shape-completion task, and is not: this grid carries no axes, no numbers and no labelled points, and the mark scheme reads 'Completed kite, B1 cao', so the answer is a drawing. 3F q9b answers with a single point on a labelled coordinate grid. THE PRINCIPLE: tag coordinates when the deliverable is a position on a coordinate grid; leave untagged when the deliverable is a drawn shape on a bare grid.",
+    "q20a (missing probability from a table) RETAGGED at review from probability_spaces to mutually_exclusive_events, keeping calculating_simple_probability second. The probabilities in the table sum to 1 and nothing is combined; probability_spaces costs 3 and credits combined_events, mutually_exclusive_events costs 2. Brought into line with 1H q2a, which is the same question verbatim.",
+    "q21a (complete a table of values for a quadratic) RETAGGED at review from [substitution, quadratic_functions] to substitution alone. quadratic_functions costs 9 and credits factorising_quadratics and expanding_double_brackets for evaluating x^2 + x - 4 at six values; parts (b) and (c) keep it. Brought into line with 1H q3a, which is the same question verbatim.",
+    "THE CROSSOVER WITH 1H IS WIDER THAN FIRST RECORDED: 1F q20-q24 are 1H q2-q6 word for word, not just q22-q24. The two retags above are the mismatches that widened check found.",
     "q18 (construct a stem and leaf diagram) tagged gathering_and_organising_data: no stem-and-leaf node exists, but organising raw data into a diagram is squarely what that skill covers."
   ],
   "rows": [
@@ -56,10 +59,10 @@
     { "q": "18", "part": null, "marks": 3, "skill_ids": ["gathering_and_organising_data"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "construct a stem and leaf diagram, including a key" },
     { "q": "19", "part": null, "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "highest common factor of two numbers" },
 
-    { "q": "20", "part": "a", "marks": 3, "skill_ids": ["probability_spaces", "calculating_simple_probability"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "missing probability from a table, given a ratio between two outcomes" },
+    { "q": "20", "part": "a", "marks": 3, "skill_ids": ["mutually_exclusive_events", "calculating_simple_probability"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "missing probability from a table, given a ratio between two outcomes" },
     { "q": "20", "part": "b", "marks": 2, "skill_ids": ["expected_outcomes"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "total population from a known probability and its frequency" },
 
-    { "q": "21", "part": "a", "marks": 2, "skill_ids": ["substitution", "quadratic_functions"], "kind": "mastery", "answer_form": "table_complete", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "21", "part": "a", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "table_complete", "app_gap_note": "complete a table of values for a quadratic" },
     { "q": "21", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "plot a quadratic curve over a given domain" },
     { "q": "21", "part": "c", "marks": 1, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "coordinate", "app_gap_note": "read the turning point off a drawn curve" },
 

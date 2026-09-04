@@ -127,10 +127,26 @@ separate lines, and minus signs, `×` and `£` often come through as `�`. Usua
 the surrounding words disambiguate; where they do not, the mark scheme's answer
 does.
 
-**And when neither does** — it happens; Edexcel 1H q7a survived both — tag from
-what the mark scheme *rewards* rather than from what the question appears to say.
-The accepted answers pin down the skill even when the printed expression is
-unrecoverable. Say so in `coding_notes` when you have had to do this.
+**And when neither does**, tag from what the mark scheme *rewards* rather than
+from what the question appears to say. Say so in `coding_notes` when you have had
+to do this.
+
+**Before falling back to that, read the content stream.** Edexcel 1H q7a defeats
+`pdftotext` in every mode — `-layout`, `-raw`, `-table`, `-fixed` — because the
+italic maths font maps its brackets and its minus sign to nothing. Inferring the
+question from the mark scheme instead got it wrong, and the wrong tag then
+invented a taxonomy gap that did not exist. Inflating the page's content stream
+and sorting the glyphs by their `Tm` coordinates recovers the expression exactly:
+
+- text above the fraction rule (drawn as a `cm … 0 0 m … l S` path) is the
+  numerator, text below it the denominator;
+- a smaller font size in the `Tm` is a superscript;
+- a large `Tc` between two glyphs is a stretched pair of brackets;
+- glyphs `pdftotext` drops are still there, in x order, between the ones it kept.
+
+It is more work than a `grep`, and it is the difference between tagging the
+question and guessing at it. Reach for it whenever the mark scheme's answer and
+the extracted text disagree.
 
 ---
 
@@ -224,6 +240,19 @@ question is *mainly* about first. A map-scale question tagged
 `["ratio", "converting_measurements"]` files under Ratio and Proportion; reverse
 them and it files under Number.
 
+**This is lossy, and it is worth knowing how lossy.** Across the six Edexcel June
+2025 papers, **17 items carrying 59 of 480 marks (12%)** are tagged with skills
+from two different topics, and the whole mark goes to whichever was written
+first. Some of those items are not really "mainly" about either half — 1F q7b is
+a bar chart you read *and* a column of mixed coin denominations you total; 3F q27
+is a speed *and* a time conversion. Ordering them is a forced choice, not a
+judgement, and no ordering makes the topic percentages honest.
+
+The recurring pattern is `compound_units` (Ratio) paired with a Number partner —
+four of the seventeen. If the topic breakdown is ever load-bearing rather than
+indicative, splitting an item's marks across its skills' topics is the fix; until
+then, do not read a single paper's topic percentages to the nearest point.
+
 **`kind` barely matters here**, so do not agonise. `deriveAttempts` forces every
 derived attempt to positive-only regardless. The rule of thumb is `exam` when one
 answer needs two or more *independent* skills, `mastery` otherwise.
@@ -260,7 +289,10 @@ per board rather than assuming.
 
 **Edexcel puts the shared questions in a contiguous block**, which makes them
 easy to spot (June 2025: 2F q20–q27 = 2H q1–q8; 3F q22–q30 = 3H q1–q8; 1F
-q22–q24 = 1H q4–q6).
+q20–q24 = 1H q2–q6 — that last range was first recorded as q22–q24 = q4–q6, and
+the two questions the short range missed turned out to be tagged inconsistently,
+which is the whole argument for checking the block's edges rather than assuming
+them).
 
 **OCR interleaves them.** June 2025 shares a comparable proportion — six
 questions from 01 into 04, six from 02 into 05, seven from 03 into 06 — but they
@@ -351,7 +383,7 @@ paper; two are genuinely outside the taxonomy and left untagged:
 |---|---|
 | Classifying an angle by type | tagged `angles_on_lines_and_circles` |
 | Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
-| **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision |
+| **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged when the answer is a drawing** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision. But tag `coordinates` when the answer is a *position on a labelled coordinate grid* (3F q9b) rather than a shape drawn on a bare one (1F q8a). The shape knowledge goes uncredited either way; what differs is whether a grid position was genuinely demonstrated. |
 | **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
 | **Rate of change on a NON-kinematic graph** | tagged `kinematic_graphs` — the only node about reading a rate off a graph. **11 marks** across OCR 04 q21 and 06 q20 (tangent gradient, area under a rate-of-flow graph). The largest single mis-fit in the set |
 | **Surface area of a cuboid or cube** | spheres, cones and cylinders each have a node; cuboids do not |
@@ -360,7 +392,6 @@ paper; two are genuinely outside the taxonomy and left untagged:
 | **Currency conversion** | tagged `proportion` |
 | **Similar solids** (area and volume scale factors) | tagged `congruence_and_similarity`, a poor fit — 5 marks on Edexcel 2H q16 |
 | **Exponential graphs** (y = k^x) | no node at all; tagged `fractional_and_negative_indices` where the method is inverting a power |
-| **Dividing a polynomial by a monomial** | falls between `simplifying_expressions` and `algebraic_fractions` |
 | **Place value**, and **roots** as distinct from powers | tagged `decimals` and `indices` respectively |
 | **Forming** a fraction from a context | every fraction node covers operating ON one, not writing one down |
 
@@ -372,6 +403,17 @@ tagging errors, but both show on a feedback sheet:
 - Every index skill is filed under **Number**, so index-law algebra lands in the
   Number column. With `percentage_change` also under Number, this pushed Edexcel
   3F's Number share to 36% against a 22-28% published weighting.
+
+**Both were reviewed and deliberately left alone.** Retopicing `percentage_change`
+to Ratio and Proportion would take 3F from 36% to 31%, and moving the index skills
+to Algebra as well would take it to 24% — inside the band. It was not done: the
+`topic` field is global, so the change repaints every coded paper and every
+feedback sheet already issued, for a cosmetic gain. Note too that it would not
+have fixed the worst case. **1F sits at 38% Number with no percentage and no index
+item on it at all** — its share comes from `time_calculations` (5 marks of
+timetables) and from `simple_arithmetic` leading three context questions. That is
+the straddling problem above, not a classification error, and no reshuffling of
+`topic` fields addresses it.
 
 ### Number (31)
 

@@ -15,7 +15,7 @@
   "coding_notes": [
     "q1 (weeks to days) tagged time_calculations rather than converting_measurements: the latter is the metric-units node, and nothing metric is involved.",
     "q5 (choose a sensible metric unit for a length and for a mass) tagged converting_measurements. No 'choose an appropriate unit' node exists, but knowing which unit fits a quantity sits squarely inside that skill's territory.",
-    "q7 tagged substitution, not solving_linear_equations: the mark scheme rewards a single division by the rate, so claiming the student can solve linear equations would over-credit a one-step reversal of a given rule.",
+    "q7 (cost rule given in words, cost known, find the number bought) tagged solving_linear_equations. Tagged substitution in the first pass, which the mark scheme rules out: it awards M1 for 330 / 55 only, and states that 55 x 6 = 330 on the answer line scores M1A0 — the forward-substitution route earns nothing. Forming and solving 55n = 330 is what is rewarded. The extra prerequisite cost over substitution is one skill (substitution itself), and 2F q13b already uses this node for a two-step equation; the only difference here is that the equation arrives as a rule in context rather than written algebraically.",
     "q13a tagged indices rather than simplifying_indices — writing a repeated product in index form is index notation, not the index laws.",
     "q16a (speed from a distance-time graph, answer in a different time unit) tagged kinematic_graphs first so the item files under Algebra with the rest of the graph work, with compound_units second for the unit change.",
     "q22b (effect on the number of bags when each bag covers less) is tagged with its parent question's skill, areas_of_compound_shapes. The mark is for a statement about the consequence rather than for new mathematics, and splitting it into Number would scatter one question across two topic columns.",
@@ -31,7 +31,7 @@
     { "q": "5",  "part": "ii", "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "choose a sensible metric unit for a very small mass" },
 
     { "q": "6",  "part": null, "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "find three equal unknowns from a total and one known value" },
-    { "q": "7",  "part": null, "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "use a given cost rule in reverse to find its input" },
+    { "q": "7",  "part": null, "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "find the input of a given cost rule from its output" },
 
     { "q": "8",  "part": "a",  "marks": 1, "skill_ids": ["mode"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "mode of a list of values" },
     { "q": "8",  "part": "b",  "marks": 2, "skill_ids": ["range"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "range of a list of values" },
