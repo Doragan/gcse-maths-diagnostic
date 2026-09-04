@@ -47,11 +47,26 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   it('every skillId is a real skill in data/skills.ts', () => {
     const known = new Set(skills.map(s => s.id))
     for (const q of paper.questions) {
-      expect(q.skillIds.length, `${q.id} has no skillIds`).toBeGreaterThan(0)
       for (const id of q.skillIds) {
         expect(known.has(id), `${q.id} -> unknown skill "${id}"`).toBe(true)
       }
     }
+  })
+
+  // A question with NO skill tag is allowed, but only just.
+  //
+  // The audit records a real hole in the taxonomy for one Higher question
+  // ("no outlier-identification node"), and the honest response is to leave it
+  // untagged rather than credit the nearest skill: a student who spots an
+  // outlier would otherwise be recorded as having demonstrated data handling
+  // they never showed, and a false positive in the skill map is worse than a
+  // gap in it. The marks still count towards the score and the topic.
+  //
+  // Capped at one per paper so the real regression this guards — a generator
+  // that stops reading skill_ids and quietly untags everything — still fails.
+  it('has at most one untagged question, and tags the rest', () => {
+    const untagged = paper.questions.filter(q => q.skillIds.length === 0)
+    expect(untagged.length, `untagged: ${untagged.map(q => q.id).join(', ')}`).toBeLessThanOrEqual(1)
   })
 
   // NB there is deliberately NO "multi-skill implies exam-kind" test here.
@@ -73,7 +88,19 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     }
   })
 
-  it('every non-visual question has a retrySet entry', () => {
+  // ALL OR NOTHING, rather than always-all.
+  //
+  // A paper generated from data/exam-audit/ has no retrySet at all: retry
+  // questions are written from question text and the audit transcribes none.
+  // That is a documented state — the feedback sheet omits its "Practise these"
+  // section rather than printing an empty heading — and it is not what this
+  // test was ever guarding against.
+  //
+  // The real defect is PARTIAL coverage: a paper that offers practice questions
+  // for some dropped marks and silently not for others, so a student is told to
+  // practise question 4 and told nothing about question 11. That still fails.
+  it('offers retry questions for every non-visual question, or for none', () => {
+    if (Object.keys(paper.retrySet).length === 0) return
     for (const q of paper.questions) {
       if (!q.visual) expect(paper.retrySet[q.id], `${q.id} has no retry question`).toBeDefined()
     }
