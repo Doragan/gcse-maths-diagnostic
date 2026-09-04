@@ -214,6 +214,25 @@ answer needs two or more *independent* skills, `mastery` otherwise.
 **`answer_form: "draw_plot"` or `"draw_shape"`** marks an item `visual`, meaning
 no text-only retry question could replace it. Anything else is ignored.
 
+**`visual` is a narrower idea than "the paper shows a diagram", and the
+difference only matters if you are writing retry questions.** Roughly a hundred
+items across the registry say "static diagram supported" in their note without
+being flagged visual, and that is almost always correct:
+
+- **NOT visual** — the diagram is a convenience and the question poses fine in
+  words. A labelled triangle, a prism, a pie chart whose angles you can simply
+  state. The hand-authored papers handle these by describing the configuration
+  in the retry question: *"A pie chart shows favourite pets: Dogs = 100°, Cats =
+  60°… 90 people chose Dogs. How many chose Rabbits?"*
+- **visual** — the diagram carries information that cannot be restated in a
+  sentence: values read off a composite bar chart, a grid to complete, a number
+  pattern to continue.
+
+The generator's `draw*` rule catches the second kind only when the answer is a
+drawing. It misses a chart you *read*, which is why 3F Nov 2024 carries five
+hand-set flags that disagree with it. **The rule of thumb: if you can write a
+retry question that stands alone in words, the item is not visual.**
+
 ---
 
 ## Code a tier pair together — and use the overlap as a free check
