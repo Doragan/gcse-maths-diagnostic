@@ -25,13 +25,16 @@ import { marksEarned, selectedItems, type ItemMarks, type ItemSelection } from '
 // paper shows: `fullMarks` means full marks on every item assessing that skill
 // ON THIS PAPER, and claims nothing beyond it.
 //
-// That line is also where the product's two tiers genuinely differ. With no
-// history kept, the honest sentence is "full marks on every equations question
-// on this paper". "Equations is secure" needs the accumulated attempts that
-// only a kept sitting provides — so the paid sheet says something the free one
-// cannot truthfully say, rather than something it has merely been stopped from
-// saying. A mastery verdict, when one is wanted, comes from the engine over
-// stored attempts, not from here.
+// This function sees one sitting ON BOTH TIERS — that is its signature, not a
+// restriction the free path is under. What paid adds is not a richer call here
+// but something ABOVE here: stored attempts from earlier sittings, which the
+// mastery engine can combine into a judgement. Free marking is unlimited —
+// as many papers, classes and sheets as a teacher likes — and still cannot
+// produce that judgement, because nothing it generates is ever linked to
+// anything else. The limit is memory, not volume.
+//
+// So a verdict is never this layer's to make on either tier. Ask the engine
+// over stored attempts.
 //
 // TWO RULES INHERITED FROM MARKING, deliberately not re-litigated here:
 //

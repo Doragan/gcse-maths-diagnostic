@@ -344,8 +344,9 @@ here" from "not assessed".
 ## What the free sheet may CLAIM, which is narrower than what it may show
 
 A late correction to the evidence layer, and the sharpest thing to come out of
-building it: **one paper is one observation, so the free sheet cannot honestly
-call a skill secure.** "Secure", "mastered", "still shaky" are judgements about
+building it: **any single sheet is built from one sitting, so it cannot honestly
+call a skill secure** — and on the free tier no sheet can ever be built from
+more, because nothing it produces is saved to build on. "Secure", "mastered", "still shaky" are judgements about
 a student over time — the mastery engine wants repeated correct attempts before
 it will say a skill is held — and a single sitting cannot support them however
 well it went.
@@ -356,18 +357,31 @@ that skill, on this paper) and claims nothing more. The first draft called it
 overclaimed in precisely the place it matters least defensibly: the free path,
 which has no history by construction.
 
-**This is the tier difference, stated as a sentence each tier can actually say:**
+**The free tier is not capped in volume, and nothing here should suggest it is.**
+A teacher can mark paper after paper, class after class, and generate a sheet
+every time. What free lacks is not quantity but **linkage**: nothing is saved,
+so no two runs can ever be combined. The limit is memory, not volume — which is
+also why "free to use, paid to keep" is the right name for it and "free trial"
+is not.
+
+Stated as a sentence each tier can honestly say:
 
 | | The honest sentence |
 |---|---|
-| Free, one paper, nothing kept | "Full marks on every equations question on this paper." |
-| Paid, with history | "Equations is secure." |
+| Free — unlimited marking, nothing linked | "Full marks on every equations question on this paper." |
+| Paid — sittings accumulate | "Equations is secure." |
 
 Which is a far better paid tier than a gated feature. The paid sheet says
 something the free sheet **cannot truthfully say**, rather than something it has
 merely been forbidden from saying — and it means adoption, not enforcement, is
 what unlocks it. It also gives the "paid to keep" line a second meaning: what
 accumulates is not just data but the right to draw a conclusion from it.
+
+Worth noting what this does NOT imply. `buildStudentEvidence` reads one sitting
+on **both** tiers — that is the function's signature, not a restriction the free
+path is under. Paid does not call it differently; paid adds a layer above it
+that reads stored attempts. So there is no crippled free version of the
+generator to maintain, and no second code path where the sheets are built.
 
 A note for whoever builds the first formatter: `fullMarks` is NOT the WWW/EBI
 split. A student on 6 of 7 for equations belongs in what-went-well and the flag
