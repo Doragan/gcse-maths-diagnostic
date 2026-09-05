@@ -218,6 +218,7 @@ which has held since the audit began.
 | `kind` | yes | `"mastery"` or `"exam"`. |
 | `answer_form` | no | Only `draw*` is read, to set `visual`. |
 | `app_gap_note` | no | Becomes `desc`, the marking grid's tooltip. |
+| `mark_split` | **worth including** | The mark scheme's code for the part — `B1`, `M1 A1`, `M2 A1`. Not needed for the paper, but it is the ONLY input to lib/exam/markEvidence.data.ts, which sizes how much credit auto-marking cannot see. A paper coded without it contributes nothing there — the generator skips such rows rather than counting them as zero method marks, but the evidence is simply weaker. The twelve Edexcel and OCR papers were coded without it. |
 | `topic` | when untagged | One of `number`, `algebra`, `ratio`, `shape`, `probdata`. Overrides the topic the first skill implies; required in practice for an untagged item. |
 
 **`q` + `part` become the item id and label**: `"12"` + `"a"` → id `12a`, label
