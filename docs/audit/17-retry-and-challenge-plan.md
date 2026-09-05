@@ -1,156 +1,164 @@
 # Retry and challenge questions for the 39 generated papers
 
-Scoped 2026-09-05. Prerequisite: the 42-paper registry and the feedback
-pipeline (PR #61).
+Scoped 2026-09-05, revised the same day once the brief was pinned down.
+Prerequisite: the 42-paper registry and the feedback pipeline (PR #61).
 
 Three of the 42 papers carry `retrySet` and `challengeQuestions`, so their
-sheets print "Practise these" and "Push yourself". The other 39 omit both
-sections. This plans closing that.
+sheets print "Practise these" and "Push yourself". The other 39 omit both.
 
-## 1. The size was wrong
+## 1. The brief
 
-I first sized this at "1000+ authored questions" from the item count. That
-number came from the schema, not from the work, and it is wrong by an order of
-magnitude.
+**A retry is a rewritten version of the question that appeared on the paper —
+same style, same framing, different numbers.** Not a generic question on the
+same skill.
 
-**These are not bank questions.** `PaperRetryQuestion` is `{ skill, question }`
-— printed prose on a paper sheet. No answer, no `answer_template`, no
-tolerance, no traps, no SVG, no parameter engine, no `verify-question` run. A
-student writes on paper and a teacher marks it. None of the machinery that
-makes a bank question expensive applies.
+That is a deliberate rejection of the cheaper model first proposed here (one
+pooled question per skill, 153 of them). It is also the right call: a student
+who dropped "compare two supermarket totals against a multiplicative claim,
+with working" is not served by a bare ratio drill. The framing is most of what
+they got wrong.
 
-**The content is a function of the skill, not of the item.** `retrySet` is
-keyed by question id, which is why the cost *looked* per-item. But a retry for
-a `ratio` question is a ratio question, whichever paper it came from.
+**What it does NOT need**, and this is what keeps it affordable: no parameters,
+no traps, no explanations, no SVG, no `answer_template`, no tolerance, no
+`verify-question` run. None of the machinery that makes a bank question
+expensive. It is prose.
 
-Measured across the 39 generated papers:
+## 2. The consequence: this is per-item
 
-| | count |
+| | |
 |---|---|
-| items | 1,425 |
-| of those, `visual` (need no retry, by design) | 101 |
-| non-visual items — the naive figure | 1,324 |
-| **distinct skills behind them** | **153** |
-| distinct topic × tier pairs (for challenges) | 10 |
+| generated papers | 39 |
+| items on them | 1,425 |
+| `visual` — no retry, by design | 101 |
+| **retries to write** | **1,324** |
+| mean per paper | 33.9 |
 
-And `MAX_PRACTICE = 3` / `MAX_CHALLENGE = 2` in `wwwEbi.ts` cap what any one
-sheet can print, however many entries exist.
+Pooling is dead for retries — a rewrite is bound to its original, so it cannot
+be shared between papers. **The existing schema is therefore already correct**:
+`retrySet: Record<questionId, …>`, per paper, is exactly the shape this work
+produces. No refactor, no resolver, no migration.
 
-## 2. Change the shape before writing anything
+Two things from the previous draft drop out as unnecessary:
 
-Authoring 153 questions into a per-paper `Record<questionId, …>` would mean
-writing each one out once per paper that uses the skill — recreating the 1,324
-by hand. So the pool comes first.
+- *Dedupe practice by skill* — proposed to stop the same pooled question
+  printing three times. Under per-item rewrites, three dropped
+  `simple_arithmetic` items give three different questions. Nothing to fix.
+- *Per-skill variants* — same reason.
 
-**`lib/papers/retryPool.ts`** — one module, keyed by skill id:
+Challenges are unaffected and stay pooled (§7).
 
-```ts
-export const RETRY_POOL: Record<string, { question: string; skill: string }>
-```
+## 3. The blocker: the repo contains no exam text
 
-Resolution for an item, in order:
+This is the finding that decides the shape of the work.
 
-1. `paper.retrySet[item.id]` — the per-paper override. The three hand-authored
-   papers keep theirs untouched, and any paper can still overrule the pool.
-2. `RETRY_POOL[item.skillIds[0]]`
-3. nothing — the item contributes no suggestion.
+`data/exam-audit/` rows are `{q, part, marks, skill_ids, kind, answer_form,
+app_gap_note}`. Every `meta.source` says it outright — *"Derived metadata only.
+No exam text transcribed."* The paper files carry a one-line `desc`
+("compare two totals against a multiplicative claim, with working"), which is
+structural: no numbers, no context, no wording.
 
-Step 3 is already the behaviour for `visual` items
-(`feedbackEvidence.ts:282`), so **partial coverage ships**. Every skill added
-to the pool turns on for all 39 papers at once, and no sheet breaks while the
-pool is incomplete.
+`desc` is good enough to write a *generic* question on the skill. It is not
+good enough to write a *rewrite*, which is the whole brief. **The input for
+this work is the question paper PDF, not the repo.**
 
-**Also: dedupe practice by skill.** `simple_arithmetic` appears on up to 8
-non-visual items on a single Foundation paper. Without a dedupe, a student who
-dropped three of them gets the same question printed three times. With one, a
-sheet shows three *different* skills — a better sheet, and it removes the need
-for per-skill variants entirely. One line in `feedbackEvidence.ts`, before the
-`MAX_PRACTICE` slice.
+So it is a per-paper job: open the QP, read Q1, write a parallel Q1. Bounded by
+paper rather than by skill, and parallelisable one agent per paper — the same
+shape as `docs/coding-a-paper.md`, which already worked across 39 papers.
 
-## 3. What actually has to be written
+## 4. Nine papers cannot start yet
 
-Of the 153 skills, **108 already have a published, prose-safe bank question**
-(no `<svg>` in the template, not a grid-draw answer type) that could seed the
-pool by rendering one parameter set to text. 45 do not.
+Checked against the PDFs on hand:
 
-Of those 45, roughly 15 are **inherently diagram-dependent** — a fair retry
-needs a picture, so prose cannot carry them:
+| papers | QP to hand | retries |
+|---|---|---|
+| AQA Jun23, Jun25, Nov23 (18) | yes | ~623 |
+| Edexcel 1MA1 Jun25 (6) | yes | 185 |
+| OCR J560 Jun25 (6) | yes | 221 |
+| **ready** | | **1,029 across 30 papers** |
+| AQA Jun24 (6) | **no** | 208 |
+| AQA Nov24 Higher 1H/2H/3H (3) | **no** | 87 |
+| **blocked** | | **295 across 9 papers** |
 
-> rotations, translations, symmetry, loci, plans_and_elevations,
-> measuring_lines_and_angles, scatter_graphs, box_plots, time_series,
-> trig_graphs, sketching_functions, exponential_graphs, gradient_of_a_curve,
-> kinematic_graphs, cumulative_frequency
+There are no AQA June 2024 papers in Downloads at all, and the only Nov24 PDFs
+are the three Foundation ones — which are the hand-authored papers that already
+have retry sets. **Those nine QPs need downloading before their papers can be
+done.** Everything else can start now.
 
-These are the grid/drawing skills. They should be recorded as **deliberately
-no-retry**, with the reason in the file, so a later reader does not "fix" the
-gap by writing a bad prose substitute.
+## 5. The real risk is that nothing checks this
 
-That leaves **~30 skills genuinely needing fresh prose**, ranked by how many of
-the 39 papers use them (author down this list; stop whenever it stops paying):
+1,324 questions, written by agents, printed on sheets handed to real students,
+with **no automated gate whatsoever**. `verify-question.ts` cannot help: there
+is no answer to evaluate, no parameter set to render, no grader to run.
+`audit-bank.ts` never sees these — they are not rows in the `questions` table.
 
-```
-13 congruence_and_similarity      6 area_of_a_trapezium
-12 angles_on_lines_and_circles    6 cosine_rule
-10 areas_of_triangles             6 sine_rule
- 9 algebraic_proof                6 circle_theorem_angle_at_centre
- 9 trigonometry_missing_sides     6 frequency_trees
- 8 parts_of_a_circle              5 alternate_and_corresponding_angles
- 7 trigonometry_missing_angles    5 counting_without_listing
- 7 bearings                       4 areas_of_compound_shapes
- 7 area_and_volume_scale_factors  4 area_of_triangle_sine
- 7 equations_and_identities       4 vector_proof
- 7 sector_calculations            3 circle_theorem_cyclic_quadrilateral
- 7 lengths_and_perimeters         3 trigonometry_3d
- 6 ...                            3 properties_of_2d_shapes
-                                  3 circle_theorem_tangent
-                                  2 loci · exponential_graphs · …
-```
+Every other authoring path in this project has a committed pre-publish gate.
+This one has none, and it would be the largest single body of content the
+project has produced.
 
-Several of these read as diagram-dependent but are not: the hand-authored
-paper already states a circle theorem and a right-angled triangle in words
-("A and B are points on a circle with centre O. Angle AOB = 84°…"). Geometry
-is prose-able when the configuration can be *described*; it is not when the
-student must *read a value off* the diagram.
+**Recommendation: add an `answer` to `PaperRetryQuestion`.** Not for the sheet
+— it must not print beside the question — but because it makes the output
+checkable: the author writes question *and* answer, and a second independent
+pass solves the question cold and compares. A mismatch is a flag. That is a
+real gate for the cost of one field, and it is the only one available here.
 
-**Challenges** are cheaper: 10 topic × tier pairs, capped at 2 per sheet, so a
-pool of ~6 each ≈ 60. Sampled deterministically per paper (hash the paper id)
-so regenerating a sheet never changes which challenge it shows — the same rule
+It is also what a teacher wants. Handing out thirty practice questions you then
+have to solve yourself is a chore, and "here are the answers" is the difference
+between a sheet used and a sheet filed.
+
+## 6. The line this work must not cross
+
+The project's rule so far has been absolute: **no exam text in the repo.** This
+work moves toward that line, so the boundary needs stating before an agent is
+ever pointed at a PDF.
+
+- **Allowed**: the same structure, demand and framing, with different numbers,
+  names, contexts and quantities. That is what a parallel question is, and it
+  is ordinary practice.
+- **Not allowed**: the original wording, lightly edited. If a sentence could be
+  found in the QP by searching for it, it is a transcription and it fails.
+
+A subagent told to "rewrite this question" will drift toward transcription
+unless told plainly. The authoring doc must lead with this, the way
+`docs/coding-a-paper.md` leads with its untagged cap.
+
+## 7. Challenges — unchanged, and cheap
+
+Challenges attach to a *topic* a student is strong in, not to a question they
+dropped, so they were never per-item. 10 topic × tier pairs, capped at
+`MAX_CHALLENGE = 2` per sheet. A pool of ~6 each ≈ **60 questions**, written
+once and sampled deterministically per paper (hash the paper id) so
+regenerating a sheet never changes which challenge it shows — the rule
 `wwwEbiPhrases` already follows.
 
-**Total ≈ 90 authored items**, plus whatever the bank spike does not cover.
+These need no PDF. They can be written today, independently of everything
+above, and they switch on "Push yourself" for all 39 papers at once.
 
-## 4. Phases
+## 8. Order of work
 
-**Phase 0 — the spike, and the gate.** Render 20 prose-safe bank questions to
-plain text and read them. Do they stand up as printed practice questions
-without their parameter engine and answer box? This decides whether 108 skills
-are close to free or need rewriting, and everything below is sized off the
-answer. Do not start Phase 2 before this.
+1. **Challenges (~60).** No PDF, no blocker, immediate visible effect on all 39
+   papers. First, because it is the cheapest thing that changes what a teacher
+   sees.
+2. **Decide the `answer` field (§5).** It changes the type and the authoring
+   doc, so it must be settled before batch authoring rather than after 1,029
+   questions exist.
+3. **Write the authoring doc**, modelled on `docs/coding-a-paper.md`, leading
+   with the transcription boundary (§6).
+4. **One paper by hand, end to end.** Calibrates the doc and gives a worked
+   example to point the agents at. Pick a Foundation paper with a QP to hand.
+5. **The 30 ready papers**, one agent per paper, in board batches.
+6. **Fetch the nine missing QPs**, then the last 295.
 
-**Phase 1 — plumbing, no content.** `retryPool.ts`, the resolver, the
-dedupe-by-skill, tests. Ships dark: with an empty pool, every sheet is
-byte-identical to today. That is the acceptance test.
+Steps 1–4 are small and unblock everything. Step 5 is the bulk and the only
+genuinely large part.
 
-**Phase 2 — content.** Seed from the bank if Phase 0 passes, then author down
-the ~30 list. Each addition is independently shippable.
+## 9. Open questions
 
-**Phase 3 — challenges.** The ~60, plus deterministic per-paper sampling.
-
-**Phase 4 — record the deliberate gaps.** The ~15 diagram-dependent skills,
-with reasons.
-
-## 5. Open questions
-
-1. **Tier.** One question per skill (153) or per skill × tier (262)? 109 of the
-   153 appear on both Foundation and Higher papers. My recommendation is
-   **tier-blind**: the atomic skill is the same thing, and what makes a Higher
-   item harder is the synthesis around it, not the ratio. A retry is meant to
-   be the accessible version either way. Splitting costs 71% more for a
-   distinction the sheet never surfaces.
-2. **Should a retry carry its answer?** Today it does not, so a teacher marking
-   the retry has to work it out. Adding one is nearly free if seeded from the
-   bank (the template has it) and expensive if hand-authored. It also changes
-   the sheet layout — the answer must not print next to the question.
-3. **Where is this authored?** These are a TypeScript module, not `questions`
-   rows, so they do not belong in the DB-only authoring session despite being
-   "questions". Worth confirming, because the naming invites the wrong split.
+1. **The `answer` field** (§5). Recommendation: yes — it is the only quality
+   gate available, and teachers want it regardless.
+2. **Does every non-visual item need one?** 1,324 assumes yes. A cheaper cut is
+   to skip 1-mark recall items, where a rewrite adds least — but a student who
+   dropped one then sees nothing, and the sheet caps at 3 practice questions
+   anyway, so the saving is smaller than it looks.
+3. **Who writes them?** These are a TypeScript module, not `questions` rows, so
+   they do not belong in the DB-only authoring session despite being called
+   questions. Worth confirming, because the naming invites the wrong split.
