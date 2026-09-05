@@ -338,6 +338,22 @@ wrong; prose does not. Generate one for a strong, a middling and a weak student
 and read it — a topic that never appears, or one carrying far more marks than it
 should, is a tagging error you will not otherwise see.
 
+**Read the WWW as well as the EBI, and vary the marks.** Two traps, both hit for
+real while reviewing the June 2025 papers:
+
+- *A tag can be visible only in the praise.* Dropping one mark on a 79/80 paper
+  left the EBI empty and looked inert — but it had quietly removed that skill
+  from the "Full marks on every question testing…" line. Checking only the EBI
+  said "this tag changes nothing", which was false.
+- *Visibility depends on how many marks the skill pools on THAT paper.* The sheet
+  names a skill only below `STRONG_TOPIC_RATIO` (0.8). A skill carrying one mark
+  drops to 0.00 and is named; the same slip against a skill carrying six leaves
+  it at 0.83 and silent. So a tag is not "safe because it is one mark" — it is
+  decisive exactly when the student sits one mark above the bar.
+
+Generate a PAIR of sheets that differ only in the item you are unsure about, and
+diff them. A single sheet cannot show you what the tag is doing.
+
 ### If it needs correcting
 
 Generated files are ordinary source, meant to be edited. Fix the tagging in the
