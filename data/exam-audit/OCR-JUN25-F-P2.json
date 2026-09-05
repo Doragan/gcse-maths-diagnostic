@@ -14,13 +14,14 @@
   },
   "coding_notes": [
     "q4a(i) (name two 2D shapes from their pictures) is UNTAGGED: it is the known 'properties of 2D shapes' gap — data/skills.ts has properties_of_3d_solids with no 2D counterpart. Topic stated so its 2 marks still land under Shape and Space.",
-    "q4b (add notation to a triangle to show it is isosceles) is UNTAGGED, like q4a(i): it is the same properties-of-2D-shapes gap. It was first tagged angles_on_lines_and_circles because the paper had already spent its one-untagged budget on q4a(i) — the mark scheme does accept equal base angles labelled 70/70/40, but the skill under test is knowing what isosceles MEANS. The cap has since been raised to 3 precisely because it was forcing this kind of tag. Topic stated so its mark still lands under Shape and Space.",
     "q4a(ii) tagged symmetry — order of rotational symmetry is exactly that node's own example, and it costs no prerequisites.",
     "q11 tagged time_calculations first so the item files under Number: the demand is converting two mixed minute-and-second durations to a common unit before forming the fraction.",
     "q19a (how many terms two arithmetic sequences share) tagged sequences + lowest_common_multiple — the mark scheme's efficient route is the LCM of the two common differences, and it credits listing equally.",
     "q22 (complete a congruence proof for two triangles in a rectangle) tagged congruence_and_similarity; the missing piece is naming the congruence condition, which that node covers.",
     "q26 (sector area to circle area in a given ratio, answer non-calculator) tagged sector_calculations + area_of_a_circle.",
-    "q14b tagged compound_units FIRST: the distance-per-litre rate is the primary demand, and putting it first files the 5 marks under Ratio and Proportion where the specification puts rates. With fractions_of_amounts leading it landed under Number, which on this paper is already inflated to 40% of the marks by data/skills.ts filing percentages, unit conversion and indices under Number — the classification oddity docs/coding-a-paper.md already records."
+    "q14b tagged compound_units FIRST: the distance-per-litre rate is the primary demand, and putting it first files the 5 marks under Ratio and Proportion where the specification puts rates. With fractions_of_amounts leading it landed under Number, which on this paper is already inflated to 40% of the marks by data/skills.ts filing percentages, unit conversion and indices under Number — the classification oddity docs/coding-a-paper.md already records.",
+    "q4ai RETAGGED to properties_of_2d_shapes (was untagged (name two 2D shapes)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one.",
+    "q4b RETAGGED to properties_of_2d_shapes (was untagged (notation showing a triangle is isosceles)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one."
   ],
   "rows": [
     {
@@ -93,8 +94,9 @@
       "q": "4",
       "part": "ai",
       "marks": 2,
-      "skill_ids": [],
-      "topic": "shape",
+      "skill_ids": [
+        "properties_of_2d_shapes"
+      ],
       "kind": "mastery",
       "answer_form": "free_text",
       "app_gap_note": "name two 2D shapes from their pictures"
@@ -114,11 +116,12 @@
       "q": "4",
       "part": "b",
       "marks": 1,
-      "skill_ids": [],
+      "skill_ids": [
+        "properties_of_2d_shapes"
+      ],
       "kind": "mastery",
       "answer_form": "draw_shape",
-      "app_gap_note": "add notation to a triangle to show it is isosceles",
-      "topic": "shape"
+      "app_gap_note": "add notation to a triangle to show it is isosceles"
     },
     {
       "q": "5",

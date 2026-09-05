@@ -383,13 +383,13 @@ paper; two are genuinely outside the taxonomy and left untagged:
 |---|---|
 | Classifying an angle by type | tagged `angles_on_lines_and_circles` |
 | Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
-| **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged when the answer is a drawing** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision. But tag `coordinates` when the answer is a *position on a labelled coordinate grid* (3F q9b) rather than a shape drawn on a bare one (1F q8a). The shape knowledge goes uncredited either way; what differs is whether a grid position was genuinely demonstrated. |
+| ~~Properties of 2D shapes~~ | **CLOSED** — `properties_of_2d_shapes` added 2026-09-04. 5 items, 6 marks retagged onto it, including two that had been untagged and two AQA rows sitting on `angles_in_polygons` |
 | **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
-| **Gradient of a curve at a point** (tangent construction, instantaneous rate) | **untagged** — OCR 04 q21b, 4 marks. Nothing in the taxonomy covers it: searching all 154 skills for gradient/rate/tangent/curve returns only `perpendicular_gradients` and two circle theorems. **The strongest candidate for an added skill**, because unlike the other gaps it is a named Higher-tier spec topic on all three boards |
-| **Average rate of change on a non-kinematic graph** | tagged `kinematic_graphs` as a LOOSE fit — OCR 04 q21a. The graph has no motion context, but the operation is a chord gradient, which is that node's own example question |
+| ~~Gradient of a curve at a point~~ | **CLOSED** — `gradient_of_a_curve` added 2026-09-04, prerequisite `understanding_straight_line_graphs`, costs 7 |
+| ~~Average rate of change on a non-kinematic graph~~ | **CLOSED** — moved off its loose `kinematic_graphs` fit onto `gradient_of_a_curve`. A chord gradient and a tangent gradient are the same node |
 | **Area under a non-kinematic rate graph** | tagged `kinematic_graphs` and considered CORRECT — a rate-time graph where area = quantity is structurally a velocity-time graph. Precedent: the hand-authored AQA 2F Nov 2024 q15b bath graph does the same |
 | **Surface area of a cuboid or cube** | spheres, cones and cylinders each have a node; cuboids do not |
-| **Equation vs identity** | tagged `expanding_double_brackets`, since expanding is the only way to tell them apart |
+| ~~Equation vs identity~~ | **CLOSED** — `equations_and_identities` added 2026-09-04, prerequisite `expanding_brackets`, costs 4. 7 items, 14 marks, across both AQA and OCR |
 | **Misleading graph** (truncated axis) | tagged `simple_charts` |
 | **Currency conversion** | tagged `proportion` |
 | **Similar solids** (area and volume scale factors) | tagged `congruence_and_similarity`, a poor fit — 5 marks on Edexcel 2H q16 |

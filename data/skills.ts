@@ -1666,4 +1666,32 @@ export const skills: Skill[] = [
     "exampleQuestion": "You are given that tan 78.69° = 5. Use the graph of y = tan x to find the other value of x in the range 0° ≤ x ≤ 360° for which tan x = 5.",
     "exampleAnswer": "258.69°"
   },
+  {
+    "id": "properties_of_2d_shapes",
+    "name": "Properties of 2D Shapes",
+    "topic": "Shape and Space",
+    "prerequisites": [],
+    "exampleQuestion": "A quadrilateral has two pairs of equal adjacent sides and exactly one line of symmetry. What is its name?",
+    "exampleAnswer": "A kite"
+  },
+  {
+    "id": "gradient_of_a_curve",
+    "name": "Gradient of a Curve",
+    "topic": "Algebra",
+    "prerequisites": [
+      "understanding_straight_line_graphs"
+    ],
+    "exampleQuestion": "A curve is drawn on a grid. Estimate the gradient of the curve at x = 2 by drawing a tangent, and explain how this differs from the average rate of change between x = 1 and x = 3.",
+    "exampleAnswer": "Draw a tangent at x = 2 and find its gradient. That is the rate of change AT that point. The average rate of change between x = 1 and x = 3 is the gradient of the straight line joining those two points on the curve, which is generally different."
+  },
+  {
+    "id": "equations_and_identities",
+    "name": "Equations and Identities",
+    "topic": "Algebra",
+    "prerequisites": [
+      "expanding_brackets"
+    ],
+    "exampleQuestion": "One of these is an equation and one is an identity: 3(x + 2) = 3x + 6 and 3(x + 2) = 15. Which is the identity, and how do you know?",
+    "exampleAnswer": "3(x + 2) = 3x + 6 is the identity, because expanding the left side gives exactly the right side, so it is true for every value of x. 3(x + 2) = 15 is only true when x = 3."
+  },
 ];

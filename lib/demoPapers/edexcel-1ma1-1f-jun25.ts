@@ -17,9 +17,6 @@ import type { PaperConfig } from './types'
  *
  * `desc` is the audit's own note about what each question asks for, not the
  * question text.
- *
- * KNOWN GAPS in this paper, carried here so they survive regeneration:
- *   • item 8(a) is untagged by design — filed under Shape and Space, contributing 1 mark(s) with no skill evidence. Check coding_notes says why.
  */
 export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
   id: 'edexcel-1ma1-1f-jun25',
@@ -44,7 +41,7 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
     { id: '6b',  label: '6(b)',  marks: 3,  topic: 'number',   skill: 'Simple Arithmetic',                                                skillIds: ['simple_arithmetic'], kind: 'exam', visual: false, desc: 'compare two totals against a multiplicative claim, with working' },
     { id: '7a',  label: '7(a)',  marks: 2,  topic: 'probdata', skill: 'Simple Charts',                                                    skillIds: ['simple_charts'], kind: 'mastery', visual: true, desc: 'complete a bar chart from given figures' },
     { id: '7b',  label: '7(b)',  marks: 3,  topic: 'number',   skill: 'Simple Arithmetic + Simple Charts',                                skillIds: ['simple_arithmetic', 'simple_charts'], kind: 'exam', visual: false, desc: 'total mixed-denomination money read from a chart, compared with a bound' },
-    { id: '8a',  label: '8(a)',  marks: 1,  topic: 'shape',    skill: 'Untagged',                                                         skillIds: [], kind: 'mastery', visual: true, desc: 'complete a kite on a grid from two given sides' },
+    { id: '8a',  label: '8(a)',  marks: 1,  topic: 'shape',    skill: 'Properties of 2D Shapes',                                          skillIds: ['properties_of_2d_shapes'], kind: 'mastery', visual: true, desc: 'complete a kite on a grid from two given sides' },
     { id: '8b',  label: '8(b)',  marks: 1,  topic: 'shape',    skill: 'Properties of 3D Solids',                                          skillIds: ['properties_of_3d_solids'], kind: 'mastery', visual: false, desc: 'name a solid from its picture' },
     { id: '9a',  label: '9(a)',  marks: 1,  topic: 'algebra',  skill: 'Forming Expressions and Formulae',                                 skillIds: ['forming_expressions_and_formulae'], kind: 'mastery', visual: false, desc: 'write an expression for an age, given a difference' },
     { id: '9b',  label: '9(b)',  marks: 1,  topic: 'algebra',  skill: 'Forming Expressions and Formulae',                                 skillIds: ['forming_expressions_and_formulae'], kind: 'mastery', visual: false, desc: 'write an expression for an age, given a multiple' },

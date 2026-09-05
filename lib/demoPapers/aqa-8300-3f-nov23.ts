@@ -34,7 +34,7 @@ export const AQA_8300_3F_NOV23: PaperConfig = {
   questions: [
     { id: '1',   label: '1',     marks: 1,  topic: 'number',   skill: 'Fractions Decimals and Percentages',                                  skillIds: ['fractions_decimals_and_percentages'], kind: 'mastery', visual: false, desc: '' },
     { id: '2',   label: '2',     marks: 1,  topic: 'number',   skill: 'Decimals',                                                            skillIds: ['decimals'], kind: 'mastery', visual: false, desc: '' },
-    { id: '3a',  label: '3(a)',  marks: 1,  topic: 'shape',    skill: 'Angles in Polygons',                                                  skillIds: ['angles_in_polygons'], kind: 'mastery', visual: false, desc: 'single-word name; needs synonym matching' },
+    { id: '3a',  label: '3(a)',  marks: 1,  topic: 'shape',    skill: 'Properties of 2D Shapes',                                             skillIds: ['properties_of_2d_shapes'], kind: 'mastery', visual: false, desc: 'single-word name; needs synonym matching' },
     { id: '3b',  label: '3(b)',  marks: 1,  topic: 'shape',    skill: 'Parts of a Circle',                                                   skillIds: ['parts_of_a_circle'], kind: 'mastery', visual: false, desc: 'single-word name; needs synonym matching' },
     { id: '4',   label: '4',     marks: 2,  topic: 'number',   skill: 'Factors and Multiples',                                               skillIds: ['factors_and_multiples'], kind: 'mastery', visual: false, desc: 'list answer; needs set-equality marking' },
     { id: '5a',  label: '5(a)',  marks: 2,  topic: 'algebra',  skill: 'Substitution + Indices',                                              skillIds: ['substitution', 'indices'], kind: 'mastery', visual: false, desc: '' },

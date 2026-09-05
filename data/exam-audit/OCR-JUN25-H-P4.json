@@ -19,8 +19,9 @@
     "q23b (value of x giving the smallest value of a squared bracket) tagged completing_the_square rather than quadratic_functions: reading a minimum straight off a completed square is that node's content, and it credits five skills against nine.",
     "q11 (two function machines equal for one input and in a 2:1 ratio for another) tagged simultaneous_equations + function_machines — the machines are the vehicle, the algebra is the demand.",
     "q16 is all four parts of one growth-and-decay model; q16c(ii), asking why the model might fail, is tagged the same way since criticising the model is part of that skill.",
-    "q21a (average rate of change between x = 1 and x = 3) keeps kinematic_graphs as a LOOSE but honest fit. The graph is context-free, so nothing about it is kinematic — but the operation is the gradient of a chord, which is exactly what that node's own example question asks (\"the speed the object is moving at between point A and B\"). Same maths, motion context stripped out.",
-    "q21b (estimate the gradient at x = 2.5 by drawing a tangent) is UNTAGGED. This is a different technique from q21a — an INSTANTANEOUS rate, requiring a tangent to be constructed — and the taxonomy has no node for it at all. Searching all 154 skills for gradient/rate/tangent/curve returns only perpendicular_gradients and two circle theorems. Unlike the other recorded gaps this is a NAMED HIGHER-TIER SPEC TOPIC across all three boards, so it is the strongest candidate for an added skill. Topic stated so its 4 marks still land under Algebra."
+    "q21a RETAGGED to gradient_of_a_curve (was kinematic_graphs (loose: chord gradient, no motion)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one.",
+    "q21b RETAGGED to gradient_of_a_curve (was untagged (tangent gradient)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one.",
+    "q5a RETAGGED to equations_and_identities (was expanding_double_brackets) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one."
   ],
   "rows": [
     {
@@ -86,7 +87,7 @@
       "part": "a",
       "marks": 1,
       "skill_ids": [
-        "expanding_double_brackets"
+        "equations_and_identities"
       ],
       "kind": "mastery",
       "answer_form": "free_text",
@@ -389,7 +390,7 @@
       "part": "a",
       "marks": 2,
       "skill_ids": [
-        "kinematic_graphs"
+        "gradient_of_a_curve"
       ],
       "kind": "mastery",
       "answer_form": "numeric",
@@ -399,11 +400,12 @@
       "q": "21",
       "part": "b",
       "marks": 4,
-      "skill_ids": [],
+      "skill_ids": [
+        "gradient_of_a_curve"
+      ],
       "kind": "exam",
       "answer_form": "numeric",
-      "app_gap_note": "estimate the gradient of a curve at a point by drawing a tangent",
-      "topic": "algebra"
+      "app_gap_note": "estimate the gradient of a curve at a point by drawing a tangent"
     },
     {
       "q": "22",

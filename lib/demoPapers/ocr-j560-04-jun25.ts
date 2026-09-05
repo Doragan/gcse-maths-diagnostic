@@ -17,9 +17,6 @@ import type { PaperConfig } from './types'
  *
  * `desc` is the audit's own note about what each question asks for, not the
  * question text.
- *
- * KNOWN GAPS in this paper, carried here so they survive regeneration:
- *   • item 21(b) is untagged by design — filed under Algebra, contributing 4 mark(s) with no skill evidence. Check coding_notes says why.
  */
 export const OCR_J560_04_JUN25: PaperConfig = {
   id: 'ocr-j560-04-jun25',
@@ -40,7 +37,7 @@ export const OCR_J560_04_JUN25: PaperConfig = {
     { id: '3',     label: '3',       marks: 4,  topic: 'shape',    skill: 'Lengths and Perimeters + Circumfrence of a Circle',  skillIds: ['lengths_and_perimeters', 'circumfrence_of_a_circle'], kind: 'exam', visual: false, desc: 'perimeter of a rectangle with a semicircle removed from one side' },
     { id: '4a',    label: '4(a)',    marks: 2,  topic: 'probdata', skill: 'Scatter Graphs',                                     skillIds: ['scatter_graphs'], kind: 'mastery', visual: false, desc: 'describe the correlation shown by each of three scatter diagrams' },
     { id: '4b',    label: '4(b)',    marks: 2,  topic: 'probdata', skill: 'Scatter Graphs',                                     skillIds: ['scatter_graphs'], kind: 'mastery', visual: false, desc: 'draw a line of best fit and estimate from it' },
-    { id: '5a',    label: '5(a)',    marks: 1,  topic: 'algebra',  skill: 'Expanding Double Brackets',                          skillIds: ['expanding_double_brackets'], kind: 'mastery', visual: false, desc: 'decide whether each algebraic statement is an equation or an identity' },
+    { id: '5a',    label: '5(a)',    marks: 1,  topic: 'algebra',  skill: 'Equations and Identities',                           skillIds: ['equations_and_identities'], kind: 'mastery', visual: false, desc: 'decide whether each algebraic statement is an equation or an identity' },
     { id: '5b',    label: '5(b)',    marks: 3,  topic: 'algebra',  skill: 'Understanding Straight Line Graphs',                 skillIds: ['understanding_straight_line_graphs'], kind: 'mastery', visual: false, desc: 'equation of a line parallel to a given line through a given point' },
     { id: '6',     label: '6',       marks: 5,  topic: 'ratio',    skill: 'Compound Units',                                     skillIds: ['compound_units'], kind: 'exam', visual: false, desc: 'average speed over two legs at different speeds, compared with a stated bound' },
     { id: '7a',    label: '7(a)',    marks: 2,  topic: 'shape',    skill: 'Angles in Polygons',                                 skillIds: ['angles_in_polygons'], kind: 'mastery', visual: false, desc: 'show the interior angle of a regular pentagon' },
@@ -67,8 +64,8 @@ export const OCR_J560_04_JUN25: PaperConfig = {
     { id: '18bii', label: '18(bii)', marks: 1,  topic: 'algebra',  skill: 'Sequences',                                          skillIds: ['sequences'], kind: 'mastery', visual: false, desc: 'describe the behaviour of a recurrence relation at its fixed point' },
     { id: '19',    label: '19',      marks: 3,  topic: 'number',   skill: 'Expanding and Rationalising Surds',                  skillIds: ['surds_expanding_and_rationalising'], kind: 'mastery', visual: false, desc: 'expand a product of two surd brackets and simplify to a single surd multiple' },
     { id: '20',    label: '20',      marks: 3,  topic: 'shape',    skill: 'Sine Rule',                                          skillIds: ['sine_rule'], kind: 'mastery', visual: false, desc: 'a side of a non-right-angled triangle from two angles and a side' },
-    { id: '21a',   label: '21(a)',   marks: 2,  topic: 'algebra',  skill: 'Kinematic Graphs',                                   skillIds: ['kinematic_graphs'], kind: 'mastery', visual: false, desc: 'average rate of change of a plotted function between two x values' },
-    { id: '21b',   label: '21(b)',   marks: 4,  topic: 'algebra',  skill: 'Untagged',                                           skillIds: [], kind: 'exam', visual: false, desc: 'estimate the gradient of a curve at a point by drawing a tangent' },
+    { id: '21a',   label: '21(a)',   marks: 2,  topic: 'algebra',  skill: 'Gradient of a Curve',                                skillIds: ['gradient_of_a_curve'], kind: 'mastery', visual: false, desc: 'average rate of change of a plotted function between two x values' },
+    { id: '21b',   label: '21(b)',   marks: 4,  topic: 'algebra',  skill: 'Gradient of a Curve',                                skillIds: ['gradient_of_a_curve'], kind: 'exam', visual: false, desc: 'estimate the gradient of a curve at a point by drawing a tangent' },
     { id: '22',    label: '22',      marks: 5,  topic: 'probdata', skill: 'Conditional Probability',                            skillIds: ['conditional_probability'], kind: 'exam', visual: false, desc: 'conditional probability from three overlapping group totals' },
     { id: '23a',   label: '23(a)',   marks: 6,  topic: 'algebra',  skill: 'Expanding Double Brackets + Factorising Quadratics', skillIds: ['expanding_double_brackets', 'factorising_quadratics'], kind: 'exam', visual: false, desc: 'expand a triple-bracket difference and refactorise the result' },
     { id: '23b',   label: '23(b)',   marks: 1,  topic: 'algebra',  skill: 'Completing the Square',                              skillIds: ['completing_the_square'], kind: 'mastery', visual: false, desc: 'value of x minimising an expression in completed-square form' },
