@@ -6,6 +6,7 @@ import { PAPERS, DEFAULT_PAPER_ID } from '../../lib/demoPapers'
 import { topicColourFor } from '../../lib/demoTopicColours'
 import { marksTotal, selectedItems, type ItemMarks } from '../../lib/papers/sittingMarks'
 import { buildClassEvidence } from '../../lib/papers/feedbackEvidence'
+import { buildClassSummary } from '../../lib/papers/classSummary'
 import { toWwwEbiSheets } from '../../lib/papers/wwwEbi'
 import { downloadFeedbackPdf } from '../../lib/papers/feedbackPdf'
 import { parseMarksCsv, marksCsvTemplate, parsePastedNames } from '../../lib/papers/marksCsv'
@@ -166,6 +167,27 @@ export default function FreeMarkingPage() {
   }
 
   const marked = students.filter(n => Object.keys(marks[n] ?? {}).length > 0).length
+
+  /**
+   * The class view, recomputed as marks are typed.
+   *
+   * Built from the SAME evidence the sheets are, so the two can never
+   * disagree, and shown BEFORE anything is downloaded — the reteaching
+   * question is the one a teacher wants answered while the marks are still in
+   * front of them, not after they have printed thirty pages.
+   *
+   * Only students with at least one mark count: a row not yet reached would
+   * otherwise read as a class of zeroes and drag every figure down.
+   */
+  const summary = useMemo(() => {
+    const entered = students.filter(n => Object.keys(marks[n] ?? {}).length > 0)
+    if (!entered.length || !items.length) return null
+    return buildClassSummary(buildClassEvidence(
+      paper,
+      entered.map(name => ({ studentRef: name, marks: marks[name] ?? {} })),
+      selection,
+    ))
+  }, [paper, students, marks, items, selection])
 
   return (
     <div style={{ minHeight: '100dvh', background: colors.background, padding: '28px 20px 60px' }}>
@@ -376,6 +398,79 @@ export default function FreeMarkingPage() {
 
         {error && <div style={{ ...errorBox, marginBottom: 16 }}>{error}</div>}
 
+        {/* ── The class view ────────────────────────────────────────────────
+            Answers the question the individual sheets cannot: what do I
+            reteach. Live as marks are typed, so a teacher can see it forming
+            before deciding to download anything. ──────────────────────────── */}
+        {summary && summary.students > 0 && (
+          <div style={{ ...cardStyle, marginBottom: 16 }}>
+            <h2 style={{ ...sectionTitle, marginBottom: 4 }}>The class so far</h2>
+            <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 14px' }}>
+              From the {summary.students} student{summary.students === 1 ? '' : 's'} you have
+              {' '}marked. This is for you — it is not on the students&apos; sheets.
+            </p>
+
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
+              <Stat label="Average" value={`${summary.mean} / ${summary.marksAvailable}`} sub={`${summary.meanPercentage}%`} />
+              <Stat label="Median" value={String(summary.median)} />
+              <Stat label="Lowest" value={String(summary.lowest)} />
+              <Stat label="Highest" value={String(summary.highest)} />
+            </div>
+
+            {/* Topic bars, in paper order. */}
+            <h3 style={{ fontSize: font.md, fontWeight: '700', margin: '0 0 8px' }}>By topic</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 18 }}>
+              {summary.topics.map(t => {
+                const c = topicColourFor(t.label)
+                const pct = Math.round(t.ratio * 100)
+                return (
+                  <div key={t.topicId} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ minWidth: 150, fontSize: font.base, color: colors.textPrimary }}>{t.label}</span>
+                    <div style={{ flex: 1, height: 10, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden', minWidth: 80 }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: c.fg }} />
+                    </div>
+                    <span style={{ minWidth: 96, textAlign: 'right', fontSize: font.sm, color: colors.textSecondary }}>
+                      {t.earned}/{t.possible} · {pct}%
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* The reteaching list. Ordered by marks the CLASS lost, not by
+                percentage — a one-mark question everybody missed costs less
+                than a five-mark one half of them fumbled. */}
+            <h3 style={{ fontSize: font.md, fontWeight: '700', margin: '0 0 4px' }}>Questions to revisit</h3>
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: '0 0 8px' }}>
+              Ordered by the marks the class lost, so the biggest lesson is first.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {summary.questions.filter(q => q.marksLost > 0).slice(0, 6).map(q => (
+                <div key={q.itemId} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px',
+                  background: colors.cardAlt, borderRadius: radius.md, border: `1px solid ${colors.border}`,
+                }}>
+                  <span style={{ fontWeight: '700', color: colors.dangerText, minWidth: 58 }}>
+                    −{q.marksLost}
+                  </span>
+                  <span style={{ flex: 1, fontSize: font.base, color: colors.textPrimary, minWidth: 160 }}>
+                    <strong>Q{q.label}</strong> — {q.skill}
+                    {q.desc && <span style={{ color: colors.textSecondary }}> · {q.desc}</span>}
+                  </span>
+                  <span style={{ fontSize: font.sm, color: colors.textSecondary, whiteSpace: 'nowrap' }}>
+                    {q.earned}/{q.possible} · {q.zero} scored 0 · {q.fullMarks} full
+                  </span>
+                </div>
+              ))}
+              {!summary.questions.some(q => q.marksLost > 0) && (
+                <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+                  Nothing dropped yet — every mark entered so far is a full mark.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── Generate ── */}
         {students.length > 0 && (
           <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -426,4 +521,17 @@ const thStyle: React.CSSProperties = {
 const tdStyle: React.CSSProperties = {
   padding: '3px', textAlign: 'center',
   borderBottom: `1px solid ${colors.border}`, borderRight: `1px solid ${colors.border}`,
+}
+
+/** One figure in the class-view header row. */
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: font.sm, color: colors.textSecondary, fontWeight: '600' }}>{label}</div>
+      <div style={{ fontSize: font['2xl'], fontWeight: '700', color: colors.textPrimary, lineHeight: 1.2 }}>
+        {value}
+      </div>
+      {sub && <div style={{ fontSize: font.sm, color: colors.textHint }}>{sub}</div>}
+    </div>
+  )
 }
