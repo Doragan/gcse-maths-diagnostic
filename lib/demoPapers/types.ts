@@ -68,6 +68,14 @@ export type PaperQuestion = {
 export type PaperRetryQuestion = {
   skill: string
   question: string
+  /**
+   * The answer, for the teacher. Optional here only because the three
+   * hand-authored papers predate it; new authoring should always carry one.
+   * See PaperChallengeQuestion['answer'] for why it exists at all.
+   */
+  answer?: string
+  /** One line of method, where the answer alone would not show the route. */
+  working?: string
 }
 
 /** A harder extension question offered when a student is strong in a topic. */
@@ -75,6 +83,26 @@ export type PaperChallengeQuestion = {
   topic: string // a PaperTopic['id']
   skill: string
   question: string
+  /**
+   * The answer — for the TEACHER, and never printed beside the question on a
+   * student's sheet. It exists for two reasons:
+   *
+   *   1. It is the only quality gate available. These questions carry no
+   *      parameters, no answer_template and no grader, so `verify-question`
+   *      and `audit-bank` cannot see them at all. An answer written alongside
+   *      can at least be checked by solving the question independently and
+   *      comparing; without one there is nothing to check against.
+   *   2. A teacher handing out thirty practice questions should not have to
+   *      sit and solve them first. That is the difference between a sheet
+   *      used and a sheet filed.
+   */
+  answer: string
+  /**
+   * A line or two of method. Not a full worked solution — enough that a
+   * teacher can see the route and mark a student's working, which the bare
+   * answer does not give them. Omitted where the answer IS the method.
+   */
+  working?: string
 }
 
 export type PaperConfig = {

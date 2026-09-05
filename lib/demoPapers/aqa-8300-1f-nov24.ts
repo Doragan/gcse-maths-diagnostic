@@ -122,16 +122,16 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
   },
 
   challengeQuestions: [
-    { topic: 'number', skill: 'Reverse Percentages', question: 'A jacket costs £68 after a 20% discount. What was the original price?' },
-    { topic: 'number', skill: 'Standard Form', question: 'Write 0.000521 in standard form.' },
-    { topic: 'algebra', skill: 'Simultaneous Equations', question: '2x + 3y = 16 and 4x − 3y = 14. Find the values of x and y.' },
-    { topic: 'algebra', skill: 'Quadratic Factorising', question: 'Factorise x² + 2x − 15.' },
-    { topic: 'ratio', skill: 'Compound Measures', question: 'A runner covers 21 km in 1 hour 45 minutes. Work out the average speed in km/h.' },
-    { topic: 'ratio', skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 8, y = 20. Find y when x = 14.' },
-    { topic: 'shape', skill: 'Trigonometry', question: 'A right-angled triangle has a 9 cm side adjacent to a 40° angle. Work out the length of the hypotenuse, to 1 decimal place.' },
-    { topic: 'shape', skill: 'Circle Theorems', question: 'A and B are points on a circle with centre O. Angle AOB = 84°. Work out the angle at the circumference subtended by the same arc AB.' },
-    { topic: 'probdata', skill: 'Probability', question: 'A bag contains 5 red, 2 blue and 3 green counters. Two counters are drawn without replacement. Work out the probability that both are green.' },
-    { topic: 'probdata', skill: 'Cumulative Frequency', question: 'The interquartile range of a data set of 80 values is estimated from a cumulative frequency graph. Which two cumulative frequency values should you read across from?' },
+    { topic: 'number', skill: 'Reverse Percentages', question: 'A jacket costs £68 after a 20% discount. What was the original price?', answer: '£85', working: '£68 is 80% of the original price.' },
+    { topic: 'number', skill: 'Standard Form', question: 'Write 0.000521 in standard form.', answer: '5.21 × 10⁻⁴' },
+    { topic: 'algebra', skill: 'Simultaneous Equations', question: '2x + 3y = 16 and 4x − 3y = 14. Find the values of x and y.', answer: 'x = 5, y = 2', working: 'Adding the equations eliminates y: 6x = 30.' },
+    { topic: 'algebra', skill: 'Quadratic Factorising', question: 'Factorise x² + 2x − 15.', answer: '(x + 5)(x − 3)' },
+    { topic: 'ratio', skill: 'Compound Measures', question: 'A runner covers 21 km in 1 hour 45 minutes. Work out the average speed in km/h.', answer: '12 km/h', working: '1 hour 45 minutes is 1.75 hours.' },
+    { topic: 'ratio', skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 8, y = 20. Find y when x = 14.', answer: 'y = 35', working: 'y = 2.5x.' },
+    { topic: 'shape', skill: 'Trigonometry', question: 'A right-angled triangle has a 9 cm side adjacent to a 40° angle. Work out the length of the hypotenuse, to 1 decimal place.', answer: '11.7 cm', working: '9 ÷ cos 40° = 11.74…' },
+    { topic: 'shape', skill: 'Circle Theorems', question: 'A and B are points on a circle with centre O. Angle AOB = 84°. Work out the angle at the circumference subtended by the same arc AB.', answer: '42°', working: 'The angle at the centre is twice the angle at the circumference.' },
+    { topic: 'probdata', skill: 'Probability', question: 'A bag contains 5 red, 2 blue and 3 green counters. Two counters are drawn without replacement. Work out the probability that both are green.', answer: '1/15', working: '3/10 × 2/9 = 6/90.' },
+    { topic: 'probdata', skill: 'Cumulative Frequency', question: 'The interquartile range of a data set of 80 values is estimated from a cumulative frequency graph. Which two cumulative frequency values should you read across from?', answer: '20 and 60', working: 'A quarter and three quarters of 80.' },
   ],
 
   sampleStudents: [

@@ -8,7 +8,7 @@ import { marksTotal, selectedItems, type ItemMarks } from '../../lib/papers/sitt
 import { buildClassEvidence } from '../../lib/papers/feedbackEvidence'
 import { buildClassSummary } from '../../lib/papers/classSummary'
 import ClassView from '../../components/papers/ClassView'
-import { toWwwEbiSheets } from '../../lib/papers/wwwEbi'
+import { toWwwEbiSheets, answerKeyFor } from '../../lib/papers/wwwEbi'
 import { downloadFeedbackPdf } from '../../lib/papers/feedbackPdf'
 import { parseMarksCsv, marksCsvTemplate, parsePastedNames } from '../../lib/papers/marksCsv'
 import {
@@ -155,15 +155,17 @@ export default function FreeMarkingPage() {
     if (!students.length) { setError('Add some students first.'); return }
     if (!items.length) { setError('Choose at least one question.'); return }
 
-    const sheets = toWwwEbiSheets(buildClassEvidence(
+    const evidence = buildClassEvidence(
       paper,
       students.map(name => ({ studentRef: name, marks: marks[name] ?? {} })),
       selection,
-    ))
+    )
+    const sheets = toWwwEbiSheets(evidence)
+    // The answer key is a final page the teacher keeps — never on a sheet.
     downloadFeedbackPdf(sheets, {
       paperTitle: paper.title,
       paperSubtitle: paper.subtitle,
-    })
+    }, answerKeyFor(evidence))
     setGenerated(sheets.length)
   }
 

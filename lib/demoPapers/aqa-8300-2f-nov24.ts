@@ -125,16 +125,16 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
   },
 
   challengeQuestions: [
-    { topic: 'number', skill: 'Standard Form', question: 'Write 3,400,000 in standard form.' },
-    { topic: 'number', skill: 'Recurring Decimals', question: 'Convert 0.4̇5̇ (recurring) to a fraction in its simplest form.' },
-    { topic: 'algebra', skill: 'Quadratic Equations', question: 'Solve x² − 5x − 14 = 0' },
-    { topic: 'algebra', skill: 'Simultaneous Equations', question: '3x + y = 17 and x − y = 3. Find the values of x and y.' },
-    { topic: 'ratio', skill: 'Growth and Decay', question: 'A car worth £18,000 depreciates by 12% each year. Work out its value after 3 years, to the nearest £100.' },
-    { topic: 'ratio', skill: 'Compound Interest', question: '£2,400 is invested at 3.5% compound interest per year. Work out the value of the investment after 4 years, to the nearest penny.' },
-    { topic: 'shape', skill: 'Sine Rule', question: 'In triangle ABC, angle A = 52°, angle B = 71°, and side a = 9 cm. Work out the length of side b, to 1 decimal place.' },
-    { topic: 'shape', skill: 'Volume of a Sphere', question: 'Work out the volume of a sphere with radius 6 cm. Give your answer in terms of π.' },
-    { topic: 'probdata', skill: 'Tree Diagrams', question: 'A bag has 6 red and 4 blue counters. Two are drawn without replacement. Work out the probability that they are different colours.' },
-    { topic: 'probdata', skill: 'Box Plots', question: 'A box plot has lower quartile 12, median 18, upper quartile 25. Work out the interquartile range.' },
+    { topic: 'number', skill: 'Standard Form', question: 'Write 3,400,000 in standard form.', answer: '3.4 × 10⁶' },
+    { topic: 'number', skill: 'Recurring Decimals', question: 'Convert 0.4̇5̇ (recurring) to a fraction in its simplest form.', answer: '5/11', working: 'Two repeating digits give 45/99, which cancels by 9.' },
+    { topic: 'algebra', skill: 'Quadratic Equations', question: 'Solve x² − 5x − 14 = 0', answer: 'x = 7 or x = −2', working: 'Factorises to (x − 7)(x + 2) = 0.' },
+    { topic: 'algebra', skill: 'Simultaneous Equations', question: '3x + y = 17 and x − y = 3. Find the values of x and y.', answer: 'x = 5, y = 2', working: 'Adding the equations eliminates y: 4x = 20.' },
+    { topic: 'ratio', skill: 'Growth and Decay', question: 'A car worth £18,000 depreciates by 12% each year. Work out its value after 3 years, to the nearest £100.', answer: '£12,300', working: '18 000 × 0.88³ = 12 266.50 to the nearest penny.' },
+    { topic: 'ratio', skill: 'Compound Interest', question: '£2,400 is invested at 3.5% compound interest per year. Work out the value of the investment after 4 years, to the nearest penny.', answer: '£2754.06', working: '2400 × 1.035⁴ = 2400 × 1.147523.' },
+    { topic: 'shape', skill: 'Sine Rule', question: 'In triangle ABC, angle A = 52°, angle B = 71°, and side a = 9 cm. Work out the length of side b, to 1 decimal place.', answer: '10.8 cm', working: 'b = 9 × sin 71° ÷ sin 52° = 10.79…' },
+    { topic: 'shape', skill: 'Volume of a Sphere', question: 'Work out the volume of a sphere with radius 6 cm. Give your answer in terms of π.', answer: '288π cm³', working: '(4/3) × π × 6³, and 4 × 216 ÷ 3 = 288.' },
+    { topic: 'probdata', skill: 'Tree Diagrams', question: 'A bag has 6 red and 4 blue counters. Two are drawn without replacement. Work out the probability that they are different colours.', answer: '8/15', working: 'Two routes: 2 × (6/10 × 4/9) = 48/90.' },
+    { topic: 'probdata', skill: 'Box Plots', question: 'A box plot has lower quartile 12, median 18, upper quartile 25. Work out the interquartile range.', answer: '13', working: '25 − 12; the median is not used.' },
   ],
 
   sampleStudents: [

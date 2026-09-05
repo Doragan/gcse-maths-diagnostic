@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf'
-import type { WwwEbiSheet } from './wwwEbi'
+import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -109,6 +109,7 @@ export type FeedbackPdfOptions = {
 export function buildFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
+  answerKey: AnswerKeyEntry[] = [],
 ): jsPDF {
   const doc = new jsPDF()
 
@@ -118,6 +119,13 @@ export function buildFeedbackPdf(
     renderSheet(doc, sheet, options)
   })
 
+  // The key goes LAST and on its own page, so separating the student sheets
+  // leaves it behind rather than in the middle of the pile.
+  if (answerKey.length) {
+    if (sheets.length) doc.addPage()
+    renderAnswerKey(doc, answerKey, options)
+  }
+
   return doc
 }
 
@@ -125,8 +133,9 @@ export function buildFeedbackPdf(
 export function downloadFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
+  answerKey: AnswerKeyEntry[] = [],
 ): void {
-  buildFeedbackPdf(sheets, options).save(feedbackPdfFilename(options))
+  buildFeedbackPdf(sheets, options, answerKey).save(feedbackPdfFilename(options))
 }
 
 /** "mathsense-feedback-aqa-gcse-mathematics-8300-3f.pdf" */
@@ -180,6 +189,53 @@ function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions
   section(doc, c, 'Even better if', sheet.ebi)
   section(doc, c, 'Practise these', sheet.practice.map(p => `${p.skill}: ${p.question}`))
   section(doc, c, 'Push yourself', sheet.challenge.map(q => `${q.skill}: ${q.question}`))
+}
+
+/**
+ * The teacher's answer key, one page at the back.
+ *
+ * Answers exist on the evidence but are deliberately absent from every student
+ * sheet, so this is the only place they are printed. It is headed unambiguously
+ * because the rest of this document gets handed out.
+ */
+function renderAnswerKey(
+  doc: jsPDF,
+  entries: AnswerKeyEntry[],
+  options: FeedbackPdfOptions,
+): void {
+  const c: Cursor = { y: MARGIN_TOP }
+
+  setGrey(doc, 10)
+  line(doc, c, options.paperTitle)
+  if (options.paperSubtitle) line(doc, c, options.paperSubtitle)
+  c.y += 4
+
+  setBlack(doc, 18, 'bold')
+  line(doc, c, 'Answers — teacher copy', 8)
+
+  setGrey(doc, 10)
+  wrapped(doc, c, 'Not for handing out. These are the answers to the practice and challenge questions on the sheets in this pack.')
+  c.y += 5
+
+  for (const e of entries) {
+    ensureSpace(doc, c, 16)
+    setBlack(doc, 10.5, 'bold')
+    line(doc, c, e.skill, 5)
+
+    setBlack(doc, 10.5, 'normal')
+    for (const part of doc.splitTextToSize(toPdfSafe(e.question), CONTENT_WIDTH) as string[]) {
+      line(doc, c, part, 5)
+    }
+
+    setBlack(doc, 10.5, 'bold')
+    line(doc, c, `Answer: ${e.answer}`, 5)
+
+    if (e.working) {
+      setGrey(doc, 9.5)
+      wrapped(doc, c, e.working)
+    }
+    c.y += 4
+  }
 }
 
 function section(doc: jsPDF, c: Cursor, heading: string, lines: string[]): void {

@@ -1,6 +1,7 @@
 import type { PaperConfig, PaperQuestion } from '../demoPapers'
 import { skillsById } from '../skills/skillGraph'
 import { marksEarned, selectedItems, type ItemMarks, type ItemSelection } from './sittingMarks'
+import { challengesFor } from './challengePool'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // What a marked paper says about one student, before anyone decides how to say
@@ -112,6 +113,10 @@ export type PracticeSuggestion = {
   skill: string
   question: string
   marksLost: number
+  /** For the teacher, where the retry carries one. Never on a student's sheet. */
+  answer?: string
+  /** One line of method, where the answer alone would not show the route. */
+  working?: string
 }
 
 /** A harder question offered where a topic is already strong. */
@@ -119,6 +124,10 @@ export type ChallengeSuggestion = {
   topicId: string
   skill: string
   question: string
+  /** For the teacher. Never rendered beside the question on a student's sheet. */
+  answer: string
+  /** One line of method, where the answer alone would not show the route. */
+  working?: string
 }
 
 export type Coverage = {
@@ -287,15 +296,22 @@ export function buildStudentEvidence(
       skill: paper.retrySet[i.itemId].skill,
       question: paper.retrySet[i.itemId].question,
       marksLost: i.available - i.earned,
+      answer: paper.retrySet[i.itemId].answer,
+      working: paper.retrySet[i.itemId].working,
     }))
     .sort((a, b) => b.marksLost - a.marksLost || a.itemId.localeCompare(b.itemId))
 
   const strongTopics = new Set(
     topics.filter(t => t.ratio >= STRONG_TOPIC_RATIO).map(t => t.topicId),
   )
-  const challenges: ChallengeSuggestion[] = paper.challengeQuestions
+  // challengesFor, not paper.challengeQuestions: a paper's own list wins when
+  // it has one, and the 39 generated papers fall through to the shared pool.
+  const challenges: ChallengeSuggestion[] = challengesFor(paper)
     .filter(c => strongTopics.has(c.topic))
-    .map(c => ({ topicId: c.topic, skill: c.skill, question: c.question }))
+    .map(c => ({
+      topicId: c.topic, skill: c.skill, question: c.question,
+      answer: c.answer, working: c.working,
+    }))
 
   return {
     studentRef,
