@@ -221,3 +221,102 @@ genuinely large part.
    introduced by the pool, and arguably wrong: one challenge from each of two
    strong topics would read better. Left alone because it changes what existing
    sheets say.
+
+---
+
+## 10. Diagrams on the sheet — the svg2pdf spike (2026-09-05)
+
+### Why the question changed shape
+
+The 101 `visual` items were classified before costing anything. **None of them
+are "read data off a chart"** — the case where printing the diagram makes the
+question answerable. All 101 are DRAWING tasks: plot, sketch, complete, reflect,
+translate, enlarge, construct, shade.
+
+So this is not about illustrating a question. It is about **printing a grid or
+figure for the student to draw on**, which on paper works fine: the student
+draws, the teacher marks by eye.
+
+By family, from the items' own `desc`:
+
+| family | ~count | status |
+|---|---|---|
+| A printed coordinate grid, sometimes carrying a shape | ~60–70 | `gridSvg.ts` already emits these |
+| Structured text — two-way tables, stem-and-leaf, frequency trees | ~10 | not pictures; `jspdf-autotable` is already a dependency |
+| Charts gridSvg does not do — pie, pictogram, unequal-width histogram, box plot, Venn | ~15 | new |
+| Compass work — constructions, loci, scale drawings | ~6 | new, and the least worth it |
+
+The dominant artefact across *all three* topics is a grid. `gridSvg.ts` is
+already isomorphic (no React, no DOM) and covers `points`, `polyline`, `line`,
+`cells`, `polygon`, `bars`, `bars_free`, `number_line`.
+
+### What the spike tested
+
+No PDF in this repo draws an image today — jsPDF is the only dependency and
+`addImage` is never called. `/mark` is deliberately browser-only, so any
+SVG→PDF path has to run client-side. The question was whether `svg2pdf.js` can
+render what `gridSvg` actually emits, rather than a hand-made test SVG.
+
+Three real `RenderedGrid` cases were built and converted in a browser: a
+coordinate grid carrying a polygon, a categorical bar chart, and a number line
+with an endpoint marker and ray.
+
+### Result: it works
+
+Against **the exact pair this repo would use** — `jspdf@4.2.1` (already
+installed) and `svg2pdf.js@2.8.1`, whose peer range is
+`^4.0.0 || ^3.0.0 || ^2.0.0`. A first run against jsPDF 2.5.1 proved nothing
+and was redone; the output was byte-identical.
+
+- **All three converted**, and were checked by rendering the PDF back through
+  pdf.js and looking at it — not by trusting the absence of an exception.
+  Gridlines, tick labels, categorical axis labels, dashed shapes, point
+  markers and a rotated axis label all survive.
+- **Pure vector: 0 image XObjects, 0 embedded font files.** Nothing silently
+  rasterised, which is what matters for something printed and photocopied.
+- **Size is negligible**: three diagram pages, 17,937 bytes.
+- **Nothing dropped**: 43 SVG `<text>` nodes → 46 PDF text-show operators, the
+  extra three being the page titles the spike added itself.
+- **Speed**: 74ms for the first conversion, then 35ms and 22ms. A class of
+  thirty with three diagram-bearing practice questions each is ~90
+  conversions, so a few seconds — acceptable, but not free, and it happens on
+  the teacher's machine while they wait.
+- `gridSvg` emits only `circle`, `line`, `path`, `rect`, `text`. Comfortably
+  inside svg2pdf's supported subset, which is why this was never likely to
+  fail on the grid family.
+
+### The catch worth knowing
+
+The PDF embeds **no fonts** — it uses jsPDF's standard 14. So the WinAnsi
+limitation that `toPdfSafe()` exists for applies to text *inside* a diagram
+too. `gridSvg` labels are numerals and short words today, so nothing breaks,
+but an axis labelled `π` or a length labelled `√2` would fail the same way
+prose does, and less visibly.
+
+### What this does NOT settle
+
+- **Empty grids** (`showCanonical: false`, the actual production shape — a grid
+  for the student to draw on) were not converted. Same code path minus two
+  layers, and the frame is almost entirely `<line>`, of which 51 already
+  converted. Low risk, still untested.
+- **The free-form geometry family** — triangles with labelled sides, circles
+  with angle marks, Venn diagrams — has no generator at all, so there was
+  nothing to test. That is the real build, not the PDF plumbing.
+
+### Recommendation
+
+The plumbing is cheap and now proven: one dependency, an optional `diagram`
+field on `PaperRetryQuestion` carrying a `RenderedGrid`, and a fixed-height
+block in `feedbackPdf`'s cursor. The cost is entirely in **authoring a grid
+spec per item** and in building the generators the other three families need.
+
+**Do it as the first half of the drawing-input surface, not instead of it.**
+These same 101 items are `visual: true` because the *app* cannot grade them
+either — they are the exam audit's biggest `app: no` cluster. A grid spec per
+item feeds both the printed sheet and the eventual grid widget. Built for the
+PDF alone it pays once.
+
+Cheapest honest slice: svg2pdf + the `diagram` field + `gridSvg` as it stands,
+covering the number-line and coordinate-grid items (roughly the algebra 30),
+which answers whether teachers use a printed grid at all before anyone builds
+pie charts or compass constructions.
