@@ -282,6 +282,10 @@ Three things learned building the first two:
   student who dropped marks anywhere else never sees them. Diagram retries pay
   off least on exactly the small items that most need a picture. There is a
   test pinning this so it is not rediscovered as a bug.
+- **A shared diagram prints once per part.** 4(a) and 4(b) of 1F Jun25 read off
+  the same conversion graph, and a student who dropped both gets the graph
+  twice on one sheet. The exam prints it once with both parts beneath. Not
+  wrong, and not worth special-casing, but it costs a second ~45mm block.
 - **`cells` grids still carry tick numbers.** `gridSvg` always draws axes, so
   a pure shading task comes out numbered 0–6 where the exam's grid has no
   axes at all. Not wrong — it is still shadeable, and the numbers give the
