@@ -252,3 +252,44 @@ describe('diagrams on a practice question', () => {
     expect(sheet.practice.some(p => p.diagram)).toBe(false)
   })
 })
+
+describe('superscripts', () => {
+  // CP1252 has ¹ ² ³ and nothing else, which is a trap rather than a
+  // limitation: x² draws while k⁴ silently loses its exponent and prints "k".
+  // That is a WRONG answer, not a garbled one, and it reached a printed sheet.
+  it('keeps the three CP1252 can draw', () => {
+    expect(toPdfSafe('cm²')).toBe('cm²')
+    expect(toPdfSafe('19² and 5³ at 90°')).toBe('19² and 5³ at 90°')
+  })
+
+  it('rescues the ones it cannot, rather than dropping them', () => {
+    expect(toPdfSafe('k⁴')).toBe('k^4')
+    expect(toPdfSafe('8 × 10⁻⁴')).toBe('8 × 10^-4')
+    expect(toPdfSafe('1024 = 2ⁿ')).toBe('1024 = 2^n')
+    expect(toPdfSafe('y = 3ˣ')).toBe('y = 3^x')
+  })
+
+  it('picks one style per string, never a mixture', () => {
+    // "3 × 10³ × 10^4" is a third style and worse than either — and that exact
+    // line existed before this decided per string rather than per run.
+    expect(toPdfSafe('3 × 10³ × 10⁴')).toBe('3 × 10^3 × 10^4')
+  })
+
+  it('leaves no paper losing a character silently', () => {
+    // The guard that would have caught the original defect.
+    for (const paper of Object.values(PAPERS)) {
+      for (const [id, r] of Object.entries(paper.retrySet)) {
+        for (const v of [r.question, r.answer ?? '', r.working ?? '']) {
+          const dropped = [...v].filter(ch => ch !== ' ' && toPdfSafe(ch) === ' ')
+          expect(dropped, `${paper.id} ${id}: ${JSON.stringify(dropped.join(''))}`).toEqual([])
+        }
+      }
+      for (const c of paper.challengeQuestions) {
+        for (const v of [c.question, c.answer, c.working ?? '']) {
+          const dropped = [...v].filter(ch => ch !== ' ' && toPdfSafe(ch) === ' ')
+          expect(dropped, `${paper.id} challenge ${c.skill}`).toEqual([])
+        }
+      }
+    }
+  })
+})

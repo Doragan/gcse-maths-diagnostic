@@ -101,8 +101,38 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '2a': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field. Write down the number of hens in the field.', answer: '43', working: 'One lot of the ratio is 72 animals; two lots would be 144, which is too many.' },
     '2b': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field. In total, how many animals are there in the field?', answer: '72', working: '29 + 43' },
 
-    '3a': { skill: 'Bearings', question: 'On a scale drawing with north pointing up the page, A is at the point (2, 5) and B is at the point (2, 9). Write down the direction of B from A.', answer: 'North', working: 'B is directly above A on the drawing.' },
-    '3b': { skill: 'Proportion', question: 'A scale drawing uses 1 centimetre to represent 10 metres. On the drawing, the path from A to B measures 4 cm and the path from B to C measures 6.5 cm. Work out the actual distance along the path from A to C.', answer: '105 metres', working: '4 + 6.5 = 10.5 cm on the drawing, and each centimetre is 10 m.' },
+    // 3(a) and (b) read off a scale drawing, so the retry supplies one. The
+    // path is the whole diagram — there is nothing for the student to draw —
+    // so `elements` is empty and everything lives in `background`. The points
+    // are named in the TEXT because a background cannot carry labels.
+    '3a': {
+      skill: 'Bearings',
+      question: 'A path joins A(1, 1), B(5, 1) and C(5, 4) on a centimetre grid, with north pointing up the page. Write down the direction of B from A.',
+      answer: 'East',
+      working: 'B is directly to the right of A on the drawing.',
+      diagram: {
+        mode: 'points',
+        x: { min: 0, max: 7, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polyline points="1,1 5,1 5,4" stroke="#333" /><circle cx="1" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="4" r="0.15" fill="#333" />',
+        elements: [],
+        tolerance: 0,
+      },
+    },
+    '3b': {
+      skill: 'Proportion',
+      question: 'A path joins A(1, 1), B(5, 1) and C(5, 4) on a centimetre grid.\nScale: 1 centimetre represents 10 metres.\nWork out the actual distance along the path from A to C.',
+      answer: '70 metres',
+      working: 'AB is 4 cm and BC is 3 cm, so the path is 7 cm on the drawing.',
+      diagram: {
+        mode: 'points',
+        x: { min: 0, max: 7, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polyline points="1,1 5,1 5,4" stroke="#333" /><circle cx="1" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="4" r="0.15" fill="#333" />',
+        elements: [],
+        tolerance: 0,
+      },
+    },
 
     '4a': { skill: 'Simplifying Expressions', question: 'Simplify m × n', answer: 'mn' },
     '4b': { skill: 'Simplifying Expressions', question: 'Simplify fully t + t + t + t', answer: '4t' },
@@ -113,15 +143,19 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
 
     '6': {
       skill: 'Simple Charts',
-      question: '60 people each choose one of apple, berry, cherry or damson. The bar chart shows the numbers who chose apple and berry. Twice as many people chose cherry as chose damson. Complete the bar chart.',
-      answer: 'Cherry 12 and damson 6',
-      working: '60 − 18 − 24 = 18 left, split 2 : 1.',
+      // Mimics the original directly: the chart is short by ONE bar and the
+      // total fixes it. An earlier version left two bars unknown and gave a
+      // relationship between them, which is a harder question than the one on
+      // the paper — the demand should match, not exceed.
+      question: '60 people each choose one of apple, berry, cherry or damson.\nThe bar chart shows the numbers who chose apple, berry and cherry.\nComplete the bar chart.',
+      answer: 'Damson 6',
+      working: '60 − 18 − 24 − 12 = 6.',
       diagram: {
         mode: 'bars',
         x: { min: 0, max: 4, step: 1, label: 'Flavour', categories: ['Apple', 'Berry', 'Cherry', 'Damson'] },
         y: { min: 0, max: 30, step: 6, label: 'People' },
-        background: '<rect x="0" y="0" width="1" height="18" stroke="#333" /><rect x="1" y="0" width="1" height="24" stroke="#333" />',
-        elements: [{ x: 2, y: 12, marks: 1 }, { x: 3, y: 6, marks: 1 }],
+        background: '<rect x="0" y="0" width="1" height="18" stroke="#333" /><rect x="1" y="0" width="1" height="24" stroke="#333" /><rect x="2" y="0" width="1" height="12" stroke="#333" />',
+        elements: [{ x: 3, y: 6, marks: 1 }],
         tolerance: 0,
       },
     },
@@ -131,17 +165,17 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '8b': { skill: 'Converting Measurements', question: 'Convert 2600 grams to kilograms.', answer: '2.6 kilograms' },
     '8c': { skill: 'Proportion', question: 'Convert 56 kilometres to miles. Use 8 kilometres = 5 miles.', answer: '35 miles', working: '56 ÷ 8 = 7, then × 5.' },
     '9a': { skill: 'Time Calculations', question: 'Nadia started work at 09:45 and worked for 5 hours 30 minutes. What time did she finish?', answer: '15:15 (3:15 pm)' },
-    '9b': { skill: 'Fractions of Amounts', question: 'Ravi worked for a total of 6 hours one day, and spent 100 minutes of that time online. Ravi says he spent more than one quarter of his total working time online. Is he correct? Tick a box, and show working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
+    '9b': { skill: 'Fractions of Amounts', question: 'Ravi worked for a total of 6 hours one day, and spent 100 minutes of that time online. Ravi says he spent more than one quarter of his total working time online. Is he correct? Show working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
     '10a': { skill: 'Congruence and Similarity', question: 'Two shapes are similar. An angle in the smaller shape is 68°. Write down the size of the matching angle in the larger shape.', answer: '68°', working: 'Similar shapes have equal matching angles; only the lengths change.' },
     '10b': { skill: 'Congruence and Similarity', question: 'Two rectangles are similar. The smaller has sides of 4 cm and 6 cm. In the larger, the side matching the 4 cm side is 10 cm. Work out the length of the other side of the larger rectangle.', answer: '15 cm', working: 'The scale factor is 10 ÷ 4 = 2.5, and 6 × 2.5 = 15.' },
-    '11': { skill: 'Expanding Brackets', question: 'A is 4(x + 5) + 3x − 8 and B is 9(x − 1) − 2x + 21. Show that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
+    '11': { skill: 'Expanding Brackets', question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
     '12': { skill: 'Proportion', question: '5 oranges cost £1.80. Work out the cost of 8 of these oranges.', answer: '£2.88', working: 'One orange is 36p.' },
     '13a': { skill: 'Range', question: 'Here are four numbers: 125, 154, 189, 172. Work out the range.', answer: '64', working: '189 − 125' },
     '13b': { skill: 'Mean', question: 'A fifth number is added to 125, 154, 189 and 172. The mean of all five numbers is 158. Work out the fifth number.', answer: '150', working: 'The five must total 790, and the first four total 640.' },
-    '14': { skill: 'Forming Expressions and Formulae', question: 'A number is n. Write an expression for each of these: (i) 5 more than the number, (ii) the number multiplied by 4, (iii) 3 less than double the number, (iv) the number divided by 2.', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) n/2' },
-    '15': { skill: 'Lengths and Perimeters', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Tick a box, and show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
+    '14': { skill: 'Forming Expressions and Formulae', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) n/2' },
+    '15': { skill: 'Lengths and Perimeters', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
     '16': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'Rearrange c − 5 = d to make c the subject.', answer: 'c = d + 5' },
-    '17': { skill: 'Proportion', question: 'Packet A holds 500 g of rice and costs £1.20. Packet B holds 800 g and costs £2.00. Which packet is better value for money? Tick a box. You must show your working.', answer: 'Packet A', working: 'A is 0.24p per gram and B is 0.25p per gram.' },
+    '17': { skill: 'Proportion', question: 'Packet A holds 500 g of rice and costs £1.20.\nPacket B holds 800 g and costs £2.00.\nWhich packet is better value for money? You must show your working.\n[ ] Packet A\n[ ] Packet B', answer: 'Packet A', working: 'A is 0.24p per gram and B is 0.25p per gram.' },
     '18a': { skill: 'Ratio', question: 'Sam uses either a bike or a bus to get to work. The number of days using a bike divided by the number of days using a bus is 2/7. Write down the ratio number of days using a bike : number of days using a bus.', answer: '2 : 7' },
     '18b': { skill: 'Simplifying Ratio', question: 'Write the ratio 9b : 4b in the form n : 1, where n is a decimal.', answer: '2.25 : 1', working: 'The b cancels, and 9 ÷ 4 = 2.25.' },
     '18c': { skill: 'Ratio', question: '1 : x = x : 9. Work out the value of x.', answer: 'x = 3', working: 'Cross-multiplying gives x² = 9.' },
@@ -152,9 +186,9 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '22': { skill: 'Simple Arithmetic', question: 'A group of adults and children go to a theme park. An adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children. In the group there are 32 children, and the total price for the group is £494. How many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
     '23a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
     '23b': { skill: 'Upper and Lower Bounds', question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.', answer: 'The largest possible total is 12.4 m', working: 'One shelf is under 3.1 m, so four are under 12.4 m.' },
-    '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30: 5x, x + 35, x + 6, x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
+    '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
     '25a': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm. A sector of the circle has an angle of 90° at the centre. Work out the area of the sector. Give your answer as a decimal to 1 decimal place.', answer: '17.9 cm²', working: 'The radius is 30 ÷ (2 pi) = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².' },
-    '25b': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm, and a sector with an angle of 90° at the centre has an area of 17.9 cm². In fact, the angle at the centre is smaller than 90°. What does this mean about the area of the sector? Tick one box: smaller than 17.9 cm² / the same as 17.9 cm² / larger than 17.9 cm² / it could be any of these.', answer: 'Smaller than 17.9 cm²', working: 'A smaller angle takes a smaller share of the circle.' },
+    '25b': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm, and a sector with an angle of 90° at the centre has an area of 17.9 cm². In fact, the angle at the centre is smaller than 90°. What does this mean about the area of the sector?\nTick one box.\n[ ] smaller than 17.9 cm²\n[ ] the same as 17.9 cm²\n[ ] larger than 17.9 cm²\n[ ] it could be any of these', answer: 'Smaller than 17.9 cm²', working: 'A smaller angle takes a smaller share of the circle.' },
     '26': { skill: 'Trigonometry (missing sides)', question: 'A right-angled triangle has a hypotenuse of 15 cm and one acute angle of 38°. Use trigonometry to work out the length of the side opposite the 38° angle, to 1 decimal place. You must show your working.', answer: '9.2 cm', working: '15 × sin 38° = 9.23…' },
   },
   challengeQuestions: [],

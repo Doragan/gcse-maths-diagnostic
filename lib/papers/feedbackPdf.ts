@@ -63,12 +63,46 @@ const PDF_SAFE: Record<string, string> = {
 const CP1252_EXTRAS = new Set([...'€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ'])
 
 /**
+ * Superscripts, and the ASCII they fall back to.
+ *
+ * CP1252 has ¹ ² ³ AND NOTHING ELSE, which is a trap rather than a limitation:
+ * `x²` draws perfectly while `k⁴` silently loses its exponent and prints as
+ * "k". That is not a garbled answer, it is a WRONG one, and it reached a
+ * printed review sheet — "Simplify fully k × k × k × k. Answer: k" — before
+ * anyone noticed. Standard form was worse: `8 × 10⁻⁴` printed as "8 × 10".
+ */
+const SUPERSCRIPT: Record<string, string> = {
+  '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+  '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
+  '⁻': '-', '⁺': '+', 'ⁿ': 'n', 'ˣ': 'x',
+}
+/** The three CP1252 can actually draw. */
+const SUPERSCRIPT_DRAWABLE = new Set(['¹', '²', '³'])
+
+/**
+ * Rewrite superscripts, deciding ONCE PER STRING rather than per run.
+ *
+ * If every superscript in the string is drawable the typography is kept, so
+ * `cm²` and `x³` are untouched. If any is not, the whole string goes to caret
+ * notation — because `3 × 10³ × 10⁴` rendering as "3 × 10³ × 10^4" is a third
+ * style, worse than either consistent one, and that exact line existed.
+ */
+function superscriptsToAscii(text: string): string {
+  const runs = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+/g
+  const all = text.match(runs)
+  if (!all) return text
+  if (all.every(run => [...run].every(ch => SUPERSCRIPT_DRAWABLE.has(ch)))) return text
+  return text.replace(runs, run => '^' + [...run].map(ch => SUPERSCRIPT[ch]).join(''))
+}
+
+/**
  * Make a string drawable by jsPDF's standard fonts.
  *
  * Applied to EVERY string that reaches doc.text — including before measuring
  * for wrapping, so the line breaks match what is actually drawn.
  */
 export function toPdfSafe(text: string): string {
+  text = superscriptsToAscii(text)
   let out = ''
   for (const ch of text) {
     const mapped = PDF_SAFE[ch]
