@@ -384,7 +384,9 @@ paper; two are genuinely outside the taxonomy and left untagged:
 | Classifying an angle by type | tagged `angles_on_lines_and_circles` |
 | Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
 | ~~Properties of 2D shapes~~ | **CLOSED** — `properties_of_2d_shapes` added 2026-09-04. 5 items, 6 marks retagged onto it, including two that had been untagged and two AQA rows sitting on `angles_in_polygons` |
-| **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
+| **Reading a number line or scale** | **DECIDED NOT TO ADD** (2026-09-04). Four 1-mark AQA Foundation rows, already on `simple_arithmetic` and `decimals`. Unlike polygon naming on `angles_in_polygons`, those are not false claims — reading a scale does involve arithmetic. The distinctive error (`misread_the_scale_interval`) is a misconception, not a separate skill |
+| **Directed number** | **CHECKED, NOT A GAP.** 75 rows worth 187 marks carry a sign error as their trap, but nearly all are sign slips INSIDE another skill — elimination, expanding, indices. Only about six test negatives as the skill itself. Sign handling is the most pervasive trap family in the audit and belongs to the misconception layer, not the taxonomy |
+| **Identifying an outlier** | **untagged, and staying that way** (user ruling 2026-09-04) — spotting an anomalous value is not calculating a range or a mean, and it is one mark |
 | ~~Gradient of a curve at a point~~ | **CLOSED** — `gradient_of_a_curve` added 2026-09-04, prerequisite `understanding_straight_line_graphs`, costs 7 |
 | ~~Average rate of change on a non-kinematic graph~~ | **CLOSED** — moved off its loose `kinematic_graphs` fit onto `gradient_of_a_curve`. A chord gradient and a tangent gradient are the same node |
 | **Area under a non-kinematic rate graph** | tagged `kinematic_graphs` and considered CORRECT — a rate-time graph where area = quantity is structurally a velocity-time graph. Precedent: the hand-authored AQA 2F Nov 2024 q15b bath graph does the same |
