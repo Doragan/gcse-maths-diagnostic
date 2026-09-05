@@ -196,14 +196,14 @@ above, and they switch on "Push yourself" for all 39 papers at once.
    printed only on the teacher's page. `PaperRetryQuestion.answer` is already
    in place (optional, because the three hand-authored retry sets predate it);
    new retry authoring should always carry one.
-3. **Write the authoring doc**, modelled on `docs/coding-a-paper.md`, leading
-   with the transcription boundary (§6) and the diagram rule (§7a).
+3. ~~**Write the authoring doc.**~~ **DONE** — `docs/writing-retry-questions.md`,
+   plus `scripts/preview-sheet.ts` for reading a sheet without a browser.
 4. **One paper by hand, end to end.** Calibrates the doc and gives a worked
    example to point the agents at. Pick a Foundation paper with a QP to hand.
 5. **The 30 ready papers**, one agent per paper, in board batches.
 6. **Fetch the nine missing QPs**, then the last 295.
 
-Steps 3–4 are small and unblock everything. Step 5 is the bulk and the only
+Step 4 is small and unblocks everything. Step 5 is the bulk and the only
 genuinely large part.
 
 ## 9. Open questions
