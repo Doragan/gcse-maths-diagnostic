@@ -262,6 +262,12 @@ they are meant to work out, and it will not look wrong in the source.
 Coordinates are in axis units and the wrapper supplies `stroke-width`, so a
 background fragment needs only a shape and a `stroke`.
 
+**A background cannot carry text.** `axisCoordGroup` flips Y so grids grow
+upward, which mirrors any text in the fragment. So points cannot be lettered
+on the grid the way an exam letters them — name them in the QUESTION instead
+("The points A(1, 3), B(4, 1) and C(7, 3) are plotted on the grid"), which
+reads at least as clearly.
+
 A `RenderedGrid` is deliberately the same spec the student-facing canvas and
 the verification harness use — one renderer, and a spec authored here also
 feeds the eventual drawing-input surface rather than being thrown away.
@@ -276,6 +282,12 @@ Three things learned building the first two:
   student who dropped marks anywhere else never sees them. Diagram retries pay
   off least on exactly the small items that most need a picture. There is a
   test pinning this so it is not rediscovered as a bug.
+- **`cells` grids still carry tick numbers.** `gridSvg` always draws axes, so
+  a pure shading task comes out numbered 0–6 where the exam's grid has no
+  axes at all. Not wrong — it is still shadeable, and the numbers give the
+  student a way to describe their answer — but it is not how the original
+  presents, and an axis-free mode would need a change to `gridSvg` rather
+  than to the spec.
 - **You cannot eyeball a diagram from `preview-sheet.ts`.** svg2pdf walks a
   real SVG element, so grids need a browser; in Node the rest of the sheet
   builds and the grids are silently skipped. Check diagrams by generating a
