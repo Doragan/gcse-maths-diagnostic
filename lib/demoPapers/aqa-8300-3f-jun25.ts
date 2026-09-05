@@ -82,7 +82,36 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
   // pattern needs the first three printed beside it, which is a picture, not a
   // grid to draw on.
   retrySet: {
-    '1b': { skill: 'Sequences', question: 'In a sequence of patterns, Pattern 1 has 3 crosses, Pattern 2 has 5 crosses and Pattern 3 has 7 crosses. How many crosses would Pattern 6 have?', answer: '13', working: 'Each pattern adds 2, so the nth pattern has 2n + 1.' },
+    // 1(a) is `visual: true`, and it is the labels layer that makes it
+    // possible: a "draw the next pattern" question is meaningless unless the
+    // first three are shown AND named, and naming them is what a background
+    // fragment could not do.
+    //
+    // Pattern n is a bottom row of n squares under a top row of n + 1, giving
+    // 2n + 1 squares — the same rule 1(b) counts, so the two parts describe
+    // one sequence.
+    '1a': {
+      skill: 'Sequences',
+      question: 'Here are the first three patterns in a sequence.\nDraw Pattern 4 on the grid.',
+      answer: 'A bottom row of 4 squares under a top row of 5 squares — 9 squares in total',
+      working: 'Each pattern adds one square to each row.',
+      diagram: {
+        mode: 'cells', showAxes: false,
+        x: { min: 0, max: 12, step: 1, label: '' },
+        y: { min: 0, max: 3, step: 1, label: '' },
+        background:
+          '<rect x="0" y="1" width="1" height="1" stroke="#333" /><rect x="0" y="2" width="1" height="1" stroke="#333" /><rect x="1" y="2" width="1" height="1" stroke="#333" />' +
+          '<rect x="3" y="1" width="2" height="1" stroke="#333" /><rect x="3" y="2" width="3" height="1" stroke="#333" /><rect x="4" y="1" width="1" height="1" stroke="#333" /><rect x="4" y="2" width="1" height="1" stroke="#333" /><rect x="5" y="2" width="1" height="1" stroke="#333" />' +
+          '<rect x="7" y="1" width="3" height="1" stroke="#333" /><rect x="7" y="2" width="4" height="1" stroke="#333" /><rect x="8" y="1" width="1" height="1" stroke="#333" /><rect x="9" y="1" width="1" height="1" stroke="#333" /><rect x="8" y="2" width="1" height="1" stroke="#333" /><rect x="9" y="2" width="1" height="1" stroke="#333" /><rect x="10" y="2" width="1" height="1" stroke="#333" />',
+        labels: [
+          { x: 1, y: 1, text: 'Pattern 1', dy: 13 },
+          { x: 4.5, y: 1, text: 'Pattern 2', dy: 13 },
+          { x: 9, y: 1, text: 'Pattern 3', dy: 13 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '1b': { skill: 'Sequences', question: 'In a sequence of patterns, Pattern 1 has 3 squares, Pattern 2 has 5 squares and Pattern 3 has 7 squares. How many squares would Pattern 6 have?', answer: '13', working: 'Each pattern adds 2, so the nth pattern has 2n + 1.' },
     '2a': { skill: 'Coordinates', question: 'The line AB is drawn on a grid. A is at the point (1, 2), and B is 6 to the right of A and 4 above it. Write down the coordinates of B.', answer: '(7, 6)' },
     '2b': { skill: 'Coordinates', question: 'A is at the point (1, 2) and B is at the point (7, 6). Write down the coordinates of the midpoint of the line AB.', answer: '(4, 4)', working: 'Halfway in each direction.' },
     '3a': { skill: 'Systematic Listing', question: 'Kai makes a drink using one type of milk and one flavour. The milk is dairy (D) or oat (O). The flavour is vanilla (V), chocolate (C) or strawberry (S). List all 6 possible drinks. One has been done for you: DV.', answer: 'DV, DC, DS, OV, OC, OS', working: 'Take each milk in turn with every flavour.' },

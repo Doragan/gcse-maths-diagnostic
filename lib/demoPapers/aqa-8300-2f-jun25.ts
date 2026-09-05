@@ -224,7 +224,31 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '18c': { skill: 'Ratio', question: '1 : x = x : 9. Work out the value of x.', answer: 'x = 3', working: 'Cross-multiplying gives x² = 9.' },
     '19a': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections. For spinner 1, P(red) = 2/5. For spinner 2, P(red) = 3/7. Write down the probability that spinner 1 lands on green, and the probability that spinner 2 lands on green.', answer: '3/5 and 4/7', working: 'Each pair of probabilities must add to 1.' },
     '19b': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections. For spinner 1, P(red) = 2/5, and for spinner 2, P(red) = 3/7. Both spinners are spun. Work out the probability that both spinners land on red.', answer: '6/35', working: '2/5 × 3/7' },
-    '20b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily: day 4 had 72 000 views, day 5 had 60 000 and day 6 had 48 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£7.20', working: 'The views fall by about 12 000 a day, so day 7 is about 36 000, and 36 000 × 0.02p = 720p.' },
+    // 20(a) is `visual: true` and now has a grid to plot on. Every reading is
+    // a multiple of 20 000 so it lands on a ruled line, and six days against
+    // six rows keeps the grid square enough to print at 72mm.
+    //
+    // 20(b) shares 20(a)'s figures. They are separate items and each still
+    // stands alone, but two versions of one advert's viewing figures on one
+    // sheet would read as a mistake.
+    '20a': {
+      skill: 'Time Series',
+      question: 'The table shows the number of views of an advert during its first 6 days.\nDay:    1     2     3     4     5     6\nViews:  40    120   100   80    60    40   (thousands)\nOn the grid, draw a time series graph to represent the data.',
+      answer: 'Points at (1, 40), (2, 120), (3, 100), (4, 80), (5, 60) and (6, 40), joined by straight lines',
+      working: 'Plot each day against its number of views, then join them in order.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 6, step: 1, label: 'Day' },
+        y: { min: 0, max: 120, step: 20, label: 'Views (thousands)' },
+        background: '',
+        elements: [
+          { x: 1, y: 40, marks: 1 }, { x: 2, y: 120, marks: 1 }, { x: 3, y: 100, marks: 1 },
+          { x: 4, y: 80, marks: 1 }, { x: 5, y: 60, marks: 1 }, { x: 6, y: 40, marks: 1 },
+        ],
+        tolerance: 0,
+      },
+    },
+    '20b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
     '21': { skill: 'Fractions Decimals and Percentages', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
     '22': { skill: 'Simple Arithmetic', question: 'A group of adults and children go to a theme park. An adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children. In the group there are 32 children, and the total price for the group is £494. How many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
     '23a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },

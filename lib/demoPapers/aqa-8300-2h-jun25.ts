@@ -82,8 +82,26 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     '1c': { skill: 'Prime Factor Decomposition', question: 'Write 66 as a product of its prime factors.', answer: '2 × 3 × 11' },
     '2': { skill: 'Understanding Straight Line Graphs', question: 'Line A is horizontal and passes through (0, 4). Line B passes through (0, −1) and (3, 5). Write down the equation of line A, and the gradient of line B.', answer: 'Line A is y = 4, and the gradient of line B is 2', working: 'B rises 6 for every 3 across.' },
 
-    // Shared with 2F — see the note above.
-    '3b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily: day 4 had 72 000 views, day 5 had 60 000 and day 6 had 48 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£7.20', working: 'The views fall by about 12 000 a day, so day 7 is about 36 000, and 36 000 × 0.02p = 720p.' },
+    // Shared with 2F — see the note above. 3(a) is the visual half of the same
+    // crossover question and carries 2F 20(a)'s grid, unchanged.
+    '3a': {
+      skill: 'Time Series',
+      question: 'The table shows the number of views of an advert during its first 6 days.\nDay:    1     2     3     4     5     6\nViews:  40    120   100   80    60    40   (thousands)\nOn the grid, draw a time series graph to represent the data.',
+      answer: 'Points at (1, 40), (2, 120), (3, 100), (4, 80), (5, 60) and (6, 40), joined by straight lines',
+      working: 'Plot each day against its number of views, then join them in order.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 6, step: 1, label: 'Day' },
+        y: { min: 0, max: 120, step: 20, label: 'Views (thousands)' },
+        background: '',
+        elements: [
+          { x: 1, y: 40, marks: 1 }, { x: 2, y: 120, marks: 1 }, { x: 3, y: 100, marks: 1 },
+          { x: 4, y: 80, marks: 1 }, { x: 5, y: 60, marks: 1 }, { x: 6, y: 40, marks: 1 },
+        ],
+        tolerance: 0,
+      },
+    },
+    '3b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
     '4': { skill: 'Fractions Decimals and Percentages', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
     '5a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
     '5b': { skill: 'Upper and Lower Bounds', question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.', answer: 'The largest possible total is 12.4 m', working: 'One shelf is under 3.1 m, so four are under 12.4 m.' },
