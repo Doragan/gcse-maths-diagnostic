@@ -9,6 +9,11 @@ import { getClassMembers, type ClassMember } from '../../../../../lib/classes'
 import { PAPERS, DEFAULT_PAPER_ID } from '../../../../../lib/demoPapers'
 import { topicColourFor } from '../../../../../lib/demoTopicColours'
 import { marksTotal, type ItemMarks } from '../../../../../lib/papers/sittingMarks'
+import { buildClassEvidence } from '../../../../../lib/papers/feedbackEvidence'
+import { buildClassSummary } from '../../../../../lib/papers/classSummary'
+import { toWwwEbiSheets } from '../../../../../lib/papers/wwwEbi'
+import { downloadFeedbackPdf } from '../../../../../lib/papers/feedbackPdf'
+import ClassView from '../../../../../components/papers/ClassView'
 import {
   recordSitting, listSittings, deleteSitting, type ExistingSitting,
 } from '../../../../../lib/papers/recordSitting'
@@ -191,22 +196,32 @@ export default function ClassPapersPage() {
     }
   }
 
-  // Which questions the class dropped most — computed from what is on screen,
-  // so it is useful before submitting, not only after.
-  const dropped = useMemo(() => {
-    if (!entered.length) return []
-    return paper.questions
-      .map(q => {
-        const missed = entered.filter(m => {
-          const v = marks[m.student_id]?.[q.id]
-          return v !== undefined && v < q.marks
-        }).length
-        return { q, missed, pct: Math.round((missed / entered.length) * 100) }
-      })
-      .filter(d => d.missed > 0)
-      .sort((a, b) => b.pct - a.pct || b.q.marks - a.q.marks)
-      .slice(0, 5)
-  }, [paper, marks, entered])
+  /**
+   * The class view and the sheets, from the SAME evidence the free tool uses.
+   *
+   * A student is identified here by DISPLAY NAME rather than by id, because
+   * the name is what goes at the top of the sheet a child is handed.
+   * buildStudentEvidence takes an opaque studentRef for exactly this reason.
+   *
+   * Both are computed from what is on screen, so they work BEFORE the sitting
+   * is saved. Downloading writes nothing; saving is a separate, explicit act.
+   */
+  const sheetEntries = useMemo(() => entered.map(m => ({
+    studentRef: m.display_name,
+    marks: marks[m.student_id] ?? {},
+  })), [entered, marks])
+
+  const summary = useMemo(
+    () => (sheetEntries.length ? buildClassSummary(buildClassEvidence(paper, sheetEntries)) : null),
+    [paper, sheetEntries],
+  )
+
+  function downloadSheets() {
+    downloadFeedbackPdf(
+      toWwwEbiSheets(buildClassEvidence(paper, sheetEntries)),
+      { paperTitle: paper.title, paperSubtitle: paper.subtitle, className, satOn },
+    )
+  }
 
   if (loading) {
     return <main style={styles.page}><p style={{ color: colors.textSecondary }}>Loading…</p></main>
@@ -390,27 +405,21 @@ export default function ClassPapersPage() {
               </div>
             </div>
 
-            {/* ── Where the class struggled, live ── */}
-            {dropped.length > 0 && (
-              <div style={{ ...cardStyle, marginBottom: 16 }}>
-                <h2 style={{ ...sectionTitle, marginBottom: 4 }}>Most dropped so far</h2>
-                <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 12px' }}>
-                  From the marks entered above — updates as you type.
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {dropped.map(d => (
-                    <div key={d.q.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: colors.cardAlt, borderRadius: radius.md, border: `1px solid ${colors.border}` }}>
-                      <span style={{ fontWeight: '700', color: colors.dangerText, minWidth: 44 }}>{d.pct}%</span>
-                      <span style={{ flex: 1, color: colors.textPrimary }}>
-                        <strong>Q{d.q.label}</strong> — {d.q.skill}
-                        <span style={{ color: colors.textSecondary }}> · {d.q.desc}</span>
-                      </span>
-                      <span style={{ fontSize: font.sm, color: colors.textSecondary, whiteSpace: 'nowrap' }}>
-                        {d.missed}/{entered.length} students
-                      </span>
-                    </div>
-                  ))}
-                </div>
+            {/* ── The class view, and the sheets ──────────────────────────────
+                Both shared with /mark. Until now this page recorded a sitting
+                and produced nothing a teacher could hand out, which made the
+                PAID path strictly worse than the free one. ──────────────── */}
+            {summary && <ClassView summary={summary} title="The class so far" />}
+
+            {entered.length > 0 && (
+              <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                <button onClick={downloadSheets} style={{ ...secondaryButton, width: 'auto' }}>
+                  Download feedback sheets
+                </button>
+                <span style={{ fontSize: font.base, color: colors.textSecondary }}>
+                  One page per student, from the marks above. Downloading does not record anything —
+                  use Save below for that.
+                </span>
               </div>
             )}
 
