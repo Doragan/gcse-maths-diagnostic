@@ -148,6 +148,22 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   // The real defect is PARTIAL coverage: a paper that offers practice questions
   // for some dropped marks and silently not for others, so a student is told to
   // practise question 4 and told nothing about question 11. That still fails.
+  it('never leans on another part of the same question', () => {
+    // EVERY RETRY MUST STAND ALONE. Parts are independent items competing for
+    // the same MAX_PRACTICE slots, ranked by marks lost — nothing groups 4(a)
+    // with 4(b), so a student can perfectly well be given (b) and not (a).
+    //
+    // Twelve retries were written referring to a sibling before this existed.
+    // The worst read "Is your answer to part (a) an overestimate or an
+    // underestimate?" printed on a sheet with no part (a) anywhere on it: not
+    // merely unhelpful, unanswerable. Restating the context costs a clause.
+    const leansOnSibling =
+      /\bpart \(?[a-d]\)?|\bdescribed above\b|\busing the [^.]{0,40}\babove\b|\b(these|the) \w+ above\b/i
+    for (const [id, r] of Object.entries(paper.retrySet)) {
+      expect(leansOnSibling.test(r.question), `${id}: ${r.question}`).toBe(false)
+    }
+  })
+
   // Visual items are the exception on purpose: they are an OPTIONAL extra that
   // needs a diagram spec authored per item, so a paper is complete without
   // them and gains them one at a time.

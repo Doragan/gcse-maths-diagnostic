@@ -133,6 +133,27 @@ because the *arithmetic* is the assessed part and the chart values can be
 given in words. That is a case-1 item, and a fair retry states the money
 amounts directly.
 
+### Every retry must stand alone
+
+**Parts are independent items.** 4(a) and 4(b) are separate entries competing
+for the same three `MAX_PRACTICE` slots, ranked by marks lost — nothing groups
+them, so a student can be given (b) and not (a). A retry that says "your answer
+to part (a)", or "the probabilities above", is then unanswerable, and the
+student cannot tell whether they are missing a page or missing the maths.
+
+Twelve were written this way before it was noticed. Restate the context
+instead — it costs a clause:
+
+> ~~Is your answer to part (a) an overestimate or an underestimate?~~
+>
+> An estimate of 3.12 × 4.87 + 2.09² is made by rounding each number to 1
+> significant figure, giving 19. Is 19 an overestimate or an underestimate of
+> the true value?
+
+There is a test for this. It also means sibling parts SHOULD repeat their
+shared setup — two retries each opening "The only animals in a field are goats
+and hens…" is correct, not redundant.
+
 ### Difficulty: parallel, not easier
 
 The instinct is to make a retry gentler, since the student just dropped the
