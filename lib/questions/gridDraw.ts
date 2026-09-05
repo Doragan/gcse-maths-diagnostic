@@ -50,11 +50,43 @@ export type RenderedGridElement = {
   style?: EndpointStyle
   dir?: RayDir
 }
+/**
+ * A text label placed at AXIS coordinates — a vertex name, a side length, an
+ * angle.
+ *
+ * Needed because `background` cannot carry text: axisCoordGroup flips Y so
+ * grids grow upward, and that mirrors any `<text>` inside it. Labels are drawn
+ * in plain viewBox space instead, the same way the tick numerals already are,
+ * so they come out the right way up.
+ *
+ * This is what makes a labelled figure possible at all — a triangle with sides
+ * marked 8 cm and 11 cm, or points named A, B and C. Without it a diagram can
+ * only show shape, and every quantity has to be repeated in the question text.
+ */
+export type GridLabel = {
+  x: number
+  y: number
+  text: string
+  /** Nudge in viewBox units, to keep a label clear of the shape it names. */
+  dx?: number
+  dy?: number
+}
+
 export type RenderedGrid = {
   mode: string
   x: RenderedAxis
   y: RenderedAxis
   background: string
+  /** Upright text at axis coordinates. Drawn last, over everything else. */
+  labels?: GridLabel[]
+  /**
+   * Axis lines, tick numerals and axis titles. Default true.
+   *
+   * False for a figure that is not a coordinate diagram — a grid to shade, or
+   * a triangle drawn on squares — where numbering the edges is furniture the
+   * exam's own version does not have.
+   */
+  showAxes?: boolean
   // Rendered method overlay, drawn only on the answer reveal ('' = none).
   solution?: string
   elements: RenderedGridElement[]

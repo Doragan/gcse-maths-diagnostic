@@ -115,6 +115,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         x: { min: 0, max: 7, step: 1, label: '' },
         y: { min: 0, max: 5, step: 1, label: '' },
         background: '<polyline points="1,1 5,1 5,4" stroke="#333" /><circle cx="1" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="4" r="0.15" fill="#333" />',
+        labels: [{ x: 1, y: 1, text: 'A', dx: -9, dy: 4 }, { x: 5, y: 1, text: 'B', dx: 9, dy: 4 }, { x: 5, y: 4, text: 'C', dx: 9, dy: 4 }],
         elements: [],
         tolerance: 0,
       },
@@ -129,6 +130,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         x: { min: 0, max: 7, step: 1, label: '' },
         y: { min: 0, max: 5, step: 1, label: '' },
         background: '<polyline points="1,1 5,1 5,4" stroke="#333" /><circle cx="1" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="1" r="0.15" fill="#333" /><circle cx="5" cy="4" r="0.15" fill="#333" />',
+        labels: [{ x: 1, y: 1, text: 'A', dx: -9, dy: 4 }, { x: 5, y: 1, text: 'B', dx: 9, dy: 4 }, { x: 5, y: 4, text: 'C', dx: 9, dy: 4 }],
         elements: [],
         tolerance: 0,
       },
@@ -166,8 +168,49 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '8c': { skill: 'Proportion', question: 'Convert 56 kilometres to miles. Use 8 kilometres = 5 miles.', answer: '35 miles', working: '56 ÷ 8 = 7, then × 5.' },
     '9a': { skill: 'Time Calculations', question: 'Nadia started work at 09:45 and worked for 5 hours 30 minutes. What time did she finish?', answer: '15:15 (3:15 pm)' },
     '9b': { skill: 'Fractions of Amounts', question: 'Ravi worked for a total of 6 hours one day, and spent 100 minutes of that time online. Ravi says he spent more than one quarter of his total working time online. Is he correct? Show working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
-    '10a': { skill: 'Congruence and Similarity', question: 'Two shapes are similar. An angle in the smaller shape is 68°. Write down the size of the matching angle in the larger shape.', answer: '68°', working: 'Similar shapes have equal matching angles; only the lengths change.' },
-    '10b': { skill: 'Congruence and Similarity', question: 'Two rectangles are similar. The smaller has sides of 4 cm and 6 cm. In the larger, the side matching the 4 cm side is 10 cm. Work out the length of the other side of the larger rectangle.', answer: '15 cm', working: 'The scale factor is 10 ÷ 4 = 2.5, and 6 × 2.5 = 15.' },
+    // 10(a) and (b) show the two similar shapes, with their measurements on
+    // the figure rather than only in the sentence — which is what `labels`
+    // exists for, and what the exam does.
+    '10a': {
+      skill: 'Congruence and Similarity',
+      question: 'The two shapes shown are similar. Write down the size of angle y in the larger shape.\nNot drawn accurately.',
+      answer: '68°',
+      working: 'Similar shapes have equal matching angles; only the lengths change.',
+      // The drawn shapes MUST share the labelled ratio, or the figure argues
+      // against its own question — an earlier version drew 4 × 3 beside 6 × 6
+      // and called them similar. 2 : 3 here, matching 4 : 6 and 10 : 15, with
+      // the exam's own "not drawn accurately" covering the rest.
+      diagram: {
+        mode: 'polygon', showAxes: false,
+        x: { min: 0, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polygon points="1,1 3,1 3,4 1,4" stroke="#333" /><polygon points="5,1 9,1 9,7 5,7" stroke="#333" />',
+        labels: [
+          { x: 1, y: 1, text: '68°', dx: 16, dy: -8 },
+          { x: 5, y: 1, text: 'y', dx: 14, dy: -8 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '10b': {
+      skill: 'Congruence and Similarity',
+      question: 'The two rectangles shown are similar. Work out the length x.\nNot drawn accurately.',
+      answer: '15 cm',
+      working: 'The scale factor is 10 ÷ 4 = 2.5, and 6 × 2.5 = 15.',
+      diagram: {
+        mode: 'polygon', showAxes: false,
+        x: { min: 0, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polygon points="1,1 3,1 3,4 1,4" stroke="#333" /><polygon points="5,1 9,1 9,7 5,7" stroke="#333" />',
+        labels: [
+          { x: 2, y: 1, text: '4 cm', dy: 12 },
+          { x: 1, y: 2.5, text: '6 cm', dx: -15 },
+          { x: 7, y: 1, text: '10 cm', dy: 12 },
+          { x: 9, y: 4, text: 'x', dx: 11 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '11': { skill: 'Expanding Brackets', question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
     '12': { skill: 'Proportion', question: '5 oranges cost £1.80. Work out the cost of 8 of these oranges.', answer: '£2.88', working: 'One orange is 36p.' },
     '13a': { skill: 'Range', question: 'Here are four numbers: 125, 154, 189, 172. Work out the range.', answer: '64', working: '189 − 125' },
@@ -189,7 +232,27 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
     '25a': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm. A sector of the circle has an angle of 90° at the centre. Work out the area of the sector. Give your answer as a decimal to 1 decimal place.', answer: '17.9 cm²', working: 'The radius is 30 ÷ (2 pi) = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².' },
     '25b': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm, and a sector with an angle of 90° at the centre has an area of 17.9 cm². In fact, the angle at the centre is smaller than 90°. What does this mean about the area of the sector?\nTick one box.\n[ ] smaller than 17.9 cm²\n[ ] the same as 17.9 cm²\n[ ] larger than 17.9 cm²\n[ ] it could be any of these', answer: 'Smaller than 17.9 cm²', working: 'A smaller angle takes a smaller share of the circle.' },
-    '26': { skill: 'Trigonometry (missing sides)', question: 'A right-angled triangle has a hypotenuse of 15 cm and one acute angle of 38°. Use trigonometry to work out the length of the side opposite the 38° angle, to 1 decimal place. You must show your working.', answer: '9.2 cm', working: '15 × sin 38° = 9.23…' },
+    '26': {
+      skill: 'Trigonometry (missing sides)',
+      question: 'Use trigonometry to work out the value of x, to 1 decimal place. You must show your working.\nNot drawn accurately.',
+      answer: '9.2 cm',
+      working: '15 × sin 38° = 9.23…',
+      // Legs of 8 and 6 put the marked angle at 36.9°, near enough to 38° that
+      // the picture does not fight the label. Exact would need a non-lattice
+      // vertex, which is what "not drawn accurately" exists for on the paper.
+      diagram: {
+        mode: 'polygon', showAxes: false,
+        x: { min: 0, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polygon points="1,1 9,1 9,7" stroke="#333" /><polyline points="8,1 8,2 9,2" stroke="#333" />',
+        labels: [
+          { x: 5, y: 4, text: '15 cm', dx: -12, dy: -4 },
+          { x: 9, y: 4, text: 'x', dx: 11 },
+          { x: 1, y: 1, text: '38°', dx: 20, dy: -7 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
   },
   challengeQuestions: [],
   sampleStudents: [],
