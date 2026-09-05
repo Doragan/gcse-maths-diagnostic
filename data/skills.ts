@@ -1685,6 +1685,26 @@ export const skills: Skill[] = [
     "exampleAnswer": "Draw a tangent at x = 2 and find its gradient. That is the rate of change AT that point. The average rate of change between x = 1 and x = 3 is the gradient of the straight line joining those two points on the curve, which is generally different."
   },
   {
+    "id": "area_and_volume_scale_factors",
+    "name": "Area and Volume Scale Factors",
+    "topic": "Shape and Space",
+    "prerequisites": [
+      "congruence_and_similarity"
+    ],
+    "exampleQuestion": "Two similar solids have heights 3 cm and 6 cm. The smaller has volume 20 cm³ and surface area 18 cm². Work out the volume and the surface area of the larger one.",
+    "exampleAnswer": "The length scale factor is 2, so areas scale by 2² = 4 and volumes by 2³ = 8. Surface area = 18 × 4 = 72 cm², volume = 20 × 8 = 160 cm³."
+  },
+  {
+    "id": "exponential_graphs",
+    "name": "Exponential Graphs",
+    "topic": "Algebra",
+    "prerequisites": [
+      "indices"
+    ],
+    "exampleQuestion": "The curve y = ab^x passes through (0, 5) and (2, 45). Work out the values of a and b.",
+    "exampleAnswer": "At x = 0 the power is 1, so a = 5. Then 45 = 5b², so b² = 9 and b = 3."
+  },
+  {
     "id": "equations_and_identities",
     "name": "Equations and Identities",
     "topic": "Algebra",

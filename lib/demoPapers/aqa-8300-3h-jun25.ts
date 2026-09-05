@@ -19,7 +19,7 @@ import type { PaperConfig } from './types'
  * question text.
  *
  * KNOWN GAPS in this paper, carried here so they survive regeneration:
- *   • item 2 has no skill tag — filed under Probability and Data, contributes 1 mark(s) to the total but no skill evidence. Worth a hand correction.
+ *   • item 2 is untagged by design — filed under Probability and Data, contributing 1 mark(s) with no skill evidence. Check coding_notes says why.
  */
 export const AQA_8300_3H_JUN25: PaperConfig = {
   id: 'aqa-8300-3h-jun25',
@@ -66,7 +66,7 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     { id: '21',  label: '21',    marks: 4,  topic: 'shape',    skill: 'Volume of a Sphere + Volume of a prism',                                               skillIds: ['volume_of_a_sphere', 'volume_of_a_prism'], kind: 'mastery', visual: false, desc: 'fraction answer from an algebraic derivation; needs equivalence checker' },
     { id: '22',  label: '22',    marks: 4,  topic: 'algebra',  skill: 'Quadratic Inequalities + Solving Quadratic Equations (Factorising)',                   skillIds: ['quadratic_inequalities', 'solving_quadratic_equations_factorising'], kind: 'exam', visual: false, desc: 'double-inequality answer needs an inequality-equivalence checker' },
     { id: '23',  label: '23',    marks: 2,  topic: 'algebra',  skill: 'Quadratic Functions',                                                                  skillIds: ['quadratic_functions'], kind: 'mastery', visual: false, desc: 'spot-the-error free text; two distinct faults must be named' },
-    { id: '24',  label: '24',    marks: 4,  topic: 'shape',    skill: 'Congruence and Similarity + Area of a Triangle (½ab sinC)',                            skillIds: ['congruence_and_similarity', 'area_of_triangle_sine'], kind: 'exam', visual: false, desc: 'range-tolerance answer; static diagram supported' },
+    { id: '24',  label: '24',    marks: 4,  topic: 'shape',    skill: 'Area and Volume Scale Factors + Area of a Triangle (½ab sinC)',                        skillIds: ['area_and_volume_scale_factors', 'area_of_triangle_sine'], kind: 'exam', visual: false, desc: 'range-tolerance answer; static diagram supported' },
   ],
 
   // See the header: both are hand-authored and the audit has no question text.

@@ -394,8 +394,8 @@ paper; two are genuinely outside the taxonomy and left untagged:
 | ~~Equation vs identity~~ | **CLOSED** — `equations_and_identities` added 2026-09-04, prerequisite `expanding_brackets`, costs 4. 7 items, 14 marks, across both AQA and OCR |
 | **Misleading graph** (truncated axis) | tagged `simple_charts` |
 | **Currency conversion** | tagged `proportion` |
-| **Similar solids** (area and volume scale factors) | tagged `congruence_and_similarity`, a poor fit — 5 marks on Edexcel 2H q16 |
-| **Exponential graphs** (y = k^x) | no node at all; tagged `fractional_and_negative_indices` where the method is inverting a power |
+| ~~Similar solids~~ | **CLOSED** — `area_and_volume_scale_factors` added 2026-09-04. Named for the concept rather than "similar solids", because two of its eight items are about AREA scale factors on 2D shapes. 8 items, 26 marks, Foundation tier (it appears on AQA 3F June 2023 and OCR J560/03) |
+| ~~Exponential graphs~~ | **CLOSED** — `exponential_graphs` added 2026-09-04, Higher-only. Only the CURVE cases moved: OCR 04 q16 stays on `growth_and_decay`, which reads an annual percentage increase off a growth formula and is that skill's own example |
 | **Place value**, and **roots** as distinct from powers | tagged `decimals` and `indices` respectively |
 | **Forming** a fraction from a context | every fraction node covers operating ON one, not writing one down |
 

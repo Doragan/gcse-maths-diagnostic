@@ -58,6 +58,10 @@ export const foundationSkillIds = [
   // 1F/3F Nov 2023, Edexcel 1F and OCR 02; equations_and_identities on AQA 3F
   // June 2024 and OCR 01, as well as on several Higher papers.
   "properties_of_2d_shapes", "equations_and_identities",
+  // area_and_volume_scale_factors does most of its work on Higher papers, but
+  // it appears on Foundation ones too (AQA 3F June 2023 q19, OCR J560/03 q19),
+  // and the rule above is "any Foundation paper".
+  "area_and_volume_scale_factors",
 ]
 
 export const higherOnlySkillIds = [
@@ -81,6 +85,8 @@ export const higherOnlySkillIds = [
   // Added 2026-09-04. Tangent and chord gradients on a curve appear only on
   // Higher papers (OCR J560/04 q21), so this one is Higher-only.
   "gradient_of_a_curve",
+  // Exponential curves appear only on Higher papers.
+  "exponential_graphs",
 ]
 
 export const courses: Course[] = [
