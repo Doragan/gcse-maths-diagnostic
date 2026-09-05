@@ -140,13 +140,20 @@ describe('answers stay with the teacher', () => {
   })
 
   it('leaves out anything with no answer rather than printing a blank', () => {
-    // The three hand-authored papers' retry sets predate answers, so their
-    // practice questions have none — they must be absent, not empty.
+    // The hand-authored retry sets mostly predate answers, so most of their
+    // practice questions have none. Those must be ABSENT from the key, not
+    // present and empty — while the few that do carry an answer still appear.
     const handAuthoredPaper = handAuthored[0]
     const zero = Object.fromEntries(handAuthoredPaper.questions.map(q => [q.id, 0]))
     const evidence = buildStudentEvidence(handAuthoredPaper, zero, 'Ama')
-    expect(evidence.practice.length).toBeGreaterThan(0)
-    expect(evidence.practice.every(p => !p.answer)).toBe(true)
-    expect(answerKeyFor([evidence])).toEqual([])
+    const sheet = toWwwEbi(evidence)
+
+    const printed = new Set([...sheet.practice, ...sheet.challenge].map(q => q.question))
+    const answeredAndPrinted = evidence.practice.filter(p => p.answer && printed.has(p.question))
+    expect(evidence.practice.some(p => !p.answer), 'expected some unanswered retries').toBe(true)
+
+    const key = answerKeyFor([evidence])
+    expect(key.length).toBe(answeredAndPrinted.length)
+    for (const e of key) expect(e.answer.trim()).not.toBe('')
   })
 })

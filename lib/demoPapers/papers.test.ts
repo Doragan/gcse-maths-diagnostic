@@ -87,12 +87,20 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   // hold. It costs nothing for now: the marks writer forces attempts to
   // positive-only regardless of the item's own kind.
 
-  it('every retrySet entry keys a real, non-visual question', () => {
+  it('every retrySet entry keys a real question, and a visual one carries a grid', () => {
+    // A `visual` item is excluded by default because a question depending on a
+    // diagram cannot be reissued as text. It CAN have a retry once that retry
+    // supplies its own grid — "reflect this shape" is perfectly answerable on
+    // paper when the shape is printed. So the rule is not "never visual", it is
+    // "visual only with a diagram", and a bare text retry on a visual item is
+    // still the defect this guards against.
     const byId = new Map(paper.questions.map(q => [q.id, q]))
-    for (const id of Object.keys(paper.retrySet)) {
+    for (const [id, retry] of Object.entries(paper.retrySet)) {
       const q = byId.get(id)
       expect(q, `retrySet has an entry for unknown question "${id}"`).toBeDefined()
-      expect(q!.visual, `${id} is visual:true but has a retrySet entry`).toBe(false)
+      if (q!.visual) {
+        expect(retry.diagram, `${id} is visual:true, so its retry needs a diagram`).toBeDefined()
+      }
     }
   })
 
@@ -107,8 +115,13 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     //
     // Deliberately narrow. "The side OPPOSITE that angle" is ordinary
     // trigonometry, not a page reference, and a broader pattern flags it.
+    //
+    // A retry that CARRIES a diagram is exempt, and must be: "the grid" is a
+    // defect only when there is no grid. Referring to one that is printed
+    // directly underneath is the correct way to write these.
     const absent = /\bshaded\b|\bthe (diagram|graph|chart|grid|figure)\b|\bshown (below|above)\b/i
     for (const [id, r] of Object.entries(paper.retrySet)) {
+      if (r.diagram) continue
       expect(absent.test(r.question), `${id}: ${r.question}`).toBe(false)
     }
   })
@@ -124,6 +137,9 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   // The real defect is PARTIAL coverage: a paper that offers practice questions
   // for some dropped marks and silently not for others, so a student is told to
   // practise question 4 and told nothing about question 11. That still fails.
+  // Visual items are the exception on purpose: they are an OPTIONAL extra that
+  // needs a diagram spec authored per item, so a paper is complete without
+  // them and gains them one at a time.
   it('offers retry questions for every non-visual question, or for none', () => {
     if (Object.keys(paper.retrySet).length === 0) return
     for (const q of paper.questions) {

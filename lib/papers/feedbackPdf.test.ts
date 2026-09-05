@@ -4,6 +4,8 @@ import { buildClassEvidence, buildStudentEvidence } from './feedbackEvidence'
 import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
 import type { PaperConfig } from '../demoPapers'
 import type { WwwEbiSheet } from './wwwEbi'
+import { PAPERS } from '../demoPapers/index'
+import { buildGridSvg } from '../questions/gridSvg'
 
 const options = {
   paperTitle: 'AQA GCSE Mathematics 8300/3F',
@@ -39,49 +41,49 @@ const sheetFor = (marks: Record<string, number>, ref = 'stu', selection?: string
   toWwwEbi(buildStudentEvidence(paper, marks, ref, selection))
 
 describe('buildFeedbackPdf', () => {
-  it('gives each student their own page — these are handed out individually', () => {
+  it('gives each student their own page — these are handed out individually', async () => {
     const sheets = toWwwEbiSheets(buildClassEvidence(paper, [
       { studentRef: 'Amira', marks: { '1': 5, '2': 8 } },
       { studentRef: 'Ben',   marks: { '1': 3, '2': 4 } },
       { studentRef: 'Cara',  marks: { '1': 0, '2': 0 } },
     ]))
-    expect(buildFeedbackPdf(sheets, options).getNumberOfPages()).toBe(3)
+    expect((await buildFeedbackPdf(sheets, options)).getNumberOfPages()).toBe(3)
   })
 
-  it('produces a valid document for an empty class rather than throwing', () => {
+  it('produces a valid document for an empty class rather than throwing', async () => {
     // Asking for zero sheets is a UI problem upstream, not an exception here.
-    expect(() => buildFeedbackPdf([], options)).not.toThrow()
-    expect(buildFeedbackPdf([], options).getNumberOfPages()).toBe(1)
+    await expect(buildFeedbackPdf([], options)).resolves.toBeDefined()
+    expect((await buildFeedbackPdf([], options)).getNumberOfPages()).toBe(1)
   })
 
-  it('renders a perfect paper, whose EBI section is empty', () => {
+  it('renders a perfect paper, whose EBI section is empty', async () => {
     const s = sheetFor({ '1': 5, '2': 8 })
     expect(s.ebi).toEqual([])
-    expect(() => buildFeedbackPdf([s], options)).not.toThrow()
+    await expect(buildFeedbackPdf([s], options)).resolves.toBeDefined()
   })
 
-  it('renders a blank paper, whose WWW section is empty', () => {
+  it('renders a blank paper, whose WWW section is empty', async () => {
     const s = sheetFor({ '1': 0, '2': 0 })
     expect(s.www).toEqual([])
-    expect(() => buildFeedbackPdf([s], options)).not.toThrow()
+    await expect(buildFeedbackPdf([s], options)).resolves.toBeDefined()
   })
 
-  it('renders a part paper, which carries the extra coverage line', () => {
+  it('renders a part paper, which carries the extra coverage line', async () => {
     const s = sheetFor({ '1': 3 }, 'stu', ['1'])
     expect(s.coverage).not.toBeNull()
-    expect(buildFeedbackPdf([s], options).getNumberOfPages()).toBe(1)
+    expect((await buildFeedbackPdf([s], options)).getNumberOfPages()).toBe(1)
   })
 
-  it('works with only the paper title supplied', () => {
+  it('works with only the paper title supplied', async () => {
     const s = sheetFor({ '1': 3, '2': 4 })
-    expect(() => buildFeedbackPdf([s], { paperTitle: 'A Paper' })).not.toThrow()
+    await expect(buildFeedbackPdf([s], { paperTitle: 'A Paper' })).resolves.toBeDefined()
   })
 
   // The formatter's caps exist so a sheet fits one page; this is the check that
   // they are set generously enough to be worth having. A worst case at the caps
   // — every section full, with practice questions as long as the real papers'
   // wordiest — must still be one sheet of paper per student.
-  it('keeps a worst case at the formatter caps on a single page', () => {
+  it('keeps a worst case at the formatter caps on a single page', async () => {
     const worstCase: WwwEbiSheet = {
       studentRef: 'Wordy',
       score: '9 out of 40 (23%)',
@@ -99,10 +101,10 @@ describe('buildFeedbackPdf', () => {
         question: 'A laptop costs £612 after a 15% discount. What was the original price?',
       })),
     }
-    expect(buildFeedbackPdf([worstCase], options).getNumberOfPages()).toBe(1)
+    expect((await buildFeedbackPdf([worstCase], options)).getNumberOfPages()).toBe(1)
   })
 
-  it('flows onto another page rather than dropping content off the bottom', () => {
+  it('flows onto another page rather than dropping content off the bottom', async () => {
     // Beyond any cap — a formatter that ever emits this much must still get
     // every line onto paper, not silently lose the tail.
     const enormous: WwwEbiSheet = {
@@ -117,10 +119,10 @@ describe('buildFeedbackPdf', () => {
       })),
       challenge: [],
     }
-    expect(buildFeedbackPdf([enormous], options).getNumberOfPages()).toBeGreaterThan(1)
+    expect((await buildFeedbackPdf([enormous], options)).getNumberOfPages()).toBeGreaterThan(1)
   })
 
-  it('starts each student on a fresh page even after one overflowed', () => {
+  it('starts each student on a fresh page even after one overflowed', async () => {
     const enormous: WwwEbiSheet = {
       studentRef: 'Verbose', score: '1 out of 13 (8%)', coverage: null, www: [], ebi: [],
       practice: Array.from({ length: 10 }, (_, i) => ({
@@ -129,8 +131,8 @@ describe('buildFeedbackPdf', () => {
       challenge: [],
     }
     const short = sheetFor({ '1': 5, '2': 8 }, 'Brief')
-    const alone = buildFeedbackPdf([enormous], options).getNumberOfPages()
-    const together = buildFeedbackPdf([enormous, short], options).getNumberOfPages()
+    const alone = (await buildFeedbackPdf([enormous], options)).getNumberOfPages()
+    const together = (await buildFeedbackPdf([enormous, short], options)).getNumberOfPages()
     // Whatever the first student took, the second adds exactly one more page.
     expect(together).toBe(alone + 1)
   })
@@ -180,5 +182,73 @@ describe('feedbackPdfFilename', () => {
   it('falls back rather than producing a bare or trailing-dash name', () => {
     expect(feedbackPdfFilename({ paperTitle: '—' })).toBe('mathsense-feedback-paper.pdf')
     expect(feedbackPdfFilename({ paperTitle: 'Paper 1!' })).toBe('mathsense-feedback-paper-1.pdf')
+  })
+})
+
+describe('diagrams on a practice question', () => {
+  const paper = PAPERS['aqa-8300-1f-nov24']
+  /** Zero everywhere, so every retry — including the visual ones — is offered. */
+  const zero = Object.fromEntries(paper.questions.map(q => [q.id, 0]))
+  /** Full marks EXCEPT the two diagram items, so those reach the capped sheet. */
+  const dropped14 = Object.fromEntries(
+    paper.questions.map(q => [q.id, q.id === '14a' || q.id === '14b' ? 0 : q.marks]))
+
+  it('lets a visual item have a retry once it brings its own grid', () => {
+    // The whole point of the field. These two items are `visual: true` and had
+    // no retry at all before, because a question depending on a diagram cannot
+    // be reissued as text.
+    const withDiagram = Object.entries(paper.retrySet).filter(([, r]) => r.diagram)
+    expect(withDiagram.length).toBeGreaterThan(0)
+    for (const [id] of withDiagram) {
+      expect(paper.questions.find(q => q.id === id)!.visual).toBe(true)
+    }
+  })
+
+  it('carries the grid through evidence and onto the sheet', () => {
+    // Unlike `answer`, this must survive to the student's sheet — it is what
+    // they draw on.
+    const evidence = buildStudentEvidence(paper, dropped14, 'Ama')
+    expect(evidence.practice.some(p => p.diagram)).toBe(true)
+
+    const all = evidence.practice
+    const sheet = toWwwEbi(evidence)
+    for (const printed of sheet.practice) {
+      const source = all.find(p => p.question === printed.question)!
+      expect(printed.diagram).toEqual(source.diagram)
+    }
+  })
+
+  it('prints an EMPTY grid, never the answer', () => {
+    // `elements` is the answer. buildGridSvg is called with showCanonical:false
+    // so it is not drawn — printing it would hand the student the thing they
+    // are meant to work out.
+    const grid = paper.retrySet['14a'].diagram!
+    expect(grid.elements.length).toBeGreaterThan(0)
+    const empty = buildGridSvg(grid, { showCanonical: false })
+    const revealed = buildGridSvg(grid, { showCanonical: true })
+    expect(empty.length).toBeLessThan(revealed.length)
+    // The given shape IS printed — that is the background layer, not the answer.
+    expect(empty).toContain('polygon points="1,1 4,1 1,5"')
+  })
+
+  it('still builds a document without a DOM, minus the grids', () => {
+    // svg2pdf walks a real SVG element, so grids need a browser. Node must
+    // still produce the rest of the sheet rather than throwing — that is what
+    // keeps this file testable at all.
+    expect(typeof document).toBe('undefined')
+    const sheets = toWwwEbiSheets(buildClassEvidence(paper, [{ studentRef: 'Ama', marks: dropped14 }]))
+    expect(sheets[0].practice.some(p => p.diagram)).toBe(true)
+    return expect(buildFeedbackPdf(sheets, options)).resolves.toBeDefined()
+  })
+
+  it('is crowded off the sheet by heavier questions', () => {
+    // Worth pinning down rather than discovering later. `MAX_PRACTICE` keeps
+    // the three questions that cost the most MARKS, and the diagram items here
+    // are worth 1 and 2 — so a student who dropped marks elsewhere never sees
+    // them, however useful the grid would be. Not wrong, but it means diagram
+    // retries pay off least on exactly the low-mark items that need them most.
+    const sheet = toWwwEbi(buildStudentEvidence(paper, zero, 'Ama'))
+    expect(sheet.practice).toHaveLength(MAX_PRACTICE)
+    expect(sheet.practice.some(p => p.diagram)).toBe(false)
   })
 })

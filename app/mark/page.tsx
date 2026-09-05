@@ -150,7 +150,7 @@ export default function FreeMarkingPage() {
     ])
   }
 
-  function generate() {
+  async function generate() {
     reset()
     if (!students.length) { setError('Add some students first.'); return }
     if (!items.length) { setError('Choose at least one question.'); return }
@@ -162,7 +162,7 @@ export default function FreeMarkingPage() {
     )
     const sheets = toWwwEbiSheets(evidence)
     // The answer key is a final page the teacher keeps — never on a sheet.
-    downloadFeedbackPdf(sheets, {
+    await downloadFeedbackPdf(sheets, {
       paperTitle: paper.title,
       paperSubtitle: paper.subtitle,
     }, answerKeyFor(evidence))

@@ -1,5 +1,7 @@
 import jsPDF from 'jspdf'
 import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
+import type { RenderedGrid } from '../questions/gridDraw'
+import { buildGridSvg } from '../questions/gridSvg'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -106,18 +108,18 @@ export type FeedbackPdfOptions = {
  * still produces a valid (single blank) document rather than throwing, because
  * the caller that asked for zero sheets has a UI problem, not an exception.
  */
-export function buildFeedbackPdf(
+export async function buildFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
   answerKey: AnswerKeyEntry[] = [],
-): jsPDF {
+): Promise<jsPDF> {
   const doc = new jsPDF()
 
-  sheets.forEach((sheet, i) => {
+  for (const [i, sheet] of sheets.entries()) {
     // Each student gets their own page: these are handed out individually.
     if (i > 0) doc.addPage()
-    renderSheet(doc, sheet, options)
-  })
+    await renderSheet(doc, sheet, options)
+  }
 
   // The key goes LAST and on its own page, so separating the student sheets
   // leaves it behind rather than in the middle of the pile.
@@ -130,12 +132,13 @@ export function buildFeedbackPdf(
 }
 
 /** Build and download. The browser entry point. */
-export function downloadFeedbackPdf(
+export async function downloadFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
   answerKey: AnswerKeyEntry[] = [],
-): void {
-  buildFeedbackPdf(sheets, options, answerKey).save(feedbackPdfFilename(options))
+): Promise<void> {
+  const doc = await buildFeedbackPdf(sheets, options, answerKey)
+  doc.save(feedbackPdfFilename(options))
 }
 
 /** "mathsense-feedback-aqa-gcse-mathematics-8300-3f.pdf" */
@@ -151,7 +154,7 @@ export function feedbackPdfFilename(options: FeedbackPdfOptions): string {
 
 type Cursor = { y: number }
 
-function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): void {
+async function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): Promise<void> {
   const c: Cursor = { y: MARGIN_TOP }
 
   // Paper identity first, small — the sheet is about the student, not the paper.
@@ -187,8 +190,86 @@ function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions
   // it reads as a bug rather than as praise.
   section(doc, c, 'What went well', sheet.www)
   section(doc, c, 'Even better if', sheet.ebi)
-  section(doc, c, 'Practise these', sheet.practice.map(p => `${p.skill}: ${p.question}`))
+  await practiceSection(doc, c, sheet.practice)
   section(doc, c, 'Push yourself', sheet.challenge.map(q => `${q.skill}: ${q.question}`))
+}
+
+/** Printed width of a retry diagram, in mm. Comfortably drawable with a pencil. */
+const DIAGRAM_WIDTH = 72
+
+/**
+ * "Practise these", which unlike every other section may carry a diagram.
+ *
+ * A grid is printed under its question so the student has something to draw on
+ * — which is what lets a `visual: true` item have a retry at all. Everything
+ * else on the sheet is text, which is why this is its own function rather than
+ * a flag on `section()`.
+ */
+async function practiceSection(
+  doc: jsPDF,
+  c: Cursor,
+  practice: WwwEbiSheet['practice'],
+): Promise<void> {
+  if (!practice.length) return
+
+  ensureSpace(doc, c, 18)
+  setBlack(doc, 12, 'bold')
+  line(doc, c, 'Practise these', 7)
+
+  for (const p of practice) {
+    setBlack(doc, 10.5, 'normal')
+    bullet(doc, c, `${p.skill}: ${p.question}`)
+    if (p.diagram) await drawGrid(doc, c, p.diagram)
+  }
+  c.y += 5
+}
+
+/**
+ * Draw an EMPTY grid at the cursor.
+ *
+ * `showCanonical: false` is the whole point — the canonical layer is the
+ * answer, and printing it would hand the student what they are meant to work
+ * out. Same builder the student-facing canvas and the verification harness
+ * use, so what is printed is what the app would draw.
+ *
+ * SILENTLY SKIPS WITHOUT A DOM. svg2pdf walks a real SVG element, so this only
+ * works in a browser — which is where both callers run. Node keeps the rest of
+ * the document buildable and testable, which is the property the header of this
+ * file exists to protect; a sheet built in Node simply has no grids on it.
+ *
+ * The import is dynamic for the same reason: loading svg2pdf at module scope
+ * would drag a browser-only dependency into every test that touches a PDF.
+ */
+async function drawGrid(doc: jsPDF, c: Cursor, grid: RenderedGrid): Promise<void> {
+  if (typeof document === 'undefined') return
+
+  const svg = buildGridSvg(grid, { showCanonical: false })
+  const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
+  if (!viewBox) return
+  const w = Number(viewBox[1]), h = Number(viewBox[2])
+  const height = (h / w) * DIAGRAM_WIDTH
+
+  ensureSpace(doc, c, height + 6)
+
+  // svg2pdf reads computed geometry, so the element has to be in the document.
+  // Off-screen rather than hidden: display:none collapses it to nothing.
+  const holder = document.createElement('div')
+  holder.style.cssText = 'position:absolute;left:-9999px;top:0'
+  holder.innerHTML = svg
+  const el = holder.querySelector('svg')
+  if (!el) return
+  document.body.appendChild(holder)
+
+  try {
+    const { svg2pdf } = await import('svg2pdf.js')
+    await svg2pdf(el, doc, { x: MARGIN_X + 6, y: c.y, width: DIAGRAM_WIDTH, height })
+    c.y += height + 4
+  } catch {
+    // A diagram that will not render must not cost the teacher the whole pack
+    // of sheets. The question above it still stands on its own.
+  } finally {
+    holder.remove()
+  }
 }
 
 /**

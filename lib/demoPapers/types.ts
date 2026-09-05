@@ -15,6 +15,8 @@
  * bigger, not started). This only removes the "have to edit the page" cost.
  */
 
+import type { RenderedGrid } from '../questions/gridDraw'
+
 /** One topic column the paper's questions are grouped under. */
 export type PaperTopic = {
   /** Short, stable key — used as a Record key and React list key, never shown. */
@@ -76,6 +78,25 @@ export type PaperRetryQuestion = {
   answer?: string
   /** One line of method, where the answer alone would not show the route. */
   working?: string
+  /**
+   * A grid printed under the question for the student to draw on.
+   *
+   * This is what lets a `visual: true` item have a retry at all. Those items
+   * are excluded by default because a question depending on a diagram cannot be
+   * reissued as text — but "plot the point", "reflect this shape", "show the
+   * inequality on a number line" become perfectly answerable on paper once the
+   * grid is printed: the student draws, and the teacher marks by eye.
+   *
+   * Deliberately a `RenderedGrid` — the SAME spec the student-facing canvas and
+   * the verification harness use — rather than raw SVG. One renderer, one
+   * source of truth, and a spec authored here also feeds the eventual
+   * drawing-input surface instead of being thrown away.
+   *
+   * Rendered with `showCanonical: false`: the grid comes out EMPTY. Drawing the
+   * answer onto the sheet would hand the student the thing they are meant to
+   * work out.
+   */
+  diagram?: RenderedGrid
 }
 
 /** A harder extension question offered when a student is strong in a topic. */

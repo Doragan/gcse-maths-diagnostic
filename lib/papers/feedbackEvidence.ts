@@ -2,6 +2,7 @@ import type { PaperConfig, PaperQuestion } from '../demoPapers'
 import { skillsById } from '../skills/skillGraph'
 import { marksEarned, selectedItems, type ItemMarks, type ItemSelection } from './sittingMarks'
 import { challengesFor } from './challengePool'
+import type { RenderedGrid } from '../questions/gridDraw'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // What a marked paper says about one student, before anyone decides how to say
@@ -117,6 +118,11 @@ export type PracticeSuggestion = {
   answer?: string
   /** One line of method, where the answer alone would not show the route. */
   working?: string
+  /**
+   * An empty grid to print under the question. Unlike `answer`, this DOES
+   * belong on the student's sheet — it is what they draw on.
+   */
+  diagram?: RenderedGrid
 }
 
 /** A harder question offered where a topic is already strong. */
@@ -297,6 +303,7 @@ export function buildStudentEvidence(
       question: paper.retrySet[i.itemId].question,
       marksLost: i.available - i.earned,
       answer: paper.retrySet[i.itemId].answer,
+      diagram: paper.retrySet[i.itemId].diagram,
       working: paper.retrySet[i.itemId].working,
     }))
     .sort((a, b) => b.marksLost - a.marksLost || a.itemId.localeCompare(b.itemId))

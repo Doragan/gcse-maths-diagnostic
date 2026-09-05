@@ -68,7 +68,9 @@ cases, and the middle one is where the judgement lives:
 3. **The drawing IS the answer** — construct, enlarge, reflect, complete the
    shape, plot the points.
 
-Cases 2 and 3 are `visual: true` and get no entry. Case 1 gets a normal retry.
+Cases 2 and 3 are `visual: true` and get no TEXT retry. Case 1 gets a normal
+one. Cases 2 and 3 can still have a retry if it brings its own grid — see
+"Diagrams" below.
 
 **You may re-flag an item as `visual: true`, and doing so is an expected
 output of this job, not a correction to the last one.** Coding a paper asked
@@ -228,6 +230,56 @@ it be answerable by someone who has only this sheet and no exam paper?
 from the question and compare with what you wrote. This is the whole reason the
 `answer` field exists, and it is the only gate these questions have. Where you
 can, have someone (or something) other than the author do it.
+
+## Diagrams: giving a visual item a retry after all
+
+Rule 2 says a case-2 or case-3 item gets no retry. That holds for a TEXT
+retry — but a retry can now carry its own grid, and then those items are back
+in play: "reflect this shape" is perfectly answerable on paper once the shape
+is printed. The student draws; the teacher marks by eye.
+
+```ts
+'14a': {
+  skill: 'Congruence and Similarity',
+  question: 'Triangle A is drawn on the grid. On the same grid, draw a triangle that is congruent to triangle A, in a different position.',
+  answer: 'Any triangle with sides of 3, 4 and 5 units — for example vertices at (6,1), (9,1) and (6,5).',
+  diagram: {
+    mode: 'polygon',
+    x: { min: 0, max: 10, step: 1, label: 'x' },
+    y: { min: 0, max: 6, step: 1, label: 'y' },
+    background: '<polygon points="1,1 4,1 1,5" stroke="#333" />',
+    elements: [{ x: 6, y: 1, marks: 1 }, { x: 9, y: 1, marks: 1 }, { x: 6, y: 5, marks: 1 }],
+    tolerance: 0,
+  },
+},
+```
+
+**`background` is what is PRINTED; `elements` is the answer and is not.** The
+sheet renders with `showCanonical: false`, so the given shape appears and the
+answer does not. Getting these the wrong way round hands the student the thing
+they are meant to work out, and it will not look wrong in the source.
+
+Coordinates are in axis units and the wrapper supplies `stroke-width`, so a
+background fragment needs only a shape and a `stroke`.
+
+A `RenderedGrid` is deliberately the same spec the student-facing canvas and
+the verification harness use — one renderer, and a spec authored here also
+feeds the eventual drawing-input surface rather than being thrown away.
+
+Three things learned building the first two:
+
+- **A diagram costs about 45mm of page.** Two of them pushed "Push yourself"
+  onto a second sheet. Not a bug, but three diagrams on one sheet will always
+  overflow, and paper is what a teacher is printing.
+- **Low-mark items are crowded out.** `MAX_PRACTICE` keeps the three questions
+  that cost the most MARKS. The two authored here are worth 1 and 2, so a
+  student who dropped marks anywhere else never sees them. Diagram retries pay
+  off least on exactly the small items that most need a picture. There is a
+  test pinning this so it is not rediscovered as a bug.
+- **You cannot eyeball a diagram from `preview-sheet.ts`.** svg2pdf walks a
+  real SVG element, so grids need a browser; in Node the rest of the sheet
+  builds and the grids are silently skipped. Check diagrams by generating a
+  PDF from `/mark` in a browser.
 
 ### The diagram guard is not hypothetical
 

@@ -5,6 +5,7 @@ import {
   type TopicEvidence,
 } from './feedbackEvidence'
 import { stableHash } from './stableHash'
+import type { RenderedGrid } from '../questions/gridDraw'
 import {
   STRONG_PHRASES, NEAR_MISS_PHRASES, PARTIAL_PHRASES, STRUGGLING_PHRASES,
   BEST_EFFORT_PHRASES, FOCUS_PHRASES, phraseVars,
@@ -126,8 +127,14 @@ export type WwwEbiSheet = {
   www: string[]
   /** Even better if. Empty when nothing was dropped, which is correct. */
   ebi: string[]
-  /** Questions to practise, worst first. */
-  practice: { skill: string; question: string }[]
+  /**
+   * Questions to practise, worst first.
+   *
+   * `diagram` rides along where the question needs something drawn on — unlike
+   * `answer`, which is stripped here on purpose, this belongs on the student's
+   * sheet.
+   */
+  practice: { skill: string; question: string; diagram?: RenderedGrid }[]
   /** Harder questions where a topic is already strong. */
   challenge: { skill: string; question: string }[]
 }
@@ -283,7 +290,7 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
     ebi,
     practice: evidence.practice
       .slice(0, MAX_PRACTICE)
-      .map(p => ({ skill: p.skill, question: p.question })),
+      .map(p => ({ skill: p.skill, question: p.question, diagram: p.diagram })),
     // Extension work is for students who are actually ahead — see the constant.
     challenge: highAchieving(evidence)
       ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))

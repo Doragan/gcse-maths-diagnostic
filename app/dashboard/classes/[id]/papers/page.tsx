@@ -216,10 +216,10 @@ export default function ClassPapersPage() {
     [paper, sheetEntries],
   )
 
-  function downloadSheets() {
+  async function downloadSheets() {
     const evidence = buildClassEvidence(paper, sheetEntries)
     // The answer key is a final page the teacher keeps — never on a sheet.
-    downloadFeedbackPdf(
+    await downloadFeedbackPdf(
       toWwwEbiSheets(evidence),
       { paperTitle: paper.title, paperSubtitle: paper.subtitle, className, satOn },
       answerKeyFor(evidence),
