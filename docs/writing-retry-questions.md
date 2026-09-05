@@ -146,8 +146,9 @@ you have written a question that tests recall of the original.
 
 ### Tier pairs share questions — reuse the retry
 
-**Edexcel and OCR reuse a block of each Foundation paper on its Higher
-partner** (AQA does not). From `coding-a-paper.md`, June 2025:
+**Edexcel, OCR AND AQA reuse a block of each Foundation paper on its Higher
+partner.** (An earlier version of coding-a-paper.md says AQA does not; June
+2025 shows it does, on all three papers). From `coding-a-paper.md`, June 2025:
 
 - Edexcel, contiguous: 2F q20–q27 = 2H q1–q8; 3F q22–q30 = 3H q1–q8;
   1F q20–q24 = 1H q2–q6.

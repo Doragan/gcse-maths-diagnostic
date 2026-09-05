@@ -113,13 +113,24 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     // circles" sitting in a hand-authored set, where nothing was shaded because
     // nothing was drawn. With 1,324 more retries planned, it is worth a guard.
     //
-    // Deliberately narrow. "The side OPPOSITE that angle" is ordinary
-    // trigonometry, not a page reference, and a broader pattern flags it.
+    // NARROWED TWICE, each time because a broader pattern flagged a question
+    // that was perfectly answerable:
     //
-    // A retry that CARRIES a diagram is exempt, and must be: "the grid" is a
-    // defect only when there is no grid. Referring to one that is printed
-    // directly underneath is the correct way to write these.
-    const absent = /\bshaded\b|\bthe (diagram|graph|chart|grid|figure)\b|\bshown (below|above)\b/i
+    //   • "the side OPPOSITE that angle" is ordinary trigonometry, not a page
+    //     reference.
+    //   • a bare "shaded", or "the grid", flags a question that DESCRIBES its
+    //     own figure — "a grid is made of 20 squares and 7 are shaded; what
+    //     percentage of the grid is shaded?" needs no picture at all.
+    //
+    // What is left is phrasing that only makes sense when something is printed
+    // nearby. That is a deliberate trade for precision: a guard that cries
+    // wolf gets loosened until it catches nothing, and this one still catches
+    // the defect it was written for — "work out the shaded area between the
+    // circles", with no circles drawn.
+    //
+    // A retry that CARRIES a diagram is exempt, and must be: referring to a
+    // grid printed directly underneath is the correct way to write these.
+    const absent = /\bthe shaded (area|region)\b|\bshown (below|above)\b|\b(diagram|graph|chart|grid|figure) below\b/i
     for (const [id, r] of Object.entries(paper.retrySet)) {
       if (r.diagram) continue
       expect(absent.test(r.question), `${id}: ${r.question}`).toBe(false)
