@@ -96,6 +96,23 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
     }
   })
 
+  it('never asks the student to read something that is not there', () => {
+    // A retry is one line of text on a feedback sheet: no diagram, ever. So a
+    // question mentioning one is unanswerable, and the student cannot tell
+    // whether they are missing a picture or missing the maths.
+    //
+    // This is not hypothetical. It caught "Work out the SHADED area between the
+    // circles" sitting in a hand-authored set, where nothing was shaded because
+    // nothing was drawn. With 1,324 more retries planned, it is worth a guard.
+    //
+    // Deliberately narrow. "The side OPPOSITE that angle" is ordinary
+    // trigonometry, not a page reference, and a broader pattern flags it.
+    const absent = /\bshaded\b|\bthe (diagram|graph|chart|grid|figure)\b|\bshown (below|above)\b/i
+    for (const [id, r] of Object.entries(paper.retrySet)) {
+      expect(absent.test(r.question), `${id}: ${r.question}`).toBe(false)
+    }
+  })
+
   // ALL OR NOTHING, rather than always-all.
   //
   // A paper generated from data/exam-audit/ has no retrySet at all: retry

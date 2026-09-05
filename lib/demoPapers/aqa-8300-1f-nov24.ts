@@ -116,7 +116,7 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
     '23b': { skill: 'Areas of Compound Shapes', question: 'A prism has volume 4200 cm³ and length 15 cm. Work out the area of the cross-section.' },
     '24': { skill: 'Adding and Subtracting Fractions', question: 'Work out 1⅓ − 2/3. Give your answer as a fraction.' },
     '25': { skill: 'Exact Trigonometric Values', question: 'Write down the value of cos 0°' },
-    '26': { skill: 'Area of a Circle', question: 'A large circle has radius 10 cm. radius of large circle : radius of small circle = 5 : 1. Work out the shaded area between the circles. Give your answer in terms of π.' },
+    '26': { skill: 'Area of a Circle', question: 'A small circle sits inside a large circle. The large circle has radius 10 cm, and the radii are in the ratio 5 : 1. Work out the area between the two circles. Give your answer in terms of π.' },
     '27a': { skill: 'Inverse Proportion', question: '8 people can complete a job in 6 hours, all working at the same rate. If 12 people work on the same job, how many hours will it take?' },
     '27b': { skill: 'Inverse Proportion', question: '12 people were assumed to complete a job in 5 hours. In fact, some of the 12 work faster than assumed and some work slower. What does this mean about the time it will take, compared to 5 hours? (greater / the same / less / not possible to say)' },
   },
