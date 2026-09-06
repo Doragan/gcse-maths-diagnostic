@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf'
 import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
 import type { RenderedGrid } from '../questions/gridDraw'
-import { buildGridSvg } from '../questions/gridSvg'
+import { buildGridSvg, CELL } from '../questions/gridSvg'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -228,8 +228,32 @@ async function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfO
   section(doc, c, 'Push yourself', sheet.challenge.map(q => `${q.skill}: ${q.question}`))
 }
 
-/** Printed width of a retry diagram, in mm. Comfortably drawable with a pencil. */
-const DIAGRAM_WIDTH = 72
+/**
+ * How a retry diagram is sized on the page.
+ *
+ * A FIXED WIDTH WAS A MISTAKE, and an expensive one: at a flat 72mm a
+ * twelve-column grid gives 5mm squares, and two questions were written off as
+ * impossible — a cuboid net and an exponential plot — on the strength of a
+ * constant chosen here rather than anything about paper.
+ *
+ * So the square is what is held roughly fixed, not the width. A grid is drawn
+ * at TARGET_CELL per square and then clamped: never wider than the text, never
+ * more than about a third of a page tall, and never so small that a pencil
+ * cannot work in it.
+ */
+const DIAGRAM_TARGET_CELL = 9    // mm per grid square
+const DIAGRAM_MIN_WIDTH = 58
+const DIAGRAM_MAX_WIDTH = 150
+const DIAGRAM_MAX_HEIGHT = 108
+
+/** Printed size for a diagram whose viewBox is w × h units. */
+function diagramSize(w: number, h: number): { width: number; height: number } {
+  let scale = DIAGRAM_TARGET_CELL / CELL
+  if (w * scale > DIAGRAM_MAX_WIDTH) scale = DIAGRAM_MAX_WIDTH / w
+  if (h * scale > DIAGRAM_MAX_HEIGHT) scale = DIAGRAM_MAX_HEIGHT / h
+  if (w * scale < DIAGRAM_MIN_WIDTH) scale = DIAGRAM_MIN_WIDTH / w
+  return { width: w * scale, height: h * scale }
+}
 
 /**
  * "Practise these", which unlike every other section may carry a diagram.
@@ -280,8 +304,7 @@ async function drawGrid(doc: jsPDF, c: Cursor, grid: RenderedGrid): Promise<void
   const svg = buildGridSvg(grid, { showCanonical: false })
   const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
   if (!viewBox) return
-  const w = Number(viewBox[1]), h = Number(viewBox[2])
-  const height = (h / w) * DIAGRAM_WIDTH
+  const { width, height } = diagramSize(Number(viewBox[1]), Number(viewBox[2]))
 
   ensureSpace(doc, c, height + 6)
 
@@ -296,7 +319,7 @@ async function drawGrid(doc: jsPDF, c: Cursor, grid: RenderedGrid): Promise<void
 
   try {
     const { svg2pdf } = await import('svg2pdf.js')
-    await svg2pdf(el, doc, { x: MARGIN_X + 6, y: c.y, width: DIAGRAM_WIDTH, height })
+    await svg2pdf(el, doc, { x: MARGIN_X + 6, y: c.y, width, height })
     c.y += height + 4
   } catch {
     // A diagram that will not render must not cost the teacher the whole pack

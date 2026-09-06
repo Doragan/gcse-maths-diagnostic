@@ -108,7 +108,16 @@ async function main() {
       const svg = buildGridSvg(r.diagram, { showCanonical: false })
       const vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
       if (vb) {
-        const w = 66, h = (Number(vb[2]) / Number(vb[1])) * 66
+        // Sized the way a sheet sizes it — hold the SQUARE roughly fixed, not
+        // the width, or a wide grid comes out with squares too small to draw
+        // in. Slightly tighter caps than the sheet's, since this page also
+        // carries the question, the answer and the working.
+        const vbW = Number(vb[1]), vbH = Number(vb[2])
+        let scale = 8 / 28                      // ~8mm per grid square
+        if (vbW * scale > 140) scale = 140 / vbW
+        if (vbH * scale > 95) scale = 95 / vbH
+        if (vbW * scale < 52) scale = 52 / vbW
+        const w = vbW * scale, h = vbH * scale
         ensure(h + 4)
         try {
           const sharp = (await import('sharp')).default

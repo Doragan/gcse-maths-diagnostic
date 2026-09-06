@@ -168,6 +168,29 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '20a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '20b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
 
+    // 21 is `visual: true`. It was written off as impossible on the strength
+    // of a hard-coded 72mm diagram width, which made a twelve-column grid come
+    // out at 5mm a square; diagrams are sized from the SQUARE now, so this is
+    // about 110mm across and perfectly drawable.
+    //
+    // Part of the net is given, as on the paper — "complete the drawing" is a
+    // different question from "draw a net", and the given face fixes where the
+    // rest goes.
+    '21': {
+      skill: 'Properties of 3D Solids',
+      question: 'The diagram shows part of the net of a cuboid measuring 4 cm by 3 cm by 2 cm.\nComplete the drawing of the net on the centimetre grid.',
+      answer: 'The four faces still to draw are 4 × 3, 4 × 2, 4 × 2 and 3 × 2 (two of each size in total), arranged so every edge meets a matching edge',
+      working: 'A cuboid has three pairs of identical faces: two 4 × 3, two 4 × 2 and two 3 × 2.',
+      diagram: {
+        mode: 'cells', showAxes: false,
+        x: { min: 0, max: 12, step: 1, label: '' },
+        y: { min: 0, max: 7, step: 1, label: '' },
+        // The 4 × 3 face, given.
+        background: '<rect x="2" y="2" width="4" height="3" stroke="#333" />',
+        elements: [], tolerance: 0,
+      },
+    },
+
     // The original asks for a completed frequency tree. The reasoning is the
     // same here, with one value asked for instead of five boxes — which is how
     // the same idea is often asked when there is no tree printed.

@@ -109,6 +109,31 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     '13': { skill: 'Indices', question: 'c and d are consecutive cube numbers, where c < 2.7³ < d. Work out the value of d − c.', answer: '19', working: '2.7³ = 19.68, which lies between 2³ = 8 and 3³ = 27.' },
     '14a': { skill: 'Sketching Functions', question: 'Complete the table of values for y = 3ˣ, for x = −1, 0, 1 and 2.', answer: '1/3, 1, 3, 9', working: '3⁻¹ = 1/3 and 3⁰ = 1.' },
 
+    // 14(b) is `visual: true`. I claimed this grid was "two columns by nine
+    // rows at any width" — it is nine rows only because I fixed the y step at
+    // 1 for no reason. At a step of 3 it is three by three.
+    //
+    // Only (1, 3) and (2, 9) land on a ruled line, and that is CORRECT here: a
+    // curve is plotted through points wherever they fall, and demanding
+    // lattice values would have meant a different function.
+    '14b': {
+      skill: 'Sketching Functions',
+      question: 'When x = −1, 0, 1 and 2, the value of y = 3ˣ is 1/3, 1, 3 and 9.\nDraw the graph of y = 3ˣ for values of x from −1 to 2.',
+      answer: 'A smooth curve through (−1, 1/3), (0, 1), (1, 3) and (2, 9)',
+      working: 'The curve rises slowly at first and then steeply; it never touches the x-axis.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: -1, max: 2, step: 1, label: 'x' },
+        y: { min: 0, max: 9, step: 3, label: 'y' },
+        background: '',
+        elements: [
+          { x: -1, y: 1 / 3, marks: 1 }, { x: 0, y: 1, marks: 1 },
+          { x: 1, y: 3, marks: 1 }, { x: 2, y: 9, marks: 1 },
+        ],
+        tolerance: 0,
+      },
+    },
+
     '15': { skill: 'Circle Theorem: Angle at Centre', question: 'A, B and C are points on a circle, and AC is a diameter. Angle BAC = 34°. Work out the size of angle BCA.', answer: '56°', working: 'The angle in a semicircle is 90°, so the angles of triangle ABC are 90°, 34° and x.' },
 
     // The original matches set notation to shaded Venn diagrams. Neither the
