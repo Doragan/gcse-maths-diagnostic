@@ -101,15 +101,34 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     // 2(a)–(d) all read from ONE card, as on the paper. The six numbers are
     // chosen so each of the four answers is unique — 35 is the only multiple
     // of 5, 8 the only factor of 40, 23 the only prime, 49 the only square.
-    '2a': { skill: 'Factors and Multiples', question: 'Here is a card from a game, showing the numbers 18, 35, 23, 49, 8 and 12. Write down the number from the card that is a multiple of 5', answer: '35' },
-    '2b': { skill: 'Factors and Multiples', question: 'Here is a card from a game, showing the numbers 18, 35, 23, 49, 8 and 12. Write down the number from the card that is a factor of 40', answer: '8' },
-    '2c': { skill: 'Factors and Multiples', question: 'Here is a card from a game, showing the numbers 18, 35, 23, 49, 8 and 12. Write down the number from the card that is a prime number.', answer: '23', working: '49 is 7 × 7 and 35 is 5 × 7, so neither is prime.' },
-    '2d': { skill: 'Indices', question: 'Here is a card from a game, showing the numbers 18, 35, 23, 49, 8 and 12. Write down the number from the card that is a square number.', answer: '49', working: '49 = 7².' },
+    '2a': { skill: 'Factors and Multiples', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a multiple of 5', answer: '35' },
+    '2b': { skill: 'Factors and Multiples', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a factor of 40', answer: '8' },
+    '2c': { skill: 'Factors and Multiples', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a prime number.', answer: '23', working: '49 is 7 × 7 and 35 is 5 × 7, so neither is prime.' },
+    '2d': { skill: 'Indices', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a square number.', answer: '49', working: '49 = 7².' },
 
     // The original reads a pictogram with a missing key. The symbol counts are
     // stated here instead, which keeps the reasoning — scale up from a known
     // row — without needing the picture.
-    '3': { skill: 'Simple Charts', question: 'A pictogram shows how many books each class read. The key is missing. Class A is shown by 6 symbols and read 48 books. Class B is shown by 4 and a half symbols. How many books did Class B read?', answer: '36 books', working: 'Six symbols stand for 48 books, so one symbol is 8 books.' },
+    '3': {
+      skill: 'Simple Charts',
+      question: 'The pictogram shows how many books two classes read.\nThe key is missing.\nClass A read 48 books.\nHow many books did Class B read?',
+      answer: '36 books',
+      working: 'Six symbols stand for 48 books, so one symbol is 8 books, and Class B has four and a half.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 9, step: 1, label: '' },
+        y: { min: 0, max: 4, step: 1, label: '' },
+        background:
+          '<circle cx="3" cy="3" r="0.32" stroke="#333" /><circle cx="4" cy="3" r="0.32" stroke="#333" /><circle cx="5" cy="3" r="0.32" stroke="#333" /><circle cx="6" cy="3" r="0.32" stroke="#333" /><circle cx="7" cy="3" r="0.32" stroke="#333" /><circle cx="8" cy="3" r="0.32" stroke="#333" />' +
+          '<circle cx="3" cy="1" r="0.32" stroke="#333" /><circle cx="4" cy="1" r="0.32" stroke="#333" /><circle cx="5" cy="1" r="0.32" stroke="#333" /><circle cx="6" cy="1" r="0.32" stroke="#333" />' +
+          '<path d="M 7 0.68 A 0.32 0.32 0 0 1 7 1.32 Z" stroke="#333" />',
+        labels: [
+          { x: 1.2, y: 3, text: 'Class A' },
+          { x: 1.2, y: 1, text: 'Class B' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
     // 4(a) and (b) are read off a conversion graph, so the retry supplies one.
     // The grid steps are chosen so both answers land on a gridline: red 4 and
@@ -120,8 +139,8 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
       answer: '4 litres',
       diagram: {
         mode: 'points',
-        x: { min: 0, max: 8, step: 2, label: 'Red paint (litres)' },
-        y: { min: 0, max: 12, step: 3, label: 'Yellow paint (litres)' },
+        x: { min: 0, max: 12, step: 2, label: 'Red paint (litres)' },
+        y: { min: 0, max: 12, step: 2, label: 'Yellow paint (litres)' },
         background: '<polyline points="0,0 8,12" stroke="#333" />',
         elements: [{ x: 4, y: 6, marks: 1 }],
         tolerance: 0,
@@ -134,8 +153,8 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
       working: 'The graph gives 8 litres of red, and the orange is the two mixed: 8 + 12.',
       diagram: {
         mode: 'points',
-        x: { min: 0, max: 8, step: 2, label: 'Red paint (litres)' },
-        y: { min: 0, max: 12, step: 3, label: 'Yellow paint (litres)' },
+        x: { min: 0, max: 12, step: 2, label: 'Red paint (litres)' },
+        y: { min: 0, max: 12, step: 2, label: 'Yellow paint (litres)' },
         background: '<polyline points="0,0 8,12" stroke="#333" />',
         elements: [{ x: 8, y: 12, marks: 1 }],
         tolerance: 0,
@@ -145,26 +164,62 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '5': { skill: 'Simple Arithmetic', question: 'A number is divided by 7. The answer is 36 remainder 4. Work out the number.', answer: '256', working: '7 × 36 = 252, then add the remainder.' },
     '6': { skill: 'Simple Arithmetic', question: 'Rosa buys 150 mugs for £6 each. She sells the mugs for £8 each. What is the least number of mugs she must sell to make a profit?', answer: '113', working: 'The mugs cost £900, and 112 sold gives only £896.' },
     '7a': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair. There is an offer: buy one pair and get a second pair for half price. Bea wants two pairs and saves £14 every week. Assume the offer is permanent. How many weeks does Bea need to save for? You must show your working.', answer: '5 weeks', working: 'Two pairs cost £40 + £20 = £60, and 4 weeks gives only £56.' },
-    '7b': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair and Bea saves £14 a week. With an offer of a second pair at half price, two pairs cost £60 and Bea needs 5 weeks to save up. In fact the offer ends, so she must pay full price for both pairs. What does this mean about the number of weeks she needs to save for?\nTick one box.\n[ ] fewer than 5 weeks\n[ ] exactly 5 weeks\n[ ] more than 5 weeks\n[ ] it is not possible to tell', answer: 'More than 5 weeks', working: 'Two pairs at full price is £80, which takes longer to save.' },
-    '8': { skill: 'Proportion', question: 'Here is a list of ingredients for pancakes for 6 people: flour 240 g, milk 450 ml, 2 eggs. How many grams of flour are needed to make pancakes for 15 people?', answer: '600 g', working: '240 ÷ 6 = 40 g each, then × 15.' },
+    '7b': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair and Bea saves £14 a week. With an offer of a second pair at half price, two pairs cost £60 and Bea needs 5 weeks to save up. In fact the offer ends, so she must pay full price for both pairs. What does this mean about the number of weeks she needs to save for?\nTick one box.\n[   ] fewer than 5 weeks\n[   ] exactly 5 weeks\n[   ] more than 5 weeks\n[   ] it is not possible to tell', answer: 'More than 5 weeks', working: 'Two pairs at full price is £80, which takes longer to save.' },
+    '8': { skill: 'Proportion', question: 'Here is a list of ingredients for pancakes for 6 people.\nFlour   240 g\nMilk    450 ml\nEggs    2\nHow many grams of flour are needed to make pancakes for 15 people?', answer: '600 g', working: '240 ÷ 6 = 40 g each, then × 15.' },
 
     // 9(a) and (b) share one pair of boxes, as on the paper.
-    '9a': { skill: 'Ratio', question: 'Box A holds discs numbered 3, 5, 5 and 7. Box B holds discs numbered 2, 4, 6, 8 and 10. Work out the ratio total value of the numbers in Box A : total value of the numbers in Box B. Give your answer in its simplest form.', answer: '2 : 3', working: 'Box A totals 20 and Box B totals 30, and 20 : 30 divides by 10.' },
-    '9b': { skill: 'Calculating Simple Probability', question: 'Box A holds discs numbered 3, 5, 5 and 7. One disc is picked at random from Box A. Write down the probability that the number on the disc is greater than 6', answer: '1/4', working: 'Only the 7 is greater than 6, out of four discs.' },
+    '9a': { skill: 'Ratio', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nBox B holds discs numbered 2, 4, 6, 8 and 10.\nWork out the ratio total value of the numbers in Box A : total value of the numbers in Box B.\nGive your answer in its simplest form.', answer: '2 : 3', working: 'Box A totals 20 and Box B totals 30, and 20 : 30 divides by 10.' },
+    '9b': { skill: 'Calculating Simple Probability', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nOne disc is picked at random from Box A.\nWrite down the probability that the number on the disc is greater than 6', answer: '1/4', working: 'Only the 7 is greater than 6, out of four discs.' },
 
     '10': { skill: 'Substitution', question: 'Work out the value of 3(b² − 2b) when b = 5', answer: '45', working: '25 − 10 = 15, then × 3.' },
+    // 11 is `visual: true`. Its figure is just a line segment with the
+    // centre marked — plain paper, no ruling, which is what showGrid:false
+    // is for. The student still needs a pair of compasses.
+    '11': {
+      skill: 'Constructions',
+      question: 'In this question use a pair of compasses.\nThe line shown is the diameter of a circle, centre X.\nDraw the circle.',
+      answer: 'A circle passing through both ends of the line, centred on X',
+      working: 'Open the compasses to the distance from X to one end, then draw all the way round.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polyline points="2,2.5 8,2.5" stroke="#333" /><circle cx="5" cy="2.5" r="0.1" fill="#333" />',
+        labels: [{ x: 5, y: 2.5, text: 'X', dy: -8 }],
+        elements: [], tolerance: 0,
+      },
+    },
     '12a': { skill: 'Fractions of Amounts', question: 'One day, a bus company runs 180 buses and one sixth of these buses are late. The company is fined £240 for each late bus. How much is the company fined that day?', answer: '£7200', working: '180 ÷ 6 = 30 late buses, then × £240.' },
     '12b': { skill: 'Ratio', question: 'Sandwiches are sold at a station in the ratio cheese : ham : tuna = 4 : 3 : 5. 1800 sandwiches are sold. How many ham sandwiches are sold?', answer: '450', working: '12 parts altogether, so one part is 150.' },
-    '13': { skill: 'Angles on lines and Circles', question: 'PQ is a straight line. Three angles meet at a point on PQ, on the same side of the line. They are 3x, 2x + 10 and 40 degrees. Work out the value of x.', answer: 'x = 26', working: 'Angles on a straight line add to 180°, so 5x + 50 = 180.' },
-    '14a': { skill: 'Estimating', question: 'By rounding each number to 1 significant figure, estimate the value of 3.12 × 4.87 + 2.09². You must show your working.', answer: '19', working: '3 × 5 = 15 and 2² = 4.' },
-    '14b': { skill: 'Estimating', question: 'An estimate of 3.12 × 4.87 + 2.09² is made by rounding each number to 1 significant figure, giving 19. Is 19 an overestimate or an underestimate of the true value? Give a reason for your answer.\n[ ] Overestimate\n[ ] Underestimate', answer: 'Underestimate', working: 'Both parts come out smaller than the exact values: 15 is below 3.12 × 4.87, and 4 is below 2.09².' },
+    '13': {
+      skill: 'Angles on lines and Circles',
+      question: 'PQ is a straight line, and three angles meet at a point on it.\nWork out the value of x.\nNot drawn accurately.',
+      answer: 'x = 26',
+      working: 'Angles on a straight line add to 180°, so 5x + 50 = 180.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '<polyline points="1,2 9,2" stroke="#333" /><polyline points="5,2 3,5" stroke="#333" /><polyline points="5,2 7,5" stroke="#333" />',
+        labels: [
+          { x: 1, y: 2, text: 'P', dx: -10 },
+          { x: 9, y: 2, text: 'Q', dx: 10 },
+          { x: 4, y: 2.4, text: '3x' },
+          { x: 5, y: 3.6, text: '2x + 10' },
+          { x: 6.3, y: 2.4, text: '40°' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '14a': { skill: 'Estimating', question: 'By rounding each number to 1 significant figure, estimate the value of 3.4 × 5.2 + 2.3². You must show your working.', answer: '19', working: '3 × 5 = 15 and 2² = 4.' },
+    '14b': { skill: 'Estimating', question: 'An estimate of 3.4 × 5.2 + 2.3² is made by rounding each number to 1 significant figure, giving 19. Is 19 an overestimate or an underestimate of the true value? Give a reason for your answer.\n[   ] Overestimate\n[   ] Underestimate', answer: 'Underestimate', working: 'Every number was rounded down, so the estimate must be below the true value.' },
     '15a': { skill: 'Parts of a Circle', question: 'A sphere has diameter 12 cm. Show that the radius of the sphere is 6 cm', answer: 'The radius is half the diameter, and 12 ÷ 2 = 6' },
     '15b': { skill: 'Volume of a Sphere', question: 'The volume of a sphere is (4/3) × pi × r³, where r is the radius. Work out the volume of a sphere with diameter 12 cm. Give your answer in terms of pi.', answer: '288 pi cm³', working: 'r = 6, so r³ = 216, and 4 ÷ 3 × 216 = 288.' },
     '16a': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w. Assume the job needs completing in 25 days. How many workers are needed?', answer: '24 workers', working: '25 = 600 ÷ w, so w = 600 ÷ 25.' },
-    '16b': { skill: 'Inverse Proportion', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w, and completing the job in 25 days needs 24 workers. In fact, the job needs completing in fewer than 25 days. What does this mean about the number of workers needed?\nTick one box.\n[ ] fewer than 24\n[ ] exactly 24\n[ ] more than 24', answer: 'More than 24 workers', working: 'Days × workers is fixed, so fewer days needs more workers.' },
-    '17': { skill: 'Parts of a Circle', question: 'A chord is drawn on a circle. Which statement is correct?\nTick one box.\n[ ] the chord must be shorter than the diameter\n[ ] the chord must be equal in length to the diameter\n[ ] the chord must be longer than the diameter\n[ ] the chord is never longer than the diameter', answer: 'The chord is never longer than the diameter', working: 'The longest chord a circle has is a diameter, so equal is possible but longer is not.' },
+    '16b': { skill: 'Inverse Proportion', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w, and completing the job in 25 days needs 24 workers. In fact, the job needs completing in fewer than 25 days. What does this mean about the number of workers needed?\nTick one box.\n[   ] fewer than 24\n[   ] exactly 24\n[   ] more than 24', answer: 'More than 24 workers', working: 'Days × workers is fixed, so fewer days needs more workers.' },
+    '17': { skill: 'Parts of a Circle', question: 'A chord is drawn on a circle. Which statement is correct?\nTick one box.\n[   ] The chord must be shorter than the diameter\n[   ] The chord must be equal in length to the diameter\n[   ] The chord must be longer than the diameter\n[   ] The chord is never longer than the diameter', answer: 'The chord is never longer than the diameter', working: 'The longest chord a circle has is a diameter, so equal is possible but longer is not.' },
     '18': { skill: 'Compound Units', question: 'A metal solid has volume 14 cm³. The density of the metal is 7.5 g/cm³. Work out the mass of the solid.', answer: '105 g', working: 'Mass = density × volume.' },
-    '19': { skill: 'Mean', question: 'A table shows the mean and range of the scores of two teams.\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nTick one box for each statement — true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
+    '19': { skill: 'Mean', question: 'The mean and range of the scores of two teams are:\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
     '20a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '20b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
 
@@ -194,12 +249,51 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     // The original asks for a completed frequency tree. The reasoning is the
     // same here, with one value asked for instead of five boxes — which is how
     // the same idea is often asked when there is no tree printed.
-    '22': { skill: 'Frequency Trees', question: '240 students from Year 8 and Year 9 take part in a competition. The ratio number of Year 8 students : number of Year 9 students is 1 : 3. 96 students win a medal, and 70 of the students who win a medal are in Year 9. How many Year 8 students do not win a medal?', answer: '34', working: 'Year 8 has 240 ÷ 4 = 60 students, and 96 − 70 = 26 of them win a medal.' },
+    '22': {
+      skill: 'Frequency Trees',
+      question: '240 students from Year 8 and Year 9 take part in a competition.\nThe ratio number of Year 8 students : number of Year 9 students is 1 : 3\n96 students win a medal, and 70 of the students who win a medal are in Year 9.\nComplete the frequency tree, and write down how many Year 8 students do not win a medal.',
+      answer: '34 Year 8 students do not win a medal',
+      working: 'Year 8 has 240 ÷ 4 = 60 students; 96 − 70 = 26 of them win a medal, so 60 − 26 = 34 do not.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 9, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polyline points="1,4 4,6.5" stroke="#333" /><polyline points="1,4 4,1.5" stroke="#333" />' +
+          '<polyline points="4.7,6.5 7.5,7.5" stroke="#333" /><polyline points="4.7,6.5 7.5,5.5" stroke="#333" />' +
+          '<polyline points="4.7,1.5 7.5,2.5" stroke="#333" /><polyline points="4.7,1.5 7.5,0.5" stroke="#333" />',
+        labels: [
+          { x: 0.6, y: 4, text: '240' },
+          { x: 4.3, y: 6.5, text: 'Year 8' },
+          { x: 4.3, y: 1.5, text: 'Year 9' },
+          { x: 8.2, y: 7.5, text: 'medal' },
+          { x: 8.2, y: 5.5, text: 'no medal' },
+          { x: 8.2, y: 2.5, text: 'medal' },
+          { x: 8.2, y: 0.5, text: 'no medal' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
-    '23': { skill: 'Adding and Subtracting Fractions', question: 'Work out 3/10 + 1/4 ÷ 1/2. Give your answer as a fraction.', answer: '4/5', working: 'Divide first: 1/4 ÷ 1/2 = 1/2, then 3/10 + 5/10 = 8/10.' },
+    '23': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out 3/10 + 1/4 ÷ 1/2. Give your answer as a fraction.', answer: '4/5', working: 'Divide first: 1/4 ÷ 1/2 = 1/2, then 3/10 + 5/10 = 8/10.' },
     '24': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     1/4     50     −6     30', answer: '1/4', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
-    '25': { skill: 'Exact Trigonometric Values', question: 'Circle the value of sin 30 degrees.\n0     1/2     1/sqrt2     sqrt3/2     1', answer: '1/2' },
-    '26': { skill: 'Solving Quadratic Equations (Factorising)', question: 'The area of a rectangle is 96 cm². Its length is (x + 8) cm and its width is (x − 2) cm. Work out the value of x.', answer: 'x = 8', working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.' },
+    '25': { skill: 'Exact Trigonometric Values', question: 'Circle the value of cos 90 degrees.\n0     1/2     1/sqrt2     sqrt3/2     1', answer: '0', working: 'cos 0° is 1 and cos 90° is 0 — at Foundation the exact values asked for are the ones at 0° and 90°.' },
+    '26': {
+      skill: 'Solving Quadratic Equations (Factorising)',
+      question: 'The area of the rectangle is 96 cm².\nWork out the value of x.\nNot drawn accurately.',
+      answer: 'x = 8',
+      working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polygon points="2,1 8,1 8,4 2,4" stroke="#333" />',
+        labels: [
+          { x: 5, y: 1, text: '(x + 8) cm', dy: 14 },
+          { x: 2, y: 2.5, text: '(x − 2) cm', dx: -30 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
   },
   challengeQuestions: [],
   sampleStudents: [],

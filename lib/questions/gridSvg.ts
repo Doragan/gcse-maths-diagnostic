@@ -109,14 +109,17 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   const { x, y } = grid
   const parts: string[] = []
 
-  // Gridlines
-  for (let c = 0; c <= geo.cols; c++) {
-    const vx = PAD.left + c * CELL
-    parts.push(`<line x1="${vx}" y1="${PAD.top}" x2="${vx}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.border}" stroke-width="1"/>`)
-  }
-  for (let r = 0; r <= geo.rows; r++) {
-    const vy = PAD.top + r * CELL
-    parts.push(`<line x1="${PAD.left}" y1="${vy}" x2="${PAD.left + geo.cols * CELL}" y2="${vy}" stroke="${colors.border}" stroke-width="1"/>`)
+  // Gridlines. showGrid:false gives PLAIN paper — for a figure the exam prints
+  // unruled, where squares behind it read as a grid the student should use.
+  if (grid.showGrid !== false) {
+    for (let c = 0; c <= geo.cols; c++) {
+      const vx = PAD.left + c * CELL
+      parts.push(`<line x1="${vx}" y1="${PAD.top}" x2="${vx}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.border}" stroke-width="1"/>`)
+    }
+    for (let r = 0; r <= geo.rows; r++) {
+      const vy = PAD.top + r * CELL
+      parts.push(`<line x1="${PAD.left}" y1="${vy}" x2="${PAD.left + geo.cols * CELL}" y2="${vy}" stroke="${colors.border}" stroke-width="1"/>`)
+    }
   }
 
   // Axes: the zero lines when 0 is in range, else the min edges. A 1-D grid

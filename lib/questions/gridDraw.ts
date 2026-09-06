@@ -87,6 +87,16 @@ export type RenderedGrid = {
    * exam's own version does not have.
    */
   showAxes?: boolean
+  /**
+   * The ruled squares themselves. Default true.
+   *
+   * False for a figure drawn on PLAIN paper: a line with its midpoint marked,
+   * angles at a point, a pictogram, a frequency tree. The exam prints those
+   * without ruling, and squares behind them read as a grid the student is
+   * meant to use. Independent of `showAxes` because a shading grid wants the
+   * squares and no axes, and these want neither.
+   */
+  showGrid?: boolean
   // Rendered method overlay, drawn only on the answer reveal ('' = none).
   solution?: string
   elements: RenderedGridElement[]
