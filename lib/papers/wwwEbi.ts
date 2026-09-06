@@ -4,6 +4,8 @@ import {
   type StudentEvidence,
   type TopicEvidence,
 } from './feedbackEvidence'
+import { stableHash } from './stableHash'
+import type { RenderedGrid } from '../questions/gridDraw'
 import {
   STRONG_PHRASES, NEAR_MISS_PHRASES, PARTIAL_PHRASES, STRUGGLING_PHRASES,
   BEST_EFFORT_PHRASES, FOCUS_PHRASES, phraseVars,
@@ -125,30 +127,23 @@ export type WwwEbiSheet = {
   www: string[]
   /** Even better if. Empty when nothing was dropped, which is correct. */
   ebi: string[]
-  /** Questions to practise, worst first. */
-  practice: { skill: string; question: string }[]
+  /**
+   * Questions to practise, worst first.
+   *
+   * `diagram` rides along where the question needs something drawn on — unlike
+   * `answer`, which is stripped here on purpose, this belongs on the student's
+   * sheet.
+   */
+  practice: { skill: string; question: string; diagram?: RenderedGrid }[]
   /** Harder questions where a topic is already strong. */
   challenge: { skill: string; question: string }[]
 }
 
 // ── Phrase selection ─────────────────────────────────────────────────────────
 
-/**
- * A stable hash of a short string (FNV-1a).
- *
- * Not for security — for picking the same sentence for the same student every
- * time. Determinism is the requirement: a teacher who regenerates a sheet after
- * correcting one mark must not receive differently worded feedback for everyone
- * else, and a random choice would do exactly that.
- */
-function hashRef(s: string): number {
-  let h = 2166136261
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return Math.abs(h)
-}
+// The hash moved to ./stableHash when the challenge pool needed the same
+// determinism for the same reason. Behaviour is unchanged.
+const hashRef = stableHash
 
 /**
  * Choose a variant, varied across students AND down the lines of one sheet.
@@ -295,7 +290,7 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
     ebi,
     practice: evidence.practice
       .slice(0, MAX_PRACTICE)
-      .map(p => ({ skill: p.skill, question: p.question })),
+      .map(p => ({ skill: p.skill, question: p.question, diagram: p.diagram })),
     // Extension work is for students who are actually ahead — see the constant.
     challenge: highAchieving(evidence)
       ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))
@@ -321,4 +316,50 @@ function coverageLine(evidence: StudentEvidence): string {
 /** The same, for a whole class — thirty sheets being the actual job. */
 export function toWwwEbiSheets(all: StudentEvidence[]): WwwEbiSheet[] {
   return all.map(toWwwEbi)
+}
+
+// ── The teacher's answer key ─────────────────────────────────────────────────
+
+/** One line of the teacher's answer key. */
+export type AnswerKeyEntry = {
+  skill: string
+  question: string
+  answer: string
+  working?: string
+}
+
+/**
+ * The answers to the questions this class was ACTUALLY GIVEN.
+ *
+ * It lives here, in the formatter, rather than beside the evidence, and that
+ * placement is the whole point. The evidence offers every challenge whose topic
+ * came out strong — often ten — and the sheet then prints at most MAX_CHALLENGE
+ * of them. A key built from the evidence therefore lists questions no student
+ * ever received, which is worse than useless to a teacher marking the sheets in
+ * front of them. Only the formatter knows what survived the caps, so only the
+ * formatter can build the key.
+ *
+ * Deduplicated by question text — two students offered the same challenge need
+ * one line, not two. Entries with no answer are dropped rather than printed
+ * blank, which is how the three hand-authored retry sets (written before
+ * answers existed) stay out of it.
+ */
+export function answerKeyFor(evidences: StudentEvidence[]): AnswerKeyEntry[] {
+  const byQuestion = new Map<string, AnswerKeyEntry>()
+
+  for (const evidence of evidences) {
+    const sheet = toWwwEbi(evidence)
+    const printed = new Set([...sheet.practice, ...sheet.challenge].map(q => q.question))
+
+    for (const s of [...evidence.practice, ...evidence.challenges]) {
+      if (!s.answer || !printed.has(s.question) || byQuestion.has(s.question)) continue
+      byQuestion.set(s.question, {
+        skill: s.skill, question: s.question, answer: s.answer, working: s.working,
+      })
+    }
+  }
+
+  return [...byQuestion.values()].sort(
+    (a, b) => a.skill.localeCompare(b.skill) || a.question.localeCompare(b.question),
+  )
 }

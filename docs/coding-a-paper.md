@@ -218,6 +218,7 @@ which has held since the audit began.
 | `kind` | yes | `"mastery"` or `"exam"`. |
 | `answer_form` | no | Only `draw*` is read, to set `visual`. |
 | `app_gap_note` | no | Becomes `desc`, the marking grid's tooltip. |
+| `mark_split` | **worth including** | The mark scheme's code for the part — `B1`, `M1 A1`, `M2 A1`. Not needed for the paper, but it is the ONLY input to lib/exam/markEvidence.data.ts, which sizes how much credit auto-marking cannot see. A paper coded without it contributes nothing there — the generator skips such rows rather than counting them as zero method marks, but the evidence is simply weaker. The twelve Edexcel and OCR papers were coded without it. |
 | `topic` | when untagged | One of `number`, `algebra`, `ratio`, `shape`, `probdata`. Overrides the topic the first skill implies; required in practice for an untagged item. |
 
 **`q` + `part` become the item id and label**: `"12"` + `"a"` → id `12a`, label
@@ -284,8 +285,10 @@ retry question that stands alone in words, the item is not visual.**
 ## Code a tier pair together — and use the overlap as a free check
 
 **Both Edexcel and OCR reuse a chunk of each Foundation paper on its Higher
-partner**, at the crossover where the tiers meet. AQA does not, so confirm it
-per board rather than assuming.
+partner**, at the crossover where the tiers meet. **So does AQA** — this doc
+previously said it did not, and writing the June 2025 retry sets disproved it:
+1F 18–26 reappear as 1H 3–10, 2F 20–26 as 2H 3–10, and 3F 16–24 as 3H 4–11.
+Confirm the block per paper rather than assuming either way.
 
 **Edexcel puts the shared questions in a contiguous block**, which makes them
 easy to spot (June 2025: 2F q20–q27 = 2H q1–q8; 3F q22–q30 = 3H q1–q8; 1F
@@ -383,15 +386,19 @@ paper; two are genuinely outside the taxonomy and left untagged:
 |---|---|
 | Classifying an angle by type | tagged `angles_on_lines_and_circles` |
 | Constructing a stem and leaf diagram | tagged `gathering_and_organising_data` |
-| **Properties of 2D shapes** (name/complete a quadrilateral) | **untagged when the answer is a drawing** — `properties_of_3d_solids` exists with no 2D counterpart, which looks like an oversight rather than a decision. But tag `coordinates` when the answer is a *position on a labelled coordinate grid* (3F q9b) rather than a shape drawn on a bare one (1F q8a). The shape knowledge goes uncredited either way; what differs is whether a grid position was genuinely demonstrated. |
-| **Identifying an outlier** | **untagged** — spotting an anomalous value is not calculating a range or a mean |
-| **Rate of change on a NON-kinematic graph** | tagged `kinematic_graphs` — the only node about reading a rate off a graph. **11 marks** across OCR 04 q21 and 06 q20 (tangent gradient, area under a rate-of-flow graph). The largest single mis-fit in the set |
+| ~~Properties of 2D shapes~~ | **CLOSED** — `properties_of_2d_shapes` added 2026-09-04. 5 items, 6 marks retagged onto it, including two that had been untagged and two AQA rows sitting on `angles_in_polygons` |
+| **Reading a number line or scale** | **DECIDED NOT TO ADD** (2026-09-04). Four 1-mark AQA Foundation rows, already on `simple_arithmetic` and `decimals`. Unlike polygon naming on `angles_in_polygons`, those are not false claims — reading a scale does involve arithmetic. The distinctive error (`misread_the_scale_interval`) is a misconception, not a separate skill |
+| **Directed number** | **CHECKED, NOT A GAP.** 75 rows worth 187 marks carry a sign error as their trap, but nearly all are sign slips INSIDE another skill — elimination, expanding, indices. Only about six test negatives as the skill itself. Sign handling is the most pervasive trap family in the audit and belongs to the misconception layer, not the taxonomy |
+| **Identifying an outlier** | **untagged, and staying that way** (user ruling 2026-09-04) — spotting an anomalous value is not calculating a range or a mean, and it is one mark |
+| ~~Gradient of a curve at a point~~ | **CLOSED** — `gradient_of_a_curve` added 2026-09-04, prerequisite `understanding_straight_line_graphs`, costs 7 |
+| ~~Average rate of change on a non-kinematic graph~~ | **CLOSED** — moved off its loose `kinematic_graphs` fit onto `gradient_of_a_curve`. A chord gradient and a tangent gradient are the same node |
+| **Area under a non-kinematic rate graph** | tagged `kinematic_graphs` and considered CORRECT — a rate-time graph where area = quantity is structurally a velocity-time graph. Precedent: the hand-authored AQA 2F Nov 2024 q15b bath graph does the same |
 | **Surface area of a cuboid or cube** | spheres, cones and cylinders each have a node; cuboids do not |
-| **Equation vs identity** | tagged `expanding_double_brackets`, since expanding is the only way to tell them apart |
+| ~~Equation vs identity~~ | **CLOSED** — `equations_and_identities` added 2026-09-04, prerequisite `expanding_brackets`, costs 4. 7 items, 14 marks, across both AQA and OCR |
 | **Misleading graph** (truncated axis) | tagged `simple_charts` |
 | **Currency conversion** | tagged `proportion` |
-| **Similar solids** (area and volume scale factors) | tagged `congruence_and_similarity`, a poor fit — 5 marks on Edexcel 2H q16 |
-| **Exponential graphs** (y = k^x) | no node at all; tagged `fractional_and_negative_indices` where the method is inverting a power |
+| ~~Similar solids~~ | **CLOSED** — `area_and_volume_scale_factors` added 2026-09-04. Named for the concept rather than "similar solids", because two of its eight items are about AREA scale factors on 2D shapes. 8 items, 26 marks, Foundation tier (it appears on AQA 3F June 2023 and OCR J560/03) |
+| ~~Exponential graphs~~ | **CLOSED** — `exponential_graphs` added 2026-09-04, Higher-only. Only the CURVE cases moved: OCR 04 q16 stays on `growth_and_decay`, which reads an annual percentage increase off a growth formula and is that skill's own example |
 | **Place value**, and **roots** as distinct from powers | tagged `decimals` and `indices` respectively |
 | **Forming** a fraction from a context | every fraction node covers operating ON one, not writing one down |
 

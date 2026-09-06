@@ -8,18 +8,24 @@ import type { PaperConfig } from './types'
  * a hand correction should be noted here — the script refuses to overwrite
  * without --force precisely so corrections are not lost silently.
  *
- * WHAT IS DELIBERATELY ABSENT: `retrySet` and `challengeQuestions` are
- * hand-authored from question text, and the audit transcribes none. A feedback
- * sheet from this paper therefore omits its "Practise these" and "Push
- * yourself" sections and carries everything else — score, coverage, topic and
- * skill breakdown, and the WWW/EBI prose. Fill either object in to turn those
- * sections back on; nothing else needs to change.
+ * HAND-AUTHORED SINCE GENERATION — do not regenerate without --force, and
+ * re-apply this if you do:
+ *
+ *   • `retrySet` is complete: a rewritten practice question, with its answer,
+ *     for every non-visual item. Written from the question paper as PARALLELS
+ *     — same context, framing and step count, different numbers and settings —
+ *     never as transcriptions. See docs/writing-retry-questions.md. The
+ *     crossover questions shared with this paper's tier partner carry the SAME
+ *     retries; the note above `retrySet` says which.
+ *   • `challengeQuestions` stays empty ON PURPOSE. Challenges are pooled by
+ *     topic and tier in lib/papers/challengePool.ts, and every paper draws
+ *     from there; filling this in would override the pool for this paper only.
  *
  * `desc` is the audit's own note about what each question asks for, not the
  * question text.
  *
  * KNOWN GAPS in this paper, carried here so they survive regeneration:
- *   • item 2 has no skill tag — filed under Probability and Data, contributes 1 mark(s) to the total but no skill evidence. Worth a hand correction.
+ *   • item 2 is untagged by design — filed under Probability and Data, contributing 1 mark(s) with no skill evidence. Check coding_notes says why.
  */
 export const AQA_8300_3H_JUN25: PaperConfig = {
   id: 'aqa-8300-3h-jun25',
@@ -66,11 +72,99 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     { id: '21',  label: '21',    marks: 4,  topic: 'shape',    skill: 'Volume of a Sphere + Volume of a prism',                                               skillIds: ['volume_of_a_sphere', 'volume_of_a_prism'], kind: 'mastery', visual: false, desc: 'fraction answer from an algebraic derivation; needs equivalence checker' },
     { id: '22',  label: '22',    marks: 4,  topic: 'algebra',  skill: 'Quadratic Inequalities + Solving Quadratic Equations (Factorising)',                   skillIds: ['quadratic_inequalities', 'solving_quadratic_equations_factorising'], kind: 'exam', visual: false, desc: 'double-inequality answer needs an inequality-equivalence checker' },
     { id: '23',  label: '23',    marks: 2,  topic: 'algebra',  skill: 'Quadratic Functions',                                                                  skillIds: ['quadratic_functions'], kind: 'mastery', visual: false, desc: 'spot-the-error free text; two distinct faults must be named' },
-    { id: '24',  label: '24',    marks: 4,  topic: 'shape',    skill: 'Congruence and Similarity + Area of a Triangle (½ab sinC)',                            skillIds: ['congruence_and_similarity', 'area_of_triangle_sine'], kind: 'exam', visual: false, desc: 'range-tolerance answer; static diagram supported' },
+    { id: '24',  label: '24',    marks: 4,  topic: 'shape',    skill: 'Area and Volume Scale Factors + Area of a Triangle (½ab sinC)',                        skillIds: ['area_and_volume_scale_factors', 'area_of_triangle_sine'], kind: 'exam', visual: false, desc: 'range-tolerance answer; static diagram supported' },
   ],
 
   // See the header: both are hand-authored and the audit has no question text.
-  retrySet: {},
+  // CROSSOVER WITH 3F, carrying the SAME retries: 4, 5, 6(a), 6(b), 8, 9, 10,
+  // 11(a) and 11(b) here are 3F's 16, 18, 19(a), 19(b), 20, 21, 22, 24(a) and
+  // 24(b).
+  //
+  // 13(b), 14(b) and 19 are the visual items and have no retry — a cumulative
+  // frequency curve, a speed/time graph drawn on blank axes, and a
+  // three-inequality region all need a grid taller than a sheet can give at
+  // 72mm wide.
+  retrySet: {
+    '1': { skill: 'Proportion', question: 'Convert 13.2 pounds into kilograms. Use 2.2 pounds = 1 kilogram.', answer: '6 kg', working: '13.2 ÷ 2.2' },
+    '2': { skill: 'Outliers', question: 'Here are the times, in minutes, taken by six people to finish a puzzle: 4, 6, 5.5, 7, 42, 5. Write down the outlier.', answer: '42 minutes', working: 'Every other time is between 4 and 7.' },
+    '3': { skill: 'Parts of a Circle', question: 'Write down the name of each of these parts of a circle.\n(i)   a straight line from the centre to the edge\n(ii)  a straight line right across the circle through the centre\n(iii) a straight line joining two points on the edge but not passing through the centre', answer: '(i) radius, (ii) diameter, (iii) chord' },
+
+    // Shared with 3F — see the note above.
+    '4': { skill: 'Forming Expressions and Formulae', question: 'An equilateral triangle has sides of length (3x + 4) cm, (5x − 2) cm and (2x + 7) cm. Work out the perimeter of the triangle.', answer: '39 cm', working: '3x + 4 = 5x − 2 gives x = 3, so each side is 13 cm.' },
+    '5': { skill: 'Pie Charts', question: 'A pie chart represents the results of matches played by a team. The sector for matches won has an angle of 144°, and the sector for matches lost has an angle of 96°. 36 matches were won. How many matches were lost?', answer: '24', working: '144° is 36 matches, so each match is 4°.' },
+    '6a': { skill: 'Proportion', question: 'A scale diagram uses a scale of 1 : 250 000. On the diagram, the distance from B to C is 6 cm. Work out the actual distance from B to C, in kilometres.', answer: '15 km', working: '6 × 250 000 = 1 500 000 cm, and there are 100 000 cm in a kilometre.' },
+    '6b': { skill: 'Bearings', question: 'C is South West of A. Write down the bearing of C from A.', answer: '225°', working: 'Clockwise from north: south is 180° and south west is another 45°.' },
+
+    '7a': { skill: 'Simplifying Fractions', question: 'Write 3 weeks as a fraction of 9 days. Give your answer in its simplest form.', answer: '7/3', working: '3 weeks is 21 days, and 21/9 cancels by 3.' },
+    '7b': { skill: 'Simplifying Ratio', question: 'Write 45 centimetres : 2.25 metres as a ratio in the form 1 : n', answer: '1 : 5', working: '2.25 m is 225 cm, and 225 ÷ 45 = 5.' },
+    '7c': { skill: 'Dividing Fractions', question: 'A : B = 3/8 : 9/16. Write A as a fraction of B.', answer: '2/3', working: '3/8 ÷ 9/16 = 3/8 × 16/9.' },
+
+    '8': { skill: 'Finding the nth Term', question: 'A linear sequence has 3rd term = 11 and 7th term = 27. Work out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
+    '9': { skill: 'Ratio', question: 'Dan has £180. Dan\'s amount is 3/4 of Eve\'s amount, and Finn\'s amount : Eve\'s amount = 2 : 5. Work out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
+    '10': { skill: 'Venn Diagrams', question: 'A Venn diagram shows two sets A and B. The region for A only contains 7 items, the overlap contains x items, the region for B only contains 11 items, and 4 items are outside both sets. There are 30 items altogether and P(A) = 1/2. Work out the value of x.', answer: 'x = 8', working: 'P(A) = 1/2 means A holds 15 items, and 15 − 7 = 8.' },
+    '11a': { skill: 'Understanding Straight Line Graphs', question: 'Write down the equation of a straight line parallel to y − 3x = 5', answer: 'Any line of the form y = 3x + c with c not equal to 5 — for example y = 3x + 1', working: 'Parallel lines share a gradient, here 3.' },
+    '11b': { skill: 'Understanding Straight Line Graphs', question: 'A straight line has gradient 4 and passes through the point (2, 5). Circle the equation of the line.\ny = 2x + 1     y = 4x     y = 4x − 3     y = 4x + 5', answer: 'y = 4x − 3', working: '4 × 2 − 3 = 5, so the point fits.' },
+
+    '12': { skill: 'Grouped Frequency Tables', question: 'A table shows the time t minutes taken to cycle to work on 60 days: 10 ≤ t < 20 has frequency 18, 20 ≤ t < 30 has frequency 24, 30 ≤ t < 50 has frequency 12, and 50 ≤ t < 70 has frequency 6. Last year the mean time was 20 minutes. Estimate the percentage increase in the mean cycling time for these 60 days.', answer: '42.5%', working: 'Midpoints give a total of 1710 minutes, so the mean is 28.5, an increase of 8.5 on 20.' },
+    '13a': { skill: 'Cumulative Frequency', question: 'A table shows salaries: 0 < s ≤ 10 000 has frequency 30, 10 000 < s ≤ 20 000 has 25, 20 000 < s ≤ 30 000 has 15, and 30 000 < s ≤ 40 000 has 10. Complete the cumulative frequency table for s ≤ 10 000, s ≤ 20 000, s ≤ 30 000 and s ≤ 40 000.', answer: '30, 55, 70, 80', working: 'Each entry adds the next frequency to the one before.' },
+    '13b': {
+      skill: 'Cumulative Frequency',
+      question: 'A cumulative frequency table shows that 30 employees earn at most £10 000, 55 at most £20 000, 70 at most £30 000 and 80 at most £40 000.\nDraw a cumulative frequency diagram to represent the data.',
+      answer: 'Points at (10, 30), (20, 55), (30, 70) and (40, 80), joined by a smooth curve',
+      working: 'Each point goes at the TOP of its class, not the middle.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 40, step: 10, label: 'Salary (£1000s)' },
+        y: { min: 0, max: 80, step: 20, label: 'Cumulative frequency' },
+        background: '',
+        elements: [
+          { x: 10, y: 30, marks: 1 }, { x: 20, y: 55, marks: 1 },
+          { x: 30, y: 70, marks: 1 }, { x: 40, y: 80, marks: 1 },
+        ],
+        tolerance: 0,
+      },
+    },
+    '13c': { skill: 'Cumulative Frequency', question: 'A cumulative frequency table shows that 30 employees earn at most £10 000, 55 at most £20 000, 70 at most £30 000 and 80 at most £40 000. Estimate the number of employees with a salary less than £25 000', answer: 'About 63', working: 'Halfway between 55 at £20 000 and 70 at £30 000.' },
+    '14a': { skill: 'Upper and Lower Bounds', question: 'For a small boat, the mass of the empty boat is 600 kg to the nearest 50 kg, the mass of the equipment is 84 kg to the nearest 2 kg, and the mass of the crew is 145 kg to the nearest kg.\nThe total mass is these three added together, and the maximum safe total is 860 kg.\nCan this boat definitely be loaded safely? Show working to support your answer.', answer: 'Yes', working: 'The largest possible total is 625 + 85 + 145.5 = 855.5 kg, which is under 860.' },
+    '14b': {
+      skill: 'Kinematic Graphs',
+      question: 'A train travels 240 miles in 3 hours at a constant speed.\nOn the grid, draw a speed/time graph to represent this information.\nYou must draw and label both axes.',
+      answer: 'Time on the horizontal axis and speed on the vertical, with a horizontal line at 80 mph from 0 to 3 hours',
+      working: 'Speed = 240 ÷ 3 = 80 mph, and it does not change.',
+      diagram: {
+        mode: 'polyline', showAxes: false,
+        x: { min: 0, max: 6, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '',
+        elements: [],
+        tolerance: 0,
+      },
+    },
+    '15': { skill: 'Counting Without Listing', question: 'Cara and Dev each make three-digit integers from single digits, and digits may be repeated. Cara makes even integers with a first digit greater than 6. Dev makes odd integers with a first digit that is not zero. They each make as many different integers as possible. How many more integers than Cara does Dev make?', answer: '300', working: 'Cara has 3 × 10 × 5 = 150 and Dev has 9 × 10 × 5 = 450.' },
+    '16': { skill: 'Algebraic Proof', question: 'x is a positive odd number, and y = (x − 2)(x − 4)(x + 5). Without expanding the brackets, explain why there is only one value of x for which y is negative.', answer: 'Only x = 3', working: 'The third bracket is always positive, and only x = 3 makes exactly one of the first two negative; from x = 5 upwards all three are positive.' },
+    '17': { skill: 'Sine Rule', question: 'In triangle PQR, angle P = 42°, angle Q = 63°, and the side opposite P is 9 cm. Use the sine rule to work out the length of the side opposite Q, to 1 decimal place.', answer: '12.0 cm', working: '9 × sin 63° ÷ sin 42° = 11.98…' },
+    '18': { skill: 'Nth Term of Quadratic Sequences', question: 'Here are the first four terms of a quadratic sequence: 5, 14, 29, 50. Work out an expression for the nth term.', answer: '3n² + 2', working: 'The second difference is 6, so the sequence starts from 3n²; what is left is 2 each time.' },
+    '19': {
+      skill: 'Inequalities',
+      question: 'On the grid, identify the region represented by y ≥ 1, x + y ≤ 6 and y ≤ x.\nLabel the region R.',
+      answer: 'The triangle with vertices (1, 1), (5, 1) and (3, 3)',
+      working: 'Draw y = 1, x + y = 6 and y = x, then take the side of each that the inequality allows.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: 0, max: 7, step: 1, label: 'x' },
+        y: { min: 0, max: 7, step: 1, label: 'y' },
+        background: '',
+        elements: [{ x: 1, y: 1, marks: 1 }, { x: 5, y: 1, marks: 1 }, { x: 3, y: 3, marks: 1 }],
+        tolerance: 0,
+      },
+    },
+    '20a': { skill: 'Factorising Quadratics', question: 'Factorise fully 2n² + 7n + 3', answer: '(2n + 1)(n + 3)' },
+    '20b': { skill: 'Factorising Quadratics', question: 'A sequence has nth term 2n² + 7n + 3. Are any of the terms in the sequence a prime number? Give a reason for your answer.', answer: 'No', working: 'It factorises to (2n + 1)(n + 3), and for every positive n both factors are greater than 1.' },
+    '21': { skill: 'Volume of a Sphere', question: 'Four identical spheres just fit inside a cylinder, and each sphere has radius r. What fraction of the space inside the cylinder is NOT filled by the spheres? You must show your working. The volume of a sphere is (4/3) × pi × r³.', answer: '1/3', working: 'The cylinder is 8r tall, so its volume is 8 pi r³, and the spheres take (16/3) pi r³ — two thirds of it.' },
+    '22': { skill: 'Quadratic Inequalities', question: 'Solve 3x² > 10 − x', answer: 'x < −2 or x > 5/3', working: '3x² + x − 10 > 0 factorises to (3x − 5)(x + 2) > 0.' },
+    '23': { skill: 'Quadratic Functions', question: 'The height h metres of a ball is given by h = −(t − 5)² + 25, where t is the time in seconds, for values of t from 0 to 10. A student draws a graph of h against t as a straight line rising from (0, 0) to (10, 25). Make two criticisms of the student\'s graph.', answer: 'It should be a curve rather than a straight line, and it should come back down to h = 0 at t = 10', working: 'The expression is quadratic with a maximum of 25 at t = 5.' },
+    '24': { skill: 'Area and Volume Scale Factors', question: 'Triangles ABC and DEF are similar. AB = 6 cm and the corresponding side DE = 15 cm. The area of triangle ABC is 26.4 cm². Work out the area of triangle DEF.', answer: '165 cm²', working: 'The length scale factor is 2.5, so the area scale factor is 2.5² = 6.25.' },
+  },
   challengeQuestions: [],
   sampleStudents: [],
   sampleMarks: {},

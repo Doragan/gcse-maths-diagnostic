@@ -1,5 +1,7 @@
 import jsPDF from 'jspdf'
-import type { WwwEbiSheet } from './wwwEbi'
+import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
+import type { RenderedGrid } from '../questions/gridDraw'
+import { buildGridSvg, CELL } from '../questions/gridSvg'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -61,12 +63,46 @@ const PDF_SAFE: Record<string, string> = {
 const CP1252_EXTRAS = new Set([...'€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ'])
 
 /**
+ * Superscripts, and the ASCII they fall back to.
+ *
+ * CP1252 has ¹ ² ³ AND NOTHING ELSE, which is a trap rather than a limitation:
+ * `x²` draws perfectly while `k⁴` silently loses its exponent and prints as
+ * "k". That is not a garbled answer, it is a WRONG one, and it reached a
+ * printed review sheet — "Simplify fully k × k × k × k. Answer: k" — before
+ * anyone noticed. Standard form was worse: `8 × 10⁻⁴` printed as "8 × 10".
+ */
+const SUPERSCRIPT: Record<string, string> = {
+  '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+  '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
+  '⁻': '-', '⁺': '+', 'ⁿ': 'n', 'ˣ': 'x',
+}
+/** The three CP1252 can actually draw. */
+const SUPERSCRIPT_DRAWABLE = new Set(['¹', '²', '³'])
+
+/**
+ * Rewrite superscripts, deciding ONCE PER STRING rather than per run.
+ *
+ * If every superscript in the string is drawable the typography is kept, so
+ * `cm²` and `x³` are untouched. If any is not, the whole string goes to caret
+ * notation — because `3 × 10³ × 10⁴` rendering as "3 × 10³ × 10^4" is a third
+ * style, worse than either consistent one, and that exact line existed.
+ */
+function superscriptsToAscii(text: string): string {
+  const runs = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+/g
+  const all = text.match(runs)
+  if (!all) return text
+  if (all.every(run => [...run].every(ch => SUPERSCRIPT_DRAWABLE.has(ch)))) return text
+  return text.replace(runs, run => '^' + [...run].map(ch => SUPERSCRIPT[ch]).join(''))
+}
+
+/**
  * Make a string drawable by jsPDF's standard fonts.
  *
  * Applied to EVERY string that reaches doc.text — including before measuring
  * for wrapping, so the line breaks match what is actually drawn.
  */
 export function toPdfSafe(text: string): string {
+  text = superscriptsToAscii(text)
   let out = ''
   for (const ch of text) {
     const mapped = PDF_SAFE[ch]
@@ -106,27 +142,37 @@ export type FeedbackPdfOptions = {
  * still produces a valid (single blank) document rather than throwing, because
  * the caller that asked for zero sheets has a UI problem, not an exception.
  */
-export function buildFeedbackPdf(
+export async function buildFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
-): jsPDF {
+  answerKey: AnswerKeyEntry[] = [],
+): Promise<jsPDF> {
   const doc = new jsPDF()
 
-  sheets.forEach((sheet, i) => {
+  for (const [i, sheet] of sheets.entries()) {
     // Each student gets their own page: these are handed out individually.
     if (i > 0) doc.addPage()
-    renderSheet(doc, sheet, options)
-  })
+    await renderSheet(doc, sheet, options)
+  }
+
+  // The key goes LAST and on its own page, so separating the student sheets
+  // leaves it behind rather than in the middle of the pile.
+  if (answerKey.length) {
+    if (sheets.length) doc.addPage()
+    renderAnswerKey(doc, answerKey, options)
+  }
 
   return doc
 }
 
 /** Build and download. The browser entry point. */
-export function downloadFeedbackPdf(
+export async function downloadFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
-): void {
-  buildFeedbackPdf(sheets, options).save(feedbackPdfFilename(options))
+  answerKey: AnswerKeyEntry[] = [],
+): Promise<void> {
+  const doc = await buildFeedbackPdf(sheets, options, answerKey)
+  doc.save(feedbackPdfFilename(options))
 }
 
 /** "mathsense-feedback-aqa-gcse-mathematics-8300-3f.pdf" */
@@ -142,7 +188,7 @@ export function feedbackPdfFilename(options: FeedbackPdfOptions): string {
 
 type Cursor = { y: number }
 
-function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): void {
+async function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): Promise<void> {
   const c: Cursor = { y: MARGIN_TOP }
 
   // Paper identity first, small — the sheet is about the student, not the paper.
@@ -178,8 +224,156 @@ function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions
   // it reads as a bug rather than as praise.
   section(doc, c, 'What went well', sheet.www)
   section(doc, c, 'Even better if', sheet.ebi)
-  section(doc, c, 'Practise these', sheet.practice.map(p => `${p.skill}: ${p.question}`))
+  await practiceSection(doc, c, sheet.practice)
   section(doc, c, 'Push yourself', sheet.challenge.map(q => `${q.skill}: ${q.question}`))
+}
+
+/**
+ * How a retry diagram is sized on the page.
+ *
+ * A FIXED WIDTH WAS A MISTAKE, and an expensive one: at a flat 72mm a
+ * twelve-column grid gives 5mm squares, and two questions were written off as
+ * impossible — a cuboid net and an exponential plot — on the strength of a
+ * constant chosen here rather than anything about paper.
+ *
+ * So the square is what is held roughly fixed, not the width. A grid is drawn
+ * at TARGET_CELL per square and then clamped: never wider than the text, never
+ * more than about a third of a page tall, and never so small that a pencil
+ * cannot work in it.
+ */
+const DIAGRAM_TARGET_CELL = 9    // mm per grid square
+const DIAGRAM_MIN_WIDTH = 58
+const DIAGRAM_MAX_WIDTH = 150
+const DIAGRAM_MAX_HEIGHT = 108
+
+/** Printed size for a diagram whose viewBox is w × h units. */
+function diagramSize(w: number, h: number): { width: number; height: number } {
+  let scale = DIAGRAM_TARGET_CELL / CELL
+  if (w * scale > DIAGRAM_MAX_WIDTH) scale = DIAGRAM_MAX_WIDTH / w
+  if (h * scale > DIAGRAM_MAX_HEIGHT) scale = DIAGRAM_MAX_HEIGHT / h
+  if (w * scale < DIAGRAM_MIN_WIDTH) scale = DIAGRAM_MIN_WIDTH / w
+  return { width: w * scale, height: h * scale }
+}
+
+/**
+ * "Practise these", which unlike every other section may carry a diagram.
+ *
+ * A grid is printed under its question so the student has something to draw on
+ * — which is what lets a `visual: true` item have a retry at all. Everything
+ * else on the sheet is text, which is why this is its own function rather than
+ * a flag on `section()`.
+ */
+async function practiceSection(
+  doc: jsPDF,
+  c: Cursor,
+  practice: WwwEbiSheet['practice'],
+): Promise<void> {
+  if (!practice.length) return
+
+  ensureSpace(doc, c, 18)
+  setBlack(doc, 12, 'bold')
+  line(doc, c, 'Practise these', 7)
+
+  for (const p of practice) {
+    setBlack(doc, 10.5, 'normal')
+    bullet(doc, c, `${p.skill}: ${p.question}`)
+    if (p.diagram) await drawGrid(doc, c, p.diagram)
+  }
+  c.y += 5
+}
+
+/**
+ * Draw an EMPTY grid at the cursor.
+ *
+ * `showCanonical: false` is the whole point — the canonical layer is the
+ * answer, and printing it would hand the student what they are meant to work
+ * out. Same builder the student-facing canvas and the verification harness
+ * use, so what is printed is what the app would draw.
+ *
+ * SILENTLY SKIPS WITHOUT A DOM. svg2pdf walks a real SVG element, so this only
+ * works in a browser — which is where both callers run. Node keeps the rest of
+ * the document buildable and testable, which is the property the header of this
+ * file exists to protect; a sheet built in Node simply has no grids on it.
+ *
+ * The import is dynamic for the same reason: loading svg2pdf at module scope
+ * would drag a browser-only dependency into every test that touches a PDF.
+ */
+async function drawGrid(doc: jsPDF, c: Cursor, grid: RenderedGrid): Promise<void> {
+  if (typeof document === 'undefined') return
+
+  const svg = buildGridSvg(grid, { showCanonical: false })
+  const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
+  if (!viewBox) return
+  const { width, height } = diagramSize(Number(viewBox[1]), Number(viewBox[2]))
+
+  ensureSpace(doc, c, height + 6)
+
+  // svg2pdf reads computed geometry, so the element has to be in the document.
+  // Off-screen rather than hidden: display:none collapses it to nothing.
+  const holder = document.createElement('div')
+  holder.style.cssText = 'position:absolute;left:-9999px;top:0'
+  holder.innerHTML = svg
+  const el = holder.querySelector('svg')
+  if (!el) return
+  document.body.appendChild(holder)
+
+  try {
+    const { svg2pdf } = await import('svg2pdf.js')
+    await svg2pdf(el, doc, { x: MARGIN_X + 6, y: c.y, width, height })
+    c.y += height + 4
+  } catch {
+    // A diagram that will not render must not cost the teacher the whole pack
+    // of sheets. The question above it still stands on its own.
+  } finally {
+    holder.remove()
+  }
+}
+
+/**
+ * The teacher's answer key, one page at the back.
+ *
+ * Answers exist on the evidence but are deliberately absent from every student
+ * sheet, so this is the only place they are printed. It is headed unambiguously
+ * because the rest of this document gets handed out.
+ */
+function renderAnswerKey(
+  doc: jsPDF,
+  entries: AnswerKeyEntry[],
+  options: FeedbackPdfOptions,
+): void {
+  const c: Cursor = { y: MARGIN_TOP }
+
+  setGrey(doc, 10)
+  line(doc, c, options.paperTitle)
+  if (options.paperSubtitle) line(doc, c, options.paperSubtitle)
+  c.y += 4
+
+  setBlack(doc, 18, 'bold')
+  line(doc, c, 'Answers — teacher copy', 8)
+
+  setGrey(doc, 10)
+  wrapped(doc, c, 'Not for handing out. These are the answers to the practice and challenge questions on the sheets in this pack.')
+  c.y += 5
+
+  for (const e of entries) {
+    ensureSpace(doc, c, 16)
+    setBlack(doc, 10.5, 'bold')
+    line(doc, c, e.skill, 5)
+
+    setBlack(doc, 10.5, 'normal')
+    for (const part of doc.splitTextToSize(toPdfSafe(e.question), CONTENT_WIDTH) as string[]) {
+      line(doc, c, part, 5)
+    }
+
+    setBlack(doc, 10.5, 'bold')
+    line(doc, c, `Answer: ${e.answer}`, 5)
+
+    if (e.working) {
+      setGrey(doc, 9.5)
+      wrapped(doc, c, e.working)
+    }
+    c.y += 4
+  }
 }
 
 function section(doc: jsPDF, c: Cursor, heading: string, lines: string[]): void {

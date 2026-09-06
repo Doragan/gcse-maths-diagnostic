@@ -102,6 +102,43 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
     '11': { skill: 'Percentage Change', question: 'A multipack costs 20% less than 5 single tins. Each tin costs £3. Work out the cost of the multipack.' },
     '12': { skill: 'Ratio', question: 'Write the ratio 15 : 3 in the form n : 1' },
     '13': { skill: 'Simple Arithmetic', question: 'a and b are two different positive numbers. For each statement, say if it is always, sometimes or never true: (i) a ÷ b is a whole number  (ii) a × b is even' },
+    // ── The two diagram-bearing retries ───────────────────────────────────
+    // 14(a) and 14(b) are `visual: true` items, which normally get no retry at
+    // all — a question depending on a diagram cannot be reissued as text. They
+    // can have one here because the retry brings its own grid.
+    //
+    // `background` is the GIVEN shape and `elements` is the ANSWER. Only the
+    // background is printed (feedbackPdf renders with showCanonical: false), so
+    // the student gets the shape to work from and not the shape to find.
+    // Coordinates are in axis units; the wrapper supplies stroke-width.
+    '14a': {
+      skill: 'Congruence and Similarity',
+      question: 'Triangle A is drawn on the grid. On the same grid, draw a triangle that is congruent to triangle A, in a different position.',
+      answer: 'Any triangle with sides of 3, 4 and 5 units — for example vertices at (6,1), (9,1) and (6,5).',
+      working: 'Congruent means identical in size and shape, so only the position may change.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: 0, max: 10, step: 1, label: 'x' },
+        y: { min: 0, max: 6, step: 1, label: 'y' },
+        background: '<polygon points="1,1 4,1 1,5" stroke="#333" />',
+        elements: [{ x: 6, y: 1, marks: 1 }, { x: 9, y: 1, marks: 1 }, { x: 6, y: 5, marks: 1 }],
+        tolerance: 0,
+      },
+    },
+    '14b': {
+      skill: 'Enlargements',
+      question: 'Shape B is drawn on the grid. Enlarge shape B by scale factor 1/3, using (0,0) as the centre of enlargement.',
+      answer: 'A triangle with vertices at (1,1), (3,1) and (1,3).',
+      working: 'The centre is the origin, so divide each coordinate by 3.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: 0, max: 10, step: 1, label: 'x' },
+        y: { min: 0, max: 10, step: 1, label: 'y' },
+        background: '<polygon points="3,3 9,3 3,9" stroke="#333" />',
+        elements: [{ x: 1, y: 1, marks: 1 }, { x: 3, y: 1, marks: 1 }, { x: 1, y: 3, marks: 1 }],
+        tolerance: 0,
+      },
+    },
     '15': { skill: 'Ratio', question: '42 sweets are shared between Sam and Tia in the ratio 5:2. How many more sweets does Sam get than Tia?' },
     '17': { skill: 'Compound Units', question: 'A cyclist travels 6 miles in 15 minutes. Work out the average speed in miles per hour.' },
     '18': { skill: 'Coordinates', question: 'P(1,5) and Q(3,9) lie on a straight line PQRS, with PQ = QR = RS. Work out the coordinates of S.' },
@@ -116,22 +153,22 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
     '23b': { skill: 'Areas of Compound Shapes', question: 'A prism has volume 4200 cm³ and length 15 cm. Work out the area of the cross-section.' },
     '24': { skill: 'Adding and Subtracting Fractions', question: 'Work out 1⅓ − 2/3. Give your answer as a fraction.' },
     '25': { skill: 'Exact Trigonometric Values', question: 'Write down the value of cos 0°' },
-    '26': { skill: 'Area of a Circle', question: 'A large circle has radius 10 cm. radius of large circle : radius of small circle = 5 : 1. Work out the shaded area between the circles. Give your answer in terms of π.' },
+    '26': { skill: 'Area of a Circle', question: 'A small circle sits inside a large circle. The large circle has radius 10 cm, and the radii are in the ratio 5 : 1. Work out the area between the two circles. Give your answer in terms of π.' },
     '27a': { skill: 'Inverse Proportion', question: '8 people can complete a job in 6 hours, all working at the same rate. If 12 people work on the same job, how many hours will it take?' },
     '27b': { skill: 'Inverse Proportion', question: '12 people were assumed to complete a job in 5 hours. In fact, some of the 12 work faster than assumed and some work slower. What does this mean about the time it will take, compared to 5 hours? (greater / the same / less / not possible to say)' },
   },
 
   challengeQuestions: [
-    { topic: 'number', skill: 'Reverse Percentages', question: 'A jacket costs £68 after a 20% discount. What was the original price?' },
-    { topic: 'number', skill: 'Standard Form', question: 'Write 0.000521 in standard form.' },
-    { topic: 'algebra', skill: 'Simultaneous Equations', question: '2x + 3y = 16 and 4x − 3y = 14. Find the values of x and y.' },
-    { topic: 'algebra', skill: 'Quadratic Factorising', question: 'Factorise x² + 2x − 15.' },
-    { topic: 'ratio', skill: 'Compound Measures', question: 'A runner covers 21 km in 1 hour 45 minutes. Work out the average speed in km/h.' },
-    { topic: 'ratio', skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 8, y = 20. Find y when x = 14.' },
-    { topic: 'shape', skill: 'Trigonometry', question: 'A right-angled triangle has a 9 cm side adjacent to a 40° angle. Work out the length of the hypotenuse, to 1 decimal place.' },
-    { topic: 'shape', skill: 'Circle Theorems', question: 'A and B are points on a circle with centre O. Angle AOB = 84°. Work out the angle at the circumference subtended by the same arc AB.' },
-    { topic: 'probdata', skill: 'Probability', question: 'A bag contains 5 red, 2 blue and 3 green counters. Two counters are drawn without replacement. Work out the probability that both are green.' },
-    { topic: 'probdata', skill: 'Cumulative Frequency', question: 'The interquartile range of a data set of 80 values is estimated from a cumulative frequency graph. Which two cumulative frequency values should you read across from?' },
+    { topic: 'number', skill: 'Reverse Percentages', question: 'A jacket costs £68 after a 20% discount. What was the original price?', answer: '£85', working: '£68 is 80% of the original price.' },
+    { topic: 'number', skill: 'Standard Form', question: 'Write 0.000521 in standard form.', answer: '5.21 × 10⁻⁴' },
+    { topic: 'algebra', skill: 'Simultaneous Equations', question: '2x + 3y = 16 and 4x − 3y = 14. Find the values of x and y.', answer: 'x = 5, y = 2', working: 'Adding the equations eliminates y: 6x = 30.' },
+    { topic: 'algebra', skill: 'Quadratic Factorising', question: 'Factorise x² + 2x − 15.', answer: '(x + 5)(x − 3)' },
+    { topic: 'ratio', skill: 'Compound Measures', question: 'A runner covers 21 km in 1 hour 45 minutes. Work out the average speed in km/h.', answer: '12 km/h', working: '1 hour 45 minutes is 1.75 hours.' },
+    { topic: 'ratio', skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 8, y = 20. Find y when x = 14.', answer: 'y = 35', working: 'y = 2.5x.' },
+    { topic: 'shape', skill: 'Trigonometry', question: 'A right-angled triangle has a 9 cm side adjacent to a 40° angle. Work out the length of the hypotenuse, to 1 decimal place.', answer: '11.7 cm', working: '9 ÷ cos 40° = 11.74…' },
+    { topic: 'shape', skill: 'Circle Theorems', question: 'A and B are points on a circle with centre O. Angle AOB = 84°. Work out the angle at the circumference subtended by the same arc AB.', answer: '42°', working: 'The angle at the centre is twice the angle at the circumference.' },
+    { topic: 'probdata', skill: 'Probability', question: 'A bag contains 5 red, 2 blue and 3 green counters. Two counters are drawn without replacement. Work out the probability that both are green.', answer: '1/15', working: '3/10 × 2/9 = 6/90.' },
+    { topic: 'probdata', skill: 'Cumulative Frequency', question: 'The interquartile range of a data set of 80 values is estimated from a cumulative frequency graph. Which two cumulative frequency values should you read across from?', answer: '20 and 60', working: 'A quarter and three quarters of 80.' },
   ],
 
   sampleStudents: [

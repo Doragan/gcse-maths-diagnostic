@@ -15,6 +15,8 @@
  * bigger, not started). This only removes the "have to edit the page" cost.
  */
 
+import type { RenderedGrid } from '../questions/gridDraw'
+
 /** One topic column the paper's questions are grouped under. */
 export type PaperTopic = {
   /** Short, stable key — used as a Record key and React list key, never shown. */
@@ -68,6 +70,33 @@ export type PaperQuestion = {
 export type PaperRetryQuestion = {
   skill: string
   question: string
+  /**
+   * The answer, for the teacher. Optional here only because the three
+   * hand-authored papers predate it; new authoring should always carry one.
+   * See PaperChallengeQuestion['answer'] for why it exists at all.
+   */
+  answer?: string
+  /** One line of method, where the answer alone would not show the route. */
+  working?: string
+  /**
+   * A grid printed under the question for the student to draw on.
+   *
+   * This is what lets a `visual: true` item have a retry at all. Those items
+   * are excluded by default because a question depending on a diagram cannot be
+   * reissued as text — but "plot the point", "reflect this shape", "show the
+   * inequality on a number line" become perfectly answerable on paper once the
+   * grid is printed: the student draws, and the teacher marks by eye.
+   *
+   * Deliberately a `RenderedGrid` — the SAME spec the student-facing canvas and
+   * the verification harness use — rather than raw SVG. One renderer, one
+   * source of truth, and a spec authored here also feeds the eventual
+   * drawing-input surface instead of being thrown away.
+   *
+   * Rendered with `showCanonical: false`: the grid comes out EMPTY. Drawing the
+   * answer onto the sheet would hand the student the thing they are meant to
+   * work out.
+   */
+  diagram?: RenderedGrid
 }
 
 /** A harder extension question offered when a student is strong in a topic. */
@@ -75,6 +104,26 @@ export type PaperChallengeQuestion = {
   topic: string // a PaperTopic['id']
   skill: string
   question: string
+  /**
+   * The answer — for the TEACHER, and never printed beside the question on a
+   * student's sheet. It exists for two reasons:
+   *
+   *   1. It is the only quality gate available. These questions carry no
+   *      parameters, no answer_template and no grader, so `verify-question`
+   *      and `audit-bank` cannot see them at all. An answer written alongside
+   *      can at least be checked by solving the question independently and
+   *      comparing; without one there is nothing to check against.
+   *   2. A teacher handing out thirty practice questions should not have to
+   *      sit and solve them first. That is the difference between a sheet
+   *      used and a sheet filed.
+   */
+  answer: string
+  /**
+   * A line or two of method. Not a full worked solution — enough that a
+   * teacher can see the route and mark a student's working, which the bare
+   * answer does not give them. Omitted where the answer IS the method.
+   */
+  working?: string
 }
 
 export type PaperConfig = {

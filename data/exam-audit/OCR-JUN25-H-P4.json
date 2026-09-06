@@ -15,66 +15,431 @@
   "coding_notes": [
     "TIER CROSSOVER: q1, q2, q4, q5, q8 and q9 are the same questions as J560/01 q18, q19, q21, q23, q25 and q29. Marks match item for item and the tags are identical in both files. Unlike Edexcel's contiguous block, OCR's shared questions are INTERLEAVED with new ones — q3, q6 and q7 sit between them and appear only here.",
     "q13a (why a quadrilateral with the centre as a vertex is not cyclic) tagged parts_of_a_circle, not circle_theorem_cyclic_quadrilateral: the answer is that O is not on the circumference, which is circle vocabulary rather than the opposite-angles theorem, and parts_of_a_circle costs no prerequisites.",
-    "q21a and q21b (average rate of change between two x values, then the gradient of a tangent) tagged kinematic_graphs as the NEAREST skill. The graph is not a kinematic one, and the taxonomy has no node for rate of change or the gradient of a curve; kinematic_graphs is the only node whose content is reading a gradient off a graph. 6 marks rest on this substitution.",
     "q15 (y inversely proportional to the square of x) tagged proportion_with_powers, which credits 13 skills. inverse_proportion alone would not capture the square, and proportion_with_powers is the exact node.",
     "q23b (value of x giving the smallest value of a squared bracket) tagged completing_the_square rather than quadratic_functions: reading a minimum straight off a completed square is that node's content, and it credits five skills against nine.",
     "q11 (two function machines equal for one input and in a 2:1 ratio for another) tagged simultaneous_equations + function_machines — the machines are the vehicle, the algebra is the demand.",
-    "q16 is all four parts of one growth-and-decay model; q16c(ii), asking why the model might fail, is tagged the same way since criticising the model is part of that skill."
+    "q16 is all four parts of one growth-and-decay model; q16c(ii), asking why the model might fail, is tagged the same way since criticising the model is part of that skill.",
+    "q21a RETAGGED to gradient_of_a_curve (was kinematic_graphs (loose: chord gradient, no motion)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one.",
+    "q21b RETAGGED to gradient_of_a_curve (was untagged (tangent gradient)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one.",
+    "q5a RETAGGED to equations_and_identities (was expanding_double_brackets) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one."
   ],
   "rows": [
-    { "q": "1",  "part": null, "marks": 2, "skill_ids": ["exact_calculations", "significant_figures"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "calculator evaluation of a compound expression, answer to 3 significant figures" },
-    { "q": "2",  "part": null, "marks": 2, "skill_ids": ["simplifying_ratio", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "express a ratio of two metric units in the form 1 : n" },
-    { "q": "3",  "part": null, "marks": 4, "skill_ids": ["lengths_and_perimeters", "circumfrence_of_a_circle"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "perimeter of a rectangle with a semicircle removed from one side" },
-
-    { "q": "4",  "part": "a",  "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "describe the correlation shown by each of three scatter diagrams" },
-    { "q": "4",  "part": "b",  "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "draw a line of best fit and estimate from it" },
-
-    { "q": "5",  "part": "a",  "marks": 1, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "decide whether each algebraic statement is an equation or an identity" },
-    { "q": "5",  "part": "b",  "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "equation of a line parallel to a given line through a given point" },
-
-    { "q": "6",  "part": null, "marks": 5, "skill_ids": ["compound_units"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "average speed over two legs at different speeds, compared with a stated bound" },
-
-    { "q": "7",  "part": "a",  "marks": 2, "skill_ids": ["angles_in_polygons"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "show the interior angle of a regular pentagon" },
-    { "q": "7",  "part": "b",  "marks": 4, "skill_ids": ["angles_in_polygons", "exterior_angles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "number of sides of a regular polygon from angles meeting at a point" },
-
-    { "q": "8",  "part": null, "marks": 3, "skill_ids": ["sampling"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "three criticisms of a sampling method" },
-
-    { "q": "9",  "part": "a",  "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a small decimal in standard form" },
-    { "q": "9",  "part": "b",  "marks": 4, "skill_ids": ["standard_form", "compound_units"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "population density from populations and areas given in standard form" },
-
-    { "q": "10", "part": null, "marks": 3, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "unknown power from an index-law equation over a common base" },
-    { "q": "11", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations", "function_machines"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "two unknown machine parameters from two conditions relating the outputs" },
-    { "q": "12", "part": null, "marks": 5, "skill_ids": ["area_of_a_trapezium", "pythagoras_theorem"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "area of an isosceles trapezium whose height must first be found from the slant sides" },
-
-    { "q": "13", "part": "a",  "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain why a quadrilateral with the centre as a vertex is not cyclic" },
-    { "q": "13", "part": "b",  "marks": 2, "skill_ids": ["circle_theorem_angle_at_centre"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "angle at the circumference from a reflex angle at the centre" },
-
-    { "q": "14", "part": "a",  "marks": 2, "skill_ids": ["cumulative_frequency"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "test a claim about being above the median using a cumulative frequency curve" },
-    { "q": "14", "part": "b",  "marks": 3, "skill_ids": ["cumulative_frequency"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "minimum score for the top decile from a cumulative frequency curve" },
-
-    { "q": "15", "part": null, "marks": 3, "skill_ids": ["proportion_with_powers"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "formula for a variable inversely proportional to the square of another" },
-
-    { "q": "16", "part": "a",  "marks": 1, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "initial value read off an exponential growth formula" },
-    { "q": "16", "part": "b",  "marks": 1, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "annual percentage increase read off an exponential growth formula" },
-    { "q": "16", "part": "ci", "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "show an exponential model crosses a threshold between two consecutive years" },
-    { "q": "16", "part": "cii","marks": 1, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "give a reason an exponential model might not hold" },
-
-    { "q": "17", "part": "a",  "marks": 2, "skill_ids": ["equation_of_a_circle"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "equation of a circle centred on the origin, read off a diagram" },
-    { "q": "17", "part": "b",  "marks": 3, "skill_ids": ["equation_of_a_circle"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "decide whether a point lies inside or outside a circle, with a reason" },
-
-    { "q": "18", "part": "a",  "marks": 3, "skill_ids": ["sequences", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "unknown multiplier in a recurrence relation from two consecutive terms" },
-    { "q": "18", "part": "bi", "marks": 2, "skill_ids": ["sequences", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "first term of a recurrence relation given a ratio between the first two terms" },
-    { "q": "18", "part": "bii","marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "describe the behaviour of a recurrence relation at its fixed point" },
-
-    { "q": "19", "part": null, "marks": 3, "skill_ids": ["surds_expanding_and_rationalising"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "expand a product of two surd brackets and simplify to a single surd multiple" },
-    { "q": "20", "part": null, "marks": 3, "skill_ids": ["sine_rule"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "a side of a non-right-angled triangle from two angles and a side" },
-
-    { "q": "21", "part": "a",  "marks": 2, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "average rate of change of a plotted function between two x values" },
-    { "q": "21", "part": "b",  "marks": 4, "skill_ids": ["kinematic_graphs"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "estimate the gradient of a curve at a point by drawing a tangent" },
-
-    { "q": "22", "part": null, "marks": 5, "skill_ids": ["conditional_probability"], "kind": "exam", "answer_form": "fraction", "app_gap_note": "conditional probability from three overlapping group totals" },
-
-    { "q": "23", "part": "a",  "marks": 6, "skill_ids": ["expanding_double_brackets", "factorising_quadratics"], "kind": "exam", "answer_form": "expression", "app_gap_note": "expand a triple-bracket difference and refactorise the result" },
-    { "q": "23", "part": "b",  "marks": 1, "skill_ids": ["completing_the_square"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "value of x minimising an expression in completed-square form" }
+    {
+      "q": "1",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "exact_calculations",
+        "significant_figures"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "calculator evaluation of a compound expression, answer to 3 significant figures"
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_ratio",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "express a ratio of two metric units in the form 1 : n"
+    },
+    {
+      "q": "3",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "lengths_and_perimeters",
+        "circumfrence_of_a_circle"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "perimeter of a rectangle with a semicircle removed from one side"
+    },
+    {
+      "q": "4",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "scatter_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "describe the correlation shown by each of three scatter diagrams"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "scatter_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "draw a line of best fit and estimate from it"
+    },
+    {
+      "q": "5",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "equations_and_identities"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "decide whether each algebraic statement is an equation or an identity"
+    },
+    {
+      "q": "5",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "understanding_straight_line_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "equation of a line parallel to a given line through a given point"
+    },
+    {
+      "q": "6",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "compound_units"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "average speed over two legs at different speeds, compared with a stated bound"
+    },
+    {
+      "q": "7",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "angles_in_polygons"
+      ],
+      "kind": "mastery",
+      "answer_form": "show_that",
+      "app_gap_note": "show the interior angle of a regular pentagon"
+    },
+    {
+      "q": "7",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "angles_in_polygons",
+        "exterior_angles"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "number of sides of a regular polygon from angles meeting at a point"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "sampling"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "three criticisms of a sampling method"
+    },
+    {
+      "q": "9",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write a small decimal in standard form"
+    },
+    {
+      "q": "9",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "standard_form",
+        "compound_units"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "population density from populations and areas given in standard form"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "unknown power from an index-law equation over a common base"
+    },
+    {
+      "q": "11",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "simultaneous_equations",
+        "function_machines"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "two unknown machine parameters from two conditions relating the outputs"
+    },
+    {
+      "q": "12",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "area_of_a_trapezium",
+        "pythagoras_theorem"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "area of an isosceles trapezium whose height must first be found from the slant sides"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "parts_of_a_circle"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "explain why a quadrilateral with the centre as a vertex is not cyclic"
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "circle_theorem_angle_at_centre"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "angle at the circumference from a reflex angle at the centre"
+    },
+    {
+      "q": "14",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "test a claim about being above the median using a cumulative frequency curve"
+    },
+    {
+      "q": "14",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "minimum score for the top decile from a cumulative frequency curve"
+    },
+    {
+      "q": "15",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "proportion_with_powers"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "formula for a variable inversely proportional to the square of another"
+    },
+    {
+      "q": "16",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "initial value read off an exponential growth formula"
+    },
+    {
+      "q": "16",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "annual percentage increase read off an exponential growth formula"
+    },
+    {
+      "q": "16",
+      "part": "ci",
+      "marks": 3,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "show an exponential model crosses a threshold between two consecutive years"
+    },
+    {
+      "q": "16",
+      "part": "cii",
+      "marks": 1,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "give a reason an exponential model might not hold"
+    },
+    {
+      "q": "17",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "equation_of_a_circle"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "equation of a circle centred on the origin, read off a diagram"
+    },
+    {
+      "q": "17",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "equation_of_a_circle"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "decide whether a point lies inside or outside a circle, with a reason"
+    },
+    {
+      "q": "18",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "sequences",
+        "solving_linear_equations"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "unknown multiplier in a recurrence relation from two consecutive terms"
+    },
+    {
+      "q": "18",
+      "part": "bi",
+      "marks": 2,
+      "skill_ids": [
+        "sequences",
+        "solving_linear_equations"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "first term of a recurrence relation given a ratio between the first two terms"
+    },
+    {
+      "q": "18",
+      "part": "bii",
+      "marks": 1,
+      "skill_ids": [
+        "sequences"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "describe the behaviour of a recurrence relation at its fixed point"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "surds_expanding_and_rationalising"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "expand a product of two surd brackets and simplify to a single surd multiple"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "sine_rule"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "a side of a non-right-angled triangle from two angles and a side"
+    },
+    {
+      "q": "21",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "gradient_of_a_curve"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "average rate of change of a plotted function between two x values"
+    },
+    {
+      "q": "21",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "gradient_of_a_curve"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "estimate the gradient of a curve at a point by drawing a tangent"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "conditional_probability"
+      ],
+      "kind": "exam",
+      "answer_form": "fraction",
+      "app_gap_note": "conditional probability from three overlapping group totals"
+    },
+    {
+      "q": "23",
+      "part": "a",
+      "marks": 6,
+      "skill_ids": [
+        "expanding_double_brackets",
+        "factorising_quadratics"
+      ],
+      "kind": "exam",
+      "answer_form": "expression",
+      "app_gap_note": "expand a triple-bracket difference and refactorise the result"
+    },
+    {
+      "q": "23",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "completing_the_square"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "value of x minimising an expression in completed-square form"
+    }
   ]
 }

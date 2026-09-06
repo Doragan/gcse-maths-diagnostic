@@ -53,6 +53,15 @@ export const foundationSkillIds = [
   "function_machines", "forming_expressions_and_formulae", "rearranging_formulae",
   "systematic_listing", "frequency_trees", "relative_frequency",
   "time_calculations", "reciprocals", "simplifying_ratio", "exact_trig_values",
+  // Added 2026-09-04 with the skills themselves. Both appear on Foundation
+  // papers, so the rule above places them here: properties_of_2d_shapes on AQA
+  // 1F/3F Nov 2023, Edexcel 1F and OCR 02; equations_and_identities on AQA 3F
+  // June 2024 and OCR 01, as well as on several Higher papers.
+  "properties_of_2d_shapes", "equations_and_identities",
+  // area_and_volume_scale_factors does most of its work on Higher papers, but
+  // it appears on Foundation ones too (AQA 3F June 2023 q19, OCR J560/03 q19),
+  // and the rule above is "any Foundation paper".
+  "area_and_volume_scale_factors",
 ]
 
 export const higherOnlySkillIds = [
@@ -73,6 +82,11 @@ export const higherOnlySkillIds = [
   // Added 2026-08-21 alongside the Foundation additions above. These three
   // appear ONLY on Higher papers across all 30 coded series.
   "perpendicular_gradients", "trig_graphs", "counting_without_listing",
+  // Added 2026-09-04. Tangent and chord gradients on a curve appear only on
+  // Higher papers (OCR J560/04 q21), so this one is Higher-only.
+  "gradient_of_a_curve",
+  // Exponential curves appear only on Higher papers.
+  "exponential_graphs",
 ]
 
 export const courses: Course[] = [

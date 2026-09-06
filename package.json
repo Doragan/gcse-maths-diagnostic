@@ -25,6 +25,7 @@
     "react-dom": "19.2.3",
     "resend": "^6.12.4",
     "stripe": "^22.0.0",
+    "svg2pdf.js": "^2.8.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

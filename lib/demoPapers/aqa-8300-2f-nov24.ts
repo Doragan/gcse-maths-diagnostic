@@ -95,6 +95,25 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     '3c': { skill: 'Simplifying Indices', question: 'Simplify fully 18p ÷ 3p' },
     '4a': { skill: 'Coordinates', question: 'A point P is plotted 3 units right and 2 units up from the origin. Write down the coordinates of P.' },
     '4b': { skill: 'Coordinates', question: 'M(2, 4) and N(8, 10) are two points. Work out the coordinates of the midpoint of MN.' },
+    // 4(c) is `visual: true` and had no retry until a retry could bring its own
+    // grid. The points are named in the TEXT rather than lettered on the grid:
+    // axisCoordGroup flips Y, which mirrors any text in a background fragment,
+    // so a background can carry shapes but not labels.
+    '4c': {
+      skill: 'Coordinates',
+      question: 'The points A(1, 3), B(4, 1) and C(7, 3) are plotted on the grid. Plot point D so that ABCD is a rhombus.',
+      answer: 'D is at (4, 5).',
+      working: 'AB and BC are both 3 right and 2 up or down, so D must be 3 right and 2 up from A.',
+      diagram: {
+        mode: 'points',
+        x: { min: 0, max: 8, step: 1, label: 'x' },
+        y: { min: 0, max: 6, step: 1, label: 'y' },
+        background:
+          '<circle cx="1" cy="3" r="0.14" fill="#333" /><circle cx="4" cy="1" r="0.14" fill="#333" /><circle cx="7" cy="3" r="0.14" fill="#333" />',
+        elements: [{ x: 4, y: 5, marks: 1 }],
+        tolerance: 0,
+      },
+    },
     '5a': { skill: 'Range', question: 'Find the range of: 12.5, 13.1, 15.8, 16.0, 19.2' },
     '5b': { skill: 'Mean', question: 'Find the mean of: 12.5, 13.1, 15.8, 16.0, 19.2' },
     '6a': { skill: 'Angles on Lines and Circles', question: 'Angle p and an angle of 128° lie on a straight line together. Work out the size of angle p.' },
@@ -111,6 +130,45 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     '13': { skill: 'Time Calculations', question: 'The time Priya takes to cycle to school is 2 minutes 45 seconds less than 1 hour. Work out her time in hours, minutes and seconds.' },
     '14': { skill: 'Pie Charts', question: 'A pie chart shows favourite pets: Dogs = 100°, Cats = 60°, Fish = 50°, and Rabbits get the rest. 90 people chose Dogs. How many chose Rabbits?' },
     '15a': { skill: 'Compound Units', question: 'A tank fills to 180 litres in 15 minutes at a constant rate. Work out the rate at which it fills, stating your units.' },
+    // 15(b): the filling phase is GIVEN (background) and the student draws the
+    // rest. Every point sits on the lattice — 5-minute and 20-litre steps — so
+    // the answer is readable off the grid rather than estimated.
+    '15b': {
+      skill: 'Kinematic Graphs',
+      question: 'The graph shows a bath filling to 60 litres in 15 minutes. The volume then stays constant for 10 minutes, and all the water empties out at a constant rate over the next 20 minutes. Show this information on the graph.',
+      answer: 'A horizontal line from (15, 60) to (25, 60), then a straight line down to (45, 0).',
+      working: 'Constant volume is a flat line; emptying at a constant rate is a straight line to zero.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 50, step: 5, label: 'Time (minutes)' },
+        y: { min: 0, max: 80, step: 20, label: 'Volume (litres)' },
+        background: '<polyline points="0,0 15,60" stroke="#333" />',
+        elements: [{ x: 15, y: 60, marks: 1 }, { x: 25, y: 60, marks: 1 }, { x: 45, y: 0, marks: 1 }],
+        tolerance: 0,
+      },
+    },
+    // 16: same demand as the original — shade a fraction so the grid has
+    // EXACTLY two lines of symmetry — on a different grid and a different
+    // fraction, so it cannot be answered from memory of the original.
+    '16': {
+      skill: 'Symmetry',
+      question: 'In the 6 by 6 grid, shade one third of the squares so that the grid has exactly two lines of symmetry. Shade complete squares only.',
+      answer: 'Any valid arrangement of 12 squares — for example the two middle columns shaded in full.',
+      working: 'Two middle columns give one vertical and one horizontal line of symmetry, and neither diagonal, which is exactly two.',
+      diagram: {
+        mode: 'cells',
+        x: { min: 0, max: 6, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '',
+        elements: [
+          { x: 2, y: 0, marks: 1 }, { x: 2, y: 1, marks: 1 }, { x: 2, y: 2, marks: 1 },
+          { x: 2, y: 3, marks: 1 }, { x: 2, y: 4, marks: 1 }, { x: 2, y: 5, marks: 1 },
+          { x: 3, y: 0, marks: 1 }, { x: 3, y: 1, marks: 1 }, { x: 3, y: 2, marks: 1 },
+          { x: 3, y: 3, marks: 1 }, { x: 3, y: 4, marks: 1 }, { x: 3, y: 5, marks: 1 },
+        ],
+        tolerance: 0,
+      },
+    },
     '17': { skill: 'Proportion', question: 'A map has a scale of 1 : 5000. On the map, the distance between two towns is 6 cm. Is the actual distance more than 250 m? Show working to support your answer.' },
     '18': { skill: 'Inverse Proportion', question: 'P is inversely proportional to Q. Which is correct: P is directly proportional to Q; P is directly proportional to 3Q; P is directly proportional to 1/Q; or P is directly proportional to Q²?' },
     '19': { skill: "Pythagoras' Theorem", question: 'A right-angled triangle has hypotenuse 2.5 and one leg 2.4. Show that the other leg is 0.7.' },
@@ -125,16 +183,16 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
   },
 
   challengeQuestions: [
-    { topic: 'number', skill: 'Standard Form', question: 'Write 3,400,000 in standard form.' },
-    { topic: 'number', skill: 'Recurring Decimals', question: 'Convert 0.4̇5̇ (recurring) to a fraction in its simplest form.' },
-    { topic: 'algebra', skill: 'Quadratic Equations', question: 'Solve x² − 5x − 14 = 0' },
-    { topic: 'algebra', skill: 'Simultaneous Equations', question: '3x + y = 17 and x − y = 3. Find the values of x and y.' },
-    { topic: 'ratio', skill: 'Growth and Decay', question: 'A car worth £18,000 depreciates by 12% each year. Work out its value after 3 years, to the nearest £100.' },
-    { topic: 'ratio', skill: 'Compound Interest', question: '£2,400 is invested at 3.5% compound interest per year. Work out the value of the investment after 4 years, to the nearest penny.' },
-    { topic: 'shape', skill: 'Sine Rule', question: 'In triangle ABC, angle A = 52°, angle B = 71°, and side a = 9 cm. Work out the length of side b, to 1 decimal place.' },
-    { topic: 'shape', skill: 'Volume of a Sphere', question: 'Work out the volume of a sphere with radius 6 cm. Give your answer in terms of π.' },
-    { topic: 'probdata', skill: 'Tree Diagrams', question: 'A bag has 6 red and 4 blue counters. Two are drawn without replacement. Work out the probability that they are different colours.' },
-    { topic: 'probdata', skill: 'Box Plots', question: 'A box plot has lower quartile 12, median 18, upper quartile 25. Work out the interquartile range.' },
+    { topic: 'number', skill: 'Standard Form', question: 'Write 3,400,000 in standard form.', answer: '3.4 × 10⁶' },
+    { topic: 'number', skill: 'Recurring Decimals', question: 'Convert 0.4̇5̇ (recurring) to a fraction in its simplest form.', answer: '5/11', working: 'Two repeating digits give 45/99, which cancels by 9.' },
+    { topic: 'algebra', skill: 'Quadratic Equations', question: 'Solve x² − 5x − 14 = 0', answer: 'x = 7 or x = −2', working: 'Factorises to (x − 7)(x + 2) = 0.' },
+    { topic: 'algebra', skill: 'Simultaneous Equations', question: '3x + y = 17 and x − y = 3. Find the values of x and y.', answer: 'x = 5, y = 2', working: 'Adding the equations eliminates y: 4x = 20.' },
+    { topic: 'ratio', skill: 'Growth and Decay', question: 'A car worth £18,000 depreciates by 12% each year. Work out its value after 3 years, to the nearest £100.', answer: '£12,300', working: '18 000 × 0.88³ = 12 266.50 to the nearest penny.' },
+    { topic: 'ratio', skill: 'Compound Interest', question: '£2,400 is invested at 3.5% compound interest per year. Work out the value of the investment after 4 years, to the nearest penny.', answer: '£2754.06', working: '2400 × 1.035⁴ = 2400 × 1.147523.' },
+    { topic: 'shape', skill: 'Sine Rule', question: 'In triangle ABC, angle A = 52°, angle B = 71°, and side a = 9 cm. Work out the length of side b, to 1 decimal place.', answer: '10.8 cm', working: 'b = 9 × sin 71° ÷ sin 52° = 10.79…' },
+    { topic: 'shape', skill: 'Volume of a Sphere', question: 'Work out the volume of a sphere with radius 6 cm. Give your answer in terms of π.', answer: '288π cm³', working: '(4/3) × π × 6³, and 4 × 216 ÷ 3 = 288.' },
+    { topic: 'probdata', skill: 'Tree Diagrams', question: 'A bag has 6 red and 4 blue counters. Two are drawn without replacement. Work out the probability that they are different colours.', answer: '8/15', working: 'Two routes: 2 × (6/10 × 4/9) = 48/90.' },
+    { topic: 'probdata', skill: 'Box Plots', question: 'A box plot has lower quartile 12, median 18, upper quartile 25. Work out the interquartile range.', answer: '13', working: '25 − 12; the median is not used.' },
   ],
 
   sampleStudents: [
