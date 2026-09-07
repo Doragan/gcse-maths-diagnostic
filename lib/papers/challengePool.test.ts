@@ -115,7 +115,7 @@ describe('answers stay with the teacher', () => {
     // evidence gave a teacher answers to eight questions no student received.
     const evidences = ['Ama', 'Bo'].map(n => buildStudentEvidence(paper, perfect, n))
     const printed = new Set(
-      evidences.flatMap(e => toWwwEbi(e)).flatMap(s => [...s.practice, ...s.challenge].map(q => q.question)),
+      evidences.flatMap(e => toWwwEbi(e)).flatMap(s => [...s.practice.flatMap(g => g.parts), ...s.challenge].map(q => q.question)),
     )
     const key = answerKeyFor(evidences)
     expect(key.length).toBeGreaterThan(0)
@@ -148,7 +148,7 @@ describe('answers stay with the teacher', () => {
     const evidence = buildStudentEvidence(handAuthoredPaper, zero, 'Ama')
     const sheet = toWwwEbi(evidence)
 
-    const printed = new Set([...sheet.practice, ...sheet.challenge].map(q => q.question))
+    const printed = new Set([...sheet.practice.flatMap(g => g.parts), ...sheet.challenge].map(q => q.question))
     const answeredAndPrinted = evidence.practice.filter(p => p.answer && printed.has(p.question))
     expect(evidence.practice.some(p => !p.answer), 'expected some unanswered retries').toBe(true)
 

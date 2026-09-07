@@ -242,6 +242,13 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
         y: { min: 0, max: 7, step: 1, label: '' },
         // The 4 × 3 face, given.
         background: '<rect x="2" y="2" width="4" height="3" stroke="#333" />',
+        // The five faces still to draw, for the answer copy — a net described
+        // in words is nearly useless to mark against. `solution` exists for
+        // exactly this and is drawn only when the answer is being shown.
+        solution:
+          '<rect x="2" y="5" width="4" height="2" stroke="#333" /><rect x="2" y="0" width="4" height="2" stroke="#333" />' +
+          '<rect x="0" y="2" width="2" height="3" stroke="#333" /><rect x="6" y="2" width="2" height="3" stroke="#333" />' +
+          '<rect x="8" y="2" width="4" height="3" stroke="#333" />',
         elements: [], tolerance: 0,
       },
     },

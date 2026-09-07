@@ -92,9 +92,13 @@ describe('buildFeedbackPdf', () => {
       www: Array.from({ length: MAX_WWW }, (_, i) => `Good attempt at Topic ${i} (6/10).`),
       ebi: Array.from({ length: MAX_EBI_TOPICS + 1 }, (_, i) => `It looks like you found Topic ${i} difficult, picking up around half of the 10 marks. This would be a good place to revise properly.`),
       practice: Array.from({ length: MAX_PRACTICE }, (_, i) => ({
-        skill: `Skill ${i}`,
-        // Longer than any question in lib/demoPapers.
-        question: 'A shelf holds 8 books each 25 mm thick and 2 bookends each 18 mm thick. '.repeat(2),
+        label: String(i + 1),
+        parts: [{
+          label: String(i + 1),
+          skill: `Skill ${i}`,
+          // Longer than any question in lib/demoPapers.
+          question: 'A shelf holds 8 books each 25 mm thick and 2 bookends each 18 mm thick. '.repeat(2),
+        }],
       })),
       challenge: Array.from({ length: MAX_CHALLENGE }, (_, i) => ({
         skill: `Challenge ${i}`,
@@ -114,8 +118,8 @@ describe('buildFeedbackPdf', () => {
       www: [],
       ebi: [],
       practice: Array.from({ length: 10 }, (_, i) => ({
-        skill: `Skill ${i}`,
-        question: 'A very long question. '.repeat(40),
+        label: String(i + 1),
+        parts: [{ label: String(i + 1), skill: `Skill ${i}`, question: 'A very long question. '.repeat(40) }],
       })),
       challenge: [],
     }
@@ -126,7 +130,8 @@ describe('buildFeedbackPdf', () => {
     const enormous: WwwEbiSheet = {
       studentRef: 'Verbose', score: '1 out of 13 (8%)', coverage: null, www: [], ebi: [],
       practice: Array.from({ length: 10 }, (_, i) => ({
-        skill: `Skill ${i}`, question: 'A very long question. '.repeat(40),
+        label: String(i + 1),
+        parts: [{ label: String(i + 1), skill: `Skill ${i}`, question: 'A very long question. '.repeat(40) }],
       })),
       challenge: [],
     }
@@ -210,10 +215,9 @@ describe('diagrams on a practice question', () => {
     const evidence = buildStudentEvidence(paper, dropped14, 'Ama')
     expect(evidence.practice.some(p => p.diagram)).toBe(true)
 
-    const all = evidence.practice
     const sheet = toWwwEbi(evidence)
-    for (const printed of sheet.practice) {
-      const source = all.find(p => p.question === printed.question)!
+    for (const printed of sheet.practice.flatMap(g => g.parts)) {
+      const source = evidence.practice.find(p => p.question === printed.question)!
       expect(printed.diagram).toEqual(source.diagram)
     }
   })
@@ -237,7 +241,7 @@ describe('diagrams on a practice question', () => {
     // keeps this file testable at all.
     expect(typeof document).toBe('undefined')
     const sheets = toWwwEbiSheets(buildClassEvidence(paper, [{ studentRef: 'Ama', marks: dropped14 }]))
-    expect(sheets[0].practice.some(p => p.diagram)).toBe(true)
+    expect(sheets[0].practice.flatMap(g => g.parts).some(p => p.diagram)).toBe(true)
     return expect(buildFeedbackPdf(sheets, options)).resolves.toBeDefined()
   })
 
@@ -249,7 +253,7 @@ describe('diagrams on a practice question', () => {
     // retries pay off least on exactly the low-mark items that need them most.
     const sheet = toWwwEbi(buildStudentEvidence(paper, zero, 'Ama'))
     expect(sheet.practice).toHaveLength(MAX_PRACTICE)
-    expect(sheet.practice.some(p => p.diagram)).toBe(false)
+    expect(sheet.practice.flatMap(g => g.parts).some(p => p.diagram)).toBe(false)
   })
 })
 

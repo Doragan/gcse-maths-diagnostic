@@ -113,6 +113,13 @@ export const MAX_CHALLENGE = 2
 /** How many skills the "full marks on every question testing…" line may name. */
 export const MAX_FULL_MARK_SKILLS = 3
 
+/** One whole question to practise, with every part of it that was dropped. */
+export type PracticeGroup = {
+  /** As printed on the paper — "4", or "12". */
+  label: string
+  parts: { label: string; skill: string; question: string; diagram?: RenderedGrid }[]
+}
+
 export type WwwEbiSheet = {
   /** Passed through from the evidence — a student id or a typed name. */
   studentRef: string
@@ -128,13 +135,17 @@ export type WwwEbiSheet = {
   /** Even better if. Empty when nothing was dropped, which is correct. */
   ebi: string[]
   /**
-   * Questions to practise, worst first.
+   * Questions to practise, worst first — ONE ENTRY PER QUESTION, not per part.
    *
-   * `diagram` rides along where the question needs something drawn on — unlike
-   * `answer`, which is stripped here on purpose, this belongs on the student's
-   * sheet.
+   * A multi-part question is set as a batch, the way it was asked. Parts used
+   * to compete for the same slots, so a student could be given 4(b) and not
+   * 4(a); now dropping either brings the whole of question 4. That is also why
+   * MAX_PRACTICE counts questions here rather than parts.
+   *
+   * `diagram` rides along where a part needs something drawn on — unlike
+   * `answer`, which is stripped here on purpose, this belongs on the sheet.
    */
-  practice: { skill: string; question: string; diagram?: RenderedGrid }[]
+  practice: PracticeGroup[]
   /** Harder questions where a topic is already strong. */
   challenge: { skill: string; question: string }[]
 }
@@ -288,9 +299,7 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
     coverage: evidence.coverage.fullPaper ? null : coverageLine(evidence),
     www,
     ebi,
-    practice: evidence.practice
-      .slice(0, MAX_PRACTICE)
-      .map(p => ({ skill: p.skill, question: p.question, diagram: p.diagram })),
+    practice: groupPractice(evidence),
     // Extension work is for students who are actually ahead — see the constant.
     challenge: highAchieving(evidence)
       ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))
@@ -316,6 +325,33 @@ function coverageLine(evidence: StudentEvidence): string {
 /** The same, for a whole class — thirty sheets being the actual job. */
 export function toWwwEbiSheets(all: StudentEvidence[]): WwwEbiSheet[] {
   return all.map(toWwwEbi)
+}
+
+/**
+ * Gather the dropped parts into whole questions, worst question first.
+ *
+ * `evidence.practice` arrives sorted by marks lost, so the first part of a
+ * question to appear fixes that question's place in the order — which makes
+ * the ranking "the question that cost the most on any one part", and that is
+ * the right reading: it is the question a teacher would set again.
+ *
+ * Within a question the parts stay in PAPER order, because (a) before (b) is
+ * how the student met them and often how they build.
+ */
+function groupPractice(evidence: StudentEvidence): PracticeGroup[] {
+  const order: string[] = []
+  const byQuestion = new Map<string, StudentEvidence['practice']>()
+  for (const p of evidence.practice) {
+    if (!byQuestion.has(p.questionNumber)) { byQuestion.set(p.questionNumber, []); order.push(p.questionNumber) }
+    byQuestion.get(p.questionNumber)!.push(p)
+  }
+  return order.slice(0, MAX_PRACTICE).map(label => ({
+    label,
+    parts: byQuestion.get(label)!
+      .slice()
+      .sort((a, b) => a.itemId.localeCompare(b.itemId))
+      .map(p => ({ label: p.itemLabel, skill: p.skill, question: p.question, diagram: p.diagram })),
+  }))
 }
 
 // ── The teacher's answer key ─────────────────────────────────────────────────
@@ -349,7 +385,10 @@ export function answerKeyFor(evidences: StudentEvidence[]): AnswerKeyEntry[] {
 
   for (const evidence of evidences) {
     const sheet = toWwwEbi(evidence)
-    const printed = new Set([...sheet.practice, ...sheet.challenge].map(q => q.question))
+    const printed = new Set([
+      ...sheet.practice.flatMap(g => g.parts.map(p => p.question)),
+      ...sheet.challenge.map(c => c.question),
+    ])
 
     for (const s of [...evidence.practice, ...evidence.challenges]) {
       if (!s.answer || !printed.has(s.question) || byQuestion.has(s.question)) continue

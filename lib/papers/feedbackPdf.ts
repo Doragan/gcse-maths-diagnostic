@@ -115,6 +115,93 @@ export function toPdfSafe(text: string): string {
   return out
 }
 
+// ── True superscripts ────────────────────────────────────────────────────────
+//
+// `10^-4` is legible but it is not what a maths paper looks like, and the
+// alternative first considered — embedding a Unicode TTF — costs about a
+// megabyte on every sheet, against a whole class pack of roughly twenty
+// kilobytes. jsPDF cannot subset a font, so that megabyte is not negotiable.
+//
+// Drawing them instead costs nothing: the exponent is the SAME standard font
+// at 68% size, raised off the baseline. The only real work is that measuring
+// and wrapping now have to walk runs of mixed size rather than one string.
+
+/** A piece of a line, at normal size or raised. */
+type Run = { text: string; sup: boolean }
+
+const SUP_SIZE = 0.68        // exponent size, as a fraction of the base
+const SUP_RISE = 0.30        // how far above the baseline, in base font heights
+const PT_TO_MM = 25.4 / 72
+
+/** Split text into normal and superscript runs, sanitising each for WinAnsi. */
+function toRuns(text: string): Run[] {
+  const runs: Run[] = []
+  for (const piece of text.split(/([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+)/)) {
+    if (!piece) continue
+    const sup = /^[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/.test(piece)
+    runs.push({
+      sup,
+      text: sup ? [...piece].map(ch => SUPERSCRIPT[ch]).join('') : toPdfSafe(piece),
+    })
+  }
+  return runs
+}
+
+/** Width of a run sequence at the current font, in mm. */
+function measureRuns(doc: jsPDF, runs: Run[], size: number): number {
+  let w = 0
+  for (const r of runs) {
+    doc.setFontSize(r.sup ? size * SUP_SIZE : size)
+    w += doc.getTextWidth(r.text)
+  }
+  doc.setFontSize(size)
+  return w
+}
+
+/** Break runs into lines that fit `width`, honouring any newlines in the text. */
+function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): Run[][] {
+  const lines: Run[][] = []
+  let line: Run[] = []
+
+  const flush = () => { lines.push(line); line = [] }
+  for (const run of runs) {
+    // A superscript never begins a line on its own — it belongs to the token
+    // before it, so it rides along with whatever is already there.
+    if (run.sup) { line.push(run); continue }
+    const parts = run.text.split(/(\n)/)
+    for (const part of parts) {
+      if (part === '\n') { flush(); continue }
+      for (const word of part.split(/(\s+)/)) {
+        if (!word) continue
+        const candidate = [...line, { text: word, sup: false }]
+        if (measureRuns(doc, candidate, size) > width && line.length) {
+          flush()
+          if (/^\s+$/.test(word)) continue   // don't start a line with the space
+        }
+        line.push({ text: word, sup: false })
+      }
+    }
+  }
+  flush()
+  return lines
+}
+
+/** Draw one line of runs at (x, y). */
+function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: number): void {
+  let cx = x
+  for (const r of runs) {
+    if (r.sup) {
+      doc.setFontSize(size * SUP_SIZE)
+      doc.text(r.text, cx, y - size * SUP_RISE * PT_TO_MM)
+    } else {
+      doc.setFontSize(size)
+      doc.text(r.text, cx, y)
+    }
+    cx += doc.getTextWidth(r.text)
+  }
+  doc.setFontSize(size)
+}
+
 /** A4 portrait in mm, matching jsPDF's defaults and lib/results/generatePDF.ts. */
 const MARGIN_X = 20
 const MARGIN_TOP = 20
@@ -274,12 +361,36 @@ async function practiceSection(
   setBlack(doc, 12, 'bold')
   line(doc, c, 'Practise these', 7)
 
-  for (const p of practice) {
-    setBlack(doc, 10.5, 'normal')
-    bullet(doc, c, `${p.skill}: ${p.question}`)
-    if (p.diagram) await drawGrid(doc, c, p.diagram)
+  for (const group of practice) {
+    // The question's number heads the block, so a multi-part question reads as
+    // one thing rather than as several unrelated bullets.
+    setBlack(doc, 10.5, 'bold')
+    line(doc, c, `Question ${group.label} — ${group.parts[0].skill}`, 5.5, 10.5)
+
+    // A diagram shared by every part is drawn ONCE, under the heading. Two
+    // parts reading off one conversion graph printed it twice before, which is
+    // how it looks on a sheet and not how it looks on the paper.
+    const shared = group.parts[0].diagram
+    const allSame = shared && group.parts.every(p => p.diagram && sameGrid(p.diagram, shared))
+    if (allSame) await drawGrid(doc, c, shared)
+
+    for (const part of group.parts) {
+      setBlack(doc, 10.5, 'normal')
+      bullet(doc, c, group.parts.length > 1 ? `${part.label}  ${part.question}` : part.question)
+      if (part.diagram && !allSame) await drawGrid(doc, c, part.diagram)
+    }
+    c.y += 2
   }
-  c.y += 5
+  c.y += 4
+}
+
+/** Same printed figure? Compared on what is drawn, not on object identity. */
+function sameGrid(a: RenderedGrid, b: RenderedGrid): boolean {
+  return a.background === b.background &&
+    a.mode === b.mode &&
+    JSON.stringify(a.x) === JSON.stringify(b.x) &&
+    JSON.stringify(a.y) === JSON.stringify(b.y) &&
+    JSON.stringify(a.labels ?? null) === JSON.stringify(b.labels ?? null)
 }
 
 /**
@@ -393,28 +504,33 @@ function section(doc: jsPDF, c: Cursor, heading: string, lines: string[]): void 
  * practice question stays readable as one item rather than merging into the
  * next.
  */
-function bullet(doc: jsPDF, c: Cursor, text: string): void {
-  // Sanitised BEFORE measuring, so the wrap points match the drawn glyphs.
-  const parts = doc.splitTextToSize(toPdfSafe(text), CONTENT_WIDTH - 6) as string[]
-  parts.forEach((part, i) => {
+function bullet(doc: jsPDF, c: Cursor, text: string, size = 10.5): void {
+  // Wrapped over RUNS, not a plain string: an exponent is drawn at a smaller
+  // size, so measuring it as body text would break the line in the wrong place.
+  const lines = wrapRuns(doc, toRuns(text), size, CONTENT_WIDTH - 6)
+  lines.forEach((run, i) => {
     ensureSpace(doc, c, 6)
-    doc.text(i === 0 ? `• ${part}` : `  ${part}`, MARGIN_X, c.y)
+    doc.text(i === 0 ? '•' : ' ', MARGIN_X, c.y)
+    drawRuns(doc, run, MARGIN_X + 4, c.y, size)
     c.y += 5.5
   })
   c.y += 1
 }
 
 /** One line of text at the cursor, advancing by `advance` mm. */
-function line(doc: jsPDF, c: Cursor, text: string, advance = 5.5): void {
+function line(doc: jsPDF, c: Cursor, text: string, advance = 5.5, size?: number): void {
   ensureSpace(doc, c, advance)
-  doc.text(toPdfSafe(text), MARGIN_X, c.y)
+  drawRuns(doc, toRuns(text), MARGIN_X, c.y, size ?? doc.getFontSize())
   c.y += advance
 }
 
 /** Text that may need more than one line, at the current font. */
 function wrapped(doc: jsPDF, c: Cursor, text: string): void {
-  for (const part of doc.splitTextToSize(toPdfSafe(text), CONTENT_WIDTH) as string[]) {
-    line(doc, c, part, 4.5)
+  const size = doc.getFontSize()
+  for (const run of wrapRuns(doc, toRuns(text), size, CONTENT_WIDTH)) {
+    ensureSpace(doc, c, 4.5)
+    drawRuns(doc, run, MARGIN_X, c.y, size)
+    c.y += 4.5
   }
 }
 

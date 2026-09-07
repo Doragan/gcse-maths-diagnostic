@@ -104,35 +104,49 @@ async function main() {
     text(r.question, 10, 'normal')
     y += 1
 
-    if (r.diagram) {
-      const svg = buildGridSvg(r.diagram, { showCanonical: false })
+    /**
+     * Draw a grid. `showCanonical` gives the ANSWER copy — the solution
+     * overlay and the canonical points — which is the only useful way to
+     * present a drawn answer: "the four faces still to draw are 4 × 3, 4 × 2…"
+     * is nearly impossible to mark a student's net against.
+     */
+    const drawDiagram = async (grid: NonNullable<typeof r.diagram>, showCanonical: boolean) => {
+      const svg = buildGridSvg(grid, { showCanonical })
       const vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
-      if (vb) {
-        // Sized the way a sheet sizes it — hold the SQUARE roughly fixed, not
-        // the width, or a wide grid comes out with squares too small to draw
-        // in. Slightly tighter caps than the sheet's, since this page also
-        // carries the question, the answer and the working.
-        const vbW = Number(vb[1]), vbH = Number(vb[2])
-        let scale = 8 / 28                      // ~8mm per grid square
-        if (vbW * scale > 140) scale = 140 / vbW
-        if (vbH * scale > 95) scale = 95 / vbH
-        if (vbW * scale < 52) scale = 52 / vbW
-        const w = vbW * scale, h = vbH * scale
-        ensure(h + 4)
-        try {
-          const sharp = (await import('sharp')).default
-          const png = await sharp(Buffer.from(svg), { density: 220 })
-            .flatten({ background: '#ffffff' }).png().toBuffer()
-          doc.addImage(`data:image/png;base64,${png.toString('base64')}`, 'PNG', MARGIN_X + 4, y, w, h)
-          y += h + 3
-        } catch (e) {
-          text(`[grid could not be rendered: ${e instanceof Error ? e.message : String(e)}]`, 9, 'normal', 4, true)
-        }
+      if (!vb) return
+      // Sized the way a sheet sizes it — hold the SQUARE roughly fixed, not
+      // the width, or a wide grid comes out with squares too small to draw
+      // in. Slightly tighter caps than the sheet's, since this page also
+      // carries the question, the answer and the working.
+      const vbW = Number(vb[1]), vbH = Number(vb[2])
+      let scale = 8 / 28                      // ~8mm per grid square
+      if (vbW * scale > 140) scale = 140 / vbW
+      if (vbH * scale > 95) scale = 95 / vbH
+      if (vbW * scale < 52) scale = 52 / vbW
+      const w = vbW * scale, h = vbH * scale
+      ensure(h + 4)
+      try {
+        const sharp = (await import('sharp')).default
+        const png = await sharp(Buffer.from(svg), { density: 220 })
+          .flatten({ background: '#ffffff' }).png().toBuffer()
+        doc.addImage(`data:image/png;base64,${png.toString('base64')}`, 'PNG', MARGIN_X + 4, y, w, h)
+        y += h + 3
+      } catch (e) {
+        text(`[grid could not be rendered: ${e instanceof Error ? e.message : String(e)}]`, 9, 'normal', 4, true)
       }
     }
 
+    if (r.diagram) await drawDiagram(r.diagram, false)
+
     text(`Answer:  ${r.answer ?? '(none authored)'}`, 10, 'bold', 4)
     if (r.working) text(r.working, 9, 'normal', 4, true)
+
+    // The answer AS A DIAGRAM, where the answer is something drawn. Only worth
+    // a second grid when there is actually something extra to show.
+    if (r.diagram && (r.diagram.solution || r.diagram.elements.length)) {
+      text('The answer drawn:', 9, 'bold', 4, true)
+      await drawDiagram(r.diagram, true)
+    }
     y += 6
   }
 

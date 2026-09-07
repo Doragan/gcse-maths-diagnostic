@@ -86,7 +86,11 @@ function main() {
     }
     show('What went well', sheet.www)
     show('Even better if', sheet.ebi)
-    show('Practise these', sheet.practice.map(p => `${p.skill}: ${p.question}`))
+    // One block per QUESTION, its parts underneath — the shape a sheet prints.
+    show('Practise these', sheet.practice.flatMap(g =>
+      g.parts.length > 1
+        ? [`Question ${g.label} — ${g.parts[0].skill}`, ...g.parts.map(p => `   ${p.label}  ${p.question}`)]
+        : [`${g.parts[0].skill}: ${g.parts[0].question}`]))
     show('Push yourself', sheet.challenge.map(c => `${c.skill}: ${c.question}`))
   }
 
