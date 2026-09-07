@@ -28,7 +28,7 @@ import { writeFileSync } from 'fs'
 import { join } from 'path'
 import jsPDF from 'jspdf'
 import { PAPERS } from '../lib/demoPapers/index'
-import { toPdfSafe } from '../lib/papers/feedbackPdf'
+import { toRuns, wrapRuns, drawRuns } from '../lib/papers/feedbackPdf'
 import { buildGridSvg } from '../lib/questions/gridSvg'
 
 const MARGIN_X = 18
@@ -56,13 +56,18 @@ async function main() {
   const ensure = (needed: number) => {
     if (y + needed > PAGE_BOTTOM) { doc.addPage(); y = 20 }
   }
+  // Shares the sheet's text path rather than keeping its own. This file had a
+  // private splitTextToSize/toPdfSafe version, so when superscripts started
+  // being DRAWN on a student's sheet the review copy carried on spelling them
+  // "10^-4" — the same content rendering two different ways depending on which
+  // document you were reading.
   const text = (s: string, size: number, weight: 'normal' | 'bold', indent = 0, grey = false) => {
     doc.setFontSize(size)
     doc.setFont('helvetica', weight)
     doc.setTextColor(...(grey ? [110, 110, 110] : [0, 0, 0]) as [number, number, number])
-    for (const line of doc.splitTextToSize(toPdfSafe(s), WIDTH - indent) as string[]) {
+    for (const run of wrapRuns(doc, toRuns(s), size, WIDTH - indent)) {
       ensure(size * 0.5)
-      doc.text(line, MARGIN_X + indent, y)
+      drawRuns(doc, run, MARGIN_X + indent, y, size)
       y += size * 0.42 + 1.4
     }
   }

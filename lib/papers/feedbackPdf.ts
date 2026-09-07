@@ -127,14 +127,14 @@ export function toPdfSafe(text: string): string {
 // and wrapping now have to walk runs of mixed size rather than one string.
 
 /** A piece of a line, at normal size or raised. */
-type Run = { text: string; sup: boolean }
+export type Run = { text: string; sup: boolean }
 
 const SUP_SIZE = 0.68        // exponent size, as a fraction of the base
 const SUP_RISE = 0.30        // how far above the baseline, in base font heights
 const PT_TO_MM = 25.4 / 72
 
 /** Split text into normal and superscript runs, sanitising each for WinAnsi. */
-function toRuns(text: string): Run[] {
+export function toRuns(text: string): Run[] {
   const runs: Run[] = []
   for (const piece of text.split(/([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+)/)) {
     if (!piece) continue
@@ -159,7 +159,7 @@ function measureRuns(doc: jsPDF, runs: Run[], size: number): number {
 }
 
 /** Break runs into lines that fit `width`, honouring any newlines in the text. */
-function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): Run[][] {
+export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): Run[][] {
   const lines: Run[][] = []
   let line: Run[] = []
 
@@ -187,7 +187,7 @@ function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): Run[][]
 }
 
 /** Draw one line of runs at (x, y). */
-function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: number): void {
+export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: number): void {
   let cx = x
   for (const r of runs) {
     if (r.sup) {

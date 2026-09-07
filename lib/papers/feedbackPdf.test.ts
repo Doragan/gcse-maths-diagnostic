@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe } from './feedbackPdf'
+import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe, toRuns } from './feedbackPdf'
 import { buildClassEvidence, buildStudentEvidence } from './feedbackEvidence'
 import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
 import type { PaperConfig } from '../demoPapers'
@@ -295,5 +295,36 @@ describe('superscripts', () => {
         }
       }
     }
+  })
+})
+
+describe('superscript runs', () => {
+  // The drawing path. toPdfSafe still spells them out for callers that need a
+  // plain string, but nothing that DRAWS should use it — the review PDF did,
+  // which is why superscripts came out as "10^-4" there after they were being
+  // drawn properly on a student's sheet.
+  it('splits an exponent into its own raised run', () => {
+    expect(toRuns('10⁻⁴')).toEqual([
+      { text: '10', sup: false },
+      { text: '-4', sup: true },
+    ])
+  })
+
+  it('returns to the baseline after one', () => {
+    expect(toRuns('50 × 60 × 10⁴. Give your answer')).toEqual([
+      { text: '50 × 60 × 10', sup: false },
+      { text: '4', sup: true },
+      { text: '. Give your answer', sup: false },
+    ])
+  })
+
+  it('raises the ones CP1252 can draw too, so a page has one style', () => {
+    // ² is drawable, but leaving it inline while ⁴ is raised would put two
+    // sizes of exponent on one sheet.
+    expect(toRuns('x²')).toEqual([{ text: 'x', sup: false }, { text: '2', sup: true }])
+  })
+
+  it('still sanitises the plain runs', () => {
+    expect(toRuns('3(4e − 2)')).toEqual([{ text: '3(4e - 2)', sup: false }])
   })
 })
