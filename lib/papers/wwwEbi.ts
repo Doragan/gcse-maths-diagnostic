@@ -117,7 +117,51 @@ export const MAX_FULL_MARK_SKILLS = 3
 export type PracticeGroup = {
   /** As printed on the paper — "4", or "12". */
   label: string
-  parts: { label: string; skill: string; question: string; diagram?: RenderedGrid }[]
+  /**
+   * The opening every part shares — the scenario, the given numbers, the
+   * figure described in words. Printed ONCE above the parts, which is how the
+   * question was set. Absent when the parts open differently.
+   */
+  stem?: string
+  parts: {
+    label: string
+    skill: string
+    /**
+     * The retry AS AUTHORED, stem and all. Every retry stands alone
+     * (docs/writing-retry-questions.md), and this is what makes that true when
+     * a part is printed by itself — and what the answer key matches on.
+     */
+    question: string
+    /** What to print BELOW a shared `stem` — `question` with the stem cut. */
+    body: string
+    diagram?: RenderedGrid
+  }[]
+}
+
+/**
+ * The opening lines that every one of these questions shares, or '' if there
+ * is no worthwhile one.
+ *
+ * Cut back to a LINE boundary on purpose. Two parts of "The graph shows how
+ * much red and yellow paint to mix.\nHow much red for 20 litres of yellow?" /
+ * "…\nHow much yellow for 6 litres of red?" share 75 characters, but half of a
+ * third sentence hoisted out of both would read as a fragment. Whole lines
+ * lift cleanly; nothing else does.
+ *
+ * `MIN_STEM` keeps an incidental overlap ("Work out the ") from being promoted
+ * to a scenario — a stem has to be worth the reader's separate paragraph.
+ */
+const MIN_STEM = 30
+
+function sharedStem(questions: string[]): string {
+  if (questions.length < 2) return ''
+  let n = 0
+  while (n < questions[0].length && questions.every(q => q[n] === questions[0][n])) n++
+  const cut = questions[0].lastIndexOf('\n', n - 1)
+  if (cut < MIN_STEM) return ''
+  const stem = questions[0].slice(0, cut)
+  // A part left with nothing of its own would print as a bare label.
+  return questions.every(q => q.slice(cut + 1).trim()) ? stem : ''
 }
 
 export type WwwEbiSheet = {
@@ -345,13 +389,21 @@ function groupPractice(evidence: StudentEvidence): PracticeGroup[] {
     if (!byQuestion.has(p.questionNumber)) { byQuestion.set(p.questionNumber, []); order.push(p.questionNumber) }
     byQuestion.get(p.questionNumber)!.push(p)
   }
-  return order.slice(0, MAX_PRACTICE).map(label => ({
-    label,
-    parts: byQuestion.get(label)!
-      .slice()
-      .sort((a, b) => a.itemId.localeCompare(b.itemId))
-      .map(p => ({ label: p.itemLabel, skill: p.skill, question: p.question, diagram: p.diagram })),
-  }))
+  return order.slice(0, MAX_PRACTICE).map(label => {
+    const parts = byQuestion.get(label)!.slice().sort((a, b) => a.itemId.localeCompare(b.itemId))
+    const stem = sharedStem(parts.map(p => p.question))
+    return {
+      label,
+      ...(stem ? { stem } : {}),
+      parts: parts.map(p => ({
+        label: p.itemLabel,
+        skill: p.skill,
+        question: p.question,
+        body: stem ? p.question.slice(stem.length + 1) : p.question,
+        diagram: p.diagram,
+      })),
+    }
+  })
 }
 
 // ── The teacher's answer key ─────────────────────────────────────────────────

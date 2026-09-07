@@ -355,3 +355,36 @@ describe('multi-part questions are set as a batch', () => {
     expect(sheet.practice[0].parts.map(p => p.label)).toEqual(['4(a)', '4(b)'])
   })
 })
+
+describe('a scenario shared by the parts is set once', () => {
+  const realPaper = PAPERS['aqa-8300-1f-jun25']
+  const marksExcept = (drop: string[]) =>
+    Object.fromEntries(realPaper.questions.map(q => [q.id, drop.includes(q.id) ? 0 : q.marks]))
+
+  it('lifts the shared opening out of the parts', () => {
+    // 1F 4(a) and 4(b) both open "The graph shows how much red and yellow
+    // paint to mix to make orange paint." — on the paper that sentence is
+    // printed once, above both parts.
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['4a', '4b']), 'T'))
+    const group = sheet.practice[0]
+    expect(group.stem).toContain('red and yellow paint')
+    for (const part of group.parts) expect(part.body).not.toContain('red and yellow paint')
+  })
+
+  it('leaves each part able to stand alone', () => {
+    // The stem is lifted for PRINTING only. `question` stays whole, because a
+    // part shown by itself still has to make sense — and because the answer
+    // key matches on it.
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['4a', '4b']), 'T'))
+    for (const part of sheet.practice[0].parts) {
+      expect(part.question).toBe(`${sheet.practice[0].stem}\n${part.body}`)
+    }
+  })
+
+  it('sets no stem when the parts open differently', () => {
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['1a', '2']), 'T'))
+    for (const group of sheet.practice) {
+      if (group.parts.length === 1) expect(group.stem).toBeUndefined()
+    }
+  })
+})

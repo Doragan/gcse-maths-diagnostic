@@ -98,8 +98,8 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     // 2(a) and (b) share one setup, as on the paper. The ratio is chosen so
     // that doubling it would break the "fewer than 100" condition, which is
     // what makes a single answer possible at all.
-    '2a': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field. Write down the number of hens in the field.', answer: '43', working: 'One lot of the ratio is 72 animals; two lots would be 144, which is too many.' },
-    '2b': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field. In total, how many animals are there in the field?', answer: '72', working: '29 + 43' },
+    '2a': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field.\nWrite down the number of hens in the field.', answer: '43', working: 'One lot of the ratio is 72 animals; two lots would be 144, which is too many.' },
+    '2b': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field.\nIn total, how many animals are there in the field?', answer: '72', working: '29 + 43' },
 
     // 3(a) and (b) read off a scale drawing, so the retry supplies one. The
     // path is the whole diagram — there is nothing for the student to draw —
@@ -107,7 +107,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     // are named in the TEXT because a background cannot carry labels.
     '3a': {
       skill: 'Bearings',
-      question: 'A path joins A(1, 1), B(5, 1) and C(5, 4) on a centimetre grid, with north pointing up the page. Write down the direction of B from A.',
+      question: 'A path joins A(1, 1), B(5, 1) and C(5, 4) on a centimetre grid.\nNorth points up the page.\nWrite down the direction of B from A.',
       answer: 'East',
       working: 'B is directly to the right of A on the drawing.',
       diagram: {
@@ -141,7 +141,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '4c': { skill: 'Simplifying Indices', question: 'Simplify fully k × k × k × k', answer: 'k⁴' },
     '4d': { skill: 'Simplifying Indices', question: 'Simplify fully h ÷ h', answer: '1' },
 
-    '5': { skill: 'Converting Measurements', question: 'Sam cycles 600 metres to the shop, then 450 metres to the library, then 520 metres home. Show that Sam cycles more than 1.5 kilometres.', answer: '1570 metres, which is 1.57 km', working: '600 + 450 + 520 = 1570 m, and 1.5 km is 1500 m.' },
+    '5': { skill: 'Converting Measurements + Simple Arithmetic', question: 'Sam cycles 600 metres to the shop, then 450 metres to the library, then 520 metres home. Show that Sam cycles more than 1.5 kilometres.', answer: '1570 metres, which is 1.57 km', working: '600 + 450 + 520 = 1570 m, and 1.5 km is 1500 m.' },
 
     '6': {
       skill: 'Simple Charts',
@@ -162,7 +162,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
       },
     },
 
-    '7': { skill: 'Simplifying Fractions', question: 'Work out 45p as a fraction of £1.50. Give your answer in its simplest form.', answer: '3/10', working: '45/150, cancelling by 15.' },
+    '7': { skill: 'Simplifying Fractions + Converting Measurements', question: 'Work out 45p as a fraction of £1.50. Give your answer in its simplest form.', answer: '3/10', working: '45/150, cancelling by 15.' },
     '8a': { skill: 'Time Calculations', question: 'Convert 2 and three quarter hours to minutes.', answer: '165 minutes', working: '2 × 60 + 45' },
     '8b': { skill: 'Converting Measurements', question: 'Convert 2600 grams to kilograms.', answer: '2.6 kilograms' },
     '8c': { skill: 'Proportion', question: 'Convert 56 kilometres to miles. Use 8 kilometres = 5 miles.', answer: '35 miles', working: '56 ÷ 8 = 7, then × 5.' },
@@ -211,19 +211,19 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '11': { skill: 'Expanding Brackets', question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
+    '11': { skill: 'Expanding Brackets + Simplifying Expressions', question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
     '12': { skill: 'Proportion', question: '5 oranges cost £1.80. Work out the cost of 8 of these oranges.', answer: '£2.88', working: 'One orange is 36p.' },
     '13a': { skill: 'Range', question: 'Here are four numbers: 125, 154, 189, 172. Work out the range.', answer: '64', working: '189 − 125' },
     '13b': { skill: 'Mean', question: 'A fifth number is added to 125, 154, 189 and 172. The mean of all five numbers is 158. Work out the fifth number.', answer: '150', working: 'The five must total 790, and the first four total 640.' },
-    '14': { skill: 'Forming Expressions and Formulae', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) n/2' },
-    '15': { skill: 'Lengths and Perimeters', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
+    '14': { skill: 'Forming Expressions and Formulae + Simplifying Expressions', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) n/2' },
+    '15': { skill: 'Lengths and Perimeters + Areas of Squares and Rectangles', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
     '16': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'Rearrange c − 5 = d to make c the subject.', answer: 'c = d + 5' },
     '17': { skill: 'Proportion', question: 'Packet A holds 500 g of rice and costs £1.20.\nPacket B holds 800 g and costs £2.00.\nWhich packet is better value for money? You must show your working.\n[   ] Packet A\n[   ] Packet B', answer: 'Packet A', working: 'A is 0.24p per gram and B is 0.25p per gram.' },
     '18a': { skill: 'Ratio', question: 'Sam uses either a bike or a bus to get to work. The number of days using a bike divided by the number of days using a bus is 2/7. Write down the ratio number of days using a bike : number of days using a bus.', answer: '2 : 7' },
     '18b': { skill: 'Simplifying Ratio', question: 'Write the ratio 9b : 4b in the form n : 1, where n is a decimal.', answer: '2.25 : 1', working: 'The b cancels, and 9 ÷ 4 = 2.25.' },
     '18c': { skill: 'Ratio', question: '1 : x = x : 9. Work out the value of x.', answer: 'x = 3', working: 'Cross-multiplying gives x² = 9.' },
-    '19a': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections. For spinner 1, P(red) = 2/5. For spinner 2, P(red) = 3/7. Write down the probability that spinner 1 lands on green, and the probability that spinner 2 lands on green.', answer: '3/5 and 4/7', working: 'Each pair of probabilities must add to 1.' },
-    '19b': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections. For spinner 1, P(red) = 2/5, and for spinner 2, P(red) = 3/7. Both spinners are spun. Work out the probability that both spinners land on red.', answer: '6/35', working: '2/5 × 3/7' },
+    '19a': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections.\nFor spinner 1, P(red) = 2/5. For spinner 2, P(red) = 3/7. Write down the probability that spinner 1 lands on green, and the probability that spinner 2 lands on green.', answer: '3/5 and 4/7', working: 'Each pair of probabilities must add to 1.' },
+    '19b': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections.\nFor spinner 1, P(red) = 2/5, and for spinner 2, P(red) = 3/7. Both spinners are spun. Work out the probability that both spinners land on red.', answer: '6/35', working: '2/5 × 3/7' },
     // 20(a) is `visual: true` and now has a grid to plot on. Every reading is
     // a multiple of 20 000 so it lands on a ruled line, and six days against
     // six rows keeps the grid square enough to print at 72mm.
@@ -249,8 +249,8 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
       },
     },
     '20b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
-    '21': { skill: 'Fractions Decimals and Percentages', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
-    '22': { skill: 'Simple Arithmetic', question: 'A group of adults and children go to a theme park. An adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children. In the group there are 32 children, and the total price for the group is £494. How many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
+    '21': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
+    '22': { skill: 'Simple Arithmetic + Proportion', question: 'A group of adults and children go to a theme park. An adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children. In the group there are 32 children, and the total price for the group is £494. How many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
     '23a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
     '23b': { skill: 'Upper and Lower Bounds', question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.', answer: 'The largest possible total is 12.4 m', working: 'One shelf is under 3.1 m, so four are under 12.4 m.' },
     '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },

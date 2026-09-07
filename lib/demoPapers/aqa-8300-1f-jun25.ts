@@ -110,7 +110,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     // stated here instead, which keeps the reasoning — scale up from a known
     // row — without needing the picture.
     '3': {
-      skill: 'Simple Charts',
+      skill: 'Simple Charts + Proportion',
       question: 'The pictogram shows how many books two classes read.\nThe key is missing.\nClass A read 48 books.\nHow many books did Class B read?',
       answer: '36 books',
       working: 'Six symbols stand for 48 books, so one symbol is 8 books, and Class B has four and a half.',
@@ -135,7 +135,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     // yellow 6 are both ruled, as are red 8 and yellow 12.
     '4a': {
       skill: 'Understanding Straight Line Graphs',
-      question: 'The graph shows how much red and yellow paint to mix to make orange paint. Ola uses 6 litres of yellow paint. Write down how much red paint Ola uses.',
+      question: 'The graph shows how much red and yellow paint to mix to make orange paint.\nOla uses 6 litres of yellow paint. Write down how much red paint Ola uses.',
       answer: '4 litres',
       diagram: {
         mode: 'points',
@@ -148,7 +148,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     },
     '4b': {
       skill: 'Understanding Straight Line Graphs',
-      question: 'The graph shows how much red and yellow paint to mix to make orange paint. Pip uses 12 litres of yellow paint. How much orange paint does Pip make?',
+      question: 'The graph shows how much red and yellow paint to mix to make orange paint.\nPip uses 12 litres of yellow paint. How much orange paint does Pip make?',
       answer: '20 litres',
       working: 'The graph gives 8 litres of red, and the orange is the two mixed: 8 + 12.',
       diagram: {
@@ -171,7 +171,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '9a': { skill: 'Ratio', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nBox B holds discs numbered 2, 4, 6, 8 and 10.\nWork out the ratio total value of the numbers in Box A : total value of the numbers in Box B.\nGive your answer in its simplest form.', answer: '2 : 3', working: 'Box A totals 20 and Box B totals 30, and 20 : 30 divides by 10.' },
     '9b': { skill: 'Calculating Simple Probability', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nOne disc is picked at random from Box A.\nWrite down the probability that the number on the disc is greater than 6', answer: '1/4', working: 'Only the 7 is greater than 6, out of four discs.' },
 
-    '10': { skill: 'Substitution', question: 'Work out the value of 3(b² − 2b) when b = 5', answer: '45', working: '25 − 10 = 15, then × 3.' },
+    '10': { skill: 'Substitution + Indices', question: 'Work out the value of 3(b² − 2b) when b = 5', answer: '45', working: '25 − 10 = 15, then × 3.' },
     // 11 is `visual: true`. Its figure is just a line segment with the
     // centre marked — plain paper, no ruling, which is what showGrid:false
     // is for. The student still needs a pair of compasses.
@@ -192,7 +192,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '12a': { skill: 'Fractions of Amounts', question: 'One day, a bus company runs 180 buses and one sixth of these buses are late. The company is fined £240 for each late bus. How much is the company fined that day?', answer: '£7200', working: '180 ÷ 6 = 30 late buses, then × £240.' },
     '12b': { skill: 'Ratio', question: 'Sandwiches are sold at a station in the ratio cheese : ham : tuna = 4 : 3 : 5. 1800 sandwiches are sold. How many ham sandwiches are sold?', answer: '450', working: '12 parts altogether, so one part is 150.' },
     '13': {
-      skill: 'Angles on lines and Circles',
+      skill: 'Angles on lines and Circles + Solving Linear Equations',
       question: 'PQ is a straight line, and three angles meet at a point on it.\nWork out the value of x.\nNot drawn accurately.',
       answer: 'x = 26',
       working: 'Angles on a straight line add to 180°, so 5x + 50 = 180.',
@@ -215,11 +215,11 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '14b': { skill: 'Estimating', question: 'An estimate of 3.4 × 5.2 + 2.3² is made by rounding each number to 1 significant figure, giving 19. Is 19 an overestimate or an underestimate of the true value? Give a reason for your answer.\n[   ] Overestimate\n[   ] Underestimate', answer: 'Underestimate', working: 'Every number was rounded down, so the estimate must be below the true value.' },
     '15a': { skill: 'Parts of a Circle', question: 'A sphere has diameter 12 cm. Show that the radius of the sphere is 6 cm', answer: 'The radius is half the diameter, and 12 ÷ 2 = 6' },
     '15b': { skill: 'Volume of a Sphere', question: 'The volume of a sphere is (4/3) × pi × r³, where r is the radius. Work out the volume of a sphere with diameter 12 cm. Give your answer in terms of pi.', answer: '288 pi cm³', working: 'r = 6, so r³ = 216, and 4 ÷ 3 × 216 = 288.' },
-    '16a': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w. Assume the job needs completing in 25 days. How many workers are needed?', answer: '24 workers', working: '25 = 600 ÷ w, so w = 600 ÷ 25.' },
-    '16b': { skill: 'Inverse Proportion', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w, and completing the job in 25 days needs 24 workers. In fact, the job needs completing in fewer than 25 days. What does this mean about the number of workers needed?\nTick one box.\n[   ] fewer than 24\n[   ] exactly 24\n[   ] more than 24', answer: 'More than 24 workers', working: 'Days × workers is fixed, so fewer days needs more workers.' },
+    '16a': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w.\nAssume the job needs completing in 25 days. How many workers are needed?', answer: '24 workers', working: '25 = 600 ÷ w, so w = 600 ÷ 25.' },
+    '16b': { skill: 'Inverse Proportion', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w.\nCompleting the job in 25 days needs 24 workers.\nIn fact, the job needs completing in fewer than 25 days. What does this mean about the number of workers needed?\nTick one box.\n[   ] Fewer than 24 workers\n[   ] Exactly 24 workers\n[   ] More than 24 workers', answer: 'More than 24 workers', working: 'Days × workers is fixed, so fewer days needs more workers.' },
     '17': { skill: 'Parts of a Circle', question: 'A chord is drawn on a circle. Which statement is correct?\nTick one box.\n[   ] The chord must be shorter than the diameter\n[   ] The chord must be equal in length to the diameter\n[   ] The chord must be longer than the diameter\n[   ] The chord is never longer than the diameter', answer: 'The chord is never longer than the diameter', working: 'The longest chord a circle has is a diameter, so equal is possible but longer is not.' },
     '18': { skill: 'Compound Units', question: 'A metal solid has volume 14 cm³. The density of the metal is 7.5 g/cm³. Work out the mass of the solid.', answer: '105 g', working: 'Mass = density × volume.' },
-    '19': { skill: 'Mean', question: 'The mean and range of the scores of two teams are:\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
+    '19': { skill: 'Mean + Range', question: 'The mean and range of the scores of two teams are:\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
     '20a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '20b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
 
@@ -257,7 +257,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     // same here, with one value asked for instead of five boxes — which is how
     // the same idea is often asked when there is no tree printed.
     '22': {
-      skill: 'Frequency Trees',
+      skill: 'Frequency Trees + Ratio',
       question: '240 students from Year 8 and Year 9 take part in a competition.\nThe ratio number of Year 8 students : number of Year 9 students is 1 : 3\n96 students win a medal, and 70 of the students who win a medal are in Year 9.\nComplete the frequency tree, and write down how many Year 8 students do not win a medal.',
       answer: '34 Year 8 students do not win a medal',
       working: 'Year 8 has 240 ÷ 4 = 60 students; 96 − 70 = 26 of them win a medal, so 60 − 26 = 34 do not.',
@@ -285,7 +285,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '24': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     1/4     50     −6     30', answer: '1/4', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
     '25': { skill: 'Exact Trigonometric Values', question: 'Circle the value of cos 90 degrees.\n0     1/2     1/sqrt2     sqrt3/2     1', answer: '0', working: 'cos 0° is 1 and cos 90° is 0 — at Foundation the exact values asked for are the ones at 0° and 90°.' },
     '26': {
-      skill: 'Solving Quadratic Equations (Factorising)',
+      skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles',
       question: 'The area of the rectangle is 96 cm².\nWork out the value of x.\nNot drawn accurately.',
       answer: 'x = 8',
       working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.',

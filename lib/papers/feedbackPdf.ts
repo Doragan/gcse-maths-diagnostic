@@ -367,6 +367,15 @@ async function practiceSection(
     setBlack(doc, 10.5, 'bold')
     line(doc, c, `Question ${group.label} — ${group.parts[0].skill}`, 5.5, 10.5)
 
+    // The scenario the parts share, set once above them — the paper prints it
+    // once, and repeating it under (a) and again under (b) reads as two
+    // unrelated questions that happen to use the same numbers.
+    if (group.stem) {
+      setBlack(doc, 10.5, 'normal')
+      for (const l of group.stem.split('\n')) line(doc, c, l, 4.6, 10.5)
+      c.y += 1
+    }
+
     // A diagram shared by every part is drawn ONCE, under the heading. Two
     // parts reading off one conversion graph printed it twice before, which is
     // how it looks on a sheet and not how it looks on the paper.
@@ -376,7 +385,7 @@ async function practiceSection(
 
     for (const part of group.parts) {
       setBlack(doc, 10.5, 'normal')
-      bullet(doc, c, group.parts.length > 1 ? `${part.label}  ${part.question}` : part.question)
+      bullet(doc, c, group.parts.length > 1 ? `${part.label}  ${part.body}` : part.body)
       if (part.diagram && !allSame) await drawGrid(doc, c, part.diagram)
     }
     c.y += 2

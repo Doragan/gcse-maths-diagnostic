@@ -119,11 +119,11 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     '6a': { skill: 'Angles on Lines and Circles', question: 'Angle p and an angle of 128° lie on a straight line together. Work out the size of angle p.' },
     '6b': { skill: 'Angles on Lines and Circles', question: 'Angle q, a 47° angle and a 75° angle lie on a straight line together. Work out the size of angle q.' },
     '6c': { skill: 'Angles on Lines and Circles', question: 'Three straight lines intersect. Two of the angles formed are marked 50° and 80°. Work out the type of triangle formed at the intersection, showing your working.' },
-    '7': { skill: 'Proportion', question: 'A family has 4 packs of 6 eggs and 10 packs of 2 eggs. They use 3 eggs each day. In total, how many days will their eggs last?' },
+    '7': { skill: 'Proportion + Simple Arithmetic', question: 'A family has 4 packs of 6 eggs and 10 packs of 2 eggs. They use 3 eggs each day. In total, how many days will their eggs last?' },
     '9': { skill: 'Systematic Listing', question: 'Amir is choosing two toppings from four: pepperoni (P), mushroom (M), pepper (E), olive (L). List all the possible options for the two toppings.' },
     '10a': { skill: 'Fractions, Decimals and Percentages', question: 'Write 5/8 as a percentage.' },
     '10b': { skill: 'Converting Fractions to Decimals', question: 'Work out 9/16 as a decimal. Give your answer to 2 decimal places.' },
-    '11': { skill: 'Simple Arithmetic', question: 'Tick True, May be true, or Not true for each: (i) if a number is < 0 the number is negative  (ii) if a number is ≥ 4 the number is 4' },
+    '11': { skill: 'Simple Arithmetic', question: 'For each statement, state whether it is true, may be true, or not true.\n(i)   If a number is less than 0, the number is negative\n(ii)  If a number is 4 or more, the number is 4', answer: '(i) True, (ii) May be true', working: 'Every number below zero is negative; 4 or more includes 4 itself but also 5, 6 and so on.' },
     '12a': { skill: 'Substitution', question: 'Work out the value of x² + 5x when x = −3' },
     '12b': { skill: 'Rearranging Formulae', question: 'Rearrange p = q + 3 to make q the subject.' },
     '12c': { skill: 'Simplifying Expressions', question: 'Simplify fully 3(b + 5) + b' },
@@ -179,7 +179,7 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     '23': { skill: 'Upper and Lower Bounds', question: 'The length of a field is 40 metres to the nearest metre. Complete the error interval for the length of the field.' },
     '24': { skill: 'Reverse Percentage', question: '276,000 tickets were sold this year. This is 15% more than last year. How many were sold last year?' },
     '25': { skill: 'Simplifying Indices', question: 'Here are three terms: ab, a², 3b². Work out the three possible fully simplified products of two of these terms.' },
-    '26': { skill: 'Solving Linear Equations', question: 'A rectangle has one side labelled 3x + 2 and another expression for the same side, 5x − 6. AB : BC = 1 : 4. Work out the area of the rectangle.' },
+    '26': { skill: 'Solving Linear Equations + Areas of Squares and Rectangles', question: 'A rectangle has one side labelled 3x + 2 and another expression for the same side, 5x − 6. AB : BC = 1 : 4. Work out the area of the rectangle.' },
   },
 
   challengeQuestions: [

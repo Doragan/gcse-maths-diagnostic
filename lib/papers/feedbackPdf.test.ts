@@ -98,6 +98,7 @@ describe('buildFeedbackPdf', () => {
           skill: `Skill ${i}`,
           // Longer than any question in lib/demoPapers.
           question: 'A shelf holds 8 books each 25 mm thick and 2 bookends each 18 mm thick. '.repeat(2),
+          body: 'A shelf holds 8 books each 25 mm thick and 2 bookends each 18 mm thick. '.repeat(2),
         }],
       })),
       challenge: Array.from({ length: MAX_CHALLENGE }, (_, i) => ({
@@ -119,7 +120,7 @@ describe('buildFeedbackPdf', () => {
       ebi: [],
       practice: Array.from({ length: 10 }, (_, i) => ({
         label: String(i + 1),
-        parts: [{ label: String(i + 1), skill: `Skill ${i}`, question: 'A very long question. '.repeat(40) }],
+        parts: [{ label: String(i + 1), skill: `Skill ${i}`, question: 'A very long question. '.repeat(40), body: 'A very long question. '.repeat(40) }],
       })),
       challenge: [],
     }
@@ -131,7 +132,7 @@ describe('buildFeedbackPdf', () => {
       studentRef: 'Verbose', score: '1 out of 13 (8%)', coverage: null, www: [], ebi: [],
       practice: Array.from({ length: 10 }, (_, i) => ({
         label: String(i + 1),
-        parts: [{ label: String(i + 1), skill: `Skill ${i}`, question: 'A very long question. '.repeat(40) }],
+        parts: [{ label: String(i + 1), skill: `Skill ${i}`, question: 'A very long question. '.repeat(40), body: 'A very long question. '.repeat(40) }],
       })),
       challenge: [],
     }
