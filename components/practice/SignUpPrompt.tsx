@@ -2,7 +2,16 @@
 
 import { colors, font, radius, secondaryButton } from '../../lib/styles'
 import { trackEvent } from '../../lib/analytics'
+import { PLANS } from '../../lib/studentPlans'
 import { GoogleButton } from '../GoogleButton'
+
+/**
+ * Derived from PLANS rather than typed into the copy, for the same reason the
+ * landing page derives its price (scripts/check-landing-copy.ts enforces it
+ * there): a price hardcoded into prose drifts the moment the plan changes, and
+ * a wrong number is a bad look on a maths product.
+ */
+const ANNUAL_PRICE = PLANS.find(p => p.id === 'annual')?.price ?? null
 
 /**
  * Bumps the per-tab "questions answered" counter and decides whether the anonymous
@@ -139,6 +148,21 @@ export default function SignUpPrompt({ onDismiss }: { onDismiss: () => void }) {
         >
           Maybe later
         </button>
+        {/*
+          The cost answer, once, quietly, AFTER the ask — the same stance the
+          landing page takes. The account itself is free, so leading with a
+          price would invent an objection that isn't there; but "will this end
+          up costing me?" is the unasked question behind a sign-up wall, and
+          leaving it unanswered is what makes a free offer feel like a trap.
+          The calculator comparison gives the yearly figure a size a student
+          already knows — every one of them has bought one.
+        */}
+        {ANNUAL_PRICE && (
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0', textAlign: 'center' as const, lineHeight: 1.5 }}>
+            Free, and no card needed. There&rsquo;s an optional upgrade later at{' '}
+            {ANNUAL_PRICE} for a whole year — less than a new scientific calculator.
+          </p>
+        )}
       </div>
     </div>
   )

@@ -24,6 +24,8 @@ const SKILL_COUNT = Object.keys(skillsById).length
  * than printing a wrong one if the plan is ever renamed.
  */
 const MONTHLY_PRICE = PLANS.find(p => p.id === 'monthly')?.price ?? null
+/** Same rule as MONTHLY_PRICE. Used by the demo sign-up nudge. */
+const ANNUAL_PRICE = PLANS.find(p => p.id === 'annual')?.price ?? null
 
 // ── Demo Question — real engine, varied questions from the live bank ──────────
 
@@ -285,6 +287,19 @@ function DemoQuestion({ initialPool, initialQuestion }: {
           <button onClick={() => setShowSignupModal(false)} style={{ background: 'none', border: 'none', color: colors.textSecondary, fontSize: font.sm, cursor: 'pointer', fontWeight: '600' }}>
             Keep practising
           </button>
+          {/*
+            The cost answer, once, quietly, after the ask — matching the parent
+            section further down the page and the practice nudge
+            (components/practice/SignUpPrompt.tsx). The account is free, so the
+            job here is closing the "does this end up costing me?" question, not
+            selling. The calculator gives the yearly figure a familiar size.
+          */}
+          {ANNUAL_PRICE && (
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: '12px 0 0', lineHeight: 1.5 }}>
+              Free, and no card needed. There&rsquo;s an optional upgrade later at {ANNUAL_PRICE} for
+              a whole year — less than a new scientific calculator.
+            </p>
+          )}
         </div>
       </div>
     )}

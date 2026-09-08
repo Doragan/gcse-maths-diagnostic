@@ -157,6 +157,10 @@ export default function ParentPayPage() {
                   <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{plan.period}</span>
                 </div>
                 <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, textAlign: 'left' }}>{plan.description}</p>
+                {/* Size cue, quieter than the terms above it — see PlanDef.comparison. */}
+                {plan.comparison && (
+                  <p style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 0', textAlign: 'left' }}>{plan.comparison}</p>
+                )}
                 {seatNote && (
                   <p style={{ fontSize: font.sm, fontWeight: 600, color: colors.primary, margin: '6px 0 0', textAlign: 'left' }}>{seatNote}</p>
                 )}
