@@ -126,10 +126,10 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 6, step: 1, label: '' },
-        background: '<polyline points="1,2 9,2" stroke="#333" fill="none" /><polyline points="5,2 6.85,4.36" stroke="#333" fill="none" />',
+        background: '<polyline points="1,2 9,2" stroke="#333" fill="none" /><polyline points="5,2 6.85,4.36" stroke="#333" fill="none" /><path d="M 5.9,2 A 0.9,0.9 0 0,1 5.555,2.708" stroke="#333" fill="none" /><path d="M 5.555,2.708 A 0.9,0.9 0 0,1 4.1,2" stroke="#333" fill="none" />',
         labels: [
           { x: 3.9, y: 2.65, text: '128°' },
-          { x: 5.95, y: 2.5, text: 'p' },
+          { x: 6.17, y: 2.57, text: 'p' },
         ],
         elements: [], tolerance: 0,
       },
@@ -143,7 +143,7 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 6, step: 1, label: '' },
-        background: '<polyline points="1,2 9,2" stroke="#333" fill="none" /><polyline points="5,2 7.05,4.19" stroke="#333" fill="none" /><polyline points="5,2 3.41,4.54" stroke="#333" fill="none" />',
+        background: '<polyline points="1,2 9,2" stroke="#333" fill="none" /><polyline points="5,2 7.05,4.19" stroke="#333" fill="none" /><polyline points="5,2 3.41,4.54" stroke="#333" fill="none" /><path d="M 5.9,2 A 0.9,0.9 0 0,1 5.615,2.657" stroke="#333" fill="none" /><path d="M 5.615,2.657 A 0.9,0.9 0 0,1 4.523,2.763" stroke="#333" fill="none" /><path d="M 4.523,2.763 A 0.9,0.9 0 0,1 4.1,2" stroke="#333" fill="none" />',
         labels: [
           { x: 6.4, y: 2.5, text: '47°' },
           { x: 5.2, y: 3.45, text: '75°' },

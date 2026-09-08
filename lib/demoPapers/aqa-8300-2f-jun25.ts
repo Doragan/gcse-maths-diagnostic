@@ -184,16 +184,17 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 11, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<polygon points="1,1 3.5,1 2.827,2.7 1.673,2.7" stroke="#333" fill="none" /><polygon points="5.5,1 10.5,1 9.154,4.4 6.846,4.4" stroke="#333" fill="none" />',
+        background: '<polygon points="1,1 3.5,1 2.827,2.7 1.673,2.7" stroke="#333" fill="none" /><polygon points="5.5,1 10.5,1 9.154,4.4 6.846,4.4" stroke="#333" fill="none" />' +
+          '<path d="M 1.7,1 A 0.7,0.7 0 0,1 1.258,1.651" stroke="#333" fill="none" /><path d="M 6.7,1 A 1.2,1.2 0 0,1 5.942,2.116" stroke="#333" fill="none" />',
         // (a) and (b) read off ONE figure, as they do on the paper — so every
         // measurement is on it, and both parts carry it identically. The
         // sheet's sameGrid() only draws a shared diagram once when the two
         // match exactly; different label sets made it print twice.
         labels: [
-          { x: 1, y: 1, text: '68°', dx: 26, dy: -5 },
+          { x: 1.951, y: 1.646, text: '68°' },
           { x: 2.25, y: 1, text: '6 cm', dy: 13 },
           { x: 1.34, y: 1.85, text: '4 cm', dx: -17 },
-          { x: 5.5, y: 1, text: 'y', dx: 24, dy: -5 },
+          { x: 7.113, y: 2.096, text: 'y' },
           { x: 8, y: 1, text: '12 cm', dy: 13 },
           { x: 6.17, y: 2.7, text: 'x', dx: -13 },
         ],
@@ -209,13 +210,14 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 11, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<polygon points="1,1 3.5,1 2.827,2.7 1.673,2.7" stroke="#333" fill="none" /><polygon points="5.5,1 10.5,1 9.154,4.4 6.846,4.4" stroke="#333" fill="none" />',
+        background: '<polygon points="1,1 3.5,1 2.827,2.7 1.673,2.7" stroke="#333" fill="none" /><polygon points="5.5,1 10.5,1 9.154,4.4 6.846,4.4" stroke="#333" fill="none" />' +
+          '<path d="M 1.7,1 A 0.7,0.7 0 0,1 1.258,1.651" stroke="#333" fill="none" /><path d="M 6.7,1 A 1.2,1.2 0 0,1 5.942,2.116" stroke="#333" fill="none" />',
         // Identical to 10(a)'s — see the note there.
         labels: [
-          { x: 1, y: 1, text: '68°', dx: 26, dy: -5 },
+          { x: 1.951, y: 1.646, text: '68°' },
           { x: 2.25, y: 1, text: '6 cm', dy: 13 },
           { x: 1.34, y: 1.85, text: '4 cm', dx: -17 },
-          { x: 5.5, y: 1, text: 'y', dx: 24, dy: -5 },
+          { x: 7.113, y: 2.096, text: 'y' },
           { x: 8, y: 1, text: '12 cm', dy: 13 },
           { x: 6.17, y: 2.7, text: 'x', dx: -13 },
         ],

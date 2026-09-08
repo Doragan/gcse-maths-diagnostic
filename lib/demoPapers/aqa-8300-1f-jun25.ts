@@ -203,7 +203,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
         mode: 'points', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 6, step: 1, label: '' },
-        background: '<polyline points="1,2 9,2" stroke="#333" /><polyline points="5,2 3,5" stroke="#333" /><polyline points="5,2 7,5" stroke="#333" />',
+        background: '<polyline points="1,2 9,2" stroke="#333" /><polyline points="5,2 3,5" stroke="#333" /><polyline points="5,2 7,5" stroke="#333" /><path d="M 5.9,2 A 0.9,0.9 0 0,1 5.499,2.749" stroke="#333" fill="none" /><path d="M 5.499,2.749 A 0.9,0.9 0 0,1 4.501,2.749" stroke="#333" fill="none" /><path d="M 4.501,2.749 A 0.9,0.9 0 0,1 4.1,2" stroke="#333" fill="none" />',
         labels: [
           { x: 1, y: 2, text: 'P', dx: -10 },
           { x: 9, y: 2, text: 'Q', dx: 10 },

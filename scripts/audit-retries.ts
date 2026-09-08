@@ -126,6 +126,21 @@ for (const p of Object.values(PAPERS)) {
       add('shape drawn on squares it does not use', p.id, id, 'set showGrid: false')
     }
 
+    // M. An angle named on a figure with no arc to say WHICH angle it is.
+    //
+    //    A bare "68°" near a corner leaves the reader guessing between the two
+    //    angles that meet there, and a label nudged off the vertex in pixels
+    //    drifts as the shape changes. The fix is an arc plus a label on the
+    //    bisector — which is also how the exam draws it.
+    //
+    //    A PIE CHART IS EXEMPT: its sector angles are labelled inside their
+    //    own sector, and an arc there would be the circle it already has.
+    const named = (d.labels ?? []).filter(l => /°$/.test(l.text)).length
+    const isPie = /<circle /.test(d.background ?? '')
+    if (named && !isPie && ((d.background ?? '').match(/<path /g) ?? []).length < named) {
+      add('angle named with no arc marking it', p.id, id, `${named} angle label(s), no arc`)
+    }
+
     // K. A figure that CONTRADICTS its own question: an angle other than 90°
     //    marked on a shape every one of whose corners is a right angle. 2F
     //    10(a) labelled a rectangle 68°.
