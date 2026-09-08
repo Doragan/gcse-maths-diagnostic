@@ -139,9 +139,18 @@ async function main() {
       const w = vbW * scale, h = vbH * scale
       ensure(h + 4)
       try {
+        // RASTERISE AT THE SIZE IT IS PRINTED, not at whatever the SVG's
+        // nominal size times 220 DPI happens to be. Without the resize a
+        // single grid could carry several megapixels for a 70mm square on the
+        // page, and an eleven-page review document came out at 18 MB — big
+        // enough that sending it anywhere timed out. 8 px/mm is a little over
+        // 200 DPI, which is past what this is read at.
         const sharp = (await import('sharp')).default
         const png = await sharp(Buffer.from(svg), { density: 220 })
-          .flatten({ background: '#ffffff' }).png().toBuffer()
+          .flatten({ background: '#ffffff' })
+          .resize({ width: Math.round(w * 8), withoutEnlargement: true })
+          .png({ compressionLevel: 9, palette: true })
+          .toBuffer()
         doc.addImage(`data:image/png;base64,${png.toString('base64')}`, 'PNG', MARGIN_X + 4, y, w, h)
         y += h + 3
       } catch (e) {
