@@ -121,8 +121,14 @@ for (const p of Object.values(PAPERS)) {
     //    canonical `elements` because the student draws something. A figure
     //    with none is a labelled picture to read, and squares under it are
     //    furniture the exam does not print.
+    //
+    //    Nor is it enough on its own. 3F 19 has nothing to draw either, but
+    //    NOTHING ON IT IS LABELLED — the squares are how "B to C is 6 cm" gets
+    //    measured. The squares are furniture only when every measurement is
+    //    already written on the figure, which is what 2F 26 and 3F 13 did.
+    const labelled = (d.labels ?? []).some(l => /\d\s*(cm|mm|m|km)\b|°$/.test(l.text))
     if (d.mode === 'polygon' && d.showGrid !== false &&
-        d.elements.length === 0 && d.showAxes === false) {
+        d.elements.length === 0 && d.showAxes === false && labelled) {
       add('shape drawn on squares it does not use', p.id, id, 'set showGrid: false')
     }
 
