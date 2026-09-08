@@ -181,9 +181,19 @@ for (const p of Object.values(PAPERS)) {
       return JSON.stringify([g.background, g.mode, g.x, g.y, g.labels ?? null])
     }))
     const shapes = new Set(withGrid.map(i => p.retrySet[i].diagram!.background))
-    if (shapes.size === 1 && printed.size > 1) {
-      add('parts draw the same figure two different ways', p.id, n, withGrid.join(', '))
-    }
+    if (shapes.size !== 1 || printed.size === 1) continue
+
+    // SAME SHAPE IS NOT THE SAME FIGURE. A function machine is drawn the same
+    // way whatever it does, so 3F 4(c) shares 4(a)'s boxes and arrows and
+    // differs only in what is written IN them — a different machine, rightly
+    // drawn twice. The tell is WHERE the labels sit: alternative contents land
+    // on identical anchors, whereas one figure split across parts (2F 10, an
+    // angle in (a) and side lengths in (b)) labels different places.
+    const anchors = new Set(withGrid.map(i =>
+      JSON.stringify((p.retrySet[i].diagram!.labels ?? []).map(l => [l.x, l.y, l.dx ?? 0, l.dy ?? 0]))))
+    if (anchors.size === 1) continue
+
+    add('parts draw the same figure two different ways', p.id, n, withGrid.join(', '))
   }
 
   // G. Sibling parts sharing a long opening that the sheet CANNOT lift out.

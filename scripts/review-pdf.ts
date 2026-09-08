@@ -31,6 +31,7 @@ import { PAPERS } from '../lib/demoPapers/index'
 import { toRuns, wrapRuns, drawRuns, drawTable, tableHeight } from '../lib/papers/feedbackPdf'
 import { parseBlocks } from '../lib/questions/inlineMarkup'
 import { buildGridSvg } from '../lib/questions/gridSvg'
+import type { RenderedGrid } from '../lib/questions/gridDraw'
 
 const MARGIN_X = 18
 const PAGE_BOTTOM = 280
@@ -101,76 +102,109 @@ async function main() {
   )
   y += 5
 
-  // ── One block per retry, in paper order ───────────────────────────────────
+  /**
+   * Draw a grid. `showCanonical` gives the ANSWER copy — the solution
+   * overlay and the canonical points — which is the only useful way to
+   * present a drawn answer: "the four faces still to draw are 4 × 3, 4 × 2…"
+   * is nearly impossible to mark a student's net against.
+   */
+  const drawDiagram = async (grid: RenderedGrid, showCanonical: boolean) => {
+    const svg = buildGridSvg(grid, { showCanonical })
+    const vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
+    if (!vb) return
+    // Sized the way a sheet sizes it — hold the SQUARE roughly fixed, not
+    // the width, or a wide grid comes out with squares too small to draw
+    // in. Slightly tighter caps than the sheet's, since this page also
+    // carries the question, the answer and the working.
+    const vbW = Number(vb[1]), vbH = Number(vb[2])
+    let scale = 8 / 28                      // ~8mm per grid square
+    if (vbW * scale > 140) scale = 140 / vbW
+    if (vbH * scale > 95) scale = 95 / vbH
+    if (vbW * scale < 52) scale = 52 / vbW
+    const w = vbW * scale, h = vbH * scale
+    ensure(h + 4)
+    try {
+      // RASTERISE AT THE SIZE IT IS PRINTED, not at whatever the SVG's
+      // nominal size times 220 DPI happens to be. Without the resize a
+      // single grid could carry several megapixels for a 70mm square on the
+      // page, and an eleven-page review document came out at 18 MB — big
+      // enough that sending it anywhere timed out. 8 px/mm is a little over
+      // 200 DPI, which is past what this is read at.
+      const sharp = (await import('sharp')).default
+      const png = await sharp(Buffer.from(svg), { density: 220 })
+        .flatten({ background: '#ffffff' })
+        .resize({ width: Math.round(w * 8), withoutEnlargement: true })
+        .png({ compressionLevel: 9, palette: true })
+        .toBuffer()
+      doc.addImage(`data:image/png;base64,${png.toString('base64')}`, 'PNG', MARGIN_X + 4, y, w, h)
+      y += h + 3
+    } catch (e) {
+      text(`[grid could not be rendered: ${e instanceof Error ? e.message : String(e)}]`, 9, 'normal', 4, true)
+    }
+  }
+
+  // ── One block per QUESTION, parts together, in paper order ────────────────
+  //
+  // Grouped rather than one block per part, because that is how the question
+  // was asked and how the student's sheet sets it (wwwEbi's groupPractice).
+  // Printing parts standalone made every shared scenario appear two or three
+  // times, which reads as sloppy authoring when it is really the review
+  // document showing what the data holds rather than what anyone receives.
+  const groups: { label: string; parts: typeof paper.questions }[] = []
   for (const q of paper.questions) {
-    const r = paper.retrySet[q.id]
-    if (!r) continue
+    if (!paper.retrySet[q.id]) continue
+    const n = q.id.replace(/[a-z]+$/i, '') || q.id
+    const last = groups[groups.length - 1]
+    if (last && last.label === n) last.parts.push(q)
+    else groups.push({ label: n, parts: [q] })
+  }
+
+  for (const g of groups) {
+    const rs = g.parts.map(q => paper.retrySet[q.id])
+    // The opening every part shares, lifted to whole lines — same rule as the
+    // sheet's sharedStem, and for the same reason.
+    const qs = rs.map(r => r.question)
+    let common = 0
+    while (common < qs[0].length && qs.every(v => v[common] === qs[0][common])) common++
+    const cut = qs[0].lastIndexOf('\n', common - 1)
+    const stem = cut >= 30 && qs.every(v => v.slice(cut + 1).trim()) ? qs[0].slice(0, cut) : ''
 
     ensure(34)
     doc.setDrawColor(200)
     doc.line(MARGIN_X, y - 3, MARGIN_X + WIDTH, y - 3)
 
-    text(`${q.label}   ${q.marks} mark${q.marks === 1 ? '' : 's'}   ·   ${r.skill}`, 10.5, 'bold')
-    if (q.desc) text(`ORIGINAL ASKED: ${q.desc}`, 8.5, 'normal', 0, true)
+    const marks = g.parts.reduce((a, q) => a + q.marks, 0)
+    const skills = [...new Set(rs.map(r => r.skill))].join('  ·  ')
+    text(`${g.parts.length > 1 ? `Question ${g.label}` : g.parts[0].label}   ` +
+      `${marks} mark${marks === 1 ? '' : 's'}   ·   ${skills}`, 10.5, 'bold')
+    for (const q of g.parts) {
+      if (q.desc) text(`${g.parts.length > 1 ? `${q.label} ` : ''}ORIGINAL ASKED: ${q.desc}`, 8.5, 'normal', 0, true)
+    }
     y += 1.5
 
-    text(r.question, 10, 'normal')
-    y += 1
+    if (stem) { text(stem, 10, 'normal'); y += 1 }
 
-    /**
-     * Draw a grid. `showCanonical` gives the ANSWER copy — the solution
-     * overlay and the canonical points — which is the only useful way to
-     * present a drawn answer: "the four faces still to draw are 4 × 3, 4 × 2…"
-     * is nearly impossible to mark a student's net against.
-     */
-    const drawDiagram = async (grid: NonNullable<typeof r.diagram>, showCanonical: boolean) => {
-      const svg = buildGridSvg(grid, { showCanonical })
-      const vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
-      if (!vb) return
-      // Sized the way a sheet sizes it — hold the SQUARE roughly fixed, not
-      // the width, or a wide grid comes out with squares too small to draw
-      // in. Slightly tighter caps than the sheet's, since this page also
-      // carries the question, the answer and the working.
-      const vbW = Number(vb[1]), vbH = Number(vb[2])
-      let scale = 8 / 28                      // ~8mm per grid square
-      if (vbW * scale > 140) scale = 140 / vbW
-      if (vbH * scale > 95) scale = 95 / vbH
-      if (vbW * scale < 52) scale = 52 / vbW
-      const w = vbW * scale, h = vbH * scale
-      ensure(h + 4)
-      try {
-        // RASTERISE AT THE SIZE IT IS PRINTED, not at whatever the SVG's
-        // nominal size times 220 DPI happens to be. Without the resize a
-        // single grid could carry several megapixels for a 70mm square on the
-        // page, and an eleven-page review document came out at 18 MB — big
-        // enough that sending it anywhere timed out. 8 px/mm is a little over
-        // 200 DPI, which is past what this is read at.
-        const sharp = (await import('sharp')).default
-        const png = await sharp(Buffer.from(svg), { density: 220 })
-          .flatten({ background: '#ffffff' })
-          .resize({ width: Math.round(w * 8), withoutEnlargement: true })
-          .png({ compressionLevel: 9, palette: true })
-          .toBuffer()
-        doc.addImage(`data:image/png;base64,${png.toString('base64')}`, 'PNG', MARGIN_X + 4, y, w, h)
-        y += h + 3
-      } catch (e) {
-        text(`[grid could not be rendered: ${e instanceof Error ? e.message : String(e)}]`, 9, 'normal', 4, true)
+    // A figure every part shares is drawn ONCE, under the stem.
+    const shared = rs[0].diagram
+    const allSame = shared && rs.every(r => JSON.stringify(r.diagram) === JSON.stringify(shared))
+    if (allSame) { await drawDiagram(shared, false); y += 1 }
+
+    for (const [i, q] of g.parts.entries()) {
+      const r = rs[i]
+      const body = stem ? r.question.slice(stem.length + 1) : r.question
+      text(g.parts.length > 1 ? `${q.label}   ${body}` : body, 10, 'normal', g.parts.length > 1 ? 4 : 0)
+      if (r.diagram && !allSame) await drawDiagram(r.diagram, false)
+      text(`Answer:  ${r.answer ?? '(none authored)'}`, 10, 'bold', 8)
+      if (r.working) text(r.working, 9, 'normal', 8, true)
+      if (r.diagram && (r.diagram.solution || r.diagram.elements.length)) {
+        text('The answer drawn:', 9, 'bold', 8, true)
+        await drawDiagram(r.diagram, true)
       }
+      y += 2
     }
-
-    if (r.diagram) await drawDiagram(r.diagram, false)
-
-    text(`Answer:  ${r.answer ?? '(none authored)'}`, 10, 'bold', 4)
-    if (r.working) text(r.working, 9, 'normal', 4, true)
-
-    // The answer AS A DIAGRAM, where the answer is something drawn. Only worth
-    // a second grid when there is actually something extra to show.
-    if (r.diagram && (r.diagram.solution || r.diagram.elements.length)) {
-      text('The answer drawn:', 9, 'bold', 4, true)
-      await drawDiagram(r.diagram, true)
-    }
-    y += 6
+    y += 4
   }
+
 
   const file = join(outDir, `${paper.id}-retries-for-review.pdf`)
   writeFileSync(file, Buffer.from(doc.output('arraybuffer')))
