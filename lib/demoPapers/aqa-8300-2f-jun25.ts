@@ -185,9 +185,17 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         x: { min: 0, max: 11, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
         background: '<polygon points="1,1 3.5,1 2.827,2.7 1.673,2.7" stroke="#333" fill="none" /><polygon points="5.5,1 10.5,1 9.154,4.4 6.846,4.4" stroke="#333" fill="none" />',
+        // (a) and (b) read off ONE figure, as they do on the paper — so every
+        // measurement is on it, and both parts carry it identically. The
+        // sheet's sameGrid() only draws a shared diagram once when the two
+        // match exactly; different label sets made it print twice.
         labels: [
           { x: 1, y: 1, text: '68°', dx: 26, dy: -5 },
+          { x: 2.25, y: 1, text: '6 cm', dy: 13 },
+          { x: 1.34, y: 1.85, text: '4 cm', dx: -17 },
           { x: 5.5, y: 1, text: 'y', dx: 24, dy: -5 },
+          { x: 8, y: 1, text: '12 cm', dy: 13 },
+          { x: 6.17, y: 2.7, text: 'x', dx: -13 },
         ],
         elements: [], tolerance: 0,
       },
@@ -202,9 +210,12 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         x: { min: 0, max: 11, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
         background: '<polygon points="1,1 3.5,1 2.827,2.7 1.673,2.7" stroke="#333" fill="none" /><polygon points="5.5,1 10.5,1 9.154,4.4 6.846,4.4" stroke="#333" fill="none" />',
+        // Identical to 10(a)'s — see the note there.
         labels: [
+          { x: 1, y: 1, text: '68°', dx: 26, dy: -5 },
           { x: 2.25, y: 1, text: '6 cm', dy: 13 },
           { x: 1.34, y: 1.85, text: '4 cm', dx: -17 },
+          { x: 5.5, y: 1, text: 'y', dx: 24, dy: -5 },
           { x: 8, y: 1, text: '12 cm', dy: 13 },
           { x: 6.17, y: 2.7, text: 'x', dx: -13 },
         ],
@@ -213,7 +224,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     },
     '11': { skill: 'Expanding Brackets + Simplifying Expressions', question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
     '12': { skill: 'Proportion', question: '5 oranges cost £1.80. Work out the cost of 8 of these oranges.', answer: '£2.88', working: 'One orange is 36p.' },
-    '13a': { skill: 'Range', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nWork out the range.', answer: '64', working: '189 − 125' },
+    '13a': { skill: 'Range', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nWork out the range of the number of customers.', answer: '64', working: '189 − 125' },
     '13b': { skill: 'Mean', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nThe shop opens for a fifth day.\nThe mean number of customers over all five days is 158.\nWork out the number of customers on the fifth day.', answer: '150', working: 'The five must total 790, and the first four total 640.' },
     '14': { skill: 'Forming Expressions and Formulae + Simplifying Expressions', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) <frac>n/2</frac>' },
     '15': { skill: 'Lengths and Perimeters + Areas of Squares and Rectangles', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
