@@ -162,7 +162,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
       },
     },
 
-    '7': { skill: 'Simplifying Fractions + Converting Measurements', question: 'Work out 45p as a fraction of £1.50. Give your answer in its simplest form.', answer: '3/10', working: '45/150, cancelling by 15.' },
+    '7': { skill: 'Simplifying Fractions + Converting Measurements', question: 'Work out 45p as a fraction of £1.50. Give your answer in its simplest form.', answer: '<frac>3/10</frac>', working: '<frac>45/150</frac>, cancelling by 15.' },
     '8a': { skill: 'Time Calculations', question: 'Convert 2 and three quarter hours to minutes.', answer: '165 minutes', working: '2 × 60 + 45' },
     '8b': { skill: 'Converting Measurements', question: 'Convert 2600 grams to kilograms.', answer: '2.6 kilograms' },
     '8c': { skill: 'Proportion', question: 'Convert 56 kilometres to miles. Use 8 kilometres = 5 miles.', answer: '35 miles', working: '56 ÷ 8 = 7, then × 5.' },
@@ -215,15 +215,15 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '12': { skill: 'Proportion', question: '5 oranges cost £1.80. Work out the cost of 8 of these oranges.', answer: '£2.88', working: 'One orange is 36p.' },
     '13a': { skill: 'Range', question: 'Here are four numbers: 125, 154, 189, 172. Work out the range.', answer: '64', working: '189 − 125' },
     '13b': { skill: 'Mean', question: 'A fifth number is added to 125, 154, 189 and 172. The mean of all five numbers is 158. Work out the fifth number.', answer: '150', working: 'The five must total 790, and the first four total 640.' },
-    '14': { skill: 'Forming Expressions and Formulae + Simplifying Expressions', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) n/2' },
+    '14': { skill: 'Forming Expressions and Formulae + Simplifying Expressions', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) <frac>n/2</frac>' },
     '15': { skill: 'Lengths and Perimeters + Areas of Squares and Rectangles', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
     '16': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'Rearrange c − 5 = d to make c the subject.', answer: 'c = d + 5' },
     '17': { skill: 'Proportion', question: 'Packet A holds 500 g of rice and costs £1.20.\nPacket B holds 800 g and costs £2.00.\nWhich packet is better value for money? You must show your working.\n[   ] Packet A\n[   ] Packet B', answer: 'Packet A', working: 'A is 0.24p per gram and B is 0.25p per gram.' },
-    '18a': { skill: 'Ratio', question: 'Sam uses either a bike or a bus to get to work. The number of days using a bike divided by the number of days using a bus is 2/7. Write down the ratio number of days using a bike : number of days using a bus.', answer: '2 : 7' },
+    '18a': { skill: 'Ratio', question: 'Sam uses either a bike or a bus to get to work. The number of days using a bike divided by the number of days using a bus is <frac>2/7</frac>. Write down the ratio number of days using a bike : number of days using a bus.', answer: '2 : 7' },
     '18b': { skill: 'Simplifying Ratio', question: 'Write the ratio 9b : 4b in the form n : 1, where n is a decimal.', answer: '2.25 : 1', working: 'The b cancels, and 9 ÷ 4 = 2.25.' },
     '18c': { skill: 'Ratio', question: '1 : x = x : 9. Work out the value of x.', answer: 'x = 3', working: 'Cross-multiplying gives x² = 9.' },
-    '19a': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections.\nFor spinner 1, P(red) = 2/5. For spinner 2, P(red) = 3/7. Write down the probability that spinner 1 lands on green, and the probability that spinner 2 lands on green.', answer: '3/5 and 4/7', working: 'Each pair of probabilities must add to 1.' },
-    '19b': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections.\nFor spinner 1, P(red) = 2/5, and for spinner 2, P(red) = 3/7. Both spinners are spun. Work out the probability that both spinners land on red.', answer: '6/35', working: '2/5 × 3/7' },
+    '19a': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections.\nFor spinner 1, P(red) = <frac>2/5</frac>. For spinner 2, P(red) = <frac>3/7</frac>. Write down the probability that spinner 1 lands on green, and the probability that spinner 2 lands on green.', answer: '<frac>3/5</frac> and <frac>4/7</frac>', working: 'Each pair of probabilities must add to 1.' },
+    '19b': { skill: 'Tree Diagrams', question: 'Two spinners each have only red and green sections.\nFor spinner 1, P(red) = <frac>2/5</frac>, and for spinner 2, P(red) = <frac>3/7</frac>. Both spinners are spun. Work out the probability that both spinners land on red.', answer: '<frac>6/35</frac>', working: '<frac>2/5</frac> × <frac>3/7</frac>' },
     // 20(a) is `visual: true` and now has a grid to plot on. Every reading is
     // a multiple of 20 000 so it lands on a ruled line, and six days against
     // six rows keeps the grid square enough to print at 72mm.

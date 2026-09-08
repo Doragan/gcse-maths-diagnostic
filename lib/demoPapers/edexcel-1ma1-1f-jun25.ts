@@ -85,7 +85,7 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
   // 7(a), 8(a) and 21(b) all get grids.
   retrySet: {
     '1': { skill: 'Simplifying Expressions', question: 'Simplify g + g + g + g', answer: '4g' },
-    '2': { skill: 'Converting Fractions to Decimals', question: 'Write 2/5 as a decimal.', answer: '0.4' },
+    '2': { skill: 'Converting Fractions to Decimals', question: 'Write <frac>2/5</frac> as a decimal.', answer: '0.4' },
     '3': { skill: 'Converting Measurements', question: 'Change 85 millimetres into centimetres.', answer: '8.5 centimetres', working: 'There are 10 mm in 1 cm.' },
     '4': { skill: 'Factors and Multiples', question: 'Write down a multiple of 7 that is between 30 and 40', answer: '35' },
     '5': { skill: 'Angles on lines and Circles', question: 'Angle B is 127°. What type of angle is angle B?', answer: 'Obtuse', working: 'It is between 90° and 180°.' },
@@ -136,8 +136,8 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
 
     '10a': { skill: 'Rounding', question: 'Write 47 382 to the nearest 1000', answer: '47 000' },
     '10b': { skill: 'Estimating', question: 'Work out an estimate for the value of 4.2 × 51.7', answer: '200', working: '4 × 50, rounding each number to 1 significant figure.' },
-    '11a': { skill: 'Adding and Subtracting Fractions', question: 'Work out 7/10 − 1/5', answer: '1/2', working: '7/10 − 2/10 = 5/10.' },
-    '11b': { skill: 'Fractions of Amounts', question: 'Work out 3/8 of 56', answer: '21', working: '56 ÷ 8 = 7, then × 3.' },
+    '11a': { skill: 'Adding and Subtracting Fractions', question: 'Work out <frac>7/10</frac> − <frac>1/5</frac>', answer: '<frac>1/2</frac>', working: '<frac>7/10</frac> − <frac>2/10</frac> = <frac>5/10</frac>.' },
+    '11b': { skill: 'Fractions of Amounts', question: 'Work out <frac>3/8</frac> of 56', answer: '21', working: '56 ÷ 8 = 7, then × 3.' },
 
     // 12(a) and (b) share one timetable.
     '12a': { skill: 'Time Calculations', question: 'Here is part of a bus timetable.\nDepot:  07 15   07 55   08 20\nMarket: 07 48   08 21   08 59\nWhich bus should take the least time to go from Depot to Market? You must show how you get your answer.', answer: 'The 07 55 bus', working: '33 minutes, 26 minutes and 39 minutes.' },

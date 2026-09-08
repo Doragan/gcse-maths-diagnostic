@@ -87,7 +87,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
   // as a polyline through lattice points on a grid that is close to square.
   retrySet: {
     '1': { skill: 'Simultaneous Equations', question: 'Solve the simultaneous equations 4x + 3y = 27 and 4x + y = 17', answer: 'x = 3, y = 5', working: 'Subtracting the equations eliminates x: 2y = 10.' },
-    '2': { skill: 'Inequalities', question: '2.15 < x/6 < 2.30, where x is an integer. Work out the value of x.', answer: 'x = 13', working: 'Multiplying through by 6 gives 12.9 < x < 13.8.' },
+    '2': { skill: 'Inequalities', question: '2.15 < <frac>x/6</frac> < 2.30, where x is an integer. Work out the value of x.', answer: 'x = 13', working: 'Multiplying through by 6 gives 12.9 < x < 13.8.' },
 
     // Shared with 1F — see the note above.
     '3': { skill: 'Compound Units', question: 'A metal solid has volume 14 cm³. The density of the metal is 7.5 g/cm³. Work out the mass of the solid.', answer: '105 g', working: 'Mass = density × volume.' },
@@ -96,8 +96,8 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     '6a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '6b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
     '7': { skill: 'Frequency Trees + Ratio', question: '240 students from Year 8 and Year 9 take part in a competition. The ratio number of Year 8 students : number of Year 9 students is 1 : 3. 96 students win a medal, and 70 of the students who win a medal are in Year 9. How many Year 8 students do not win a medal?', answer: '34', working: 'Year 8 has 240 ÷ 4 = 60 students, and 96 − 70 = 26 of them win a medal.' },
-    '8': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out 3/10 + 1/4 ÷ 1/2. Give your answer as a fraction.', answer: '4/5', working: 'Divide first: 1/4 ÷ 1/2 = 1/2, then 3/10 + 5/10 = 8/10.' },
-    '9': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     1/4     50     −6     30', answer: '1/4', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
+    '8': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out <frac>3/10</frac> + <frac>1/4</frac> ÷ <frac>1/2</frac>. Give your answer as a fraction.', answer: '<frac>4/5</frac>', working: 'Divide first: <frac>1/4</frac> ÷ <frac>1/2</frac> = <frac>1/2</frac>, then <frac>3/10</frac> + <frac>5/10</frac> = <frac>8/10</frac>.' },
+    '9': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     <frac>1/4</frac>     50     −6     30', answer: '<frac>1/4</frac>', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
     '10': { skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles', question: 'The area of a rectangle is 96 cm². Its length is (x + 8) cm and its width is (x − 2) cm. Work out the value of x.', answer: 'x = 8', working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.' },
 
     // The original reads both shapes off a grid. Naming the matching vertices
@@ -107,7 +107,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
 
     '12': { skill: 'Ratio', question: 'Priya and Raj share some money in the ratio 7 : 4. Priya has £36 more than Raj. How much do they have altogether?', answer: '£132', working: 'The difference is 3 parts, so one part is £12 and there are 11 parts.' },
     '13': { skill: 'Indices', question: 'c and d are consecutive cube numbers, where c < 2.7³ < d. Work out the value of d − c.', answer: '19', working: '2.7³ = 19.68, which lies between 2³ = 8 and 3³ = 27.' },
-    '14a': { skill: 'Sketching Functions', question: 'Complete the table of values for y = 3ˣ, for x = −1, 0, 1 and 2.', answer: '1/3, 1, 3, 9', working: '3⁻¹ = 1/3 and 3⁰ = 1.' },
+    '14a': { skill: 'Sketching Functions', question: 'Complete the table of values for y = 3ˣ, for x = −1, 0, 1 and 2.', answer: '<frac>1/3</frac>, 1, 3, 9', working: '3⁻¹ = <frac>1/3</frac> and 3⁰ = 1.' },
 
     // 14(b) is `visual: true`. I claimed this grid was "two columns by nine
     // rows at any width" — it is nine rows only because I fixed the y step at
@@ -118,8 +118,8 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     // lattice values would have meant a different function.
     '14b': {
       skill: 'Sketching Functions',
-      question: 'When x = −1, 0, 1 and 2, the value of y = 3ˣ is 1/3, 1, 3 and 9.\nDraw the graph of y = 3ˣ for values of x from −1 to 2.',
-      answer: 'A smooth curve through (−1, 1/3), (0, 1), (1, 3) and (2, 9)',
+      question: 'When x = −1, 0, 1 and 2, the value of y = 3ˣ is <frac>1/3</frac>, 1, 3 and 9.\nDraw the graph of y = 3ˣ for values of x from −1 to 2.',
+      answer: 'A smooth curve through (−1, <frac>1/3</frac>), (0, 1), (1, 3) and (2, 9)',
       working: 'The curve rises slowly at first and then steeply; it never touches the x-axis.',
       diagram: {
         mode: 'polyline',
@@ -145,7 +145,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     '17a': { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3. When it is not raining, the probability that a bus is on time is 0.8, and when it is raining that probability is halved. Write down the probability that the bus is on time when it is raining, and the probability that it is not on time when it is raining.', answer: '0.4 and 0.6', working: 'Half of 0.8 is 0.4, and the two must add to 1.' },
     '17b': { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3, and when it is raining the probability that a bus is not on time is 0.6. Work out the probability that it is raining and the bus is not on time.', answer: '0.18', working: '0.3 × 0.6' },
     '18': { skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds', question: 'Show that (sin 60° × tan 45°) ÷ cos 30° can be written as an integer.', answer: '1', working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.' },
-    '19a': { skill: 'Fractional and Negative Indices', question: 'Work out the value of (25/4) to the power −3/2', answer: '8/125', working: 'Invert for the negative power, square root for the half, then cube: (2/5)³.' },
+    '19a': { skill: 'Fractional and Negative Indices', question: 'Work out the value of <frac>25/4</frac> to the power −<frac>3/2</frac>', answer: '<frac>8/125</frac>', working: 'Invert for the negative power, square root for the half, then cube: (<frac>2/5</frac>)³.' },
     '19b': { skill: 'Fractional and Negative Indices', question: '1024 = 2ⁿ. Work out the value of n.', answer: 'n = 10', working: 'Doubling from 1: 2, 4, 8, … 1024 is the tenth.' },
     '20': { skill: 'Simplifying Surds', question: 'Express √18 + √50 + √98 in the form a√n, where a and n are integers.', answer: '15√2', working: 'Each term is a multiple of √2: 3 + 5 + 7.' },
 
@@ -183,8 +183,8 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     '22': { skill: 'Coordinates + Ratio', question: 'E is the point (2, 3) and G is the point (11, 12). F lies on the straight line EG so that EF is one third of EG. Work out the coordinates of F.', answer: '(5, 6)', working: 'E to G is 9 right and 9 up, so E to F is 3 right and 3 up.' },
     '23a': { skill: 'Completing the Square', question: 'Write x² + 10x + 32 in the form (x + a)² + b, where a and b are integers.', answer: '(x + 5)² + 7', working: '(x + 5)² = x² + 10x + 25, and 32 − 25 = 7.' },
     '23b': { skill: 'Completing the Square', question: 'A curve has the equation y = (x + 4)² − 5. Write down the coordinates of the turning point of the curve.', answer: '(−4, −5)', working: 'The bracket is zero when x = −4, and that is where y is least.' },
-    '24': { skill: 'Algebraic Fractions + Algebraic Proof + Difference of Two Squares', question: 'Prove that (x² − 9)/(x + 3) − (x − 3) is equal to 0 for every value of x except x = −3', answer: 'It simplifies to 0', working: 'x² − 9 is (x + 3)(x − 3), so the fraction cancels to x − 3, and (x − 3) − (x − 3) = 0.' },
-    '25': { skill: 'Conditional Probability + Solving Quadratic Equations (Factorising) + Algebraic Fractions', question: 'There are n counters in a box, and 5 of them are red. Two counters are chosen at random without replacement. The probability that both counters are red is 2/9. Use an algebraic method to work out the value of n.', answer: 'n = 10', working: '5/n × 4/(n − 1) = 2/9 gives n² − n − 90 = 0, which factorises to (n − 10)(n + 9) = 0.' },
+    '24': { skill: 'Algebraic Fractions + Algebraic Proof + Difference of Two Squares', question: 'Prove that <frac>x² − 9/x + 3</frac> − (x − 3) is equal to 0 for every value of x except x = −3', answer: 'It simplifies to 0', working: 'x² − 9 is (x + 3)(x − 3), so the fraction cancels to x − 3, and (x − 3) − (x − 3) = 0.' },
+    '25': { skill: 'Conditional Probability + Solving Quadratic Equations (Factorising) + Algebraic Fractions', question: 'There are n counters in a box, and 5 of them are red. Two counters are chosen at random without replacement. The probability that both counters are red is <frac>2/9</frac>. Use an algebraic method to work out the value of n.', answer: 'n = 10', working: '<frac>5/n</frac> × <frac>4/n − 1</frac> = <frac>2/9</frac> gives n² − n − 90 = 0, which factorises to (n − 10)(n + 9) = 0.' },
   },
   challengeQuestions: [],
   sampleStudents: [],

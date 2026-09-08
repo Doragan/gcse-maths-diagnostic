@@ -96,13 +96,13 @@ export const AQA_8300_3F_NOV24: PaperConfig = {
   // The questions above come from the audit; everything below does not, and a
   // regeneration would wipe it. See the file header.
   retrySet: {
-    '1a':  { skill: 'Fractions',           question: 'Work out 1/3 of 912' },
+    '1a':  { skill: 'Fractions',           question: 'Work out <frac>1/3</frac> of 912' },
     '1b':  { skill: 'Powers & Roots',      question: 'Work out the value of 23²' },
     '2':   { skill: 'Simplifying',         question: 'Simplify  p + p + p + p + p' },
     '3a':  { skill: 'Proportion',          question: '5 oranges cost £1.80. Work out the cost of 15 oranges.' },
     '3b':  { skill: 'Proportion',          question: 'The cost of 30 pens and 10 rulers is £16.00. Work out the cost of 3 pens and 1 ruler.' },
     '4a':  { skill: 'Ordering Numbers',    question: 'Write in order, smallest first:  3,  −2,  0.5,  −1' },
-    '4b':  { skill: 'Ordering Fractions',  question: 'Write in order, smallest first:  3/5,  1/4,  7/8,  1/2' },
+    '4b':  { skill: 'Ordering Fractions',  question: 'Write in order, smallest first:  <frac>3/5</frac>,  <frac>1/4</frac>,  <frac>7/8</frac>,  <frac>1/2</frac>' },
     '6':   { skill: 'Time Calculations',   question: 'Amina leaves home at 8.25 am. She travels for 25 minutes. Does she arrive by 8.45 am? Explain.' },
     '7':   { skill: 'Division in Context', question: 'Priya has £25. A notebook costs £1.60. What is the greatest number she can buy?' },
     '8a':  { skill: 'Function Machines',   question: 'Input → ×3 → +5 → Output. Work out the output when the input is 8.' },
@@ -114,7 +114,7 @@ export const AQA_8300_3F_NOV24: PaperConfig = {
     '14a': { skill: 'Venn Diagrams',       question: 'In a survey of 30 people, 18 like tea, 14 like coffee and 5 like neither. How many like both?' },
     '14b': { skill: 'Venn Diagrams',       question: 'In a group of 25 people, 16 own a bike, 11 own a scooter and 6 own both. How many own a scooter but not a bike?' },
     '14c': { skill: 'Venn Diagrams',       question: 'A club has 40 members. 24 of them play tennis. What fraction of all the members play tennis?' },
-    '15':  { skill: 'Fractions of Amounts + Ratio', question: '180 people travel to work by bus, train or bike. 2/9 go by bus. The rest split train : bike = 2 : 3. How many go by bike?' },
+    '15':  { skill: 'Fractions of Amounts + Ratio', question: '180 people travel to work by bus, train or bike. <frac>2/9</frac> go by bus. The rest split train : bike = 2 : 3. How many go by bike?' },
     '16':  { skill: 'Percentage Decrease', question: 'A laptop is worth £750. Its value falls by 20% in the first year, then by 5% in the second year. Work out its value after two years.' },
     '17':  { skill: 'Forming Expressions and Formulae + Simplifying Expressions', question: 'Write an expression for: three times a number n, then subtract 4' },
     '18':  { skill: 'Percentages',         question: 'Maya has £40. She buys 6 notebooks costing £2.50 each. What percentage of her £40 does she spend?' },
@@ -125,7 +125,7 @@ export const AQA_8300_3F_NOV24: PaperConfig = {
     '24a': { skill: 'Ratio',               question: 'A school has 720 students and the ratio of students to teachers is 20 : 1. The number of students stays the same and the number of teachers increases by 4. Work out the new ratio of students to teachers, in the form n : 1' },
     '24b': { skill: 'Ratio Reasoning',     question: 'One coach is needed for every 50 passengers or fewer. 340 passengers are travelling. Jo works out 340 ÷ 50 = 6.8 and says 6 coaches are needed. What is wrong with her answer?' },
     '25':  { skill: 'Coordinates + Understanding Straight Line Graphs', question: 'A triangle is formed by the lines y = x, x = 3 and y = −1. Work out the coordinates of its three vertices.' },
-    '26':  { skill: 'Volume of a Sphere',  question: 'Volume of a sphere = 4/3 πr³. A hemisphere has radius 6 cm. Kai writes: Volume = 4/3 × π × 6 × 3 × 2. Write down two mistakes Kai has made.' },
+    '26':  { skill: 'Volume of a Sphere',  question: 'Volume of a sphere = <frac>4/3</frac> πr³. A hemisphere has radius 6 cm. Kai writes: Volume = <frac>4/3</frac> × π × 6 × 3 × 2. Write down two mistakes Kai has made.' },
   },
 
   challengeQuestions: [
@@ -137,7 +137,7 @@ export const AQA_8300_3F_NOV24: PaperConfig = {
     { topic: 'algebra', skill: 'Sequences (nth term)', question: 'Find the nth term of the sequence 7, 11, 15, 19, ...', answer: '4n + 3', working: 'The common difference is 4, and 7 − 4 = 3.' },
     { topic: 'ratio', skill: 'Compound Measures', question: 'A car travels 156 miles in 2 hours 24 minutes. Work out the average speed in mph.', answer: '65 mph', working: '2 hours 24 minutes is 2.4 hours.' },
     { topic: 'ratio', skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 5, y = 35. Find y when x = 9.', answer: 'y = 63', working: 'y = 7x.' },
-    { topic: 'probdata', skill: 'Probability', question: 'A bag contains 4 red, 3 blue and 5 green counters. Two counters are drawn without replacement. Work out the probability that both are red.', answer: '1/11', working: '4/12 × 3/11 = 12/132.' },
+    { topic: 'probdata', skill: 'Probability', question: 'A bag contains 4 red, 3 blue and 5 green counters. Two counters are drawn without replacement. Work out the probability that both are red.', answer: '<frac>1/11</frac>', working: '<frac>4/12</frac> × <frac>3/11</frac> = <frac>12/132</frac>.' },
     { topic: 'probdata', skill: 'Cumulative Frequency', question: 'The median of a set of 60 values is estimated from a cumulative frequency graph. Which value on the vertical axis should you read across from?', answer: '30', working: 'Half of 60.' },
   ],
 
