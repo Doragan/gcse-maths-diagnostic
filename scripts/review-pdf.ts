@@ -11,13 +11,16 @@
  * terminal scrollback.
  *
  * WHAT IT PRINTS, and why each part is there:
- *   • the item's label, marks and skill — the retry should demand the same
- *     number of steps as the original
- *   • THE ORIGINAL'S `desc` — the only record in this repo of what the real
- *     question asked, and so the only way to judge whether the rewrite is
- *     faithful without the question paper open
+ *   • the question's label, total marks and skills — the retry should demand
+ *     the same number of steps as the original
  *   • the question, its answer, and the working
  *   • the grid, where the retry carries one, rasterised at print resolution
+ *
+ * It used to print the audit's `desc` as "ORIGINAL ASKED", on the theory that
+ * it was the only record of the real question. It is not much of one — the
+ * note describes what the APP would need to support the question, not what the
+ * question says — and a reader with the paper in front of them does not need
+ * it. Out, rather than left cluttering every block.
  *
  * Diagrams go through sharp rather than svg2pdf: svg2pdf walks a real SVG
  * element and needs a browser, and a review document that only runs in one
@@ -93,12 +96,6 @@ async function main() {
     `${noRetry.length} item${noRetry.length === 1 ? '' : 's'} deliberately without one: ` +
     `${noRetry.map(q => q.label).join(', ') || 'none'}.`,
     9, 'normal', 0, true,
-  )
-  y += 3
-  text(
-    'ORIGINAL ASKED is the audit\'s note on the real question — the repo holds no exam text, so it is the only ' +
-    'thing here to judge faithfulness against. Check that the retry demands the same steps, not that it looks similar.',
-    8.5, 'normal', 0, true,
   )
   y += 5
 
@@ -177,28 +174,44 @@ async function main() {
     const skills = [...new Set(rs.map(r => r.skill))].join('  ·  ')
     text(`${g.parts.length > 1 ? `Question ${g.label}` : g.parts[0].label}   ` +
       `${marks} mark${marks === 1 ? '' : 's'}   ·   ${skills}`, 10.5, 'bold')
-    for (const q of g.parts) {
-      if (q.desc) text(`${g.parts.length > 1 ? `${q.label} ` : ''}ORIGINAL ASKED: ${q.desc}`, 8.5, 'normal', 0, true)
-    }
     y += 1.5
 
     if (stem) { text(stem, 10, 'normal'); y += 1 }
 
-    // A figure every part shares is drawn ONCE, under the stem.
-    const shared = rs[0].diagram
-    const allSame = shared && rs.every(r => JSON.stringify(r.diagram) === JSON.stringify(shared))
-    if (allSame) { await drawDiagram(shared, false); y += 1 }
+    // A figure is drawn ONCE and then not again until it changes. Comparing
+    // only against the FIRST part missed the middle case: 3F 4 has (a) and (b)
+    // on one machine and (c) on another, so "do all three match?" was false
+    // and all three drew — including the two that were identical.
+    //
+    // Compared on what is PRINTED — `elements` is the answer, and 1(a) carries
+    // a completed Pattern 4 that 1(b) does not, which made two identical blank
+    // grids look like two different figures.
+    const printed = (g?: RenderedGrid) =>
+      g && JSON.stringify([g.background, g.mode, g.x, g.y, g.labels ?? null, g.showAxes, g.showGrid])
+    let shown: string | null | undefined = null
+    const showFigure = async (grid: RenderedGrid | undefined) => {
+      if (!grid || printed(grid) === shown) return
+      await drawDiagram(grid, false)
+      shown = printed(grid)
+    }
+    const allSame = rs[0].diagram && rs.every(r => printed(r.diagram) === printed(rs[0].diagram))
+    if (allSame) { await showFigure(rs[0].diagram); y += 1 }
 
     for (const [i, q] of g.parts.entries()) {
       const r = rs[i]
       const body = stem ? r.question.slice(stem.length + 1) : r.question
       text(g.parts.length > 1 ? `${q.label}   ${body}` : body, 10, 'normal', g.parts.length > 1 ? 4 : 0)
-      if (r.diagram && !allSame) await drawDiagram(r.diagram, false)
+      if (!allSame) await showFigure(r.diagram)
       text(`Answer:  ${r.answer ?? '(none authored)'}`, 10, 'bold', 8)
       if (r.working) text(r.working, 9, 'normal', 8, true)
-      if (r.diagram && (r.diagram.solution || r.diagram.elements.length)) {
+      // The answer AS A DRAWING, but only where the answer IS a drawing —
+      // `visual` says so. Keying off the grid having canonical elements drew
+      // it for every part sharing that grid, so 1(b), whose answer is the
+      // number 13, was getting a completed Pattern 4 as its "answer".
+      if (q.visual && r.diagram && (r.diagram.solution || r.diagram.elements.length)) {
         text('The answer drawn:', 9, 'bold', 8, true)
         await drawDiagram(r.diagram, true)
+        shown = null      // the next part must redraw the blank copy
       }
       y += 2
     }
