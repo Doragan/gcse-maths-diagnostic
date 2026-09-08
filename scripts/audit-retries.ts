@@ -86,6 +86,91 @@ for (const p of Object.values(PAPERS)) {
     }
   }
 
+  // ── Rules from the 2F read, which was mostly about FIGURES ───────────────
+  for (const [id, r] of Object.entries(p.retrySet)) {
+    const q = byId.get(id)!
+    const d = r.diagram
+
+    // H. The item needs a picture and the retry has none. 2F 19 was tagged
+    //    "tree-diagram multi-cell entry" and was set as a wall of text.
+    //
+    //    "STATIC DIAGRAM SUPPORTED" DOES NOT COUNT. That note means the app
+    //    COULD show a picture, not that the question needs one — "a triangle
+    //    with a hypotenuse of 15 cm and an angle of 38°" is fully specified in
+    //    words, and 19 questions like it were being reported as defects. What
+    //    counts is a figure that CARRIES data the sentence cannot: a tree, a
+    //    pie chart, a Venn, a pictogram, a pattern to count.
+    const loadBearing = /\btree\b|pie chart|venn|pictogram|bar chart|from the diagram|pattern diagram/i
+    if (!d && (q.visual || loadBearing.test(q.desc ?? ''))) {
+      add('item wants a figure, retry has none', p.id, id, q.desc || 'visual: true')
+    }
+
+    if (!d) continue
+
+    // I. A BAR CHART with no gaps is a histogram, which means something else.
+    if (d.mode === 'bars' && (d.barWidth ?? 1) >= 1) {
+      add('bar chart drawn as a histogram (no gaps)', p.id, id, 'set barWidth ~0.62')
+    }
+
+    // J. Grid squares under a figure that is not a grid question. 2F 26 was a
+    //    trigonometry triangle ruled like graph paper.
+    //
+    //    NOTHING TO DRAW is the test, not the mode. "Complete the kite on the
+    //    grid", "enlarge by scale factor 1/3", "shade the region" are all
+    //    polygons whose squares ARE the question, and every one of them has
+    //    canonical `elements` because the student draws something. A figure
+    //    with none is a labelled picture to read, and squares under it are
+    //    furniture the exam does not print.
+    if (d.mode === 'polygon' && d.showGrid !== false &&
+        d.elements.length === 0 && d.showAxes === false) {
+      add('shape drawn on squares it does not use', p.id, id, 'set showGrid: false')
+    }
+
+    // K. A figure that CONTRADICTS its own question: an angle other than 90°
+    //    marked on a shape every one of whose corners is a right angle. 2F
+    //    10(a) labelled a rectangle 68°.
+    const angles = (d.labels ?? []).filter(l => /^\d+°$/.test(l.text)).map(l => parseInt(l.text))
+    if (angles.some(a => a !== 90)) {
+      const polys = [...(d.background ?? '').matchAll(/<polygon points="([^"]+)"/g)].map(m => m[1])
+      const axisAligned = polys.length > 0 && polys.every(pts => {
+        const v = pts.trim().split(/\s+/).map(pt => pt.split(',').map(Number))
+        return v.every((a, i) => {
+          const b = v[(i + 1) % v.length]
+          return Math.abs(a[0] - b[0]) < 1e-9 || Math.abs(a[1] - b[1]) < 1e-9
+        })
+      })
+      if (axisAligned) {
+        add('figure contradicts its own question', p.id, id,
+          `marks ${angles.filter(a => a !== 90).join(', ')}° on a shape with only right angles`)
+      }
+    }
+  }
+
+  // L. Parts of one question carrying DIFFERENT figures. On the paper they read
+  //    off one picture, and the sheet only draws a shared diagram once when the
+  //    two match exactly — so near-identical copies print twice.
+  const byQuestion = new Map<string, string[]>()
+  for (const id of Object.keys(p.retrySet)) {
+    const n = id.replace(/[a-z]+$/i, '') || id
+    ;(byQuestion.get(n) ?? byQuestion.set(n, []).get(n)!).push(id)
+  }
+  for (const [n, ids] of byQuestion) {
+    const withGrid = ids.filter(i => p.retrySet[i].diagram)
+    if (withGrid.length < 2) continue
+    // Compare ONLY what feedbackPdf's sameGrid() compares — the printed
+    // figure. `elements` is the ANSWER and is rightly different per part:
+    // 1F 4(a) and (b) read off one conversion graph but mark different points
+    // on it, and 1H 21(a) and (b) transform one curve two different ways.
+    const printed = new Set(withGrid.map(i => {
+      const g = p.retrySet[i].diagram!
+      return JSON.stringify([g.background, g.mode, g.x, g.y, g.labels ?? null])
+    }))
+    const shapes = new Set(withGrid.map(i => p.retrySet[i].diagram!.background))
+    if (shapes.size === 1 && printed.size > 1) {
+      add('parts draw the same figure two different ways', p.id, n, withGrid.join(', '))
+    }
+  }
+
   // G. Sibling parts sharing a long opening that the sheet CANNOT lift out.
   //
   //    Sharing one is normal and fine: a multi-part question is set as a batch

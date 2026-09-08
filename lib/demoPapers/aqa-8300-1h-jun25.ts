@@ -95,7 +95,29 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     '5': { skill: 'Mean + Range', question: 'The mean and range of the scores of two teams are:\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
     '6a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '6b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
-    '7': { skill: 'Frequency Trees + Ratio', question: '240 students from Year 8 and Year 9 take part in a competition. The ratio number of Year 8 students : number of Year 9 students is 1 : 3. 96 students win a medal, and 70 of the students who win a medal are in Year 9. How many Year 8 students do not win a medal?', answer: '34', working: 'Year 8 has 240 ÷ 4 = 60 students, and 96 − 70 = 26 of them win a medal.' },
+    '7': {
+      // Same question as 1F 22 on the crossover, so the same tree.
+      skill: 'Frequency Trees + Ratio',
+      question: '240 students from Year 8 and Year 9 take part in a competition.\nThe ratio number of Year 8 students : number of Year 9 students is 1 : 3\n96 students win a medal, and 70 of the students who win a medal are in Year 9.\nComplete the frequency tree, and write down how many Year 8 students do not win a medal.',
+      answer: '34',
+      working: 'Year 8 has 240 ÷ 4 = 60 students, and 96 − 70 = 26 of them win a medal.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 9, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polyline points="1,4 3.9,6.5" stroke="#333" fill="none" /><polyline points="1,4 3.9,1.5" stroke="#333" fill="none" /><polyline points="4.9,6.5 7.5,7.5" stroke="#333" fill="none" /><polyline points="4.9,6.5 7.5,5.5" stroke="#333" fill="none" /><polyline points="4.9,1.5 7.5,2.5" stroke="#333" fill="none" /><polyline points="4.9,1.5 7.5,0.5" stroke="#333" fill="none" /><polyline points="0.05,3.7 0.95,3.7 0.95,4.3 0.05,4.3 0.05,3.7" stroke="#333" fill="none" /><polyline points="3.95,6.2 4.85,6.2 4.85,6.8 3.95,6.8 3.95,6.2" stroke="#333" fill="none" /><polyline points="3.95,1.2 4.85,1.2 4.85,1.8 3.95,1.8 3.95,1.2" stroke="#333" fill="none" /><polyline points="7.6,7.2 8.5,7.2 8.5,7.8 7.6,7.8 7.6,7.2" stroke="#333" fill="none" /><polyline points="7.6,5.2 8.5,5.2 8.5,5.8 7.6,5.8 7.6,5.2" stroke="#333" fill="none" /><polyline points="7.6,2.2 8.5,2.2 8.5,2.8 7.6,2.8 7.6,2.2" stroke="#333" fill="none" /><polyline points="7.6,0.2 8.5,0.2 8.5,0.8 7.6,0.8 7.6,0.2" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0.5, y: 4, text: '240' },
+          { x: 2.45, y: 6, text: 'Year 8' },
+          { x: 2.45, y: 2, text: 'Year 9' },
+          { x: 6.1, y: 7.45, text: 'medal' },
+          { x: 6.1, y: 5.35, text: 'no medal' },
+          { x: 6.1, y: 2.45, text: 'medal' },
+          { x: 6.1, y: 0.35, text: 'no medal' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '8': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out <frac>3/10</frac> + <frac>1/4</frac> ÷ <frac>1/2</frac>. Give your answer as a fraction.', answer: '<frac>4/5</frac>', working: 'Divide first: <frac>1/4</frac> ÷ <frac>1/2</frac> = <frac>1/2</frac>, then <frac>3/10</frac> + <frac>5/10</frac> = <frac>8/10</frac>.' },
     '9': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     <frac>1/4</frac>     50     −6     30', answer: '<frac>1/4</frac>', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
     '10': { skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles', question: 'The area of a rectangle is 96 cm². Its length is (x + 8) cm and its width is (x − 2) cm. Work out the value of x.', answer: 'x = 8', working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.' },
@@ -142,7 +164,31 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     // the same set reasoning as a count.
     '16': { skill: 'Venn Diagrams', question: 'In a group of 60 people, 28 like tea, 35 like coffee and 12 like both. How many like neither tea nor coffee?', answer: '9', working: '28 + 35 − 12 = 51 like at least one of them.' },
 
-    '17a': { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3. When it is not raining, the probability that a bus is on time is 0.8, and when it is raining that probability is halved. Write down the probability that the bus is on time when it is raining, and the probability that it is not on time when it is raining.', answer: '0.4 and 0.6', working: 'Half of 0.8 is 0.4, and the two must add to 1.' },
+    '17a': {
+      skill: 'Tree Diagrams',
+      question: 'The tree diagram shows the probability of rain and of a bus being on time.\nWhen it is raining, the probability that the bus is on time is half the probability when it is not raining.\nComplete the two missing probabilities on the tree diagram.',
+      answer: '0.4 and 0.6',
+      working: 'Half of 0.8 is 0.4, and the two on a pair of branches add to 1.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 9, step: 1, label: '' },
+        background: '<polyline points="1,4.3 3.4,6.7" stroke="#333" fill="none" /><polyline points="1,4.3 3.4,1.9" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,7.8" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,5.5" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,3" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,0.8" stroke="#333" fill="none" /><polyline points="5.55,7.6 6.45,7.6 6.45,8.2 5.55,8.2 5.55,7.6" stroke="#333" fill="none" /><polyline points="5.3,5.05 6.2,5.05 6.2,5.65 5.3,5.65 5.3,5.05" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.2, y: 6.05, text: '0.3' },
+          { x: 2.2, y: 2.55, text: '0.7' },
+          { x: 6, y: 2.9, text: '0.8' },
+          { x: 6, y: 0.65, text: '0.2' },
+          { x: 4.1, y: 6.7, text: 'Rain' },
+          { x: 4.1, y: 1.9, text: 'No rain' },
+          { x: 7.9, y: 7.8, text: 'On time' },
+          { x: 8.1, y: 5.5, text: 'Not on time' },
+          { x: 7.9, y: 3, text: 'On time' },
+          { x: 8.1, y: 0.8, text: 'Not on time' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '17b': { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3, and when it is raining the probability that a bus is not on time is 0.6. Work out the probability that it is raining and the bus is not on time.', answer: '0.18', working: '0.3 × 0.6' },
     '18': { skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds', question: 'Show that (sin 60° × tan 45°) ÷ cos 30° can be written as an integer.', answer: '1', working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.' },
     '19a': { skill: 'Fractional and Negative Indices', question: 'Work out the value of <frac>25/4</frac> to the power −<frac>3/2</frac>', answer: '<frac>8/125</frac>', working: 'Invert for the negative power, square root for the half, then cube: (<frac>2/5</frac>)³.' },
@@ -159,7 +205,10 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 4, step: 1, label: 'x' },
-        y: { min: -4, max: 4, step: 2, label: 'y' },
+        // One axis for BOTH parts: y = -f(x) reaches -4 and y = f(x) + 2 reaches 6,
+        // so a range covering both lets (a) and (b) share one printed grid — which
+        // is how the paper sets them, and what sameGrid() needs to draw it once.
+        y: { min: -4, max: 6, step: 2, label: 'y' },
         background: '<polyline points="0,2 1,4 2,2 3,0 4,-2" stroke="#333" />',
         elements: [{ x: 0, y: -2, marks: 1 }, { x: 1, y: -4, marks: 1 }, { x: 2, y: -2, marks: 1 }, { x: 3, y: 0, marks: 1 }, { x: 4, y: 2, marks: 1 }],
         tolerance: 0,
@@ -173,7 +222,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 4, step: 1, label: 'x' },
-        y: { min: -2, max: 6, step: 2, label: 'y' },
+        y: { min: -4, max: 6, step: 2, label: 'y' },
         background: '<polyline points="0,2 1,4 2,2 3,0 4,-2" stroke="#333" />',
         elements: [{ x: 0, y: 4, marks: 1 }, { x: 1, y: 6, marks: 1 }, { x: 2, y: 4, marks: 1 }, { x: 3, y: 2, marks: 1 }, { x: 4, y: 0, marks: 1 }],
         tolerance: 0,

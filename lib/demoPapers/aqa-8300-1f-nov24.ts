@@ -149,7 +149,7 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
     '21': { skill: 'Simple Arithmetic', question: 'Each number in a list has 5 subtracted from it. For each statement, say True, False, or Cannot tell: the mode decreases by 5; the mean decreases by 5; the range stays the same.' },
     '22a': { skill: 'Sequences', question: 'Write the missing term in the geometric progression: 2, 6, 18, ?, 162' },
     '22b': { skill: 'Sequences', question: 'A Fibonacci-type sequence begins 3, −7, and continues by adding the previous two terms. Work out the next two terms.' },
-    '23a': { skill: 'Properties of 3D Solids', question: 'A prism has an octagonal cross-section. How many faces does it have?' },
+    '23a': { skill: 'Properties of 3D Solids', question: 'A prism has an octagonal cross-section.\nHow many faces does it have?', answer: '10', working: 'Eight rectangles round the sides, plus the two octagonal ends.' },
     '23b': { skill: 'Areas of Compound Shapes', question: 'A prism has volume 4200 cm³ and length 15 cm. Work out the area of the cross-section.' },
     '24': { skill: 'Adding and Subtracting Fractions', question: 'Work out 1⅓ − <frac>2/3</frac>. Give your answer as a fraction.' },
     '25': { skill: 'Exact Trigonometric Values', question: 'Write down the value of cos 0°' },

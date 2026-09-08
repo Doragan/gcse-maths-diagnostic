@@ -101,10 +101,10 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
       question: 'There are only 5p, 10p, 20p and 50p coins in a bag.\nThe bar chart shows the number of 5p coins and the number of 10p coins in the bag.\nThere are six 20p coins and four 50p coins in the bag.\nUse this information to complete the bar chart.',
       answer: 'A bar of 6 for 20p and a bar of 4 for 50p',
       diagram: {
-        mode: 'bars',
+        mode: 'bars', barWidth: 0.62,
         x: { min: 0, max: 4, step: 1, label: 'Coin', categories: ['5p', '10p', '20p', '50p'] },
         y: { min: 0, max: 14, step: 2, label: 'Number of coins' },
-        background: '<rect x="0" y="0" width="1" height="12" stroke="#333" /><rect x="1" y="0" width="1" height="8" stroke="#333" />',
+        background: '<rect x="0.19" y="0" width="0.62" height="12" stroke="#333" fill="none" /><rect x="1.19" y="0" width="0.62" height="8" stroke="#333" fill="none" />',
         elements: [{ x: 2, y: 6, marks: 1 }, { x: 3, y: 4, marks: 1 }],
         tolerance: 0,
       },

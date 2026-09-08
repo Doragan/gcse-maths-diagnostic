@@ -91,7 +91,26 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
 
     // Shared with 3F — see the note above.
     '4': { skill: 'Forming Expressions and Formulae + Solving Linear Equations + Lengths and Perimeters', question: 'An equilateral triangle has sides of length (3x + 4) cm, (5x − 2) cm and (2x + 7) cm. Work out the perimeter of the triangle.', answer: '39 cm', working: '3x + 4 = 5x − 2 gives x = 3, so each side is 13 cm.' },
-    '5': { skill: 'Pie Charts', question: 'A pie chart represents the results of matches played by a team. The sector for matches won has an angle of 144°, and the sector for matches lost has an angle of 96°. 36 matches were won. How many matches were lost?', answer: '24', working: '144° is 36 matches, so each match is 4°.' },
+    '5': {
+      skill: 'Pie Charts',
+      question: 'The pie chart represents the results of matches played by a team.\n36 matches were won.\nHow many matches were lost?',
+      answer: '24',
+      working: '144° is 36 matches, so each match is 4°.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5,4 6.763,1.573" stroke="#333" fill="none" /><polyline points="5,4 2.402,2.5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 6.769, y: 4.575, text: 'Won' },
+          { x: 6.769, y: 3.955, text: '144°' },
+          { x: 4.613, y: 2.181, text: 'Lost' },
+          { x: 4.613, y: 1.561, text: '96°' },
+          { x: 3.389, y: 4.93, text: 'Drawn' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '6a': { skill: 'Proportion', question: 'A scale diagram uses a scale of 1 : 250 000. On the diagram, the distance from B to C is 6 cm. Work out the actual distance from B to C, in kilometres.', answer: '15 km', working: '6 × 250 000 = 1 500 000 cm, and there are 100 000 cm in a kilometre.' },
     '6b': { skill: 'Bearings', question: 'C is South West of A. Write down the bearing of C from A.', answer: '225°', working: 'Clockwise from north: south is 180° and south west is another 45°.' },
 
@@ -101,7 +120,27 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
 
     '8': { skill: 'Finding the nth Term', question: 'A linear sequence has 3rd term = 11 and 7th term = 27. Work out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
     '9': { skill: 'Ratio + Fractions of Amounts', question: 'Dan has £180. Dan\'s amount is <frac>3/4</frac> of Eve\'s amount, and Finn\'s amount : Eve\'s amount = 2 : 5. Work out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
-    '10': { skill: 'Venn Diagrams + Calculating Simple Probability', question: 'A Venn diagram shows two sets A and B. The region for A only contains 7 items, the overlap contains x items, the region for B only contains 11 items, and 4 items are outside both sets. There are 30 items altogether and P(A) = <frac>1/2</frac>. Work out the value of x.', answer: 'x = 8', working: 'P(A) = <frac>1/2</frac> means A holds 15 items, and 15 − 7 = 8.' },
+    '10': {
+      skill: 'Venn Diagrams + Calculating Simple Probability',
+      question: 'The Venn diagram shows two sets A and B.\nThere are 30 items altogether and P(A) = <frac>1/2</frac>.\nWork out the value of x.',
+      answer: 'x = 8',
+      working: 'P(A) = <frac>1/2</frac> means A holds 15 items, and 15 − 7 = 8.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polyline points="1,1 9,1 9,7 1,7 1,1" stroke="#333" fill="none" /><circle cx="4.1" cy="4.1" r="2.1" stroke="#333" fill="none" /><circle cx="5.9" cy="4.1" r="2.1" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.5, y: 6.2, text: 'A' },
+          { x: 7.5, y: 6.2, text: 'B' },
+          { x: 3.1, y: 4.1, text: '7' },
+          { x: 5, y: 4.1, text: 'x' },
+          { x: 6.9, y: 4.1, text: '11' },
+          { x: 8.3, y: 1.7, text: '4' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '11a': { skill: 'Understanding Straight Line Graphs', question: 'Write down the equation of a straight line parallel to y − 3x = 5', answer: 'Any line of the form y = 3x + c with c not equal to 5 — for example y = 3x + 1', working: 'Parallel lines share a gradient, here 3.' },
     '11b': { skill: 'Understanding Straight Line Graphs', question: 'A straight line has gradient 4 and passes through the point (2, 5). Circle the equation of the line.\ny = 2x + 1     y = 4x     y = 4x − 3     y = 4x + 5', answer: 'y = 4x − 3', working: '4 × 2 − 3 = 5, so the point fits.' },
 
