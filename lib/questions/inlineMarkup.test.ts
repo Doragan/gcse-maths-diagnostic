@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseInline, plainText, type InlineToken } from './inlineMarkup'
+import { parseInline, parseBlocks, plainText, type InlineToken } from './inlineMarkup'
 
 /** Compact rendering of a token list, so an assertion is readable. */
 const show = (tokens: InlineToken[]): string =>
@@ -102,5 +102,36 @@ describe('plainText', () => {
 
   it('turns a break into a newline', () => {
     expect(plainText(parseInline('one<br>two'))).toBe('one\ntwo')
+  })
+})
+
+describe('tables', () => {
+  const shape = (b: ReturnType<typeof parseBlocks>) =>
+    b.map(x => x.kind === 'table'
+      ? `TABLE[${x.rows.map(r => r.map(plainText).join(',')).join(' / ')}]`
+      : `TEXT(${x.text})`).join(' + ')
+
+  it('reads rows and cells', () => {
+    expect(shape(parseBlocks('<table>Day | 1 | 2\nViews | 40 | 120</table>')))
+      .toBe('TABLE[Day,1,2 / Views,40,120]')
+  })
+
+  it('keeps the text around it, in order', () => {
+    expect(shape(parseBlocks('The table shows this.\n<table>a | b</table>\nNow draw it.')))
+      .toBe('TEXT(The table shows this.) + TABLE[a,b] + TEXT(Now draw it.)')
+  })
+
+  it('parses each cell as markup, so a cell can hold a fraction', () => {
+    const b = parseBlocks('<table>x | <frac>1/2</frac></table>')
+    expect(b[0].kind).toBe('table')
+    expect(shape(b)).toBe('TABLE[x,1/2]')
+  })
+
+  it('leaves text with no table as a single block', () => {
+    expect(shape(parseBlocks('Just a question.'))).toBe('TEXT(Just a question.)')
+  })
+
+  it('does not mistake a "<" for a table', () => {
+    expect(shape(parseBlocks('0 < s ≤ 10 000'))).toBe('TEXT(0 < s ≤ 10 000)')
   })
 })

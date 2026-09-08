@@ -97,6 +97,15 @@ export type RenderedGrid = {
    * squares and no axes, and these want neither.
    */
   showGrid?: boolean
+  /**
+   * Bar width as a fraction of its slot, for `bars`. Default 1 — flush.
+   *
+   * Flush is right for the interactive canvas, where the whole column is the
+   * tap target and a filled column is the feedback. It is WRONG on paper: bars
+   * that touch make the chart a histogram, which is a different thing with a
+   * different meaning, so a printed bar chart should set about 0.7.
+   */
+  barWidth?: number
   // Rendered method overlay, drawn only on the answer reveal ('' = none).
   solution?: string
   elements: RenderedGridElement[]

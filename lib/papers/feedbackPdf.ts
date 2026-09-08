@@ -2,7 +2,7 @@ import jsPDF from 'jspdf'
 import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
 import type { RenderedGrid } from '../questions/gridDraw'
 import { buildGridSvg, CELL } from '../questions/gridSvg'
-import { parseInline, type InlineToken } from '../questions/inlineMarkup'
+import { parseInline, parseBlocks, type InlineToken } from '../questions/inlineMarkup'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -142,21 +142,35 @@ function fontRuns(text: string, kind: 'text' | 'sup' | 'sub'): Run[] {
 
 /** Authored question text to drawable runs. Newlines survive as "\n" runs. */
 export function toRuns(text: string): Run[] {
+  return tokensToRuns(parseInline(text))
+}
+
+/**
+ * Tokens to runs, fractions kept STACKED. Use this anywhere a token list needs
+ * drawing on its own — a table cell, say.
+ */
+export function tokensToRuns(tokens: InlineToken[]): Run[] {
   const out: Run[] = []
-  for (const token of parseInline(text)) {
-    if (token.kind === 'break') out.push({ kind: 'text', text: '\n' })
-    else if (token.kind === 'frac') {
-      out.push({ kind: 'frac', num: toRunsFrom(token.num), den: toRunsFrom(token.den) })
-    } else out.push(...fontRuns(token.text, token.kind))
+  for (const t of tokens) {
+    if (t.kind === 'break') out.push({ kind: 'text', text: '\n' })
+    else if (t.kind === 'frac') out.push({ kind: 'frac', num: flatRuns(t.num), den: flatRuns(t.den) })
+    else out.push(...fontRuns(t.text, t.kind))
   }
   return out
 }
 
-function toRunsFrom(tokens: InlineToken[]): Run[] {
+/**
+ * Tokens to runs, fractions FLATTENED to "a/b".
+ *
+ * Only for the inside of a fraction: a rule cannot be drawn over another rule
+ * at a legible size, so a nested fraction becomes a slash rather than a second
+ * stack. Everywhere else wants tokensToRuns.
+ */
+function flatRuns(tokens: InlineToken[]): Run[] {
   const out: Run[] = []
   for (const t of tokens) {
     if (t.kind === 'break') continue          // a line break inside a fraction is meaningless
-    else if (t.kind === 'frac') out.push(...toRunsFrom(t.num), { kind: 'text', text: '/' }, ...toRunsFrom(t.den))
+    else if (t.kind === 'frac') out.push(...flatRuns(t.num), { kind: 'text', text: '/' }, ...flatRuns(t.den))
     else out.push(...fontRuns(t.text, t.kind))
   }
   return out
@@ -253,6 +267,60 @@ export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: nu
   }
   doc.setFontSize(size)
   doc.setFont('helvetica', weight)
+}
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+
+const CELL_PAD = 1.8         // mm of space each side of a cell's text
+const ROW_LEAD = 1.6         // mm above and below a row's text
+
+/** Column widths in mm, each the widest cell in that column plus padding. */
+function columnWidths(doc: jsPDF, rows: InlineToken[][][], size: number): number[] {
+  const cols = Math.max(...rows.map(r => r.length))
+  const w: number[] = Array.from({ length: cols }, () => 0)
+  for (const row of rows)
+    row.forEach((cell, i) => { w[i] = Math.max(w[i], measureRuns(doc, tokensToRuns(cell), size) + CELL_PAD * 2) })
+  return w
+}
+
+/** Height a table will take, so a caller can page-break before starting one. */
+export function tableHeight(rows: InlineToken[][][], size: number): number {
+  return rows.length * (size * 0.42 + ROW_LEAD * 2)
+}
+
+/**
+ * Draw a real table — ruled, with the columns aligned.
+ *
+ * Returns the height used. Cells go through drawRuns, so a cell can hold a
+ * fraction or an exponent like any other text; that is the whole reason this
+ * measures rather than using jspdf-autotable, which knows only about strings.
+ *
+ * Columns are sized to their content and then scaled down together if the
+ * total overflows, so a wide table shrinks rather than running off the page.
+ */
+export function drawTable(
+  doc: jsPDF, rows: InlineToken[][][], x: number, y: number, size: number, maxWidth: number,
+): number {
+  let widths = columnWidths(doc, rows, size)
+  const total = widths.reduce((a, b) => a + b, 0)
+  if (total > maxWidth) widths = widths.map(w => w * maxWidth / total)
+
+  const rowH = size * 0.42 + ROW_LEAD * 2
+  doc.setDrawColor(150)
+  doc.setLineWidth(0.2)
+
+  let cy = y
+  for (const row of rows) {
+    let cx = x
+    row.forEach((cell, i) => {
+      doc.rect(cx, cy, widths[i], rowH)
+      drawRuns(doc, tokensToRuns(cell), cx + CELL_PAD, cy + rowH - ROW_LEAD - 0.6, size)
+      cx += widths[i]
+    })
+    cy += rowH
+  }
+  doc.setDrawColor(0)
+  return rows.length * rowH
 }
 
 /** A4 portrait in mm, matching jsPDF's defaults and lib/results/generatePDF.ts. */
@@ -567,15 +635,23 @@ function section(doc: jsPDF, c: Cursor, heading: string, lines: string[]): void 
  * next.
  */
 function bullet(doc: jsPDF, c: Cursor, text: string, size = 10.5): void {
-  // Wrapped over RUNS, not a plain string: an exponent is drawn at a smaller
-  // size, so measuring it as body text would break the line in the wrong place.
-  const lines = wrapRuns(doc, toRuns(text), size, CONTENT_WIDTH - 6)
-  lines.forEach((run, i) => {
-    ensureSpace(doc, c, 6)
-    doc.text(i === 0 ? '•' : ' ', MARGIN_X, c.y)
-    drawRuns(doc, run, MARGIN_X + 4, c.y, size)
-    c.y += 5.5
-  })
+  let first = true
+  for (const block of parseBlocks(text)) {
+    if (block.kind === 'table') {
+      ensureSpace(doc, c, tableHeight(block.rows, size - 0.5) + 2)
+      c.y += drawTable(doc, block.rows, MARGIN_X + 4, c.y - 3, size - 0.5, CONTENT_WIDTH - 10) - 1
+      continue
+    }
+    // Wrapped over RUNS, not a plain string: an exponent is drawn at a smaller
+    // size, so measuring it as body text would break the line in the wrong place.
+    for (const run of wrapRuns(doc, toRuns(block.text), size, CONTENT_WIDTH - 6)) {
+      ensureSpace(doc, c, 6)
+      doc.text(first ? '•' : ' ', MARGIN_X, c.y)
+      drawRuns(doc, run, MARGIN_X + 4, c.y, size)
+      c.y += 5.5
+      first = false
+    }
+  }
   c.y += 1
 }
 

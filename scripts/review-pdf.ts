@@ -28,7 +28,8 @@ import { writeFileSync } from 'fs'
 import { join } from 'path'
 import jsPDF from 'jspdf'
 import { PAPERS } from '../lib/demoPapers/index'
-import { toRuns, wrapRuns, drawRuns } from '../lib/papers/feedbackPdf'
+import { toRuns, wrapRuns, drawRuns, drawTable, tableHeight } from '../lib/papers/feedbackPdf'
+import { parseBlocks } from '../lib/questions/inlineMarkup'
 import { buildGridSvg } from '../lib/questions/gridSvg'
 
 const MARGIN_X = 18
@@ -65,10 +66,17 @@ async function main() {
     doc.setFontSize(size)
     doc.setFont('helvetica', weight)
     doc.setTextColor(...(grey ? [110, 110, 110] : [0, 0, 0]) as [number, number, number])
-    for (const run of wrapRuns(doc, toRuns(s), size, WIDTH - indent)) {
-      ensure(size * 0.5)
-      drawRuns(doc, run, MARGIN_X + indent, y, size)
-      y += size * 0.42 + 1.4
+    for (const block of parseBlocks(s)) {
+      if (block.kind === 'table') {
+        ensure(tableHeight(block.rows, size - 0.5) + 3)
+        y += drawTable(doc, block.rows, MARGIN_X + indent, y - 3, size - 0.5, WIDTH - indent) + 2
+        continue
+      }
+      for (const run of wrapRuns(doc, toRuns(block.text), size, WIDTH - indent)) {
+        ensure(size * 0.5)
+        drawRuns(doc, run, MARGIN_X + indent, y, size)
+        y += size * 0.42 + 1.4
+      }
     }
   }
 

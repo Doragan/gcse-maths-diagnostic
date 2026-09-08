@@ -86,7 +86,7 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     // crossover question and carries 2F 20(a)'s grid, unchanged.
     '3a': {
       skill: 'Time Series',
-      question: 'The table shows the number of views of an advert during its first 6 days.\nDay:    1     2     3     4     5     6\nViews:  40    120   100   80    60    40   (thousands)\nOn the grid, draw a time series graph to represent the data.',
+      question: 'The table shows the number of views of an advert during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nViews (thousands) | 40 | 120 | 100 | 80 | 60 | 40</table>\nOn the grid, draw a time series graph to represent the data.',
       answer: 'Points at (1, 40), (2, 120), (3, 100), (4, 80), (5, 60) and (6, 40), joined by straight lines',
       working: 'Plot each day against its number of views, then join them in order.',
       diagram: {

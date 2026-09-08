@@ -250,10 +250,12 @@ export function buildPointsLayer(
     slots?: { x: number; x2?: number }[]
     // bars/number_line need the axis to find the baseline and the plot edges.
     axes?: { x: RenderedAxis; y: RenderedAxis }
+    // bars: fraction of the slot a bar fills. 1 = flush; see RenderedGrid.
+    barWidth?: number
   },
 ): string {
   if (points.length === 0) return ''
-  const { color, ghost, mode, markers = true, slots = [], axes } = opts
+  const { color, ghost, mode, markers = true, slots = [], axes, barWidth = 1 } = opts
   const parts: string[] = []
   const op = ghost ? ' opacity="0.55"' : ''
   const dash = ghost ? ' stroke-dasharray="6 4"' : ''
@@ -275,6 +277,13 @@ export function buildPointsLayer(
       } else {
         leftAxis = p.x
         rightAxis = slots.find(s => Math.abs(s.x - p.x) < 1e-9)?.x2 ?? (axes ? p.x + axes.x.step : p.x + 1)
+      }
+      // Inset both edges equally when the grid asks for it, so a printed bar
+      // chart has the gaps that distinguish it from a histogram.
+      if (barWidth < 1) {
+        const gap = (rightAxis - leftAxis) * (1 - barWidth) / 2
+        leftAxis += gap
+        rightAxis -= gap
       }
       const left = geo.px(leftAxis)
       const top = geo.py(p.y)
@@ -385,7 +394,7 @@ export function buildGridSvg(
   const solution = opts.showCanonical ? buildSolutionLayer(grid, geo) : ''
   // bars need their slot widths; number_line markers carry style/dir; both
   // need the axes to find the baseline and plot edges.
-  const extra = { slots: grid.elements, axes: { x: grid.x, y: grid.y } }
+  const extra = { slots: grid.elements, axes: { x: grid.x, y: grid.y }, barWidth: grid.barWidth }
   const canonical = opts.showCanonical
     ? buildPointsLayer(grid.elements.map(toGhostPoint(grid)),
         geo, { color: colors.success, ghost: true, mode: grid.mode, ...extra })

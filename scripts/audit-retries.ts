@@ -44,7 +44,11 @@ for (const p of Object.values(PAPERS)) {
 
     // C. Refers to a table it does not show. A real table here is a following
     //    line carrying a colon or several spaces of alignment.
+    // A real <table> block counts, obviously. The looser test behind it is for
+    // data still set as aligned text, which is what this rule was written to
+    // catch before there was a table to render.
     if (/\b(a|the) table shows\b/i.test(r.question) &&
+        !r.question.includes('<table>') &&
         !lines.some(l => /: |\s{2,}/.test(l) && !/table shows/i.test(l))) {
       add('mentions a table it does not show', p.id, id, lines[0].slice(0, 70))
     }

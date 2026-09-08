@@ -105,11 +105,11 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     '11a': { skill: 'Understanding Straight Line Graphs', question: 'Write down the equation of a straight line parallel to y − 3x = 5', answer: 'Any line of the form y = 3x + c with c not equal to 5 — for example y = 3x + 1', working: 'Parallel lines share a gradient, here 3.' },
     '11b': { skill: 'Understanding Straight Line Graphs', question: 'A straight line has gradient 4 and passes through the point (2, 5). Circle the equation of the line.\ny = 2x + 1     y = 4x     y = 4x − 3     y = 4x + 5', answer: 'y = 4x − 3', working: '4 × 2 − 3 = 5, so the point fits.' },
 
-    '12': { skill: 'Grouped Frequency Tables + Mean + Percentage Change', question: 'The table shows the time t minutes taken to cycle to work on 60 days.\n10 ≤ t < 20    frequency 18\n20 ≤ t < 30    frequency 24\n30 ≤ t < 50    frequency 12\n50 ≤ t < 70    frequency 6\nLast year the mean time was 20 minutes.\nEstimate the percentage increase in the mean cycling time for these 60 days.', answer: '42.5%', working: 'Midpoints give a total of 1710 minutes, so the mean is 28.5, an increase of 8.5 on 20.' },
-    '13a': { skill: 'Cumulative Frequency', question: 'The table shows the salaries of 80 employees.\n0 < s ≤ 10 000        frequency 30\n10 000 < s ≤ 20 000   frequency 25\n20 000 < s ≤ 30 000   frequency 15\n30 000 < s ≤ 40 000   frequency 10\nComplete the cumulative frequency table for s ≤ 10 000, s ≤ 20 000, s ≤ 30 000 and s ≤ 40 000.', answer: '30, 55, 70, 80', working: 'Each entry adds the next frequency to the one before.' },
+    '12': { skill: 'Grouped Frequency Tables + Mean + Percentage Change', question: 'The table shows the time t minutes taken to cycle to work on 60 days.\n<table>Time (t minutes) | 10 ≤ t < 20 | 20 ≤ t < 30 | 30 ≤ t < 50 | 50 ≤ t < 70\nFrequency | 18 | 24 | 12 | 6</table>\nLast year the mean time was 20 minutes.\nEstimate the percentage increase in the mean cycling time for these 60 days.', answer: '42.5%', working: 'Midpoints give a total of 1710 minutes, so the mean is 28.5, an increase of 8.5 on 20.' },
+    '13a': { skill: 'Cumulative Frequency', question: 'The table shows the salaries of 80 employees.\n<table>Salary (£s) | 0 < s ≤ 10 000 | 10 000 < s ≤ 20 000 | 20 000 < s ≤ 30 000 | 30 000 < s ≤ 40 000\nFrequency | 30 | 25 | 15 | 10</table>\nComplete the cumulative frequency table.\n<table>Salary (£s) | s ≤ 10 000 | s ≤ 20 000 | s ≤ 30 000 | s ≤ 40 000\nCumulative frequency |  |  |  | </table>', answer: '30, 55, 70, 80', working: 'Each entry adds the next frequency to the one before.' },
     '13b': {
       skill: 'Cumulative Frequency',
-      question: 'A cumulative frequency table shows that 30 employees earn at most £10 000, 55 at most £20 000, 70 at most £30 000 and 80 at most £40 000.\nDraw a cumulative frequency diagram to represent the data.',
+      question: 'The cumulative frequency table shows the salaries of 80 employees.\n<table>Salary (£s) | s ≤ 10 000 | s ≤ 20 000 | s ≤ 30 000 | s ≤ 40 000\nCumulative frequency | 30 | 55 | 70 | 80</table>\nDraw a cumulative frequency diagram to represent the data.',
       answer: 'Points at (10, 30), (20, 55), (30, 70) and (40, 80), joined by a smooth curve',
       working: 'Each point goes at the TOP of its class, not the middle.',
       diagram: {
@@ -124,7 +124,7 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
         tolerance: 0,
       },
     },
-    '13c': { skill: 'Cumulative Frequency', question: 'A cumulative frequency table shows that 30 employees earn at most £10 000, 55 at most £20 000, 70 at most £30 000 and 80 at most £40 000. Estimate the number of employees with a salary less than £25 000', answer: 'About 63', working: 'Halfway between 55 at £20 000 and 70 at £30 000.' },
+    '13c': { skill: 'Cumulative Frequency', question: 'The cumulative frequency table shows the salaries of 80 employees.\n<table>Salary (£s) | s ≤ 10 000 | s ≤ 20 000 | s ≤ 30 000 | s ≤ 40 000\nCumulative frequency | 30 | 55 | 70 | 80</table>\nEstimate the number of employees with a salary less than £25 000.', answer: 'About 63', working: 'Halfway between 55 at £20 000 and 70 at £30 000.' },
     '14a': { skill: 'Upper and Lower Bounds', question: 'For a small boat, the mass of the empty boat is 600 kg to the nearest 50 kg, the mass of the equipment is 84 kg to the nearest 2 kg, and the mass of the crew is 145 kg to the nearest kg.\nThe total mass is these three added together, and the maximum safe total is 860 kg.\nCan this boat definitely be loaded safely? Show working to support your answer.', answer: 'Yes', working: 'The largest possible total is 625 + 85 + 145.5 = 855.5 kg, which is under 860.' },
     '14b': {
       skill: 'Kinematic Graphs',

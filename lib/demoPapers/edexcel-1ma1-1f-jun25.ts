@@ -91,8 +91,8 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
     '5': { skill: 'Angles on lines and Circles', question: 'Angle B is 127°. What type of angle is angle B?', answer: 'Obtuse', working: 'It is between 90° and 180°.' },
 
     // 6(a) and (b) share one table, as on the paper.
-    '6a': { skill: 'Simple Arithmetic', question: 'A table shows the number of adult and child tickets sold in three months.\nApril: 41 adult, 18 child\nMay: 36 adult, 22 child\nJune: 29 adult, 17 child\nWork out the total number of adult and child tickets sold in June.', answer: '46' },
-    '6b': { skill: 'Simple Arithmetic', question: 'A table shows the number of adult and child tickets sold in three months.\nApril: 41 adult, 18 child\nMay: 36 adult, 22 child\nJune: 29 adult, 17 child\nThe seller says, "In these three months, in total, I sold more than twice as many adult tickets as child tickets."\nIs the seller correct? You must show how you get your answer.', answer: 'No', working: '106 adult and 57 child; twice 57 is 114, which is more than 106.' },
+    '6a': { skill: 'Simple Arithmetic', question: 'The table shows the number of adult and child tickets sold in three months.\n<table>Month | April | May | June\nAdult | 41 | 36 | 29\nChild | 18 | 22 | 17</table>\nWork out the total number of adult and child tickets sold in June.', answer: '46' },
+    '6b': { skill: 'Simple Arithmetic', question: 'The table shows the number of adult and child tickets sold in three months.\n<table>Month | April | May | June\nAdult | 41 | 36 | 29\nChild | 18 | 22 | 17</table>\nThe seller says, "In these three months, in total, I sold more than twice as many adult tickets as child tickets."\nIs the seller correct? You must show how you get your answer.', answer: 'No', working: '106 adult and 57 child; twice 57 is 114, which is more than 106.' },
 
     // 7(a) is `visual: true` and gets the bar chart. The two given bars are in
     // the background; the two to draw are the answer.
@@ -140,7 +140,7 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
     '11b': { skill: 'Fractions of Amounts', question: 'Work out <frac>3/8</frac> of 56', answer: '21', working: '56 ÷ 8 = 7, then × 3.' },
 
     // 12(a) and (b) share one timetable.
-    '12a': { skill: 'Time Calculations', question: 'Here is part of a bus timetable.\nDepot:  07 15   07 55   08 20\nMarket: 07 48   08 21   08 59\nWhich bus should take the least time to go from Depot to Market? You must show how you get your answer.', answer: 'The 07 55 bus', working: '33 minutes, 26 minutes and 39 minutes.' },
+    '12a': { skill: 'Time Calculations', question: 'Here is part of a bus timetable.\n<table>Depot | 07 15 | 07 55 | 08 20\nMarket | 07 48 | 08 21 | 08 59</table>\nWhich bus should take the least time to go from Depot to Market?\nYou must show how you get your answer.', answer: 'The 07 55 bus', working: '33 minutes, 26 minutes and 39 minutes.' },
     '12b': { skill: 'Time Calculations', question: 'Buses leave the Market stop at 07 50, 08 15 and 08 45.\nAnn gets to the Market stop at 08 05 and wants to catch the next bus.\nThat bus is delayed by 20 minutes.\nHow many minutes does Ann have to wait for the bus?', answer: '30 minutes', working: 'The 08 15 becomes 08 35, and 08 05 to 08 35 is 30 minutes.' },
 
     '13a': { skill: 'Function Machines', question: 'A number machine subtracts 5 from the input and then multiplies by 4.\nFind the output when the input is 3', answer: '−8', working: '(3 − 5) × 4' },

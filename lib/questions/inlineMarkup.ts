@@ -221,6 +221,53 @@ function stripTags(s: string): string {
   return s.replace(/<[^>]*>/g, '')
 }
 
+// ── Blocks ───────────────────────────────────────────────────────────────────
+
+/**
+ * A table is the one thing that cannot be an inline token: it is a BLOCK, with
+ * its own column widths and rules, and a renderer has to lay it out before it
+ * knows how tall the question is.
+ *
+ * Questions had been faking them with spaces — "Day:    1     2     3" — which
+ * lines up in a monospaced editor and nowhere else, because the sheet is set
+ * in Helvetica. Several questions describe data that IS a table on the paper
+ * (a time series, a grouped frequency table, an equivalent-fractions grid), so
+ * the fake was costing fidelity on exactly the questions that need it most.
+ *
+ * Authored as rows on their own lines, cells separated by "|" — the markdown
+ * shape, so it still reads as a table in the source:
+ *
+ *   <table>Day | 1 | 2 | 3
+ *   Views | 40 | 120 | 100</table>
+ *
+ * Each cell is parsed as inline markup, so a cell may hold a fraction or an
+ * exponent like anything else.
+ */
+export type Block =
+  | { kind: 'text'; text: string }
+  | { kind: 'table'; rows: InlineToken[][][] }
+
+const TABLE = /<table>([\s\S]*?)<\/table>/gi
+
+/** Split authored text into text blocks and table blocks, in order. */
+export function parseBlocks(text: string): Block[] {
+  const out: Block[] = []
+  let at = 0
+  TABLE.lastIndex = 0
+  for (let m = TABLE.exec(text); m; m = TABLE.exec(text)) {
+    const before = text.slice(at, m.index).replace(/\n+$/, '')
+    if (before) out.push({ kind: 'text', text: before })
+    const rows = m[1].trim().split('\n')
+      .map(line => line.split('|').map(cell => parseInline(cell.trim())))
+      .filter(row => row.length > 1 || row[0].length)
+    if (rows.length) out.push({ kind: 'table', rows })
+    at = TABLE.lastIndex
+  }
+  const rest = text.slice(at).replace(/^\n+/, '')
+  if (rest || !out.length) out.push({ kind: 'text', text: rest })
+  return out
+}
+
 /** The text of a token list, markup discarded — for widths, tests and search. */
 export function plainText(tokens: InlineToken[]): string {
   return tokens.map(t =>
