@@ -12,13 +12,16 @@ import type { PaperConfig } from './types'
  * re-apply this if you do:
  *
  *   • `retrySet` is complete: a rewritten practice question, with its answer,
- *     for all 38 non-visual items. Written from the question paper as
- *     PARALLELS — same context, framing and step count, different numbers and
- *     settings — never as transcriptions. The procedure and the boundary are
- *     in docs/writing-retry-questions.md.
- *   • 4(a) and 4(b) carry a `diagram`, because they are read off a conversion
- *     graph and are not answerable without one. 11 and 21 are the two visual
- *     items and have no retry; see the note above `retrySet`.
+ *     for ALL 40 items, the two visual ones included. Written from the question
+ *     paper as PARALLELS — same context, framing and step count, different
+ *     numbers and settings — never as transcriptions. The procedure and the
+ *     boundary are in docs/writing-retry-questions.md.
+ *   • Eight items carry a `diagram`. 4(a) and 4(b) are read off a conversion
+ *     graph and are not answerable without one; 11 and 21 were written off
+ *     twice as impossible before anyone looked at what they actually show (a
+ *     marked midpoint, and an answer given on a grid), and both are ordinary
+ *     once drawn. 22's frequency tree is hand-built from labels + showGrid,
+ *     pending a real tree generator.
  *   • `challengeQuestions` stays empty ON PURPOSE. Challenges are pooled by
  *     topic and tier in lib/papers/challengePool.ts, and every paper draws
  *     from there; filling this in would override the pool for this paper only.
@@ -101,10 +104,10 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     // 2(a)–(d) all read from ONE card, as on the paper. The six numbers are
     // chosen so each of the four answers is unique — 35 is the only multiple
     // of 5, 8 the only factor of 40, 23 the only prime, 49 the only square.
-    '2a': { skill: 'Factors and Multiples', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a multiple of 5', answer: '35' },
-    '2b': { skill: 'Factors and Multiples', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a factor of 40', answer: '8' },
-    '2c': { skill: 'Factors and Multiples', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a prime number.', answer: '23', working: '49 is 7 × 7 and 35 is 5 × 7, so neither is prime.' },
-    '2d': { skill: 'Indices', question: 'Here is a card from a game.\n18    35    23    49    8    12\nWrite down the number from the card that is a square number.', answer: '49', working: '49 = 7².' },
+    '2a': { skill: 'Factors and Multiples', question: 'A card from a game has six numbers printed on it.\n18    35    23    49    8    12\nWrite down the number on the card that is a multiple of 5', answer: '35' },
+    '2b': { skill: 'Factors and Multiples', question: 'A card from a game has six numbers printed on it.\n18    35    23    49    8    12\nWrite down the number on the card that is a factor of 40', answer: '8' },
+    '2c': { skill: 'Factors and Multiples', question: 'A card from a game has six numbers printed on it.\n18    35    23    49    8    12\nWrite down the number on the card that is a prime number.', answer: '23', working: '49 is 7 × 7 and 35 is 5 × 7, so neither is prime.' },
+    '2d': { skill: 'Indices', question: 'A card from a game has six numbers printed on it.\n18    35    23    49    8    12\nWrite down the number on the card that is a square number.', answer: '49', working: '49 = 7².' },
 
     // The original reads a pictogram with a missing key. The symbol counts are
     // stated here instead, which keeps the reasoning — scale up from a known
@@ -169,7 +172,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
 
     // 9(a) and (b) share one pair of boxes, as on the paper.
     '9a': { skill: 'Ratio', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nBox B holds discs numbered 2, 4, 6, 8 and 10.\nWork out the ratio total value of the numbers in Box A : total value of the numbers in Box B.\nGive your answer in its simplest form.', answer: '2 : 3', working: 'Box A totals 20 and Box B totals 30, and 20 : 30 divides by 10.' },
-    '9b': { skill: 'Calculating Simple Probability', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nOne disc is picked at random from Box A.\nWrite down the probability that the number on the disc is greater than 6', answer: '1/4', working: 'Only the 7 is greater than 6, out of four discs.' },
+    '9b': { skill: 'Calculating Simple Probability', question: 'Box A holds discs numbered 3, 5, 5 and 7.\nOne disc is picked at random from Box A.\nWrite down the probability that the number on the disc is greater than 6', answer: '<frac>1/4</frac>', working: 'Only the 7 is greater than 6, out of four discs.' },
 
     '10': { skill: 'Substitution + Indices', question: 'Work out the value of 3(b² − 2b) when b = 5', answer: '45', working: '25 − 10 = 15, then × 3.' },
     // 11 is `visual: true`. Its figure is just a line segment with the
@@ -214,7 +217,7 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     '14a': { skill: 'Estimating', question: 'By rounding each number to 1 significant figure, estimate the value of 3.4 × 5.2 + 2.3². You must show your working.', answer: '19', working: '3 × 5 = 15 and 2² = 4.' },
     '14b': { skill: 'Estimating', question: 'An estimate of 3.4 × 5.2 + 2.3² is made by rounding each number to 1 significant figure, giving 19. Is 19 an overestimate or an underestimate of the true value? Give a reason for your answer.\n[   ] Overestimate\n[   ] Underestimate', answer: 'Underestimate', working: 'Every number was rounded down, so the estimate must be below the true value.' },
     '15a': { skill: 'Parts of a Circle', question: 'A sphere has diameter 12 cm. Show that the radius of the sphere is 6 cm', answer: 'The radius is half the diameter, and 12 ÷ 2 = 6' },
-    '15b': { skill: 'Volume of a Sphere', question: 'The volume of a sphere is (4/3) × pi × r³, where r is the radius. Work out the volume of a sphere with diameter 12 cm. Give your answer in terms of pi.', answer: '288 pi cm³', working: 'r = 6, so r³ = 216, and 4 ÷ 3 × 216 = 288.' },
+    '15b': { skill: 'Volume of a Sphere', question: 'The volume of a sphere is <frac>4/3</frac>πr³, where r is the radius.\nWork out the volume of a sphere with diameter 12 cm.\nGive your answer in terms of π.', answer: '288π cm³', working: 'r = 6, so r³ = 216, and 4 ÷ 3 × 216 = 288.' },
     '16a': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w.\nAssume the job needs completing in 25 days. How many workers are needed?', answer: '24 workers', working: '25 = 600 ÷ w, so w = 600 ÷ 25.' },
     '16b': { skill: 'Inverse Proportion', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w.\nCompleting the job in 25 days needs 24 workers.\nIn fact, the job needs completing in fewer than 25 days. What does this mean about the number of workers needed?\nTick one box.\n[   ] Fewer than 24 workers\n[   ] Exactly 24 workers\n[   ] More than 24 workers', answer: 'More than 24 workers', working: 'Days × workers is fixed, so fewer days needs more workers.' },
     '17': { skill: 'Parts of a Circle', question: 'A chord is drawn on a circle. Which statement is correct?\nTick one box.\n[   ] The chord must be shorter than the diameter\n[   ] The chord must be equal in length to the diameter\n[   ] The chord must be longer than the diameter\n[   ] The chord is never longer than the diameter', answer: 'The chord is never longer than the diameter', working: 'The longest chord a circle has is a diameter, so equal is possible but longer is not.' },
@@ -265,25 +268,41 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
         mode: 'points', showAxes: false, showGrid: false,
         x: { min: 0, max: 9, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<polyline points="1,4 4,6.5" stroke="#333" /><polyline points="1,4 4,1.5" stroke="#333" />' +
-          '<polyline points="4.7,6.5 7.5,7.5" stroke="#333" /><polyline points="4.7,6.5 7.5,5.5" stroke="#333" />' +
-          '<polyline points="4.7,1.5 7.5,2.5" stroke="#333" /><polyline points="4.7,1.5 7.5,0.5" stroke="#333" />',
+        // A frequency tree the way the paper draws one: the CATEGORY names sit
+        // on the branches and the NUMBERS sit in the nodes. Every node but the
+        // first is an empty box, because filling them in is the question.
+        // Boxes are closed polylines rather than <rect>, since the background
+        // is drawn inside the Y-flipping group and a point list survives that
+        // where a top-left-plus-height does not.
+        background: '<polyline points="1,4 3.9,6.5" stroke="#333" /><polyline points="1,4 3.9,1.5" stroke="#333" />' +
+          '<polyline points="4.9,6.5 7.5,7.5" stroke="#333" /><polyline points="4.9,6.5 7.5,5.5" stroke="#333" />' +
+          '<polyline points="4.9,1.5 7.5,2.5" stroke="#333" /><polyline points="4.9,1.5 7.5,0.5" stroke="#333" />' +
+          // The given total, then the two year-group nodes, then the four leaves.
+          '<polyline points="0.05,3.6 0.95,3.6 0.95,4.4 0.05,4.4 0.05,3.6" stroke="#333" fill="none" />' +
+          '<polyline points="3.95,6.1 4.85,6.1 4.85,6.9 3.95,6.9 3.95,6.1" stroke="#333" fill="none" />' +
+          '<polyline points="3.95,1.1 4.85,1.1 4.85,1.9 3.95,1.9 3.95,1.1" stroke="#333" fill="none" />' +
+          '<polyline points="7.6,7.1 8.5,7.1 8.5,7.9 7.6,7.9 7.6,7.1" stroke="#333" fill="none" />' +
+          '<polyline points="7.6,5.1 8.5,5.1 8.5,5.9 7.6,5.9 7.6,5.1" stroke="#333" fill="none" />' +
+          '<polyline points="7.6,2.1 8.5,2.1 8.5,2.9 7.6,2.9 7.6,2.1" stroke="#333" fill="none" />' +
+          '<polyline points="7.6,0.1 8.5,0.1 8.5,0.9 7.6,0.9 7.6,0.1" stroke="#333" fill="none" />',
         labels: [
-          { x: 0.6, y: 4, text: '240' },
-          { x: 4.3, y: 6.5, text: 'Year 8' },
-          { x: 4.3, y: 1.5, text: 'Year 9' },
-          { x: 8.2, y: 7.5, text: 'medal' },
-          { x: 8.2, y: 5.5, text: 'no medal' },
-          { x: 8.2, y: 2.5, text: 'medal' },
-          { x: 8.2, y: 0.5, text: 'no medal' },
+          // The only number given. The rest of the boxes are the student's.
+          { x: 0.5, y: 4, text: '240' },
+          // On the branches, at their midpoints, clear of the line.
+          { x: 2.45, y: 6.0, text: 'Year 8' },
+          { x: 2.45, y: 2.0, text: 'Year 9' },
+          { x: 6.1, y: 7.45, text: 'medal' },
+          { x: 6.1, y: 5.35, text: 'no medal' },
+          { x: 6.1, y: 2.45, text: 'medal' },
+          { x: 6.1, y: 0.35, text: 'no medal' },
         ],
         elements: [], tolerance: 0,
       },
     },
 
-    '23': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out 3/10 + 1/4 ÷ 1/2. Give your answer as a fraction.', answer: '4/5', working: 'Divide first: 1/4 ÷ 1/2 = 1/2, then 3/10 + 5/10 = 8/10.' },
-    '24': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     1/4     50     −6     30', answer: '1/4', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
-    '25': { skill: 'Exact Trigonometric Values', question: 'Circle the value of cos 90 degrees.\n0     1/2     1/sqrt2     sqrt3/2     1', answer: '0', working: 'cos 0° is 1 and cos 90° is 0 — at Foundation the exact values asked for are the ones at 0° and 90°.' },
+    '23': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out <frac>3/10</frac> + <frac>1/4</frac> ÷ <frac>1/2</frac>\nGive your answer as a fraction.', answer: '<frac>4/5</frac>', working: 'Divide first: <frac>1/4</frac> ÷ <frac>1/2</frac> = <frac>1/2</frac>, then <frac>3/10</frac> + <frac>5/10</frac> = <frac>8/10</frac>.' },
+    '24': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     <frac>1/4</frac>     50     −6     30', answer: '<frac>1/4</frac>', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
+    '25': { skill: 'Exact Trigonometric Values', question: 'Circle the value of cos 90°.\n0     <frac>1/2</frac>     <frac>1/√2</frac>     <frac>√3/2</frac>     1', answer: '0', working: 'cos 0° is 1 and cos 90° is 0 — at Foundation the exact values asked for are the ones at 0° and 90°.' },
     '26': {
       skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles',
       question: 'The area of the rectangle is 96 cm².\nWork out the value of x.\nNot drawn accurately.',

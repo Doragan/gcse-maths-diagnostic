@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe, toRuns } from './feedbackPdf'
+import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe, toRuns, type Run } from './feedbackPdf'
 import { buildClassEvidence, buildStudentEvidence } from './feedbackEvidence'
 import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
 import type { PaperConfig } from '../demoPapers'
 import type { WwwEbiSheet } from './wwwEbi'
 import { PAPERS } from '../demoPapers/index'
 import { buildGridSvg } from '../questions/gridSvg'
+import { parseInline, plainText } from '../questions/inlineMarkup'
 
 const options = {
   paperTitle: 'AQA GCSE Mathematics 8300/3F',
@@ -153,13 +154,8 @@ describe('toPdfSafe', () => {
     expect(toPdfSafe('Solve  3(4e − 2) = 42')).toBe('Solve  3(4e - 2) = 42')
   })
 
-  it('gives every undrawable character in the paper data a readable form', () => {
-    expect(toPdfSafe('Work out the value of √81')).toBe('Work out the value of sqrt81')
-    expect(toPdfSafe('Simplify fully ⅓p × 9q')).toBe('Simplify fully 1/3p × 9q')
-    expect(toPdfSafe('Input → ×3 → +5 → Output')).toBe('Input -> ×3 -> +5 -> Output')
+  it('drops the recurring-decimal dot, which the words already carry', () => {
     expect(toPdfSafe('Convert 0.4̇5̇ (recurring)')).toBe('Convert 0.45 (recurring)')
-    expect(toPdfSafe('area of a circle, π')).toBe('area of a circle, pi')
-    expect(toPdfSafe('x ≥ 4')).toBe('x >= 4')
   })
 
   it('leaves the maths typography WinAnsi can already draw', () => {
@@ -258,74 +254,106 @@ describe('diagrams on a practice question', () => {
   })
 })
 
-describe('superscripts', () => {
-  // CP1252 has ¹ ² ³ and nothing else, which is a trap rather than a
-  // limitation: x² draws while k⁴ silently loses its exponent and prints "k".
-  // That is a WRONG answer, not a garbled one, and it reached a printed sheet.
-  it('keeps the three CP1252 can draw', () => {
-    expect(toPdfSafe('cm²')).toBe('cm²')
-    expect(toPdfSafe('19² and 5³ at 90°')).toBe('19² and 5³ at 90°')
-  })
+describe('notation', () => {
+  // WHAT CHANGED AND WHY. This used to be a list of surrenders: π printed as
+  // the word "pi", √ as "sqrt", ⅓ as "1/3", and any exponent past ³ as "^4",
+  // because jsPDF's built-in fonts are WinAnsi and WinAnsi has none of them.
+  // Two things fixed that without embedding a font. Exponents and fractions
+  // are DRAWN — raised, or stacked over a rule. π and √ come from /Symbol,
+  // which is one of the standard 14 and so costs nothing to use.
+  const flat = (runs: Run[]): string =>
+    runs.map(r => r.kind === 'frac' ? `[${flat(r.num)}/${flat(r.den)}]`
+      : r.kind === 'sup' ? `^${r.text}`
+        : r.kind === 'sub' ? `_${r.text}`
+          : r.text).join('')
 
-  it('rescues the ones it cannot, rather than dropping them', () => {
-    expect(toPdfSafe('k⁴')).toBe('k^4')
-    expect(toPdfSafe('8 × 10⁻⁴')).toBe('8 × 10^-4')
-    expect(toPdfSafe('1024 = 2ⁿ')).toBe('1024 = 2^n')
-    expect(toPdfSafe('y = 3ˣ')).toBe('y = 3^x')
-  })
+  /**
+   * The characters that actually reach the page, with none of flat's markers.
+   *
+   * flat() is for reading an assertion; this is for the silent-loss guard, and
+   * the difference matters — flat's brackets and slashes are indistinguishable
+   * from a tick box's "[   ]" or an ordinary "3/4", so stripping them reported
+   * both as lost content.
+   */
+  const drawnChars = (runs: Run[]): string =>
+    // The '/' stands for the rule, which IS drawn — so this lines up with
+    // plainText and a fraction does not read as a lost slash.
+    runs.map(r => r.kind === 'frac' ? `${drawnChars(r.num)}/${drawnChars(r.den)}` : r.text).join('')
 
-  it('picks one style per string, never a mixture', () => {
-    // "3 × 10³ × 10^4" is a third style and worse than either — and that exact
-    // line existed before this decided per string rather than per run.
-    expect(toPdfSafe('3 × 10³ × 10⁴')).toBe('3 × 10^3 × 10^4')
-  })
-
-  it('leaves no paper losing a character silently', () => {
-    // The guard that would have caught the original defect.
-    for (const paper of Object.values(PAPERS)) {
-      for (const [id, r] of Object.entries(paper.retrySet)) {
-        for (const v of [r.question, r.answer ?? '', r.working ?? '']) {
-          const dropped = [...v].filter(ch => ch !== ' ' && toPdfSafe(ch) === ' ')
-          expect(dropped, `${paper.id} ${id}: ${JSON.stringify(dropped.join(''))}`).toEqual([])
-        }
-      }
-      for (const c of paper.challengeQuestions) {
-        for (const v of [c.question, c.answer, c.working ?? '']) {
-          const dropped = [...v].filter(ch => ch !== ' ' && toPdfSafe(ch) === ' ')
-          expect(dropped, `${paper.id} challenge ${c.skill}`).toEqual([])
-        }
-      }
-    }
-  })
-})
-
-describe('superscript runs', () => {
-  // The drawing path. toPdfSafe still spells them out for callers that need a
-  // plain string, but nothing that DRAWS should use it — the review PDF did,
-  // which is why superscripts came out as "10^-4" there after they were being
-  // drawn properly on a student's sheet.
   it('splits an exponent into its own raised run', () => {
     expect(toRuns('10⁻⁴')).toEqual([
-      { text: '10', sup: false },
-      { text: '-4', sup: true },
+      { kind: 'text', text: '10' },
+      { kind: 'sup', text: '-4' },
     ])
   })
 
   it('returns to the baseline after one', () => {
-    expect(toRuns('50 × 60 × 10⁴. Give your answer')).toEqual([
-      { text: '50 × 60 × 10', sup: false },
-      { text: '4', sup: true },
-      { text: '. Give your answer', sup: false },
-    ])
+    expect(flat(toRuns('50 × 60 × 10⁴. Give your answer')))
+      .toBe('50 × 60 × 10^4. Give your answer')
   })
 
   it('raises the ones CP1252 can draw too, so a page has one style', () => {
-    // ² is drawable, but leaving it inline while ⁴ is raised would put two
-    // sizes of exponent on one sheet.
-    expect(toRuns('x²')).toEqual([{ text: 'x', sup: false }, { text: '2', sup: true }])
+    // ² is drawable inline, but leaving it there while ⁴ is raised would put
+    // two sizes of exponent on one sheet.
+    expect(toRuns('x²')).toEqual([{ kind: 'text', text: 'x' }, { kind: 'sup', text: '2' }])
   })
 
   it('still sanitises the plain runs', () => {
-    expect(toRuns('3(4e − 2)')).toEqual([{ text: '3(4e - 2)', sup: false }])
+    expect(toRuns('3(4e − 2)')).toEqual([{ kind: 'text', text: '3(4e - 2)' }])
+  })
+
+  it('takes the website\'s markup, so a bank question can be pasted in', () => {
+    expect(flat(toRuns('Work out 3x<sup>2</sup> when x = 4'))).toBe('Work out 3x^2 when x = 4')
+    expect(flat(toRuns('a<sub>1</sub> = 5'))).toBe('a_1 = 5')
+    expect(flat(toRuns('Line one<br>Line two'))).toBe('Line one\nLine two')
+    expect(flat(toRuns('x &le; 4 &amp; y &gt; 1'))).toContain('&')
+  })
+
+  it('draws π and √ properly instead of spelling them out', () => {
+    const runs = toRuns('area = πr² and √81')
+    expect(runs.filter(r => r.kind !== 'frac' && r.symbol)).toHaveLength(2)
+    expect(flat(runs)).not.toContain('sqrt')
+    expect(flat(runs)).not.toContain('pi')
+  })
+
+  it('stacks a fraction, written or typed', () => {
+    expect(toRuns('<frac>3/4</frac>')).toEqual([
+      { kind: 'frac', num: [{ kind: 'text', text: '3' }], den: [{ kind: 'text', text: '4' }] },
+    ])
+    // The single-character fractions already in the paper data get it free.
+    expect(flat(toRuns('Simplify fully ⅓p × 9q'))).toBe('Simplify fully [1/3]p × 9q')
+  })
+
+  it('shows a stray "<" rather than eating it as a tag', () => {
+    // An author will write "x < 5" sooner or later, and silently deleting the
+    // rest of the sentence would be far worse than printing a literal "<".
+    expect(flat(toRuns('Solve x < 5 and y > 2'))).toBe('Solve x < 5 and y > 2')
+  })
+
+  it('leaves no paper losing a character silently', () => {
+    // The guard that would have caught the original defect — "Simplify fully
+    // k × k × k × k. Answer: k". It asks the DRAWING path, not toPdfSafe:
+    // toPdfSafe alone would report π as lost when Symbol draws it fine.
+    for (const paper of Object.values(PAPERS)) {
+      const strings = [
+        ...Object.entries(paper.retrySet).flatMap(([id, r]) =>
+          [r.question, r.answer ?? '', r.working ?? ''].map(v => [`${paper.id} ${id}`, v] as const)),
+        ...paper.challengeQuestions.flatMap(c =>
+          [c.question, c.answer, c.working ?? ''].map(v => [`${paper.id} challenge ${c.skill}`, v] as const)),
+      ]
+      for (const [where, v] of strings) {
+        const drawn = drawnChars(toRuns(v))
+        // Compare against the PARSED text, not the raw string: a <frac> tag's
+        // own angle brackets are meant to be consumed, and counting them as
+        // lost content would make this guard fire on correct markup.
+        const expected = plainText(parseInline(v))
+        const lost = [...expected].filter(ch => !' \n'.includes(ch) && !drawn.includes(ch) &&
+          // These are drawn, just not as themselves: as a Symbol glyph, a
+          // stacked fraction, a raised digit, or an ASCII substitute.
+          !'−→←√π≤≥≠±∞θαβμσλφΣΔΩ∠∴≈⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ₀₁₂₃₄₅₆₇₈₉½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞'.includes(ch) &&
+          ch !== '\u0307')
+        expect(lost, `${where}: ${JSON.stringify(lost.join(''))}`).toEqual([])
+      }
+    }
   })
 })

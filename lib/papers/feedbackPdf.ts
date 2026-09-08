@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
 import type { RenderedGrid } from '../questions/gridDraw'
 import { buildGridSvg, CELL } from '../questions/gridSvg'
+import { parseInline, type InlineToken } from '../questions/inlineMarkup'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -35,21 +36,14 @@ import { buildGridSvg, CELL } from '../questions/gridSvg'
  * Substituting is a rendering concern and belongs here, at the boundary — the
  * source data is correct as it stands and renders properly everywhere else.
  *
- * `sqrt` and `pi` are the two that read as compromises. Fixing those properly
- * means embedding a Unicode TTF and calling doc.addFont, which is worth doing
- * if the maths in these questions gets any richer.
+ * This table used to be much longer, and most of it read as compromises: π
+ * printed as the word "pi", √ as "sqrt", ⅓ as "1/3". Those are gone — π and √
+ * now come from the built-in Symbol font (see SYMBOL) and the vulgar fractions
+ * are drawn stacked (see inlineMarkup's VULGAR), so what is left is genuinely
+ * a substitution rather than a surrender.
  */
 const PDF_SAFE: Record<string, string> = {
   '−': '-',      // MINUS SIGN — not the ASCII hyphen, and the original bug
-  '→': '->',     // → in function machines
-  '√': 'sqrt',   // √
-  'π': 'pi',     // π
-  '≥': '>=',     // ≥
-  '≤': '<=',     // ≤
-  '⅓': '1/3',    // ⅓
-  '⅔': '2/3',
-  '⅕': '1/5',    // ⅕
-  '⅛': '1/8',
   '̇': '',       // combining dot above (recurring decimals); the questions
                       // using it also say "(recurring)" in words, so dropping
                       // the dot loses nothing a student needs.
@@ -63,46 +57,32 @@ const PDF_SAFE: Record<string, string> = {
 const CP1252_EXTRAS = new Set([...'€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ'])
 
 /**
- * Superscripts, and the ASCII they fall back to.
+ * The Symbol font's own encoding, for characters WinAnsi simply does not have.
  *
- * CP1252 has ¹ ² ³ AND NOTHING ELSE, which is a trap rather than a limitation:
- * `x²` draws perfectly while `k⁴` silently loses its exponent and prints as
- * "k". That is not a garbled answer, it is a WRONG one, and it reached a
- * printed review sheet — "Simplify fully k × k × k × k. Answer: k" — before
- * anyone noticed. Standard form was worse: `8 × 10⁻⁴` printed as "8 × 10".
- */
-const SUPERSCRIPT: Record<string, string> = {
-  '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
-  '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
-  '⁻': '-', '⁺': '+', 'ⁿ': 'n', 'ˣ': 'x',
-}
-/** The three CP1252 can actually draw. */
-const SUPERSCRIPT_DRAWABLE = new Set(['¹', '²', '³'])
-
-/**
- * Rewrite superscripts, deciding ONCE PER STRING rather than per run.
+ * jsPDF's standard 14 includes /Symbol, and it is emitted with NO /Encoding —
+ * so the byte is an index into the font's own table, not Latin-1. Byte 0x70
+ * ("p") is π, 0xD6 is √. That is why these look like nonsense as text: they
+ * are, until the font is switched.
  *
- * If every superscript in the string is drawable the typography is kept, so
- * `cm²` and `x³` are untouched. If any is not, the whole string goes to caret
- * notation — because `3 × 10³ × 10⁴` rendering as "3 × 10³ × 10^4" is a third
- * style, worse than either consistent one, and that exact line existed.
+ * This replaces the "π prints as the word pi" compromise the PDF_SAFE table
+ * used to make, at no cost — Symbol is a built-in, so nothing is embedded and
+ * the class pack stays about twenty kilobytes.
  */
-function superscriptsToAscii(text: string): string {
-  const runs = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+/g
-  const all = text.match(runs)
-  if (!all) return text
-  if (all.every(run => [...run].every(ch => SUPERSCRIPT_DRAWABLE.has(ch)))) return text
-  return text.replace(runs, run => '^' + [...run].map(ch => SUPERSCRIPT[ch]).join(''))
+const SYMBOL: Record<string, string> = {
+  'π': 'p', '√': '\xD6', '≤': '\xA3', '≥': '\xB3', '≠': '\xB9',
+  '±': '\xB1', '∞': '\xA5', '→': '\xAE', '←': '\xAC',
+  'θ': 'q', 'α': 'a', 'β': 'b', 'μ': 'm', 'σ': 's', 'λ': 'l', 'φ': 'f',
+  'Σ': 'S', 'Δ': 'D', 'Ω': 'W', '∠': '\xD0', '∴': '\\', '≈': '\xBB',
 }
 
 /**
  * Make a string drawable by jsPDF's standard fonts.
  *
  * Applied to EVERY string that reaches doc.text — including before measuring
- * for wrapping, so the line breaks match what is actually drawn.
+ * for wrapping, so the line breaks match what is actually drawn. Characters
+ * SYMBOL covers never arrive here; toRuns has already split them out.
  */
 export function toPdfSafe(text: string): string {
-  text = superscriptsToAscii(text)
   let out = ''
   for (const ch of text) {
     const mapped = PDF_SAFE[ch]
@@ -115,45 +95,106 @@ export function toPdfSafe(text: string): string {
   return out
 }
 
-// ── True superscripts ────────────────────────────────────────────────────────
+// ── Drawing the notation ─────────────────────────────────────────────────────
 //
 // `10^-4` is legible but it is not what a maths paper looks like, and the
 // alternative first considered — embedding a Unicode TTF — costs about a
 // megabyte on every sheet, against a whole class pack of roughly twenty
 // kilobytes. jsPDF cannot subset a font, so that megabyte is not negotiable.
 //
-// Drawing them instead costs nothing: the exponent is the SAME standard font
-// at 68% size, raised off the baseline. The only real work is that measuring
-// and wrapping now have to walk runs of mixed size rather than one string.
+// Drawing instead costs nothing. An exponent is the SAME standard font at 68%
+// size, raised off the baseline; a fraction is two such stacks with a rule
+// between them; π and √ are the built-in Symbol font. The only real work is
+// that measuring and wrapping have to walk runs of mixed size and font rather
+// than one string.
+//
+// The vocabulary — <sup>, <sub>, <br>, entities, and <frac> — is parsed in
+// lib/questions/inlineMarkup.ts, which the WEBSITE shares. See that file for
+// why it lives there.
 
-/** A piece of a line, at normal size or raised. */
-export type Run = { text: string; sup: boolean }
+/** A piece of a line: text at some level, or a stacked fraction. */
+export type Run =
+  | { kind: 'text' | 'sup' | 'sub'; text: string; symbol?: boolean }
+  | { kind: 'frac'; num: Run[]; den: Run[] }
 
 const SUP_SIZE = 0.68        // exponent size, as a fraction of the base
 const SUP_RISE = 0.30        // how far above the baseline, in base font heights
+const SUB_DROP = 0.14        // how far below, for H2O and a1
+const FRAC_SIZE = 0.78       // numerator and denominator size
+const FRAC_RISE = 0.30       // numerator baseline above the rule
+const FRAC_DROP = 0.62       // denominator baseline below the rule
+const FRAC_RULE = 0.14       // where the rule sits, above the base baseline
+const FRAC_PAD = 0.6         // mm of clear space each side of a fraction
 const PT_TO_MM = 25.4 / 72
 
-/** Split text into normal and superscript runs, sanitising each for WinAnsi. */
-export function toRuns(text: string): Run[] {
-  const runs: Run[] = []
-  for (const piece of text.split(/([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+)/)) {
-    if (!piece) continue
-    const sup = /^[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/.test(piece)
-    runs.push({
-      sup,
-      text: sup ? [...piece].map(ch => SUPERSCRIPT[ch]).join('') : toPdfSafe(piece),
-    })
+/** Split a string into WinAnsi runs and Symbol-font runs at `kind`. */
+function fontRuns(text: string, kind: 'text' | 'sup' | 'sub'): Run[] {
+  const out: Run[] = []
+  let plain = ''
+  const flush = () => { if (plain) { out.push({ kind, text: toPdfSafe(plain) }); plain = '' } }
+  for (const ch of text) {
+    if (SYMBOL[ch]) { flush(); out.push({ kind, text: SYMBOL[ch], symbol: true }) }
+    else plain += ch
   }
-  return runs
+  flush()
+  return out
+}
+
+/** Authored question text to drawable runs. Newlines survive as "\n" runs. */
+export function toRuns(text: string): Run[] {
+  const out: Run[] = []
+  for (const token of parseInline(text)) {
+    if (token.kind === 'break') out.push({ kind: 'text', text: '\n' })
+    else if (token.kind === 'frac') {
+      out.push({ kind: 'frac', num: toRunsFrom(token.num), den: toRunsFrom(token.den) })
+    } else out.push(...fontRuns(token.text, token.kind))
+  }
+  return out
+}
+
+function toRunsFrom(tokens: InlineToken[]): Run[] {
+  const out: Run[] = []
+  for (const t of tokens) {
+    if (t.kind === 'break') continue          // a line break inside a fraction is meaningless
+    else if (t.kind === 'frac') out.push(...toRunsFrom(t.num), { kind: 'text', text: '/' }, ...toRunsFrom(t.den))
+    else out.push(...fontRuns(t.text, t.kind))
+  }
+  return out
+}
+
+/** Point size a run is drawn at, given the size of the line it sits on. */
+function sizeOf(run: Run, size: number): number {
+  return run.kind === 'text' ? size : run.kind === 'frac' ? size * FRAC_SIZE : size * SUP_SIZE
+}
+
+function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
+  doc.setFontSize(sizeOf(run, size))
+  // SYMBOL HAS ONE WEIGHT. Asking for 'symbol','bold' makes jsPDF log "unable
+  // to look up font label" and quietly fall back, so a π in a bold heading
+  // used to come out in whatever font it landed on. Regular is the honest
+  // answer: there is no bold π in the standard 14.
+  if (run.kind !== 'frac' && run.symbol) doc.setFont('symbol', 'normal')
+  else doc.setFont('helvetica', weight)
+}
+
+/** Width of one run, in mm. */
+function runWidth(doc: jsPDF, run: Run, size: number): number {
+  const weight = (doc.getFont() as { fontStyle?: string }).fontStyle ?? 'normal'
+  if (run.kind === 'frac') {
+    const w = Math.max(measureRuns(doc, run.num, size * FRAC_SIZE), measureRuns(doc, run.den, size * FRAC_SIZE))
+    return w + FRAC_PAD * 2
+  }
+  setRunFont(doc, run, size, weight)
+  const w = doc.getTextWidth(run.text)
+  doc.setFontSize(size)
+  doc.setFont('helvetica', weight)
+  return w
 }
 
 /** Width of a run sequence at the current font, in mm. */
 function measureRuns(doc: jsPDF, runs: Run[], size: number): number {
   let w = 0
-  for (const r of runs) {
-    doc.setFontSize(r.sup ? size * SUP_SIZE : size)
-    w += doc.getTextWidth(r.text)
-  }
+  for (const r of runs) w += runWidth(doc, r, size)
   doc.setFontSize(size)
   return w
 }
@@ -165,20 +206,19 @@ export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): 
 
   const flush = () => { lines.push(line); line = [] }
   for (const run of runs) {
-    // A superscript never begins a line on its own — it belongs to the token
-    // before it, so it rides along with whatever is already there.
-    if (run.sup) { line.push(run); continue }
-    const parts = run.text.split(/(\n)/)
-    for (const part of parts) {
+    // A raised or stacked run never begins a line on its own — it belongs to
+    // the token before it, so it rides along with whatever is already there.
+    if (run.kind !== 'text') { line.push(run); continue }
+    for (const part of run.text.split(/(\n)/)) {
       if (part === '\n') { flush(); continue }
       for (const word of part.split(/(\s+)/)) {
         if (!word) continue
-        const candidate = [...line, { text: word, sup: false }]
+        const candidate: Run[] = [...line, { kind: 'text', text: word, symbol: run.symbol }]
         if (measureRuns(doc, candidate, size) > width && line.length) {
           flush()
           if (/^\s+$/.test(word)) continue   // don't start a line with the space
         }
-        line.push({ text: word, sup: false })
+        line.push({ kind: 'text', text: word, symbol: run.symbol })
       }
     }
   }
@@ -188,18 +228,31 @@ export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): 
 
 /** Draw one line of runs at (x, y). */
 export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: number): void {
+  const weight = (doc.getFont() as { fontStyle?: string }).fontStyle ?? 'normal'
   let cx = x
   for (const r of runs) {
-    if (r.sup) {
-      doc.setFontSize(size * SUP_SIZE)
-      doc.text(r.text, cx, y - size * SUP_RISE * PT_TO_MM)
+    const w = runWidth(doc, r, size)
+    if (r.kind === 'frac') {
+      const inner = size * FRAC_SIZE
+      const numW = measureRuns(doc, r.num, inner)
+      const denW = measureRuns(doc, r.den, inner)
+      const barW = w - FRAC_PAD * 2
+      const ruleY = y - size * FRAC_RULE * PT_TO_MM
+      drawRuns(doc, r.num, cx + FRAC_PAD + (barW - numW) / 2, ruleY - size * FRAC_RISE * PT_TO_MM, inner)
+      drawRuns(doc, r.den, cx + FRAC_PAD + (barW - denW) / 2, ruleY + size * FRAC_DROP * PT_TO_MM, inner)
+      doc.setLineWidth(0.25)
+      doc.line(cx + FRAC_PAD, ruleY, cx + FRAC_PAD + barW, ruleY)
     } else {
-      doc.setFontSize(size)
-      doc.text(r.text, cx, y)
+      setRunFont(doc, r, size, weight)
+      const dy = r.kind === 'sup' ? -size * SUP_RISE * PT_TO_MM
+        : r.kind === 'sub' ? size * SUB_DROP * PT_TO_MM
+          : 0
+      doc.text(r.text, cx, y + dy)
     }
-    cx += doc.getTextWidth(r.text)
+    cx += w
   }
   doc.setFontSize(size)
+  doc.setFont('helvetica', weight)
 }
 
 /** A4 portrait in mm, matching jsPDF's defaults and lib/results/generatePDF.ts. */

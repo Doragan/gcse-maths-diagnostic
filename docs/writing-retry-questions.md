@@ -253,6 +253,43 @@ from the question and compare with what you wrote. This is the whole reason the
 `answer` field exists, and it is the only gate these questions have. Where you
 can, have someone (or something) other than the author do it.
 
+## Notation: writing maths, not ASCII
+
+Question text is **authored HTML**, the same vocabulary the question bank uses
+on the website — the site hands a prompt straight to `dangerouslySetInnerHTML`,
+so `<sup>`, `<sub>`, `<br>` and HTML entities all mean what they mean there. A
+bank question can be pasted into a retry and a retry into the bank.
+
+`lib/questions/inlineMarkup.ts` parses that vocabulary; `lib/papers/feedbackPdf.ts`
+draws it. Nothing needs escaping and nothing needs a plain-text fallback.
+
+| Write | Get | Notes |
+|---|---|---|
+| `3x<sup>2</sup>` or `3x²` | 3x² | Both work; typed Unicode is fine and needs no tag |
+| `a<sub>1</sub>` or `a₁` | a₁ | |
+| `<frac>3/4</frac>` | a stacked ¾ | Splits on the LAST top-level slash, so `<frac>(y-5)/3</frac>` works |
+| `⅓`, `½`, `⅖` | stacked, automatically | The single-character fractions need no markup at all |
+| `π √ ≤ ≥ ≠ ± ° → θ ∞` | themselves | Type the real character |
+| `&le;` `&pi;` `&amp;` | ≤ π & | Entities, as on the site |
+| `first<br>second` | a line break | `\n` in the string does the same |
+
+**Type the real character.** `pi`, `sqrt` and `<=` were once necessary because
+jsPDF's built-in fonts are WinAnsi, which has none of them. They are not any
+more: those glyphs come from the built-in Symbol font, so `√18 + √50` prints as
+`√18 + √50`. If you find spelled-out maths in the data it is a leftover, not a
+convention.
+
+**A stray `<` is safe.** "Solve x < 5" and "0 < s ≤ 10 000" are left exactly as
+typed — an unknown or unclosed tag is shown as text rather than swallowed,
+because silently deleting half a question is far worse than printing a literal
+angle bracket.
+
+**One caveat on `<frac>`.** The concise spelling is paper-only: a browser shows
+`<frac>3/4</frac>` as the inline text "3/4", since CSS has nothing to split on.
+For a question that must stack ON THE WEBSITE, write the structured form —
+`<frac><n>3</n><d>4</d></frac>` — which `app/globals.css` styles and which
+parses to the same thing here. Paper questions should use the short one.
+
 ## Diagrams: giving a visual item a retry after all
 
 Rule 2 says a case-2 or case-3 item gets no retry. That holds for a TEXT

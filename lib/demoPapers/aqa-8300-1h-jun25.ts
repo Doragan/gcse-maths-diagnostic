@@ -147,7 +147,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     '18': { skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds', question: 'Show that (sin 60° × tan 45°) ÷ cos 30° can be written as an integer.', answer: '1', working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.' },
     '19a': { skill: 'Fractional and Negative Indices', question: 'Work out the value of (25/4) to the power −3/2', answer: '8/125', working: 'Invert for the negative power, square root for the half, then cube: (2/5)³.' },
     '19b': { skill: 'Fractional and Negative Indices', question: '1024 = 2ⁿ. Work out the value of n.', answer: 'n = 10', working: 'Doubling from 1: 2, 4, 8, … 1024 is the tenth.' },
-    '20': { skill: 'Simplifying Surds', question: 'Express sqrt18 + sqrt50 + sqrt98 in the form a sqrt n, where a and n are integers.', answer: '15 sqrt2', working: 'Each term is a multiple of sqrt2: 3 + 5 + 7.' },
+    '20': { skill: 'Simplifying Surds', question: 'Express √18 + √50 + √98 in the form a√n, where a and n are integers.', answer: '15√2', working: 'Each term is a multiple of √2: 3 + 5 + 7.' },
 
     // 21(a) and (b) are `visual: true` and get grids. f is given as a polyline
     // through lattice points so both transformations land on ruled lines.
