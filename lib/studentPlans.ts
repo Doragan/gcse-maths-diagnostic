@@ -24,6 +24,18 @@ export type PlanDef = {
   regularPrice?: string
   /** True for the limited founder-price pass (seat-capped, reverts to regularPrice). */
   founder?: boolean
+  /**
+   * An everyday object the price can be measured against, shown as a quiet aside
+   * under the plan. Kept separate from `description` because it is a size cue,
+   * not a term of the plan — the description says what you get, this says how
+   * little it is.
+   *
+   * Must stay true at BOTH prices a plan can display: the exam pass shows £4.99
+   * while founder seats last and £9.99 after, and a new scientific calculator
+   * (a Casio fx-83 is ~£13, the fx-991 more) clears both. Re-check this line
+   * before raising any price it is attached to.
+   */
+  comparison?: string
 }
 
 export const PLANS: PlanDef[] = [
@@ -52,6 +64,7 @@ export const PLANS: PlanDef[] = [
     period: 'until 31 July 2027',
     badge: 'Founder price',
     description: 'One payment covering now through the summer 2027 exams — no renewal. Founder price for the first 100.',
+    comparison: 'Less than a new scientific calculator.',
   },
 ]
 
