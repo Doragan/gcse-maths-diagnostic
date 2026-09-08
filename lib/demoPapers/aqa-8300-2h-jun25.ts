@@ -104,7 +104,12 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     '3b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
     '4': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
     '5a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
-    '5b': { skill: 'Upper and Lower Bounds', question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.', answer: 'The largest possible total is 12.4 m', working: 'One shelf is under 3.1 m, so four are under 12.4 m.' },
+    '5b': {
+      skill: 'Upper and Lower Bounds',
+      question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.',
+      answer: 'One shelf is at most 3.1 m, so four are at most 4 × 3.1 = 12.4 m, which is less than 12.5 m',
+      working: 'One shelf is under 3.1 m, so four are under 12.4 m.',
+    },
     '6': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
 
     '7': { skill: 'Probability Spaces', question: 'The five possible outcomes of an event are V, W, X, Y and Z. P(V) = 0.18, P(W) = 0.12, P(X) = P(W) + 0.18, and P(Y) = P(Z). Work out P(Y).', answer: '0.2', working: 'V, W and X take 0.6, leaving 0.4 to share equally between Y and Z.' },

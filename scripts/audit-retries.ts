@@ -86,6 +86,56 @@ for (const p of Object.values(PAPERS)) {
     }
   }
 
+  // ── Rules from the 3F read ───────────────────────────────────────────────
+  for (const [id, r] of Object.entries(p.retrySet)) {
+    const q = byId.get(id)!
+
+    // N. A show-that whose answer only restates the target it was handed.
+    //    3F 7(a) answered "£420 + £312 = £732" to "show that the total is
+    //    £732" — the marks are for the STEPS, and quoting the figure the
+    //    question supplied earns none of them.
+    if (/\bshow (that|why)\b/i.test(r.question) && r.answer &&
+        (r.answer.match(/[+×÷=−]/g) ?? []).length < 2) {
+      add('show-that answer without the steps', p.id, id, `"${r.answer.slice(0, 56)}"`)
+    }
+
+    // O. A function machine set as prose. It is a picture on every paper that
+    //    uses one, and the boxes are where the answer goes.
+    if (/number machine|function machine/i.test(r.question) && !r.diagram) {
+      add('function machine with no machine drawn', p.id, id, r.question.split('\n')[0].slice(0, 60))
+    }
+
+    // P. The question describing what its own figure already shows. 3F 5(b)
+    //    opened "the grid is made of 20 equal squares" above a grid of twenty
+    //    squares, which is the count the question is asking for.
+    const first = r.question.split('\n')[0]
+    if (r.diagram && /\b(is made of|are|contains)\b.*\b\d+\b/i.test(first) &&
+        /^(the|here (is|are))\b/i.test(first) && !/^the (diagram|table|grid|pie chart|scatter diagram|tree diagram|venn diagram|graph) shows\b/i.test(first)) {
+      add('question describes its own figure', p.id, id, first.slice(0, 60))
+    }
+
+    // Q. The answer IS a drawing, and there is nothing drawn to check against.
+    //
+    //    EXEMPT when the student defines the axes: "draw and label both axes"
+    //    means the scale is theirs to choose, so no fixed overlay can be the
+    //    answer — 3H 14(b) is right to have none.
+    if (q.visual && r.diagram && !r.diagram.elements.length && !r.diagram.solution &&
+        !/label (both )?(the )?axes/i.test(r.question)) {
+      add('visual item with no drawn answer', p.id, id, r.question.split('\n').pop()!.slice(0, 60))
+    }
+
+    // R. Foundation recall beyond what is reasonable. A cube past 5³ is not
+    //    something to expect from memory.
+    //
+    //    NOT a power of ten (standard form) and NOT a decimal — "8.5 × 10³"
+    //    and "0.6³" both matched a naive digit-then-cube test.
+    if (/foundation/i.test(p.subtitle)) {
+      for (const m of `${r.question} ${r.answer ?? ''}`.matchAll(/(?<![.\d])(\d+)\s*³/g)) {
+        if (+m[1] > 5 && +m[1] !== 10) add('Foundation cube past 5³', p.id, id, m[0])
+      }
+    }
+  }
+
   // ── Rules from the 2F read, which was mostly about FIGURES ───────────────
   for (const [id, r] of Object.entries(p.retrySet)) {
     const q = byId.get(id)!

@@ -141,7 +141,12 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '4c': { skill: 'Simplifying Indices', question: 'Simplify fully k × k × k × k', answer: 'k⁴' },
     '4d': { skill: 'Simplifying Indices', question: 'Simplify fully h ÷ h', answer: '1' },
 
-    '5': { skill: 'Converting Measurements + Simple Arithmetic', question: 'Sam cycles 600 metres to the shop, then 450 metres to the library, then 520 metres home. Show that Sam cycles more than 1.5 kilometres.', answer: '1570 metres, which is 1.57 km', working: '600 + 450 + 520 = 1570 m, and 1.5 km is 1500 m.' },
+    '5': {
+      skill: 'Converting Measurements + Simple Arithmetic',
+      question: 'Sam cycles 600 metres to the shop, then 450 metres to the library, then 520 metres home. Show that Sam cycles more than 1.5 kilometres.',
+      answer: '600 + 450 + 520 = 1570 m, and 1570 m = 1.57 km, which is more than 1.5 km',
+      working: '600 + 450 + 520 = 1570 m, and 1.5 km is 1500 m.',
+    },
 
     '6': {
       skill: 'Simple Charts',
@@ -224,7 +229,12 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '11': { skill: 'Expanding Brackets + Simplifying Expressions', question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.', answer: 'Both simplify to 7x + 12', working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.' },
+    '11': {
+      skill: 'Expanding Brackets + Simplifying Expressions',
+      question: 'A is 4(x + 5) + 3x − 8\nB is 9(x − 1) − 2x + 21\nShow that A and B are equivalent.',
+      answer: 'A: 4x + 20 + 3x − 8 = 7x + 12. B: 9x − 9 − 2x + 21 = 7x + 12. Both give 7x + 12',
+      working: 'A: 4x + 20 + 3x − 8. B: 9x − 9 − 2x + 21.',
+    },
     '12': { skill: 'Proportion', question: '5 oranges cost £1.80. Work out the cost of 8 of these oranges.', answer: '£2.88', working: 'One orange is 36p.' },
     '13a': { skill: 'Range', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nWork out the range of the number of customers.', answer: '64', working: '189 − 125' },
     '13b': { skill: 'Mean', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nThe shop opens for a fifth day.\nThe mean number of customers over all five days is 158.\nWork out the number of customers on the fifth day.', answer: '150', working: 'The five must total 790, and the first four total 640.' },
@@ -311,7 +321,12 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '21': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
     '22': { skill: 'Simple Arithmetic + Proportion', question: 'A group of adults and children go to a theme park. An adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children. In the group there are 32 children, and the total price for the group is £494. How many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
     '23a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
-    '23b': { skill: 'Upper and Lower Bounds', question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.', answer: 'The largest possible total is 12.4 m', working: 'One shelf is under 3.1 m, so four are under 12.4 m.' },
+    '23b': {
+      skill: 'Upper and Lower Bounds',
+      question: 'A different shelf measures 3 metres to the nearest 20 cm. Show that the total length of four of these shelves must be less than 12.5 metres.',
+      answer: 'One shelf is at most 3.1 m, so four are at most 4 × 3.1 = 12.4 m, which is less than 12.5 m',
+      working: 'One shelf is under 3.1 m, so four are under 12.4 m.',
+    },
     '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
     '25a': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm. A sector of the circle has an angle of 90° at the centre. Work out the area of the sector. Give your answer as a decimal to 1 decimal place.', answer: '17.9 cm²', working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².' },
     '25b': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm, and a sector with an angle of 90° at the centre has an area of 17.9 cm². In fact, the angle at the centre is smaller than 90°. What does this mean about the area of the sector?\nTick one box.\n[   ] smaller than 17.9 cm²\n[   ] the same as 17.9 cm²\n[   ] larger than 17.9 cm²\n[   ] it could be any of these', answer: 'Smaller than 17.9 cm²', working: 'A smaller angle takes a smaller share of the circle.' },

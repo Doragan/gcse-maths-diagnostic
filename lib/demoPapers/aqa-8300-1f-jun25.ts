@@ -186,9 +186,13 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
       diagram: {
         mode: 'points', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
-        y: { min: 0, max: 5, step: 1, label: '' },
-        background: '<polyline points="2,2.5 8,2.5" stroke="#333" /><circle cx="5" cy="2.5" r="0.1" fill="#333" />',
-        labels: [{ x: 5, y: 2.5, text: 'X', dy: -8 }],
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '<polyline points="2,3 8,3" stroke="#333" /><circle cx="5" cy="3" r="0.1" fill="#333" />',
+        // The answer is a DRAWN circle, which no arrangement of canonical
+        // points can express — that is what `solution` is for: a method
+        // overlay shown only on the reveal.
+        solution: '<circle cx="5" cy="3" r="3" stroke="#0a7d4f" stroke-dasharray="0.25 0.2" fill="none" />',
+        labels: [{ x: 5, y: 3, text: 'X', dy: -8 }],
         elements: [], tolerance: 0,
       },
     },

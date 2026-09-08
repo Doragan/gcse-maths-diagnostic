@@ -109,7 +109,12 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
         tolerance: 0,
       },
     },
-    '7b': { skill: 'Simple Arithmetic', question: 'A bag holds twelve 5p coins, eight 10p coins, six 20p coins and four 50p coins.\nShow that the total amount of money in the bag is less than £5', answer: '£4.60', working: '60p + 80p + £1.20 + £2.00 = £4.60.' },
+    '7b': {
+      skill: 'Simple Arithmetic',
+      question: 'A bag holds twelve 5p coins, eight 10p coins, six 20p coins and four 50p coins.\nShow that the total amount of money in the bag is less than £5',
+      answer: '12 × 5p = 60p, 8 × 10p = 80p, 6 × 20p = £1.20, 4 × 50p = £2.00, so the total is £4.60, which is less than £5',
+      working: '60p + 80p + £1.20 + £2.00 = £4.60.',
+    },
 
     // 8(a) is `visual: true`. Two sides of the kite are given and the student
     // completes it; the grid is plain squares, as the paper prints it.
@@ -143,11 +148,52 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
     '12a': { skill: 'Time Calculations', question: 'Here is part of a bus timetable.\n<table>Depot | 07 15 | 07 55 | 08 20\nMarket | 07 48 | 08 21 | 08 59</table>\nWhich bus should take the least time to go from Depot to Market?\nYou must show how you get your answer.', answer: 'The 07 55 bus', working: '33 minutes, 26 minutes and 39 minutes.' },
     '12b': { skill: 'Time Calculations', question: 'Buses leave the Market stop at 07 50, 08 15 and 08 45.\nAnn gets to the Market stop at 08 05 and wants to catch the next bus.\nThat bus is delayed by 20 minutes.\nHow many minutes does Ann have to wait for the bus?', answer: '30 minutes', working: 'The 08 15 becomes 08 35, and 08 05 to 08 35 is 30 minutes.' },
 
-    '13a': { skill: 'Function Machines', question: 'A number machine subtracts 5 from the input and then multiplies by 4.\nFind the output when the input is 3', answer: '−8', working: '(3 − 5) × 4' },
-    '13b': { skill: 'Function Machines', question: 'A number machine subtracts 5 from the input and then multiplies by 4.\nFind the input when the output is −24', answer: '−1', working: 'Work backwards: −24 ÷ 4 = −6, then −6 + 5.' },
+    '13a': {
+      skill: 'Function Machines',
+      question: 'The diagram shows a number machine.\nFind the output when the input is 3',
+      answer: '−8',
+      working: '(3 − 5) × 4',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 11.8, step: 1, label: '' },
+        y: { min: 0, max: 3, step: 1, label: '' },
+        background: '<polyline points="2.2,1 4.4,1 4.4,2 2.2,2 2.2,1" stroke="#333" fill="none" /><polyline points="5.9,1 8.1,1 8.1,2 5.9,2 5.9,1" stroke="#333" fill="none" /><polyline points="0.9,1.5 2.14,1.5" stroke="#333" fill="none" /><polyline points="1.92,1.68 2.17,1.5 1.92,1.32" stroke="#333" fill="none" /><polyline points="4.4,1.5 5.84,1.5" stroke="#333" fill="none" /><polyline points="5.62,1.68 5.87,1.5 5.62,1.32" stroke="#333" fill="none" /><polyline points="8.100000000000001,1.5 9.54,1.5" stroke="#333" fill="none" /><polyline points="9.32,1.68 9.57,1.5 9.32,1.32" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0.5, y: 1.5, text: 'Input' },
+          { x: 3.3, y: 1.5, text: '− 5' },
+          { x: 7, y: 1.5, text: '× 4' },
+          { x: 10, y: 1.5, text: 'Output' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '13b': {
+      skill: 'Function Machines',
+      question: 'The diagram shows a number machine.\nFind the input when the output is −24',
+      answer: '−1',
+      working: 'Work backwards: −24 ÷ 4 = −6, then −6 + 5.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 11.8, step: 1, label: '' },
+        y: { min: 0, max: 3, step: 1, label: '' },
+        background: '<polyline points="2.2,1 4.4,1 4.4,2 2.2,2 2.2,1" stroke="#333" fill="none" /><polyline points="5.9,1 8.1,1 8.1,2 5.9,2 5.9,1" stroke="#333" fill="none" /><polyline points="0.9,1.5 2.14,1.5" stroke="#333" fill="none" /><polyline points="1.92,1.68 2.17,1.5 1.92,1.32" stroke="#333" fill="none" /><polyline points="4.4,1.5 5.84,1.5" stroke="#333" fill="none" /><polyline points="5.62,1.68 5.87,1.5 5.62,1.32" stroke="#333" fill="none" /><polyline points="8.100000000000001,1.5 9.54,1.5" stroke="#333" fill="none" /><polyline points="9.32,1.68 9.57,1.5 9.32,1.32" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0.5, y: 1.5, text: 'Input' },
+          { x: 3.3, y: 1.5, text: '− 5' },
+          { x: 7, y: 1.5, text: '× 4' },
+          { x: 10, y: 1.5, text: 'Output' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '14': { skill: 'Ratio + Converting Measurements', question: 'A path has a length of 2.4 kilometres.\nThe path is shown on a map with a scale of 1 : 40 000\nWork out the length, in centimetres, of this path on the map.', answer: '6 centimetres', working: '2.4 km is 240 000 cm, and 240 000 ÷ 40 000 = 6.' },
     '15': { skill: 'Decimals', question: 'Work out 2.45 × 36', answer: '88.2', working: '245 × 36 = 8820, then place the decimal point.' },
-    '16': { skill: 'Alternate and Corresponding Angles + Angles on lines and Circles', question: 'Triangle PQR is isosceles with PQ = PR, and angle QPR = 50°.\nA straight line ST passes through P, and angle SPQ = 65°.\nShow that ST is parallel to QR. Give a reason for each stage of your working.', answer: 'Angle PQR = 65°, which equals angle SPQ, so ST is parallel to QR', working: 'Base angles of an isosceles triangle are equal, so each is (180 − 50) ÷ 2 = 65°; equal alternate angles mean the lines are parallel.' },
+    '16': {
+      skill: 'Alternate and Corresponding Angles + Angles on lines and Circles',
+      question: 'Triangle PQR is isosceles with PQ = PR, and angle QPR = 50°.\nA straight line ST passes through P, and angle SPQ = 65°.\nShow that ST is parallel to QR. Give a reason for each stage of your working.',
+      answer: 'Base angles are (180 − 50) ÷ 2 = 65° each, so angle PQR = 65°. Angle SPQ = 65° too, and these are equal alternate angles, so ST is parallel to QR',
+      working: 'Base angles of an isosceles triangle are equal, so each is (180 − 50) ÷ 2 = 65°; equal alternate angles mean the lines are parallel.',
+    },
     '17': { skill: 'Proportion', question: 'A recipe for 8 muffins uses 160 g flour, 140 ml milk, 60 g sugar and 2 eggs.\nNia wants to make 12 muffins.\nNia has 260 g flour, 200 ml milk, 90 g sugar and 4 eggs.\nDoes Nia have enough flour, enough milk, enough sugar and enough eggs to make 12 muffins? You must show all your working.', answer: 'No — she has enough flour, sugar and eggs, but not enough milk', working: 'For 12 she needs 240 g flour, 210 ml milk, 90 g sugar and 3 eggs; she has only 200 ml of milk.' },
     '19': { skill: 'Highest Common Factor', question: 'Find the highest common factor (HCF) of 84 and 126', answer: '42', working: '84 = 2² × 3 × 7 and 126 = 2 × 3² × 7, so the HCF is 2 × 3 × 7.' },
 
@@ -157,10 +203,14 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
 
     // 21(a)-(c) share one quadratic. It is chosen to have a WHOLE-NUMBER
     // turning point, so (c) can be read off the grid rather than estimated.
-    '21a': { skill: 'Substitution', question: 'Complete the table of values for y = x² − 2x − 3, for x = −2, −1, 0, 1, 2, 3 and 4.', answer: '5, 0, −3, −4, −3, 0, 5' },
+    '21a': {
+      skill: 'Substitution',
+      question: 'The table shows values of x for the graph of y = x² − 2x − 3.\n<table>x | −2 | −1 | 0 | 1 | 2 | 3 | 4\ny |  |  |  |  |  |  | </table>\nComplete the table of values.',
+      answer: '5, 0, −3, −4, −3, 0, 5',
+    },
     '21b': {
       skill: 'Quadratic Functions',
-      question: 'For y = x² − 2x − 3, the values of y at x = −2, −1, 0, 1, 2, 3 and 4 are 5, 0, −3, −4, −3, 0 and 5.\nOn the grid, draw the graph of y = x² − 2x − 3 for values of x from −2 to 4',
+      question: 'The table shows values of x for the graph of y = x² − 2x − 3.\n<table>x | −2 | −1 | 0 | 1 | 2 | 3 | 4\ny |  |  |  |  |  |  | </table>\nOn the grid, draw the graph of y = x² − 2x − 3 for values of x from −2 to 4',
       answer: 'A smooth curve through (−2, 5), (−1, 0), (0, −3), (1, −4), (2, −3), (3, 0) and (4, 5)',
       working: 'Plot the seven points and join them with a smooth curve, not straight lines.',
       diagram: {
@@ -168,15 +218,22 @@ export const EDEXCEL_1MA1_1F_JUN25: PaperConfig = {
         x: { min: -2, max: 4, step: 1, label: 'x' },
         y: { min: -4, max: 5, step: 1, label: 'y' },
         background: '',
-        elements: [
-          { x: -2, y: 5, marks: 1 }, { x: -1, y: 0, marks: 1 }, { x: 0, y: -3, marks: 1 },
-          { x: 1, y: -4, marks: 1 }, { x: 2, y: -3, marks: 1 }, { x: 3, y: 0, marks: 1 },
-          { x: 4, y: 5, marks: 1 },
-        ],
-        tolerance: 0,
+        elements: [{ x: -2, y: 5, marks: 1 }, { x: -1, y: 0, marks: 1 }, { x: 0, y: -3, marks: 1 }, { x: 1, y: -4, marks: 1 }, { x: 2, y: -3, marks: 1 }, { x: 3, y: 0, marks: 1 }, { x: 4, y: 5, marks: 1 }], tolerance: 0,
       },
     },
-    '21c': { skill: 'Quadratic Functions', question: 'Write down the coordinates of the turning point of the graph of y = x² − 2x − 3', answer: '(1, −4)', working: 'The lowest point of the curve, halfway between the two places it crosses the x-axis.' },
+    '21c': {
+      skill: 'Quadratic Functions',
+      question: 'The table shows values of x for the graph of y = x² − 2x − 3.\n<table>x | −2 | −1 | 0 | 1 | 2 | 3 | 4\ny |  |  |  |  |  |  | </table>\nWrite down the coordinates of the turning point of the graph.',
+      answer: '(1, −4)',
+      working: 'The lowest point of the curve, halfway between the two places it crosses the x-axis.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: -2, max: 4, step: 1, label: 'x' },
+        y: { min: -4, max: 5, step: 1, label: 'y' },
+        background: '',
+        elements: [{ x: -2, y: 5, marks: 1 }, { x: -1, y: 0, marks: 1 }, { x: 0, y: -3, marks: 1 }, { x: 1, y: -4, marks: 1 }, { x: 2, y: -3, marks: 1 }, { x: 3, y: 0, marks: 1 }, { x: 4, y: 5, marks: 1 }], tolerance: 0,
+      },
+    },
 
     '22a': { skill: 'Ratio', question: 'There are 350 sweets in a box. There are only toffees, mints and fudges.\nOne seventh of the 350 sweets are fudges.\nThe number of toffees : the number of mints = 1 : 2\nThe number of mints : the number of fudges = n : 1\nWork out the value of n. You must show all your working.', answer: 'n = 4', working: '50 fudges, leaving 300 shared 1 : 2 as 100 toffees and 200 mints; 200 : 50 is 4 : 1.' },
     '22b': { skill: 'Ratio', question: 'A box holds 350 sweets: 100 toffees, 200 mints and 50 fudges, so the ratio number of mints : number of fudges is 4 : 1.\n10 toffees are then eaten.\nDoes this change the ratio number of mints : number of fudges? Give a reason for your answer.', answer: 'No', working: 'The ratio uses only the mints and the fudges, and neither number has changed.' },

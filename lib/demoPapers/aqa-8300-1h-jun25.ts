@@ -129,7 +129,12 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
 
     '12': { skill: 'Ratio', question: 'Priya and Raj share some money in the ratio 7 : 4. Priya has £36 more than Raj. How much do they have altogether?', answer: '£132', working: 'The difference is 3 parts, so one part is £12 and there are 11 parts.' },
     '13': { skill: 'Indices', question: 'c and d are consecutive cube numbers, where c < 2.7³ < d. Work out the value of d − c.', answer: '19', working: '2.7³ = 19.68, which lies between 2³ = 8 and 3³ = 27.' },
-    '14a': { skill: 'Sketching Functions', question: 'Complete the table of values for y = 3ˣ, for x = −1, 0, 1 and 2.', answer: '<frac>1/3</frac>, 1, 3, 9', working: '3⁻¹ = <frac>1/3</frac> and 3⁰ = 1.' },
+    '14a': {
+      skill: 'Sketching Functions',
+      question: 'The table shows values of x for the graph of y = 3ˣ.\n<table>x | −1 | 0 | 1 | 2\ny |  |  |  | </table>\nComplete the table of values.',
+      answer: '<frac>1/3</frac>, 1, 3, 9',
+      working: '3⁻¹ = <frac>1/3</frac> and 3⁰ = 1.',
+    },
 
     // 14(b) is `visual: true`. I claimed this grid was "two columns by nine
     // rows at any width" — it is nine rows only because I fixed the y step at
@@ -140,7 +145,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     // lattice values would have meant a different function.
     '14b': {
       skill: 'Sketching Functions',
-      question: 'When x = −1, 0, 1 and 2, the value of y = 3ˣ is <frac>1/3</frac>, 1, 3 and 9.\nDraw the graph of y = 3ˣ for values of x from −1 to 2.',
+      question: 'The table shows values of x for the graph of y = 3ˣ.\n<table>x | −1 | 0 | 1 | 2\ny |  |  |  | </table>\nDraw the graph of y = 3ˣ for values of x from −1 to 2.',
       answer: 'A smooth curve through (−1, <frac>1/3</frac>), (0, 1), (1, 3) and (2, 9)',
       working: 'The curve rises slowly at first and then steeply; it never touches the x-axis.',
       diagram: {
@@ -148,11 +153,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
         x: { min: -1, max: 2, step: 1, label: 'x' },
         y: { min: 0, max: 9, step: 3, label: 'y' },
         background: '',
-        elements: [
-          { x: -1, y: 1 / 3, marks: 1 }, { x: 0, y: 1, marks: 1 },
-          { x: 1, y: 3, marks: 1 }, { x: 2, y: 9, marks: 1 },
-        ],
-        tolerance: 0,
+        elements: [{ x: -1, y: 0.3333333333333333, marks: 1 }, { x: 0, y: 1, marks: 1 }, { x: 1, y: 3, marks: 1 }, { x: 2, y: 9, marks: 1 }], tolerance: 0,
       },
     },
 
@@ -190,7 +191,12 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       },
     },
     '17b': { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3, and when it is raining the probability that a bus is not on time is 0.6. Work out the probability that it is raining and the bus is not on time.', answer: '0.18', working: '0.3 × 0.6' },
-    '18': { skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds', question: 'Show that (sin 60° × tan 45°) ÷ cos 30° can be written as an integer.', answer: '1', working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.' },
+    '18': {
+      skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds',
+      question: 'Show that (sin 60° × tan 45°) ÷ cos 30° can be written as an integer.',
+      answer: 'sin 60° = √3 ÷ 2 and cos 30° = √3 ÷ 2, so they cancel; tan 45° = 1, leaving 1 × 1 = 1',
+      working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.',
+    },
     '19a': { skill: 'Fractional and Negative Indices', question: 'Work out the value of <frac>25/4</frac> to the power −<frac>3/2</frac>', answer: '<frac>8/125</frac>', working: 'Invert for the negative power, square root for the half, then cube: (<frac>2/5</frac>)³.' },
     '19b': { skill: 'Fractional and Negative Indices', question: '1024 = 2ⁿ. Work out the value of n.', answer: 'n = 10', working: 'Doubling from 1: 2, 4, 8, … 1024 is the tenth.' },
     '20': { skill: 'Simplifying Surds', question: 'Express √18 + √50 + √98 in the form a√n, where a and n are integers.', answer: '15√2', working: 'Each term is a multiple of √2: 3 + 5 + 7.' },
