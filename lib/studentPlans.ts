@@ -30,10 +30,12 @@ export type PlanDef = {
    * not a term of the plan — the description says what you get, this says how
    * little it is.
    *
-   * Must stay true at BOTH prices a plan can display: the exam pass shows £4.99
-   * while founder seats last and £9.99 after, and a new scientific calculator
-   * (a Casio fx-83 is ~£13, the fx-991 more) clears both. Re-check this line
-   * before raising any price it is attached to.
+   * Must stay true at EVERY price a plan can display: the exam pass shows £4.99
+   * while founder seats last and £9.99 after, so both have to clear it. A new
+   * scientific calculator is the yardstick — a Casio fx-83 is ~£13, the fx-991
+   * more — which makes the £11.99 annual plan the tightest case, true by about
+   * a pound. Re-check this line before raising any price it is attached to; the
+   * annual plan is the one that breaks first.
    */
   comparison?: string
 }
@@ -54,6 +56,7 @@ export const PLANS: PlanDef[] = [
     period: 'per year',
     badge: 'Best value',
     description: 'Renews yearly — cancel any time. Saves £5.89 vs monthly.',
+    comparison: 'Less than a new scientific calculator.',
   },
   {
     id: 'exam',
