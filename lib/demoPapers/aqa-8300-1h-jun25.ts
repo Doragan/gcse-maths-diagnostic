@@ -220,13 +220,54 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       },
     },
 
-    '15': { skill: 'Circle Theorem: Angle at Centre + Angles on lines and Circles', question: 'A, B and C are points on a circle, and AC is a diameter. Angle BAC = 34°. Work out the size of angle BCA.', answer: '56°', working: 'The angle in a semicircle is 90°, so the angles of triangle ABC are 90°, 34° and x.' },
+    '15': {
+      skill: 'Circle Theorem: Angle at Centre + Angles on lines and Circles',
+      question: 'A, B and C are points on a circle, and AC is a diameter.\nWork out the size of angle BCA.',
+      answer: '56°',
+      working: 'The angle in a semicircle is 90°, so the angles of triangle ABC are 90°, 34° and the one asked for.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="2,4 8,4" stroke="#333" fill="none" /><polyline points="2,4 6.124,6.782" stroke="#333" fill="none" /><polyline points="6.124,6.782 8,4" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2, y: 4, text: 'A', dx: -11 },
+          { x: 8, y: 4, text: 'C', dx: 11 },
+          { x: 6.124, y: 6.782, text: 'B', dx: 4, dy: -8 },
+          { x: 3.5, y: 4.35, text: '34°' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
     // The original matches set notation to shaded Venn diagrams. Neither the
     // diagrams nor the notation survive a text sheet — the intersection and
     // union signs fall outside WinAnsi and print as gaps — so this asks for
     // the same set reasoning as a count.
-    '16': { skill: 'Venn Diagrams', question: 'In a group of 60 people, 28 like tea, 35 like coffee and 12 like both. How many like neither tea nor coffee?', answer: '9', working: '28 + 35 − 12 = 51 like at least one of them.' },
+    '16': {
+      skill: 'Venn Diagrams',
+      question: 'The Venn diagrams show three shaded regions.\nWrite down the set notation for the shaded region in each diagram.',
+      answer: '(i) A ∩ B, (ii) A ∪ B, (iii) (A ∪ B)′',
+      working: '∩ is the overlap of the two sets, ∪ is everything in either of them, and ′ is everything outside.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 18, step: 1, label: '' },
+        y: { min: 0, max: 6.5, step: 1, label: '' },
+        background: '<path d="M 3,4.869 A 1.5,1.5 0 0,1 3,2.331 A 1.5,1.5 0 0,1 3,4.869" fill="#999" stroke="none" /><polyline points="0.3,1.3 5.7,1.3 5.7,5.9 0.3,5.9 0.3,1.3" stroke="#333" fill="none" /><circle cx="2.2" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="3.8" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="8.2" cy="3.6" r="1.5" fill="#999" stroke="none" /><circle cx="9.8" cy="3.6" r="1.5" fill="#999" stroke="none" /><polyline points="6.3,1.3 11.7,1.3 11.7,5.9 6.3,5.9 6.3,1.3" stroke="#333" fill="none" /><circle cx="8.2" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="9.8" cy="3.6" r="1.5" stroke="#333" fill="none" /><polygon points="12.3,1.3 17.7,1.3 17.7,5.9 12.3,5.9" fill="#999" stroke="none" /><circle cx="14.2" cy="3.6" r="1.5" fill="#ffffff" stroke="none" /><circle cx="15.8" cy="3.6" r="1.5" fill="#ffffff" stroke="none" /><polyline points="12.3,1.3 17.7,1.3 17.7,5.9 12.3,5.9 12.3,1.3" stroke="#333" fill="none" /><circle cx="14.2" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="15.8" cy="3.6" r="1.5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 1.3, y: 5.3, text: 'A' },
+          { x: 4.7, y: 5.3, text: 'B' },
+          { x: 3, y: 0.6, text: '(i)' },
+          { x: 7.3, y: 5.3, text: 'A' },
+          { x: 10.7, y: 5.3, text: 'B' },
+          { x: 9, y: 0.6, text: '(ii)' },
+          { x: 13.3, y: 5.3, text: 'A' },
+          { x: 16.7, y: 5.3, text: 'B' },
+          { x: 15, y: 0.6, text: '(iii)' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
     '17a': {
       skill: 'Tree Diagrams',
@@ -260,7 +301,12 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       answer: 'sin 60° = √3 ÷ 2 and cos 30° = √3 ÷ 2, so they cancel; tan 45° = 1, leaving 1 × 1 = 1',
       working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.',
     },
-    '19a': { skill: 'Fractional and Negative Indices', question: 'Work out the value of <frac>25/4</frac> to the power −<frac>3/2</frac>', answer: '<frac>8/125</frac>', working: 'Invert for the negative power, square root for the half, then cube: (<frac>2/5</frac>)³.' },
+    '19a': {
+      skill: 'Fractional and Negative Indices',
+      question: 'Work out the value of <frac>1/16</frac> to the power −<frac>3/4</frac>',
+      answer: '8',
+      working: 'The negative power inverts the fraction to give 16, the fourth root of 16 is 2, and 2³ = 8.',
+    },
     '19b': { skill: 'Fractional and Negative Indices', question: '1024 = 2ⁿ. Work out the value of n.', answer: 'n = 10', working: 'Doubling from 1: 2, 4, 8, … 1024 is the tenth.' },
     '20': { skill: 'Simplifying Surds', question: 'Express √18 + √50 + √98 in the form a√n, where a and n are integers.', answer: '15√2', working: 'Each term is a multiple of √2: 3 + 5 + 7.' },
 
@@ -298,11 +344,32 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       },
     },
 
-    '22': { skill: 'Coordinates + Ratio', question: 'E is the point (2, 3) and G is the point (11, 12). F lies on the straight line EG so that EF is one third of EG. Work out the coordinates of F.', answer: '(5, 6)', working: 'E to G is 9 right and 9 up, so E to F is 3 right and 3 up.' },
+    '22': {
+      skill: 'Coordinates + Ratio',
+      question: 'The diagram shows the points E and G.\nF lies on the straight line EG so that EF is one third of EG.\nWork out the coordinates of F.',
+      answer: '(5, 6)',
+      working: 'E to G is 9 right and 9 up, so E to F is 3 right and 3 up.',
+      diagram: {
+        mode: 'points',
+        x: { min: 0, max: 13, step: 1, label: 'x' },
+        y: { min: 0, max: 13, step: 1, label: 'y' },
+        background: '<polyline points="2,3 11,12" stroke="#333" fill="none" /><circle cx="2" cy="3" r="0.18" fill="#333" /><circle cx="11" cy="12" r="0.18" fill="#333" />',
+        labels: [
+          { x: 2, y: 3, text: 'E', dx: -12, dy: 5 },
+          { x: 11, y: 12, text: 'G', dx: 12, dy: -3 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '23a': { skill: 'Completing the Square', question: 'Write x² + 10x + 32 in the form (x + a)² + b, where a and b are integers.', answer: '(x + 5)² + 7', working: '(x + 5)² = x² + 10x + 25, and 32 − 25 = 7.' },
     '23b': { skill: 'Completing the Square', question: 'A curve has the equation y = (x + 4)² − 5. Write down the coordinates of the turning point of the curve.', answer: '(−4, −5)', working: 'The bracket is zero when x = −4, and that is where y is least.' },
     '24': { skill: 'Algebraic Fractions + Algebraic Proof + Difference of Two Squares', question: 'Prove that <frac>x² − 9/x + 3</frac> − (x − 3) is equal to 0 for every value of x except x = −3', answer: 'It simplifies to 0', working: 'x² − 9 is (x + 3)(x − 3), so the fraction cancels to x − 3, and (x − 3) − (x − 3) = 0.' },
-    '25': { skill: 'Conditional Probability + Solving Quadratic Equations (Factorising) + Algebraic Fractions', question: 'There are n counters in a box, and 5 of them are red. Two counters are chosen at random without replacement. The probability that both counters are red is <frac>2/9</frac>. Use an algebraic method to work out the value of n.', answer: 'n = 10', working: '<frac>5/n</frac> × <frac>4/n − 1</frac> = <frac>2/9</frac> gives n² − n − 90 = 0, which factorises to (n − 10)(n + 9) = 0.' },
+    '25': {
+      skill: 'Conditional Probability + Solving Quadratic Equations (Factorising) + Algebraic Fractions',
+      question: 'There are n counters in a box.\n5 of the counters are red.\nTwo counters are chosen at random, without replacement.\nThe probability that both counters are red is <frac>2/9</frac>.\nUse an algebraic method to work out the value of n.',
+      answer: 'n = 10',
+      working: '<frac>5/n</frac> × <frac>4/n − 1</frac> = <frac>2/9</frac> gives n² − n − 90 = 0, which factorises to (n − 10)(n + 9) = 0.',
+    },
   },
   challengeQuestions: [],
   sampleStudents: [],

@@ -73,6 +73,8 @@ const SYMBOL: Record<string, string> = {
   '±': '\xB1', '∞': '\xA5', '→': '\xAE', '←': '\xAC',
   'θ': 'q', 'α': 'a', 'β': 'b', 'μ': 'm', 'σ': 's', 'λ': 'l', 'φ': 'f',
   'Σ': 'S', 'Δ': 'D', 'Ω': 'W', '∠': '\xD0', '∴': '\\', '≈': '\xBB',
+  // Set notation, for the Venn questions.
+  '∩': '\xC7', '∪': '\xC8', '⊂': '\xCC', '⊆': '\xCD', '∈': '\xCE', '∅': '\xC6', '′': '\xA2',
 }
 
 /**
