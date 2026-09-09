@@ -240,6 +240,23 @@ export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): 
   return lines
 }
 
+/**
+ * Extra leading, in mm, that a line needs because of what is stacked on it.
+ *
+ * A fraction is drawn ABOUT the baseline — numerator up, denominator down —
+ * so it occupies roughly twice the height of ordinary text. At the fixed
+ * advance every other line uses, consecutive fraction lines very nearly touch,
+ * which is what "Work out 3/10 + 1/4 ÷ 1/2" looked like. Superscripts rise but
+ * do not descend, so they need much less.
+ */
+export function extraLeading(runs: Run[], size: number): number {
+  // No recursion needed: a fraction inside a fraction is flattened to a slash
+  // by flatRuns, so nesting never adds height.
+  if (runs.some(r => r.kind === 'frac')) return size * PT_TO_MM * 0.62
+  if (runs.some(r => r.kind === 'sup' || r.kind === 'sub')) return size * PT_TO_MM * 0.12
+  return 0
+}
+
 /** Draw one line of runs at (x, y). */
 export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: number): void {
   const weight = (doc.getFont() as { fontStyle?: string }).fontStyle ?? 'normal'
@@ -648,7 +665,7 @@ function bullet(doc: jsPDF, c: Cursor, text: string, size = 10.5): void {
       ensureSpace(doc, c, 6)
       doc.text(first ? '•' : ' ', MARGIN_X, c.y)
       drawRuns(doc, run, MARGIN_X + 4, c.y, size)
-      c.y += 5.5
+      c.y += 5.5 + extraLeading(run, size)
       first = false
     }
   }
@@ -657,9 +674,11 @@ function bullet(doc: jsPDF, c: Cursor, text: string, size = 10.5): void {
 
 /** One line of text at the cursor, advancing by `advance` mm. */
 function line(doc: jsPDF, c: Cursor, text: string, advance = 5.5, size?: number): void {
+  const size_ = size ?? doc.getFontSize()
+  const runs = toRuns(text)
   ensureSpace(doc, c, advance)
-  drawRuns(doc, toRuns(text), MARGIN_X, c.y, size ?? doc.getFontSize())
-  c.y += advance
+  drawRuns(doc, runs, MARGIN_X, c.y, size_)
+  c.y += advance + extraLeading(runs, size_)
 }
 
 /** Text that may need more than one line, at the current font. */
@@ -668,7 +687,7 @@ function wrapped(doc: jsPDF, c: Cursor, text: string): void {
   for (const run of wrapRuns(doc, toRuns(text), size, CONTENT_WIDTH)) {
     ensureSpace(doc, c, 4.5)
     drawRuns(doc, run, MARGIN_X, c.y, size)
-    c.y += 4.5
+    c.y += 4.5 + extraLeading(run, size)
   }
 }
 

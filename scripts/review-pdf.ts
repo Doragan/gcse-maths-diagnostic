@@ -31,7 +31,7 @@ import { writeFileSync } from 'fs'
 import { join } from 'path'
 import jsPDF from 'jspdf'
 import { PAPERS } from '../lib/demoPapers/index'
-import { toRuns, wrapRuns, drawRuns, drawTable, tableHeight } from '../lib/papers/feedbackPdf'
+import { toRuns, wrapRuns, drawRuns, drawTable, tableHeight, extraLeading } from '../lib/papers/feedbackPdf'
 import { parseBlocks } from '../lib/questions/inlineMarkup'
 import { buildGridSvg } from '../lib/questions/gridSvg'
 import type { RenderedGrid } from '../lib/questions/gridDraw'
@@ -79,7 +79,7 @@ async function main() {
       for (const run of wrapRuns(doc, toRuns(block.text), size, WIDTH - indent)) {
         ensure(size * 0.5)
         drawRuns(doc, run, MARGIN_X + indent, y, size)
-        y += size * 0.42 + 1.4
+        y += size * 0.42 + 1.4 + extraLeading(run, size)
       }
     }
   }

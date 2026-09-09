@@ -86,13 +86,28 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
   // out as a sliver. 21(a) and 21(b) DO have grids, because f(x) can be given
   // as a polyline through lattice points on a grid that is close to square.
   retrySet: {
-    '1': { skill: 'Simultaneous Equations', question: 'Solve the simultaneous equations 4x + 3y = 27 and 4x + y = 17', answer: 'x = 3, y = 5', working: 'Subtracting the equations eliminates x: 2y = 10.' },
+    '1': {
+      skill: 'Simultaneous Equations',
+      question: 'Solve the simultaneous equations\n4x + 3y = 27\n4x + y = 17',
+      answer: 'x = 3, y = 5',
+      working: 'Subtracting the equations eliminates x: 2y = 10.',
+    },
     '2': { skill: 'Inequalities', question: '2.15 < <frac>x/6</frac> < 2.30, where x is an integer. Work out the value of x.', answer: 'x = 13', working: 'Multiplying through by 6 gives 12.9 < x < 13.8.' },
 
     // Shared with 1F — see the note above.
-    '3': { skill: 'Compound Units', question: 'A metal solid has volume 14 cm³. The density of the metal is 7.5 g/cm³. Work out the mass of the solid.', answer: '105 g', working: 'Mass = density × volume.' },
+    '3': {
+      skill: 'Compound Units',
+      question: 'A metal solid has a volume of 14 cm³.\nThe density of the metal is 7.5 g/cm³.\nWork out the mass of the solid.',
+      answer: '105 g',
+      working: 'Mass = density × volume.',
+    },
     '4': { skill: 'Interquartile Range', question: 'Here are 11 numbers: 4, 7, 9, 11, 15, 18, 20, 24, 27, 30, 35. Work out the interquartile range.', answer: '18', working: 'With 11 values the quartiles are the 3rd and 9th, so 27 − 9.' },
-    '5': { skill: 'Mean + Range', question: 'The mean and range of the scores of two teams are:\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
+    '5': {
+      skill: 'Mean + Range',
+      question: 'The table shows the mean and range of the scores of two teams.\n<table> | Mean | Range\nTeam X | 48 | 12\nTeam Y | 52 | 9</table>\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores',
+      answer: '(i) True, (ii) May be true, (iii) True',
+      working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.',
+    },
     '6a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '6b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
     '7': {
@@ -120,12 +135,60 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     },
     '8': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out <frac>3/10</frac> + <frac>1/4</frac> ÷ <frac>1/2</frac>. Give your answer as a fraction.', answer: '<frac>4/5</frac>', working: 'Divide first: <frac>1/4</frac> ÷ <frac>1/2</frac> = <frac>1/2</frac>, then <frac>3/10</frac> + <frac>5/10</frac> = <frac>8/10</frac>.' },
     '9': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     <frac>1/4</frac>     50     −6     30', answer: '<frac>1/4</frac>', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
-    '10': { skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles', question: 'The area of a rectangle is 96 cm². Its length is (x + 8) cm and its width is (x − 2) cm. Work out the value of x.', answer: 'x = 8', working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.' },
+    '10': {
+      skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles',
+      question: 'The diagram shows a rectangle with an area of 96 cm².\nWork out the value of x.\nNot drawn accurately.',
+      answer: 'x = 8',
+      working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 13, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '<polygon points="2,1 10,1 10,5 2,5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 6, y: 1, text: '(x + 8) cm', dy: 14 },
+          { x: 10, y: 3, text: '(x − 2) cm', dx: 38 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
     // The original reads both shapes off a grid. Naming the matching vertices
     // in the text carries the same work without one.
-    '11a': { skill: 'Translations', question: 'Shape A has a vertex at (2, 3). Shape B is the image of shape A after a translation, and the matching vertex of shape B is at (7, 1). Write down the translation vector that maps shape A to shape B.', answer: 'The column vector 5 over −2', working: '5 to the right and 2 down.' },
-    '11b': { skill: 'Rotations', question: 'Triangle A has vertices at (1, 1), (3, 1) and (1, 4). Triangle B has vertices at (−1, −1), (−3, −1) and (−1, −4). Describe fully the rotation that maps triangle A to triangle B.', answer: 'A rotation of 180° about the origin (0, 0)', working: 'Every vertex maps to the opposite side of the origin; a half turn needs no direction.' },
+    '11a': {
+      skill: 'Translations',
+      question: 'Shape B is the image of shape A after a translation.\nWrite down the translation vector that maps shape A to shape B.',
+      answer: 'The column vector 5 over −2',
+      working: 'A moves 5 to the right and 2 down.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: 0, max: 10, step: 1, label: 'x' },
+        y: { min: 0, max: 6, step: 1, label: 'y' },
+        background: '<polygon points="2,3 4,3 2,5" stroke="#333" fill="none" /><polygon points="7,1 9,1 7,3" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.6, y: 3.5, text: 'A' },
+          { x: 7.6, y: 1.5, text: 'B' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '11b': {
+      skill: 'Rotations',
+      question: 'Triangle B is the image of triangle A after a rotation.\nDescribe fully the rotation that maps triangle A to triangle B.',
+      answer: 'A rotation of 180° about the origin (0, 0)',
+      working: 'Every vertex maps to the opposite side of the origin; a half turn needs no direction.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: -5, max: 5, step: 1, label: 'x' },
+        y: { min: -5, max: 5, step: 1, label: 'y' },
+        background: '<polygon points="1,1 3,1 1,4" stroke="#333" fill="none" /><polygon points="-1,-1 -3,-1 -1,-4" stroke="#333" fill="none" />',
+        labels: [
+          { x: 1.6, y: 1.6, text: 'A' },
+          { x: -1.6, y: -1.6, text: 'B' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
     '12': { skill: 'Ratio', question: 'Priya and Raj share some money in the ratio 7 : 4. Priya has £36 more than Raj. How much do they have altogether?', answer: '£132', working: 'The difference is 3 parts, so one part is £12 and there are 11 parts.' },
     '13': { skill: 'Indices', question: 'c and d are consecutive cube numbers, where c < 2.7³ < d. Work out the value of d − c.', answer: '19', working: '2.7³ = 19.68, which lies between 2³ = 8 and 3³ = 27.' },
@@ -151,7 +214,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       diagram: {
         mode: 'polyline',
         x: { min: -1, max: 2, step: 1, label: 'x' },
-        y: { min: 0, max: 9, step: 3, label: 'y' },
+        y: { min: 0, max: 9, step: 1, label: 'y' },
         background: '',
         elements: [{ x: -1, y: 0.3333333333333333, marks: 1 }, { x: 0, y: 1, marks: 1 }, { x: 1, y: 3, marks: 1 }, { x: 2, y: 9, marks: 1 }], tolerance: 0,
       },
