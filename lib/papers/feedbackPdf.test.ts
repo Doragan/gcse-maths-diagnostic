@@ -196,14 +196,17 @@ describe('diagrams on a practice question', () => {
     paper.questions.map(q => [q.id, q.id === '14a' || q.id === '14b' ? 0 : q.marks]))
 
   it('lets a visual item have a retry once it brings its own grid', () => {
-    // The whole point of the field. These two items are `visual: true` and had
-    // no retry at all before, because a question depending on a diagram cannot
-    // be reissued as text.
-    const withDiagram = Object.entries(paper.retrySet).filter(([, r]) => r.diagram)
-    expect(withDiagram.length).toBeGreaterThan(0)
-    for (const [id] of withDiagram) {
-      expect(paper.questions.find(q => q.id === id)!.visual).toBe(true)
-    }
+    // The whole point of the field: a `visual: true` item had no retry at all
+    // before, because a question depending on a diagram cannot be reissued as
+    // text. So EVERY visual item with a retry must carry one.
+    //
+    // The converse is NOT asserted, and used to be. A figure is not only for
+    // visual items — a function machine, a Venn, a circle theorem all read off
+    // a picture while the answer is written on a line, and this paper's 20(a)
+    // to (c) are exactly that.
+    const visualRetries = paper.questions.filter(q => q.visual && paper.retrySet[q.id])
+    expect(visualRetries.length).toBeGreaterThan(0)
+    for (const q of visualRetries) expect(paper.retrySet[q.id].diagram).toBeDefined()
   })
 
   it('carries the grid through evidence and onto the sheet', () => {
@@ -264,6 +267,7 @@ describe('notation', () => {
   const flat = (runs: Run[]): string =>
     runs.map(r => r.kind === 'frac' ? `[${flat(r.num)}/${flat(r.den)}]`
       : r.kind === 'vec' ? `(${r.rows.map(flat).join('|')})`
+      : r.kind === 'paren' ? `{${flat(r.body)}}`
         : r.kind === 'sup' ? `^${r.text}`
           : r.kind === 'sub' ? `_${r.text}`
             : r.text).join('')
@@ -277,10 +281,12 @@ describe('notation', () => {
    * both as lost content.
    */
   const drawnChars = (runs: Run[]): string =>
-    // The '/' stands for the rule, which IS drawn — so this lines up with
-    // plainText and a fraction does not read as a lost slash.
+    // The punctuation here stands for what is DRAWN as shape rather than as a
+    // glyph — a fraction's rule, a vector's brackets and the gap between its
+    // rows — so this lines up with plainText and none of them reads as lost.
     runs.map(r => r.kind === 'frac' ? `${drawnChars(r.num)}/${drawnChars(r.den)}`
-      : r.kind === 'vec' ? r.rows.map(drawnChars).join('') : r.text).join('')
+      : r.kind === 'vec' ? `(${r.rows.map(drawnChars).join(', ')})`
+        : r.kind === 'paren' ? `(${drawnChars(r.body)})` : r.text).join('')
 
   it('splits an exponent into its own raised run', () => {
     expect(toRuns('10⁻⁴')).toEqual([
@@ -313,7 +319,7 @@ describe('notation', () => {
 
   it('draws π and √ properly instead of spelling them out', () => {
     const runs = toRuns('area = πr² and √81')
-    expect(runs.filter(r => r.kind !== 'frac' && r.kind !== 'vec' && r.symbol)).toHaveLength(2)
+    expect(runs.filter(r => r.kind !== 'frac' && r.kind !== 'vec' && r.kind !== 'paren' && r.symbol)).toHaveLength(2)
     expect(flat(runs)).not.toContain('sqrt')
     expect(flat(runs)).not.toContain('pi')
   })
@@ -352,7 +358,7 @@ describe('notation', () => {
         const lost = [...expected].filter(ch => !' \n'.includes(ch) && !drawn.includes(ch) &&
           // These are drawn, just not as themselves: as a Symbol glyph, a
           // stacked fraction, a raised digit, or an ASCII substitute.
-          !'−→←√π≤≥≠±∞θαβμσλφΣΔΩ∠∴≈⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ₀₁₂₃₄₅₆₇₈₉½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞'.includes(ch) &&
+          !'−→←√π≤≥≠±∞θαβμσλφΣΔΩ∠∴≈∩∪⊂⊆∈∅′⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ₀₁₂₃₄₅₆₇₈₉½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞'.includes(ch) &&
           ch !== '\u0307')
         expect(lost, `${where}: ${JSON.stringify(lost.join(''))}`).toEqual([])
       }

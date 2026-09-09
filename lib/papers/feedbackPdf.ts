@@ -119,6 +119,7 @@ export type Run =
   | { kind: 'text' | 'sup' | 'sub'; text: string; symbol?: boolean }
   | { kind: 'frac'; num: Run[]; den: Run[] }
   | { kind: 'vec'; rows: Run[][] }
+  | { kind: 'paren'; body: Run[] }
 
 const SUP_SIZE = 0.68        // exponent size, as a fraction of the base
 const SUP_RISE = 0.30        // how far above the baseline, in base font heights
@@ -129,8 +130,12 @@ const FRAC_DROP = 0.62       // denominator baseline below the rule
 const FRAC_RULE = 0.14       // where the rule sits, above the base baseline
 const FRAC_PAD = 0.6         // mm of clear space each side of a fraction
 const VEC_SIZE = 0.82        // the entries' size, as a fraction of the base
-const VEC_GAP = 0.52         // gap between rows, in base font heights
-const VEC_BRACKET = 2.1      // bracket glyph size, as a multiple of the base
+const VEC_GAP = 0.95         // between row BASELINES, in base font heights
+// Helvetica's "(" spans about 0.90 em top to bottom, sitting 0.21 em below the
+// baseline. Both numbers are needed: one to size the glyph to its contents,
+// the other to centre it on them.
+const PAREN_SPAN = 0.90
+const PAREN_DROP = 0.21
 const PT_TO_MM = 25.4 / 72
 
 /** Split a string into WinAnsi runs and Symbol-font runs at `kind`. */
@@ -161,6 +166,7 @@ export function tokensToRuns(tokens: InlineToken[]): Run[] {
     if (t.kind === 'break') out.push({ kind: 'text', text: '\n' })
     else if (t.kind === 'frac') out.push({ kind: 'frac', num: flatRuns(t.num), den: flatRuns(t.den) })
     else if (t.kind === 'vec') out.push({ kind: 'vec', rows: t.rows.map(flatRuns) })
+    else if (t.kind === 'paren') out.push({ kind: 'paren', body: tokensToRuns(t.body) })
     else out.push(...fontRuns(t.text, t.kind))
   }
   return out
@@ -179,6 +185,7 @@ function flatRuns(tokens: InlineToken[]): Run[] {
     if (t.kind === 'break') continue          // a line break inside a fraction is meaningless
     else if (t.kind === 'frac') out.push(...flatRuns(t.num), { kind: 'text', text: '/' }, ...flatRuns(t.den))
     else if (t.kind === 'vec') out.push(...t.rows.flatMap((r, i) => i ? [{ kind: 'text', text: ', ' } as Run, ...flatRuns(r)] : flatRuns(r)))
+    else if (t.kind === 'paren') out.push({ kind: 'text', text: '(' }, ...flatRuns(t.body), { kind: 'text', text: ')' })
     else out.push(...fontRuns(t.text, t.kind))
   }
   return out
@@ -189,7 +196,49 @@ function sizeOf(run: Run, size: number): number {
   if (run.kind === 'text') return size
   if (run.kind === 'frac') return size * FRAC_SIZE
   if (run.kind === 'vec') return size * VEC_SIZE
+  if (run.kind === 'paren') return size
   return size * SUP_SIZE
+}
+
+/**
+ * How tall a run sequence stands, in mm, measured about the baseline.
+ *
+ * Brackets are sized from this rather than from a fixed multiple of the font,
+ * so a bracket round a fraction comes out taller than one round a plain number
+ * and neither has to be tuned by hand.
+ */
+function stackHeight(doc: jsPDF, runs: Run[], size: number): number {
+  let h = size * 0.72 * PT_TO_MM                       // one line of text
+  for (const r of runs) {
+    if (r.kind === 'frac')
+      h = Math.max(h, size * (FRAC_RISE + FRAC_DROP + FRAC_SIZE * 0.72) * PT_TO_MM)
+    else if (r.kind === 'vec')
+      h = Math.max(h, ((r.rows.length - 1) * VEC_GAP + VEC_SIZE * 0.72) * size * PT_TO_MM)
+    else if (r.kind === 'paren')
+      h = Math.max(h, stackHeight(doc, r.body, size) * 1.12)
+  }
+  return h
+}
+
+/** The bracket glyph sized to enclose `height` mm, and its width. */
+function bracketFor(doc: jsPDF, height: number, weight: string) {
+  const fontSize = height / (PAREN_SPAN * PT_TO_MM)
+  doc.setFontSize(fontSize)
+  doc.setFont('helvetica', 'normal')
+  const width = doc.getTextWidth('(')
+  doc.setFont('helvetica', weight)
+  return { fontSize, width }
+}
+
+/** Draw a matching pair of brackets around a span, centred on `mid`. */
+function drawBrackets(doc: jsPDF, x: number, right: number, mid: number, height: number, weight: string): void {
+  const { fontSize } = bracketFor(doc, height, weight)
+  doc.setFontSize(fontSize)
+  doc.setFont('helvetica', 'normal')
+  const baseline = mid + fontSize * (PAREN_SPAN / 2 - PAREN_DROP) * PT_TO_MM
+  doc.text('(', x, baseline)
+  doc.text(')', right, baseline)
+  doc.setFont('helvetica', weight)
 }
 
 function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
@@ -198,7 +247,7 @@ function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
   // to look up font label" and quietly fall back, so a π in a bold heading
   // used to come out in whatever font it landed on. Regular is the honest
   // answer: there is no bold π in the standard 14.
-  if (run.kind !== 'frac' && run.kind !== 'vec' && run.symbol) doc.setFont('symbol', 'normal')
+  if (run.kind !== 'frac' && run.kind !== 'vec' && run.kind !== 'paren' && run.symbol) doc.setFont('symbol', 'normal')
   else doc.setFont('helvetica', weight)
 }
 
@@ -209,12 +258,20 @@ function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
  */
 function vecWidth(doc: jsPDF, run: Run & { kind: 'vec' }, size: number) {
   const inner = size * VEC_SIZE
-  doc.setFontSize(size * VEC_BRACKET)
-  doc.setFont('helvetica', 'normal')
-  const bracket = doc.getTextWidth('(')
+  const height = stackHeight(doc, [run], size)
+  const { width: bracket } = bracketFor(doc, height, 'normal')
   doc.setFontSize(size)
   const entry = Math.max(...run.rows.map(r => measureRuns(doc, r, inner)))
-  return { bracket, entry, inner, total: bracket * 2 + entry + FRAC_PAD * 2 }
+  return { bracket, entry, inner, height, total: bracket * 2 + entry + FRAC_PAD * 2 }
+}
+
+/** The same, for a bracketed group. */
+function parenWidth(doc: jsPDF, run: Run & { kind: 'paren' }, size: number) {
+  const height = stackHeight(doc, run.body, size) * 1.12
+  const { width: bracket } = bracketFor(doc, height, 'normal')
+  doc.setFontSize(size)
+  const body = measureRuns(doc, run.body, size)
+  return { bracket, body, height, total: bracket * 2 + body + FRAC_PAD }
 }
 
 /** Width of one run, in mm. */
@@ -225,6 +282,7 @@ function runWidth(doc: jsPDF, run: Run, size: number): number {
     return w + FRAC_PAD * 2
   }
   if (run.kind === 'vec') return vecWidth(doc, run, size).total
+  if (run.kind === 'paren') return parenWidth(doc, run, size).total
   setRunFont(doc, run, size, weight)
   const w = doc.getTextWidth(run.text)
   doc.setFontSize(size)
@@ -279,7 +337,7 @@ export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): 
 export function extraLeading(runs: Run[], size: number): number {
   // No recursion needed: a fraction inside a fraction is flattened to a slash
   // by flatRuns, so nesting never adds height.
-  if (runs.some(r => r.kind === 'vec')) return size * PT_TO_MM * 0.95
+  if (runs.some(r => r.kind === 'vec' || r.kind === 'paren')) return size * PT_TO_MM * 0.95
   if (runs.some(r => r.kind === 'frac')) return size * PT_TO_MM * 0.62
   if (runs.some(r => r.kind === 'sup' || r.kind === 'sub')) return size * PT_TO_MM * 0.12
   return 0
@@ -306,19 +364,21 @@ export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: nu
       // brackets drawn as oversized parentheses. A real tall bracket would mean
       // three glyphs a piece or a path; a 2.1× "(" is close enough at this size
       // and stays a font glyph, so it scales with the text.
-      const { bracket, entry, inner } = vecWidth(doc, r, size)
-      const mid = y - size * 0.32 * PT_TO_MM        // optical centre of the pair
+      const { bracket, entry, inner, height } = vecWidth(doc, r, size)
+      const mid = y - size * 0.30 * PT_TO_MM        // optical centre of the pair
       const step = size * VEC_GAP * PT_TO_MM
+      const first = mid - step * (r.rows.length - 1) / 2 + size * VEC_SIZE * 0.36 * PT_TO_MM
       r.rows.forEach((row, i) => {
         const rowW = measureRuns(doc, row, inner)
-        const top = mid - step * (r.rows.length - 1) / 2
-        drawRuns(doc, row, cx + FRAC_PAD + bracket + (entry - rowW) / 2, top + step * i + step * 0.42, inner)
+        drawRuns(doc, row, cx + FRAC_PAD + bracket + (entry - rowW) / 2, first + step * i, inner)
       })
-      doc.setFontSize(size * VEC_BRACKET)
-      doc.setFont('helvetica', 'normal')
-      const bY = mid + size * 0.62 * PT_TO_MM
-      doc.text('(', cx + FRAC_PAD, bY)
-      doc.text(')', cx + FRAC_PAD + bracket + entry, bY)
+      drawBrackets(doc, cx + FRAC_PAD, cx + FRAC_PAD + bracket + entry, mid, height, weight)
+      doc.setFontSize(size)
+    } else if (r.kind === 'paren') {
+      const { bracket, body, height } = parenWidth(doc, r, size)
+      const mid = y - size * 0.30 * PT_TO_MM
+      drawRuns(doc, r.body, cx + FRAC_PAD / 2 + bracket, y, size)
+      drawBrackets(doc, cx + FRAC_PAD / 2, cx + FRAC_PAD / 2 + bracket + body, mid, height, weight)
       doc.setFontSize(size)
     } else {
       setRunFont(doc, r, size, weight)

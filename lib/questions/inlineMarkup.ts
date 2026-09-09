@@ -39,6 +39,14 @@ export type InlineToken =
    * reads as a pair even unrendered.
    */
   | { kind: 'vec'; rows: InlineToken[][] }
+  /**
+   * A bracketed group, with brackets sized to what is inside them.
+   *
+   * "(1/16) to the power −3/4" needs brackets tall enough to hold a stacked
+   * fraction; ordinary parentheses typed either side come out at text height
+   * and read as a smaller expression than the one they contain.
+   */
+  | { kind: 'paren'; body: InlineToken[] }
 
 /**
  * Entities the bank actually uses, plus the maths ones worth having.
@@ -127,7 +135,7 @@ function splitBareNotation(text: string): InlineToken[] {
 }
 
 /** Every tag this understands. Anything else is left alone — see parseInline. */
-const TAG = /<(\/?)(sup|sub|br|frac|vec)\s*\/?>/gi
+const TAG = /<(\/?)(sup|sub|br|frac|vec|paren)\s*\/?>/gi
 
 /**
  * Parse authored question text into tokens.
@@ -167,7 +175,9 @@ export function parseInline(text: string, depth = 0): InlineToken[] {
     }
     const inner = text.slice(TAG.lastIndex, close)
 
-    if (name === 'vec') {
+    if (name === 'paren') {
+      out.push({ kind: 'paren', body: parseInline(inner, depth) })
+    } else if (name === 'vec') {
       // Rows on commas. A vector with one row is not a vector, so that case
       // falls through to being shown as ordinary text.
       const rows = inner.split(',').map(v => v.trim()).filter(Boolean)
@@ -289,5 +299,6 @@ export function plainText(tokens: InlineToken[]): string {
     t.kind === 'break' ? '\n'
       : t.kind === 'frac' ? `${plainText(t.num)}/${plainText(t.den)}`
         : t.kind === 'vec' ? `(${t.rows.map(plainText).join(', ')})`
+          : t.kind === 'paren' ? `(${plainText(t.body)})`
           : t.text).join('')
 }

@@ -305,7 +305,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     },
     '19a': {
       skill: 'Fractional and Negative Indices',
-      question: 'Work out the value of <frac>1/16</frac><sup>−3/4</sup>',
+      question: 'Work out the value of <paren><frac>1/16</frac></paren><sup>−3/4</sup>',
       answer: '8',
       working: 'The negative power inverts the fraction to give 16, the fourth root of 16 is 2, and 2³ = 8.',
     },

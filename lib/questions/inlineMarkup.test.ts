@@ -7,6 +7,7 @@ const show = (tokens: InlineToken[]): string =>
     t.kind === 'break' ? '¶'
       : t.kind === 'frac' ? `[${show(t.num)}÷${show(t.den)}]`
         : t.kind === 'vec' ? `⟨${t.rows.map(show).join('|')}⟩`
+        : t.kind === 'paren' ? `{${show(t.body)}}`
           : t.kind === 'sup' ? `^(${t.text})`
             : t.kind === 'sub' ? `_(${t.text})`
               : t.text).join('')
@@ -152,5 +153,20 @@ describe('column vectors', () => {
 
   it('takes markup inside a row', () => {
     expect(show(parseInline('<vec>x², 0</vec>'))).toBe('⟨x^(2)|0⟩')
+  })
+})
+
+describe('bracketed groups', () => {
+  it('wraps its contents', () => {
+    expect(show(parseInline('<paren>x + 3</paren>'))).toBe('{x + 3}')
+  })
+
+  it('holds a fraction, which is what it exists for', () => {
+    expect(show(parseInline('<paren><frac>1/16</frac></paren><sup>−3/4</sup>')))
+      .toBe('{[1÷16]}^(−3/4)')
+  })
+
+  it('reads as ordinary brackets in plain text', () => {
+    expect(plainText(parseInline('<paren><frac>1/16</frac></paren>'))).toBe('(1/16)')
   })
 })
