@@ -6,9 +6,10 @@ const show = (tokens: InlineToken[]): string =>
   tokens.map(t =>
     t.kind === 'break' ? '¶'
       : t.kind === 'frac' ? `[${show(t.num)}÷${show(t.den)}]`
-        : t.kind === 'sup' ? `^(${t.text})`
-          : t.kind === 'sub' ? `_(${t.text})`
-            : t.text).join('')
+        : t.kind === 'vec' ? `⟨${t.rows.map(show).join('|')}⟩`
+          : t.kind === 'sup' ? `^(${t.text})`
+            : t.kind === 'sub' ? `_(${t.text})`
+              : t.text).join('')
 
 describe('the website\'s markup', () => {
   // The point of this module: the bank writes prompts as HTML and paper
@@ -133,5 +134,23 @@ describe('tables', () => {
 
   it('does not mistake a "<" for a table', () => {
     expect(shape(parseBlocks('0 < s ≤ 10 000'))).toBe('TEXT(0 < s ≤ 10 000)')
+  })
+})
+
+describe('column vectors', () => {
+  it('stacks the rows', () => {
+    expect(show(parseInline('<vec>5, −2</vec>'))).toBe('⟨5|−2⟩')
+  })
+
+  it('reads as a pair in plain text', () => {
+    expect(plainText(parseInline('translated by <vec>5, −2</vec>'))).toBe('translated by (5, −2)')
+  })
+
+  it('leaves a single value as text, since that is not a vector', () => {
+    expect(show(parseInline('<vec>5</vec>'))).toBe('5')
+  })
+
+  it('takes markup inside a row', () => {
+    expect(show(parseInline('<vec>x², 0</vec>'))).toBe('⟨x^(2)|0⟩')
   })
 })

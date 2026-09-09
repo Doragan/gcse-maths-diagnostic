@@ -263,9 +263,10 @@ describe('notation', () => {
   // which is one of the standard 14 and so costs nothing to use.
   const flat = (runs: Run[]): string =>
     runs.map(r => r.kind === 'frac' ? `[${flat(r.num)}/${flat(r.den)}]`
-      : r.kind === 'sup' ? `^${r.text}`
-        : r.kind === 'sub' ? `_${r.text}`
-          : r.text).join('')
+      : r.kind === 'vec' ? `(${r.rows.map(flat).join('|')})`
+        : r.kind === 'sup' ? `^${r.text}`
+          : r.kind === 'sub' ? `_${r.text}`
+            : r.text).join('')
 
   /**
    * The characters that actually reach the page, with none of flat's markers.
@@ -278,7 +279,8 @@ describe('notation', () => {
   const drawnChars = (runs: Run[]): string =>
     // The '/' stands for the rule, which IS drawn — so this lines up with
     // plainText and a fraction does not read as a lost slash.
-    runs.map(r => r.kind === 'frac' ? `${drawnChars(r.num)}/${drawnChars(r.den)}` : r.text).join('')
+    runs.map(r => r.kind === 'frac' ? `${drawnChars(r.num)}/${drawnChars(r.den)}`
+      : r.kind === 'vec' ? r.rows.map(drawnChars).join('') : r.text).join('')
 
   it('splits an exponent into its own raised run', () => {
     expect(toRuns('10⁻⁴')).toEqual([
@@ -311,7 +313,7 @@ describe('notation', () => {
 
   it('draws π and √ properly instead of spelling them out', () => {
     const runs = toRuns('area = πr² and √81')
-    expect(runs.filter(r => r.kind !== 'frac' && r.symbol)).toHaveLength(2)
+    expect(runs.filter(r => r.kind !== 'frac' && r.kind !== 'vec' && r.symbol)).toHaveLength(2)
     expect(flat(runs)).not.toContain('sqrt')
     expect(flat(runs)).not.toContain('pi')
   })

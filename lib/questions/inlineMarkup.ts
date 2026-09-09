@@ -30,6 +30,15 @@ export type InlineToken =
   | { kind: 'text' | 'sup' | 'sub'; text: string }
   | { kind: 'break' }
   | { kind: 'frac'; num: InlineToken[]; den: InlineToken[] }
+  /**
+   * A column vector: rows stacked inside tall brackets, no rule between them.
+   *
+   * Every transformations question wants one, and writing "the column vector
+   * 5 over −2" in words — which is what the papers were doing — is not an
+   * answer a student would ever write. Authored `<vec>5, −2</vec>`, which
+   * reads as a pair even unrendered.
+   */
+  | { kind: 'vec'; rows: InlineToken[][] }
 
 /**
  * Entities the bank actually uses, plus the maths ones worth having.
@@ -118,7 +127,7 @@ function splitBareNotation(text: string): InlineToken[] {
 }
 
 /** Every tag this understands. Anything else is left alone — see parseInline. */
-const TAG = /<(\/?)(sup|sub|br|frac)\s*\/?>/gi
+const TAG = /<(\/?)(sup|sub|br|frac|vec)\s*\/?>/gi
 
 /**
  * Parse authored question text into tokens.
@@ -158,7 +167,13 @@ export function parseInline(text: string, depth = 0): InlineToken[] {
     }
     const inner = text.slice(TAG.lastIndex, close)
 
-    if (name === 'frac') {
+    if (name === 'vec') {
+      // Rows on commas. A vector with one row is not a vector, so that case
+      // falls through to being shown as ordinary text.
+      const rows = inner.split(',').map(v => v.trim()).filter(Boolean)
+      if (rows.length < 2 || depth > 0) literal(inner)
+      else out.push({ kind: 'vec', rows: rows.map(v => parseInline(v, depth + 1)) })
+    } else if (name === 'frac') {
       const parts = fracParts(inner)
       if (!parts || depth > 0) literal(inner)
       else {
@@ -273,5 +288,6 @@ export function plainText(tokens: InlineToken[]): string {
   return tokens.map(t =>
     t.kind === 'break' ? '\n'
       : t.kind === 'frac' ? `${plainText(t.num)}/${plainText(t.den)}`
-        : t.text).join('')
+        : t.kind === 'vec' ? `(${t.rows.map(plainText).join(', ')})`
+          : t.text).join('')
 }

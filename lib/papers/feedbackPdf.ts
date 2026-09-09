@@ -118,6 +118,7 @@ export function toPdfSafe(text: string): string {
 export type Run =
   | { kind: 'text' | 'sup' | 'sub'; text: string; symbol?: boolean }
   | { kind: 'frac'; num: Run[]; den: Run[] }
+  | { kind: 'vec'; rows: Run[][] }
 
 const SUP_SIZE = 0.68        // exponent size, as a fraction of the base
 const SUP_RISE = 0.30        // how far above the baseline, in base font heights
@@ -127,6 +128,9 @@ const FRAC_RISE = 0.30       // numerator baseline above the rule
 const FRAC_DROP = 0.62       // denominator baseline below the rule
 const FRAC_RULE = 0.14       // where the rule sits, above the base baseline
 const FRAC_PAD = 0.6         // mm of clear space each side of a fraction
+const VEC_SIZE = 0.82        // the entries' size, as a fraction of the base
+const VEC_GAP = 0.52         // gap between rows, in base font heights
+const VEC_BRACKET = 2.1      // bracket glyph size, as a multiple of the base
 const PT_TO_MM = 25.4 / 72
 
 /** Split a string into WinAnsi runs and Symbol-font runs at `kind`. */
@@ -156,6 +160,7 @@ export function tokensToRuns(tokens: InlineToken[]): Run[] {
   for (const t of tokens) {
     if (t.kind === 'break') out.push({ kind: 'text', text: '\n' })
     else if (t.kind === 'frac') out.push({ kind: 'frac', num: flatRuns(t.num), den: flatRuns(t.den) })
+    else if (t.kind === 'vec') out.push({ kind: 'vec', rows: t.rows.map(flatRuns) })
     else out.push(...fontRuns(t.text, t.kind))
   }
   return out
@@ -173,6 +178,7 @@ function flatRuns(tokens: InlineToken[]): Run[] {
   for (const t of tokens) {
     if (t.kind === 'break') continue          // a line break inside a fraction is meaningless
     else if (t.kind === 'frac') out.push(...flatRuns(t.num), { kind: 'text', text: '/' }, ...flatRuns(t.den))
+    else if (t.kind === 'vec') out.push(...t.rows.flatMap((r, i) => i ? [{ kind: 'text', text: ', ' } as Run, ...flatRuns(r)] : flatRuns(r)))
     else out.push(...fontRuns(t.text, t.kind))
   }
   return out
@@ -180,7 +186,10 @@ function flatRuns(tokens: InlineToken[]): Run[] {
 
 /** Point size a run is drawn at, given the size of the line it sits on. */
 function sizeOf(run: Run, size: number): number {
-  return run.kind === 'text' ? size : run.kind === 'frac' ? size * FRAC_SIZE : size * SUP_SIZE
+  if (run.kind === 'text') return size
+  if (run.kind === 'frac') return size * FRAC_SIZE
+  if (run.kind === 'vec') return size * VEC_SIZE
+  return size * SUP_SIZE
 }
 
 function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
@@ -189,8 +198,23 @@ function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
   // to look up font label" and quietly fall back, so a π in a bold heading
   // used to come out in whatever font it landed on. Regular is the honest
   // answer: there is no bold π in the standard 14.
-  if (run.kind !== 'frac' && run.symbol) doc.setFont('symbol', 'normal')
+  if (run.kind !== 'frac' && run.kind !== 'vec' && run.symbol) doc.setFont('symbol', 'normal')
   else doc.setFont('helvetica', weight)
+}
+
+/**
+ * A column vector's parts, in mm: the bracket glyph width, the widest entry,
+ * and the total. Measured once and reused by both the width and the drawing,
+ * so they cannot drift apart.
+ */
+function vecWidth(doc: jsPDF, run: Run & { kind: 'vec' }, size: number) {
+  const inner = size * VEC_SIZE
+  doc.setFontSize(size * VEC_BRACKET)
+  doc.setFont('helvetica', 'normal')
+  const bracket = doc.getTextWidth('(')
+  doc.setFontSize(size)
+  const entry = Math.max(...run.rows.map(r => measureRuns(doc, r, inner)))
+  return { bracket, entry, inner, total: bracket * 2 + entry + FRAC_PAD * 2 }
 }
 
 /** Width of one run, in mm. */
@@ -200,6 +224,7 @@ function runWidth(doc: jsPDF, run: Run, size: number): number {
     const w = Math.max(measureRuns(doc, run.num, size * FRAC_SIZE), measureRuns(doc, run.den, size * FRAC_SIZE))
     return w + FRAC_PAD * 2
   }
+  if (run.kind === 'vec') return vecWidth(doc, run, size).total
   setRunFont(doc, run, size, weight)
   const w = doc.getTextWidth(run.text)
   doc.setFontSize(size)
@@ -254,6 +279,7 @@ export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): 
 export function extraLeading(runs: Run[], size: number): number {
   // No recursion needed: a fraction inside a fraction is flattened to a slash
   // by flatRuns, so nesting never adds height.
+  if (runs.some(r => r.kind === 'vec')) return size * PT_TO_MM * 0.95
   if (runs.some(r => r.kind === 'frac')) return size * PT_TO_MM * 0.62
   if (runs.some(r => r.kind === 'sup' || r.kind === 'sub')) return size * PT_TO_MM * 0.12
   return 0
@@ -275,6 +301,25 @@ export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: nu
       drawRuns(doc, r.den, cx + FRAC_PAD + (barW - denW) / 2, ruleY + size * FRAC_DROP * PT_TO_MM, inner)
       doc.setLineWidth(0.25)
       doc.line(cx + FRAC_PAD, ruleY, cx + FRAC_PAD + barW, ruleY)
+    } else if (r.kind === 'vec') {
+      // Rows stacked about the line's middle with NO rule between them, inside
+      // brackets drawn as oversized parentheses. A real tall bracket would mean
+      // three glyphs a piece or a path; a 2.1× "(" is close enough at this size
+      // and stays a font glyph, so it scales with the text.
+      const { bracket, entry, inner } = vecWidth(doc, r, size)
+      const mid = y - size * 0.32 * PT_TO_MM        // optical centre of the pair
+      const step = size * VEC_GAP * PT_TO_MM
+      r.rows.forEach((row, i) => {
+        const rowW = measureRuns(doc, row, inner)
+        const top = mid - step * (r.rows.length - 1) / 2
+        drawRuns(doc, row, cx + FRAC_PAD + bracket + (entry - rowW) / 2, top + step * i + step * 0.42, inner)
+      })
+      doc.setFontSize(size * VEC_BRACKET)
+      doc.setFont('helvetica', 'normal')
+      const bY = mid + size * 0.62 * PT_TO_MM
+      doc.text('(', cx + FRAC_PAD, bY)
+      doc.text(')', cx + FRAC_PAD + bracket + entry, bY)
+      doc.setFontSize(size)
     } else {
       setRunFont(doc, r, size, weight)
       const dy = r.kind === 'sup' ? -size * SUP_RISE * PT_TO_MM
