@@ -85,26 +85,14 @@ export default function StudentAuthPage() {
         await signIn(email, password)
         const profile = await getStudentProfile()
         if (profile) {
-          // Carry over anything they practised anonymously before signing up.
-          await migratePendingPractice(profile.id)
-          // Import any diagnostic answers the student completed anonymously.
-          // These are stored in localStorage so they survive the email-confirmation
+          // Carry over anything they practised, or placement-tested, anonymously.
+          // The stores live in localStorage so they survive the email-confirmation
           // flow (user closes the tab, confirms, then comes back later).
-          const pendingStr = typeof window !== 'undefined' ? localStorage.getItem('pending_diagnostic') : null
-          const pendingAttempts: Array<{question_id: string; skill_ids: string[]; correct: boolean}> =
-            pendingStr ? JSON.parse(pendingStr) : []
+          const { placement } = await migratePendingPractice(profile.id)
 
-          if (pendingAttempts.length > 0) {
+          if (placement > 0) {
             trackEvent('login_success', { had_pending_diagnostic: true })
-            const rows = pendingAttempts.map(a => ({
-              student_id:  profile.id,
-              question_id: a.question_id,
-              skill_ids:   a.skill_ids,
-              correct:     a.correct,
-            }))
-            const { error: insertErr } = await supabase.from('practice_attempts').insert(rows)
-            if (!insertErr) localStorage.removeItem('pending_diagnostic')
-            // Go straight to dashboard — they just did the diagnostic
+            // Go straight to dashboard — they just did the placement test
             router.push('/student/dashboard')
           } else {
             // Send first-time users to the diagnostic so their profile is built immediately

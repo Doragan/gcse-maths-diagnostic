@@ -91,8 +91,10 @@ export function pendingPracticeRows(
       skill_ids:   a.skill_ids,
       correct:     a.correct,
       // 'exam' is positive-only in calculateMastery, so an unrecognised value
-      // must fall back to 'mastery' — the stricter of the two.
-      kind:        a.kind === 'exam' ? 'exam' : 'mastery',
+      // must fall back to 'mastery' — the stricter of the two. 'placement' is
+      // passed through: demoting a placement answer to practice would make it
+      // count in the mastery window instead of acting as a prior.
+      kind:        a.kind === 'exam' || a.kind === 'placement' ? a.kind : 'mastery',
       attempted_at: new Date(t).toISOString(),
     }
   })

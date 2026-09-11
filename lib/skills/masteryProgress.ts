@@ -12,23 +12,23 @@
  * against the same map after them. That makes "you moved two skills up" a true
  * statement rather than a restatement of the score.
  *
- * Prerequisite credit is applied on both sides, because that is how the
- * student's dashboard computes their map — a card that disagreed with the
- * dashboard would be worse than no card.
+ * Both sides go through studentMastery, because that is how the student's
+ * dashboard computes their map — a card that disagreed with the dashboard would
+ * be worse than no card.
  *
  * Pure: attempts in, summary out. No React, no Supabase.
  */
 
 import {
-  calculateMastery, applyPrerequisiteCredit,
-  type MasteryStatus, type SkillMastery,
+  studentMastery,
+  type AttemptKind, type MasteryStatus, type SkillMastery,
 } from './masteryEngine'
 
 export type Attempt = {
   skill_ids: string[]
   correct: boolean
   attempted_at: string
-  kind?: 'mastery' | 'exam'
+  kind?: AttemptKind
 }
 
 /** Worst to best. A "move up" is an increase along this ordering. */
@@ -88,8 +88,7 @@ export function computeMasteryProgress(
   fromPaper: Attempt[],
   getPrerequisiteTree: (skillId: string) => string[],
 ): MasteryProgress {
-  const mapOf = (attempts: Attempt[]) =>
-    calculateMastery(applyPrerequisiteCredit(attempts, getPrerequisiteTree))
+  const mapOf = (attempts: Attempt[]) => studentMastery(attempts, getPrerequisiteTree)
 
   const before = mapOf(prior)
   const after = mapOf([...prior, ...fromPaper])

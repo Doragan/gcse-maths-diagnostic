@@ -1,4 +1,4 @@
-import { calculateMastery, applyPrerequisiteCredit } from './masteryEngine'
+import { studentMastery, type AttemptKind } from './masteryEngine'
 
 // Turns a flat list of practice attempts into a time-bucketed series for the
 // dashboard "Progress over time" chart. For each bucket boundary we replay the
@@ -10,7 +10,7 @@ type Attempt = {
   skill_ids: string[]
   correct: boolean
   attempted_at: string
-  kind?: 'mastery' | 'exam'   // passed through to calculateMastery (positive-only for 'exam')
+  kind?: AttemptKind   // passed through to studentMastery (exam positive-only, placement a prior)
 }
 
 export type ProgressPoint = {
@@ -89,7 +89,7 @@ export function buildProgressSeries(
     })
     prevBoundaryMs = boundaryMs
 
-    const mastery = calculateMastery(applyPrerequisiteCredit(upToHere, getPrerequisiteTree))
+    const mastery = studentMastery(upToHere, getPrerequisiteTree)
     const mastered = Object.values(mastery).filter(m => m.status === 'mastered').length
 
     const correct = upToHere.filter(a => a.correct).length

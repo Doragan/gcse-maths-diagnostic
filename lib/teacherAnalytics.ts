@@ -13,6 +13,11 @@ import { skillsById } from './skills/skillGraph'
 // The teacher never sees the raw practice transcript — the RPC returns only the
 // mastery-relevant fields, and we reuse the SAME calculateMastery the students
 // see, so the figures match.
+//
+// One deliberate difference: placement-test answers are dropped. The teacher
+// view shows REAL practice only (docs/audit/17, decision 3) — a student's
+// placement priors are a starting guess for their own map, not evidence to
+// report to a teacher. The roadmap ranks the diagnostic a low-weight input.
 
 export const TOPICS = ['Number', 'Algebra', 'Shape and Space', 'Ratio and Proportion', 'Probability and Data'] as const
 export type Topic = (typeof TOPICS)[number]
@@ -204,7 +209,7 @@ export function computeClassAnalytics(
   const students: StudentAnalytics[] = members.map(m => {
     const attempts = byStudent.get(m.student_id) ?? []
     const mastery = calculateMastery(
-      attempts.map(a => ({ skill_ids: a.skill_ids, correct: a.correct, attempted_at: a.attempted_at, kind: a.kind === 'exam' ? 'exam' : 'mastery' }))
+      attempts.filter(a => a.kind !== 'placement').map(a => ({ skill_ids: a.skill_ids, correct: a.correct, attempted_at: a.attempted_at, kind: a.kind === 'exam' ? 'exam' : 'mastery' }))
     )
     const entries = Object.values(mastery)
 
