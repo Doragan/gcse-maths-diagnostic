@@ -31,6 +31,13 @@ const eslintConfig = defineConfig([
     //  - exhaustive-deps: several intentional omissions already carry inline
     //    disables; as a warning it informs without blocking.
     // Cosmetic JSX apostrophe/quote escaping is turned OFF entirely.
+    //
+    // SCOPED to the files eslint-config-next registers its plugins for. Without
+    // `files` this block applied to every file ESLint found, and a single .cjs
+    // file anywhere — outside Next's list, so no react-hooks plugin — made the
+    // whole run crash with "could not find plugin react-hooks", reporting
+    // nothing at all.
+    files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
