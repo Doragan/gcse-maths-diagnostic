@@ -250,13 +250,56 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
     '6': { skill: 'Converting Measurements', question: 'Which metric unit would be most suitable for each measurement? Choose millimetres, metres or kilometres for each.\n(i)   the thickness of a coin\n(ii)  the width of a classroom\n(iii) the distance between two cities', answer: '(i) millimetres, (ii) metres, (iii) kilometres' },
     // 7(a) and (b) share the two plans, set side by side as the paper sets
     // them.
+    // The paper sets each plan in its own box — a heading, then the phone,
+    // "plus", then the monthly charge, one line each. That is a picture, not
+    // a table ("plus" is not a row), so the retry draws the two boxes and 7(a)
+    // and (b) share them.
     '7a': {
       skill: 'Simple Arithmetic',
-      question: 'A mobile phone company has two different plans.\n<table>Plan A | Plan B\nPhone £420 | Phone is free\nplus | plus\n£13 per month for 24 months | £38 per month for 24 months</table>\nShow that the total cost of Plan A for 24 months is £732',
+      question: 'A mobile phone company has two different plans.\nShow that the total cost of Plan A for 24 months is £732',
       answer: 'Monthly cost 13 × 24 = 312, then 420 + 312 = 732',
       working: 'A show-that earns nothing for quoting £732, which the question already gave. Both steps have to appear: the 24 months at £13, and that total added to the £420 for the phone.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 16, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polygon points="0.5,0.5 7.5,0.5 7.5,3.5 0.5,3.5" stroke="#333" fill="none" /><polygon points="8.5,0.5 15.5,0.5 15.5,3.5 8.5,3.5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 4, y: 4.1, text: 'Plan A' },
+          { x: 12, y: 4.1, text: 'Plan B' },
+          { x: 4, y: 2.8, text: 'Phone £420' },
+          { x: 12, y: 2.8, text: 'Phone is free' },
+          { x: 4, y: 2, text: 'plus' },
+          { x: 12, y: 2, text: 'plus' },
+          { x: 4, y: 1.2, text: '£13 per month for 24 months' },
+          { x: 12, y: 1.2, text: '£38 per month for 24 months' },
+        ],
+        elements: [], tolerance: 0,
+      },
     },
-    '7b': { skill: 'Percentage Change', question: 'A mobile phone company has two different plans.\n<table>Plan A | Plan B\nPhone £420 | Phone is free\nplus | plus\n£13 per month for 24 months | £38 per month for 24 months</table>\nDuring a sale, the total cost of Plan B is reduced by 15%\nWhich plan is cheaper for 24 months during the sale?\nTick a box.\n[   ] Plan A\n[   ] Plan B\nShow working to support your answer.', answer: 'Plan A', working: 'Plan A is £420 + 24 × £13 = £732. Plan B is 24 × £38 = £912 before the sale and £775.20 after it.' },
+    '7b': {
+      skill: 'Percentage Change',
+      question: 'A mobile phone company has two different plans.\nDuring a sale, the total cost of Plan B is reduced by 15%\nWhich plan is cheaper for 24 months during the sale?\nTick a box.\n[   ] Plan A\n[   ] Plan B\nShow working to support your answer.',
+      answer: 'Plan A',
+      working: 'Plan A is £420 + 24 × £13 = £732. Plan B is 24 × £38 = £912 before the sale and £775.20 after it.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 16, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polygon points="0.5,0.5 7.5,0.5 7.5,3.5 0.5,3.5" stroke="#333" fill="none" /><polygon points="8.5,0.5 15.5,0.5 15.5,3.5 8.5,3.5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 4, y: 4.1, text: 'Plan A' },
+          { x: 12, y: 4.1, text: 'Plan B' },
+          { x: 4, y: 2.8, text: 'Phone £420' },
+          { x: 12, y: 2.8, text: 'Phone is free' },
+          { x: 4, y: 2, text: 'plus' },
+          { x: 12, y: 2, text: 'plus' },
+          { x: 4, y: 1.2, text: '£13 per month for 24 months' },
+          { x: 12, y: 1.2, text: '£38 per month for 24 months' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '8': { skill: 'Simple Arithmetic + Solving Linear Equations', question: 'One coffee costs £2.40. Three coffees and four teas cost £14.00 altogether. Work out the cost of one tea.', answer: '£1.70', working: 'The coffees cost £7.20, leaving £6.80 for four teas.' },
     '9a': {
       skill: 'Indices',
