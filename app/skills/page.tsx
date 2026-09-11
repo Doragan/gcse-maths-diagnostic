@@ -8,6 +8,7 @@ import { foundationSkillIds, higherOnlySkillIds } from '../../data/courses'
 import { hasBriefing, briefedSkillIds } from '../../data/skillBriefings'
 import { skillPath } from '../../lib/skills/slug'
 import { getTier, setTier as persistTier } from '../../lib/skills/tierPreference'
+import { usePublishedSkillIds, isPractisable } from '../../lib/skills/publishedSkills'
 import { calculateMastery, type MasteryStatus } from '../../lib/skills/masteryEngine'
 import { getStudentProfile } from '../../lib/auth'
 import { trackEvent } from '../../lib/analytics'
@@ -27,6 +28,9 @@ import type { Tier } from '../../lib/skills/examProfile'
 // student the shape of what they are learning and where they stand in it. Only
 // briefed skills are links; the rest are listed with their mastery so the page
 // is useful now and gets more useful as briefings are written.
+//
+// The exception is a skill with no published question yet: a student cannot
+// practise it, so it stays off the map until one is published.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Topic display order — roughly the order they are taught. */
@@ -40,6 +44,7 @@ export default function SkillsIndexPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [mastery, setMastery] = useState<Record<string, MasteryStatus>>({})
   const [signedIn, setSignedIn] = useState(false)
+  const published = usePublishedSkillIds()
 
   useEffect(() => { setTierState(getTier()) }, [])
 
@@ -80,6 +85,7 @@ export default function SkillsIndexPage() {
   const grouped = useMemo(() => {
     const visible = skills
       .filter(s => inTier.has(s.id))
+      .filter(s => isPractisable(s.id, published))
       .filter(s => filter !== 'briefings' || hasBriefing(s.id))
       .filter(s => filter !== 'weak' || mastery[s.id] === 'needs_practice')
 
@@ -90,7 +96,7 @@ export default function SkillsIndexPage() {
     return TOPIC_ORDER
       .filter(t => byTopic[t]?.length)
       .map(t => ({ topic: t, list: byTopic[t] }))
-  }, [inTier, filter, mastery])
+  }, [inTier, filter, mastery, published])
 
   const briefingCount = briefedSkillIds().filter(id => inTier.has(id)).length
   const totalVisible = grouped.reduce((n, g) => n + g.list.length, 0)

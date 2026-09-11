@@ -9,6 +9,7 @@ import { calculateMastery, getWeightedSkillPool, getAccessibleSkillIds, getNeeds
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { isPaidStudent } from '../../lib/entitlements'
 import { skills } from '../../data/skills'
+import { usePublishedSkillIds, isPractisable } from '../../lib/skills/publishedSkills'
 import { CALCULATOR_FILTERS, CALCULATOR_FILTER_LABELS, calculatorValuesFor, type CalculatorFilter } from '../../lib/questions/calculator'
 import { getCalculatorFilter, setCalculatorFilter } from '../../lib/questions/calculatorPreference'
 
@@ -63,6 +64,7 @@ export default function PracticePage() {
   const [focusMode, setFocusMode] = useState<FocusMode>('auto')
   const [focusSkillId, setFocusSkillId] = useState<string>('')
   const [focusTopic, setFocusTopic] = useState<string>('')
+  const published = usePublishedSkillIds()
 
   useEffect(() => {
     getStudentProfile().then(p => {
@@ -323,7 +325,9 @@ export default function PracticePage() {
 
   // Skills/topics available in the chosen tier, for the focus pickers.
   const tierSkillIds = getSkillIds(tier)
-  const tierSkills = skills.filter(s => tierSkillIds.includes(s.id))
+  // Only skills with a published question: choosing one with none would start
+  // a session with nothing in it.
+  const tierSkills = skills.filter(s => tierSkillIds.includes(s.id) && isPractisable(s.id, published))
   const tierTopics = [...new Set(tierSkills.map(s => s.topic))]
 
   // Block Start when a focus mode is selected but its target isn't chosen yet.
