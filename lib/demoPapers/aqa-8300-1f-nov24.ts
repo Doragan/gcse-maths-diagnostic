@@ -21,6 +21,13 @@ import type { PaperConfig } from './types'
  * gets a fresh, self-contained retry question with newly chosen numbers (never
  * the exam's own numbers).
  *
+ * REBUILT 2026-09-11 against the question paper. Every retry now carries
+ * its answer and working, a multi-part question shares its setup across
+ * its parts, and a figure is drawn wherever the paper draws one — which is
+ * also why 7(a), 14(a) and 14(b) have retries after all: a retry can bring
+ * its own grid, so "a fair text-only retry isn't possible" no longer rules
+ * a visual item out.
+ *
  * One correction versus the audit: q24 is tagged `dividing_fractions` there,
  * but the real question ("Work out 1⅕ − 3/10") and its mark scheme (1.2 − 0.3
  * = 0.9) are unambiguously SUBTRACTION — retagged to
@@ -84,24 +91,110 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
     { id: '27b', label: '27(b)', marks: 1, topic: 'ratio', skill: 'Inverse Proportion', desc: '6 of the 15 work slower, 9 faster — greater/same/less/impossible to say', skillIds: ['inverse_proportion'], kind: 'mastery', visual: false },
   ],
 
+  // Rebuilt 2026-09-11 against the question paper: every retry carries its
+  // answer and working, a multi-part question shares its setup (and figure)
+  // across its parts, and a figure is drawn wherever the paper draws one.
   retrySet: {
-    '1a': { skill: 'Indices', question: 'Work out the value of √81' },
-    '1b': { skill: 'Indices', question: 'Work out the value of 4³' },
-    '1c': { skill: 'Indices', question: 'Write 1000 as a power of 10' },
-    '2': { skill: 'Converting Measurements + Proportion', question: '1 stone = 14 pounds. Work out the number of pounds in 5 stone.' },
-    '3a': { skill: 'Irregular and Improper Fractions', question: 'Write <frac>7/3</frac> as a mixed number' },
-    '3b': { skill: 'Adding and Subtracting Fractions', question: 'Work out <frac>1/6</frac> + <frac>1/6</frac>' },
-    '4a': { skill: 'Factors and Multiples', question: 'Write down all the factors of 18' },
-    '4b': { skill: 'Factors and Multiples', question: "Nia says, 'When two multiples of 3 are added, the answer is always a multiple of 6.' Give one example to show she is wrong." },
-    '5': { skill: 'Fractions, Decimals and Percentages', question: 'Put these values in order of size, starting with the smallest: 60%, 0.55, <frac>5/8</frac>' },
-    '6': { skill: 'Simple Arithmetic', question: 'Bilal buys three pens and two rulers.\nThe total cost is £9.60.\nEach pen costs £1.20.\nWork out the cost of each ruler.' },
-    '7b': { skill: 'Frequency Trees + Calculating Simple Probability', question: '50 students were asked if they walk or cycle to school.\n30 walk; the rest cycle.\nOf the walkers, 18 are in Year 7.\nWhat fraction of the walkers are in Year 7?' },
-    '9b': { skill: 'Calculating Simple Probability', question: 'A number is picked at random from 1 to 10.\nWhat is the probability that it is a square number?\nGive your answer as a fraction.' },
-    '10a': { skill: 'Simplifying Expressions', question: 'Simplify fully 5x + 9 − 3x + 2' },
-    '10b': { skill: 'Simplifying Expressions', question: 'Simplify fully ⅓p × 9q' },
-    '11': { skill: 'Percentage Change + Simple Arithmetic', question: 'A multipack costs 20% less than 5 single tins. Each tin costs £3. Work out the cost of the multipack.' },
-    '12': { skill: 'Ratio', question: 'Write the ratio 15 : 3 in the form n : 1' },
-    '13': { skill: 'Simple Arithmetic', question: 'a and b are two different positive numbers. For each statement, say if it is always, sometimes or never true: (i) a ÷ b is a whole number  (ii) a × b is even' },
+    '1a': { skill: 'Indices', question: 'Write down the value of √81', answer: '9' },
+    '1b': { skill: 'Indices', question: 'Work out the value of 4³', answer: '64', working: '4 × 4 × 4' },
+    '1c': { skill: 'Indices', question: 'Write 100 000 as a power of 10', answer: '10⁵', working: 'Five zeros, so five tens multiplied together.' },
+    '2': { skill: 'Converting Measurements + Proportion', question: '1 stone = 14 pounds\nWork out the number of pounds in 5 stone.', answer: '70 pounds', working: '5 × 14' },
+    '3a': { skill: 'Irregular and Improper Fractions', question: 'Write <frac>7/3</frac> as a mixed number.', answer: '2<frac>1/3</frac>', working: '7 ÷ 3 = 2 remainder 1.' },
+    '3b': { skill: 'Adding and Subtracting Fractions', question: 'Work out <frac>1/7</frac> + <frac>3/7</frac>', answer: '<frac>4/7</frac>', working: 'Same denominator, so add the numerators.' },
+    '4a': { skill: 'Factors and Multiples', question: 'Write down all the factors of 18', answer: '1, 2, 3, 6, 9 and 18', working: 'In pairs: 1 × 18, 2 × 9 and 3 × 6.' },
+    '4b': { skill: 'Factors and Multiples', question: 'Nia says,\n"When two multiples of 3 are added, the answer is always a multiple of 6"\nGive one example to show that she is wrong.', answer: 'For example 3 + 6 = 9, which is not a multiple of 6', working: 'Any odd multiple of 3 added to an even one gives an odd total, which cannot be a multiple of 6.' },
+    '5': { skill: 'Fractions, Decimals and Percentages', question: 'Put these values in order of size, starting with the smallest.\n60%     0.55     <frac>5/8</frac>', answer: '0.55, 60%, <frac>5/8</frac>', working: 'As decimals they are 0.6, 0.55 and 0.625.' },
+    '6': { skill: 'Simple Arithmetic', question: 'Bilal buys three pens and four rulers.\nThe total cost is £11.10\nEach pen costs £1.30\nWork out the cost of each ruler.', answer: '£1.80', working: 'The pens cost 3 × £1.30 = £3.90, leaving £7.20 for four rulers.' },
+
+    // 7(a) is `visual: true` and gets the frequency tree, drawn as the paper
+    // draws it: the category names on the BRANCHES, the numbers in the nodes,
+    // every node but the first left empty. 7(b) reads the same tree.
+    '7a': {
+      skill: 'Frequency Trees',
+      question: '150 people visit a zoo.\n90 are children, the rest are adults.\nAt the entrance you can turn left or right.\n54 children turn left.\n80 people in total turn left.\nComplete the frequency tree.',
+      answer: 'Children 90 and adults 60; children: left 54, right 36; adults: left 26, right 34',
+      working: '150 − 90 = 60 adults; 90 − 54 = 36 children turn right; 80 − 54 = 26 adults turn left, so 60 − 26 = 34 turn right.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 9, step: 1, label: '' },
+        y: { min: 0, max: 10, step: 1, label: '' },
+        background: '<polyline points="1.05,4 3.95,6.5" stroke="#333" /><polyline points="1.05,4 3.95,1.5" stroke="#333" /><polyline points="4.95,6.5 7.7,7.5" stroke="#333" /><polyline points="4.95,6.5 7.7,5.5" stroke="#333" /><polyline points="4.95,1.5 7.7,2.5" stroke="#333" /><polyline points="4.95,1.5 7.7,0.5" stroke="#333" /><ellipse cx="0.55" cy="4" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="4.45" cy="6.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="4.45" cy="1.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="7.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="5.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="2.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="0.5" rx="0.5" ry="0.38" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0.55, y: 4, text: '150' },
+          { x: 0.55, y: 9.2, text: 'People' },
+          { x: 4.45, y: 9.4, text: 'Children' },
+          { x: 4.45, y: 8.8, text: 'or adults' },
+          { x: 8.2, y: 9.4, text: 'Turn left' },
+          { x: 8.2, y: 8.8, text: 'or right' },
+          { x: 2.2, y: 5.75, text: 'Children' },
+          { x: 2.2, y: 2.25, text: 'Adults' },
+          { x: 6.2, y: 7.45, text: 'Left' },
+          { x: 6.2, y: 5.55, text: 'Right' },
+          { x: 6.2, y: 2.45, text: 'Left' },
+          { x: 6.2, y: 0.55, text: 'Right' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '7b': {
+      skill: 'Frequency Trees + Calculating Simple Probability',
+      question: '150 people visit a zoo.\n90 are children, the rest are adults.\nAt the entrance you can turn left or right.\n54 children turn left.\n80 people in total turn left.\nWhat fraction of the children turn left?\nGive your answer in its simplest form.',
+      answer: '<frac>3/5</frac>',
+      working: '<frac>54/90</frac>, which cancels by 18.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 9, step: 1, label: '' },
+        y: { min: 0, max: 10, step: 1, label: '' },
+        background: '<polyline points="1.05,4 3.95,6.5" stroke="#333" /><polyline points="1.05,4 3.95,1.5" stroke="#333" /><polyline points="4.95,6.5 7.7,7.5" stroke="#333" /><polyline points="4.95,6.5 7.7,5.5" stroke="#333" /><polyline points="4.95,1.5 7.7,2.5" stroke="#333" /><polyline points="4.95,1.5 7.7,0.5" stroke="#333" /><ellipse cx="0.55" cy="4" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="4.45" cy="6.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="4.45" cy="1.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="7.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="5.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="2.5" rx="0.5" ry="0.38" stroke="#333" fill="none" /><ellipse cx="8.2" cy="0.5" rx="0.5" ry="0.38" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0.55, y: 4, text: '150' },
+          { x: 0.55, y: 9.2, text: 'People' },
+          { x: 4.45, y: 9.4, text: 'Children' },
+          { x: 4.45, y: 8.8, text: 'or adults' },
+          { x: 8.2, y: 9.4, text: 'Turn left' },
+          { x: 8.2, y: 8.8, text: 'or right' },
+          { x: 2.2, y: 5.75, text: 'Children' },
+          { x: 2.2, y: 2.25, text: 'Adults' },
+          { x: 6.2, y: 7.45, text: 'Left' },
+          { x: 6.2, y: 5.55, text: 'Right' },
+          { x: 6.2, y: 2.45, text: 'Left' },
+          { x: 6.2, y: 0.55, text: 'Right' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+
+    // 9(a) (the grid of scores) is visual and has no retry, so 9(b) sets up
+    // its own two picks rather than pointing at a grid the student lacks.
+    '9b': { skill: 'Calculating Simple Probability', question: 'A number is picked at random from the first three positive even numbers.\nA number is picked at random from the first four prime numbers.\nThe two numbers are multiplied to get a score.\nWhat is the probability that the score is a square number?\nGive your answer as a fraction.', answer: '<frac>1/12</frac>', working: '2, 4 or 6 times 2, 3, 5 or 7 gives 12 equally likely scores, and only 2 × 2 = 4 is a square number.' },
+    '10a': { skill: 'Simplifying Expressions', question: 'Simplify fully 7k + 3 − 4k + 8', answer: '3k + 11' },
+    '10b': { skill: 'Simplifying Expressions', question: 'Simplify fully ⅓p × 9q', answer: '3pq', working: '⅓ × 9 = 3, and p × q = pq.' },
+
+    // The paper gives the single price and the pack size in a PICTURE of the
+    // two packs, and only the percentage in words. So does the retry.
+    '11': {
+      skill: 'Percentage Change + Simple Arithmetic',
+      question: 'Here are a single carton of juice and a multipack.\nThe multipack costs 15% less than 8 single cartons.\nWork out the cost of the multipack.',
+      answer: '£4.42',
+      working: '8 × 65p = £5.20, and 15% of £5.20 is 78p, so £5.20 − 78p.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 7, step: 1, label: '' },
+        background: '<polyline points="1,1 3.2,1 3.2,4.6 1,4.6 1,1" stroke="#333" fill="none" /><polyline points="5,1 9,1 9,6.2 5,6.2 5,1" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.1, y: 3.3, text: 'Juice' },
+          { x: 2.1, y: 2.5, text: '65p' },
+          { x: 7, y: 4.3, text: 'Multipack –' },
+          { x: 7, y: 3.5, text: '8 cartons' },
+          { x: 7, y: 2.7, text: 'of juice' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '12': { skill: 'Ratio', question: 'Write the ratio 18 : 3 in the form n : 1', answer: '6 : 1', working: 'Divide both sides by 3.' },
+    '13': { skill: 'Simple Arithmetic', question: 'a and b are two different positive numbers.\nFor each statement, tick the correct box.\n<table>Statement | Always true | Sometimes true | Never true\na × b is positive |  |  | \na ÷ b is greater than 1 |  |  | </table>', answer: 'a × b is positive: always true; a ÷ b is greater than 1: sometimes true', working: 'Two positive numbers always multiply to a positive; a ÷ b is more than 1 only when a is the bigger number.' },
+
     // ── The two diagram-bearing retries ───────────────────────────────────
     // 14(a) and 14(b) are `visual: true` items, which normally get no retry at
     // all — a question depending on a diagram cannot be reissued as text. They
@@ -139,82 +232,155 @@ export const AQA_8300_1F_NOV24: PaperConfig = {
         tolerance: 0,
       },
     },
-    '15': { skill: 'Ratio', question: '42 sweets are shared between Sam and Tia in the ratio 5:2. How many more sweets does Sam get than Tia?' },
-    '17': { skill: 'Compound Units', question: 'A cyclist travels 6 miles in 15 minutes. Work out the average speed in miles per hour.' },
-    '18': { skill: 'Coordinates + Straight Line Graphs', question: 'P(1,5) and Q(3,9) lie on a straight line PQRS, with PQ = QR = RS. Work out the coordinates of S.' },
-    '19': { skill: 'Indices', question: 'Work out the value of 2.5²' },
-    '20a': {
-      skill: 'Function Machines',
-      question: 'The diagram shows a number machine.\nComplete the two boxes so that the machine turns x into 3x + 7.',
-      answer: '× 3, then + 7',
-      working: 'Multiply first, then add, because 3x + 7 is three lots of x with 7 added.',
+    '15': { skill: 'Ratio', question: '56 films are either comedies or dramas.\nnumber of comedies : number of dramas = 5 : 3\nHow many more films are comedies than dramas?', answer: '14', working: '56 ÷ 8 = 7, so 35 comedies and 21 dramas.' },
+    '17': { skill: 'Compound Units', question: 'A cyclist travels 3 miles in 12 minutes.\nWork out the average speed in miles per hour.', answer: '15 mph', working: '12 minutes is <frac>1/5</frac> of an hour, so 3 × 5.' },
+
+    // Drawn as the paper draws it: the line on bare axes, the two given
+    // points lettered with their coordinates and the other two lettered only.
+    // No tick marks, so nothing can be read off.
+    '18': {
+      skill: 'Coordinates + Straight Line Graphs',
+      question: 'P (0, 11) and Q (4, 8) are points on the straight line PQRS.\nPQ = QR = RS\nWork out the coordinates of S.\nNot drawn accurately',
+      answer: '(12, 2)',
+      working: 'From P to Q is 4 across and 3 down, so S is three of those steps from P.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
-        x: { min: 0, max: 11.8, step: 1, label: '' },
-        y: { min: 0, max: 3, step: 1, label: '' },
-        background: '<polyline points="2.2,1 4.4,1 4.4,2 2.2,2 2.2,1" stroke="#333" fill="none" /><polyline points="5.9,1 8.1,1 8.1,2 5.9,2 5.9,1" stroke="#333" fill="none" /><polyline points="0.9,1.5 2.14,1.5" stroke="#333" fill="none" /><polyline points="1.92,1.68 2.17,1.5 1.92,1.32" stroke="#333" fill="none" /><polyline points="4.4,1.5 5.84,1.5" stroke="#333" fill="none" /><polyline points="5.62,1.68 5.87,1.5 5.62,1.32" stroke="#333" fill="none" /><polyline points="8.100000000000001,1.5 9.54,1.5" stroke="#333" fill="none" /><polyline points="9.32,1.68 9.57,1.5 9.32,1.32" stroke="#333" fill="none" />',
+        x: { min: -1, max: 15, step: 1, label: '' },
+        y: { min: -1, max: 13, step: 1, label: '' },
+        background: '<polyline points="0,-0.6 0,12.6" stroke="#333" fill="none" /><polyline points="-0.2,12.25 0,12.6 0.2,12.25" stroke="#333" fill="none" /><polyline points="-0.6,0 14.2,0" stroke="#333" fill="none" /><polyline points="13.85,0.2 14.2,0 13.85,-0.2" stroke="#333" fill="none" /><polyline points="0,11 12,2" stroke="#333" fill="none" /><circle cx="0" cy="11" r="0.16" stroke="#333" fill="#333" /><circle cx="4" cy="8" r="0.16" stroke="#333" fill="#333" /><circle cx="8" cy="5" r="0.16" stroke="#333" fill="#333" /><circle cx="12" cy="2" r="0.16" stroke="#333" fill="#333" />',
         labels: [
-          { x: 0.5, y: 1.5, text: 'x' },
-          { x: 3.3, y: 1.5, text: '' },
-          { x: 7, y: 1.5, text: '' },
-          { x: 10, y: 1.5, text: '3x + 7' },
+          { x: 0, y: 11, text: 'P (0, 11)', dx: 34, dy: -8 },
+          { x: 4, y: 8, text: 'Q (4, 8)', dx: 30, dy: -8 },
+          { x: 8, y: 5, text: 'R', dx: 7, dy: -11 },
+          { x: 12, y: 2, text: 'S', dx: 7, dy: -11 },
+          { x: 0, y: 0, text: 'O', dx: -10, dy: 11 },
+          { x: 14.2, y: 0, text: 'x', dy: 13 },
+          { x: 0, y: 12.6, text: 'y', dx: -10 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '19': { skill: 'Indices', question: 'Work out the value of 3.5²', answer: '12.25', working: '35 × 35 = 1225, and two decimal places.' },
+
+    // 20(a)-(c) are drawn as the paper draws them, x in and y out. (a) has
+    // both boxes empty; (b) gives the SECOND box and asks for the first; (c)
+    // gives the first — the mark scheme shows which box each part leaves out.
+    '20a': {
+      skill: 'Function Machines',
+      question: 'Here is a number machine.\nComplete this number machine so that y = 3x + 7',
+      answer: '× 3, then + 7',
+      working: 'Multiply first, then add. (+ <frac>7/3</frac> then × 3 also works.)',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 12, step: 1, label: '' },
+        y: { min: 0, max: 3, step: 1, label: '' },
+        background: '<ellipse cx="1.2" cy="1.5" rx="1" ry="0.55" stroke="#333" fill="none" /><polyline points="2.2,1.5 3.2,1.5" stroke="#333" fill="none" /><polyline points="2.95,1.68 3.18,1.5 2.95,1.32" stroke="#333" fill="none" /><polyline points="3.2,1 5.2,1 5.2,2 3.2,2 3.2,1" stroke="#333" fill="none" /><polyline points="5.2,1.5 6.8,1.5" stroke="#333" fill="none" /><polyline points="6.55,1.68 6.78,1.5 6.55,1.32" stroke="#333" fill="none" /><polyline points="6.8,1 8.8,1 8.8,2 6.8,2 6.8,1" stroke="#333" fill="none" /><polyline points="8.8,1.5 9.8,1.5" stroke="#333" fill="none" /><polyline points="9.55,1.68 9.78,1.5 9.55,1.32" stroke="#333" fill="none" /><ellipse cx="10.8" cy="1.5" rx="1" ry="0.55" stroke="#333" fill="none" />',
+        // Empty text for an empty box, so the three machines share anchors —
+        // they are different machines in one drawing, not one figure split up.
+        labels: [
+          { x: 1.2, y: 2.55, text: 'Input' },
+          { x: 10.8, y: 2.55, text: 'Output' },
+          { x: 1.2, y: 1.5, text: 'x' },
+          { x: 10.8, y: 1.5, text: 'y' },
+          { x: 4.2, y: 1.5, text: '' },
+          { x: 7.8, y: 1.5, text: '' },
         ],
         elements: [], tolerance: 0,
       },
     },
     '20b': {
       skill: 'Function Machines',
-      question: 'The diagram shows a number machine.\nComplete the second box so that the machine turns x into 2x − 11.',
-      answer: '− 11',
-      working: 'x × 2 = 2x, and 2x − 11 needs 11 subtracting.',
+      question: 'Here is a number machine.\nComplete this number machine so that y = 5x − 15',
+      answer: '− 3',
+      working: '(x − 3) × 5 = 5x − 15',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
-        x: { min: 0, max: 11.8, step: 1, label: '' },
+        x: { min: 0, max: 12, step: 1, label: '' },
         y: { min: 0, max: 3, step: 1, label: '' },
-        background: '<polyline points="2.2,1 4.4,1 4.4,2 2.2,2 2.2,1" stroke="#333" fill="none" /><polyline points="5.9,1 8.1,1 8.1,2 5.9,2 5.9,1" stroke="#333" fill="none" /><polyline points="0.9,1.5 2.14,1.5" stroke="#333" fill="none" /><polyline points="1.92,1.68 2.17,1.5 1.92,1.32" stroke="#333" fill="none" /><polyline points="4.4,1.5 5.84,1.5" stroke="#333" fill="none" /><polyline points="5.62,1.68 5.87,1.5 5.62,1.32" stroke="#333" fill="none" /><polyline points="8.100000000000001,1.5 9.54,1.5" stroke="#333" fill="none" /><polyline points="9.32,1.68 9.57,1.5 9.32,1.32" stroke="#333" fill="none" />',
+        background: '<ellipse cx="1.2" cy="1.5" rx="1" ry="0.55" stroke="#333" fill="none" /><polyline points="2.2,1.5 3.2,1.5" stroke="#333" fill="none" /><polyline points="2.95,1.68 3.18,1.5 2.95,1.32" stroke="#333" fill="none" /><polyline points="3.2,1 5.2,1 5.2,2 3.2,2 3.2,1" stroke="#333" fill="none" /><polyline points="5.2,1.5 6.8,1.5" stroke="#333" fill="none" /><polyline points="6.55,1.68 6.78,1.5 6.55,1.32" stroke="#333" fill="none" /><polyline points="6.8,1 8.8,1 8.8,2 6.8,2 6.8,1" stroke="#333" fill="none" /><polyline points="8.8,1.5 9.8,1.5" stroke="#333" fill="none" /><polyline points="9.55,1.68 9.78,1.5 9.55,1.32" stroke="#333" fill="none" /><ellipse cx="10.8" cy="1.5" rx="1" ry="0.55" stroke="#333" fill="none" />',
         labels: [
-          { x: 0.5, y: 1.5, text: 'x' },
-          { x: 3.3, y: 1.5, text: '× 2' },
-          { x: 7, y: 1.5, text: '' },
-          { x: 10, y: 1.5, text: '2x − 11' },
+          { x: 1.2, y: 2.55, text: 'Input' },
+          { x: 10.8, y: 2.55, text: 'Output' },
+          { x: 1.2, y: 1.5, text: 'x' },
+          { x: 10.8, y: 1.5, text: 'y' },
+          { x: 4.2, y: 1.5, text: '' },
+          { x: 7.8, y: 1.5, text: '× 5' },
         ],
         elements: [], tolerance: 0,
       },
     },
     '20c': {
       skill: 'Function Machines',
-      question: 'The diagram shows a number machine.\nComplete the second box so that the machine turns x back into x.',
-      answer: '÷ 5',
-      working: 'Dividing by 5 undoes multiplying by 5.',
+      question: 'Here is a number machine.\nComplete this number machine so that y = x',
+      answer: '÷ 4',
+      working: 'Dividing by 4 undoes multiplying by 4.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
-        x: { min: 0, max: 11.8, step: 1, label: '' },
+        x: { min: 0, max: 12, step: 1, label: '' },
         y: { min: 0, max: 3, step: 1, label: '' },
-        background: '<polyline points="2.2,1 4.4,1 4.4,2 2.2,2 2.2,1" stroke="#333" fill="none" /><polyline points="5.9,1 8.1,1 8.1,2 5.9,2 5.9,1" stroke="#333" fill="none" /><polyline points="0.9,1.5 2.14,1.5" stroke="#333" fill="none" /><polyline points="1.92,1.68 2.17,1.5 1.92,1.32" stroke="#333" fill="none" /><polyline points="4.4,1.5 5.84,1.5" stroke="#333" fill="none" /><polyline points="5.62,1.68 5.87,1.5 5.62,1.32" stroke="#333" fill="none" /><polyline points="8.100000000000001,1.5 9.54,1.5" stroke="#333" fill="none" /><polyline points="9.32,1.68 9.57,1.5 9.32,1.32" stroke="#333" fill="none" />',
+        background: '<ellipse cx="1.2" cy="1.5" rx="1" ry="0.55" stroke="#333" fill="none" /><polyline points="2.2,1.5 3.2,1.5" stroke="#333" fill="none" /><polyline points="2.95,1.68 3.18,1.5 2.95,1.32" stroke="#333" fill="none" /><polyline points="3.2,1 5.2,1 5.2,2 3.2,2 3.2,1" stroke="#333" fill="none" /><polyline points="5.2,1.5 6.8,1.5" stroke="#333" fill="none" /><polyline points="6.55,1.68 6.78,1.5 6.55,1.32" stroke="#333" fill="none" /><polyline points="6.8,1 8.8,1 8.8,2 6.8,2 6.8,1" stroke="#333" fill="none" /><polyline points="8.8,1.5 9.8,1.5" stroke="#333" fill="none" /><polyline points="9.55,1.68 9.78,1.5 9.55,1.32" stroke="#333" fill="none" /><ellipse cx="10.8" cy="1.5" rx="1" ry="0.55" stroke="#333" fill="none" />',
         labels: [
-          { x: 0.5, y: 1.5, text: 'x' },
-          { x: 3.3, y: 1.5, text: '× 5' },
-          { x: 7, y: 1.5, text: '' },
-          { x: 10, y: 1.5, text: 'x' },
+          { x: 1.2, y: 2.55, text: 'Input' },
+          { x: 10.8, y: 2.55, text: 'Output' },
+          { x: 1.2, y: 1.5, text: 'x' },
+          { x: 10.8, y: 1.5, text: 'y' },
+          { x: 4.2, y: 1.5, text: '× 4' },
+          { x: 7.8, y: 1.5, text: '' },
         ],
         elements: [], tolerance: 0,
       },
     },
-    '21': { skill: 'Simple Arithmetic', question: 'Each number in a list has 5 subtracted from it. For each statement, say True, False, or Cannot tell: the mode decreases by 5; the mean decreases by 5; the range stays the same.' },
-    '22a': { skill: 'Sequences', question: 'Write the missing term in the geometric progression: 2, 6, 18, ?, 162' },
-    '22b': { skill: 'Sequences', question: 'A Fibonacci-type sequence begins 3, −7, and continues by adding the previous two terms. Work out the next two terms.' },
-    '23a': { skill: 'Properties of 3D Solids', question: 'A prism has an octagonal cross-section.\nHow many faces does it have?', answer: '10', working: 'Eight rectangles round the sides, plus the two octagonal ends.' },
+    '21': { skill: 'Simple Arithmetic', question: 'Each number in a list is decreased by 4\nFor each statement, tick the correct box.\n<table>Statement | True | False | Cannot tell\nThe mean is decreased by 4 |  |  | \nThe median is decreased by 4 |  |  | \nThe range is decreased by 4 |  |  | </table>', answer: 'True, True, False', working: 'Every value moves down by 4, so the mean and median move with them, but the gap between the largest and smallest value does not change.' },
+    '22a': { skill: 'Sequences', question: 'Write the missing term in this geometric progression.\n2     6     18     ____     162', answer: '54', working: 'Each term is 3 times the one before.' },
+    '22b': { skill: 'Sequences', question: 'A Fibonacci-type sequence begins\n3     −7\nThe sequence is continued by adding the previous two terms.\nWork out the next two terms.', answer: '−4 and −11', working: '3 + (−7) = −4, then −7 + (−4) = −11.' },
+
+    // 23(a) and (b) share the solid, drawn as the paper draws its prism: a
+    // pentagonal one here (the paper's is hexagonal), hidden edges dashed.
+    '23a': {
+      skill: 'Properties of 3D Solids',
+      question: 'Here is a solid prism.\nHow many faces does the prism have?',
+      answer: '7',
+      working: 'Five rectangles round the sides, plus the two pentagonal ends.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 7, step: 1, label: '' },
+        background: '<polygon points="2.5,4.6 0.978,3.494 1.56,1.706 3.44,1.706 4.022,3.494" stroke="#333" fill="none" /><polyline points="2.5,4.6 8,6.4 9.522,5.294 8.94,3.506 3.44,1.706" stroke="#333" fill="none" /><polyline points="4.022,3.494 9.522,5.294" stroke="#333" fill="none" /><polyline points="8,6.4 6.478,5.294 7.06,3.506 8.94,3.506" stroke="#333" fill="none" stroke-dasharray="0.25 0.18" /><polyline points="0.978,3.494 6.478,5.294" stroke="#333" fill="none" stroke-dasharray="0.25 0.18" /><polyline points="1.56,1.706 7.06,3.506" stroke="#333" fill="none" stroke-dasharray="0.25 0.18" />',
+        elements: [], tolerance: 0,
+      },
+    },
     '23b': {
       skill: 'Areas of Compound Shapes',
-      question: 'A prism has volume 4200 cm³ and length 15 cm. Work out the area of the cross-section.',
+      question: 'Here is a solid prism.\nThe prism has volume = 4200 cm³ and length = 15 cm\nWork out the area of the cross-section of the prism.',
       answer: '280 cm²',
-      working: '4200 ÷ 15 = 280.',
+      working: 'Volume of a prism = area of cross-section × length, so 4200 ÷ 15.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 7, step: 1, label: '' },
+        background: '<polygon points="2.5,4.6 0.978,3.494 1.56,1.706 3.44,1.706 4.022,3.494" stroke="#333" fill="none" /><polyline points="2.5,4.6 8,6.4 9.522,5.294 8.94,3.506 3.44,1.706" stroke="#333" fill="none" /><polyline points="4.022,3.494 9.522,5.294" stroke="#333" fill="none" /><polyline points="8,6.4 6.478,5.294 7.06,3.506 8.94,3.506" stroke="#333" fill="none" stroke-dasharray="0.25 0.18" /><polyline points="0.978,3.494 6.478,5.294" stroke="#333" fill="none" stroke-dasharray="0.25 0.18" /><polyline points="1.56,1.706 7.06,3.506" stroke="#333" fill="none" stroke-dasharray="0.25 0.18" />',
+        elements: [], tolerance: 0,
+      },
     },
-    '24': { skill: 'Adding and Subtracting Fractions', question: 'Work out 1⅓ − <frac>2/3</frac>. Give your answer as a fraction.' },
-    '25': { skill: 'Exact Trigonometric Values', question: 'Write down the value of cos 0°' },
-    '26': { skill: 'Area of a Circle', question: 'A small circle sits inside a large circle.\nThe large circle has radius 10 cm, and the radii are in the ratio 5 : 1.\nWork out the area between the two circles.\nGive your answer in terms of π.' },
-    '27a': { skill: 'Inverse Proportion', question: '8 people can complete a job in 6 hours, all working at the same rate. If 12 people work on the same job, how many hours will it take?' },
-    '27b': { skill: 'Inverse Proportion', question: '12 people were assumed to complete a job in 5 hours.\nIn fact, some of the 12 work faster than assumed and some work slower.\nWhat does this mean about the time it will take, compared to 5 hours?\n(greater / the same / less / not possible to say)' },
+    '24': { skill: 'Adding and Subtracting Fractions', question: 'Work out 1<frac>1/4</frac> − <frac>3/8</frac>\nGive your answer as a fraction.', answer: '<frac>7/8</frac>', working: '1<frac>1/4</frac> = <frac>10/8</frac>, and <frac>10/8</frac> − <frac>3/8</frac>.' },
+    '25': { skill: 'Exact Trigonometric Values', question: 'Write down the value of cos 0°', answer: '1' },
+
+    // The paper shades the region between the circles; so does the retry.
+    '26': {
+      skill: 'Area of a Circle',
+      question: 'A large circle and a small circle are shown.\nThe radius of the large circle is 10 cm\nradius of large circle : radius of small circle = 5 : 1\nWork out the shaded area.\nGive your answer in terms of π\nNot drawn accurately',
+      answer: '96π cm²',
+      working: 'The small circle has radius 2 cm, so the shaded area is π × 10² − π × 2² = 100π − 4π.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 10, step: 1, label: '' },
+        background: '<circle cx="5" cy="5" r="4" stroke="#333" fill="#dddddd" /><circle cx="3.232" cy="6.768" r="1.5" stroke="#333" fill="#ffffff" />',
+        elements: [], tolerance: 0,
+      },
+    },
+    '27a': { skill: 'Inverse Proportion', question: '8 people can complete a job in 15 hours.\nIn this part, assume that each person works at the same rate.\nIf 12 people work on the same job, how many hours will it take to complete the job?', answer: '10 hours', working: '8 × 15 = 120 hours of work, shared between 12 people.' },
+    '27b': { skill: 'Inverse Proportion', question: '8 people can complete a job in 15 hours.\n12 people work on the same job.\nIn fact, of the 12 people\n• 5 work at a slower rate\n• 7 work at a faster rate.\nWhat does this mean about the number of hours it will take, compared with 12 people all working at the same rate?\nTick one box.\n[   ] It is greater\n[   ] It is the same\n[   ] It is less\n[   ] It is not possible to say', answer: 'It is not possible to say', working: 'Without knowing how much slower and how much faster they work, the two effects could balance out either way.' },
   },
 
   challengeQuestions: [

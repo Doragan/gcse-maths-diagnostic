@@ -17,6 +17,10 @@ import type { PaperConfig } from './types'
  *     never as transcriptions. See docs/writing-retry-questions.md. The
  *     crossover questions shared with this paper's tier partner carry the SAME
  *     retries; the note above `retrySet` says which.
+ *   • item 22 is tagged `fractional_enlargements` only. The audit also
+ *     listed `enlargements`, but that is the prerequisite of a fractional
+ *     or negative enlargement, not a second independent skill. Changed in
+ *     data/exam-audit/JUN25-H-P2.json too.
  *   • `challengeQuestions` stays empty ON PURPOSE. Challenges are pooled by
  *     topic and tier in lib/papers/challengePool.ts, and every paper draws
  *     from there; filling this in would override the pool for this paper only.
@@ -66,7 +70,7 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     { id: '20',  label: '20',    marks: 1,  topic: 'algebra',  skill: 'Quadratic Inequalities',                                                                            skillIds: ['quadratic_inequalities'], kind: 'mastery', visual: false, desc: 'spot-the-error free text on a number-line representation' },
     { id: '21a', label: '21(a)', marks: 1,  topic: 'algebra',  skill: 'Equation of a Circle',                                                                              skillIds: ['equation_of_a_circle'], kind: 'mastery', visual: false, desc: 'algebraic answer needs equivalence checker' },
     { id: '21b', label: '21(b)', marks: 4,  topic: 'algebra',  skill: 'Perpendicular Gradients + Circle Theorem: Tangent and Radius + Understanding Straight Line Graphs', skillIds: ['perpendicular_gradients', 'circle_theorem_tangent', 'understanding_straight_line_graphs'], kind: 'exam', visual: false, desc: 'algebraic answer needs equivalence checker' },
-    { id: '22',  label: '22',    marks: 3,  topic: 'shape',    skill: 'Fractional and Negative Enlargements + Enlargements',                                               skillIds: ['fractional_enlargements', 'enlargements'], kind: 'mastery', visual: false, desc: 'describe-fully answer combines a name, a scale factor and a centre in free text' },
+    { id: '22',  label: '22',    marks: 3,  topic: 'shape',    skill: 'Fractional and Negative Enlargements',                                               skillIds: ['fractional_enlargements'], kind: 'mastery', visual: false, desc: 'describe-fully answer combines a name, a scale factor and a centre in free text' },
     { id: '23',  label: '23',    marks: 5,  topic: 'shape',    skill: 'Vector Proof + Vectors + Ratio',                                                                    skillIds: ['vector_proof', 'vectors', 'ratio'], kind: 'exam', visual: false, desc: 'banded marks depend on which intermediate vectors are shown, not on the value alone' },
     { id: '24',  label: '24',    marks: 3,  topic: 'ratio',    skill: 'Proportion with Powers',                                                                            skillIds: ['proportion_with_powers'], kind: 'mastery', visual: false, desc: 'range-tolerance percentage answer' },
     { id: '25',  label: '25',    marks: 4,  topic: 'algebra',  skill: 'Composite Functions + Inverse Functions + Algebraic Proof',                                         skillIds: ['composite_functions', 'inverse_functions', 'algebraic_proof'], kind: 'exam', visual: false, desc: 'proof: the conclusion is worded, and each stage is credited separately' },
@@ -265,28 +269,72 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '19': { skill: 'Histograms', question: 'A histogram represents the ages of the members of a gym.\nThe bar for ages 20 to 30 has a frequency density of 8 members per year, and the bar for ages 30 to 50 has a frequency density of 4.5 members per year.\nMembers under 40 pay £250 a year and members aged 40 or over pay £150.\nEstimate the total annual fees paid by the members aged 20 to 50.', answer: '£38 000', working: '80 members aged 20–30 and 45 in each of 30–40 and 40–50, so 125 pay £250 and 45 pay £150.' },
+    // The paper's histogram is drawn, and the fee boundary falls INSIDE a bar
+    // (65 in the 60–80 bar), so part of one bar has to be split off. The retry
+    // draws its own histogram, with 60 falling inside the 50–70 bar.
+    '19': {
+      skill: 'Histograms',
+      question: 'The histogram represents the ages of the 400 members of a swimming club.\nThe first bar represents the members aged at least 16 and under 20\nEach member pays an annual fee based on their age.\n<table>Age | Under 60 | 60 or over\nAnnual fee | £240 | £150</table>\nUse the histogram to estimate the total annual fees paid by these members.',
+      answer: '£90 150',
+      working: 'The frequencies are 30, 130, 140, 70 and 30. Half of the 50–70 bar is under 60, so 335 members pay £240 and 65 pay £150: 80 400 + 9 750.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: 0, max: 90, step: 10, label: 'Age (years)' },
+        y: { min: 0, max: 14, step: 1, label: 'Frequency density' },
+        // Bars filled, then edged segment by segment: the axes are scaled 10 : 1,
+        // so one stroke-width would print the tops ten times the sides.
+        background: '<polygon points="16,0 20,0 20,7.5 16,7.5" stroke="none" fill="#cccccc" /><polygon points="20,0 30,0 30,13 20,13" stroke="none" fill="#cccccc" /><polygon points="30,0 50,0 50,7 30,7" stroke="none" fill="#cccccc" /><polygon points="50,0 70,0 70,3.5 50,3.5" stroke="none" fill="#cccccc" /><polygon points="70,0 90,0 90,1.5 70,1.5" stroke="none" fill="#cccccc" /><polyline points="16,7.5 20,7.5" stroke="#333" stroke-width="0.0714" /><polyline points="20,13 30,13" stroke="#333" stroke-width="0.0714" /><polyline points="30,7 50,7" stroke="#333" stroke-width="0.0714" /><polyline points="50,3.5 70,3.5" stroke="#333" stroke-width="0.0714" /><polyline points="70,1.5 90,1.5" stroke="#333" stroke-width="0.0714" /><polyline points="16,0 16,7.5" stroke="#333" stroke-width="0.7143" /><polyline points="20,0 20,13" stroke="#333" stroke-width="0.7143" /><polyline points="30,0 30,13" stroke="#333" stroke-width="0.7143" /><polyline points="50,0 50,7" stroke="#333" stroke-width="0.7143" /><polyline points="70,0 70,3.5" stroke="#333" stroke-width="0.7143" /><polyline points="90,0 90,1.5" stroke="#333" stroke-width="0.7143" />',
+        elements: [], tolerance: 0,
+      },
+    },
     '20': { skill: 'Quadratic Inequalities', question: 'Ben solves the inequality x² < 25 and writes his answer as x < 5. Give one reason why Ben\'s answer is wrong.', answer: 'It leaves out the lower limit — the solution is −5 < x < 5', working: 'His answer wrongly includes values such as x = −7, whose square is 49.' },
     '21a': { skill: 'Equation of a Circle', question: 'A circle has its centre at the origin and passes through the point P(3, −4).\nWrite down the equation of the circle.', answer: 'x² + y² = 25', working: 'The radius squared is 3² + (−4)².' },
     '21b': { skill: 'Perpendicular Gradients', question: 'A circle has its centre at the origin and passes through the point P(3, −4).\nWork out the equation of the tangent to the circle at P. Give your answer in the form y = mx + c.', answer: 'y = 0.75x − 6.25', working: 'The radius OP has gradient −<frac>4/3</frac>, so the tangent has gradient <frac>3/4</frac> and passes through (3, −4).' },
+    // A NEGATIVE and FRACTIONAL scale factor together, as on the paper: B is
+    // half the size of A, on the far side of the centre and upside down.
     '22': {
-      skill: 'Fractional and Negative Enlargements + Enlargements',
-      question: 'The diagram shows triangles A and B.\nDescribe fully the single transformation that maps triangle A to triangle B.',
-      answer: 'An enlargement with scale factor <frac>1/2</frac>, centre the origin (0, 0)',
-      working: 'Every coordinate is halved, which places the centre at the origin.',
+      skill: 'Fractional and Negative Enlargements',
+      question: 'Shape A and shape B are shown on the grid.\nDescribe fully the single transformation that maps shape A to shape B.',
+      answer: 'An enlargement, scale factor −<frac>1/2</frac>, centre (6, 4)',
+      working: 'Lines through corresponding corners — (2, 8) to (8, 2) and (2, 2) to (8, 5) — cross at (6, 4). B is half the size of A and on the opposite side of that point, so the scale factor is negative.',
       diagram: {
         mode: 'polygon',
-        x: { min: 0, max: 7, step: 1, label: 'x' },
-        y: { min: 0, max: 5, step: 1, label: 'y' },
-        background: '<polygon points="2,2 6,2 2,4" stroke="#333" fill="none" /><polygon points="1,1 3,1 1,2" stroke="#333" fill="none" />',
+        x: { min: 0, max: 10, step: 1, label: 'x' },
+        y: { min: 0, max: 10, step: 1, label: 'y' },
+        background: '<polygon points="2,2 2,8 6,2" stroke="#333" fill="none" /><polygon points="8,5 8,2 6,5" stroke="#333" fill="none" />',
         labels: [
-          { x: 2.9, y: 2.6, text: 'A' },
-          { x: 1.45, y: 1.3, text: 'B' },
+          { x: 3.2, y: 4, text: 'A' },
+          { x: 7.4, y: 4, text: 'B' },
         ],
         elements: [], tolerance: 0,
       },
     },
-    '23': { skill: 'Vector Proof + Vectors + Ratio', question: 'OABC is a parallelogram, with the vector OA = a and the vector OC = c.\nM is the point on AB such that AM : MB = 1 : 3.\nWrite down, in terms of a and c, the vector OM.\nYou must show your working.', answer: 'OM = a + <frac>1/4</frac>c', working: 'AB is equal to OC, so AM is one quarter of c.' },
+    // Built as the paper builds it: three sides given as vectors, the
+    // diagonals crossing at P in a known ratio one way and an unknown one the
+    // other. The arrows on the sides show each vector's direction.
+    '23': {
+      skill: 'Vector Proof + Vectors + Ratio',
+      question: 'ABCD is a quadrilateral.\nAC and BD intersect at P.\nvector AB = 8b − 5a\nvector BC = 9a\nvector DC = 9b\nBP : PD = 2 : 1\nAP : PC = 1 : k\nWork out the value of k.\nYou must show your working.\nNot drawn accurately.',
+      answer: 'k = 3',
+      working: 'AC = AB + BC = 4a + 8b, and BD = BC + CD = 9a − 9b. AP = AB + <frac>2/3</frac>BD = −5a + 8b + 6a − 6b = a + 2b, which is <frac>1/4</frac> of AC, so AP : PC = 1 : 3.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polygon points="2.5,1 9.25,1.85 7.9,6.8 1.15,2.75" stroke="#333" fill="none" /><polyline points="2.5,1 7.9,6.8" stroke="#333" fill="none" /><polyline points="9.25,1.85 1.15,2.75" stroke="#333" fill="none" /><polyline points="5.704,1.585 6.024,1.444 5.749,1.228" stroke="#333" fill="none" /><polyline points="8.441,4.133 8.536,4.47 8.788,4.228" stroke="#333" fill="none" /><polyline points="4.304,4.852 4.654,4.852 4.489,4.543" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.5, y: 1, text: 'A', dx: -8, dy: 11 },
+          { x: 9.25, y: 1.85, text: 'B', dx: 10 },
+          { x: 7.9, y: 6.8, text: 'C', dy: -9 },
+          { x: 1.15, y: 2.75, text: 'D', dx: -10 },
+          { x: 3.85, y: 2.45, text: 'P', dx: 4, dy: -12 },
+          { x: 5.875, y: 1.425, text: '8b − 5a', dy: 15 },
+          { x: 8.575, y: 4.325, text: '9a', dx: 14 },
+          { x: 4.525, y: 4.775, text: '9b', dx: -8, dy: -12 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '24': { skill: 'Proportion with Powers', question: 'A study suggests a student\'s exam mark m is directly proportional to the square root of their total revision time t.\nA student triples their total revision time.\nWork out the percentage increase in their exam mark, to 1 decimal place.', answer: '73.2%', working: 'The mark is multiplied by √3 = 1.732.' },
     '25': { skill: 'Composite Functions + Inverse Functions + Algebraic Proof', question: 'f(x) = 2x + 5 and g(x) = <frac>x − 5/2</frac>. Prove that fg(x) + gf(x) is always equal to 2x.', answer: 'Both compositions simplify to x, so the sum is 2x', working: 'f and g are inverses of each other, so each composition returns x.' },
   },

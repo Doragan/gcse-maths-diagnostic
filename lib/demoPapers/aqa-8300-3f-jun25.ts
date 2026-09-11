@@ -399,8 +399,8 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '20': { skill: 'Finding the nth Term', question: 'A linear sequence has 3rd term = 11 and 7th term = 27. Work out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
-    '21': { skill: 'Ratio + Fractions of Amounts', question: 'Dan has £180.\nDan\'s amount is <frac>3/4</frac> of Eve\'s amount, and Finn\'s amount : Eve\'s amount = 2 : 5.\nWork out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
+    '20': { skill: 'Finding the nth Term', question: 'A linear sequence has\n• 3rd term = 11\n• 7th term = 27\nWork out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
+    '21': { skill: 'Ratio + Fractions of Amounts', question: 'Dan, Eve and Finn each have an amount of money.\n• Dan has £180\n• Dan\'s amount is <frac>3/4</frac> of Eve\'s amount\n• Finn\'s amount : Eve\'s amount = 2 : 5\nWork out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
     '22': {
       skill: 'Venn Diagrams + Calculating Simple Probability',
       question: 'The Venn diagram shows two sets A and B.\nThere are 30 items altogether and P(A) = <frac>1/2</frac>.\nWork out the value of x.',

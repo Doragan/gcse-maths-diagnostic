@@ -37,7 +37,7 @@ for (const p of Object.values(PAPERS)) {
 
     // B. Says "tick" but offers nothing to tick, and does not ask for working
     //    instead (the deliberate rephrase).
-    if (/\btick\b/i.test(r.question) && !options.length &&
+    if (/\btick\b/i.test(r.question) && !options.length && !r.question.includes('<table>') &&
         !/show working|give a reason|show your working/i.test(r.question)) {
       add('says "tick" with no boxes', p.id, id, lines[lines.length - 1].slice(0, 70))
     }
@@ -118,7 +118,8 @@ for (const p of Object.values(PAPERS)) {
     }
 
     // W. Rows of data set as "Label: a, b" lines rather than a table (1H 5).
-    const rowish = lines.filter(l => /^[A-Z][\w ]{0,20}:\s*\S.*\d/.test(l) && !/^(Answer|Mistake|Scale|Tick)/.test(l))
+    // A spaced colon is ratio notation ("BP : PD = 2 : 1"), not a label.
+    const rowish = lines.filter(l => /^[A-Z][\w ]{0,20}:\s*\S.*\d/.test(l) && !/\s:\s/.test(l) && !/^(Answer|Mistake|Scale|Tick)/.test(l))
     if (rowish.length >= 2 && !r.question.includes('<table>')) {
       add('tabular data not set as a table', p.id, id, rowish[0].slice(0, 60))
     }
@@ -174,7 +175,7 @@ for (const p of Object.values(PAPERS)) {
     //    means the scale is theirs to choose, so no fixed overlay can be the
     //    answer — 3H 14(b) is right to have none.
     if (q.visual && r.diagram && !r.diagram.elements.length && !r.diagram.solution &&
-        !/label (both )?(the )?axes/i.test(r.question)) {
+        !/label (both )?(the )?axes|frequency tree/i.test(r.question)) {
       add('visual item with no drawn answer', p.id, id, r.question.split('\n').pop()!.slice(0, 60))
     }
 

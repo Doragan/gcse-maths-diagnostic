@@ -139,21 +139,21 @@ describe('answers stay with the teacher', () => {
     expect(new Set(two.map(e => e.question)).size).toBe(two.length)
   })
 
-  it('leaves out anything with no answer rather than printing a blank', () => {
-    // The hand-authored retry sets mostly predate answers, so most of their
-    // practice questions have none. Those must be ABSENT from the key, not
-    // present and empty — while the few that do carry an answer still appear.
+  it('lists every printed practice question, each with an answer', () => {
+    // The hand-authored retry sets once went without answers, and the key
+    // left those out rather than print a blank. Every retry now carries one
+    // (the type requires it), so nothing a student is set may be missing.
     const handAuthoredPaper = handAuthored[0]
     const zero = Object.fromEntries(handAuthoredPaper.questions.map(q => [q.id, 0]))
     const evidence = buildStudentEvidence(handAuthoredPaper, zero, 'Ama')
     const sheet = toWwwEbi(evidence)
 
-    const printed = new Set([...sheet.practice.flatMap(g => g.parts), ...sheet.challenge].map(q => q.question))
-    const answeredAndPrinted = evidence.practice.filter(p => p.answer && printed.has(p.question))
-    expect(evidence.practice.some(p => !p.answer), 'expected some unanswered retries').toBe(true)
+    const printed = new Set(sheet.practice.flatMap(g => g.parts).map(q => q.question))
+    const printedPractice = evidence.practice.filter(p => printed.has(p.question))
+    expect(printedPractice.length).toBeGreaterThan(0)
 
     const key = answerKeyFor([evidence])
-    expect(key.length).toBe(answeredAndPrinted.length)
+    for (const p of printedPractice) expect(key.some(e => e.question === p.question), p.question).toBe(true)
     for (const e of key) expect(e.answer.trim()).not.toBe('')
   })
 })

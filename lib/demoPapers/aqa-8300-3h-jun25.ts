@@ -87,10 +87,49 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
   retrySet: {
     '1': { skill: 'Proportion + Converting Measurements', question: 'Convert 13.2 pounds into kilograms. Use 2.2 pounds = 1 kilogram.', answer: '6 kg', working: '13.2 ÷ 2.2' },
     '2': { skill: 'Outliers', question: 'Here are the times, in minutes, taken by six people to finish a puzzle: 4, 6, 5.5, 7, 42, 5. Write down the outlier.', answer: '42 minutes', working: 'Every other time is between 4 and 7.' },
-    '3': { skill: 'Parts of a Circle', question: 'Write down the name of each of these parts of a circle.\n(i)   a straight line from the centre to the edge\n(ii)  a straight line right across the circle through the centre\n(iii) a straight line joining two points on the edge but not passing through the centre', answer: '(i) radius, (ii) diameter, (iii) chord' },
+    // The paper's question is a DIAGRAM to label: lettered parts of a circle
+    // matched to a word bank. The retry draws its own circle with different
+    // parts lettered (a diameter given, then a segment, a chord and a tangent).
+    '3': {
+      skill: 'Parts of a Circle',
+      question: 'Here is a circle, centre O.\nMatch each letter to the correct word.\nOne has been done for you: A is a diameter.\nArc     Chord     Diameter     Radius     Sector     Segment     Tangent',
+      answer: 'B is a segment, C is a chord, D is a tangent',
+      working: 'A segment is the region between a chord and an arc; a chord joins two points on the circle; a tangent touches it at one point.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 9, step: 1, label: '' },
+        background: '<path d="M 3.072,6.798 L 6.928,6.798 A 3,3 0 0,1 3.072,6.798 Z" stroke="#333" fill="#cccccc" /><circle cx="5" cy="4.5" r="3" stroke="#333" fill="none" /><polyline points="2.402,6 7.598,3" stroke="#333" fill="none" /><polyline points="2.402,3 6.5,1.902" stroke="#333" fill="none" /><polyline points="8,2.4 8,6.6" stroke="#333" fill="none" /><circle cx="5" cy="4.5" r="0.1" stroke="#333" fill="#333" /><polyline points="1.6,7.05 3.268,5.5" stroke="#333" fill="none" /><polyline points="8.35,7.9 5.9,7.1" stroke="#333" fill="none" /><polyline points="1.65,1.7 4.451,2.451" stroke="#333" fill="none" /><polyline points="9,6.75 8,6.1" stroke="#333" fill="none" />',
+        labels: [
+          { x: 5, y: 4.5, text: 'O', dx: 2, dy: -11 },
+          { x: 1.3, y: 7.3, text: 'A' },
+          { x: 8.6, y: 8.1, text: 'B' },
+          { x: 1.4, y: 1.5, text: 'C' },
+          { x: 9.2, y: 6.9, text: 'D' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
 
     // Shared with 3F — see the note above.
-    '4': { skill: 'Forming Expressions and Formulae + Solving Linear Equations + Lengths and Perimeters', question: 'An equilateral triangle has sides of length (3x + 4) cm, (5x − 2) cm and (2x + 7) cm. Work out the perimeter of the triangle.', answer: '39 cm', working: '3x + 4 = 5x − 2 gives x = 3, so each side is 13 cm.' },
+    // Shared with 3F 16 — the same retry, square and all.
+    '4': {
+      skill: 'Forming Expressions and Formulae + Solving Linear Equations + Lengths and Perimeters',
+      question: 'The diagram shows a square.\nWork out the perimeter of the square.',
+      answer: '52 cm',
+      working: '3x + 4 = 5x − 2 gives x = 3, so each side is 13 cm and the perimeter is 4 × 13.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 13, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polygon points="2,1 8,1 8,7 2,7" stroke="#333" fill="none" />',
+        labels: [
+          { x: 5, y: 1, text: '(3x + 4) cm', dy: 14 },
+          { x: 8, y: 4, text: '(5x − 2) cm', dx: 40 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '5': {
       skill: 'Pie Charts',
       question: 'The pie chart represents the results of matches played by a team.\n36 matches were won.\nHow many matches were lost?',
@@ -154,8 +193,8 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     '7b': { skill: 'Simplifying Ratio', question: 'Write 45 centimetres : 2.25 metres as a ratio in the form 1 : n', answer: '1 : 5', working: '2.25 m is 225 cm, and 225 ÷ 45 = 5.' },
     '7c': { skill: 'Dividing Fractions', question: 'A : B = <frac>3/8</frac> : <frac>9/16</frac>. Write A as a fraction of B.', answer: '<frac>2/3</frac>', working: '<frac>3/8</frac> ÷ <frac>9/16</frac> = <frac>3/8</frac> × <frac>16/9</frac>.' },
 
-    '8': { skill: 'Finding the nth Term', question: 'A linear sequence has 3rd term = 11 and 7th term = 27. Work out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
-    '9': { skill: 'Ratio + Fractions of Amounts', question: 'Dan has £180.\nDan\'s amount is <frac>3/4</frac> of Eve\'s amount, and Finn\'s amount : Eve\'s amount = 2 : 5.\nWork out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
+    '8': { skill: 'Finding the nth Term', question: 'A linear sequence has\n• 3rd term = 11\n• 7th term = 27\nWork out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
+    '9': { skill: 'Ratio + Fractions of Amounts', question: 'Dan, Eve and Finn each have an amount of money.\n• Dan has £180\n• Dan\'s amount is <frac>3/4</frac> of Eve\'s amount\n• Finn\'s amount : Eve\'s amount = 2 : 5\nWork out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
     '10': {
       skill: 'Venn Diagrams + Calculating Simple Probability',
       question: 'The Venn diagram shows two sets A and B.\nThere are 30 items altogether and P(A) = <frac>1/2</frac>.\nWork out the value of x.',
@@ -180,13 +219,15 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     '11a': { skill: 'Understanding Straight Line Graphs', question: 'Write down the equation of a straight line parallel to y − 3x = 5', answer: 'Any line of the form y = 3x + c with c not equal to 5 — for example y = 3x + 1', working: 'Parallel lines share a gradient, here 3.' },
     '11b': { skill: 'Understanding Straight Line Graphs', question: 'A straight line has gradient 4 and passes through the point (2, 5). Circle the equation of the line.\ny = 2x + 1     y = 4x     y = 4x − 3     y = 4x + 5', answer: 'y = 4x − 3', working: '4 × 2 − 3 = 5, so the point fits.' },
 
-    '12': { skill: 'Grouped Frequency Tables + Mean + Percentage Change', question: 'The table shows the time t minutes taken to cycle to work on 60 days.\n<table>Time (t minutes) | 10 ≤ t < 20 | 20 ≤ t < 30 | 30 ≤ t < 50 | 50 ≤ t < 70\nFrequency | 18 | 24 | 12 | 6</table>\nLast year the mean time was 20 minutes.\nEstimate the percentage increase in the mean cycling time for these 60 days.', answer: '42.5%', working: 'Midpoints give a total of 1710 minutes, so the mean is 28.5, an increase of 8.5 on 20.' },
-    '13a': { skill: 'Cumulative Frequency', question: 'The table shows the salaries of 80 employees.\n<table>Salary (£s) | 0 < s ≤ 10 000 | 10 000 < s ≤ 20 000 | 20 000 < s ≤ 30 000 | 30 000 < s ≤ 40 000\nFrequency | 30 | 25 | 15 | 10</table>\nComplete the cumulative frequency table.\n<table>Salary (£s) | s ≤ 10 000 | s ≤ 20 000 | s ≤ 30 000 | s ≤ 40 000\nCumulative frequency |  |  |  | </table>', answer: '30, 55, 70, 80', working: 'Each entry adds the next frequency to the one before.' },
+    '12': { skill: 'Grouped Frequency Tables + Mean + Percentage Change', question: 'The table shows information about the time, t minutes, taken to cycle to work on 60 days.\n<table>Time, t (minutes) | Frequency\n10 ≤ t < 20 | 18\n20 ≤ t < 30 | 24\n30 ≤ t < 50 | 12\n50 ≤ t < 70 | 6\n | Total = 60</table>\nLast year, the mean time taken to cycle to work was 20 minutes.\nEstimate the percentage increase in the mean cycling time for these 60 days.', answer: '42.5%', working: 'Midpoints give a total of 15 × 18 + 25 × 24 + 40 × 12 + 60 × 6 = 1710 minutes, so the mean is 28.5, an increase of 8.5 on 20.' },
+    // 13(a)-(c) share the frequency table, which runs DOWN the page as the
+    // paper prints it.
+    '13a': { skill: 'Cumulative Frequency', question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nComplete the cumulative frequency table.\n<table>Salary, s (£) | Cumulative frequency\ns ≤ 10 000 | \ns ≤ 20 000 | \ns ≤ 30 000 | \ns ≤ 40 000 | </table>', answer: '30, 55, 70, 80', working: 'Each entry adds the next frequency to the one before.' },
     '13b': {
       skill: 'Cumulative Frequency',
-      question: 'The cumulative frequency table shows the salaries of 80 employees.\n<table>Salary (£s) | s ≤ 10 000 | s ≤ 20 000 | s ≤ 30 000 | s ≤ 40 000\nCumulative frequency | 30 | 55 | 70 | 80</table>\nDraw a cumulative frequency diagram to represent the data.',
+      question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nDraw a cumulative frequency diagram to represent the data.',
       answer: 'Points at (10, 30), (20, 55), (30, 70) and (40, 80), joined by a smooth curve',
-      working: 'Each point goes at the TOP of its class, not the middle.',
+      working: 'The cumulative frequencies are 30, 55, 70 and 80, each plotted at the TOP of its class, not the middle.',
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 40, step: 10, label: 'Salary (£1000s)' },
@@ -199,8 +240,8 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
         tolerance: 0,
       },
     },
-    '13c': { skill: 'Cumulative Frequency', question: 'The cumulative frequency table shows the salaries of 80 employees.\n<table>Salary (£s) | s ≤ 10 000 | s ≤ 20 000 | s ≤ 30 000 | s ≤ 40 000\nCumulative frequency | 30 | 55 | 70 | 80</table>\nEstimate the number of employees with a salary less than £25 000.', answer: 'About 63', working: 'Halfway between 55 at £20 000 and 70 at £30 000.' },
-    '14a': { skill: 'Upper and Lower Bounds', question: 'For a small boat, the mass of the empty boat is 600 kg to the nearest 50 kg, the mass of the equipment is 84 kg to the nearest 2 kg, and the mass of the crew is 145 kg to the nearest kg.\nThe total mass is these three added together, and the maximum safe total is 860 kg.\nCan this boat definitely be loaded safely? Show working to support your answer.', answer: 'Yes', working: 'The largest possible total is 625 + 85 + 145.5 = 855.5 kg, which is under 860.' },
+    '13c': { skill: 'Cumulative Frequency', question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nEstimate the number of employees with a salary less than £25 000', answer: 'About 63', working: 'The cumulative frequency is 55 at £20 000 and 70 at £30 000; read the curve at £25 000.' },
+    '14a': { skill: 'Upper and Lower Bounds', question: 'For a small boat,\n• the mass of the empty boat is 600 kg, to the nearest 50 kg\n• the mass of the equipment is 84 kg, to the nearest 2 kg\n• the mass of the crew is 145 kg, to the nearest kg\nThe total mass of the boat is calculated by adding these three masses.\nThe maximum mass for the boat to be loaded safely is 860 kg.\nCan this boat definitely be loaded safely?\nShow working to support your answer.', answer: 'Yes', working: 'The largest possible total is 625 + 85 + 145.5 = 855.5 kg, which is under 860.' },
     '14b': {
       skill: 'Kinematic Graphs',
       question: 'A train travels 240 miles in 3 hours at a constant speed.\nOn the grid, draw a speed/time graph to represent this information.\nYou must draw and label both axes.',
@@ -256,9 +297,45 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     },
     '20a': { skill: 'Factorising Quadratics', question: 'Factorise fully 2n² + 7n + 3', answer: '(2n + 1)(n + 3)' },
     '20b': { skill: 'Factorising Quadratics', question: 'A sequence has nth term 2n² + 7n + 3.\nAre any of the terms in the sequence a prime number?\nGive a reason for your answer.', answer: 'No', working: 'It factorises to (2n + 1)(n + 3), and for every positive n both factors are greater than 1.' },
-    '21': { skill: 'Volume of a Sphere + Volume of a prism', question: 'Four identical spheres just fit inside a cylinder, and each sphere has radius r.\nWhat fraction of the space inside the cylinder is NOT filled by the spheres?\nYou must show your working.\nThe volume of a sphere is <frac>4/3</frac>πr³.', answer: '<frac>1/3</frac>', working: 'The cylinder is 8r tall, so its volume is 8πr³, and the spheres take <frac>16/3</frac>πr³ — two thirds of it.' },
+    // The paper draws the spheres in their cylinder, and gives the formula
+    // BEFORE the question; so does the retry.
+    '21': {
+      skill: 'Volume of a Sphere + Volume of a prism',
+      question: 'Four identical spheres just fit inside a cylinder.\nEach sphere has radius r.\nVolume of a sphere = <frac>4/3</frac>πr³\nWhat fraction of the space inside the cylinder is not filled by the spheres?\nYou must show your working.',
+      answer: '<frac>1/3</frac>',
+      working: 'The cylinder has radius r and length 8r, so its volume is 8πr³; the spheres take 4 × <frac>4/3</frac>πr³ = <frac>16/3</frac>πr³, which is two thirds of it.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 4, step: 1, label: '' },
+        background: '<polyline points="1,1 9,1 9,3 1,3 1,1" stroke="#333" fill="none" /><circle cx="2" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="4" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="6" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="8" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><path d="M 1,2 A 1,0.25 0 0,1 3,2" stroke="#333" fill="none" /><path d="M 3,2 A 1,0.25 0 0,1 5,2" stroke="#333" fill="none" /><path d="M 5,2 A 1,0.25 0 0,1 7,2" stroke="#333" fill="none" /><path d="M 7,2 A 1,0.25 0 0,1 9,2" stroke="#333" fill="none" /><path d="M 3,2 A 1,0.25 0 0,1 1,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 5,2 A 1,0.25 0 0,1 3,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 7,2 A 1,0.25 0 0,1 5,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 9,2 A 1,0.25 0 0,1 7,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" />',
+        elements: [], tolerance: 0,
+      },
+    },
     '22': { skill: 'Quadratic Inequalities + Solving Quadratic Equations (Factorising)', question: 'Solve 3x² > 10 − x', answer: 'x < −2 or x > <frac>5/3</frac>', working: '3x² + x − 10 > 0 factorises to (3x − 5)(x + 2) > 0.' },
-    '23': { skill: 'Quadratic Functions', question: 'The height h metres of a ball is given by h = −(t − 5)² + 25, where t is the time in seconds, for values of t from 0 to 10.\nA student draws a graph of h against t as a straight line rising from (0, 0) to (10, 25).\nMake two criticisms of the student\'s graph.', answer: 'It should be a curve rather than a straight line, and it should come back down to h = 0 at t = 10', working: 'The expression is quadratic with a maximum of 25 at t = 5.' },
+    // The paper prints Sam's WRONG graph for the student to criticise, so the
+    // retry draws one: it starts at 25 instead of 0, and climbs above 25.
+    '23': {
+      skill: 'Quadratic Functions',
+      question: 'A ball is kicked from ground level.\nThe height of the ball, h metres, is given by\nh = −(t − 5)² + 25\nwhere t is the time in seconds after the ball is kicked.\nSam draws a graph of h against t for 0 ≤ t ≤ 10\nMake two criticisms of Sam\'s graph.',
+      answer: 'The graph should start at h = 0 when t = 0, not at 25; and the greatest height should be 25 (at t = 5), but the graph goes higher than 25',
+      working: 'At t = 0, h = −25 + 25 = 0; and (t − 5)² is never negative, so h is never more than 25.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: -1, max: 13, step: 1, label: '' },
+        y: { min: -1, max: 12, step: 1, label: '' },
+        background: '<polyline points="0,-0.4 0,11.6" stroke="#333" fill="none" /><polyline points="-0.18,11.3 0,11.6 0.18,11.3" stroke="#333" fill="none" /><polyline points="-0.4,0 12.4,0" stroke="#333" fill="none" /><polyline points="12.1,0.18 12.4,0 12.1,-0.18" stroke="#333" fill="none" /><polyline points="-0.15,8.333 0.15,8.333" stroke="#333" fill="none" /><polyline points="5,-0.15 5,0.15" stroke="#333" fill="none" /><polyline points="10,-0.15 10,0.15" stroke="#333" fill="none" /><polyline points="0,8.333 0.5,8.713 1,9.053 1.5,9.353 2,9.613 2.5,9.833 3,10.013 3.5,10.153 4,10.253 4.5,10.313 5,10.333 5.5,10.23 6,9.92 6.5,9.403 7,8.68 7.5,7.75 8,6.613 8.5,5.27 9,3.72 9.5,1.963 10,0" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0, y: 11.6, text: 'h', dx: -10 },
+          { x: 12.4, y: 0, text: 't', dx: 9 },
+          { x: 0, y: 0, text: 'O', dx: -10, dy: 11 },
+          { x: 0, y: 8.333, text: '25', dx: -15 },
+          { x: 5, y: 0, text: '5', dy: 13 },
+          { x: 10, y: 0, text: '10', dy: 13 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '24': {
       skill: 'Area and Volume Scale Factors + Area of a Triangle (½ab sinC)',
       question: 'Triangles ABC and DEF are similar.\nThe area of triangle ABC is 26.4 cm².\nWork out the area of triangle DEF.\nNot drawn accurately.',

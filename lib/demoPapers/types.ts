@@ -71,11 +71,11 @@ export type PaperRetryQuestion = {
   skill: string
   question: string
   /**
-   * The answer, for the teacher. Optional here only because the three
-   * hand-authored papers predate it; new authoring should always carry one.
-   * See PaperChallengeQuestion['answer'] for why it exists at all.
+   * The answer, for the teacher. Required: it is the only check these
+   * questions have (no parameters, no grader), and every retry set now
+   * carries one. See PaperChallengeQuestion['answer'] for why it exists.
    */
-  answer?: string
+  answer: string
   /** One line of method, where the answer alone would not show the route. */
   working?: string
   /**

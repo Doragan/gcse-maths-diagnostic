@@ -251,7 +251,16 @@ describe('diagrams on a practice question', () => {
     // are worth 1 and 2 — so a student who dropped marks elsewhere never sees
     // them, however useful the grid would be. Not wrong, but it means diagram
     // retries pay off least on exactly the low-mark items that need them most.
-    const sheet = toWwwEbi(buildStudentEvidence(paper, zero, 'Ama'))
+    //
+    // Every OTHER figure is stripped first, so this pins the ranking rather
+    // than which items happen to carry a figure today — the rebuilt paper
+    // draws on 4-mark items too.
+    const lean = {
+      ...paper,
+      retrySet: Object.fromEntries(Object.entries(paper.retrySet).map(([k, r]) =>
+        [k, k === '14a' || k === '14b' ? r : { ...r, diagram: undefined }])),
+    }
+    const sheet = toWwwEbi(buildStudentEvidence(lean, zero, 'Ama'))
     expect(sheet.practice).toHaveLength(MAX_PRACTICE)
     expect(sheet.practice.flatMap(g => g.parts).some(p => p.diagram)).toBe(false)
   })

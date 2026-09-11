@@ -84,50 +84,92 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     { id: '26', label: '26', marks: 5, topic: 'shape', skill: 'Solving Linear Equations + Areas of Squares and Rectangles', desc: 'Rectangle side labelled 4x+1 and 2x+17 (equal); AB:BC = 1:3 — find the area', skillIds: ['solving_linear_equations', 'areas_of_squares_and_rectangles'], kind: 'exam', visual: false },
   ],
 
+  // Rebuilt 2026-09-11 against the question paper: every retry carries its
+  // answer and working, a multi-part question shares its setup (and figure)
+  // across its parts, and a figure is drawn wherever the paper draws one.
   retrySet: {
-    '1a': { skill: 'Sequences', question: 'A linear sequence starts 6, 11, 16, 21. Write down the next number in this sequence.' },
-    '1b': { skill: 'Sequences', question: 'A linear sequence starts 25, 19, 13, 7. Write down the next number in this sequence.' },
-    '1c': { skill: 'Sequences', question: 'Here is a sequence: 2, 8, 32, 128. Write down the term-to-term rule.' },
-    '2a': { skill: 'Simple Arithmetic', question: 'Notebooks cost £3.20 each. Work out the cost of four notebooks.' },
-    '2b': { skill: 'Simple Arithmetic', question: 'Priya has £10.\nShe wants to buy a book (£4.20) and a pen (£1.90).\nDoes she have enough money to also buy a ruler (£2.50)?\nShow working to support your answer.' },
-    '3a': { skill: 'Solving Linear Equations', question: 'Solve 7x = 56' },
-    '3b': { skill: 'Solving Linear Equations', question: 'Solve −5 + y = 12' },
-    '3c': { skill: 'Simplifying Indices', question: 'Simplify fully 18p ÷ 3p' },
-    '4a': { skill: 'Coordinates', question: 'A point P is plotted 3 units right and 2 units up from the origin. Write down the coordinates of P.' },
-    '4b': { skill: 'Coordinates', question: 'M(2, 4) and N(8, 10) are two points. Work out the coordinates of the midpoint of MN.' },
-    // 4(c) is `visual: true` and had no retry until a retry could bring its own
-    // grid. The points are named in the TEXT rather than lettered on the grid:
-    // axisCoordGroup flips Y, which mirrors any text in a background fragment,
-    // so a background can carry shapes but not labels.
-    '4c': {
+    '1a': { skill: 'Sequences', question: 'A linear sequence starts\n6     11     16     21\nWrite down the next number in this sequence.', answer: '26', working: 'It goes up by 5 each time.' },
+    '1b': { skill: 'Sequences', question: 'A different linear sequence starts\n25     19     13     7\nWrite down the next number in this sequence.', answer: '1', working: 'It goes down by 6 each time.' },
+    '1c': { skill: 'Sequences', question: 'Here is another sequence.\n2     8     32     128\nWrite down the term-to-term rule for this sequence.', answer: 'Multiply by 4' },
+
+    // 2(a) and (b) share one price list, as on the paper.
+    '2a': { skill: 'Simple Arithmetic', question: 'Here is a price list.\n<table>Notebook | £3.20\nPen | £1.90\nRuler | £1.35\nPencil case | £4.60</table>\nWork out the cost of three notebooks.', answer: '£9.60', working: '3 × £3.20' },
+    '2b': { skill: 'Simple Arithmetic', question: 'Here is a price list.\n<table>Notebook | £3.20\nPen | £1.90\nRuler | £1.35\nPencil case | £4.60</table>\nRavi has £7.80\nHe wants to buy one pen and one pencil case.\nDoes he have enough money to also buy one ruler?\nTick a box.\n[   ] Yes\n[   ] No\nShow working to support your answer.', answer: 'No', working: '£1.90 + £4.60 + £1.35 = £7.85, which is more than £7.80.' },
+    '3a': { skill: 'Solving Linear Equations', question: 'Solve 7x = 56', answer: 'x = 8' },
+    '3b': { skill: 'Solving Linear Equations', question: 'Solve −6 + y = 11', answer: 'y = 17', working: 'Add 6 to both sides.' },
+    '3c': { skill: 'Simplifying Indices', question: 'Simplify fully <frac>18p/3p</frac>', answer: '6', working: '18 ÷ 3 = 6, and the p on the top and the bottom cancel.' },
+
+    // 4(a)-(c) share one grid, with the points lettered ON it as the paper
+    // letters them. 4(c) is `visual: true`; its answer is the element.
+    '4a': {
       skill: 'Coordinates',
-      question: 'The points A(1, 3), B(4, 1) and C(7, 3) are plotted on the grid. Plot point D so that ABCD is a rhombus.',
-      answer: 'D is at (4, 5).',
-      working: 'AB and BC are both 3 right and 2 up or down, so D must be 3 right and 2 up from A.',
+      question: 'Points A, B and C are plotted on a grid.\nWrite down the coordinates of C.',
+      answer: '(4, −1)',
       diagram: {
         mode: 'points',
-        x: { min: 0, max: 8, step: 1, label: 'x' },
-        y: { min: 0, max: 6, step: 1, label: 'y' },
-        background:
-          '<circle cx="1" cy="3" r="0.14" fill="#333" /><circle cx="4" cy="1" r="0.14" fill="#333" /><circle cx="7" cy="3" r="0.14" fill="#333" />',
-        elements: [{ x: 4, y: 5, marks: 1 }],
+        x: { min: -4, max: 6, step: 1, label: 'x' },
+        y: { min: -6, max: 4, step: 1, label: 'y' },
+        background: '<polyline points="-2.18,-1.18 -1.82,-0.82" stroke="#333" /><polyline points="-2.18,-0.82 -1.82,-1.18" stroke="#333" /><polyline points="0.82,2.82 1.18,3.18" stroke="#333" /><polyline points="0.82,3.18 1.18,2.82" stroke="#333" /><polyline points="3.82,-1.18 4.18,-0.82" stroke="#333" /><polyline points="3.82,-0.82 4.18,-1.18" stroke="#333" />',
+        labels: [
+          { x: -2, y: -1, text: 'A', dx: -10, dy: -9 },
+          { x: 1, y: 3, text: 'B', dx: -10, dy: -9 },
+          { x: 4, y: -1, text: 'C', dx: -10, dy: 12 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '4b': {
+      skill: 'Coordinates',
+      question: 'Points A, B and C are plotted on a grid.\nWrite down the coordinates of the midpoint of AC.',
+      answer: '(1, −1)',
+      working: 'A is (−2, −1) and C is (4, −1); halfway between −2 and 4 is 1.',
+      diagram: {
+        mode: 'points',
+        x: { min: -4, max: 6, step: 1, label: 'x' },
+        y: { min: -6, max: 4, step: 1, label: 'y' },
+        background: '<polyline points="-2.18,-1.18 -1.82,-0.82" stroke="#333" /><polyline points="-2.18,-0.82 -1.82,-1.18" stroke="#333" /><polyline points="0.82,2.82 1.18,3.18" stroke="#333" /><polyline points="0.82,3.18 1.18,2.82" stroke="#333" /><polyline points="3.82,-1.18 4.18,-0.82" stroke="#333" /><polyline points="3.82,-0.82 4.18,-1.18" stroke="#333" />',
+        labels: [
+          { x: -2, y: -1, text: 'A', dx: -10, dy: -9 },
+          { x: 1, y: 3, text: 'B', dx: -10, dy: -9 },
+          { x: 4, y: -1, text: 'C', dx: -10, dy: 12 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '4c': {
+      skill: 'Coordinates',
+      question: 'Points A, B and C are plotted on a grid.\nPlot point D on the grid so that ABCD is a rhombus.',
+      answer: 'D is at (1, −5).',
+      working: 'AC is horizontal and B is 4 above it, so D is the reflection of B: 4 below, at (1, −5).',
+      diagram: {
+        mode: 'points',
+        x: { min: -4, max: 6, step: 1, label: 'x' },
+        y: { min: -6, max: 4, step: 1, label: 'y' },
+        background: '<polyline points="-2.18,-1.18 -1.82,-0.82" stroke="#333" /><polyline points="-2.18,-0.82 -1.82,-1.18" stroke="#333" /><polyline points="0.82,2.82 1.18,3.18" stroke="#333" /><polyline points="0.82,3.18 1.18,2.82" stroke="#333" /><polyline points="3.82,-1.18 4.18,-0.82" stroke="#333" /><polyline points="3.82,-0.82 4.18,-1.18" stroke="#333" />',
+        labels: [
+          { x: -2, y: -1, text: 'A', dx: -10, dy: -9 },
+          { x: 1, y: 3, text: 'B', dx: -10, dy: -9 },
+          { x: 4, y: -1, text: 'C', dx: -10, dy: 12 },
+        ],
+        elements: [{ x: 1, y: -5, marks: 1 }],
         tolerance: 0,
       },
     },
-    '5a': { skill: 'Range', question: 'Find the range of: 12.5, 13.1, 15.8, 16.0, 19.2' },
-    '5b': { skill: 'Mean', question: 'Find the mean of: 12.5, 13.1, 15.8, 16.0, 19.2' },
+    '5a': { skill: 'Range', question: 'Here are five numbers.\n12.5     13.1     15.8     16.0     19.2\nWork out the range.', answer: '6.7', working: '19.2 − 12.5' },
+    '5b': { skill: 'Mean', question: 'Here are five numbers.\n12.5     13.1     15.8     16.0     19.2\nWork out the mean.', answer: '15.32', working: 'The total is 76.6, and 76.6 ÷ 5.' },
     '6a': {
-      // An angle question with no picture is barely the same question.
       skill: 'Angles on Lines and Circles',
-      question: 'The diagram shows angle p and an angle of 128° on a straight line.\nWork out the size of angle p.',
+      question: 'PQ is a straight line.\nWork out the size of angle p.\nNot drawn accurately.',
       answer: '52°',
-      working: 'Angles on a straight line add to 180°.',
+      working: 'Angles on a straight line add up to 180°, and 180 − 128 = 52.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 6, step: 1, label: '' },
         background: '<polyline points="1,2 9,2" stroke="#333" fill="none" /><polyline points="5,2 6.85,4.36" stroke="#333" fill="none" /><path d="M 5.9,2 A 0.9,0.9 0 0,1 5.555,2.708" stroke="#333" fill="none" /><path d="M 5.555,2.708 A 0.9,0.9 0 0,1 4.1,2" stroke="#333" fill="none" />',
         labels: [
+          { x: 1, y: 2, text: 'P', dx: -9 },
+          { x: 9, y: 2, text: 'Q', dx: 9 },
           { x: 3.9, y: 2.65, text: '128°' },
           { x: 6.17, y: 2.57, text: 'p' },
         ],
@@ -136,9 +178,9 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     },
     '6b': {
       skill: 'Angles on Lines and Circles',
-      question: 'The diagram shows angle q and angles of 47° and 75° on a straight line.\nWork out the size of angle q.',
+      question: 'Work out the size of angle q.\nNot drawn accurately.',
       answer: '58°',
-      working: '47 + 75 = 122, and 180 − 122 = 58.',
+      working: 'Angles on a straight line add up to 180°: 47 + 75 = 122, and 180 − 122 = 58.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
@@ -154,7 +196,7 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
     },
     '6c': {
       skill: 'Angles on Lines and Circles',
-      question: 'The diagram shows three straight lines that cross to form a triangle.\nWhat type of triangle is formed?\nYou must show your working.',
+      question: 'Three straight lines intersect as shown.\nWhat type of triangle is made?\nYou must show your working.\nNot drawn accurately.',
       answer: 'Isosceles — its angles are 50°, 80° and 50°',
       working: 'Vertically opposite angles are equal, so two of the triangle’s angles are 50° and 80°, and the third is 180 − 50 − 80 = 50°.',
       diagram: {
@@ -169,44 +211,61 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '7': { skill: 'Proportion + Simple Arithmetic', question: 'A family has 4 packs of 6 eggs and 10 packs of 2 eggs.\nThey use 3 eggs each day.\nIn total, how many days will their eggs last?' },
-    '9': { skill: 'Systematic Listing', question: 'Amir is choosing two toppings from four: pepperoni (P), mushroom (M), pepper (E), olive (L). List all the possible options for the two toppings.' },
-    '10a': { skill: 'Fractions, Decimals and Percentages', question: 'Write <frac>5/8</frac> as a percentage.' },
-    '10b': { skill: 'Converting Fractions to Decimals', question: 'Work out <frac>9/16</frac> as a decimal. Give your answer to 2 decimal places.' },
-    '11': { skill: 'Simple Arithmetic', question: 'For each statement, state whether it is true, may be true, or not true.\n(i)   If a number is less than 0, the number is negative\n(ii)  If a number is 4 or more, the number is 4', answer: '(i) True, (ii) May be true', working: 'Every number below zero is negative; 4 or more includes 4 itself but also 5, 6 and so on.' },
-    '12a': { skill: 'Substitution', question: 'Work out the value of x² + 5x when x = −3' },
-    '12b': { skill: 'Rearranging Formulae', question: 'Rearrange p = q + 3 to make q the subject.' },
-    '12c': { skill: 'Simplifying Expressions', question: 'Simplify fully 3(b + 5) + b' },
-    '13': { skill: 'Time Calculations', question: 'The time Priya takes to cycle to school is 2 minutes 45 seconds less than 1 hour. Work out her time in hours, minutes and seconds.' },
+    '7': { skill: 'Proportion + Simple Arithmetic', question: 'The table shows information about the packs of yoghurts a family has.\n<table>Number of packs | Number of yoghurts in a pack\n5 | 6\n9 | 2</table>\nThe family eats 3 yoghurts each day.\nIn total, how many days will their packs last?', answer: '16 days', working: '5 × 6 + 9 × 2 = 48 yoghurts, and 48 ÷ 3 = 16.' },
+    '9': { skill: 'Systematic Listing', question: 'Priya is making a salad.\nShe can choose three different toppings from\n• tomato (T)\n• cucumber (C)\n• pepper (P)\n• onion (O).\nList all the possible options for the three toppings.\nThe first one has been done for you: T C P', answer: 'T C P, T C O, T P O and C P O', working: 'Each option leaves out exactly one of the four toppings, so there are four.' },
+    '10a': { skill: 'Fractions, Decimals and Percentages', question: 'Write <frac>5/8</frac> as a percentage.', answer: '62.5%', working: '5 ÷ 8 = 0.625' },
+    '10b': { skill: 'Converting Fractions to Decimals + Rounding', question: 'Work out <frac>9/16</frac> as a decimal.\nGive your answer to 2 decimal places.', answer: '0.56', working: '9 ÷ 16 = 0.5625' },
+    '11': { skill: 'Simple Arithmetic', question: 'Tick one box for each statement.\n<table>Statement | True | May be true | Not true\nIf a number is < 0 the number is negative |  |  | \nIf a number is ≥ 4 the number is 4 |  |  | \nIf a number is < 7 the largest possible value of the number is 7 |  |  | </table>', answer: 'True; May be true; Not true', working: 'Every number below zero is negative; 4 or more includes 4 but also 5, 6 and so on; a number less than 7 can never be 7.' },
+    '12a': { skill: 'Substitution', question: 'Work out the value of x² + 5x when x = −3', answer: '−6', working: '(−3)² = 9 and 5 × (−3) = −15.' },
+    '12b': { skill: 'Rearranging Formulae', question: 'Rearrange m = k − 6 to make k the subject.', answer: 'k = m + 6' },
+    '12c': { skill: 'Simplifying Expressions', question: 'Simplify fully 3(b + 5) + b', answer: '4b + 15', working: '3b + 15 + b' },
+    '13': { skill: 'Time Calculations', question: 'The time Priya takes to complete a walk is 2 minutes 45 seconds less than 3 hours.\nWork out her time in hours, minutes and seconds.', answer: '2 hours 57 minutes 15 seconds', working: '3 hours is 2 hours 60 minutes, and 60 minutes − 2 minutes 45 seconds = 57 minutes 15 seconds.' },
+
+    // Drawn as the paper draws it: one sector is a marked RIGHT ANGLE the
+    // student must recognise as 90°, two carry their angles, and the sector
+    // asked about carries none.
     '14': {
       skill: 'Pie Charts',
-      question: 'The pie chart shows the favourite pets of a group of people.\n90 people chose Dogs.\nHow many chose Rabbits?',
-      answer: '135',
-      working: '100° is 90 people, so each degree is 0.9 people, and 150 × 0.9 = 135.',
+      question: 'The pie chart shows information about the favourite pets of a group of people.\n72 people chose Dogs.\nHow many people chose Rabbits?\nNot drawn accurately.',
+      answer: '128',
+      working: 'The Rabbits angle is 360 − 90 − 60 − 50 = 160°. Dogs is 90° for 72 people, so each degree is 0.8 people, and 160 × 0.8 = 128.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5,4 7.954,3.479" stroke="#333" fill="none" /><polyline points="5,4 6.026,1.181" stroke="#333" fill="none" /><polyline points="5,4 3.5,1.402" stroke="#333" fill="none" />',
+        background: '<circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5,4 2.402,5.5" stroke="#333" fill="none" /><polyline points="5,4 6.928,1.702" stroke="#333" fill="none" /><polyline points="5.35,4 5.35,4.35 5,4.35" stroke="#333" fill="none" /><path d="M 5,4.8 A 0.8,0.8 0 0,1 4.307,4.4" stroke="#333" fill="none" /><path d="M 5.514,3.387 A 0.8,0.8 0 0,1 5.8,4" stroke="#333" fill="none" />',
         labels: [
-          { x: 6.425, y: 5.196, text: 'Dogs' },
-          { x: 6.425, y: 4.576, text: '100°' },
-          { x: 6.425, y: 2.804, text: 'Cats' },
-          { x: 6.425, y: 2.184, text: '60°' },
-          { x: 4.838, y: 2.147, text: 'Fish' },
-          { x: 4.838, y: 1.527, text: '50°' },
-          { x: 3.203, y: 4.481, text: 'Rabbits' },
+          { x: 6.344, y: 5.344, text: 'Dogs' },
+          { x: 3.9, y: 5.905, text: 'Cats' },
+          { x: 4.35, y: 5.126, text: '60°' },
+          { x: 3.907, y: 2.698, text: 'Rabbits' },
+          { x: 7.175, y: 2.986, text: 'Fish' },
+          { x: 6.224, y: 3.429, text: '50°' },
         ],
         elements: [], tolerance: 0,
       },
     },
-    '15a': { skill: 'Compound Units', question: 'A tank fills to 180 litres in 15 minutes at a constant rate. Work out the rate at which it fills, stating your units.' },
-    // 15(b): the filling phase is GIVEN (background) and the student draws the
-    // rest. Every point sits on the lattice — 5-minute and 20-litre steps — so
-    // the answer is readable off the grid rather than estimated.
+
+    // 15(a) and (b) share one graph, as on the paper. The filling phase is
+    // GIVEN; (a) reads its rate and (b) draws the rest. Every point sits on
+    // the lattice, so the answer is readable off the grid.
+    '15a': {
+      skill: 'Compound Units',
+      question: 'The graph represents the volume of water in a bath.\nThe bath is full after 15 minutes.\nWork out the rate at which the bath is filled.\nState the units of your answer.',
+      answer: '4 litres per minute',
+      working: '60 litres in 15 minutes, and 60 ÷ 15 = 4.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 50, step: 5, label: 'Time (minutes)' },
+        y: { min: 0, max: 80, step: 20, label: 'Volume (litres)' },
+        background: '<polyline points="0,0 15,60" stroke="#333" />',
+        elements: [],
+        tolerance: 0,
+      },
+    },
     '15b': {
       skill: 'Kinematic Graphs',
-      question: 'The graph shows a bath filling to 60 litres in 15 minutes.\nThe volume then stays constant for 10 minutes, and all the water empties out at a constant rate over the next 20 minutes.\nShow this information on the graph.',
+      question: 'The graph represents the volume of water in a bath.\nThe bath is full after 15 minutes.\nAfter the bath is full, the volume of water stays constant for 10 minutes, then all the water empties out at a constant rate in 20 minutes.\nShow this information on the graph.',
       answer: 'A horizontal line from (15, 60) to (25, 60), then a straight line down to (45, 0).',
       working: 'Constant volume is a flat line; emptying at a constant rate is a straight line to zero.',
       diagram: {
@@ -240,17 +299,38 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
         tolerance: 0,
       },
     },
-    '17': { skill: 'Proportion', question: 'A map has a scale of 1 : 5000.\nOn the map, the distance between two towns is 6 cm.\nIs the actual distance more than 250 m?\nShow working to support your answer.' },
-    '18': { skill: 'Inverse Proportion', question: 'P is inversely proportional to Q. Which is correct: P is directly proportional to Q; P is directly proportional to 3Q; P is directly proportional to <frac>1/Q</frac>; or P is directly proportional to Q²?' },
-    '19': { skill: "Pythagoras' Theorem", question: 'A right-angled triangle has hypotenuse 2.5 and one leg 2.4. Show that the other leg is 0.7.' },
-    '20a': { skill: 'Simple Charts', question: 'Ali spins a coin 150 times with a relative frequency of Heads of 0.4.\nJade spins it 90 times with a relative frequency of 0.5.\nHow many more Heads did Jade spin than Ali?' },
-    '20b': { skill: 'Relative Frequency', question: "Ali says his estimate of the probability of Heads must be the best, because he did more spins than Jade.\nIs he correct?\nGive a reason for your answer." },
-    '21': { skill: 'Decimals', question: 'Some metal has a mass of 624 g and a density of 780,000 g/m³. Given 1 m³ = 1000 litres, work out the volume of the metal in litres.' },
+    '17': { skill: 'Proportion', question: 'A map has a scale of 1 : 5000\nOn the map, the distance from a school to a park is 6 cm.\nIs the actual distance from the school to the park more than 350 m?\nTick a box.\n[   ] Yes\n[   ] No\nShow working to support your answer.', answer: 'No', working: '6 × 5000 = 30 000 cm, which is 300 m.' },
+    '18': { skill: 'Inverse Proportion', question: 'P is inversely proportional to Q.\nCircle the correct statement.\nP is directly proportional to Q²\nP is directly proportional to 2Q\nP is directly proportional to <frac>1/Q</frac>\nP is directly proportional to Q', answer: 'P is directly proportional to <frac>1/Q</frac>', working: 'Inverse proportion means P = k ÷ Q, which is k × <frac>1/Q</frac>.' },
+    '19': {
+      skill: "Pythagoras' Theorem",
+      question: 'Here is a right-angled triangle.\nUse Pythagoras\' theorem to show that x = 0.7\nNot drawn accurately.',
+      answer: 'x² = 2.5² − 2.4² = 6.25 − 5.76 = 0.49, and √0.49 = 0.7',
+      working: '2.5 cm is the hypotenuse, so subtract the squares.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polygon points="1,1 9,1 1,3.4" stroke="#333" fill="none" /><polyline points="1.4,1 1.4,1.4 1,1.4" stroke="#333" fill="none" />',
+        labels: [
+          { x: 5, y: 1, text: '2.4 cm', dy: 14 },
+          { x: 1, y: 2.2, text: 'x cm', dx: -20 },
+          { x: 5, y: 2.2, text: '2.5 cm', dx: 12, dy: -10 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+
+    // 20(a) and (b) share one table. (b) is the paper's claim turned round:
+    // the student with FEWER spins and the bigger relative frequency says
+    // theirs must be the better estimate.
+    '20a': { skill: 'Simple Charts', question: 'Ali and Jade each spin the same biased coin a number of times.\nThe table shows information about the results.\n<table> | Ali | Jade\nNumber of spins | 150 | 90\nRelative frequency of Heads | 0.4 | 0.5</table>\nHow many more Heads did Ali spin than Jade?', answer: '15', working: '150 × 0.4 = 60 and 90 × 0.5 = 45.' },
+    '20b': { skill: 'Calculating Simple Probability + Relative Frequency', question: 'Ali and Jade each spin the same biased coin a number of times.\nThe table shows information about the results.\n<table> | Ali | Jade\nNumber of spins | 150 | 90\nRelative frequency of Heads | 0.4 | 0.5</table>\nJade says,\n"0.5 is bigger than 0.4, so my estimate of the chance of Heads must be better than Ali\'s"\nIs she correct?\nTick a box.\n[   ] Yes\n[   ] No\nGive a reason for your answer.', answer: 'No', working: 'Ali spun the coin more times, so his estimate is the more reliable one; a bigger relative frequency is not a better estimate.' },
+    '21': { skill: 'Decimals', question: 'Some metal has\n• a mass of 624 g\n• a density of 780 000 g/m³\n1 m³ = 1000 litres\nWork out the volume of the metal.\nGive your answer in litres.', answer: '0.8 litres', working: '624 ÷ 780 000 = 0.0008 m³, and 0.0008 × 1000 = 0.8.' },
     '22': {
       skill: 'Trigonometry (missing sides)',
-      question: 'Use trigonometry to work out the value of x, to 1 decimal place. You must show your working.\nNot drawn accurately.',
+      question: 'Use trigonometry to work out the value of x.\nGive your answer to 1 decimal place.\nNot drawn accurately.',
       answer: '9.2 cm',
-      working: '16 × sin 35° = 9.17…',
+      working: 'x is opposite the 35° angle and 16 cm is the hypotenuse, so x = 16 × sin 35° = 9.17…',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 11, step: 1, label: '' },
@@ -264,10 +344,30 @@ export const AQA_8300_2F_NOV24: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '23': { skill: 'Upper and Lower Bounds', question: 'The length of a field is 40 metres to the nearest metre. Complete the error interval for the length of the field.' },
-    '24': { skill: 'Reverse Percentage', question: '276,000 tickets were sold this year. This is 15% more than last year. How many were sold last year?' },
-    '25': { skill: 'Simplifying Indices', question: 'Here are three terms: ab, a², 3b². Work out the three possible fully simplified products of two of these terms.' },
-    '26': { skill: 'Solving Linear Equations + Areas of Squares and Rectangles', question: 'A rectangle has one side labelled 3x + 2 and another expression for the same side, 5x − 6.\nAB : BC = 1 : 4.\nWork out the area of the rectangle.' },
+    '23': { skill: 'Upper and Lower Bounds', question: 'The length of a fence is 14 metres to the nearest metre.\nComplete the error interval for the length of the fence.\n____ m ≤ length < ____ m', answer: '13.5 m ≤ length < 14.5 m', working: 'Half a metre either side of 14 m, with the upper bound not included.' },
+    '24': { skill: 'Reverse Percentage', question: '276 000 tickets were sold this year.\nThis is 15% more than last year.\nHow many tickets were sold last year?', answer: '240 000', working: '276 000 is 115% of last year, so 276 000 ÷ 1.15.' },
+    '25': { skill: 'Simplifying Indices', question: 'Here are three terms.\npq     2p²     q²\nSam multiplies two of these terms.\nWork out the three possible fully simplified answers.', answer: '2p³q, pq³ and 2p²q²', working: 'pq × 2p², pq × q² and 2p² × q².' },
+    '26': {
+      skill: 'Solving Linear Equations + Areas of Squares and Rectangles',
+      question: 'Here is a rectangle.\nAll measurements are in centimetres.\nAB : BC = 1 : 4\nWork out the area of the rectangle.\nNot drawn accurately.',
+      answer: '2704 cm²',
+      working: 'Opposite sides are equal, so 3x + 5 = x + 19 and x = 7. AB = 26, so BC = 4 × 26 = 104, and 26 × 104 = 2704.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: -1, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polygon points="1,1 9,1 9,4 1,4" stroke="#333" fill="none" />',
+        labels: [
+          { x: 1, y: 4, text: 'A', dx: -8, dy: -8 },
+          { x: 1, y: 1, text: 'B', dx: -8, dy: 11 },
+          { x: 9, y: 1, text: 'C', dx: 8, dy: 11 },
+          { x: 9, y: 4, text: 'D', dx: 8, dy: -8 },
+          { x: 1, y: 2.5, text: '3x + 5', dx: -24 },
+          { x: 9, y: 2.5, text: 'x + 19', dx: 24 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
   },
 
   challengeQuestions: [

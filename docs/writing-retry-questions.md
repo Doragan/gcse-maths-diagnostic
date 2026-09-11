@@ -89,8 +89,8 @@ because the student cannot tell which of the two they are holding.
 { skill: 'Ratio', question: '…', answer: '…', working: '…' }
 ```
 
-`answer` is optional in the type only because the three hand-authored papers
-predate it. **New authoring always includes one.**
+`answer` is required by the type. The three hand-authored November 2024 sets
+once went without, and were rebuilt with answers and working in September 2026.
 
 This is not decoration. These questions have no parameters, no
 `answer_template` and no grader, so `verify-question.ts` and `audit-bank.ts`
@@ -322,10 +322,9 @@ Coordinates are in axis units and the wrapper supplies `stroke-width`, so a
 background fragment needs only a shape and a `stroke`.
 
 **A background cannot carry text.** `axisCoordGroup` flips Y so grids grow
-upward, which mirrors any text in the fragment. So points cannot be lettered
-on the grid the way an exam letters them — name them in the QUESTION instead
-("The points A(1, 3), B(4, 1) and C(7, 3) are plotted on the grid"), which
-reads at least as clearly.
+upward, which mirrors any text in the fragment. Put text in `labels` instead —
+upright text at axis coordinates, with a `dx`/`dy` nudge — which is how points
+are lettered, sides marked and angles given, the way the exam prints them.
 
 A `RenderedGrid` is deliberately the same spec the student-facing canvas and
 the verification harness use — one renderer, and a spec authored here also
