@@ -318,22 +318,23 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     // sheet would read as a mistake.
     '20a': {
       skill: 'Time Series',
-      question: 'The table shows the number of views of an advert during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nViews (thousands) | 40 | 120 | 100 | 80 | 60 | 40</table>\nOn the grid, draw a time series graph to represent the data.',
+      question: 'The table shows the number of visitors to a café during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nVisitors | 40 | 120 | 100 | 80 | 60 | 40</table>\nOn the grid, draw a time series graph to represent the data.',
       answer: 'Points at (1, 40), (2, 120), (3, 100), (4, 80), (5, 60) and (6, 40), joined by straight lines',
       working: 'Plot each day against its number of views, then join them in order.',
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 6, step: 1, label: 'Day' },
-        y: { min: 0, max: 120, step: 20, label: 'Views (thousands)' },
+        y: { min: 0, max: 120, step: 20, label: 'Visitors' },
         background: '',
-        elements: [
-          { x: 1, y: 40, marks: 1 }, { x: 2, y: 120, marks: 1 }, { x: 3, y: 100, marks: 1 },
-          { x: 4, y: 80, marks: 1 }, { x: 5, y: 60, marks: 1 }, { x: 6, y: 40, marks: 1 },
-        ],
-        tolerance: 0,
+        elements: [{ x: 1, y: 40, marks: 1 }, { x: 2, y: 120, marks: 1 }, { x: 3, y: 100, marks: 1 }, { x: 4, y: 80, marks: 1 }, { x: 5, y: 60, marks: 1 }, { x: 6, y: 40, marks: 1 }], tolerance: 0,
       },
     },
-    '20b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000.\nThe owner receives 0.02p for each view.\nEstimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
+    '20b': {
+      skill: 'Time Series',
+      question: 'The table shows the number of visitors to a café during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nVisitors | 40 | 120 | 100 | 80 | 60 | 40</table>\nAfter day 2, the number of visitors falls steadily.\nEach visitor spends £2.50 on average.\nEstimate how much visitors will spend on day 7.',
+      answer: '£50',
+      working: 'The visitors fall by 20 a day, so day 7 has about 20 visitors, and 20 × £2.50 = £50.',
+    },
     '21': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow.\n25% of the green counters are removed, and 40% of the yellow counters are removed.\nIn total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
     '22': { skill: 'Simple Arithmetic + Proportion', question: 'A group of adults and children go to a theme park.\nAn adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children.\nIn the group there are 32 children, and the total price for the group is £494.\nHow many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
     '23a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
@@ -346,14 +347,14 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
     '25a': {
       skill: 'Sector Calculations',
-      question: 'The diagram shows a sector of a circle, centre O.\nThe circle has a circumference of 30 cm, and the angle at the centre is 90°.\nWork out the area of the sector.\nGive your answer to 1 decimal place.',
-      answer: '17.9 cm²',
-      working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².',
+      question: 'The diagram shows a circle, centre O.\nThe circle has a circumference of 30 cm.\nThe shaded sector has an angle of 270° at the centre.\nWork out the area of the shaded sector.\nGive your answer to 1 decimal place.',
+      answer: '53.7 cm²',
+      working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and three quarters of it is 53.7 cm².',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<path d="M 5,4 L 8,4 A 3,3 0 0,1 5,7 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
+        background: '<path d="M 5,4 L 5,7 A 3,3 0 1,1 8,4 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
         labels: [
           { x: 5, y: 4, text: 'O', dx: -9, dy: 5 },
         ],
@@ -362,14 +363,14 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     },
     '25b': {
       skill: 'Sector Calculations',
-      question: 'The diagram shows a sector of a circle, centre O.\nThe circle has a circumference of 30 cm, and the angle at the centre is 90°.\nThe area of the sector is 17.9 cm².\nIn fact, the angle at the centre is smaller than 90°.\nWhat does this mean about the area of the sector?\nTick one box.\n[   ] Smaller than 17.9 cm²\n[   ] The same as 17.9 cm²\n[   ] Larger than 17.9 cm²\n[   ] It could be any of these',
-      answer: 'Smaller than 17.9 cm²',
-      working: 'A smaller angle takes a smaller share of the circle.',
+      question: 'The diagram shows a circle, centre O.\nThe circle has a circumference of 30 cm.\nThe shaded sector has an angle of 270° at the centre.\nIn fact, the angle at the centre of the shaded sector is more than 270°.\nWhat does this mean about the area of the shaded sector?\nTick one box.\n[   ] It is less than three quarters of the circle\n[   ] It is exactly three quarters of the circle\n[   ] It is more than three quarters of the circle\n[   ] It could be any of these',
+      answer: 'It is more than three quarters of the circle',
+      working: 'A larger angle takes a larger share of the circle.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<path d="M 5,4 L 8,4 A 3,3 0 0,1 5,7 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
+        background: '<path d="M 5,4 L 5,7 A 3,3 0 1,1 8,4 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
         labels: [
           { x: 5, y: 4, text: 'O', dx: -9, dy: 5 },
         ],

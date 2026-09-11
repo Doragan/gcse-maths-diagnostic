@@ -358,7 +358,7 @@ describe('notation', () => {
         const lost = [...expected].filter(ch => !' \n'.includes(ch) && !drawn.includes(ch) &&
           // These are drawn, just not as themselves: as a Symbol glyph, a
           // stacked fraction, a raised digit, or an ASCII substitute.
-          !'−→←√π≤≥≠±∞θαβμσλφΣΔΩ∠∴≈∩∪⊂⊆∈∅′⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ₀₁₂₃₄₅₆₇₈₉½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞'.includes(ch) &&
+          !'−→←√π≤≥≠±∞θαβμσλφΣΔΩ∠∴≈≡∩∪⊂⊆∈∅′⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ₀₁₂₃₄₅₆₇₈₉½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞'.includes(ch) &&
           ch !== '\u0307')
         expect(lost, `${where}: ${JSON.stringify(lost.join(''))}`).toEqual([])
       }

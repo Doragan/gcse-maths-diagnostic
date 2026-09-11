@@ -77,9 +77,24 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
   // 8(a), 8(b) and 10 here are 2F's 20(b), 21, 23(a), 23(b), 24, 25(a), 25(b)
   // and 26. 3(a) is the shared visual item and has no retry on either paper.
   retrySet: {
-    '1a': { skill: 'Highest Common Factor', question: 'Work out the highest common factor (HCF) of 18 and 30', answer: '6' },
-    '1b': { skill: 'Lowest Common Multiple', question: 'Work out the lowest common multiple (LCM) of 8 and 12', answer: '24' },
-    '1c': { skill: 'Prime Factor Decomposition', question: 'Write 66 as a product of its prime factors.', answer: '2 × 3 × 11' },
+    '1a': {
+      skill: 'Highest Common Factor',
+      question: 'Work out the highest common factor (HCF) of 18 and 30',
+      answer: '6',
+      working: '18 = 2 × 3 × 3 and 30 = 2 × 3 × 5, so the HCF is 2 × 3 = 6.',
+    },
+    '1b': {
+      skill: 'Lowest Common Multiple',
+      question: 'Work out the lowest common multiple (LCM) of 8 and 12',
+      answer: '24',
+      working: 'Multiples of 8: 8, 16, 24. Multiples of 12: 12, 24. The first in both lists is 24.',
+    },
+    '1c': {
+      skill: 'Prime Factor Decomposition',
+      question: 'Write 66 as a product of its prime factors.',
+      answer: '2 × 3 × 11',
+      working: '66 = 2 × 33, and 33 = 3 × 11.',
+    },
     '2': {
       skill: 'Understanding Straight Line Graphs',
       question: 'The diagram shows two straight lines, A and B.\nWrite down the equation of line A, and the gradient of line B.',
@@ -102,22 +117,23 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     // crossover question and carries 2F 20(a)'s grid, unchanged.
     '3a': {
       skill: 'Time Series',
-      question: 'The table shows the number of views of an advert during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nViews (thousands) | 40 | 120 | 100 | 80 | 60 | 40</table>\nOn the grid, draw a time series graph to represent the data.',
+      question: 'The table shows the number of visitors to a café during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nVisitors | 40 | 120 | 100 | 80 | 60 | 40</table>\nOn the grid, draw a time series graph to represent the data.',
       answer: 'Points at (1, 40), (2, 120), (3, 100), (4, 80), (5, 60) and (6, 40), joined by straight lines',
       working: 'Plot each day against its number of views, then join them in order.',
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 6, step: 1, label: 'Day' },
-        y: { min: 0, max: 120, step: 20, label: 'Views (thousands)' },
+        y: { min: 0, max: 120, step: 20, label: 'Visitors' },
         background: '',
-        elements: [
-          { x: 1, y: 40, marks: 1 }, { x: 2, y: 120, marks: 1 }, { x: 3, y: 100, marks: 1 },
-          { x: 4, y: 80, marks: 1 }, { x: 5, y: 60, marks: 1 }, { x: 6, y: 40, marks: 1 },
-        ],
-        tolerance: 0,
+        elements: [{ x: 1, y: 40, marks: 1 }, { x: 2, y: 120, marks: 1 }, { x: 3, y: 100, marks: 1 }, { x: 4, y: 80, marks: 1 }, { x: 5, y: 60, marks: 1 }, { x: 6, y: 40, marks: 1 }], tolerance: 0,
       },
     },
-    '3b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000.\nThe owner receives 0.02p for each view.\nEstimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
+    '3b': {
+      skill: 'Time Series',
+      question: 'The table shows the number of visitors to a café during its first 6 days.\n<table>Day | 1 | 2 | 3 | 4 | 5 | 6\nVisitors | 40 | 120 | 100 | 80 | 60 | 40</table>\nAfter day 2, the number of visitors falls steadily.\nEach visitor spends £2.50 on average.\nEstimate how much visitors will spend on day 7.',
+      answer: '£50',
+      working: 'The visitors fall by 20 a day, so day 7 has about 20 visitors, and 20 × £2.50 = £50.',
+    },
     '4': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow.\n25% of the green counters are removed, and 40% of the yellow counters are removed.\nIn total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
     '5a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
     '5b': {
@@ -128,18 +144,23 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     },
     '6': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
 
-    '7': { skill: 'Probability Spaces', question: 'The five possible outcomes of an event are V, W, X, Y and Z.\nP(V) = 0.18, P(W) = 0.12, P(X) = P(W) + 0.18, and P(Y) = P(Z).\nWork out P(Y).', answer: '0.2', working: 'V, W and X take 0.6, leaving 0.4 to share equally between Y and Z.' },
+    '7': {
+      skill: 'Probability Spaces',
+      question: 'The table shows the probabilities of the five possible outcomes of an event.\n<table>Outcome | V | W | X | Y | Z\nProbability | 0.18 | 0.12 |  |  | </table>\nP(X) = P(W) + 0.18\nP(Y) = P(Z)\nWork out P(Y).',
+      answer: '0.2',
+      working: 'V, W and X take 0.6, leaving 0.4 to share equally between Y and Z.',
+    },
 
     '8a': {
       skill: 'Sector Calculations',
-      question: 'The diagram shows a sector of a circle, centre O.\nThe circle has a circumference of 30 cm, and the angle at the centre is 90°.\nWork out the area of the sector.\nGive your answer to 1 decimal place.',
-      answer: '17.9 cm²',
-      working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².',
+      question: 'The diagram shows a circle, centre O.\nThe circle has a circumference of 30 cm.\nThe shaded sector has an angle of 270° at the centre.\nWork out the area of the shaded sector.\nGive your answer to 1 decimal place.',
+      answer: '53.7 cm²',
+      working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and three quarters of it is 53.7 cm².',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<path d="M 5,4 L 8,4 A 3,3 0 0,1 5,7 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
+        background: '<path d="M 5,4 L 5,7 A 3,3 0 1,1 8,4 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
         labels: [
           { x: 5, y: 4, text: 'O', dx: -9, dy: 5 },
         ],
@@ -148,14 +169,14 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
     },
     '8b': {
       skill: 'Sector Calculations',
-      question: 'The diagram shows a sector of a circle, centre O.\nThe circle has a circumference of 30 cm, and the angle at the centre is 90°.\nThe area of the sector is 17.9 cm².\nIn fact, the angle at the centre is smaller than 90°.\nWhat does this mean about the area of the sector?\nTick one box.\n[   ] Smaller than 17.9 cm²\n[   ] The same as 17.9 cm²\n[   ] Larger than 17.9 cm²\n[   ] It could be any of these',
-      answer: 'Smaller than 17.9 cm²',
-      working: 'A smaller angle takes a smaller share of the circle.',
+      question: 'The diagram shows a circle, centre O.\nThe circle has a circumference of 30 cm.\nThe shaded sector has an angle of 270° at the centre.\nIn fact, the angle at the centre of the shaded sector is more than 270°.\nWhat does this mean about the area of the shaded sector?\nTick one box.\n[   ] It is less than three quarters of the circle\n[   ] It is exactly three quarters of the circle\n[   ] It is more than three quarters of the circle\n[   ] It could be any of these',
+      answer: 'It is more than three quarters of the circle',
+      working: 'A larger angle takes a larger share of the circle.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 10, step: 1, label: '' },
         y: { min: 0, max: 8, step: 1, label: '' },
-        background: '<path d="M 5,4 L 8,4 A 3,3 0 0,1 5,7 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
+        background: '<path d="M 5,4 L 5,7 A 3,3 0 1,1 8,4 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
         labels: [
           { x: 5, y: 4, text: 'O', dx: -9, dy: 5 },
         ],
@@ -186,29 +207,45 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
 
     '11': { skill: 'Angles in Polygons', question: 'A regular polygon has an interior angle of 156°. Work out the number of sides.', answer: '15 sides', working: 'The exterior angle is 180 − 156 = 24°, and 360 ÷ 24 = 15.' },
     '12a': { skill: 'Sampling', question: 'Priya wants to know whether students at her school think the library opening hours are long enough.\nShe asks 12 students who are in the library at lunchtime.\nGive one reason why her results may not represent the whole school.', answer: 'The students she asked already use the library, so they are not typical of the whole school', working: 'A sample drawn from one group is biased towards that group, and 12 is a very small sample.' },
-    '12b': { skill: 'Reverse Percentage', question: 'In a survey, 55% answered Yes, 30% answered No, and the rest answered Not Sure.\n132 people answered Yes.\nHow many people answered Not Sure?', answer: '36', working: '55% is 132, so 1% is 2.4 and the total is 240; Not Sure is 15%.' },
+    '12b': {
+      skill: 'Reverse Percentage',
+      question: 'In a survey, people answered Yes, No or Not Sure.\n55% answered Yes.\n30% answered No.\nThe rest answered Not Sure.\n132 people answered Yes.\nHow many people answered Not Sure?',
+      answer: '36',
+      working: '55% is 132, so 1% is 2.4 and the total is 240; Not Sure is 15%.',
+    },
     '13': { skill: 'Compound Units', question: 'Ella and Finn each drive 180 miles from P to Q.\nElla drives the whole way at an average speed of 60 mph.\nFinn drives 100 miles at an average speed of 50 mph and then the rest of the way at an average speed of 40 mph.\nWho takes less time, Ella or Finn?\nShow working to support your answer.', answer: 'Ella', working: 'Ella takes 3 hours; Finn takes 2 hours then 2 more, so 4 hours.' },
-    '14': { skill: 'Equations and Identities', question: 'a, b and c are positive integers, and a(7x + 3) is identical to 28x + 2b + c. Work out one possible set of values for a, b and c.', answer: 'a = 4, b = 5, c = 2', working: '7a = 28 gives a = 4, so 2b + c = 12; any positive pair works.' },
+    '14': {
+      skill: 'Equations and Identities',
+      question: 'a(7x + 3) ≡ 28x + 2b + c\nwhere a, b and c are positive integers.\nWork out one possible set of values for a, b and c.',
+      answer: 'a = 4, b = 5, c = 2',
+      working: '7a = 28 gives a = 4, so 2b + c = 12; any positive pair works.',
+    },
     '15': { skill: 'Solving Quadratic Equations (Quadratic Equation)', question: 'Solve 2x² + 7x − 5 = 0. Give your solutions as decimals to 2 decimal places.', answer: 'x = 0.61 and x = −4.11', working: 'x = (−7 ± √89) ÷ 4, and √89 = 9.434.' },
     '16': { skill: 'Growth and Decay', question: 'The value of a machine decreases by 15% per year.\nWork out the number of full years until the machine loses more than half its value.\nYou must show your working.', answer: '5 years', working: '0.85⁴ = 0.522, which is still above half, and 0.85⁵ = 0.444.' },
-    '17': { skill: 'Combined Events + Ratio', question: 'When a biased spinner is spun, P(red) : P(blue) = 3 : 1.\nIn a game the spinner is spun four times.\nThe first way to win is to spin four reds.\nThe second way is to spin red, blue, red, blue.\nHow many times more likely is a player to win the first way than the second way?', answer: '9 times', working: 'The first way trades two blues for two reds, so the ratio is (3 ÷ 1)² = 9.' },
+    '17': {
+      skill: 'Combined Events + Ratio',
+      question: 'When a biased spinner is spun, P(red) : P(blue) = 3 : 1.\nIn a game the spinner is spun four times.\nThe first way to win is to spin four reds.\nThe second way is to spin red, blue, red, blue.\nHow many times more likely is a player to win the first way than the second way?',
+      answer: '9 times',
+      working: 'P(red) = <frac>3/4</frac> and P(blue) = <frac>1/4</frac>.\nFour reds: <frac>3/4</frac> × <frac>3/4</frac> × <frac>3/4</frac> × <frac>3/4</frac> = <frac>81/256</frac>.\nRed, blue, red, blue: <frac>3/4</frac> × <frac>1/4</frac> × <frac>3/4</frac> × <frac>1/4</frac> = <frac>9/256</frac>.\nSo the first way is 81 ÷ 9 = 9 times more likely than the second.',
+    },
     '18': {
       skill: 'Cosine Rule + Angles on lines and Circles',
-      question: 'The diagram shows triangle ABC.\nWork out the length of AC, to 1 decimal place.\nNot drawn accurately.',
+      question: 'The diagram shows triangle ABC.\nDBC is a straight line.\nWork out the length of AC, to 1 decimal place.\nNot drawn accurately.',
       answer: '15.2 cm',
-      working: 'AC² = 64 + 121 − 2 × 8 × 11 × cos 105° = 230.55',
+      working: 'Angles on a straight line add to 180°, so angle ABC = 180 − 75 = 105°.\nAC² = 8² + 11² − 2 × 8 × 11 × cos 105° = 230.55…\nAC = √230.55… = 15.18…, so AC = 15.2 cm.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
-        x: { min: 0, max: 11, step: 1, label: '' },
+        x: { min: 0, max: 12, step: 1, label: '' },
         y: { min: 0, max: 7.5, step: 1, label: '' },
-        background: '<polygon points="0.551,6.409 2,1 9.7,1" stroke="#333" fill="none" /><path d="M 2.8,1 A 0.8,0.8 0 0,1 1.793,1.773" stroke="#333" fill="none" />',
+        background: '<polygon points="1.551,6.409 3,1 10.7,1" stroke="#333" fill="none" /><polyline points="0.5,1 3,1" stroke="#333" fill="none" /><path d="M 2.793,1.773 A 0.8,0.8 0 0,1 2.2,1" stroke="#333" fill="none" />',
         labels: [
-          { x: 0.551, y: 6.409, text: 'A', dx: -9, dy: -3 },
-          { x: 2, y: 1, text: 'B', dx: -8, dy: 11 },
-          { x: 9.7, y: 1, text: 'C', dx: 9, dy: 11 },
-          { x: 1.276, y: 3.704, text: '8 cm', dx: -18 },
-          { x: 5.85, y: 1, text: '11 cm', dy: 14 },
-          { x: 2.822, y: 2.071, text: '105°' },
+          { x: 1.551, y: 6.409, text: 'A', dx: -9, dy: -3 },
+          { x: 3, y: 1, text: 'B', dy: 13 },
+          { x: 10.7, y: 1, text: 'C', dx: 9, dy: 11 },
+          { x: 0.5, y: 1, text: 'D', dx: -8, dy: 11 },
+          { x: 2.276, y: 3.704, text: '8 cm', dx: 20 },
+          { x: 6.85, y: 1, text: '11 cm', dy: 14 },
+          { x: 1.929, y: 1.822, text: '75°' },
         ],
         elements: [], tolerance: 0,
       },
