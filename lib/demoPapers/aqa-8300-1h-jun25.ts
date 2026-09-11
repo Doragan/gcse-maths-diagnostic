@@ -190,7 +190,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       },
     },
 
-    '12': { skill: 'Ratio', question: 'Priya and Raj share some money in the ratio 7 : 4. Priya has £36 more than Raj. How much do they have altogether?', answer: '£132', working: 'The difference is 3 parts, so one part is £12 and there are 11 parts.' },
+    '12': { skill: 'Ratio', question: 'Priya and Raj share some money in the ratio 7 : 4.\nPriya has £36 more than Raj.\nHow much do they have altogether?', answer: '£132', working: 'The difference is 3 parts, so one part is £12 and there are 11 parts.' },
     '13': { skill: 'Indices', question: 'c and d are consecutive cube numbers, where c < 2.7³ < d. Work out the value of d − c.', answer: '19', working: '2.7³ = 19.68, which lies between 2³ = 8 and 3³ = 27.' },
     '14a': {
       skill: 'Sketching Functions',
@@ -325,7 +325,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
         // One axis for BOTH parts: y = -f(x) reaches -4 and y = f(x) + 2 reaches 6,
         // so a range covering both lets (a) and (b) share one printed grid — which
         // is how the paper sets them, and what sameGrid() needs to draw it once.
-        y: { min: -4, max: 6, step: 2, label: 'y' },
+        y: { min: -4, max: 6, step: 1, label: 'y' },
         background: '<polyline points="0,2 1,4 2,2 3,0 4,-2" stroke="#333" />',
         elements: [{ x: 0, y: -2, marks: 1 }, { x: 1, y: -4, marks: 1 }, { x: 2, y: -2, marks: 1 }, { x: 3, y: 0, marks: 1 }, { x: 4, y: 2, marks: 1 }],
         tolerance: 0,
@@ -339,7 +339,7 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 4, step: 1, label: 'x' },
-        y: { min: -4, max: 6, step: 2, label: 'y' },
+        y: { min: -4, max: 6, step: 1, label: 'y' },
         background: '<polyline points="0,2 1,4 2,2 3,0 4,-2" stroke="#333" />',
         elements: [{ x: 0, y: 4, marks: 1 }, { x: 1, y: 6, marks: 1 }, { x: 2, y: 4, marks: 1 }, { x: 3, y: 2, marks: 1 }, { x: 4, y: 0, marks: 1 }],
         tolerance: 0,

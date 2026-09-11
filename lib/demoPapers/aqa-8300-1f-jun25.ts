@@ -165,9 +165,9 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
     },
 
     '5': { skill: 'Simple Arithmetic', question: 'A number is divided by 7. The answer is 36 remainder 4. Work out the number.', answer: '256', working: '7 × 36 = 252, then add the remainder.' },
-    '6': { skill: 'Simple Arithmetic', question: 'Rosa buys 150 mugs for £6 each. She sells the mugs for £8 each. What is the least number of mugs she must sell to make a profit?', answer: '113', working: 'The mugs cost £900, and 112 sold gives only £896.' },
-    '7a': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair. There is an offer: buy one pair and get a second pair for half price. Bea wants two pairs and saves £14 every week. Assume the offer is permanent. How many weeks does Bea need to save for? You must show your working.', answer: '5 weeks', working: 'Two pairs cost £40 + £20 = £60, and 4 weeks gives only £56.' },
-    '7b': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair and Bea saves £14 a week. With an offer of a second pair at half price, two pairs cost £60 and Bea needs 5 weeks to save up. In fact the offer ends, so she must pay full price for both pairs. What does this mean about the number of weeks she needs to save for?\nTick one box.\n[   ] fewer than 5 weeks\n[   ] exactly 5 weeks\n[   ] more than 5 weeks\n[   ] it is not possible to tell', answer: 'More than 5 weeks', working: 'Two pairs at full price is £80, which takes longer to save.' },
+    '6': { skill: 'Simple Arithmetic', question: 'Rosa buys 150 mugs for £6 each.\nShe sells the mugs for £8 each.\nWhat is the least number of mugs she must sell to make a profit?', answer: '113', working: 'The mugs cost £900, and 112 sold gives only £896.' },
+    '7a': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair.\nThere is an offer: buy one pair and get a second pair for half price.\nBea wants two pairs and saves £14 every week.\nAssume the offer is permanent.\nHow many weeks does Bea need to save for?\nYou must show your working.', answer: '5 weeks', working: 'Two pairs cost £40 + £20 = £60, and 4 weeks gives only £56.' },
+    '7b': { skill: 'Simple Arithmetic', question: 'Trainers cost £40 a pair and Bea saves £14 a week.\nWith an offer of a second pair at half price, two pairs cost £60 and Bea needs 5 weeks to save up.\nIn fact the offer ends, so she must pay full price for both pairs.\nWhat does this mean about the number of weeks she needs to save for?\nTick one box.\n[   ] fewer than 5 weeks\n[   ] exactly 5 weeks\n[   ] more than 5 weeks\n[   ] it is not possible to tell', answer: 'More than 5 weeks', working: 'Two pairs at full price is £80, which takes longer to save.' },
     '8': { skill: 'Proportion', question: 'Here is a list of ingredients for pancakes for 6 people.\nFlour   240 g\nMilk    450 ml\nEggs    2\nHow many grams of flour are needed to make pancakes for 15 people?', answer: '600 g', working: '240 ÷ 6 = 40 g each, then × 15.' },
 
     // 9(a) and (b) share one pair of boxes, as on the paper.
@@ -196,8 +196,8 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '12a': { skill: 'Fractions of Amounts', question: 'One day, a bus company runs 180 buses and one sixth of these buses are late. The company is fined £240 for each late bus. How much is the company fined that day?', answer: '£7200', working: '180 ÷ 6 = 30 late buses, then × £240.' },
-    '12b': { skill: 'Ratio', question: 'Sandwiches are sold at a station in the ratio cheese : ham : tuna = 4 : 3 : 5. 1800 sandwiches are sold. How many ham sandwiches are sold?', answer: '450', working: '12 parts altogether, so one part is 150.' },
+    '12a': { skill: 'Fractions of Amounts', question: 'One day, a bus company runs 180 buses and one sixth of these buses are late.\nThe company is fined £240 for each late bus.\nHow much is the company fined that day?', answer: '£7200', working: '180 ÷ 6 = 30 late buses, then × £240.' },
+    '12b': { skill: 'Ratio', question: 'Sandwiches are sold at a station in the ratio cheese : ham : tuna = 4 : 3 : 5.\n1800 sandwiches are sold.\nHow many ham sandwiches are sold?', answer: '450', working: '12 parts altogether, so one part is 150.' },
     '13': {
       skill: 'Angles on lines and Circles + Solving Linear Equations',
       question: 'PQ is a straight line, and three angles meet at a point on it.\nWork out the value of x.\nNot drawn accurately.',
@@ -219,14 +219,19 @@ export const AQA_8300_1F_JUN25: PaperConfig = {
       },
     },
     '14a': { skill: 'Estimating', question: 'By rounding each number to 1 significant figure, estimate the value of 3.4 × 5.2 + 2.3². You must show your working.', answer: '19', working: '3 × 5 = 15 and 2² = 4.' },
-    '14b': { skill: 'Estimating', question: 'An estimate of 3.4 × 5.2 + 2.3² is made by rounding each number to 1 significant figure, giving 19. Is 19 an overestimate or an underestimate of the true value? Give a reason for your answer.\n[   ] Overestimate\n[   ] Underestimate', answer: 'Underestimate', working: 'Every number was rounded down, so the estimate must be below the true value.' },
+    '14b': { skill: 'Estimating', question: 'An estimate of 3.4 × 5.2 + 2.3² is made by rounding each number to 1 significant figure, giving 19.\nIs 19 an overestimate or an underestimate of the true value?\nGive a reason for your answer.\n[   ] Overestimate\n[   ] Underestimate', answer: 'Underestimate', working: 'Every number was rounded down, so the estimate must be below the true value.' },
     '15a': { skill: 'Parts of a Circle', question: 'A sphere has diameter 12 cm. Show that the radius of the sphere is 6 cm', answer: 'The radius is half the diameter, and 12 ÷ 2 = 6' },
     '15b': { skill: 'Volume of a Sphere', question: 'The volume of a sphere is <frac>4/3</frac>πr³, where r is the radius.\nWork out the volume of a sphere with diameter 12 cm.\nGive your answer in terms of π.', answer: '288π cm³', working: 'r = 6, so r³ = 216, and 4 ÷ 3 × 216 = 288.' },
     '16a': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w.\nAssume the job needs completing in 25 days. How many workers are needed?', answer: '24 workers', working: '25 = 600 ÷ w, so w = 600 ÷ 25.' },
     '16b': { skill: 'Inverse Proportion', question: 'The number of days d to complete a job and the number of workers w are related by d = 600 ÷ w.\nCompleting the job in 25 days needs 24 workers.\nIn fact, the job needs completing in fewer than 25 days. What does this mean about the number of workers needed?\nTick one box.\n[   ] Fewer than 24 workers\n[   ] Exactly 24 workers\n[   ] More than 24 workers', answer: 'More than 24 workers', working: 'Days × workers is fixed, so fewer days needs more workers.' },
     '17': { skill: 'Parts of a Circle', question: 'A chord is drawn on a circle. Which statement is correct?\nTick one box.\n[   ] The chord must be shorter than the diameter\n[   ] The chord must be equal in length to the diameter\n[   ] The chord must be longer than the diameter\n[   ] The chord is never longer than the diameter', answer: 'The chord is never longer than the diameter', working: 'The longest chord a circle has is a diameter, so equal is possible but longer is not.' },
     '18': { skill: 'Compound Units', question: 'A metal solid has volume 14 cm³. The density of the metal is 7.5 g/cm³. Work out the mass of the solid.', answer: '105 g', working: 'Mass = density × volume.' },
-    '19': { skill: 'Mean + Range', question: 'The mean and range of the scores of two teams are:\nTeam X: mean 48, range 12\nTeam Y: mean 52, range 9\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores', answer: '(i) True, (ii) May be true, (iii) True', working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.' },
+    '19': {
+      skill: 'Mean + Range',
+      question: 'The table shows the mean and range of the scores of two teams.\n<table> | Mean | Range\nTeam X | 48 | 12\nTeam Y | 52 | 9</table>\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores',
+      answer: '(i) True, (ii) May be true, (iii) True',
+      working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.',
+    },
     '20a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
     '20b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
 

@@ -268,9 +268,9 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
       answer: '0.6³',
       working: '0.216 against 0.36 — multiplying by a number below 1 makes the result smaller each time.',
     },
-    '10a': { skill: 'Mode', question: '£5.53 is paid using the smallest possible number of coins. What is the modal value of the coins used? You must show your working.', answer: '£2', working: 'Two £2, one £1, one 50p, one 2p and one 1p — six coins, and only £2 is used twice.' },
-    '10b': { skill: 'Median', question: 'Here is a list of five numbers: 3, 11, 6, 14, 9. An extra number is put into the list, and the median of the six numbers is now 8. Work out the extra number.', answer: '7', working: 'In order the six must have 3rd and 4th values adding to 16, which 7 and 9 do.' },
-    '11': { skill: 'Percentage Change + Simple Arithmetic', question: 'A café has 15 tables. The owner buys 8 glasses for each table, plus an extra 60% for spares. Work out how many glasses the owner buys in total.', answer: '192', working: '15 × 8 = 120, and 120 × 1.6.' },
+    '10a': { skill: 'Mode', question: '£5.53 is paid using the smallest possible number of coins.\nWhat is the modal value of the coins used?\nYou must show your working.', answer: '£2', working: 'Two £2, one £1, one 50p, one 2p and one 1p — six coins, and only £2 is used twice.' },
+    '10b': { skill: 'Median', question: 'Here is a list of five numbers: 3, 11, 6, 14, 9.\nAn extra number is put into the list, and the median of the six numbers is now 8.\nWork out the extra number.', answer: '7', working: 'In order the six must have 3rd and 4th values adding to 16, which 7 and 9 do.' },
+    '11': { skill: 'Percentage Change + Simple Arithmetic', question: 'A café has 15 tables.\nThe owner buys 8 glasses for each table, plus an extra 60% for spares.\nWork out how many glasses the owner buys in total.', answer: '192', working: '15 × 8 = 120, and 120 × 1.6.' },
     '12': {
       skill: 'Scatter Graphs',
       question: 'The scatter diagram shows the hours of revision and test scores of eight students.\nA line of best fit has been drawn.\nWrite down two things that are wrong with the line of best fit.\nMistake 1:\nMistake 2:',
@@ -400,7 +400,7 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
       },
     },
     '20': { skill: 'Finding the nth Term', question: 'A linear sequence has 3rd term = 11 and 7th term = 27. Work out the nth term of the sequence.', answer: '4n − 1', working: '16 gained over 4 terms is 4 each time, and the 1st term is 3.' },
-    '21': { skill: 'Ratio + Fractions of Amounts', question: 'Dan has £180. Dan\'s amount is <frac>3/4</frac> of Eve\'s amount, and Finn\'s amount : Eve\'s amount = 2 : 5. Work out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
+    '21': { skill: 'Ratio + Fractions of Amounts', question: 'Dan has £180.\nDan\'s amount is <frac>3/4</frac> of Eve\'s amount, and Finn\'s amount : Eve\'s amount = 2 : 5.\nWork out how much money Finn has.', answer: '£96', working: 'Eve has £240, and Finn has two fifths of that.' },
     '22': {
       skill: 'Venn Diagrams + Calculating Simple Probability',
       question: 'The Venn diagram shows two sets A and B.\nThere are 30 items altogether and P(A) = <frac>1/2</frac>.\nWork out the value of x.',

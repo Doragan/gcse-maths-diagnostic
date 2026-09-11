@@ -98,8 +98,8 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     // 2(a) and (b) share one setup, as on the paper. The ratio is chosen so
     // that doubling it would break the "fewer than 100" condition, which is
     // what makes a single answer possible at all.
-    '2a': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field.\nWrite down the number of hens in the field.', answer: '43', working: 'One lot of the ratio is 72 animals; two lots would be 144, which is too many.' },
-    '2b': { skill: 'Ratio', question: 'The only animals in a field are goats and hens. The ratio goats : hens = 29 : 43. There are fewer than 100 animals in the field.\nIn total, how many animals are there in the field?', answer: '72', working: '29 + 43' },
+    '2a': { skill: 'Ratio', question: 'The only animals in a field are goats and hens.\nThe ratio goats : hens = 29 : 43.\nThere are fewer than 100 animals in the field.\nWrite down the number of hens in the field.', answer: '43', working: 'One lot of the ratio is 72 animals; two lots would be 144, which is too many.' },
+    '2b': { skill: 'Ratio', question: 'The only animals in a field are goats and hens.\nThe ratio goats : hens = 29 : 43.\nThere are fewer than 100 animals in the field.\nIn total, how many animals are there in the field?', answer: '72', working: '29 + 43' },
 
     // 3(a) and (b) read off a scale drawing, so the retry supplies one. The
     // path is the whole diagram — there is nothing for the student to draw —
@@ -172,7 +172,7 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '8b': { skill: 'Converting Measurements', question: 'Convert 2600 grams to kilograms.', answer: '2.6 kilograms' },
     '8c': { skill: 'Proportion', question: 'Convert 56 kilometres to miles. Use 8 kilometres = 5 miles.', answer: '35 miles', working: '56 ÷ 8 = 7, then × 5.' },
     '9a': { skill: 'Time Calculations', question: 'Nadia started work at 09:45 and worked for 5 hours 30 minutes. What time did she finish?', answer: '15:15 (3:15 pm)' },
-    '9b': { skill: 'Fractions of Amounts', question: 'Ravi worked for a total of 6 hours one day, and spent 100 minutes of that time online. Ravi says he spent more than one quarter of his total working time online. Is he correct? Show working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
+    '9b': { skill: 'Fractions of Amounts', question: 'Ravi worked for a total of 6 hours one day, and spent 100 minutes of that time online.\nRavi says he spent more than one quarter of his total working time online.\nIs he correct?\nShow working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
     // 10(a) and (b) show the two similar shapes, with their measurements on
     // the figure rather than only in the sentence — which is what `labels`
     // exists for, and what the exam does.
@@ -239,10 +239,26 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '13a': { skill: 'Range', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nWork out the range of the number of customers.', answer: '64', working: '189 − 125' },
     '13b': { skill: 'Mean', question: 'A shop counts its customers on each of four days.\n125     154     189     172\nThe shop opens for a fifth day.\nThe mean number of customers over all five days is 158.\nWork out the number of customers on the fifth day.', answer: '150', working: 'The five must total 790, and the first four total 640.' },
     '14': { skill: 'Forming Expressions and Formulae + Simplifying Expressions', question: 'A number is n. Write an expression for each of these.\n(i)   5 more than the number\n(ii)  the number multiplied by 4\n(iii) 3 less than double the number\n(iv)  the number divided by 2', answer: '(i) n + 5, (ii) 4n, (iii) 2n − 3, (iv) <frac>n/2</frac>' },
-    '15': { skill: 'Lengths and Perimeters + Areas of Squares and Rectangles', question: 'A rectangle has an area of 84 cm² and a side length of 12 cm. Dara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7." Is Dara correct? Show working to support your answer.', answer: 'No — the perimeter is 38 cm', working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.' },
+    '15': {
+      skill: 'Lengths and Perimeters + Areas of Squares and Rectangles',
+      question: 'The diagram shows a rectangle.\nDara says, "The perimeter of the rectangle is 40 cm because 84 ÷ 12 = 7."\nIs Dara correct?\nShow working to support your answer.',
+      answer: 'No — the perimeter is 38 cm',
+      working: 'The other side is 7 cm, so the perimeter is 2 × (12 + 7) = 38.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '<polygon points="1.5,1 9.5,1 9.5,5 1.5,5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 5.5, y: 1, text: '12 cm', dy: 14 },
+          { x: 5.5, y: 3, text: 'Area = 84 cm²' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '16': { skill: 'Rearranging Formulae (Changing the Subject)', question: 'Rearrange c − 5 = d to make c the subject.', answer: 'c = d + 5' },
     '17': { skill: 'Proportion', question: 'Packet A holds 500 g of rice and costs £1.20.\nPacket B holds 800 g and costs £2.00.\nWhich packet is better value for money? You must show your working.\n[   ] Packet A\n[   ] Packet B', answer: 'Packet A', working: 'A is 0.24p per gram and B is 0.25p per gram.' },
-    '18a': { skill: 'Ratio', question: 'Sam uses either a bike or a bus to get to work. The number of days using a bike divided by the number of days using a bus is <frac>2/7</frac>. Write down the ratio number of days using a bike : number of days using a bus.', answer: '2 : 7' },
+    '18a': { skill: 'Ratio', question: 'Sam uses either a bike or a bus to get to work.\nThe number of days using a bike divided by the number of days using a bus is <frac>2/7</frac>.\nWrite down the ratio number of days using a bike : number of days using a bus.', answer: '2 : 7' },
     '18b': { skill: 'Simplifying Ratio', question: 'Write the ratio 9b : 4b in the form n : 1, where n is a decimal.', answer: '2.25 : 1', working: 'The b cancels, and 9 ÷ 4 = 2.25.' },
     '18c': { skill: 'Ratio', question: '1 : x = x : 9. Work out the value of x.', answer: 'x = 3', working: 'Cross-multiplying gives x² = 9.' },
     '19a': {
@@ -317,9 +333,9 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
         tolerance: 0,
       },
     },
-    '20b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000. The owner receives 0.02p for each view. Estimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
-    '21': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow. 25% of the green counters are removed, and 40% of the yellow counters are removed. In total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
-    '22': { skill: 'Simple Arithmetic + Proportion', question: 'A group of adults and children go to a theme park. An adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children. In the group there are 32 children, and the total price for the group is £494. How many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
+    '20b': { skill: 'Time Series', question: 'The number of views of an advert falls steadily after day 2: day 4 had 80 000 views, day 5 had 60 000 and day 6 had 40 000.\nThe owner receives 0.02p for each view.\nEstimate how much is received from views on day 7.', answer: '£4.00', working: 'The views fall by about 20 000 a day, so day 7 is about 20 000, and 20 000 × 0.02p = 400p.' },
+    '21': { skill: 'Fractions Decimals and Percentages + Proportion', question: '60% of the counters in a bag are green and the rest are yellow.\n25% of the green counters are removed, and 40% of the yellow counters are removed.\nIn total, what percentage of the counters are removed from the bag?', answer: '31%', working: '0.6 × 25% = 15% and 0.4 × 40% = 16%.' },
+    '22': { skill: 'Simple Arithmetic + Proportion', question: 'A group of adults and children go to a theme park.\nAn adult ticket is £18.00 and a child ticket is £11.50, and one adult goes free with every 4 children.\nIn the group there are 32 children, and the total price for the group is £494.\nHow many adults are in the group?', answer: '15 adults', working: 'The children cost £368, leaving £126, which is 7 paying adults; 32 children also bring 8 free adults.' },
     '23a': { skill: 'Upper and Lower Bounds', question: 'The length of a shelf is 240 cm to the nearest 20 cm. Complete the error interval for the length.', answer: '230 ≤ length < 250', working: 'Half of 20 either side; the upper bound is strict.' },
     '23b': {
       skill: 'Upper and Lower Bounds',
@@ -328,8 +344,38 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
       working: 'One shelf is under 3.1 m, so four are under 12.4 m.',
     },
     '24': { skill: 'Factorising', question: 'Circle the expression which is a factor of 5x + 30.\n5x     x + 35     x + 6     x + 30', answer: 'x + 6', working: '5x + 30 = 5(x + 6).' },
-    '25a': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm. A sector of the circle has an angle of 90° at the centre. Work out the area of the sector. Give your answer as a decimal to 1 decimal place.', answer: '17.9 cm²', working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².' },
-    '25b': { skill: 'Sector Calculations', question: 'A circle has a circumference of 30 cm, and a sector with an angle of 90° at the centre has an area of 17.9 cm². In fact, the angle at the centre is smaller than 90°. What does this mean about the area of the sector?\nTick one box.\n[   ] smaller than 17.9 cm²\n[   ] the same as 17.9 cm²\n[   ] larger than 17.9 cm²\n[   ] it could be any of these', answer: 'Smaller than 17.9 cm²', working: 'A smaller angle takes a smaller share of the circle.' },
+    '25a': {
+      skill: 'Sector Calculations',
+      question: 'The diagram shows a sector of a circle, centre O.\nThe circle has a circumference of 30 cm, and the angle at the centre is 90°.\nWork out the area of the sector.\nGive your answer to 1 decimal place.',
+      answer: '17.9 cm²',
+      working: 'The radius is 30 ÷ 2π = 4.775 cm, so the whole circle is 71.62 cm² and a quarter of it is 17.9 cm².',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<path d="M 5,4 L 8,4 A 3,3 0 0,1 5,7 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
+        labels: [
+          { x: 5, y: 4, text: 'O', dx: -9, dy: 5 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '25b': {
+      skill: 'Sector Calculations',
+      question: 'The diagram shows a sector of a circle, centre O.\nThe circle has a circumference of 30 cm, and the angle at the centre is 90°.\nThe area of the sector is 17.9 cm².\nIn fact, the angle at the centre is smaller than 90°.\nWhat does this mean about the area of the sector?\nTick one box.\n[   ] Smaller than 17.9 cm²\n[   ] The same as 17.9 cm²\n[   ] Larger than 17.9 cm²\n[   ] It could be any of these',
+      answer: 'Smaller than 17.9 cm²',
+      working: 'A smaller angle takes a smaller share of the circle.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<path d="M 5,4 L 8,4 A 3,3 0 0,1 5,7 Z" fill="#dddddd" stroke="none" /><circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 8,4" stroke="#333" fill="none" /><polyline points="5,4 5,7" stroke="#333" fill="none" /><polyline points="5.55,4 5.55,4.55 5,4.55" stroke="#333" fill="none" />',
+        labels: [
+          { x: 5, y: 4, text: 'O', dx: -9, dy: 5 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '26': {
       skill: 'Trigonometry (missing sides)',
       question: 'Use trigonometry to work out the value of x, to 1 decimal place. You must show your working.\nNot drawn accurately.',

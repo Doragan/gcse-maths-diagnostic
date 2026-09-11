@@ -86,6 +86,60 @@ for (const p of Object.values(PAPERS)) {
     }
   }
 
+  // ── Rules from the 1H read ───────────────────────────────────────────────
+  for (const [id, r] of Object.entries(p.retrySet)) {
+    const lines = r.question.split('\n')
+
+    // S. Two simultaneous equations run together on one line (1H 1), where
+    //    reading them apart is harder than the algebra.
+    const twoEq = lines.find(l => (l.match(/=/g) ?? []).length >= 2)
+    if (/simultaneous equations/i.test(r.question) && twoEq) {
+      add('simultaneous equations on one line', p.id, id, twoEq.slice(0, 60))
+    }
+
+    // T. A paragraph of givens set as one line (1H 3, 1H 25): three or more
+    //    sentences over 110 characters. A closing quote may sit between the
+    //    full stop and the space — `…= 7." Is Dara correct?`.
+    for (const l of lines) {
+      if (l.includes('<table>') || l.trim().startsWith('[')) continue
+      if (l.length > 110 && l.split(/(?<=[.?]["”]?)\s+(?=[A-Z0-9£("])/).filter(s => s.trim()).length >= 3) {
+        add('paragraph of givens on one line', p.id, id, l.slice(0, 60))
+      }
+    }
+
+    // U. An index written in words rather than raised (1H 19).
+    const power = r.question.match(/[^.\n]*to the power[^.\n]*/i)
+    if (power) add('index written in words', p.id, id, power[0].slice(0, 60))
+
+    // V. An answer that DESCRIBES notation instead of using it — "the column
+    //    vector 5 over −2" is not what a student writes on the line (1H 11a).
+    if (/column vector|\bover\s+[−-]?\d/i.test(r.answer ?? '') && !(r.answer ?? '').includes('<vec>')) {
+      add('answer describes notation', p.id, id, `"${(r.answer ?? '').slice(0, 50)}"`)
+    }
+
+    // W. Rows of data set as "Label: a, b" lines rather than a table (1H 5).
+    const rowish = lines.filter(l => /^[A-Z][\w ]{0,20}:\s*\S.*\d/.test(l) && !/^(Answer|Mistake|Scale|Tick)/.test(l))
+    if (rowish.length >= 2 && !r.question.includes('<table>')) {
+      add('tabular data not set as a table', p.id, id, rowish[0].slice(0, 60))
+    }
+
+    // X. A function graph on axes of different scale (1H 14): y = 3ˣ with y in
+    //    steps of 3 against x in steps of 1 is flattened threefold. Only a
+    //    y = f(x) plot small enough for equal steps to fit — a conversion
+    //    graph or a time series rightly scales its axes apart.
+    const d = r.diagram
+    if (d && /\by\s*=/.test(r.question) && /graph/i.test(r.question) &&
+        d.x.step !== d.y.step && (d.y.max - d.y.min) / d.y.step <= 12) {
+      add('function graph on unequal scales', p.id, id, `x step ${d.x.step}, y step ${d.y.step}`)
+    }
+
+    // Y. Three or more points given as coordinates in words, with no figure
+    //    (1H 11, 22) — a transformation or a gradient is read OFF a grid.
+    if (!d && (r.question.match(/\(\s*[−-]?\d+\s*,\s*[−-]?\d+\s*\)/g) ?? []).length >= 3) {
+      add('points listed in words, no figure', p.id, id, lines[0].slice(0, 60))
+    }
+  }
+
   // ── Rules from the 3F read ───────────────────────────────────────────────
   for (const [id, r] of Object.entries(p.retrySet)) {
     const q = byId.get(id)!
