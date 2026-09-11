@@ -205,7 +205,22 @@ export const AQA_8300_2H_JUN25: PaperConfig = {
       },
     },
 
-    '11': { skill: 'Angles in Polygons', question: 'A regular polygon has an interior angle of 156°. Work out the number of sides.', answer: '15 sides', working: 'The exterior angle is 180 − 156 = 24°, and 360 ÷ 24 = 15.' },
+    '11': {
+      skill: 'Angles in Polygons',
+      question: 'A straight line is drawn across a regular decagon.\nWork out the size of angle x.\nNot drawn accurately.',
+      answer: '72°',
+      working: 'Each interior angle of a regular decagon is 180 − 360 ÷ 10 = 144°.\nThe line joins opposite vertices, so the shape above it is a hexagon, whose angles add to 720°.\nFour of them are 144°, leaving 720 − 576 = 144° shared equally between the two ends of the line.\nSo x = 72°.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 12, step: 1, label: '' },
+        y: { min: 0, max: 10, step: 1, label: '' },
+        background: '<polygon points="10.28,6.391 8.645,8.641 6,9.5 3.355,8.641 1.72,6.391 1.72,3.609 3.355,1.359 6,0.5 8.645,1.359 10.28,3.609" stroke="#333" fill="none" /><polyline points="1.72,3.609 10.28,6.391" stroke="#333" fill="none" /><path d="M 2.671,3.918 A 1,1 0 0,1 1.72,4.609" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.602, y: 4.823, text: 'x' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
     '12a': { skill: 'Sampling', question: 'Priya wants to know whether students at her school think the library opening hours are long enough.\nShe asks 12 students who are in the library at lunchtime.\nGive one reason why her results may not represent the whole school.', answer: 'The students she asked already use the library, so they are not typical of the whole school', working: 'A sample drawn from one group is biased towards that group, and 12 is a very small sample.' },
     '12b': {
       skill: 'Reverse Percentage',
