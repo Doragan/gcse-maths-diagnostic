@@ -236,12 +236,17 @@ function QuestionPage() {
   // engine drops it entirely — so counting it here would put this page's window
   // out of step with the mastery it is trying to report. Five is enough for both
   // halves of the rule: see masteryStatusFor on why truncation is safe.
+  //
+  // Placement-test answers are excluded IN THE QUERY, not after it: they are
+  // priors, never practice, and filtering them client-side from a limit-5 fetch
+  // would let a recent placement answer push a real one out of the window.
   useEffect(() => {
     if (!studentId || !question || question.skill_ids.length === 0) return
     supabase
       .from('practice_attempts')
       .select('correct, kind')
       .eq('student_id', studentId)
+      .neq('kind', 'placement')
       .contains('skill_ids', [question.skill_ids[0]])
       .order('attempted_at', { ascending: false })
       .limit(5)
@@ -480,6 +485,27 @@ function QuestionPage() {
         misconception,
       })
     if (paError) console.error('Failed to record practice attempt:', paError.message) // audit L5
+
+    // First real answer on a skill: if the placement test judged it, record
+    // whether its verdict matched. This is the "right in the test → 61% later,
+    // wrong → 43%" comparison from docs/audit/17, measured live instead of by a
+    // one-off query. Only ever one extra read per skill per student.
+    if (priorSkillAttempts.length === 0 && question.skill_ids.length > 0) {
+      const skillId = question.skill_ids[0]
+      supabase
+        .from('practice_attempts')
+        .select('correct')
+        .eq('student_id', studentId)
+        .eq('kind', 'placement')
+        .contains('skill_ids', [skillId])
+        .order('attempted_at', { ascending: false })
+        .limit(1)
+        .then(({ data }) => {
+          if (data?.[0]) {
+            trackEvent('placement_first_practice', { skill_id: skillId, placement_correct: data[0].correct, correct })
+          }
+        })
+    }
 
     // If this question is part of an assignment, also record it there.
     // The teacher can read assignment_attempts (class-context work); they cannot
@@ -725,14 +751,17 @@ function QuestionPage() {
       setOptions(buildOptions(r.answer, r.traps, renderMcOptions(question.mc_options, r.generatedValues)))
     }
     if (studentId && question.skill_ids.length > 0) {
+      // Same window rules as the fetch on question load: no placement priors,
+      // and a wrong exam-kind answer is a no-op.
       const { data: recent } = await supabase
         .from('practice_attempts')
-        .select('correct')
+        .select('correct, kind')
         .eq('student_id', studentId)
+        .neq('kind', 'placement')
         .contains('skill_ids', [question.skill_ids[0]])
         .order('attempted_at', { ascending: false })
         .limit(5)
-      setPriorSkillAttempts(recent ?? [])
+      setPriorSkillAttempts((recent ?? []).filter(a => !(a.kind === 'exam' && !a.correct)))
     }
   }
 

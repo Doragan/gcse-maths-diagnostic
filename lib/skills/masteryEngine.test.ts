@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import {
-  calculateMastery, inferPrerequisiteMastery, getAccessibleSkillIds,
+  calculateMastery, getAccessibleSkillIds,
   getNeedsPracticeSkillIds, getWeightedSkillPool, applyPrerequisiteCredit,
-  masteryStatusFor, attemptsToMastery,
+  masteryStatusFor, attemptsToMastery, studentMastery, placementGapIds,
 } from './masteryEngine'
 
 // Helper to build attempts with increasing timestamps (oldest first).
 let t = 0
-const at = (skill_ids: string[], correct: boolean, kind?: 'mastery' | 'exam') => ({
+const at = (skill_ids: string[], correct: boolean, kind?: 'mastery' | 'exam' | 'placement') => ({
   skill_ids, correct, kind, attempted_at: new Date(2026, 0, 1, 0, 0, t++).toISOString(),
 })
 
@@ -103,29 +103,108 @@ describe('calculateMastery — exam-kind positive-only attribution', () => {
   })
 })
 
-describe('inferPrerequisiteMastery', () => {
+// ─────────────────────────────────────────────────────────────────────────────
+// Placement priors (docs/audit/17). A placement answer sets a skill's starting
+// status; it holds until the student's practice disagrees with it or settles
+// the skill outright. One test per row of the rule.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('placement priors — studentMastery', () => {
   const prereqs: Record<string, string[]> = { hard: ['mid', 'easy'], mid: ['easy'], easy: [] }
   const tree = (id: string) => prereqs[id] ?? []
+  const P = (skill: string, correct: boolean) => at([skill], correct, 'placement')
+  const map = (attempts: any[]) => studentMastery(attempts, tree)
 
-  it('a correct answer credits all transitive prerequisites as inferred-mastered', () => {
-    const base = calculateMastery([at(['hard'], true)])
-    const out = inferPrerequisiteMastery(base, tree)
-    expect(out.mid.status).toBe('mastered')
-    expect(out.mid.inferred).toBe(true)
-    expect(out.easy.status).toBe('mastered')
+  describe('the starting statuses', () => {
+    it('a right answer starts the skill mastered, labelled as placement', () => {
+      const m = map([P('mid', true)])
+      expect(m.mid.status).toBe('mastered')
+      expect(m.mid.source).toBe('placement')
+      expect(m.mid.inferred).toBeUndefined()
+    })
+    it('a wrong answer starts the skill as a gap', () => {
+      const m = map([P('mid', false)])
+      expect(m.mid.status).toBe('needs_practice')
+      expect(m.mid.source).toBe('placement')
+      expect(placementGapIds(m)).toEqual(['mid'])
+    })
+    it('a right answer credits every transitive prerequisite as mastered (inferred)', () => {
+      const m = map([P('hard', true)])
+      for (const id of ['mid', 'easy']) {
+        expect(m[id].status).toBe('mastered')
+        expect(m[id].inferred).toBe(true)
+        expect(m[id].source).toBe('placement')
+      }
+    })
+    it("a prerequisite's own wrong answer beats inference from a dependent", () => {
+      const m = map([P('easy', false), P('hard', true)])
+      expect(m.easy.status).toBe('needs_practice')
+      expect(m.mid.status).toBe('mastered')
+    })
+    it('a retake supersedes: the latest placement answer wins', () => {
+      expect(map([P('mid', false), P('mid', true)]).mid.status).toBe('mastered')
+      expect(map([P('mid', true), P('mid', false)]).mid.status).toBe('needs_practice')
+    })
   })
-  it('no inference without at least one correct answer', () => {
-    const base = calculateMastery([at(['hard'], false)])
-    const out = inferPrerequisiteMastery(base, tree)
-    expect(out.mid).toBeUndefined()
+
+  describe('the prior holds until practice disagrees', () => {
+    it('a placement-mastered skill stays mastered after a correct practice answer', () => {
+      const m = map([P('mid', true), at(['mid'], true)])
+      expect(m.mid.status).toBe('mastered')
+      expect(m.mid.source).toBe('placement')
+    })
+    it('…and gives way to practice on a wrong one', () => {
+      const m = map([P('mid', true), at(['mid'], false)])
+      expect(m.mid.status).toBe('in_progress')
+      expect(m.mid.source).toBeUndefined()
+    })
+    it('a gap stays a gap while practice keeps getting it wrong', () => {
+      const m = map([P('mid', false), at(['mid'], false)])
+      expect(m.mid.status).toBe('needs_practice')
+      expect(m.mid.source).toBe('placement')
+    })
+    it('…and clears on the first right answer', () => {
+      const m = map([P('mid', false), at(['mid'], true)])
+      expect(m.mid.status).toBe('in_progress')
+      expect(placementGapIds(m)).toEqual([])
+    })
+    it('a missed placement question never blocks the fast-track', () => {
+      // If the placement answer sat in the window it would be the earliest of
+      // the first three, and three real right answers could not fast-track.
+      const m = map([P('mid', false), at(['mid'], true), at(['mid'], true), at(['mid'], true)])
+      expect(m.mid.status).toBe('mastered')
+      expect(m.mid.source).toBeUndefined()
+    })
+    it('practice that settles a skill outright overrides an agreeing prior', () => {
+      const wrong = [1, 2, 3, 4, 5].map(() => at(['mid'], false))
+      const m = map([P('mid', false), ...wrong])
+      expect(m.mid.status).toBe('needs_practice')
+      expect(m.mid.source).toBeUndefined() // practice's verdict now, not the prior's
+    })
+    it('a wrong exam-kind answer neither confirms nor disturbs a prior', () => {
+      const m = map([P('mid', true), at(['mid'], false, 'exam')])
+      expect(m.mid.status).toBe('mastered')
+      expect(m.mid.source).toBe('placement')
+    })
+    it("an inferred prior yields to the prerequisite's own practice", () => {
+      const m = map([P('hard', true), at(['easy'], false)])
+      expect(m.easy.status).toBe('in_progress')
+      expect(m.easy.source).toBeUndefined()
+    })
   })
-  it('does not overwrite a prerequisite already mastered from real data', () => {
-    const base = calculateMastery([
-      at(['mid'], true), at(['mid'], true), at(['mid'], true), at(['mid'], true), at(['mid'], true),
-      at(['hard'], true),
-    ])
-    const out = inferPrerequisiteMastery(base, tree)
-    expect(out.mid.inferred).toBeUndefined() // stayed real-mastered, not flagged inferred
+
+  describe('placement answers are not practice', () => {
+    it('calculateMastery ignores them entirely', () => {
+      expect(calculateMastery([P('mid', true)])).toEqual({})
+    })
+    it('they trigger no L2 prerequisite credit (the prior carries its own)', () => {
+      const attempts = [P('hard', true)]
+      expect(applyPrerequisiteCredit(attempts, tree)).toBe(attempts)
+    })
+  })
+
+  it('gaps block the skills above them; credited prerequisites unlock them', () => {
+    expect(getAccessibleSkillIds(map([P('easy', false)]), ['mid'], tree)).toEqual([])
+    expect(getAccessibleSkillIds(map([P('mid', true)]), ['hard'], tree)).toEqual(['hard'])
   })
 })
 

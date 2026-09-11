@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { getStudentProfile } from '../../../lib/auth'
+import { getStudentProfile, PENDING_PLACEMENT_KEY } from '../../../lib/auth'
 import { courses } from '../../../data/courses'
 import { skillsById, getPrerequisiteTree, getDependentTree } from '../../../lib/skills/skillGraph'
-import { inferPrerequisiteMastery, type SkillMastery } from '../../../lib/skills/masteryEngine'
+import { studentMastery, placementGapIds, type AttemptKind } from '../../../lib/skills/masteryEngine'
 import { renderQuestion, type RenderedQuestion } from '../../../lib/questions/paramEngine'
 import { checkAnswer } from '../../../lib/questions/answerChecker'
 import { buildOptions, renderMcOptions } from '../../../lib/questions/multipleChoice'
@@ -57,6 +57,14 @@ type FeedbackState = {
   correct: boolean
   message: string
   explanation: string | null
+}
+
+/** The mastery-relevant shape of a practice_attempts row. */
+type AttemptRow = {
+  skill_ids: string[]
+  correct: boolean
+  attempted_at: string
+  kind?: AttemptKind
 }
 
 // ── Skill selection ──────────────────────────────────────────────────────────
@@ -118,6 +126,38 @@ function selectDiagnosticSkills(tierSkillIds: string[], count: number): string[]
   return Array.from(selected)
 }
 
+// ── Results ──────────────────────────────────────────────────────────────────
+
+/**
+ * What this sitting did to the student's map — computed with studentMastery,
+ * the same function the dashboard uses, so the results screen and the
+ * dashboard cannot say different things (docs/audit/17, finding 2).
+ *
+ * `prior` is everything the student had done before the test (a snapshot taken
+ * when it started, so this never races the inserts).
+ */
+function summarise(prior: AttemptRow[], sitting: AttemptRow[], items: DiagnosticItem[]) {
+  const before = studentMastery(prior, getPrerequisiteTree)
+  const after  = studentMastery([...prior, ...sitting], getPrerequisiteTree)
+  const tested = new Set(items.map(it => it.skillId))
+
+  // Skills the placement answers now decide. A tested skill the student has
+  // already practised is decided by that practice instead (the prior only
+  // fills in, or agrees with, what practice says) — reported separately.
+  const fromPlacement = (id: string) => after[id]?.source === 'placement'
+
+  const gaps      = placementGapIds(after).filter(id => tested.has(id))
+  const strengths = items.map(it => it.skillId)
+    .filter(id => fromPlacement(id) && after[id].status === 'mastered')
+  const credited  = Object.values(after)
+    .filter(m => m.source === 'placement' && m.inferred && !tested.has(m.skillId))
+    .filter(m => before[m.skillId]?.status !== 'mastered')
+    .map(m => m.skillId)
+  const tracked   = items.map(it => it.skillId).filter(id => !fromPlacement(id))
+
+  return { gaps, strengths, credited, tracked }
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function StudentDiagnosticPage() {
@@ -133,7 +173,14 @@ export default function StudentDiagnosticPage() {
   const [results,         setResults]         = useState<boolean[]>([])
   const [answer,          setAnswer]          = useState('')
   const [feedback,        setFeedback]        = useState<FeedbackState | null>(null)
-  const [pendingAttempts, setPendingAttempts] = useState<Array<{question_id: string; skill_ids: string[]; correct: boolean}>>([])
+  const [pendingAttempts, setPendingAttempts] = useState<Array<{question_id: string; skill_ids: string[]; correct: boolean; at: string}>>([])
+  // The student's attempts before this sitting, and this sitting's answers as
+  // placement attempts — the two inputs to the results summary.
+  const [priorAttempts,   setPriorAttempts]   = useState<AttemptRow[]>([])
+  const [sitting,         setSitting]         = useState<AttemptRow[]>([])
+  // In-flight inserts, awaited before leaving for practice so the practice page
+  // reads a map that already includes this sitting.
+  const saves = useRef<PromiseLike<unknown>[]>([])
 
 
   useEffect(() => {
@@ -168,11 +215,25 @@ export default function StudentDiagnosticPage() {
     // before running the impact-scored selection. Without this step, the selector
     // picks from the full curriculum and most chosen skills silently have no
     // questions, leaving the diagnostic short.
-    const { data: allQuestionsRaw } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('is_published', true)
-      .overlaps('skill_ids', tierSkillIds)
+    //
+    // Alongside it, snapshot the student's existing attempts: the results screen
+    // compares the map before and after this sitting.
+    const [{ data: allQuestionsRaw }, prior] = await Promise.all([
+      supabase
+        .from('questions')
+        .select('*')
+        .eq('is_published', true)
+        .overlaps('skill_ids', tierSkillIds),
+      studentId
+        ? supabase
+            .from('practice_attempts')
+            .select('skill_ids, correct, attempted_at, kind')
+            .eq('student_id', studentId)
+            .then(({ data }) => (data ?? []) as AttemptRow[])
+        : Promise.resolve([] as AttemptRow[]),
+    ])
+    setPriorAttempts(prior)
+    setSitting([])
 
     // The diagnostic serves ONE question per skill through the single-part
     // renderer (renderQuestion against q.answer_template). A multi-part question
@@ -269,26 +330,34 @@ export default function StudentDiagnosticPage() {
     setResults(r => [...r, result.correct])
     if (result.correct) setCorrectCount(c => c + 1)
 
-    // Record one honest practice_attempt — skill_ids contains only the
-    // targeted skill so the mastery engine attributes this to the right skill.
+    const at = new Date().toISOString()
+    setSitting(s => [...s, { skill_ids: [item.skillId], correct: result.correct, attempted_at: at, kind: 'placement' }])
+
+    // Record the answer as a PLACEMENT attempt: a prior on the targeted skill,
+    // not practice (lib/skills/masteryEngine.ts → placementPriors). skill_ids
+    // holds only the targeted skill so it lands on exactly that skill.
     if (studentId) {
-      supabase
-        .from('practice_attempts')
-        .insert({
-          student_id: studentId,
-          question_id: item.question.id,
-          skill_ids: [item.skillId],
-          correct: result.correct,
-        })
-        .then(({ error }) => {
-          if (error) console.error('Failed to save diagnostic attempt:', error)
-        })
+      saves.current.push(
+        supabase
+          .from('practice_attempts')
+          .insert({
+            student_id: studentId,
+            question_id: item.question.id,
+            skill_ids: [item.skillId],
+            correct: result.correct,
+            kind: 'placement',
+          })
+          .then(({ error }) => {
+            if (error) console.error('Failed to save placement answer:', error)
+          })
+      )
     } else {
       // Anonymous user — buffer locally; imported to the database at sign-up/login.
       setPendingAttempts(prev => [...prev, {
         question_id: item.question.id,
         skill_ids:   [item.skillId],
         correct:     result.correct,
+        at,
       }])
     }
   }
@@ -302,16 +371,29 @@ export default function StudentDiagnosticPage() {
     if (index + 1 >= items.length) {
       // Persist buffered answers so they survive the sign-up email confirmation
       // flow (user opens a new tab or closes the browser, then logs in later).
+      // Every login path imports them (lib/auth → migratePendingPractice).
       if (!studentId && pendingAttempts.length > 0) {
-        localStorage.setItem('pending_diagnostic', JSON.stringify(pendingAttempts))
+        localStorage.setItem(PENDING_PLACEMENT_KEY, JSON.stringify(pendingAttempts))
       }
-      trackEvent('diagnostic_complete', { correct: correctCount, total: items.length })
+      const summary = summarise(priorAttempts, sitting, items)
+      trackEvent('diagnostic_complete', {
+        correct: correctCount,
+        total: items.length,
+        gaps: summary.gaps.length,
+        credited: summary.credited.length,
+      })
       setPhase('complete')
     } else {
       setIndex(i => i + 1)
       setAnswer('')
       setFeedback(null)
     }
+  }
+
+  async function practiseGaps(gapCount: number) {
+    trackEvent('placement_gaps_practice_clicked', { gaps: gapCount })
+    await Promise.all(saves.current)
+    router.push('/practice?focus=gaps')
   }
 
   // ── Render: loading ────────────────────────────────────────────────────────
@@ -413,6 +495,7 @@ export default function StudentDiagnosticPage() {
   if (phase === 'complete') {
     const total = items.length
     const pct   = total > 0 ? Math.round((correctCount / total) * 100) : 0
+    const { gaps, credited, tracked } = summarise(priorAttempts, sitting, items)
 
     // Group items + results by topic
     const byTopic: Record<string, { item: DiagnosticItem; correct: boolean }[]> = {}
@@ -422,30 +505,13 @@ export default function StudentDiagnosticPage() {
       byTopic[topic].push({ item, correct: results[i] ?? false })
     })
 
-    // Compute inferred prerequisite skills from correct diagnostic answers.
-    // Build a one-attempt mastery map for each correctly answered skill, then
-    // run the same inference the dashboard uses.
-    const diagnosticMastery: Record<string, SkillMastery> = {}
-    items.forEach((item, i) => {
-      if (results[i]) {
-        diagnosticMastery[item.skillId] = {
-          skillId: item.skillId,
-          status: 'in_progress',
-          recentAttempts: 1,
-          recentCorrect: 1,
-        }
-      }
-    })
-    const augmented     = inferPrerequisiteMastery(diagnosticMastery, getPrerequisiteTree)
-    const directlyTested = new Set(items.map(it => it.skillId))
-    const inferredByTopic: Record<string, string[]> = {}
-    for (const [skillId, m] of Object.entries(augmented)) {
-      if (!m.inferred || directlyTested.has(skillId)) continue
+    // Credited prerequisites, grouped by topic for display.
+    const creditedByTopic: Record<string, string[]> = {}
+    for (const skillId of credited) {
       const topic = skillsById[skillId]?.topic ?? 'Other'
-      if (!inferredByTopic[topic]) inferredByTopic[topic] = []
-      inferredByTopic[topic].push(skillId)
+      if (!creditedByTopic[topic]) creditedByTopic[topic] = []
+      creditedByTopic[topic].push(skillId)
     }
-    const totalInferred = Object.values(inferredByTopic).flat().length
 
     const scoreColor = pct >= 70 ? colors.successText : pct >= 40 ? colors.warningText : colors.dangerText
     const scoreBg    = pct >= 70 ? colors.successLight : pct >= 40 ? colors.warningLight : colors.dangerLight
@@ -467,7 +533,7 @@ export default function StudentDiagnosticPage() {
             borderRadius: radius.lg,
             background: scoreBg,
             border: `1px solid ${scoreBorder}`,
-            marginBottom: '20px',
+            marginBottom: '12px',
           }}>
             <span style={{ fontSize: '2rem', fontWeight: '800', color: scoreColor, lineHeight: 1 }}>
               {correctCount}/{total}
@@ -477,10 +543,54 @@ export default function StudentDiagnosticPage() {
                 {pct >= 70 ? 'Great work!' : pct >= 40 ? 'Good start!' : 'Keep practising!'}
               </p>
               <p style={{ fontSize: font.sm, color: scoreColor, margin: 0 }}>
-                {pct}% correct · {studentId ? 'Your dashboard has been updated.' : 'Sign up to save your results.'}
+                {pct}% correct · {studentId ? 'Saved to your dashboard.' : 'Sign up to save your results.'}
               </p>
             </div>
           </div>
+
+          {/* The rule, once — so the dashboard's labels make sense later. */}
+          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 20px', lineHeight: '1.5' }}>
+            These are your starting points. Practise any skill and your own answers take over.
+          </p>
+
+          {/* Gaps found — the hand-off this test exists for */}
+          {gaps.length > 0 && (
+            <div style={{
+              marginBottom: '20px',
+              padding: '14px 16px',
+              borderRadius: radius.lg,
+              background: colors.dangerLight,
+              border: `1px solid ${colors.dangerBorder}`,
+            }}>
+              <p style={{ fontSize: font.base, fontWeight: '700', color: colors.dangerText, margin: '0 0 4px' }}>
+                {gaps.length} gap{gaps.length !== 1 ? 's' : ''} found
+              </p>
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 12px', lineHeight: '1.5' }}>
+                {studentId
+                  ? 'These are marked Needs practice on your dashboard until you practise them.'
+                  : 'Create a free account to save these and practise them.'}
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', marginBottom: studentId ? '14px' : 0 }}>
+                {gaps.map(skillId => (
+                  <span key={skillId} style={{
+                    fontSize: font.sm,
+                    padding: '3px 10px',
+                    borderRadius: radius.full,
+                    background: colors.card,
+                    color: colors.dangerText,
+                    border: `1px solid ${colors.dangerBorder}`,
+                  }}>
+                    {skillsById[skillId]?.name ?? skillId}
+                  </span>
+                ))}
+              </div>
+              {studentId && (
+                <button onClick={() => practiseGaps(gaps.length)} style={primaryButton}>
+                  Practise your gaps →
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Per-topic breakdown */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
@@ -522,8 +632,16 @@ export default function StudentDiagnosticPage() {
             })}
           </div>
 
-          {/* Inferred prerequisite skills */}
-          {totalInferred > 0 && (
+          {/* Practice already decides these — say so rather than imply the test did. */}
+          {tracked.length > 0 && (
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: '0 0 20px', lineHeight: '1.5' }}>
+              You&apos;ve already practised {tracked.length === 1 ? 'one of these skills' : `${tracked.length} of these skills`}, so
+              your practice answers keep deciding {tracked.length === 1 ? 'it' : 'them'}.
+            </p>
+          )}
+
+          {/* Credited prerequisite skills */}
+          {credited.length > 0 && (
             <div style={{
               marginBottom: '20px',
               padding: '14px 16px',
@@ -532,14 +650,14 @@ export default function StudentDiagnosticPage() {
               border: `1px solid ${colors.border}`,
             }}>
               <p style={{ fontSize: font.base, fontWeight: '600', color: colors.textPrimary, margin: '0 0 4px' }}>
-                +{totalInferred} prerequisite skill{totalInferred !== 1 ? 's' : ''} also credited
+                +{credited.length} prerequisite skill{credited.length !== 1 ? 's' : ''} also credited
               </p>
               <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 12px', lineHeight: '1.5' }}>
-                Because you answered these questions correctly, Mathsense has credited the
-                skills you must already know to get there.
+                Because you answered these questions correctly, Mathsense has marked the
+                skills underneath them as mastered to start with.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {Object.entries(inferredByTopic).map(([topic, skillIds]) => (
+                {Object.entries(creditedByTopic).map(([topic, skillIds]) => (
                   <div key={topic}>
                     <p style={{
                       fontSize: font.sm,
@@ -574,7 +692,7 @@ export default function StudentDiagnosticPage() {
           {studentId ? (
             <button
               onClick={() => router.push('/student/dashboard')}
-              style={primaryButton}
+              style={gaps.length > 0 ? secondaryButton : primaryButton}
             >
               View my dashboard →
             </button>
@@ -590,7 +708,7 @@ export default function StudentDiagnosticPage() {
                   Save your results &amp; track your progress
                 </p>
                 <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: '1.5' }}>
-                  Create a free account to save your skill map, see your full diagnostic breakdown on your dashboard, and start practising the areas you need most.
+                  Create a free account to save your skill map, see these results on your dashboard, and practise the gaps this test found.
                 </p>
               </div>
               <button

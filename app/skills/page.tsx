@@ -8,7 +8,8 @@ import { foundationSkillIds, higherOnlySkillIds } from '../../data/courses'
 import { hasBriefing, briefedSkillIds } from '../../data/skillBriefings'
 import { skillPath } from '../../lib/skills/slug'
 import { getTier, setTier as persistTier } from '../../lib/skills/tierPreference'
-import { calculateMastery, type MasteryStatus } from '../../lib/skills/masteryEngine'
+import { studentMastery, type MasteryStatus } from '../../lib/skills/masteryEngine'
+import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { getStudentProfile } from '../../lib/auth'
 import { trackEvent } from '../../lib/analytics'
 import { colors, font, radius, secondaryButton } from '../../lib/styles'
@@ -59,7 +60,7 @@ export default function SkillsIndexPage() {
         .select('skill_ids, correct, attempted_at, kind')
         .eq('student_id', profile.id)
       if (!data?.length) return
-      const m = calculateMastery(data as never)
+      const m = studentMastery(data as never, getPrerequisiteTree)
       setMastery(Object.fromEntries(Object.entries(m).map(([k, v]) => [k, v.status])))
     })()
   }, [])
