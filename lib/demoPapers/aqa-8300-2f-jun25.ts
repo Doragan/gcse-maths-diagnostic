@@ -171,8 +171,9 @@ export const AQA_8300_2F_JUN25: PaperConfig = {
     '8a': { skill: 'Time Calculations', question: 'Convert 2 and three quarter hours to minutes.', answer: '165 minutes', working: '2 × 60 + 45' },
     '8b': { skill: 'Converting Measurements', question: 'Convert 2600 grams to kilograms.', answer: '2.6 kilograms' },
     '8c': { skill: 'Proportion', question: 'Convert 56 kilometres to miles. Use 8 kilometres = 5 miles.', answer: '35 miles', working: '56 ÷ 8 = 7, then × 5.' },
-    '9a': { skill: 'Time Calculations', question: 'Nadia started work at 09:45 and worked for 5 hours 30 minutes. What time did she finish?', answer: '15:15 (3:15 pm)' },
-    '9b': { skill: 'Fractions of Amounts', question: 'Ravi worked for a total of 6 hours one day, and spent 100 minutes of that time online.\nRavi says he spent more than one quarter of his total working time online.\nIs he correct?\nShow working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
+    // 9(a) and (b) read one table of two workers, as on the paper.
+    '9a': { skill: 'Time Calculations', question: 'The table shows information about two workers on one day.\n<table> | Total working time (hours) | Working time spent online (minutes)\nNadia | 5 | 95\nRavi | 6 | 100</table>\nNadia started work at 09:45\nWhat time did she finish?', answer: '14:45 (2:45 pm)', working: '09:45 plus 5 hours.' },
+    '9b': { skill: 'Fractions of Amounts', question: 'The table shows information about two workers on one day.\n<table> | Total working time (hours) | Working time spent online (minutes)\nNadia | 5 | 95\nRavi | 6 | 100</table>\nRavi says he spent more than one quarter of his total working time online.\nIs he correct?\nTick a box.\n[   ] Yes\n[   ] No\nShow working to support your answer.', answer: 'Yes', working: 'A quarter of 6 hours is 90 minutes, and 100 is more than 90.' },
     // 10(a) and (b) show the two similar shapes, with their measurements on
     // the figure rather than only in the sentence — which is what `labels`
     // exists for, and what the exam does.

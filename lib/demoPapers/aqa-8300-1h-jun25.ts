@@ -296,20 +296,50 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '17b': { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3, and when it is raining the probability that a bus is not on time is 0.6. Work out the probability that it is raining and the bus is not on time.', answer: '0.18', working: '0.3 × 0.6' },
+    // 17(b) reads the same tree as 17(a), as on the paper, rather than being
+    // told the probability that (a) asks the student to find.
+    '17b': {
+      skill: 'Tree Diagrams',
+      question: 'The tree diagram shows the probability of rain and of a bus being on time.\nWhen it is raining, the probability that the bus is on time is half the probability when it is not raining.\nWork out the probability that it is raining and the bus is not on time.',
+      answer: '0.18',
+      working: 'On time when raining is half of 0.8 = 0.4, so not on time is 0.6; then 0.3 × 0.6.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 9, step: 1, label: '' },
+        background: '<polyline points="1,4.3 3.4,6.7" stroke="#333" fill="none" /><polyline points="1,4.3 3.4,1.9" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,7.8" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,5.5" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,3" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,0.8" stroke="#333" fill="none" /><polyline points="5.55,7.6 6.45,7.6 6.45,8.2 5.55,8.2 5.55,7.6" stroke="#333" fill="none" /><polyline points="5.3,5.05 6.2,5.05 6.2,5.65 5.3,5.65 5.3,5.05" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.2, y: 6.05, text: '0.3' },
+          { x: 2.2, y: 2.55, text: '0.7' },
+          { x: 6, y: 2.9, text: '0.8' },
+          { x: 6, y: 0.65, text: '0.2' },
+          { x: 4.1, y: 6.7, text: 'Rain' },
+          { x: 4.1, y: 1.9, text: 'No rain' },
+          { x: 7.9, y: 7.8, text: 'On time' },
+          { x: 8.1, y: 5.5, text: 'Not on time' },
+          { x: 7.9, y: 3, text: 'On time' },
+          { x: 8.1, y: 0.8, text: 'Not on time' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    // As on the paper, the answer keeps a surd — a √a over b — rather than
+    // collapsing to a whole number.
     '18': {
       skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds',
-      question: 'Show that (sin 60° × tan 45°) ÷ cos 30° can be written as an integer.',
-      answer: 'sin 60° = √3 ÷ 2 and cos 30° = √3 ÷ 2, so they cancel; tan 45° = 1, leaving 1 × 1 = 1',
-      working: 'sin 60° and cos 30° are equal, and tan 45° = 1, so the expression is 1.',
+      question: 'Show that <frac>cos 30° × sin 45°/tan 60°</frac> can be written in the form <frac>√a/b</frac>, where a and b are integers.',
+      answer: '<frac>√2/4</frac>, so a = 2 and b = 4',
+      working: 'cos 30° = <frac>√3/2</frac>, sin 45° = <frac>√2/2</frac> and tan 60° = √3, so the top is <frac>√6/4</frac>, and <frac>√6/4</frac> ÷ √3 = <frac>√2/4</frac>.',
     },
+    // A non-unit fraction, as on the paper, so the answer is a fraction too.
     '19a': {
       skill: 'Fractional and Negative Indices',
-      question: 'Work out the value of <paren><frac>1/16</frac></paren><sup>−3/4</sup>',
-      answer: '8',
-      working: 'The negative power inverts the fraction to give 16, the fourth root of 16 is 2, and 2³ = 8.',
+      question: 'Work out the value of <paren><frac>4/25</frac></paren><sup>−3/2</sup>',
+      answer: '<frac>125/8</frac>',
+      working: 'The negative power inverts the fraction to <frac>25/4</frac>, its square root is <frac>5/2</frac>, and cubed that is <frac>125/8</frac>.',
     },
-    '19b': { skill: 'Fractional and Negative Indices', question: '1024 = 2ⁿ. Work out the value of n.', answer: 'n = 10', working: 'Doubling from 1: 2, 4, 8, … 1024 is the tenth.' },
+    // A root, as on the paper, so n is a fraction rather than a whole number.
+    '19b': { skill: 'Fractional and Negative Indices', question: '√343 = 7ⁿ\nWork out the value of n.', answer: 'n = <frac>3/2</frac>', working: '343 = 7³, and a square root halves the power.' },
     '20': { skill: 'Simplifying Surds', question: 'Express √18 + √50 + √98 in the form a√n, where a and n are integers.', answer: '15√2', working: 'Each term is a multiple of √2: 3 + 5 + 7.' },
 
     // 21(a) and (b) are `visual: true` and get grids. f is given as a polyline
@@ -365,7 +395,10 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
     },
     '23a': { skill: 'Completing the Square', question: 'Write x² + 10x + 32 in the form (x + a)² + b, where a and b are integers.', answer: '(x + 5)² + 7', working: '(x + 5)² = x² + 10x + 25, and 32 − 25 = 7.' },
     '23b': { skill: 'Completing the Square', question: 'A curve has the equation y = (x + 4)² − 5. Write down the coordinates of the turning point of the curve.', answer: '(−4, −5)', working: 'The bracket is zero when x = −4, and that is where y is least.' },
-    '24': { skill: 'Algebraic Fractions + Algebraic Proof + Difference of Two Squares', question: 'Prove that <frac>x² − 9/x + 3</frac> − (x − 3) is equal to 0 for every value of x except x = −3', answer: 'It simplifies to 0', working: 'x² − 9 is (x + 3)(x − 3), so the fraction cancels to x − 3, and (x − 3) − (x − 3) = 0.' },
+    // The paper's proof: factorise (a common factor AND a difference of two
+    // squares), cancel a factor that is negative, and show what is left can
+    // never be positive.
+    '24': { skill: 'Algebraic Fractions + Algebraic Proof + Difference of Two Squares', question: 'Prove that <frac>12x⁴ − 27x²/−2x − 3</frac> × <frac>1/4x − 6</frac> can never be positive.', answer: 'It simplifies to −<frac>3x²/2</frac>, which can never be positive', working: '12x⁴ − 27x² = 3x²(2x − 3)(2x + 3) and −2x − 3 = −(2x + 3), so the first fraction is −3x²(2x − 3). 4x − 6 = 2(2x − 3), leaving −<frac>3x²/2</frac>; x² is never negative.' },
     '25': {
       skill: 'Conditional Probability + Solving Quadratic Equations (Factorising) + Algebraic Fractions',
       question: 'There are n counters in a box.\n5 of the counters are red.\nTwo counters are chosen at random, without replacement.\nThe probability that both counters are red is <frac>2/9</frac>.\nUse an algebraic method to work out the value of n.',

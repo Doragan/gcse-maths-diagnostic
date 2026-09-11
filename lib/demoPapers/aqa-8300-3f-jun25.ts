@@ -248,13 +248,15 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
       },
     },
     '6': { skill: 'Converting Measurements', question: 'Which metric unit would be most suitable for each measurement? Choose millimetres, metres or kilometres for each.\n(i)   the thickness of a coin\n(ii)  the width of a classroom\n(iii) the distance between two cities', answer: '(i) millimetres, (ii) metres, (iii) kilometres' },
+    // 7(a) and (b) share the two plans, set side by side as the paper sets
+    // them.
     '7a': {
       skill: 'Simple Arithmetic',
-      question: 'Plan A costs £420 for the phone plus £13 per month for 24 months. Show that the total cost of Plan A for 24 months is £732',
+      question: 'A mobile phone company has two different plans.\n<table>Plan A | Plan B\nPhone £420 | Phone is free\nplus | plus\n£13 per month for 24 months | £38 per month for 24 months</table>\nShow that the total cost of Plan A for 24 months is £732',
       answer: 'Monthly cost 13 × 24 = 312, then 420 + 312 = 732',
       working: 'A show-that earns nothing for quoting £732, which the question already gave. Both steps have to appear: the 24 months at £13, and that total added to the £420 for the phone.',
     },
-    '7b': { skill: 'Percentage Change', question: 'Plan A costs £732 in total for 24 months.\nPlan B has a free phone plus £38 per month for 24 months, and during a sale the total cost of Plan B is reduced by 15%.\nWhich plan is cheaper for 24 months during the sale? Show working to support your answer.\n[   ] Plan A\n[   ] Plan B', answer: 'Plan A', working: 'Plan B is £912 before the sale and £775.20 after it.' },
+    '7b': { skill: 'Percentage Change', question: 'A mobile phone company has two different plans.\n<table>Plan A | Plan B\nPhone £420 | Phone is free\nplus | plus\n£13 per month for 24 months | £38 per month for 24 months</table>\nDuring a sale, the total cost of Plan B is reduced by 15%\nWhich plan is cheaper for 24 months during the sale?\nTick a box.\n[   ] Plan A\n[   ] Plan B\nShow working to support your answer.', answer: 'Plan A', working: 'Plan A is £420 + 24 × £13 = £732. Plan B is 24 × £38 = £912 before the sale and £775.20 after it.' },
     '8': { skill: 'Simple Arithmetic + Solving Linear Equations', question: 'One coffee costs £2.40. Three coffees and four teas cost £14.00 altogether. Work out the cost of one tea.', answer: '£1.70', working: 'The coffees cost £7.20, leaving £6.80 for four teas.' },
     '9a': {
       skill: 'Indices',
@@ -303,8 +305,9 @@ export const AQA_8300_3F_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
-    '14a': { skill: 'Probability Spaces', question: 'A box contains cards that are red, blue, green or yellow.\nP(red) = 0.15 and P(blue) = 0.29\nP(green) = P(yellow)\nWork out P(green) and P(yellow).', answer: '0.28 each', working: 'Red and blue take 0.44, leaving 0.56 to share equally.' },
-    '14b': { skill: 'Expected Outcomes', question: 'A box contains cards that are red, blue, green or yellow.\nP(red) = 0.15 and P(blue) = 0.29\nThere are 400 cards in the box.\nHow many of the cards are not blue?', answer: '284', working: '1 − 0.29 = 0.71, and 400 × 0.71.' },
+    // 14(a) and (b) share the probability table, as on the paper.
+    '14a': { skill: 'Probability Spaces', question: 'A box contains cards that are either red, blue, green or yellow.\n<table>Colour | Red | Blue | Green | Yellow\nProbability | 0.15 | 0.29 |  | </table>\nP(green) = P(yellow)\nComplete the table.', answer: 'Green 0.28 and yellow 0.28', working: 'Red and blue take 0.44, leaving 0.56 to share equally.' },
+    '14b': { skill: 'Expected Outcomes', question: 'A box contains cards that are either red, blue, green or yellow.\n<table>Colour | Red | Blue | Green | Yellow\nProbability | 0.15 | 0.29 |  | </table>\nThere are 400 cards in the box.\nHow many cards are not blue?', answer: '284', working: '1 − 0.29 = 0.71, and 400 × 0.71.' },
     '15': {
       skill: 'Congruence and Similarity',
       question: 'A and B are triangles.\nFor each statement, state whether A and B are always congruent, sometimes congruent, or never congruent.\n(i)   A and B have the same area\n(ii)  A and B have two sides and the angle between them equal\n(iii) A’s longest side is longer than B’s longest side',
