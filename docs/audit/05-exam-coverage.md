@@ -38,11 +38,14 @@ See §E2b for the three skills where the rule should be overridden by hand.
   33 skills / ~280 marks. Eight of the ten need drawing or free-text marking;
   only `trig_graphs` (3 marks) and `sketching_functions` (2) are
   authorable-and-untouched. Ranking by zero-coverage now produces near-noise.
-- **The gap moved from breadth to shape.** Real papers are **63 % exam-kind
-  (synthesis) marks** — 606 of 960, across 215 of 444 parts. The published bank
-  is **30 of 242 questions exam-kind (12 %)**, up from 21 of 233 (9 %) after the
-  first content batch. Still less than a fifth of the way to the papers' own
-  ratio, and several heavy synthesis skills remain at zero — see E2c.
+- **Synthesis share is near parity** _(corrected 2026-09-11)_. This bullet
+  originally read "real papers are 63 % exam-kind marks — 606 of 960, across
+  215 of 444 parts", which was true of the 2024 files' original coding.
+  `017c652` (2026-08-20) re-tagged them onto the authoring `kind` rule:
+  2024 is now **150 of 960 marks (16 %), 43 of 444 parts**. Across all 42
+  coded papers with the independence rule applied, papers are **21 %** (AQA
+  20 %, Edexcel 24 %, OCR 25 %). The published bank is **45 of 267 (17 %)**
+  exam-kind. See E2c and `17-synthesis-brief.md` §0.
 - **Depth is the remaining coverage problem.** 83 exam-tested skills sit at 1–2
   questions (was 87).
 - **Most `app_gap_note` text is stale.** The equivalence grader, `multi_blank`
@@ -110,9 +113,15 @@ skills rather than foundational plumbing, and they are thin. Treat as Tier 2:
 `simple_arithmetic` (63 primary, 1 question, 137 dependents) stays excluded —
 it is the exact case the rule exists for.
 
-## E2c — The synthesis shortfall _(largest single mismatch)_
+## E2c — The synthesis shortfall _(corrected 2026-09-11: no longer a shortfall)_
 
-Papers: **63 % of marks are `kind: exam`**. Bank: **12 % of questions**. Ranked
+> **Correction.** The 63 % below was the 2024 files' original, looser coding.
+> After the `017c652` re-tag (2026-08-20), 2024 is 16 % exam-kind marks, and
+> all 42 papers are 21 % under the independence rule, against a bank at 17 %
+> (45 of 267). The per-skill table is kept as a historical record of what the
+> synthesis batches addressed; it is not a live priority list.
+
+Papers _(2026-08-08 coding, since superseded)_: **63 % of marks are `kind: exam`**. Bank: **12 % of questions**. Ranked
 by exam-kind marks (primary / involvement), near-root excluded. ✅ marks the
 three skills the first batch addressed.
 

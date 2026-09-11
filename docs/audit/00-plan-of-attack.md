@@ -36,9 +36,17 @@ The bank has roughly doubled since this audit (133 → **256 published**, 113 �
   — several of the additions (`rotations`, `translations`, `box_plots`,
   `scatter_graphs`) look like `grid_draw` candidates rather than hard blocks.
   The **29 primary marks** figure is from 2026-08-08 and was not recomputed.
-- **The gap moved from breadth to shape** — real papers are **63 % exam-kind
-  (synthesis) marks**; the bank is **17 %** (43 of 256, after six content
-  batches — was 9 %, then 12 %). **Every skill named in the original synthesis
+- **Synthesis share is near parity — the gap is depth, not shape** —
+  _(corrected 2026-09-11)_ real papers are **21 % exam-kind (synthesis) marks**
+  under the independence rule (AQA 20 %, Edexcel 24 %, OCR 25 %; 29 % as
+  coded, across all 42 papers). The bank is **17 %** by question count (45 of
+  267 published) and ~25 % by marks. The **63 %** previously quoted here was
+  the 2024 series under its original, looser coding (606 of 960 marks);
+  `017c652` (2026-08-20) re-tagged those files onto the authoring `kind` rule,
+  dropping 2024 to **16 %** (150 of 960), and this figure was never updated.
+  The Edexcel/OCR June 2025 files were not re-tagged: half their exam-coded
+  rows pair a skill with its own prerequisite. Detail in
+  `17-synthesis-brief.md` §0. **Every skill named in the original synthesis
   queue now has exam-kind coverage**: `proportion`, `ratio`, `compound_units`
   and `kinematic_graphs` (batch 1), `growth_and_decay` (batch 4), `pie_charts`,
   `forming_expressions_and_formulae` and `simplifying_indices` (batch 5),
@@ -73,7 +81,7 @@ dependents ≥ 8). Detail in `05-exam-coverage.md`; blocked set in
 | D1 | ✅ 9/12 FIXED | Deleted 9 broken traps; `round(x±0.01)` replaced by a grader rounding check. 3 remain = Bucket C (left for user investigation) |
 | E1 | 🟠 REOPENED | _(was: 33 zero-coverage skills / ~280 marks / 18 authorable; restated 2026-08-08 to 10 / 29 marks)_ **Recounted 2026-08-26: 13 exam-tested skills at zero** — the set grew when the 2023 series was coded, so this is no longer "largely closed". Full list in the coverage restatement above; the blocked-vs-authorable split needs re-deriving, and the 29-marks figure was not recomputed |
 | E2 | 🟠 Med | **Now the live content backlog.** _(recomputed 2026-08-26)_ **91** of 145 exam-tested skills at 1–2 questions, **59** at exactly one — up from 83 / 50, because coding the 2023 series enlarged the exam-tested set faster than the bank grew. Top by primary marks, keeping only those **still thin**: `inverse_proportion` 18, `time_series` 12, `reverse_percentage` 12 (near-root excluded; `simple_charts` 19 / `calculating_simple_probability` 19 / `fractions_decimals_and_percentages` 16 are hand-overrides). `tree_diagrams` 15, `kinematic_graphs` 14 and `simplifying_indices` 13 have since reached 3–4 questions and drop off the thin list |
-| E5 | 🟠 Med | **New 2026-08-08 — synthesis shortfall.** Papers are 63 % exam-kind marks; bank was 9 % exam-kind questions. **Six batches published to 2026-08-26**, lifting the bank to 17 % (43 of 256). The original queue is fully cleared — `proportion`/`ratio`/`compound_units` (batch 1), `growth_and_decay` (4), `pie_charts`/`forming_expressions_and_formulae`/`simplifying_indices` (5), `rearranging_formulae`/`tree_diagrams`/`venn_diagrams` (6). **Batch 6 also reset the house style** — the decision-framed shape it inherited was rejected on review; see Phase 5 step 1 |
+| E5 | 🟡 Low | **New 2026-08-08 — synthesis shortfall. Corrected 2026-09-11: near parity.** Papers were quoted at 63 % exam-kind marks, but that predated the `017c652` re-tag; under the independence rule papers are **21 %** vs a bank at 17 % (45 of 267), so E5 is effectively closed and E2 depth is the live gap. At the time the bank was 9 % exam-kind questions. **Six batches published to 2026-08-26**, lifting the bank to 17 % (43 of 256). The original queue is fully cleared — `proportion`/`ratio`/`compound_units` (batch 1), `growth_and_decay` (4), `pie_charts`/`forming_expressions_and_formulae`/`simplifying_indices` (5), `rearranging_formulae`/`tree_diagrams`/`venn_diagrams` (6). **Batch 6 also reset the house style** — the decision-framed shape it inherited was rejected on review; see Phase 5 step 1 |
 | E6 | 🟠 Med | **New 2026-08-08 — shipped capability unexploited.** _(counts re-verified 2026-08-26)_ 6 `multi_blank` + 8 `grid_draw` + 3 `mark_bands` parts across 256 questions; ~308 of 479 previously app-blocked marks are authorable today. The `app_gap_note` text in `data/exam-audit/` is stale and must be cross-checked against current capability |
 | ④-lint | ✅ DONE | 146 → 0 errors; pragmatic rules → warnings; CI lint now blocking |
 | L3 | ✅ FIXED | `tryAgain` now folds the prior attempt into the mastery window (no false celebration) |
