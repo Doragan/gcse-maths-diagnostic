@@ -86,7 +86,9 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
   // 72mm wide.
   retrySet: {
     '1': { skill: 'Proportion + Converting Measurements', question: 'Convert 13.2 pounds into kilograms. Use 2.2 pounds = 1 kilogram.', answer: '6 kg', working: '13.2 ÷ 2.2' },
-    '2': { skill: 'Outliers', question: 'Here are the times, in minutes, taken by six people to finish a puzzle: 4, 6, 5.5, 7, 42, 5. Write down the outlier.', answer: '42 minutes', working: 'Every other time is between 4 and 7.' },
+    // A negative in the data, as on the paper, and a context where one belongs.
+    // A negative in the data, as on the paper, and a context where one belongs.
+    '2': { skill: 'Outliers', question: 'Here are the temperatures of six freezers in a shop.\n−18 °C     −20 °C     −17.5 °C     4 °C     −19 °C     −21 °C\nWrite down the outlier.', answer: '4 °C', working: 'Every other freezer is between −21 °C and −17.5 °C.' },
     // The paper's question is a DIAGRAM to label: lettered parts of a circle
     // matched to a word bank. The retry draws its own circle with different
     // parts lettered (a diameter given, then a segment, a chord and a tangent).
@@ -150,20 +152,26 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
+    // Laid out differently from the paper: the distance asked for is a
+    // DIAGONAL, measured with a ruler (3 across and 4 down, so 5 cm), and the
+    // bearing is North East rather than the paper's South East.
+    // Laid out differently from the paper: the distance asked for is a
+    // DIAGONAL, measured with a ruler (3 across and 4 down, so 5 cm), and the
+    // bearing is North East rather than the paper's South East.
     '6a': {
       skill: 'Proportion',
-      question: 'The scale diagram shows towns A, B and C on a centimetre grid.\nScale 1 : 400 000\nWork out the actual distance from B to C.\nGive your answer in kilometres.',
-      answer: '26 km (accept 25.6 km to 26.4 km)',
-      working: 'B to C measures 6.5 cm. 6.5 × 400 000 = 2 600 000 cm, and 100 000 cm = 1 km, so the distance is 26 km.',
+      question: 'The scale diagram shows towns A, B and C on a centimetre grid.\nScale 1 : 250 000\nWork out the actual distance from A to B.\nGive your answer in kilometres.',
+      answer: '12.5 km (accept 12.25 km to 12.75 km)',
+      working: 'A to B measures 5 cm (3 across and 4 down). 5 × 250 000 = 1 250 000 cm, and 100 000 cm = 1 km.',
       diagram: {
         mode: 'points', showAxes: false, showGrid: false,
         x: { min: 0, max: 11.6, step: 1, label: '' },
         y: { min: 0, max: 10, step: 1, label: '' },
-        background: '<polyline points="0,0 0,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,0 10,0" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="1,0 1,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,1 10,1" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="2,0 2,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,2 10,2" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="3,0 3,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,3 10,3" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="4,0 4,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,4 10,4" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="5,0 5,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,5 10,5" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="6,0 6,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,6 10,6" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="7,0 7,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,7 10,7" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="8,0 8,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,8 10,8" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="9,0 9,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,9 10,9" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="10,0 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,10 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polygon points="0,0 10,0 10,10 0,10" stroke="#333" fill="none" /><polyline points="5.83,5.83 6.17,6.17" stroke="#333" fill="none" /><polyline points="5.83,6.17 6.17,5.83" stroke="#333" fill="none" /><polyline points="9.33,2.83 9.67,3.17" stroke="#333" fill="none" /><polyline points="9.33,3.17 9.67,2.83" stroke="#333" fill="none" /><polyline points="2.83,2.83 3.17,3.17" stroke="#333" fill="none" /><polyline points="2.83,3.17 3.17,2.83" stroke="#333" fill="none" /><polyline points="11,7.8 11,9.6" stroke="#333" fill="none" /><polyline points="10.82,9.3 11,9.6" stroke="#333" fill="none" /><polyline points="11.18,9.3 11,9.6" stroke="#333" fill="none" />',
+        background: '<polyline points="0,0 0,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,0 10,0" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="1,0 1,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,1 10,1" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="2,0 2,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,2 10,2" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="3,0 3,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,3 10,3" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="4,0 4,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,4 10,4" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="5,0 5,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,5 10,5" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="6,0 6,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,6 10,6" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="7,0 7,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,7 10,7" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="8,0 8,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,8 10,8" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="9,0 9,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,9 10,9" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="10,0 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,10 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polygon points="0,0 10,0 10,10 0,10" stroke="#333" fill="none" /><polyline points="1.83,6.83 2.17,7.17" stroke="#333" fill="none" /><polyline points="1.83,7.17 2.17,6.83" stroke="#333" fill="none" /><polyline points="4.83,2.83 5.17,3.17" stroke="#333" fill="none" /><polyline points="4.83,3.17 5.17,2.83" stroke="#333" fill="none" /><polyline points="7.83,5.83 8.17,6.17" stroke="#333" fill="none" /><polyline points="7.83,6.17 8.17,5.83" stroke="#333" fill="none" /><polyline points="11,7.8 11,9.6" stroke="#333" fill="none" /><polyline points="10.82,9.3 11,9.6" stroke="#333" fill="none" /><polyline points="11.18,9.3 11,9.6" stroke="#333" fill="none" />',
         labels: [
-          { x: 6, y: 6, text: 'A', dx: -12, dy: -10 },
-          { x: 9.5, y: 3, text: 'B', dx: -12, dy: -10 },
-          { x: 3, y: 3, text: 'C', dx: -12, dy: -10 },
+          { x: 2, y: 7, text: 'A', dx: -12, dy: -10 },
+          { x: 5, y: 3, text: 'B', dx: -12, dy: -10 },
+          { x: 8, y: 6, text: 'C', dx: -12, dy: -10 },
           { x: 11, y: 9.6, text: 'N', dy: -8 },
         ],
         elements: [], tolerance: 0,
@@ -171,18 +179,18 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     },
     '6b': {
       skill: 'Bearings',
-      question: 'The scale diagram shows towns A, B and C on a centimetre grid.\nScale 1 : 400 000\nC is South West of A.\nWrite down the bearing of C from A.',
-      answer: '225°',
-      working: 'Clockwise from north: south is 180° and south west is another 45°.',
+      question: 'The scale diagram shows towns A, B and C on a centimetre grid.\nScale 1 : 250 000\nC is North East of B.\nWrite down the bearing of C from B.',
+      answer: '045°',
+      working: 'North East is halfway between north (000°) and east (090°).',
       diagram: {
         mode: 'points', showAxes: false, showGrid: false,
         x: { min: 0, max: 11.6, step: 1, label: '' },
         y: { min: 0, max: 10, step: 1, label: '' },
-        background: '<polyline points="0,0 0,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,0 10,0" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="1,0 1,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,1 10,1" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="2,0 2,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,2 10,2" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="3,0 3,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,3 10,3" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="4,0 4,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,4 10,4" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="5,0 5,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,5 10,5" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="6,0 6,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,6 10,6" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="7,0 7,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,7 10,7" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="8,0 8,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,8 10,8" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="9,0 9,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,9 10,9" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="10,0 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,10 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polygon points="0,0 10,0 10,10 0,10" stroke="#333" fill="none" /><polyline points="5.83,5.83 6.17,6.17" stroke="#333" fill="none" /><polyline points="5.83,6.17 6.17,5.83" stroke="#333" fill="none" /><polyline points="9.33,2.83 9.67,3.17" stroke="#333" fill="none" /><polyline points="9.33,3.17 9.67,2.83" stroke="#333" fill="none" /><polyline points="2.83,2.83 3.17,3.17" stroke="#333" fill="none" /><polyline points="2.83,3.17 3.17,2.83" stroke="#333" fill="none" /><polyline points="11,7.8 11,9.6" stroke="#333" fill="none" /><polyline points="10.82,9.3 11,9.6" stroke="#333" fill="none" /><polyline points="11.18,9.3 11,9.6" stroke="#333" fill="none" />',
+        background: '<polyline points="0,0 0,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,0 10,0" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="1,0 1,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,1 10,1" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="2,0 2,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,2 10,2" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="3,0 3,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,3 10,3" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="4,0 4,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,4 10,4" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="5,0 5,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,5 10,5" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="6,0 6,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,6 10,6" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="7,0 7,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,7 10,7" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="8,0 8,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,8 10,8" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="9,0 9,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,9 10,9" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="10,0 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polyline points="0,10 10,10" stroke="#999" stroke-width="0.03" fill="none" /><polygon points="0,0 10,0 10,10 0,10" stroke="#333" fill="none" /><polyline points="1.83,6.83 2.17,7.17" stroke="#333" fill="none" /><polyline points="1.83,7.17 2.17,6.83" stroke="#333" fill="none" /><polyline points="4.83,2.83 5.17,3.17" stroke="#333" fill="none" /><polyline points="4.83,3.17 5.17,2.83" stroke="#333" fill="none" /><polyline points="7.83,5.83 8.17,6.17" stroke="#333" fill="none" /><polyline points="7.83,6.17 8.17,5.83" stroke="#333" fill="none" /><polyline points="11,7.8 11,9.6" stroke="#333" fill="none" /><polyline points="10.82,9.3 11,9.6" stroke="#333" fill="none" /><polyline points="11.18,9.3 11,9.6" stroke="#333" fill="none" />',
         labels: [
-          { x: 6, y: 6, text: 'A', dx: -12, dy: -10 },
-          { x: 9.5, y: 3, text: 'B', dx: -12, dy: -10 },
-          { x: 3, y: 3, text: 'C', dx: -12, dy: -10 },
+          { x: 2, y: 7, text: 'A', dx: -12, dy: -10 },
+          { x: 5, y: 3, text: 'B', dx: -12, dy: -10 },
+          { x: 8, y: 6, text: 'C', dx: -12, dy: -10 },
           { x: 11, y: 9.6, text: 'N', dy: -8 },
         ],
         elements: [], tolerance: 0,
@@ -223,6 +231,8 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     // 13(a)-(c) share the frequency table, which runs DOWN the page as the
     // paper prints it.
     '13a': { skill: 'Cumulative Frequency', question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nComplete the cumulative frequency table.\n<table>Salary, s (£) | Cumulative frequency\ns ≤ 10 000 | \ns ≤ 20 000 | \ns ≤ 30 000 | \ns ≤ 40 000 | </table>', answer: '30, 55, 70, 80', working: 'Each entry adds the next frequency to the one before.' },
+    // A finer grid, as the paper's graph paper is: every £2000 and every 5.
+    // A finer grid, as the paper's graph paper is: every £2000 and every 5.
     '13b': {
       skill: 'Cumulative Frequency',
       question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nDraw a cumulative frequency diagram to represent the data.',
@@ -230,8 +240,8 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
       working: 'The cumulative frequencies are 30, 55, 70 and 80, each plotted at the TOP of its class, not the middle.',
       diagram: {
         mode: 'polyline',
-        x: { min: 0, max: 40, step: 10, label: 'Salary (£1000s)' },
-        y: { min: 0, max: 80, step: 20, label: 'Cumulative frequency' },
+        x: { min: 0, max: 40, step: 2, label: 'Salary (£1000s)' },
+        y: { min: 0, max: 80, step: 5, label: 'Cumulative frequency' },
         background: '',
         elements: [
           { x: 10, y: 30, marks: 1 }, { x: 20, y: 55, marks: 1 },
@@ -242,17 +252,21 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     },
     '13c': { skill: 'Cumulative Frequency', question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nEstimate the number of employees with a salary less than £25 000', answer: 'About 63', working: 'The cumulative frequency is 55 at £20 000 and 70 at £30 000; read the curve at £25 000.' },
     '14a': { skill: 'Upper and Lower Bounds', question: 'For a small boat,\n• the mass of the empty boat is 600 kg, to the nearest 50 kg\n• the mass of the equipment is 84 kg, to the nearest 2 kg\n• the mass of the crew is 145 kg, to the nearest kg\nThe total mass of the boat is calculated by adding these three masses.\nThe maximum mass for the boat to be loaded safely is 860 kg.\nCan this boat definitely be loaded safely?\nShow working to support your answer.', answer: 'Yes', working: 'The largest possible total is 625 + 85 + 145.5 = 855.5 kg, which is under 860.' },
+    // Axes given and scaled, so the answer is a line on the grid that the
+    // answer copy can draw. The 2 hours 30 minutes is the paper's own snag.
+    // Axes given and scaled, so the answer is a line on the grid that the
+    // answer copy can draw. The 2 hours 30 minutes is the paper's own snag.
     '14b': {
       skill: 'Kinematic Graphs',
-      question: 'A train travels 240 miles in 3 hours at a constant speed.\nOn the grid, draw a speed/time graph to represent this information.\nYou must draw and label both axes.',
-      answer: 'Time on the horizontal axis and speed on the vertical, with a horizontal line at 80 mph from 0 to 3 hours',
-      working: 'Speed = 240 ÷ 3 = 80 mph, and it does not change.',
+      question: 'A train travels 225 miles in 2 hours 30 minutes at a constant speed.\nOn the grid, draw a speed/time graph to represent this information.',
+      answer: 'A horizontal line at 90 mph from 0 to 2.5 hours',
+      working: '2 hours 30 minutes is 2.5 hours, and 225 ÷ 2.5 = 90 mph, which does not change.',
       diagram: {
-        mode: 'polyline', showAxes: false,
-        x: { min: 0, max: 6, step: 1, label: '' },
-        y: { min: 0, max: 6, step: 1, label: '' },
+        mode: 'polyline',
+        x: { min: 0, max: 3, step: 0.5, label: 'Time (hours)' },
+        y: { min: 0, max: 100, step: 10, label: 'Speed (mph)' },
         background: '',
-        elements: [],
+        elements: [{ x: 0, y: 90, marks: 1 }, { x: 2.5, y: 90, marks: 1 }],
         tolerance: 0,
       },
     },
@@ -281,17 +295,24 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
       },
     },
     '18': { skill: 'Nth Term of Quadratic Sequences', question: 'Here are the first four terms of a quadratic sequence: 5, 14, 29, 50. Work out an expression for the nth term.', answer: '3n² + 2', working: 'The second difference is 6, so the sequence starts from 3n²; what is left is 2 each time.' },
+    // Mixed strict and inclusive inequalities, as on the paper. The answer
+    // copy shows it the way it is marked: each WHOLE line drawn (dashed for
+    // <, solid for ≥), the unwanted side of each shaded, and R labelled.
+    // Mixed strict and inclusive inequalities, as on the paper. The answer
+    // copy shows it the way it is marked: each WHOLE line drawn (dashed for
+    // <, solid for ≥), the unwanted side of each shaded, and R labelled.
     '19': {
       skill: 'Inequalities + Plotting Straight Line Graphs',
-      question: 'On the grid, identify the region represented by y ≥ 1, x + y ≤ 6 and y ≤ x.\nLabel the region R.',
-      answer: 'The triangle with vertices (1, 1), (5, 1) and (3, 3)',
-      working: 'Draw y = 1, x + y = 6 and y = x, then take the side of each that the inequality allows.',
+      question: 'On the grid, identify the region represented by\nx + y < 8 and y < 2x + 2 and y ≥ 2\nLabel the region R.',
+      answer: 'The triangle with vertices (0, 2), (6, 2) and (2, 6): below the dashed lines x + y = 8 and y = 2x + 2, and on or above the solid line y = 2',
+      working: 'Draw y = 2 as a solid line (≥ includes it) and the other two dashed (< does not); shade the side of each line that is not wanted, and label the unshaded triangle R.',
       diagram: {
         mode: 'polygon',
-        x: { min: 0, max: 7, step: 1, label: 'x' },
-        y: { min: 0, max: 7, step: 1, label: 'y' },
+        x: { min: -2, max: 8, step: 1, label: 'x' },
+        y: { min: -2, max: 9, step: 1, label: 'y' },
         background: '',
-        elements: [{ x: 1, y: 1, marks: 1 }, { x: 5, y: 1, marks: 1 }, { x: 3, y: 3, marks: 1 }],
+        solution: '<polygon points="-1,9 8,9 8,0" stroke="none" fill="#999999" fill-opacity="0.35" /><polygon points="-2,-2 3.5,9 -2,9" stroke="none" fill="#999999" fill-opacity="0.35" /><polygon points="-2,-2 8,-2 8,2 -2,2" stroke="none" fill="#999999" fill-opacity="0.35" /><polyline points="-1,9 8,0" stroke="#333" fill="none" stroke-dasharray="0.3 0.2" /><polyline points="-2,-2 3.5,9" stroke="#333" fill="none" stroke-dasharray="0.3 0.2" /><polyline points="-2,2 8,2" stroke="#333" fill="none" /><polyline points="2.35,2.85 2.35,3.85" stroke="#333" fill="none" /><path d="M 2.35,3.85 L 2.6,3.85 A 0.25,0.25 0 0,0 2.6,3.35 L 2.35,3.35" stroke="#333" fill="none" /><polyline points="2.55,3.35 2.85,2.85" stroke="#333" fill="none" />',
+        elements: [{ x: 0, y: 2, marks: 1 }, { x: 6, y: 2, marks: 1 }, { x: 2, y: 6, marks: 1 }],
         tolerance: 0,
       },
     },
@@ -299,16 +320,22 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     '20b': { skill: 'Factorising Quadratics', question: 'A sequence has nth term 2n² + 7n + 3.\nAre any of the terms in the sequence a prime number?\nGive a reason for your answer.', answer: 'No', working: 'It factorises to (2n + 1)(n + 3), and for every positive n both factors are greater than 1.' },
     // The paper draws the spheres in their cylinder, and gives the formula
     // BEFORE the question; so does the retry.
+    // A different pair of solids from the paper's spheres-in-a-cylinder:
+    // spheres in a CUBOID box, so the fraction keeps a π (the cylinder's
+    // cancels) while the step count stays the same.
+    // A different pair of solids from the paper's spheres-in-a-cylinder:
+    // spheres in a CUBOID box, so the fraction keeps a π (the cylinder's
+    // cancels) while the step count stays the same.
     '21': {
       skill: 'Volume of a Sphere + Volume of a prism',
-      question: 'Four identical spheres just fit inside a cylinder.\nEach sphere has radius r.\nVolume of a sphere = <frac>4/3</frac>πr³\nWhat fraction of the space inside the cylinder is not filled by the spheres?\nYou must show your working.',
-      answer: '<frac>1/3</frac>',
-      working: 'The cylinder has radius r and length 8r, so its volume is 8πr³; the spheres take 4 × <frac>4/3</frac>πr³ = <frac>16/3</frac>πr³, which is two thirds of it.',
+      question: 'Four identical spheres just fit in a row inside a box in the shape of a cuboid.\nEach sphere has radius r.\nVolume of a sphere = <frac>4/3</frac>πr³\nWhat fraction of the space inside the box is filled by the spheres?\nGive your answer in terms of π.\nYou must show your working.',
+      answer: '<frac>π/6</frac>',
+      working: 'The box is 8r by 2r by 2r, so its volume is 32r³; the spheres take 4 × <frac>4/3</frac>πr³ = <frac>16/3</frac>πr³, and <frac>16/3</frac> ÷ 32 = <frac>1/6</frac>.',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
-        x: { min: 0, max: 10, step: 1, label: '' },
-        y: { min: 0, max: 4, step: 1, label: '' },
-        background: '<polyline points="1,1 9,1 9,3 1,3 1,1" stroke="#333" fill="none" /><circle cx="2" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="4" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="6" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="8" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><path d="M 1,2 A 1,0.25 0 0,1 3,2" stroke="#333" fill="none" /><path d="M 3,2 A 1,0.25 0 0,1 5,2" stroke="#333" fill="none" /><path d="M 5,2 A 1,0.25 0 0,1 7,2" stroke="#333" fill="none" /><path d="M 7,2 A 1,0.25 0 0,1 9,2" stroke="#333" fill="none" /><path d="M 3,2 A 1,0.25 0 0,1 1,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 5,2 A 1,0.25 0 0,1 3,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 7,2 A 1,0.25 0 0,1 5,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 9,2 A 1,0.25 0 0,1 7,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" />',
+        x: { min: 0, max: 11, step: 1, label: '' },
+        y: { min: 0, max: 5, step: 1, label: '' },
+        background: '<polyline points="1,1 9,1 9,3 1,3 1,1" stroke="#333" fill="none" /><polyline points="1,3 1.9,3.6 9.9,3.6 9,3" stroke="#333" fill="none" /><polyline points="9,1 9.9,1.6 9.9,3.6" stroke="#333" fill="none" /><polyline points="1,1 1.9,1.6 9.9,1.6" stroke="#333" fill="none" stroke-dasharray="0.2 0.15" /><polyline points="1.9,1.6 1.9,3.6" stroke="#333" fill="none" stroke-dasharray="0.2 0.15" /><circle cx="2" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="4" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="6" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><circle cx="8" cy="2" r="1" stroke="#333" fill="#e5e5e5" /><path d="M 1,2 A 1,0.25 0 0,1 3,2" stroke="#333" fill="none" /><path d="M 3,2 A 1,0.25 0 0,1 1,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 3,2 A 1,0.25 0 0,1 5,2" stroke="#333" fill="none" /><path d="M 5,2 A 1,0.25 0 0,1 3,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 5,2 A 1,0.25 0 0,1 7,2" stroke="#333" fill="none" /><path d="M 7,2 A 1,0.25 0 0,1 5,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" /><path d="M 7,2 A 1,0.25 0 0,1 9,2" stroke="#333" fill="none" /><path d="M 9,2 A 1,0.25 0 0,1 7,2" stroke="#333" fill="none" stroke-dasharray="0.15 0.12" />',
         elements: [], tolerance: 0,
       },
     },
@@ -336,25 +363,33 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
         elements: [], tolerance: 0,
       },
     },
+    // Built as the paper builds it: the area of the first triangle is given,
+    // so the missing side has to come from ½ab sin C BEFORE the scale factor
+    // can be found from the pair of corresponding sides.
+    // Built as the paper builds it: the area of the first triangle is given,
+    // so the missing side has to come from ½ab sin C BEFORE the scale factor
+    // can be found from the pair of corresponding sides.
     '24': {
       skill: 'Area and Volume Scale Factors + Area of a Triangle (½ab sinC)',
-      question: 'Triangles ABC and DEF are similar.\nThe area of triangle ABC is 26.4 cm².\nWork out the area of triangle DEF.\nNot drawn accurately.',
-      answer: '165 cm²',
-      working: 'The length scale factor is 2.5, so the area scale factor is 2.5² = 6.25.',
+      question: 'Triangles PQR and STU are similar.\nThe area of triangle PQR is 45.315 cm²\nWork out the area of triangle STU.\nNot drawn accurately.',
+      answer: '16.3 cm² (16.3134…)',
+      working: '½ × 8 × QR × sin 115° = 45.315, so QR = 12.5 cm. QR corresponds to TU, so the length scale factor is 7.5 ÷ 12.5 = 0.6, the area scale factor is 0.36, and 45.315 × 0.36 = 16.3134…',
       diagram: {
         mode: 'polygon', showAxes: false, showGrid: false,
         x: { min: 0, max: 12, step: 1, label: '' },
-        y: { min: 0, max: 7, step: 1, label: '' },
-        background: '<polygon points="1,1 3.4,1 1.6,3" stroke="#333" fill="none" /><polygon points="5,1 11,1 6.5,6" stroke="#333" fill="none" />',
+        y: { min: 1, max: 10, step: 1, label: '' },
+        background: '<polygon points="1.737,9.263 2.29,2.302 4,7" stroke="#333" fill="none" /><polygon points="8.39,8.81 8.832,3.241 10.2,7" stroke="#333" fill="none" /><path d="M 3.505,7.495 A 0.7,0.7 0 0,1 3.761,6.342" stroke="#333" fill="none" /><path d="M 9.811,7.389 A 0.55,0.55 0 0,1 10.012,6.483" stroke="#333" fill="none" />',
         labels: [
-          { x: 1, y: 1, text: 'A', dx: -8, dy: 10 },
-          { x: 3.4, y: 1, text: 'B', dx: 8, dy: 10 },
-          { x: 1.6, y: 3, text: 'C', dy: -8 },
-          { x: 5, y: 1, text: 'D', dx: -8, dy: 10 },
-          { x: 11, y: 1, text: 'E', dx: 8, dy: 10 },
-          { x: 6.5, y: 6, text: 'F', dy: -8 },
-          { x: 2.2, y: 1, text: '6 cm', dy: 14 },
-          { x: 8, y: 1, text: '15 cm', dy: 14 },
+          { x: 1.737, y: 9.263, text: 'P', dx: -9, dy: -6 },
+          { x: 2.29, y: 2.302, text: 'Q', dx: -9, dy: 10 },
+          { x: 4, y: 7, text: 'R', dx: 10, dy: 0 },
+          { x: 8.39, y: 8.81, text: 'S', dx: -9, dy: -6 },
+          { x: 8.832, y: 3.241, text: 'T', dx: -9, dy: 10 },
+          { x: 10.2, y: 7, text: 'U', dx: 10, dy: 0 },
+          { x: 2.828, y: 6.74, text: '115°' },
+          { x: 9.224, y: 6.784, text: '115°' },
+          { x: 2.869, y: 8.131, text: '8 cm', dx: 16, dy: -8 },
+          { x: 9.516, y: 5.121, text: '7.5 cm', dx: 24 },
         ],
         elements: [], tolerance: 0,
       },
