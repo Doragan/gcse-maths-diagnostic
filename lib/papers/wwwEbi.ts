@@ -4,6 +4,8 @@ import {
   type StudentEvidence,
   type TopicEvidence,
 } from './feedbackEvidence'
+import { stableHash } from './stableHash'
+import type { RenderedGrid } from '../questions/gridDraw'
 import {
   STRONG_PHRASES, NEAR_MISS_PHRASES, PARTIAL_PHRASES, STRUGGLING_PHRASES,
   BEST_EFFORT_PHRASES, FOCUS_PHRASES, phraseVars,
@@ -111,6 +113,57 @@ export const MAX_CHALLENGE = 2
 /** How many skills the "full marks on every question testing…" line may name. */
 export const MAX_FULL_MARK_SKILLS = 3
 
+/** One whole question to practise, with every part of it that was dropped. */
+export type PracticeGroup = {
+  /** As printed on the paper — "4", or "12". */
+  label: string
+  /**
+   * The opening every part shares — the scenario, the given numbers, the
+   * figure described in words. Printed ONCE above the parts, which is how the
+   * question was set. Absent when the parts open differently.
+   */
+  stem?: string
+  parts: {
+    label: string
+    skill: string
+    /**
+     * The retry AS AUTHORED, stem and all. Every retry stands alone
+     * (docs/writing-retry-questions.md), and this is what makes that true when
+     * a part is printed by itself — and what the answer key matches on.
+     */
+    question: string
+    /** What to print BELOW a shared `stem` — `question` with the stem cut. */
+    body: string
+    diagram?: RenderedGrid
+  }[]
+}
+
+/**
+ * The opening lines that every one of these questions shares, or '' if there
+ * is no worthwhile one.
+ *
+ * Cut back to a LINE boundary on purpose. Two parts of "The graph shows how
+ * much red and yellow paint to mix.\nHow much red for 20 litres of yellow?" /
+ * "…\nHow much yellow for 6 litres of red?" share 75 characters, but half of a
+ * third sentence hoisted out of both would read as a fragment. Whole lines
+ * lift cleanly; nothing else does.
+ *
+ * `MIN_STEM` keeps an incidental overlap ("Work out the ") from being promoted
+ * to a scenario — a stem has to be worth the reader's separate paragraph.
+ */
+const MIN_STEM = 30
+
+function sharedStem(questions: string[]): string {
+  if (questions.length < 2) return ''
+  let n = 0
+  while (n < questions[0].length && questions.every(q => q[n] === questions[0][n])) n++
+  const cut = questions[0].lastIndexOf('\n', n - 1)
+  if (cut < MIN_STEM) return ''
+  const stem = questions[0].slice(0, cut)
+  // A part left with nothing of its own would print as a bare label.
+  return questions.every(q => q.slice(cut + 1).trim()) ? stem : ''
+}
+
 export type WwwEbiSheet = {
   /** Passed through from the evidence — a student id or a typed name. */
   studentRef: string
@@ -125,30 +178,27 @@ export type WwwEbiSheet = {
   www: string[]
   /** Even better if. Empty when nothing was dropped, which is correct. */
   ebi: string[]
-  /** Questions to practise, worst first. */
-  practice: { skill: string; question: string }[]
+  /**
+   * Questions to practise, worst first — ONE ENTRY PER QUESTION, not per part.
+   *
+   * A multi-part question is set as a batch, the way it was asked. Parts used
+   * to compete for the same slots, so a student could be given 4(b) and not
+   * 4(a); now dropping either brings the whole of question 4. That is also why
+   * MAX_PRACTICE counts questions here rather than parts.
+   *
+   * `diagram` rides along where a part needs something drawn on — unlike
+   * `answer`, which is stripped here on purpose, this belongs on the sheet.
+   */
+  practice: PracticeGroup[]
   /** Harder questions where a topic is already strong. */
   challenge: { skill: string; question: string }[]
 }
 
 // ── Phrase selection ─────────────────────────────────────────────────────────
 
-/**
- * A stable hash of a short string (FNV-1a).
- *
- * Not for security — for picking the same sentence for the same student every
- * time. Determinism is the requirement: a teacher who regenerates a sheet after
- * correcting one mark must not receive differently worded feedback for everyone
- * else, and a random choice would do exactly that.
- */
-function hashRef(s: string): number {
-  let h = 2166136261
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return Math.abs(h)
-}
+// The hash moved to ./stableHash when the challenge pool needed the same
+// determinism for the same reason. Behaviour is unchanged.
+const hashRef = stableHash
 
 /**
  * Choose a variant, varied across students AND down the lines of one sheet.
@@ -293,9 +343,7 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
     coverage: evidence.coverage.fullPaper ? null : coverageLine(evidence),
     www,
     ebi,
-    practice: evidence.practice
-      .slice(0, MAX_PRACTICE)
-      .map(p => ({ skill: p.skill, question: p.question })),
+    practice: groupPractice(evidence),
     // Extension work is for students who are actually ahead — see the constant.
     challenge: highAchieving(evidence)
       ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))
@@ -321,4 +369,88 @@ function coverageLine(evidence: StudentEvidence): string {
 /** The same, for a whole class — thirty sheets being the actual job. */
 export function toWwwEbiSheets(all: StudentEvidence[]): WwwEbiSheet[] {
   return all.map(toWwwEbi)
+}
+
+/**
+ * Gather the dropped parts into whole questions, worst question first.
+ *
+ * `evidence.practice` arrives sorted by marks lost, so the first part of a
+ * question to appear fixes that question's place in the order — which makes
+ * the ranking "the question that cost the most on any one part", and that is
+ * the right reading: it is the question a teacher would set again.
+ *
+ * Within a question the parts stay in PAPER order, because (a) before (b) is
+ * how the student met them and often how they build.
+ */
+function groupPractice(evidence: StudentEvidence): PracticeGroup[] {
+  const order: string[] = []
+  const byQuestion = new Map<string, StudentEvidence['practice']>()
+  for (const p of evidence.practice) {
+    if (!byQuestion.has(p.questionNumber)) { byQuestion.set(p.questionNumber, []); order.push(p.questionNumber) }
+    byQuestion.get(p.questionNumber)!.push(p)
+  }
+  return order.slice(0, MAX_PRACTICE).map(label => {
+    const parts = byQuestion.get(label)!.slice().sort((a, b) => a.itemId.localeCompare(b.itemId))
+    const stem = sharedStem(parts.map(p => p.question))
+    return {
+      label,
+      ...(stem ? { stem } : {}),
+      parts: parts.map(p => ({
+        label: p.itemLabel,
+        skill: p.skill,
+        question: p.question,
+        body: stem ? p.question.slice(stem.length + 1) : p.question,
+        diagram: p.diagram,
+      })),
+    }
+  })
+}
+
+// ── The teacher's answer key ─────────────────────────────────────────────────
+
+/** One line of the teacher's answer key. */
+export type AnswerKeyEntry = {
+  skill: string
+  question: string
+  answer: string
+  working?: string
+}
+
+/**
+ * The answers to the questions this class was ACTUALLY GIVEN.
+ *
+ * It lives here, in the formatter, rather than beside the evidence, and that
+ * placement is the whole point. The evidence offers every challenge whose topic
+ * came out strong — often ten — and the sheet then prints at most MAX_CHALLENGE
+ * of them. A key built from the evidence therefore lists questions no student
+ * ever received, which is worse than useless to a teacher marking the sheets in
+ * front of them. Only the formatter knows what survived the caps, so only the
+ * formatter can build the key.
+ *
+ * Deduplicated by question text — two students offered the same challenge need
+ * one line, not two. Entries with no answer are dropped rather than printed
+ * blank, which is how the three hand-authored retry sets (written before
+ * answers existed) stay out of it.
+ */
+export function answerKeyFor(evidences: StudentEvidence[]): AnswerKeyEntry[] {
+  const byQuestion = new Map<string, AnswerKeyEntry>()
+
+  for (const evidence of evidences) {
+    const sheet = toWwwEbi(evidence)
+    const printed = new Set([
+      ...sheet.practice.flatMap(g => g.parts.map(p => p.question)),
+      ...sheet.challenge.map(c => c.question),
+    ])
+
+    for (const s of [...evidence.practice, ...evidence.challenges]) {
+      if (!s.answer || !printed.has(s.question) || byQuestion.has(s.question)) continue
+      byQuestion.set(s.question, {
+        skill: s.skill, question: s.question, answer: s.answer, working: s.working,
+      })
+    }
+  }
+
+  return [...byQuestion.values()].sort(
+    (a, b) => a.skill.localeCompare(b.skill) || a.question.localeCompare(b.question),
+  )
 }

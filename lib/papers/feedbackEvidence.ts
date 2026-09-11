@@ -1,6 +1,8 @@
 import type { PaperConfig, PaperQuestion } from '../demoPapers'
 import { skillsById } from '../skills/skillGraph'
 import { marksEarned, selectedItems, type ItemMarks, type ItemSelection } from './sittingMarks'
+import { challengesFor } from './challengePool'
+import type { RenderedGrid } from '../questions/gridDraw'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // What a marked paper says about one student, before anyone decides how to say
@@ -112,6 +114,25 @@ export type PracticeSuggestion = {
   skill: string
   question: string
   marksLost: number
+  /**
+   * The question NUMBER this part belongs to — "4" for both 4(a) and 4(b).
+   *
+   * Parts of one question are practised TOGETHER, so the formatter groups on
+   * this rather than treating each part as a suggestion of its own. A student
+   * who dropped 4(b) gets 4(a) as well, which is how the question was asked.
+   */
+  questionNumber: string
+  /** False for a sibling part the student actually got right. */
+  dropped: boolean
+  /** For the teacher, where the retry carries one. Never on a student's sheet. */
+  answer?: string
+  /** One line of method, where the answer alone would not show the route. */
+  working?: string
+  /**
+   * An empty grid to print under the question. Unlike `answer`, this DOES
+   * belong on the student's sheet — it is what they draw on.
+   */
+  diagram?: RenderedGrid
 }
 
 /** A harder question offered where a topic is already strong. */
@@ -119,6 +140,10 @@ export type ChallengeSuggestion = {
   topicId: string
   skill: string
   question: string
+  /** For the teacher. Never rendered beside the question on a student's sheet. */
+  answer: string
+  /** One line of method, where the answer alone would not show the route. */
+  working?: string
 }
 
 export type Coverage = {
@@ -275,27 +300,49 @@ export function buildStudentEvidence(
       .filter(id => !assessed.has(id)),
   )].sort()
 
-  // ── What to practise: dropped items that have a retry question ───────────
+  // ── What to practise ──────────────────────────────────────────────────────
+  //
   // retrySet only holds non-visual items — a question that depends on a diagram
   // in the original paper cannot be reissued as text — so a visual item simply
   // has no entry and contributes no suggestion.
+  //
+  // A WHOLE QUESTION AT A TIME. Dropping 4(b) brings 4(a) with it, because
+  // that is how the question was asked and how the parts build. Earlier this
+  // offered only the parts actually dropped, which left a student practising
+  // "how much orange paint does Pip make?" with no sense of where the reading
+  // came from. Siblings that were answered correctly are still included, and
+  // `dropped` says which is which.
+  const questionOf = (itemId: string) => itemId.replace(/[a-z]+$/i, '') || itemId
+  const needsPractice = new Set(
+    items.filter(i => !i.full && paper.retrySet[i.itemId]).map(i => questionOf(i.itemId)),
+  )
   const practice: PracticeSuggestion[] = items
-    .filter(i => !i.full && paper.retrySet[i.itemId])
+    .filter(i => paper.retrySet[i.itemId] && needsPractice.has(questionOf(i.itemId)))
     .map(i => ({
       itemId: i.itemId,
       itemLabel: i.label,
+      questionNumber: questionOf(i.itemId),
+      dropped: !i.full,
       skill: paper.retrySet[i.itemId].skill,
       question: paper.retrySet[i.itemId].question,
       marksLost: i.available - i.earned,
+      answer: paper.retrySet[i.itemId].answer,
+      diagram: paper.retrySet[i.itemId].diagram,
+      working: paper.retrySet[i.itemId].working,
     }))
     .sort((a, b) => b.marksLost - a.marksLost || a.itemId.localeCompare(b.itemId))
 
   const strongTopics = new Set(
     topics.filter(t => t.ratio >= STRONG_TOPIC_RATIO).map(t => t.topicId),
   )
-  const challenges: ChallengeSuggestion[] = paper.challengeQuestions
+  // challengesFor, not paper.challengeQuestions: a paper's own list wins when
+  // it has one, and the 39 generated papers fall through to the shared pool.
+  const challenges: ChallengeSuggestion[] = challengesFor(paper)
     .filter(c => strongTopics.has(c.topic))
-    .map(c => ({ topicId: c.topic, skill: c.skill, question: c.question }))
+    .map(c => ({
+      topicId: c.topic, skill: c.skill, question: c.question,
+      answer: c.answer, working: c.working,
+    }))
 
   return {
     studentRef,

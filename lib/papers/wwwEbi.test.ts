@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { PAPERS } from '../demoPapers/index'
 import { buildStudentEvidence, buildClassEvidence } from './feedbackEvidence'
 import {
   toWwwEbi, toWwwEbiSheets,
@@ -244,7 +245,7 @@ describe('practice and challenge', () => {
   it('offers practice questions worst first, capped', () => {
     const s = sheetFor({ '1': 0, '2': 0, '3': 0, '4': 0 })
     expect(s.practice.length).toBeLessThanOrEqual(MAX_PRACTICE)
-    expect(s.practice[0].skill).toBe('Equations')
+    expect(s.practice[0].parts[0].skill).toBe('Equations')
   })
 
   it('offers challenges to a student doing well overall, on their strong topics', () => {
@@ -315,5 +316,75 @@ describe('a topic too small to talk about', () => {
     } as unknown as PaperConfig
     const s = toWwwEbi(buildStudentEvidence(tiny, { a: 1, b: 0 }, 'stu'))
     expect(s.www.length + s.ebi.length).toBeGreaterThan(0)
+  })
+})
+
+describe('multi-part questions are set as a batch', () => {
+  const realPaper = PAPERS['aqa-8300-1f-jun25']
+  const marksExcept = (drop: string[]) =>
+    Object.fromEntries(realPaper.questions.map(q => [q.id, drop.includes(q.id) ? 0 : q.marks]))
+
+  it('brings the whole question when one part is dropped', () => {
+    // A student who dropped only 4(b) used to practise "how much orange paint
+    // does Pip make?" with no sense of where the reading came from. The parts
+    // build on each other, so the question is set the way it was asked.
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['4b']), 'T'))
+    expect(sheet.practice).toHaveLength(1)
+    expect(sheet.practice[0].label).toBe('4')
+    expect(sheet.practice[0].parts.map(p => p.label)).toEqual(['4(a)', '4(b)'])
+  })
+
+  it('marks which parts were actually dropped', () => {
+    const evidence = buildStudentEvidence(realPaper, marksExcept(['4b']), 'T')
+    const four = evidence.practice.filter(p => p.questionNumber === '4')
+    expect(four.find(p => p.itemId === '4a')!.dropped).toBe(false)
+    expect(four.find(p => p.itemId === '4b')!.dropped).toBe(true)
+  })
+
+  it('caps QUESTIONS, so a wordy one cannot crowd out two others', () => {
+    const weak = Object.fromEntries(realPaper.questions.map((q, i) => [q.id, i % 5 === 0 ? q.marks : 0]))
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, weak, 'T'))
+    expect(sheet.practice.length).toBeLessThanOrEqual(MAX_PRACTICE)
+    // …and the parts within them are NOT capped, or a two-part question would
+    // arrive half-finished.
+    expect(sheet.practice.reduce((a, g) => a + g.parts.length, 0)).toBeGreaterThan(sheet.practice.length)
+  })
+
+  it('keeps parts in paper order inside a question', () => {
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['4a', '4b']), 'T'))
+    expect(sheet.practice[0].parts.map(p => p.label)).toEqual(['4(a)', '4(b)'])
+  })
+})
+
+describe('a scenario shared by the parts is set once', () => {
+  const realPaper = PAPERS['aqa-8300-1f-jun25']
+  const marksExcept = (drop: string[]) =>
+    Object.fromEntries(realPaper.questions.map(q => [q.id, drop.includes(q.id) ? 0 : q.marks]))
+
+  it('lifts the shared opening out of the parts', () => {
+    // 1F 4(a) and 4(b) both open "The graph shows how much red and yellow
+    // paint to mix to make orange paint." — on the paper that sentence is
+    // printed once, above both parts.
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['4a', '4b']), 'T'))
+    const group = sheet.practice[0]
+    expect(group.stem).toContain('red and yellow paint')
+    for (const part of group.parts) expect(part.body).not.toContain('red and yellow paint')
+  })
+
+  it('leaves each part able to stand alone', () => {
+    // The stem is lifted for PRINTING only. `question` stays whole, because a
+    // part shown by itself still has to make sense — and because the answer
+    // key matches on it.
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['4a', '4b']), 'T'))
+    for (const part of sheet.practice[0].parts) {
+      expect(part.question).toBe(`${sheet.practice[0].stem}\n${part.body}`)
+    }
+  })
+
+  it('sets no stem when the parts open differently', () => {
+    const sheet = toWwwEbi(buildStudentEvidence(realPaper, marksExcept(['1a', '2']), 'T'))
+    for (const group of sheet.practice) {
+      if (group.parts.length === 1) expect(group.stem).toBeUndefined()
+    }
   })
 })

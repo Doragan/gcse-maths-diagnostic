@@ -11,7 +11,7 @@ import { topicColourFor } from '../../../../../lib/demoTopicColours'
 import { marksTotal, type ItemMarks } from '../../../../../lib/papers/sittingMarks'
 import { buildClassEvidence } from '../../../../../lib/papers/feedbackEvidence'
 import { buildClassSummary } from '../../../../../lib/papers/classSummary'
-import { toWwwEbiSheets } from '../../../../../lib/papers/wwwEbi'
+import { toWwwEbiSheets, answerKeyFor } from '../../../../../lib/papers/wwwEbi'
 import { downloadFeedbackPdf } from '../../../../../lib/papers/feedbackPdf'
 import ClassView from '../../../../../components/papers/ClassView'
 import {
@@ -216,10 +216,13 @@ export default function ClassPapersPage() {
     [paper, sheetEntries],
   )
 
-  function downloadSheets() {
-    downloadFeedbackPdf(
-      toWwwEbiSheets(buildClassEvidence(paper, sheetEntries)),
+  async function downloadSheets() {
+    const evidence = buildClassEvidence(paper, sheetEntries)
+    // The answer key is a final page the teacher keeps — never on a sheet.
+    await downloadFeedbackPdf(
+      toWwwEbiSheets(evidence),
       { paperTitle: paper.title, paperSubtitle: paper.subtitle, className, satOn },
+      answerKeyFor(evidence),
     )
   }
 

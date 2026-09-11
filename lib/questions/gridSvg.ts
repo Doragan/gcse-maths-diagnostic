@@ -109,14 +109,17 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   const { x, y } = grid
   const parts: string[] = []
 
-  // Gridlines
-  for (let c = 0; c <= geo.cols; c++) {
-    const vx = PAD.left + c * CELL
-    parts.push(`<line x1="${vx}" y1="${PAD.top}" x2="${vx}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.border}" stroke-width="1"/>`)
-  }
-  for (let r = 0; r <= geo.rows; r++) {
-    const vy = PAD.top + r * CELL
-    parts.push(`<line x1="${PAD.left}" y1="${vy}" x2="${PAD.left + geo.cols * CELL}" y2="${vy}" stroke="${colors.border}" stroke-width="1"/>`)
+  // Gridlines. showGrid:false gives PLAIN paper — for a figure the exam prints
+  // unruled, where squares behind it read as a grid the student should use.
+  if (grid.showGrid !== false) {
+    for (let c = 0; c <= geo.cols; c++) {
+      const vx = PAD.left + c * CELL
+      parts.push(`<line x1="${vx}" y1="${PAD.top}" x2="${vx}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.border}" stroke-width="1"/>`)
+    }
+    for (let r = 0; r <= geo.rows; r++) {
+      const vy = PAD.top + r * CELL
+      parts.push(`<line x1="${PAD.left}" y1="${vy}" x2="${PAD.left + geo.cols * CELL}" y2="${vy}" stroke="${colors.border}" stroke-width="1"/>`)
+    }
   }
 
   // Axes: the zero lines when 0 is in range, else the min edges. A 1-D grid
@@ -125,6 +128,12 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   const oneDimensional = geo.rows === 0
   const axisX = x.min <= 0 && 0 <= x.max ? geo.px(0) : PAD.left
   const axisY = y.min <= 0 && 0 <= y.max ? geo.py(0) : PAD.top + geo.rows * CELL
+
+  // showAxes: false keeps the SQUARES and drops the furniture. A grid to shade
+  // or a figure drawn on squares needs the ruling to count by; numbering its
+  // edges 0…6 is a coordinate system the question never asked for, and the
+  // exam's own version of such a grid has none.
+  if (grid.showAxes !== false) {
   if (!oneDimensional) {
     parts.push(`<line x1="${axisX}" y1="${PAD.top}" x2="${axisX}" y2="${PAD.top + geo.rows * CELL}" stroke="${colors.textSecondary}" stroke-width="1.5"/>`)
   }
@@ -164,6 +173,7 @@ export function buildGridFrame(grid: RenderedGrid, geo: GridGeometry): string {
   // Axis labels
   if (x.label) parts.push(`<text x="${PAD.left + (geo.cols * CELL) / 2}" y="${PAD.top + geo.rows * CELL + 28}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}">${escXml(x.label)}</text>`)
   if (y.label) parts.push(`<text x="${12}" y="${PAD.top + (geo.rows * CELL) / 2}" text-anchor="middle" font-size="10" fill="${colors.textSecondary}" transform="rotate(-90 12 ${PAD.top + (geo.rows * CELL) / 2})">${escXml(y.label)}</text>`)
+  } // end showAxes
 
   // bars: make the columns VISIBLE. The author declares the slots and a tap
   // sets the containing slot's height, but on a plain grid every column looks
@@ -208,6 +218,25 @@ export function buildSolutionLayer(grid: RenderedGrid, geo: GridGeometry): strin
 }
 
 /**
+ * Author labels, positioned in AXIS units but drawn upright.
+ *
+ * Deliberately NOT inside axisCoordGroup — that group flips Y, which mirrors
+ * text. These go through geo.px/geo.py into plain viewBox space, exactly as
+ * the tick numerals do, which is why they read the right way round.
+ *
+ * Drawn LAST by buildGridSvg, so a label naming a vertex sits over the shape
+ * rather than under it.
+ */
+export function buildLabelsLayer(grid: RenderedGrid, geo: GridGeometry): string {
+  if (!grid.labels?.length) return ''
+  return grid.labels
+    .map(l =>
+      `<text x="${geo.px(l.x) + (l.dx ?? 0)}" y="${geo.py(l.y) + (l.dy ?? 0)}" ` +
+      `text-anchor="middle" font-size="11" fill="${colors.textPrimary}">${escXml(l.text)}</text>`)
+    .join('')
+}
+
+/**
  * A layer of placed points (student or ghosted canonical), joined per mode:
  * points = markers only; polyline = joined in placement order; line = the
  * full line through the first two points, clipped to the plot rectangle.
@@ -221,10 +250,12 @@ export function buildPointsLayer(
     slots?: { x: number; x2?: number }[]
     // bars/number_line need the axis to find the baseline and the plot edges.
     axes?: { x: RenderedAxis; y: RenderedAxis }
+    // bars: fraction of the slot a bar fills. 1 = flush; see RenderedGrid.
+    barWidth?: number
   },
 ): string {
   if (points.length === 0) return ''
-  const { color, ghost, mode, markers = true, slots = [], axes } = opts
+  const { color, ghost, mode, markers = true, slots = [], axes, barWidth = 1 } = opts
   const parts: string[] = []
   const op = ghost ? ' opacity="0.55"' : ''
   const dash = ghost ? ' stroke-dasharray="6 4"' : ''
@@ -246,6 +277,13 @@ export function buildPointsLayer(
       } else {
         leftAxis = p.x
         rightAxis = slots.find(s => Math.abs(s.x - p.x) < 1e-9)?.x2 ?? (axes ? p.x + axes.x.step : p.x + 1)
+      }
+      // Inset both edges equally when the grid asks for it, so a printed bar
+      // chart has the gaps that distinguish it from a histogram.
+      if (barWidth < 1) {
+        const gap = (rightAxis - leftAxis) * (1 - barWidth) / 2
+        leftAxis += gap
+        rightAxis -= gap
       }
       const left = geo.px(leftAxis)
       const top = geo.py(p.y)
@@ -356,7 +394,7 @@ export function buildGridSvg(
   const solution = opts.showCanonical ? buildSolutionLayer(grid, geo) : ''
   // bars need their slot widths; number_line markers carry style/dir; both
   // need the axes to find the baseline and plot edges.
-  const extra = { slots: grid.elements, axes: { x: grid.x, y: grid.y } }
+  const extra = { slots: grid.elements, axes: { x: grid.x, y: grid.y }, barWidth: grid.barWidth }
   const canonical = opts.showCanonical
     ? buildPointsLayer(grid.elements.map(toGhostPoint(grid)),
         geo, { color: colors.success, ghost: true, mode: grid.mode, ...extra })
@@ -364,5 +402,7 @@ export function buildGridSvg(
   const student = opts.student?.length
     ? buildPointsLayer(opts.student, geo, { color: colors.primary, mode: grid.mode, ...extra })
     : ''
-  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${solution}${canonical}${student}</svg>`
+  // Labels last: a vertex name belongs over its shape, not under it.
+  const labels = buildLabelsLayer(grid, geo)
+  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${solution}${canonical}${student}${labels}</svg>`
 }

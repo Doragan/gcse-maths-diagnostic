@@ -719,8 +719,7 @@
       "part": null,
       "marks": 3,
       "skill_ids": [
-        "fractional_enlargements",
-        "enlargements"
+        "fractional_enlargements"
       ],
       "skill_gap": null,
       "answer_form": "free_text",

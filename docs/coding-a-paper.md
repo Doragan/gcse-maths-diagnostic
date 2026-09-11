@@ -285,8 +285,10 @@ retry question that stands alone in words, the item is not visual.**
 ## Code a tier pair together — and use the overlap as a free check
 
 **Both Edexcel and OCR reuse a chunk of each Foundation paper on its Higher
-partner**, at the crossover where the tiers meet. AQA does not, so confirm it
-per board rather than assuming.
+partner**, at the crossover where the tiers meet. **So does AQA** — this doc
+previously said it did not, and writing the June 2025 retry sets disproved it:
+1F 18–26 reappear as 1H 3–10, 2F 20–26 as 2H 3–10, and 3F 16–24 as 3H 4–11.
+Confirm the block per paper rather than assuming either way.
 
 **Edexcel puts the shared questions in a contiguous block**, which makes them
 easy to spot (June 2025: 2F q20–q27 = 2H q1–q8; 3F q22–q30 = 3H q1–q8; 1F

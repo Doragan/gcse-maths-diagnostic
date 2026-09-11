@@ -87,12 +87,53 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   // hold. It costs nothing for now: the marks writer forces attempts to
   // positive-only regardless of the item's own kind.
 
-  it('every retrySet entry keys a real, non-visual question', () => {
+  it('every retrySet entry keys a real question, and a visual one carries a grid', () => {
+    // A `visual` item is excluded by default because a question depending on a
+    // diagram cannot be reissued as text. It CAN have a retry once that retry
+    // supplies its own grid — "reflect this shape" is perfectly answerable on
+    // paper when the shape is printed. So the rule is not "never visual", it is
+    // "visual only with a diagram", and a bare text retry on a visual item is
+    // still the defect this guards against.
     const byId = new Map(paper.questions.map(q => [q.id, q]))
-    for (const id of Object.keys(paper.retrySet)) {
+    for (const [id, retry] of Object.entries(paper.retrySet)) {
       const q = byId.get(id)
       expect(q, `retrySet has an entry for unknown question "${id}"`).toBeDefined()
-      expect(q!.visual, `${id} is visual:true but has a retrySet entry`).toBe(false)
+      if (q!.visual) {
+        expect(retry.diagram, `${id} is visual:true, so its retry needs a diagram`).toBeDefined()
+      }
+    }
+  })
+
+  it('never asks the student to read something that is not there', () => {
+    // A retry is one line of text on a feedback sheet: no diagram, ever. So a
+    // question mentioning one is unanswerable, and the student cannot tell
+    // whether they are missing a picture or missing the maths.
+    //
+    // This is not hypothetical. It caught "Work out the SHADED area between the
+    // circles" sitting in a hand-authored set, where nothing was shaded because
+    // nothing was drawn. With 1,324 more retries planned, it is worth a guard.
+    //
+    // NARROWED TWICE, each time because a broader pattern flagged a question
+    // that was perfectly answerable:
+    //
+    //   • "the side OPPOSITE that angle" is ordinary trigonometry, not a page
+    //     reference.
+    //   • a bare "shaded", or "the grid", flags a question that DESCRIBES its
+    //     own figure — "a grid is made of 20 squares and 7 are shaded; what
+    //     percentage of the grid is shaded?" needs no picture at all.
+    //
+    // What is left is phrasing that only makes sense when something is printed
+    // nearby. That is a deliberate trade for precision: a guard that cries
+    // wolf gets loosened until it catches nothing, and this one still catches
+    // the defect it was written for — "work out the shaded area between the
+    // circles", with no circles drawn.
+    //
+    // A retry that CARRIES a diagram is exempt, and must be: referring to a
+    // grid printed directly underneath is the correct way to write these.
+    const absent = /\bthe shaded (area|region)\b|\bshown (below|above)\b|\b(diagram|graph|chart|grid|figure) below\b/i
+    for (const [id, r] of Object.entries(paper.retrySet)) {
+      if (r.diagram) continue
+      expect(absent.test(r.question), `${id}: ${r.question}`).toBe(false)
     }
   })
 
@@ -107,6 +148,25 @@ describe.each(Object.values(PAPERS))('$id', (paper) => {
   // The real defect is PARTIAL coverage: a paper that offers practice questions
   // for some dropped marks and silently not for others, so a student is told to
   // practise question 4 and told nothing about question 11. That still fails.
+  it('never leans on another part of the same question', () => {
+    // EVERY RETRY MUST STAND ALONE. Parts are independent items competing for
+    // the same MAX_PRACTICE slots, ranked by marks lost — nothing groups 4(a)
+    // with 4(b), so a student can perfectly well be given (b) and not (a).
+    //
+    // Twelve retries were written referring to a sibling before this existed.
+    // The worst read "Is your answer to part (a) an overestimate or an
+    // underestimate?" printed on a sheet with no part (a) anywhere on it: not
+    // merely unhelpful, unanswerable. Restating the context costs a clause.
+    const leansOnSibling =
+      /\bpart \(?[a-d]\)?|\bdescribed above\b|\busing the [^.]{0,40}\babove\b|\b(these|the) \w+ above\b/i
+    for (const [id, r] of Object.entries(paper.retrySet)) {
+      expect(leansOnSibling.test(r.question), `${id}: ${r.question}`).toBe(false)
+    }
+  })
+
+  // Visual items are the exception on purpose: they are an OPTIONAL extra that
+  // needs a diagram spec authored per item, so a paper is complete without
+  // them and gains them one at a time.
   it('offers retry questions for every non-visual question, or for none', () => {
     if (Object.keys(paper.retrySet).length === 0) return
     for (const q of paper.questions) {
