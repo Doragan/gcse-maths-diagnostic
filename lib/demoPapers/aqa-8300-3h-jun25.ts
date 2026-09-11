@@ -87,8 +87,9 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
   retrySet: {
     '1': { skill: 'Proportion + Converting Measurements', question: 'Convert 13.2 pounds into kilograms. Use 2.2 pounds = 1 kilogram.', answer: '6 kg', working: '13.2 ÷ 2.2' },
     // A negative in the data, as on the paper, and a context where one belongs.
-    // A negative in the data, as on the paper, and a context where one belongs.
-    '2': { skill: 'Outliers', question: 'Here are the temperatures of six freezers in a shop.\n−18 °C     −20 °C     −17.5 °C     4 °C     −19 °C     −21 °C\nWrite down the outlier.', answer: '4 °C', working: 'Every other freezer is between −21 °C and −17.5 °C.' },
+    // Negatives and positives mixed, as on the paper, so the outlier is not
+    // the odd one out by its sign alone.
+    '2': { skill: 'Outliers', question: 'Here are the temperatures recorded by six weather stations at midnight.\n−3 °C     1.5 °C     0 °C     −2 °C     18 °C     2 °C\nWrite down the outlier.', answer: '18 °C', working: 'Every other reading is between −3 °C and 2 °C.' },
     // The paper's question is a DIAGRAM to label: lettered parts of a circle
     // matched to a word bank. The retry draws its own circle with different
     // parts lettered (a diameter given, then a segment, a chord and a tangent).
@@ -236,14 +237,15 @@ export const AQA_8300_3H_JUN25: PaperConfig = {
     '13b': {
       skill: 'Cumulative Frequency',
       question: 'The table shows information about the salaries of 80 employees.\n<table>Salary, s (£) | Frequency\n0 < s ≤ 10 000 | 30\n10 000 < s ≤ 20 000 | 25\n20 000 < s ≤ 30 000 | 15\n30 000 < s ≤ 40 000 | 10</table>\nDraw a cumulative frequency diagram to represent the data.',
-      answer: 'Points at (10, 30), (20, 55), (30, 70) and (40, 80), joined by a smooth curve',
-      working: 'The cumulative frequencies are 30, 55, 70 and 80, each plotted at the TOP of its class, not the middle.',
+      answer: 'Points at (0, 0), (10, 30), (20, 55), (30, 70) and (40, 80), joined by a smooth curve',
+      working: 'The cumulative frequencies are 30, 55, 70 and 80, each plotted at the TOP of its class, not the middle; the curve starts at (0, 0), since no one earns £0 or less.',
       diagram: {
         mode: 'polyline',
         x: { min: 0, max: 40, step: 2, label: 'Salary (£1000s)' },
         y: { min: 0, max: 80, step: 5, label: 'Cumulative frequency' },
         background: '',
         elements: [
+          { x: 0, y: 0, marks: 1 },
           { x: 10, y: 30, marks: 1 }, { x: 20, y: 55, marks: 1 },
           { x: 30, y: 70, marks: 1 }, { x: 40, y: 80, marks: 1 },
         ],
