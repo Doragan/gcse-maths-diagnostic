@@ -3,6 +3,7 @@
 import { colors, font, radius, secondaryButton } from '../../lib/styles'
 import { trackEvent } from '../../lib/analytics'
 import { PLANS } from '../../lib/studentPlans'
+import { FIRST_NUDGE_MILESTONE, isEarlyAnonymousAnswer } from '../../lib/practice/session'
 import { GoogleButton } from '../GoogleButton'
 
 /**
@@ -27,6 +28,10 @@ const ANNUAL_PRICE = PLANS.find(p => p.id === 'annual')?.price ?? null
  * anonymous visitor, or us testing repeatedly). For a fresh counter this fires at
  * exactly the same points as before. Fires the `_shown` analytics event as a side effect.
  *
+ * Also fires `practice_question_answered` for the answers BELOW the first
+ * milestone — the only ones that would otherwise leave no trace at all. See
+ * isEarlyAnonymousAnswer for why that gap mattered.
+ *
  * Returns true if the caller should now show <SignUpPrompt/>.
  */
 export function registerQuestionForNudge(): boolean {
@@ -34,8 +39,12 @@ export function registerQuestionForNudge(): boolean {
   const count = parseInt(sessionStorage.getItem('practice_questions_answered') ?? '0') + 1
   sessionStorage.setItem('practice_questions_answered', count.toString())
 
+  // Only the answers before the first milestone: from there the `_shown` event
+  // below already marks the session, and two events for one answer double-count.
+  if (isEarlyAnonymousAnswer(count)) trackEvent('practice_question_answered', { questions: count })
+
   const milestoneFor = (n: number) =>
-    n >= 30 ? Math.floor(n / 15) * 15 : n >= 15 ? 15 : n >= 3 ? 3 : 0
+    n >= 30 ? Math.floor(n / 15) * 15 : n >= 15 ? 15 : n >= FIRST_NUDGE_MILESTONE ? FIRST_NUDGE_MILESTONE : 0
   const milestone = milestoneFor(count)
   const lastShown = parseInt(sessionStorage.getItem('practice_signup_prompt_at') ?? '0')
   if (milestone > lastShown) {

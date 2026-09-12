@@ -34,6 +34,15 @@
 export const SESSION_LENGTH = 10
 
 /**
+ * The answer on which the anonymous sign-up nudge first appears.
+ *
+ * Lives here rather than in the component so the nudge's milestone logic and
+ * isEarlyAnonymousAnswer below cannot drift apart — they have to agree about
+ * which answers are already marked by an event.
+ */
+export const FIRST_NUDGE_MILESTONE = 3
+
+/**
  * True when `total` answers land exactly on a checkpoint.
  *
  * Recurs, so a student who keeps going gets another at 20 and 30 rather than one
@@ -97,4 +106,30 @@ export function closestToMastery(
   }
 
   return best
+}
+
+/**
+ * True for an anonymous answer that would otherwise leave no trace at all.
+ *
+ * ── Why this exists ────────────────────────────────────────────────────────
+ * Nothing was recorded when an anonymous visitor answered a practice question.
+ * The first event of any kind was `practice_signup_prompt_shown` on the
+ * FIRST_NUDGE_MILESTONE-th answer, so a session that answered one question and
+ * left looked exactly like one that read the page and left. "How many visitors
+ * try a question" could then only be bounded, never measured — over the 60 days
+ * to 2026-09-11 the honest answer was somewhere between 21% and 81%, which is
+ * not an answer. See docs/audit/18-retention-brief.md §4.
+ *
+ * ── Why it stops below the milestone ───────────────────────────────────────
+ * From that answer on, the prompt event already marks the session. A second
+ * event for the same question would have to be excluded by hand from every
+ * count, which is exactly the kind of double-counting that produced the two
+ * earlier funnel errors.
+ */
+export function isEarlyAnonymousAnswer(
+  count: number,
+  milestone: number = FIRST_NUDGE_MILESTONE,
+): boolean {
+  const m = Number.isFinite(milestone) && milestone >= 1 ? milestone : FIRST_NUDGE_MILESTONE
+  return Number.isInteger(count) && count > 0 && count < m
 }

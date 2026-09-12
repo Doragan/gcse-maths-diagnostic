@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   isCheckpoint, questionsToCheckpoint, closestToMastery, SESSION_LENGTH,
+  isEarlyAnonymousAnswer, FIRST_NUDGE_MILESTONE,
   type SessionSkill,
 } from './session'
 
@@ -93,5 +94,36 @@ describe('closestToMastery', () => {
     // Same answer whichever order the object was built in.
     expect(closestToMastery({ alpha: skills.alpha, zebra: skills.zebra }))
       .toEqual({ skillId: 'alpha', remaining: 1 })
+  })
+})
+
+describe('isEarlyAnonymousAnswer', () => {
+  it('marks the answers that leave no other trace', () => {
+    expect(isEarlyAnonymousAnswer(1)).toBe(true)
+    expect(isEarlyAnonymousAnswer(2)).toBe(true)
+  })
+
+  it('stops at the first nudge milestone, which already fires its own event', () => {
+    expect(FIRST_NUDGE_MILESTONE).toBe(3)
+    expect(isEarlyAnonymousAnswer(FIRST_NUDGE_MILESTONE)).toBe(false)
+    for (const n of [3, 4, 10, 15, 30]) expect(isEarlyAnonymousAnswer(n)).toBe(false)
+  })
+
+  it('never fires at or below zero — there is no zeroth answer', () => {
+    for (const n of [0, -1]) expect(isEarlyAnonymousAnswer(n)).toBe(false)
+  })
+
+  it('ignores a non-integer count rather than emitting half an answer', () => {
+    for (const n of [1.5, NaN, Infinity]) expect(isEarlyAnonymousAnswer(n)).toBe(false)
+  })
+
+  it('follows a moved milestone, so the two cannot drift apart', () => {
+    expect(isEarlyAnonymousAnswer(3, 5)).toBe(true)
+    expect(isEarlyAnonymousAnswer(5, 5)).toBe(false)
+  })
+
+  it('falls back to the default for a nonsense milestone', () => {
+    expect(isEarlyAnonymousAnswer(2, 0)).toBe(true)
+    expect(isEarlyAnonymousAnswer(3, NaN)).toBe(false)
   })
 })
