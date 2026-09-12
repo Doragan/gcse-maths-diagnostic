@@ -2,7 +2,17 @@
 
 import { colors, font, radius, secondaryButton } from '../../lib/styles'
 import { trackEvent } from '../../lib/analytics'
+import { PLANS } from '../../lib/studentPlans'
+import { FIRST_NUDGE_MILESTONE, isEarlyAnonymousAnswer } from '../../lib/practice/session'
 import { GoogleButton } from '../GoogleButton'
+
+/**
+ * Derived from PLANS rather than typed into the copy, for the same reason the
+ * landing page derives its price (scripts/check-landing-copy.ts enforces it
+ * there): a price hardcoded into prose drifts the moment the plan changes, and
+ * a wrong number is a bad look on a maths product.
+ */
+const ANNUAL_PRICE = PLANS.find(p => p.id === 'annual')?.price ?? null
 
 /**
  * Bumps the per-tab "questions answered" counter and decides whether the anonymous
@@ -18,6 +28,10 @@ import { GoogleButton } from '../GoogleButton'
  * anonymous visitor, or us testing repeatedly). For a fresh counter this fires at
  * exactly the same points as before. Fires the `_shown` analytics event as a side effect.
  *
+ * Also fires `practice_question_answered` for the answers BELOW the first
+ * milestone — the only ones that would otherwise leave no trace at all. See
+ * isEarlyAnonymousAnswer for why that gap mattered.
+ *
  * Returns true if the caller should now show <SignUpPrompt/>.
  */
 export function registerQuestionForNudge(): boolean {
@@ -25,8 +39,12 @@ export function registerQuestionForNudge(): boolean {
   const count = parseInt(sessionStorage.getItem('practice_questions_answered') ?? '0') + 1
   sessionStorage.setItem('practice_questions_answered', count.toString())
 
+  // Only the answers before the first milestone: from there the `_shown` event
+  // below already marks the session, and two events for one answer double-count.
+  if (isEarlyAnonymousAnswer(count)) trackEvent('practice_question_answered', { questions: count })
+
   const milestoneFor = (n: number) =>
-    n >= 30 ? Math.floor(n / 15) * 15 : n >= 15 ? 15 : n >= 3 ? 3 : 0
+    n >= 30 ? Math.floor(n / 15) * 15 : n >= 15 ? 15 : n >= FIRST_NUDGE_MILESTONE ? FIRST_NUDGE_MILESTONE : 0
   const milestone = milestoneFor(count)
   const lastShown = parseInt(sessionStorage.getItem('practice_signup_prompt_at') ?? '0')
   if (milestone > lastShown) {
@@ -139,6 +157,21 @@ export default function SignUpPrompt({ onDismiss }: { onDismiss: () => void }) {
         >
           Maybe later
         </button>
+        {/*
+          The cost answer, once, quietly, AFTER the ask — the same stance the
+          landing page takes. The account itself is free, so leading with a
+          price would invent an objection that isn't there; but "will this end
+          up costing me?" is the unasked question behind a sign-up wall, and
+          leaving it unanswered is what makes a free offer feel like a trap.
+          The calculator comparison gives the yearly figure a size a student
+          already knows — every one of them has bought one.
+        */}
+        {ANNUAL_PRICE && (
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '2px 0 0', textAlign: 'center' as const, lineHeight: 1.5 }}>
+            Free, and no card needed. There&rsquo;s an optional upgrade later at{' '}
+            {ANNUAL_PRICE} for a whole year — less than a new scientific calculator.
+          </p>
+        )}
       </div>
     </div>
   )

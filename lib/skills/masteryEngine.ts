@@ -7,18 +7,29 @@ export type SkillMastery = {
   recentCorrect: number
   /** True when mastery was inferred from a dependent skill, not earned directly */
   inferred?: boolean
+  /**
+   * Set when the status is a placement-test PRIOR rather than practice evidence
+   * (see placementPriors). It holds only until the student practises the skill.
+   */
+  source?: 'placement'
 }
+
+/**
+ * Where an attempt came from.
+ *  - 'mastery'   ordinary practice: credit on success, penalise on failure.
+ *  - 'exam'      synthesis questions: positive-only (a wrong answer is a no-op).
+ *  - 'placement' a placement-test answer. It never enters the mastery window;
+ *                it sets the skill's STARTING status (placementPriors), and the
+ *                first real attempt on that skill replaces it.
+ */
+export type AttemptKind = 'mastery' | 'exam' | 'placement'
 
 type Attempt = {
   skill_ids: string[]
   correct: boolean
   attempted_at: string
-  /**
-   * Two-kind model. 'exam' answers are positive-only: a wrong one is a no-op
-   * (it never lowers mastery), while a correct one credits normally. Absent or
-   * 'mastery' → today's behaviour (credit on success, penalise on failure).
-   */
-  kind?: 'mastery' | 'exam'
+  /** Absent → 'mastery'. See AttemptKind. */
+  kind?: AttemptKind
 }
 
 /**
@@ -48,8 +59,9 @@ type Attempt = {
  * than 5 is necessarily holding all of them. Above that the rolling window
  * governs and the earliest attempts are irrelevant.
  *
- * Callers must apply the exam-kind filter themselves (a wrong `exam` attempt is
- * a no-op and must not enter the sequence) — see calculateMastery below.
+ * Callers must apply the kind filters themselves (a wrong `exam` attempt is a
+ * no-op, and a `placement` attempt is never practice evidence, so neither may
+ * enter the sequence) — see calculateMastery below.
  */
 export function masteryStatusFor(mostRecentFirst: { correct: boolean }[]): MasteryStatus {
   const total = mostRecentFirst.length
@@ -83,10 +95,16 @@ export function attemptsToMastery(mostRecentFirst: { correct: boolean }[]): numb
   return 5
 }
 
+/**
+ * Practice mastery only. Placement attempts are skipped here — they are priors,
+ * applied by studentMastery — so no caller can count one as practice by accident.
+ * Most callers want studentMastery, not this.
+ */
 export function calculateMastery(attempts: Attempt[]): Record<string, SkillMastery> {
   const bySkill: Record<string, { correct: boolean; attempted_at: string }[]> = {}
 
   for (const attempt of attempts) {
+    if (attempt.kind === 'placement') continue
     // Positive-only attribution for exam-kind synthesis questions: a wrong
     // answer never enters the window (so it can't lower any skill); a correct
     // answer is recorded normally and credits every constituent skill.
@@ -105,7 +123,6 @@ export function calculateMastery(attempts: Attempt[]): Record<string, SkillMaste
       (a, b) => new Date(b.attempted_at).getTime() - new Date(a.attempted_at).getTime()
     )
 
-    const total = sorted.length
     const lastFive = sorted.slice(0, 5)
     const recentCorrect = lastFive.filter(a => a.correct).length
     const recentAttempts = lastFive.length
@@ -119,48 +136,6 @@ export function calculateMastery(attempts: Attempt[]): Record<string, SkillMaste
 }
 
 /**
- * Propagates mastery backwards through the prerequisite tree.
- *
- * Rule: if a student has at least 1 correct answer on a skill, they demonstrably
- * know its prerequisites — so every transitive prerequisite that isn't already
- * mastered is credited as mastered (inferred).
- *
- * Already-mastered skills are left untouched. Skills that are in_progress or
- * needs_practice can be overridden: answering a harder skill correctly is
- * stronger evidence than a small number of direct attempts.
- *
- * @param mastery                  Real mastery map from calculateMastery
- * @param getTransitivePrerequisites  Function returning full prerequisite tree for a skill
- */
-export function inferPrerequisiteMastery(
-  mastery: Record<string, SkillMastery>,
-  getTransitivePrerequisites: (skillId: string) => string[],
-): Record<string, SkillMastery> {
-  const result: Record<string, SkillMastery> = { ...mastery }
-
-  for (const [skillId, m] of Object.entries(mastery)) {
-    if (m.recentCorrect < 1) continue  // need at least one correct answer to infer
-
-    for (const prereqId of getTransitivePrerequisites(skillId)) {
-      // Skip only if already mastered from real data — in_progress/needs_practice
-      // can be overridden: if a student answers harder skills correctly, they
-      // demonstrably know the foundations even if the diagnostic was brief.
-      if (mastery[prereqId]?.status === 'mastered') continue
-
-      result[prereqId] = {
-        skillId: prereqId,
-        status: 'mastered',
-        recentAttempts: result[prereqId]?.recentAttempts ?? 0,
-        recentCorrect: result[prereqId]?.recentCorrect ?? 0,
-        inferred: true,
-      }
-    }
-  }
-
-  return result
-}
-
-/**
  * Practice-context prerequisite inference (audit L2 — the user's ruling).
  *
  * When a student answers a skill correctly, each of its transitive prerequisites
@@ -168,9 +143,7 @@ export function inferPrerequisiteMastery(
  * worth of mastery"), timestamped after every real attempt so they occupy the
  * most-recent slots of the window. Feed the result through calculateMastery.
  *
- * Unlike the DIAGNOSTIC's binary `inferPrerequisiteMastery` (which marks every
- * prerequisite mastered outright), this BLENDS with the prerequisite's real
- * history rather than overriding it:
+ * This BLENDS with the prerequisite's real history rather than overriding it:
  *   - a prerequisite the student has directly struggled with is not instantly
  *     mastered — the 2 credits combine with its real recent attempts;
  *   - an UNTESTED prerequisite gets only 2 credits — below both the fast-track's
@@ -180,7 +153,8 @@ export function inferPrerequisiteMastery(
  *     (the deliberate "answered it once, plus a downstream skill → mastered"
  *     path — hence 2, not 3: a single downstream answer must not be enough on
  *     its own).
- * The diagnostic keeps the stronger binary inference; ongoing practice uses this.
+ * Placement answers do not trigger it: their prerequisite credit is part of the
+ * placement prior (see placementPriors), which is deliberately stronger.
  */
 export function applyPrerequisiteCredit(
   attempts: Attempt[],
@@ -190,9 +164,10 @@ export function applyPrerequisiteCredit(
   const demonstrated = new Set<string>()
   let latestMs = 0
   for (const a of attempts) {
+    if (a.kind === 'placement') continue
     const t = new Date(a.attempted_at).getTime()
     if (Number.isFinite(t) && t > latestMs) latestMs = t
-    // A correct answer (any kind) demonstrates each tagged skill.
+    // A correct answer (mastery or exam) demonstrates each tagged skill.
     if (a.correct) for (const s of a.skill_ids) demonstrated.add(s)
   }
   if (demonstrated.size === 0) return attempts
@@ -218,6 +193,116 @@ export function applyPrerequisiteCredit(
     }
   }
   return [...attempts, ...synthetic]
+}
+
+/**
+ * What the placement test says, as starting statuses (docs/audit/17).
+ *
+ *   answered right              → mastered        (placement)
+ *   answered wrong              → needs_practice  (placement)
+ *   prerequisite of a right one → mastered        (placement, inferred)
+ *
+ * The student's LATEST placement answer on a skill wins, so a retake supersedes
+ * an earlier sitting. A skill's own placement answer beats inference from a
+ * dependent: getting fractions wrong while getting percentages right leaves
+ * fractions a gap, because that is the direct evidence.
+ *
+ * These are only priors — studentMastery drops each one as soon as the
+ * student's practice on that skill disagrees with it or settles it outright.
+ */
+export function placementPriors(
+  attempts: Attempt[],
+  getTransitivePrerequisites: (skillId: string) => string[],
+): Record<string, SkillMastery> {
+  const latest: Record<string, { correct: boolean; t: number }> = {}
+  for (const a of attempts) {
+    if (a.kind !== 'placement') continue
+    const t = new Date(a.attempted_at).getTime()
+    for (const s of a.skill_ids) {
+      if (!latest[s] || t >= latest[s].t) latest[s] = { correct: a.correct, t }
+    }
+  }
+
+  const priors: Record<string, SkillMastery> = {}
+  for (const [skillId, { correct }] of Object.entries(latest)) {
+    priors[skillId] = {
+      skillId,
+      status: correct ? 'mastered' : 'needs_practice',
+      recentAttempts: 1,
+      recentCorrect: correct ? 1 : 0,
+      source: 'placement',
+    }
+  }
+  for (const [skillId, { correct }] of Object.entries(latest)) {
+    if (!correct) continue
+    for (const prereqId of getTransitivePrerequisites(skillId)) {
+      if (latest[prereqId]) continue // its own answer is the stronger evidence
+      priors[prereqId] = {
+        skillId: prereqId,
+        status: 'mastered',
+        recentAttempts: 0,
+        recentCorrect: 0,
+        inferred: true,
+        source: 'placement',
+      }
+    }
+  }
+  return priors
+}
+
+/**
+ * THE student skill map. Every student-facing view — dashboard, practice
+ * selection, skill map, progress chart, mini-exam review, placement results —
+ * computes mastery through here, so they cannot disagree.
+ *
+ * Practice evidence (with L2 prerequisite credit) first; then the placement
+ * priors. A prior holds UNTIL THE STUDENT'S PRACTICE DISAGREES WITH IT:
+ *
+ *   - not practised yet                          → the prior
+ *   - practice has settled it (fast-track or a
+ *     full window → mastered / needs_practice)   → practice
+ *   - prior mastered, every real answer right    → still mastered
+ *   - prior a gap,   every real answer wrong     → still a gap
+ *   - otherwise (practice disagrees)             → practice
+ *
+ * Dropping the prior on the FIRST real answer instead would demote a
+ * placement-mastered skill to "In progress" for answering it correctly, and
+ * clear a gap for getting it wrong again. Placement answers never enter the
+ * window, so a missed placement question can't block the fast-track later.
+ *
+ * "Real" means an attempt the window counts: a wrong exam-kind answer is a
+ * no-op everywhere else, so it is neither agreement nor disagreement here.
+ */
+export function studentMastery(
+  attempts: Attempt[],
+  getTransitivePrerequisites: (skillId: string) => string[],
+): Record<string, SkillMastery> {
+  const real = attempts.filter(a => a.kind !== 'placement')
+  const mastery = calculateMastery(applyPrerequisiteCredit(real, getTransitivePrerequisites))
+
+  // Each skill's own real answers (not synthetic prerequisite credit).
+  const answers: Record<string, boolean[]> = {}
+  for (const a of real) {
+    if (a.kind === 'exam' && !a.correct) continue
+    for (const s of a.skill_ids) (answers[s] ??= []).push(a.correct)
+  }
+
+  for (const [skillId, prior] of Object.entries(placementPriors(attempts, getTransitivePrerequisites))) {
+    const own = answers[skillId]
+    const practice = mastery[skillId]
+    if (!own || !practice) { mastery[skillId] = prior; continue }
+    if (practice.status !== 'in_progress') continue // practice has settled it
+    const agrees = prior.status === 'mastered' ? own.every(c => c) : own.every(c => !c)
+    if (agrees) mastery[skillId] = { ...practice, status: prior.status, inferred: prior.inferred, source: 'placement' }
+  }
+  return mastery
+}
+
+/** Gaps the placement test found that the student has not practised since. */
+export function placementGapIds(mastery: Record<string, SkillMastery>): string[] {
+  return Object.values(mastery)
+    .filter(m => m.source === 'placement' && m.status === 'needs_practice')
+    .map(m => m.skillId)
 }
 
 /**
@@ -255,9 +340,8 @@ export function getAccessibleSkillIds(
  * "weak-spot blitz" focus mode (a session built entirely from weak skills,
  * rather than the gentle 3× weighting getWeightedSkillPool applies).
  *
- * These skills have all been attempted (needs_practice requires ≥5 attempts),
- * so their prerequisites are inherently satisfied — no accessible-pool filtering
- * is needed.
+ * These are skills with a full window below the bar, or placement gaps. Either
+ * way the student has met them, so no accessible-pool filtering is needed.
  */
 export function getNeedsPracticeSkillIds(
   mastery: Record<string, SkillMastery>,

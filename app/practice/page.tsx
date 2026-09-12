@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { courses } from '../../data/courses'
 import { getStudentProfile, primeStudentIdCache } from '../../lib/auth'
-import { calculateMastery, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
+import { studentMastery, placementGapIds, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { isPaidStudent } from '../../lib/entitlements'
 import { skills } from '../../data/skills'
@@ -65,6 +65,9 @@ export default function PracticePage() {
   const [focusSkillId, setFocusSkillId] = useState<string>('')
   const [focusTopic, setFocusTopic] = useState<string>('')
   const published = usePublishedSkillIds()
+  // Arrived via "Practise your gaps" on the placement results. Free for every
+  // student; resolved against the student's map in startPractice.
+  const [gapSession, setGapSession] = useState(false)
 
   useEffect(() => {
     getStudentProfile().then(p => {
@@ -75,6 +78,15 @@ export default function PracticePage() {
       // own auth.getUser() + students fetch (it would otherwise be a cache miss
       // on first load). null = resolved-but-anonymous.
       primeStudentIdCache(p?.id ?? null)
+
+      //   /practice?focus=gaps → the placement test's gaps (any signed-in student)
+      // Tier 'both' for the same reason as the paid deep links below: a gap can
+      // sit in either tier.
+      if (p && typeof window !== 'undefined'
+        && new URLSearchParams(window.location.search).get('focus') === 'gaps') {
+        setTier('both')
+        setGapSession(true)
+      }
 
       // Deep links from the dashboard (paid only): pre-select a focus target.
       //   /practice?skillId=<id>   → drill that skill
@@ -196,8 +208,10 @@ export default function PracticePage() {
         .select('skill_ids, correct, attempted_at, kind')
         .eq('student_id', student.id)
 
+      // The same map the dashboard shows (placement priors + L2 prerequisite
+      // credit), so what the dashboard calls a gap is what selection treats as one.
       const mastery = attempts && attempts.length > 0
-        ? calculateMastery(attempts)
+        ? studentMastery(attempts, getPrerequisiteTree)
         : {}
 
       // Filter to skills where the full prerequisite chain is either mastered or
@@ -209,12 +223,26 @@ export default function PracticePage() {
       // with a well-formed curriculum that has root skills), use the full tier pool.
       const pool = accessible.length > 0 ? accessible : allSkillIds
 
+      let focusApplied = false
+
+      // "Practise your gaps" — FREE for every student (docs/audit/17, decision
+      // 1). It targets only the gaps the placement test found that practice
+      // hasn't cleared yet, so it is self-limiting: each gap leaves the set once
+      // the student gets it right in practice. The ongoing weak-spot blitz stays
+      // paid.
+      if (gapSession) {
+        const gaps = placementGapIds(mastery).filter(id => allSkillIds.includes(id))
+        if (gaps.length > 0) {
+          targetSkillIds = gaps
+          focusApplied = true
+        }
+      }
+
       // Paid focus override (skill / topic / weak-spot blitz). Only paid users
       // can steer targeting; the UI locks these for free users, and this guard
       // enforces it server-of-record-side too. An invalid/empty selection leaves
       // focusApplied false and we fall through to the default behaviour below.
-      let focusApplied = false
-      if (isPaid) {
+      if (!focusApplied && isPaid) {
         if (focusMode === 'skill' && focusSkillId && allSkillIds.includes(focusSkillId)) {
           targetSkillIds = [focusSkillId]
           focusApplied = true
@@ -296,6 +324,9 @@ export default function PracticePage() {
   }
 
   function selectFocus(mode: FocusMode) {
+    // Choosing any focus ends a gap session — it would otherwise take
+    // precedence in startPractice over the focus the student just picked.
+    setGapSession(false)
     if (mode === 'auto') { setFocusMode('auto'); return }
     if (!isPaid) {
       // Show-but-locked: send free users to upgrade, anonymous users to login.
@@ -426,6 +457,36 @@ export default function PracticePage() {
             </div>
           </div>
         </div>
+
+        {/* Gap session banner — arrived from the placement results. Free. */}
+        {student && gapSession && (
+          <div style={{
+            padding: '12px 14px',
+            borderRadius: radius.md,
+            background: colors.dangerLight,
+            border: `1px solid ${colors.dangerBorder}`,
+            display: 'flex',
+            flexDirection: 'column' as const,
+            gap: '6px',
+          }}>
+            <p style={{ fontSize: font.base, fontWeight: '600', color: colors.dangerText, margin: 0 }}>
+              Practising the gaps from your placement test
+            </p>
+            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, lineHeight: '1.5' }}>
+              Each gap clears as soon as you get it right.
+            </p>
+            <button
+              onClick={() => setGapSession(false)}
+              style={{
+                alignSelf: 'flex-start', background: 'none', border: 'none', padding: 0,
+                fontSize: font.sm, color: colors.primary, cursor: 'pointer', fontFamily: 'inherit',
+                textDecoration: 'underline',
+              }}
+            >
+              Practise everything instead
+            </button>
+          </div>
+        )}
 
         {/* Focus selector — premium. Shown to logged-in users only (locked for
             free, active for paid). Hidden entirely for anonymous visitors so a

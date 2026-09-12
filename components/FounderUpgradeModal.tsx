@@ -208,6 +208,9 @@ export default function FounderUpgradeModal() {
             )}
             <span style={{ fontSize: font.sm, color: colors.textSecondary }}>one-off · {exam.period}</span>
           </div>
+          {exam.comparison && (
+            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '6px 0 0' }}>{exam.comparison}</p>
+          )}
           {seatNote && (
             <p style={{ fontSize: font.sm, fontWeight: 600, color: colors.primary, margin: '6px 0 0' }}>{seatNote}</p>
           )}

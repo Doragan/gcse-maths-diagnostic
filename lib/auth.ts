@@ -126,21 +126,52 @@ export async function signUpStudent(
  * success, so it's safe to call from the student login page and the OAuth
  * callback alike.
  */
-export async function migratePendingPractice(studentId: string) {
-  if (typeof window === 'undefined') return
+/** A placement test taken signed-out, waiting for an account (app/student/diagnostic). */
+export const PENDING_PLACEMENT_KEY = 'pending_diagnostic'
+
+/**
+ * Imports everything a student did signed-out: anonymous practice AND an
+ * anonymous placement test. Every login path calls this — email login, the
+ * confirmation-link auto-login and both Google branches — which is the point:
+ * the placement import used to live only in the email handler, so Google
+ * sign-ups silently lost their test.
+ *
+ * Returns how many rows each store contributed, so a caller can route a
+ * student who has just taken the test to their dashboard rather than back into
+ * the test.
+ */
+export async function migratePendingPractice(studentId: string): Promise<{ practice: number; placement: number }> {
+  if (typeof window === 'undefined') return { practice: 0, placement: 0 }
+  const practice = await migrateStore(PENDING_KEY, studentId, null, 'pending_practice_migrated')
+  const placement = await migrateStore(PENDING_PLACEMENT_KEY, studentId, 'placement', 'pending_diagnostic_migrated')
+  return { practice, placement }
+}
+
+async function migrateStore(
+  key: string,
+  studentId: string,
+  forceKind: 'placement' | null,
+  event: string,
+): Promise<number> {
   let raw: unknown = []
-  try { raw = JSON.parse(localStorage.getItem(PENDING_KEY) ?? '[]') } catch { raw = [] }
+  try { raw = JSON.parse(localStorage.getItem(key) ?? '[]') } catch { raw = [] }
+  // Placement stores written before kind existed carry none — stamp it, or the
+  // rows would land as ordinary practice.
+  if (forceKind && Array.isArray(raw)) {
+    raw = raw.map(a => (typeof a === 'object' && a !== null ? { ...a, kind: forceKind } : a))
+  }
   const rows = pendingPracticeRows(raw, studentId, Date.now())
   if (rows.length === 0) {
     // Nothing usable — but if the store held something (all malformed), clear it
     // so it isn't re-parsed on every login for the life of the browser.
-    localStorage.removeItem(PENDING_KEY)
-    return
+    localStorage.removeItem(key)
+    return 0
   }
   const { error } = await supabase.from('practice_attempts').insert(rows)
-  if (error) { console.error('Failed to migrate pending practice:', error.message); return }
-  localStorage.removeItem(PENDING_KEY)
-  trackEvent('pending_practice_migrated', { count: rows.length })
+  if (error) { console.error(`Failed to migrate ${key}:`, error.message); return 0 }
+  localStorage.removeItem(key)
+  trackEvent(event, { count: rows.length })
+  return rows.length
 }
 
 export async function getStudentProfile() {

@@ -90,9 +90,9 @@ describe('pendingPracticeRows', () => {
 
   it("normalises kind, since 'exam' is positive-only in calculateMastery", () => {
     const rows = pendingPracticeRows(
-      [entry({ kind: 'exam' }), entry({ kind: 'nonsense' }), entry()],
+      [entry({ kind: 'exam' }), entry({ kind: 'nonsense' }), entry(), entry({ kind: 'placement' })],
       STUDENT, NOW,
     )
-    expect(rows.map(r => r.kind)).toEqual(['exam', 'mastery', 'mastery'])
+    expect(rows.map(r => r.kind)).toEqual(['exam', 'mastery', 'mastery', 'placement'])
   })
 })

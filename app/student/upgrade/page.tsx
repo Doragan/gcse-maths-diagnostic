@@ -239,6 +239,12 @@ export default function StudentUpgradePage() {
                 <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, textAlign: 'left' as const }}>
                   {plan.description}
                 </p>
+                {/* Size cue, quieter than the terms above it — see PlanDef.comparison. */}
+                {plan.comparison && (
+                  <p style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 0', textAlign: 'left' as const }}>
+                    {plan.comparison}
+                  </p>
+                )}
                 {seatNote && (
                   <p style={{ fontSize: font.sm, fontWeight: 600, color: colors.primary, margin: '6px 0 0', textAlign: 'left' as const }}>
                     {seatNote}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { signOut, primeStudentIdCache } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import { trackEvent } from '../../../lib/analytics'
-import { calculateMastery, applyPrerequisiteCredit, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
+import { studentMastery, placementGapIds, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
 import { computeWeeklyGoal, WEEKLY_GOAL, type WeeklyGoalProgress } from '../../../lib/skills/weeklyGoal'
@@ -65,6 +65,8 @@ export default function StudentDashboardPage() {
   const [masteredCount, setMasteredCount] = useState(0)
   const [needsPracticeCount, setNeedsPracticeCount] = useState(0)
   const [weakSpots, setWeakSpots] = useState<{ id: string; name: string }[]>([])
+  // Placement-test gaps not yet cleared by practice — practisable free.
+  const [placementGaps, setPlacementGaps] = useState(0)
   const [progressSeries, setProgressSeries] = useState<ProgressSeries | null>(null)
   const [weekly, setWeekly] = useState<WeeklyGoalProgress | null>(null)
   const [hideUntested, setHideUntested] = useState(false)
@@ -111,10 +113,10 @@ export default function StudentDashboardPage() {
         setWeekly(computeWeeklyGoal(attempts))
         setProgressSeries(buildProgressSeries(attempts, getPrerequisiteTree))
 
-        // Practice-context inference: credit each prerequisite 3 attempts-worth
-        // and let the 5-attempt window blend it with real evidence (audit L2).
-        // The diagnostic still uses the stronger binary inferPrerequisiteMastery.
-        const augmented = calculateMastery(applyPrerequisiteCredit(attempts, getPrerequisiteTree))
+        // THE student map: practice with L2 prerequisite credit, plus the
+        // placement test's priors. The placement results screen and practice
+        // selection use the same function, so all three agree (docs/audit/17).
+        const augmented = studentMastery(attempts, getPrerequisiteTree)
 
         setMasteredCount(Object.values(augmented).filter(m => m.status === 'mastered').length)
         setNeedsPracticeCount(Object.values(augmented).filter(m => m.status === 'needs_practice').length)
@@ -123,6 +125,7 @@ export default function StudentDashboardPage() {
             .filter(m => m.status === 'needs_practice')
             .map(m => ({ id: m.skillId, name: skillsById[m.skillId]?.name ?? m.skillId }))
         )
+        setPlacementGaps(placementGapIds(augmented).length)
 
         // Build groups from ALL skills (not just attempted), preserving skills.ts
         // order — less any skill with no published question to practise yet.
@@ -406,7 +409,23 @@ export default function StudentDashboardPage() {
               <span key={w.id} style={styles.chip}>{w.name}</span>
             ))}
           </div>
-          <button onClick={blitzWeakSpots} style={primaryButton}>
+          {/* Placement gaps are practisable free (docs/audit/17, decision 1);
+              the ongoing weak-spot blitz stays paid. */}
+          {!isPaid && placementGaps > 0 && (
+            <button
+              onClick={() => {
+                trackEvent('dashboard_placement_gaps_clicked', { gaps: placementGaps, paid: false })
+                router.push('/practice?focus=gaps')
+              }}
+              style={{ ...primaryButton, marginBottom: '8px' }}
+            >
+              Practise your {placementGaps} placement gap{placementGaps !== 1 ? 's' : ''} (free)
+            </button>
+          )}
+          <button
+            onClick={blitzWeakSpots}
+            style={!isPaid && placementGaps > 0 ? secondaryButton : primaryButton}
+          >
             {isPaid ? 'Blitz weak spots' : '🔒 Upgrade to blitz these'}
           </button>
         </div>
@@ -564,9 +583,18 @@ export default function StudentDashboardPage() {
                           }}>
                             <span style={{ fontSize: font.base, color: colors.textPrimary, flex: 1 }}>
                               {skill.name}
+                              {/* Say where a starting status came from, so a
+                                  Mastered or Needs practice the student hasn't
+                                  practised yet isn't a mystery. */}
+                              {mastery?.source === 'placement' && (
+                                <span style={{ display: 'block', fontSize: '11px', color: colors.textHint, marginTop: '1px' }}>
+                                  From your placement test
+                                </span>
+                              )}
                             </span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                              {mastery && !mastery.inferred && mastery.recentAttempts > 0 && (
+                              {/* Dots show a practice window; a placement prior has none. */}
+                              {mastery && !mastery.inferred && !mastery.source && mastery.recentAttempts > 0 && (
                                 <ProgressDots
                                   correct={mastery.recentCorrect}
                                   mastered={mastery.status === 'mastered'}

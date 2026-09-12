@@ -154,8 +154,10 @@ export default function AuthCallbackPage() {
       })
       trackEvent('signup_success', { method: 'google' })
       const { data: { session } } = await supabase.auth.getSession()
-      if (session) await migratePendingPractice(session.user.id)
-      router.replace('/student/diagnostic')
+      const migrated = session ? await migratePendingPractice(session.user.id) : null
+      // A student who took the placement test before signing up has a map
+      // already; send them to it rather than into the test a second time.
+      router.replace(migrated && migrated.placement > 0 ? '/student/dashboard' : '/student/diagnostic')
     } catch (e: any) {
       setError(e?.message ?? 'Could not create your account.')
       setSubmitting(false)
