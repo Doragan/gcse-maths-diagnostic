@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildFeedbackPdf, feedbackPdfFilename, toPdfSafe, toRuns, type Run } from './feedbackPdf'
+import { buildFeedbackPdf, feedbackPdfFilename, pdfSafeSvg, toPdfSafe, toRuns, type Run } from './feedbackPdf'
 import { buildClassEvidence, buildStudentEvidence } from './feedbackEvidence'
 import { toWwwEbi, toWwwEbiSheets, MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, MAX_CHALLENGE } from './wwwEbi'
 import type { PaperConfig } from '../demoPapers'
@@ -372,5 +372,84 @@ describe('notation', () => {
         expect(lost, `${where}: ${JSON.stringify(lost.join(''))}`).toEqual([])
       }
     }
+  })
+})
+
+describe('pdfSafeSvg', () => {
+  // A diagram's labels are drawn by svg2pdf with the SAME standard fonts as the
+  // body text, and nothing was applying the substitutions to them.
+  it('substitutes inside a label', () => {
+    expect(pdfSafeSvg('<text x="1" y="2">8b − 5a</text>')).toBe('<text x="1" y="2">8b - 5a</text>')
+  })
+
+  it('leaves the geometry alone', () => {
+    const svg = '<polyline points="1,-1 2,2" stroke="#333" /><circle cx="1" cy="2" r="3" />'
+    expect(pdfSafeSvg(svg)).toBe(svg)
+  })
+
+  it('leaves an escaped entity intact', () => {
+    expect(pdfSafeSvg('<text>a &amp; b</text>')).toBe('<text>a &amp; b</text>')
+  })
+})
+
+describe('what actually reaches the page', () => {
+  /**
+   * The finished document's bytes.
+   *
+   * Read from the PDF rather than from a spy: jsPDF hangs its API off each
+   * INSTANCE rather than the prototype, so there is nothing to spy on, and the
+   * bytes are the real subject anyway — an uncompressed jsPDF document carries
+   * its drawn strings and its font resources in the clear.
+   */
+  async function pdfBytes(sheets: WwwEbiSheet[], key?: Parameters<typeof buildFeedbackPdf>[2]) {
+    const doc = await buildFeedbackPdf(sheets, options, key)
+    return Buffer.from(doc.output('arraybuffer')).toString('latin1')
+  }
+
+  const sheet: WwwEbiSheet = {
+    studentRef: 'Tess',
+    score: '4 out of 10 (40%)',
+    coverage: null,
+    www: [],
+    ebi: [],
+    practice: [{
+      label: '5',
+      stem: 'Each member pays an annual fee based on their age.\n<table>Age | Under 60 | 60 or over\nAnnual fee | £240 | £150</table>',
+      parts: [
+        { label: '5(a)', skill: 'Area of a Triangle (½ab sinC)', question: 'q', body: 'Work out the total annual fees.' },
+        { label: '5(b)', skill: 'Area of a Triangle (½ab sinC)', question: 'q', body: 'Explain your answer.' },
+      ],
+    }],
+    challenge: [],
+  }
+
+  it('sets a shared scenario as a real table, not as its markup', async () => {
+    // 3F Nov24 19 printed "<table>Year | 2017 | …</table>" to a student: the
+    // stem was drawn a line at a time, and only a part's body knew about tables.
+    const raw = await pdfBytes([sheet])
+    expect(raw).not.toContain('<table>')
+    expect(raw).toContain('Under 60')
+  })
+
+  it('draws a skill name plainly, so a ½ in it cannot stack over a bracket', async () => {
+    // Parsed as notation, the ½ becomes a stacked fraction drawn as a separate
+    // '1' and '2' — and "½ab sinC" never reaches the page as one string (3H 24).
+    const raw = await pdfBytes([sheet])
+    expect(raw).toContain('½ab sinC')
+  })
+
+  it('gives the answer key the same notation as the sheets', async () => {
+    // The key alone went through splitTextToSize(toPdfSafe(...)): markup stayed
+    // literal and every Symbol character was blanked, so a question ending
+    // "in terms of π" lost the π on the teacher's copy.
+    const raw = await pdfBytes([sheet], [{
+      skill: 'Area of a Circle',
+      question: 'Work out <frac>3/4</frac> of 912\nGive your answer in terms of π',
+      answer: '684',
+    }])
+    expect(raw).not.toContain('<frac>')
+    // Wrapping draws a word at a time, so a sentence is never one string in the
+    // bytes; this number appears nowhere else, and only in the key's question.
+    expect(raw).toContain('912')
   })
 })

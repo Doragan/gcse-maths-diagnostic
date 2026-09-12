@@ -97,6 +97,24 @@ export function toPdfSafe(text: string): string {
   return out
 }
 
+/**
+ * The same substitutions, applied to an SVG's text nodes.
+ *
+ * svg2pdf draws <text> with jsPDF's standard fonts, so a diagram's labels are
+ * under exactly the same WinAnsi limit as body text — and nothing was applying
+ * it to them. A label reading "8b − 5a" printed as `8b " 5a` on 2H 23, and the
+ * square on 3F 16 lost the minus out of "(5x − 2) cm".
+ *
+ * Only the text BETWEEN the tags is touched: attributes carry the geometry, and
+ * gridSvg has already escaped & and < inside a label.
+ */
+export function pdfSafeSvg(svg: string): string {
+  return svg.replace(
+    /(<text\b[^>]*>)([\s\S]*?)(<\/text>)/g,
+    (_, open: string, body: string, close: string) => open + toPdfSafe(body) + close,
+  )
+}
+
 // ── Drawing the notation ─────────────────────────────────────────────────────
 //
 // `10^-4` is legible but it is not what a maths paper looks like, and the
@@ -397,6 +415,10 @@ export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: nu
 
 const CELL_PAD = 1.8         // mm of space each side of a cell's text
 const ROW_LEAD = 1.6         // mm above and below a row's text
+// mm below a table. The cursor tracks the next BASELINE, so clearing the rule
+// by a hair is not enough: the ascenders of the next line printed INTO the
+// bottom row on 2H 19. A whole line's worth keeps them clear.
+const TABLE_GAP = 2.5
 
 /** Column widths in mm, each the widest cell in that column plus padding. */
 function columnWidths(doc: jsPDF, rows: InlineToken[][][], size: number): number[] {
@@ -610,14 +632,14 @@ async function practiceSection(
     // The question's number heads the block, so a multi-part question reads as
     // one thing rather than as several unrelated bullets.
     setBlack(doc, 10.5, 'bold')
-    line(doc, c, `Question ${group.label} — ${group.parts[0].skill}`, 5.5, 10.5)
+    plainLine(doc, c, `Question ${group.label} — ${group.parts[0].skill}`, 5.5, 10.5)
 
     // The scenario the parts share, set once above them — the paper prints it
     // once, and repeating it under (a) and again under (b) reads as two
     // unrelated questions that happen to use the same numbers.
     if (group.stem) {
       setBlack(doc, 10.5, 'normal')
-      for (const l of group.stem.split('\n')) line(doc, c, l, 4.6, 10.5)
+      flowText(doc, c, group.stem, 10.5)
       c.y += 1
     }
 
@@ -666,7 +688,7 @@ function sameGrid(a: RenderedGrid, b: RenderedGrid): boolean {
 async function drawGrid(doc: jsPDF, c: Cursor, grid: RenderedGrid): Promise<void> {
   if (typeof document === 'undefined') return
 
-  const svg = buildGridSvg(grid, { showCanonical: false })
+  const svg = pdfSafeSvg(buildGridSvg(grid, { showCanonical: false }))
   const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
   if (!viewBox) return
   const { width, height } = diagramSize(Number(viewBox[1]), Number(viewBox[2]))
@@ -723,12 +745,10 @@ function renderAnswerKey(
   for (const e of entries) {
     ensureSpace(doc, c, 16)
     setBlack(doc, 10.5, 'bold')
-    line(doc, c, e.skill, 5)
+    plainLine(doc, c, e.skill, 5)
 
     setBlack(doc, 10.5, 'normal')
-    for (const part of doc.splitTextToSize(toPdfSafe(e.question), CONTENT_WIDTH) as string[]) {
-      line(doc, c, part, 5)
-    }
+    flowText(doc, c, e.question, 10.5, 5)
 
     setBlack(doc, 10.5, 'bold')
     line(doc, c, `Answer: ${e.answer}`, 5)
@@ -763,7 +783,7 @@ function bullet(doc: jsPDF, c: Cursor, text: string, size = 10.5): void {
   for (const block of parseBlocks(text)) {
     if (block.kind === 'table') {
       ensureSpace(doc, c, tableHeight(block.rows, size - 0.5) + 2)
-      c.y += drawTable(doc, block.rows, MARGIN_X + 4, c.y - 3, size - 0.5, CONTENT_WIDTH - 10) - 1
+      c.y += drawTable(doc, block.rows, MARGIN_X + 4, c.y - 3, size - 0.5, CONTENT_WIDTH - 10) + TABLE_GAP
       continue
     }
     // Wrapped over RUNS, not a plain string: an exponent is drawn at a smaller
@@ -796,6 +816,48 @@ function wrapped(doc: jsPDF, c: Cursor, text: string): void {
     drawRuns(doc, run, MARGIN_X, c.y, size)
     c.y += 4.5 + extraLeading(run, size)
   }
+}
+
+/**
+ * AUTHORED text at the cursor — tables and notation included, unbulleted.
+ *
+ * The scenario above a multi-part question and the answer key's copy of a
+ * question are authored exactly like a part's body, so they can carry a
+ * <table> or a <frac>. Both used to be drawn a line at a time instead:
+ * the stem printed "<table>Year | 2017 | …</table>" as text on 3F Nov24 19,
+ * and the key ran the string through splitTextToSize(toPdfSafe(...)), which
+ * also blanks every Symbol character — "Give your answer in terms of π"
+ * printed as "Give your answer in terms of".
+ */
+function flowText(doc: jsPDF, c: Cursor, text: string, size: number, advance = 4.6): void {
+  for (const block of parseBlocks(text)) {
+    if (block.kind === 'table') {
+      ensureSpace(doc, c, tableHeight(block.rows, size - 0.5) + 2)
+      c.y += drawTable(doc, block.rows, MARGIN_X, c.y - 3, size - 0.5, CONTENT_WIDTH) + TABLE_GAP
+      continue
+    }
+    for (const run of wrapRuns(doc, toRuns(block.text), size, CONTENT_WIDTH)) {
+      ensureSpace(doc, c, advance)
+      drawRuns(doc, run, MARGIN_X, c.y, size)
+      c.y += advance + extraLeading(run, size)
+    }
+  }
+}
+
+/**
+ * A heading drawn as PLAIN text.
+ *
+ * A skill name is a label, not maths to typeset. "Area of a Triangle (½ab
+ * sinC)" went through the inline parser, which stacked the ½ as a fraction
+ * across the bracket beside it (3H 24). WinAnsi has ½ itself, so drawing the
+ * string plainly is both simpler and right.
+ */
+function plainLine(doc: jsPDF, c: Cursor, text: string, advance = 5.5, size?: number): void {
+  const size_ = size ?? doc.getFontSize()
+  ensureSpace(doc, c, advance)
+  doc.setFontSize(size_)
+  doc.text(toPdfSafe(text), MARGIN_X, c.y)
+  c.y += advance
 }
 
 /**
