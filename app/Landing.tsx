@@ -278,7 +278,7 @@ function DemoQuestion({ initialPool, initialQuestion }: {
             Create a free account to save your progress and build your full skill map across all 135 GCSE Maths skills.
           </p>
           <Link
-            href="/student"
+            href="/student?mode=signup"
             onClick={() => trackEvent('demo_signup_prompt_clicked')}
             style={{ display: 'block', background: colors.primary, color: '#fff', padding: '13px', borderRadius: radius.md, fontSize: font.lg, fontWeight: '800', textDecoration: 'none', marginBottom: 10 }}
           >
@@ -757,7 +757,7 @@ export default function Landing({ demoPool, demoQuestion }: {
           </div>
 
           <Link
-            href="/student"
+            href="/student?mode=signup"
             onClick={() => trackEvent('parent_signup_clicked')}
             style={{
               background: colors.primary, color: '#fff', padding: '13px 26px',

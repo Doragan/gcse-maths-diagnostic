@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   colors, font,
   pageContainer, narrowCard, pageTitle,
@@ -14,9 +14,20 @@ import { GoogleButton } from '../../components/GoogleButton'
 
 type Mode = 'login' | 'signup'
 
-export default function StudentAuthPage() {
+function StudentAuthPage() {
   const router = useRouter()
-  const [mode, setMode] = useState<Mode>('login')
+  const searchParams = useSearchParams()
+  // A CTA that says "sign up" has to land on a SIGNUP form. Both the practice
+  // nudge and the homepage demo prompt linked to a bare /student, which renders
+  // the login form with the signup toggle below it — under the submit button and
+  // the forgot-password link. Measured over the 90 days to 2026-09-13: of the 10
+  // students who chose "Sign up with email" from the practice nudge, ZERO ever
+  // reached the signup form (no signup_start fired). Google, which needs no form,
+  // converted 17 of 30 over the same period.
+  //
+  // Mirrors the pending_diagnostic rule below: when the intent is known, open on
+  // it. Both only ever switch TO signup, so they compose.
+  const [mode, setMode] = useState<Mode>(searchParams.get('mode') === 'signup' ? 'signup' : 'login')
 
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
@@ -276,6 +287,18 @@ export default function StudentAuthPage() {
         </p>
       </div>
     </main>
+  )
+}
+
+/**
+ * useSearchParams needs a Suspense boundary in the app router. Same wrapper
+ * shape as app/practice/question/[id]/page.tsx.
+ */
+export default function StudentAuthPageWrapper() {
+  return (
+    <Suspense fallback={<main style={pageContainer}><div style={narrowCard}><p>Loading…</p></div></main>}>
+      <StudentAuthPage />
+    </Suspense>
   )
 }
 

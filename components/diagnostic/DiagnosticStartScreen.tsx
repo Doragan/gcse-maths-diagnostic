@@ -86,7 +86,7 @@ export default function DiagnosticStartScreen({ onStart }: Props) {
             Create a free account to save your results and track progress over time.
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            <Link href="/student" style={{ fontSize: font.sm, color: colors.primary, fontWeight: '600', textDecoration: 'underline' }}>
+            <Link href="/student?mode=signup" style={{ fontSize: font.sm, color: colors.primary, fontWeight: '600', textDecoration: 'underline' }}>
               Sign up free
             </Link>
             <Link href="/student" style={{ fontSize: font.sm, color: colors.textSecondary, textDecoration: 'underline' }}>
