@@ -13,36 +13,799 @@
     "note": "Derived metadata only. No exam question text transcribed; traps coded as short labels."
   },
   "rows": [
-    {"q":"1","part":null,"marks":1,"skill_ids":["understanding_straight_line_graphs","coordinates"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["give_the_gradient_as_the_intercept"],"app_supported":"yes","app_gap_note":null},
-    {"q":"2","part":null,"marks":1,"skill_ids":["converting_decimals_to_fractions"],"skill_gap":null,"answer_form":"fraction","framing":["bare"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["wrong_power_of_ten_denominator"],"app_supported":"partial","app_gap_note":"open answer: any equivalent fraction is accepted, so exact-match fails"},
-    {"q":"3","part":null,"marks":2,"skill_ids":["solving_linear_equations"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["variable_both_sides","sign_error_on_transfer"],"app_supported":"yes","app_gap_note":null},
-    {"q":"4","part":null,"marks":2,"skill_ids":["proportion","converting_measurements"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 A1","traps":["ratio_scale_has_no_units","forget_cm_to_m_conversion"],"app_supported":"yes","app_gap_note":null},
-    {"q":"5","part":null,"marks":3,"skill_ids":["growth_and_decay"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1 A1","traps":["subtract_the_same_amount_each_year","multiply_the_single_year_loss_by_five"],"app_supported":"yes","app_gap_note":null},
-    {"q":"6","part":null,"marks":2,"skill_ids":["congruence_and_similarity","areas_of_squares_and_rectangles","properties_of_3d_solids"],"skill_gap":null,"answer_form":"free_text","framing":["decision_justify","consequence"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B2 (B1 tick alone)","traps":["volume_ratio_assumed_to_carry_to_surface_area","reason_omits_the_hidden_faces"],"app_supported":"no","app_gap_note":"tick + worded reason about joined faces; not markable"},
-    {"q":"7","part":"a","marks":2,"skill_ids":["quadratic_functions","substitution"],"skill_gap":null,"answer_form":"table_complete","framing":["bare"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B2 (B1 one correct value)","traps":["negative_value_squared_kept_negative","sign_error_on_the_linear_term"],"app_supported":"partial","app_gap_note":"multi-blank table entry"},
-    {"q":"7","part":"b","marks":2,"skill_ids":["quadratic_functions"],"skill_gap":null,"answer_form":"draw_plot","framing":["bare"],"calc":"na","multi_part":true,"back_ref":true,"kind":"mastery","mark_split":"M1 A1","traps":["ruled_straight_lines_not_a_curve","plot_tolerance"],"app_supported":"no","app_gap_note":"requires point-plotting and smooth-curve drawing"},
-    {"q":"8","part":null,"marks":4,"skill_ids":["ratio","simple_arithmetic"],"skill_gap":null,"answer_form":"show_that","framing":["real_world","decision_justify","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep M1dep A1","traps":["share_the_whole_amount_between_the_brothers","use_the_saved_share_instead"],"app_supported":"partial","app_gap_note":"yes-no decision credited only with the per-brother amount shown"},
-    {"q":"9","part":null,"marks":3,"skill_ids":["pie_charts"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","inverse_operand","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["difference_in_angles_not_converted_to_people","scale_from_the_wrong_sector"],"app_supported":"yes","app_gap_note":"static pie chart supported"},
-    {"q":"10","part":null,"marks":3,"skill_ids":["trigonometry_missing_sides"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["wrong_trig_ratio","label_opposite_as_adjacent"],"app_supported":"yes","app_gap_note":"static diagram supported; answer accepted over a rounding range"},
-    {"q":"11","part":"a","marks":2,"skill_ids":["estimating","significant_figures"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["round_to_1dp","evaluate_exactly_instead_of_estimating"],"app_supported":"yes","app_gap_note":null},
-    {"q":"11","part":"b","marks":1,"skill_ids":["estimating"],"skill_gap":null,"answer_form":"free_text","framing":["decision_justify","consequence"],"calc":"na","multi_part":true,"back_ref":true,"kind":"mastery","mark_split":"B1 (reason referencing the rounding direction)","traps":["reason_must_reference_the_denominator","compute_the_exact_value_instead"],"app_supported":"no","app_gap_note":"worded reason; not markable"},
-    {"q":"12","part":"a","marks":1,"skill_ids":["relative_frequency"],"skill_gap":null,"answer_form":"free_text","framing":["decision_justify","consequence"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1 (choice + valid reason)","traps":["most_reds_mistaken_for_best_estimate","reason_must_reference_number_of_trials"],"app_supported":"no","app_gap_note":"choice + worded reason; not markable"},
-    {"q":"12","part":"b","marks":1,"skill_ids":["relative_frequency"],"skill_gap":null,"answer_form":"free_text","framing":["decision_justify","consequence"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1 (valid reason)","traps":["reason_must_reference_the_denominator_of_eighty"],"app_supported":"no","app_gap_note":"worded reason about attainable relative frequencies; not markable"},
-    {"q":"12","part":"c","marks":2,"skill_ids":["relative_frequency","expected_outcomes"],"skill_gap":null,"answer_form":"numeric","framing":["multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["give_the_red_count_not_the_green","forget_the_complement"],"app_supported":"yes","app_gap_note":null},
-    {"q":"13","part":null,"marks":4,"skill_ids":["compound_units","time_calculations"],"skill_gap":null,"answer_form":"show_that","framing":["real_world","decision_justify","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 M1 M1dep A1","traps":["average_the_two_speeds","decimal_hours_read_as_minutes","forget_the_second_leg"],"app_supported":"partial","app_gap_note":"yes-no decision credited only with the total time shown"},
-    {"q":"14","part":null,"marks":4,"skill_ids":["reverse_percentage","percentage_change"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","inverse_operand","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 A1 M1 A1ft","traps":["apply_the_rate_to_the_whole_salary","use_the_income_tax_threshold_for_national_insurance"],"app_supported":"yes","app_gap_note":null},
-    {"q":"15","part":"a","marks":3,"skill_ids":["histograms"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","inverse_operand","multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["read_bar_height_as_frequency","give_the_completers_not_the_non_completers"],"app_supported":"yes","app_gap_note":"static histogram supported"},
-    {"q":"15","part":"b","marks":3,"skill_ids":["box_plots"],"skill_gap":null,"answer_form":"draw_plot","framing":["real_world"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1 B1 B1ft","traps":["interquartile_range_used_as_the_upper_quartile","whiskers_drawn_to_the_quartiles"],"app_supported":"no","app_gap_note":"requires drawing a box plot to scale"},
-    {"q":"16","part":null,"marks":4,"skill_ids":["ratio","pythagoras_theorem","areas_of_triangles"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 M1dep A1 A1ft","traps":["ratio_applied_to_the_wrong_side","forget_the_half_in_the_triangle_area"],"app_supported":"yes","app_gap_note":"static diagram supported"},
-    {"q":"17","part":null,"marks":4,"skill_ids":["algebraic_fractions","solving_linear_equations"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 A1 M1 A1ft","traps":["add_numerators_without_a_common_denominator","sign_error_on_the_second_numerator"],"app_supported":"yes","app_gap_note":null},
-    {"q":"18","part":"a","marks":3,"skill_ids":["composite_functions","expanding_double_brackets"],"skill_gap":null,"answer_form":"show_that","framing":["bare","multi_route"],"calc":"na","multi_part":true,"back_ref":false,"kind":"exam","mark_split":"M1 M1dep A1","traps":["compose_the_functions_in_the_wrong_order","square_term_by_term"],"app_supported":"no","app_gap_note":"algebraic show-that; the target is given so only the working scores"},
-    {"q":"18","part":"b","marks":3,"skill_ids":["solving_quadratic_equations_quadratic_equation"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":true,"back_ref":true,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["forget_to_move_the_constant","give_one_root_only"],"app_supported":"partial","app_gap_note":"two-root answer needs a multi-blank response"},
-    {"q":"19","part":null,"marks":3,"skill_ids":["algebraic_proof","expanding_double_brackets"],"skill_gap":null,"answer_form":"show_that","framing":["bare","decision_justify","multi_route"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["test_numbers_instead_of_generalising","stop_before_writing_it_as_a_perfect_square"],"app_supported":"no","app_gap_note":"algebraic proof; the conclusion must be reached as a squared bracket"},
-    {"q":"20","part":"a","marks":1,"skill_ids":["inverse_proportion","substitution"],"skill_gap":null,"answer_form":"show_that","framing":["decision_justify","given_formula"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1 (a correct point substituted with a verdict)","traps":["read_the_point_off_the_wrong_axis","verdict_without_a_substitution"],"app_supported":"no","app_gap_note":"choose-your-own-point verification; the substitution must be evidenced"},
-    {"q":"20","part":"b","marks":4,"skill_ids":["proportion_with_powers","simplifying_ratio"],"skill_gap":null,"answer_form":"ratio","framing":["multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"exam","mark_split":"M1 M1dep M1dep A1","traps":["scale_G_by_the_same_factor_as_H","ratio_left_unsimplified"],"app_supported":"partial","app_gap_note":"ratio answer needs simplest-form equivalence check"},
-    {"q":"21","part":null,"marks":3,"skill_ids":["plans_and_elevations","volume_of_a_prism"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 A1 A1","traps":["assume_the_solid_is_a_full_cuboid","minimum_case_not_considered"],"app_supported":"partial","app_gap_note":"two answers in one part; needs a two-blank response"},
-    {"q":"22","part":null,"marks":3,"skill_ids":["fractional_enlargements","enlargements"],"skill_gap":null,"answer_form":"free_text","framing":["bare","decision_justify"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B1 B1 B1 (name, scale factor, centre)","traps":["omit_the_centre","negative_scale_factor_described_as_rotation"],"app_supported":"no","app_gap_note":"describe-fully answer combines a name, a scale factor and a centre in free text"},
-    {"q":"23","part":"a","marks":2,"skill_ids":["cosine_rule"],"skill_gap":null,"answer_form":"show_that","framing":["real_world","multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["angle_not_between_the_two_given_sides","use_pythagoras_on_a_non_right_triangle"],"app_supported":"no","app_gap_note":"show-that to a rounded target; the unrounded value must be evidenced"},
-    {"q":"23","part":"b","marks":4,"skill_ids":["sine_rule","bearings"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route"],"calc":"calc","multi_part":true,"back_ref":true,"kind":"exam","mark_split":"M1 M1dep A1 A1ft","traps":["give_the_triangle_angle_not_the_bearing","measure_the_bearing_from_the_wrong_point"],"app_supported":"yes","app_gap_note":"static diagram supported; answer accepted over a rounding range"}
+    {
+      "q": "1",
+      "part": null,
+      "marks": 1,
+      "skill_ids": [
+        "understanding_straight_line_graphs",
+        "coordinates"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "give_the_gradient_as_the_intercept"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 1,
+      "skill_ids": [
+        "converting_decimals_to_fractions"
+      ],
+      "skill_gap": null,
+      "answer_form": "fraction",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "wrong_power_of_ten_denominator"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "open answer: any equivalent fraction is accepted, so exact-match fails"
+    },
+    {
+      "q": "3",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "variable_both_sides",
+        "sign_error_on_transfer"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "4",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "proportion",
+        "converting_measurements"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "traps": [
+        "ratio_scale_has_no_units",
+        "forget_cm_to_m_conversion"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "5",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "traps": [
+        "subtract_the_same_amount_each_year",
+        "multiply_the_single_year_loss_by_five"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "6",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "area_and_volume_scale_factors",
+        "areas_of_squares_and_rectangles",
+        "properties_of_3d_solids"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "decision_justify",
+        "consequence"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B2 (B1 tick alone)",
+      "traps": [
+        "volume_ratio_assumed_to_carry_to_surface_area",
+        "reason_omits_the_hidden_faces"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "tick + worded reason about joined faces; not markable"
+    },
+    {
+      "q": "7",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "quadratic_functions",
+        "substitution"
+      ],
+      "skill_gap": null,
+      "answer_form": "table_complete",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B2 (B1 one correct value)",
+      "traps": [
+        "negative_value_squared_kept_negative",
+        "sign_error_on_the_linear_term"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "multi-blank table entry"
+    },
+    {
+      "q": "7",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "quadratic_functions"
+      ],
+      "skill_gap": null,
+      "answer_form": "draw_plot",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "ruled_straight_lines_not_a_curve",
+        "plot_tolerance"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "requires point-plotting and smooth-curve drawing"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "ratio",
+        "simple_arithmetic"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "real_world",
+        "decision_justify",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep M1dep A1",
+      "traps": [
+        "share_the_whole_amount_between_the_brothers",
+        "use_the_saved_share_instead"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "yes-no decision credited only with the per-brother amount shown"
+    },
+    {
+      "q": "9",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "pie_charts"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "inverse_operand",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "difference_in_angles_not_converted_to_people",
+        "scale_from_the_wrong_sector"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static pie chart supported"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "trigonometry_missing_sides"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "wrong_trig_ratio",
+        "label_opposite_as_adjacent"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported; answer accepted over a rounding range"
+    },
+    {
+      "q": "11",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "estimating",
+        "significant_figures"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "round_to_1dp",
+        "evaluate_exactly_instead_of_estimating"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "11",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "estimating"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "decision_justify",
+        "consequence"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "mastery",
+      "mark_split": "B1 (reason referencing the rounding direction)",
+      "traps": [
+        "reason_must_reference_the_denominator",
+        "compute_the_exact_value_instead"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "worded reason; not markable"
+    },
+    {
+      "q": "12",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "relative_frequency"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "decision_justify",
+        "consequence"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 (choice + valid reason)",
+      "traps": [
+        "most_reds_mistaken_for_best_estimate",
+        "reason_must_reference_number_of_trials"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "choice + worded reason; not markable"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "relative_frequency"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "decision_justify",
+        "consequence"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 (valid reason)",
+      "traps": [
+        "reason_must_reference_the_denominator_of_eighty"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "worded reason about attainable relative frequencies; not markable"
+    },
+    {
+      "q": "12",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "relative_frequency",
+        "expected_outcomes"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "give_the_red_count_not_the_green",
+        "forget_the_complement"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "13",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "compound_units",
+        "time_calculations"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "real_world",
+        "decision_justify",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1 M1dep A1",
+      "traps": [
+        "average_the_two_speeds",
+        "decimal_hours_read_as_minutes",
+        "forget_the_second_leg"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "yes-no decision credited only with the total time shown"
+    },
+    {
+      "q": "14",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "reverse_percentage",
+        "percentage_change"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "inverse_operand",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1 M1 A1ft",
+      "traps": [
+        "apply_the_rate_to_the_whole_salary",
+        "use_the_income_tax_threshold_for_national_insurance"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "15",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "histograms"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "inverse_operand",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "read_bar_height_as_frequency",
+        "give_the_completers_not_the_non_completers"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static histogram supported"
+    },
+    {
+      "q": "15",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "box_plots"
+      ],
+      "skill_gap": null,
+      "answer_form": "draw_plot",
+      "framing": [
+        "real_world"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 B1 B1ft",
+      "traps": [
+        "interquartile_range_used_as_the_upper_quartile",
+        "whiskers_drawn_to_the_quartiles"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "requires drawing a box plot to scale"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "ratio",
+        "pythagoras_theorem",
+        "areas_of_triangles"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1dep A1 A1ft",
+      "traps": [
+        "ratio_applied_to_the_wrong_side",
+        "forget_the_half_in_the_triangle_area"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "algebraic_fractions",
+        "solving_linear_equations"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 A1 M1 A1ft",
+      "traps": [
+        "add_numerators_without_a_common_denominator",
+        "sign_error_on_the_second_numerator"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "18",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "composite_functions",
+        "expanding_double_brackets"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "compose_the_functions_in_the_wrong_order",
+        "square_term_by_term"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "algebraic show-that; the target is given so only the working scores"
+    },
+    {
+      "q": "18",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "solving_quadratic_equations_quadratic_equation"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "forget_to_move_the_constant",
+        "give_one_root_only"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "two-root answer needs a multi-blank response"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "algebraic_proof",
+        "expanding_double_brackets"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "bare",
+        "decision_justify",
+        "multi_route"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "test_numbers_instead_of_generalising",
+        "stop_before_writing_it_as_a_perfect_square"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "algebraic proof; the conclusion must be reached as a squared bracket"
+    },
+    {
+      "q": "20",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "inverse_proportion",
+        "substitution"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "decision_justify",
+        "given_formula"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 (a correct point substituted with a verdict)",
+      "traps": [
+        "read_the_point_off_the_wrong_axis",
+        "verdict_without_a_substitution"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "choose-your-own-point verification; the substitution must be evidenced"
+    },
+    {
+      "q": "20",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "proportion_with_powers",
+        "simplifying_ratio"
+      ],
+      "skill_gap": null,
+      "answer_form": "ratio",
+      "framing": [
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1dep M1dep A1",
+      "traps": [
+        "scale_G_by_the_same_factor_as_H",
+        "ratio_left_unsimplified"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "ratio answer needs simplest-form equivalence check"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "plans_and_elevations",
+        "volume_of_a_prism"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 A1 A1",
+      "traps": [
+        "assume_the_solid_is_a_full_cuboid",
+        "minimum_case_not_considered"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "two answers in one part; needs a two-blank response"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "fractional_enlargements",
+        "enlargements"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "bare",
+        "decision_justify"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 B1 B1 (name, scale factor, centre)",
+      "traps": [
+        "omit_the_centre",
+        "negative_scale_factor_described_as_rotation"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "describe-fully answer combines a name, a scale factor and a centre in free text"
+    },
+    {
+      "q": "23",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "cosine_rule"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "angle_not_between_the_two_given_sides",
+        "use_pythagoras_on_a_non_right_triangle"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "show-that to a rounded target; the unrounded value must be evidenced"
+    },
+    {
+      "q": "23",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "sine_rule",
+        "bearings"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "exam",
+      "mark_split": "M1 M1dep A1 A1ft",
+      "traps": [
+        "give_the_triangle_angle_not_the_bearing",
+        "measure_the_bearing_from_the_wrong_point"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported; answer accepted over a rounding range"
+    }
+  ],
+  "coding_notes": [
+    "q6 RETAGGED to area_and_volume_scale_factors + areas_of_squares_and_rectangles + properties_of_3d_solids (was congruence_and_similarity + areas_of_squares_and_rectangles + properties_of_3d_solids) when area_and_volume_scale_factors was added to data/skills.ts — trap volume_ratio_assumed_to_carry_to_surface_area."
   ]
 }

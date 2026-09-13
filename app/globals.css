@@ -52,3 +52,35 @@ button {
     padding: 6px 10px !important;
   }
 }
+
+/* ── Fraction notation in question text ───────────────────────────────────── */
+/* Question prompts are authored HTML (MultiPartQuestion.tsx renders them with  */
+/* dangerouslySetInnerHTML), and until now that vocabulary had no fractions —   */
+/* KaTeX is loaded for the ANSWER BOX preview only, never for a stem. These     */
+/* rules give the stem one, matching what lib/questions/inlineMarkup.ts draws   */
+/* on a printed feedback sheet, so the same authored string reads the same way  */
+/* on screen and on paper.                                                      */
+/*                                                                              */
+/* Only the STRUCTURED spelling can be stacked here: CSS has nothing to split   */
+/* "3/4" on. The concise <frac>3/4</frac> still renders as "3/4" inline, which  */
+/* is why it is the right choice for paper-only text and the wrong one here.    */
+frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: -0.45em;
+  margin: 0 0.15em;
+  font-size: 0.85em;
+  line-height: 1.05;
+}
+
+frac > n {
+  display: block;
+  padding: 0 0.25em;
+  border-bottom: 1px solid currentColor;
+}
+
+frac > d {
+  display: block;
+  padding: 0 0.25em;
+}

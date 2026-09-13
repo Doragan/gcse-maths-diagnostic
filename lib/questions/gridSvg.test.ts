@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { gridGeometry, buildGridSvg, buildGridFrame, CELL, PAD } from './gridSvg'
+import { gridGeometry, buildGridSvg, buildGridFrame, buildLabelsLayer, CELL, PAD } from './gridSvg'
 import type { RenderedAxis, RenderedGrid } from './gridDraw'
 
 const ax = (min: number, max: number, step = 1, label = ''): RenderedAxis => ({ min, max, step, label })
@@ -239,5 +239,78 @@ describe('categorical x-axis (bar charts)', () => {
     const grid = { mode: 'bars', x: axis({ categories: ['Tom & Jo', 'B', 'C', 'D'] }), y: axis(), background: '', elements: [] } as unknown as RenderedGrid
     const svg = buildGridFrame(grid, gridGeometry(grid.x, grid.y))
     expect(svg).toContain('Tom &amp; Jo')
+  })
+})
+
+describe('author labels', () => {
+  // A background fragment CANNOT carry text: axisCoordGroup flips Y so grids
+  // grow upward, which mirrors any <text> inside it. Labels exist so a figure
+  // can name a vertex or mark a side length, and they go through px/py into
+  // plain viewBox space instead — the same path the tick numerals take.
+  const grid = (labels: RenderedGrid['labels']): RenderedGrid => ({
+    mode: 'polygon', x: ax(0, 8), y: ax(0, 6),
+    background: '<polygon points="1,1 5,1 1,4" stroke="#333" />',
+    labels, elements: [], tolerance: 0,
+  })
+
+  it('places a label at the axis coordinates given', () => {
+    const geo = gridGeometry(ax(0, 8), ax(0, 6))
+    const svg = buildGridSvg(grid([{ x: 5, y: 1, text: 'B' }]))
+    expect(svg).toContain(`<text x="${geo.px(5)}" y="${geo.py(1)}"`)
+    expect(svg).toContain('>B</text>')
+  })
+
+  it('draws them upright, never inside the flipped group', () => {
+    const svg = buildGridSvg(grid([{ x: 2, y: 2, text: 'A' }]))
+    // The label must come AFTER the closing tag of every axis-coord group, so
+    // it cannot inherit the Y flip that would mirror it.
+    const label = svg.indexOf('>A</text>')
+    const lastGroupEnd = svg.lastIndexOf('</g>')
+    expect(label).toBeGreaterThan(lastGroupEnd)
+  })
+
+  it('sits over the shape rather than under it', () => {
+    const svg = buildGridSvg(grid([{ x: 1, y: 1, text: 'A' }]))
+    expect(svg.indexOf('>A</text>')).toBeGreaterThan(svg.indexOf('<polygon'))
+  })
+
+  it('accepts a nudge, so a label can clear the line it names', () => {
+    const geo = gridGeometry(ax(0, 8), ax(0, 6))
+    const svg = buildGridSvg(grid([{ x: 3, y: 3, text: '8 cm', dx: 4, dy: -6 }]))
+    expect(svg).toContain(`<text x="${geo.px(3) + 4}" y="${geo.py(3) - 6}"`)
+  })
+
+  it('escapes author text', () => {
+    expect(buildGridSvg(grid([{ x: 1, y: 1, text: 'A & B' }]))).toContain('A &amp; B')
+  })
+
+  it('adds nothing when there are none', () => {
+    // Asserted on the layer itself: a tick numeral can sit at the same x as a
+    // label would, so searching the whole SVG proves nothing either way.
+    const geo = gridGeometry(ax(0, 8), ax(0, 6))
+    expect(buildLabelsLayer(grid(undefined), geo)).toBe('')
+    expect(buildLabelsLayer(grid([]), geo)).toBe('')
+  })
+})
+
+describe('showAxes', () => {
+  const base: RenderedGrid = {
+    mode: 'cells', x: ax(0, 6, 1, 'x'), y: ax(0, 6, 1, 'y'),
+    background: '', elements: [], tolerance: 0,
+  }
+
+  it('keeps the squares but drops the furniture', () => {
+    // A grid to SHADE needs ruling to count by, and numbering its edges 0…6 is
+    // a coordinate system the question never asked for.
+    const bare = buildGridSvg({ ...base, showAxes: false })
+    expect(bare).toContain('<line')            // gridlines survive
+    expect(bare).not.toContain('>x</text>')    // axis title gone
+    expect(bare).not.toContain('>6</text>')    // tick numerals gone
+  })
+
+  it('defaults to drawing them', () => {
+    const full = buildGridSvg(base)
+    expect(full).toContain('>x</text>')
+    expect(full).toContain('>6</text>')
   })
 })

@@ -52,9 +52,32 @@ function stats(b: Bucket) {
 function main() {
   const files = readdirSync(AUDIT_DIR).filter(f => f.endsWith('.json')).sort()
   const rows: Row[] = []
+  const skippedByFile: Record<string, number> = {}
   for (const f of files) {
     const j = JSON.parse(readFileSync(join(AUDIT_DIR, f), 'utf8'))
-    rows.push(...(j.rows as Row[]))
+    // ONLY rows that actually carry a mark_split.
+    //
+    // Every statistic below is about the M/A/B split of a mark scheme, and a
+    // row without one has NOT RECORDED that — it has not recorded "no method
+    // marks". Counting it as zero is the difference between a fact and an
+    // absence, and it silently halved every rate here when twelve Edexcel and
+    // OCR papers were coded without the field: the 5-mark method share fell
+    // from 2.09 to 0.91 and a spurious "6 marks -> 0" bucket appeared.
+    //
+    // Papers coded without it are simply not evidence about mark schemes. They
+    // still feed the paper registry and the coverage analysis, which do not
+    // read this field.
+    const kept = (j.rows as Row[]).filter(r => r.mark_split)
+    const skipped = (j.rows as Row[]).length - kept.length
+    if (skipped) skippedByFile[f.replace('.json', '')] = skipped
+    rows.push(...kept)
+  }
+
+  const skippedTotal = Object.values(skippedByFile).reduce((a, b) => a + b, 0)
+  if (skippedTotal) {
+    console.log(
+      `skipped ${skippedTotal} parts with no mark_split, across ` +
+      `${Object.keys(skippedByFile).length} papers (not evidence about mark schemes)`)
   }
 
   const bySkillKind: Record<string, Bucket> = {}

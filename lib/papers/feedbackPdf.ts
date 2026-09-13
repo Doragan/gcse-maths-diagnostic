@@ -1,5 +1,8 @@
 import jsPDF from 'jspdf'
-import type { WwwEbiSheet } from './wwwEbi'
+import type { WwwEbiSheet, AnswerKeyEntry } from './wwwEbi'
+import type { RenderedGrid } from '../questions/gridDraw'
+import { buildGridSvg, CELL } from '../questions/gridSvg'
+import { parseInline, parseBlocks, type InlineToken } from '../questions/inlineMarkup'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback sheets as a printable PDF — one page per student, one document.
@@ -33,21 +36,14 @@ import type { WwwEbiSheet } from './wwwEbi'
  * Substituting is a rendering concern and belongs here, at the boundary — the
  * source data is correct as it stands and renders properly everywhere else.
  *
- * `sqrt` and `pi` are the two that read as compromises. Fixing those properly
- * means embedding a Unicode TTF and calling doc.addFont, which is worth doing
- * if the maths in these questions gets any richer.
+ * This table used to be much longer, and most of it read as compromises: π
+ * printed as the word "pi", √ as "sqrt", ⅓ as "1/3". Those are gone — π and √
+ * now come from the built-in Symbol font (see SYMBOL) and the vulgar fractions
+ * are drawn stacked (see inlineMarkup's VULGAR), so what is left is genuinely
+ * a substitution rather than a surrender.
  */
 const PDF_SAFE: Record<string, string> = {
   '−': '-',      // MINUS SIGN — not the ASCII hyphen, and the original bug
-  '→': '->',     // → in function machines
-  '√': 'sqrt',   // √
-  'π': 'pi',     // π
-  '≥': '>=',     // ≥
-  '≤': '<=',     // ≤
-  '⅓': '1/3',    // ⅓
-  '⅔': '2/3',
-  '⅕': '1/5',    // ⅕
-  '⅛': '1/8',
   '̇': '',       // combining dot above (recurring decimals); the questions
                       // using it also say "(recurring)" in words, so dropping
                       // the dot loses nothing a student needs.
@@ -61,10 +57,32 @@ const PDF_SAFE: Record<string, string> = {
 const CP1252_EXTRAS = new Set([...'€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ'])
 
 /**
+ * The Symbol font's own encoding, for characters WinAnsi simply does not have.
+ *
+ * jsPDF's standard 14 includes /Symbol, and it is emitted with NO /Encoding —
+ * so the byte is an index into the font's own table, not Latin-1. Byte 0x70
+ * ("p") is π, 0xD6 is √. That is why these look like nonsense as text: they
+ * are, until the font is switched.
+ *
+ * This replaces the "π prints as the word pi" compromise the PDF_SAFE table
+ * used to make, at no cost — Symbol is a built-in, so nothing is embedded and
+ * the class pack stays about twenty kilobytes.
+ */
+const SYMBOL: Record<string, string> = {
+  'π': 'p', '√': '\xD6', '≤': '\xA3', '≥': '\xB3', '≠': '\xB9',
+  '±': '\xB1', '∞': '\xA5', '→': '\xAE', '←': '\xAC',
+  'θ': 'q', 'α': 'a', 'β': 'b', 'μ': 'm', 'σ': 's', 'λ': 'l', 'φ': 'f',
+  'Σ': 'S', 'Δ': 'D', 'Ω': 'W', '∠': '\xD0', '∴': '\\', '≈': '\xBB', '≡': '\xBA',
+  // Set notation, for the Venn questions.
+  '∩': '\xC7', '∪': '\xC8', '⊂': '\xCC', '⊆': '\xCD', '∈': '\xCE', '∅': '\xC6', '′': '\xA2',
+}
+
+/**
  * Make a string drawable by jsPDF's standard fonts.
  *
  * Applied to EVERY string that reaches doc.text — including before measuring
- * for wrapping, so the line breaks match what is actually drawn.
+ * for wrapping, so the line breaks match what is actually drawn. Characters
+ * SYMBOL covers never arrive here; toRuns has already split them out.
  */
 export function toPdfSafe(text: string): string {
   let out = ''
@@ -77,6 +95,378 @@ export function toPdfSafe(text: string): string {
     out += cp <= 0xff || CP1252_EXTRAS.has(ch) ? ch : ' '
   }
   return out
+}
+
+/**
+ * The same substitutions, applied to an SVG's text nodes.
+ *
+ * svg2pdf draws <text> with jsPDF's standard fonts, so a diagram's labels are
+ * under exactly the same WinAnsi limit as body text — and nothing was applying
+ * it to them. A label reading "8b − 5a" printed as `8b " 5a` on 2H 23, and the
+ * square on 3F 16 lost the minus out of "(5x − 2) cm".
+ *
+ * Only the text BETWEEN the tags is touched: attributes carry the geometry, and
+ * gridSvg has already escaped & and < inside a label.
+ */
+export function pdfSafeSvg(svg: string): string {
+  return svg.replace(
+    /(<text\b[^>]*>)([\s\S]*?)(<\/text>)/g,
+    (_, open: string, body: string, close: string) => open + toPdfSafe(body) + close,
+  )
+}
+
+// ── Drawing the notation ─────────────────────────────────────────────────────
+//
+// `10^-4` is legible but it is not what a maths paper looks like, and the
+// alternative first considered — embedding a Unicode TTF — costs about a
+// megabyte on every sheet, against a whole class pack of roughly twenty
+// kilobytes. jsPDF cannot subset a font, so that megabyte is not negotiable.
+//
+// Drawing instead costs nothing. An exponent is the SAME standard font at 68%
+// size, raised off the baseline; a fraction is two such stacks with a rule
+// between them; π and √ are the built-in Symbol font. The only real work is
+// that measuring and wrapping have to walk runs of mixed size and font rather
+// than one string.
+//
+// The vocabulary — <sup>, <sub>, <br>, entities, and <frac> — is parsed in
+// lib/questions/inlineMarkup.ts, which the WEBSITE shares. See that file for
+// why it lives there.
+
+/** A piece of a line: text at some level, or a stacked fraction. */
+export type Run =
+  | { kind: 'text' | 'sup' | 'sub'; text: string; symbol?: boolean }
+  | { kind: 'frac'; num: Run[]; den: Run[] }
+  | { kind: 'vec'; rows: Run[][] }
+  | { kind: 'paren'; body: Run[] }
+
+const SUP_SIZE = 0.68        // exponent size, as a fraction of the base
+const SUP_RISE = 0.30        // how far above the baseline, in base font heights
+const SUB_DROP = 0.14        // how far below, for H2O and a1
+const FRAC_SIZE = 0.78       // numerator and denominator size
+const FRAC_RISE = 0.30       // numerator baseline above the rule
+const FRAC_DROP = 0.62       // denominator baseline below the rule
+const FRAC_RULE = 0.14       // where the rule sits, above the base baseline
+const FRAC_PAD = 0.6         // mm of clear space each side of a fraction
+const VEC_SIZE = 0.82        // the entries' size, as a fraction of the base
+const VEC_GAP = 0.95         // between row BASELINES, in base font heights
+// Helvetica's "(" spans about 0.90 em top to bottom, sitting 0.21 em below the
+// baseline. Both numbers are needed: one to size the glyph to its contents,
+// the other to centre it on them.
+const PAREN_SPAN = 0.90
+const PAREN_DROP = 0.21
+const PT_TO_MM = 25.4 / 72
+
+/** Split a string into WinAnsi runs and Symbol-font runs at `kind`. */
+function fontRuns(text: string, kind: 'text' | 'sup' | 'sub'): Run[] {
+  const out: Run[] = []
+  let plain = ''
+  const flush = () => { if (plain) { out.push({ kind, text: toPdfSafe(plain) }); plain = '' } }
+  for (const ch of text) {
+    if (SYMBOL[ch]) { flush(); out.push({ kind, text: SYMBOL[ch], symbol: true }) }
+    else plain += ch
+  }
+  flush()
+  return out
+}
+
+/** Authored question text to drawable runs. Newlines survive as "\n" runs. */
+export function toRuns(text: string): Run[] {
+  return tokensToRuns(parseInline(text))
+}
+
+/**
+ * Tokens to runs, fractions kept STACKED. Use this anywhere a token list needs
+ * drawing on its own — a table cell, say.
+ */
+export function tokensToRuns(tokens: InlineToken[]): Run[] {
+  const out: Run[] = []
+  for (const t of tokens) {
+    if (t.kind === 'break') out.push({ kind: 'text', text: '\n' })
+    else if (t.kind === 'frac') out.push({ kind: 'frac', num: flatRuns(t.num), den: flatRuns(t.den) })
+    else if (t.kind === 'vec') out.push({ kind: 'vec', rows: t.rows.map(flatRuns) })
+    else if (t.kind === 'paren') out.push({ kind: 'paren', body: tokensToRuns(t.body) })
+    else out.push(...fontRuns(t.text, t.kind))
+  }
+  return out
+}
+
+/**
+ * Tokens to runs, fractions FLATTENED to "a/b".
+ *
+ * Only for the inside of a fraction: a rule cannot be drawn over another rule
+ * at a legible size, so a nested fraction becomes a slash rather than a second
+ * stack. Everywhere else wants tokensToRuns.
+ */
+function flatRuns(tokens: InlineToken[]): Run[] {
+  const out: Run[] = []
+  for (const t of tokens) {
+    if (t.kind === 'break') continue          // a line break inside a fraction is meaningless
+    else if (t.kind === 'frac') out.push(...flatRuns(t.num), { kind: 'text', text: '/' }, ...flatRuns(t.den))
+    else if (t.kind === 'vec') out.push(...t.rows.flatMap((r, i) => i ? [{ kind: 'text', text: ', ' } as Run, ...flatRuns(r)] : flatRuns(r)))
+    else if (t.kind === 'paren') out.push({ kind: 'text', text: '(' }, ...flatRuns(t.body), { kind: 'text', text: ')' })
+    else out.push(...fontRuns(t.text, t.kind))
+  }
+  return out
+}
+
+/** Point size a run is drawn at, given the size of the line it sits on. */
+function sizeOf(run: Run, size: number): number {
+  if (run.kind === 'text') return size
+  if (run.kind === 'frac') return size * FRAC_SIZE
+  if (run.kind === 'vec') return size * VEC_SIZE
+  if (run.kind === 'paren') return size
+  return size * SUP_SIZE
+}
+
+/**
+ * How tall a run sequence stands, in mm, measured about the baseline.
+ *
+ * Brackets are sized from this rather than from a fixed multiple of the font,
+ * so a bracket round a fraction comes out taller than one round a plain number
+ * and neither has to be tuned by hand.
+ */
+function stackHeight(doc: jsPDF, runs: Run[], size: number): number {
+  let h = size * 0.72 * PT_TO_MM                       // one line of text
+  for (const r of runs) {
+    if (r.kind === 'frac')
+      h = Math.max(h, size * (FRAC_RISE + FRAC_DROP + FRAC_SIZE * 0.72) * PT_TO_MM)
+    else if (r.kind === 'vec')
+      h = Math.max(h, ((r.rows.length - 1) * VEC_GAP + VEC_SIZE * 0.72) * size * PT_TO_MM)
+    else if (r.kind === 'paren')
+      h = Math.max(h, stackHeight(doc, r.body, size) * 1.12)
+  }
+  return h
+}
+
+/** The bracket glyph sized to enclose `height` mm, and its width. */
+function bracketFor(doc: jsPDF, height: number, weight: string) {
+  const fontSize = height / (PAREN_SPAN * PT_TO_MM)
+  doc.setFontSize(fontSize)
+  doc.setFont('helvetica', 'normal')
+  const width = doc.getTextWidth('(')
+  doc.setFont('helvetica', weight)
+  return { fontSize, width }
+}
+
+/** Draw a matching pair of brackets around a span, centred on `mid`. */
+function drawBrackets(doc: jsPDF, x: number, right: number, mid: number, height: number, weight: string): void {
+  const { fontSize } = bracketFor(doc, height, weight)
+  doc.setFontSize(fontSize)
+  doc.setFont('helvetica', 'normal')
+  const baseline = mid + fontSize * (PAREN_SPAN / 2 - PAREN_DROP) * PT_TO_MM
+  doc.text('(', x, baseline)
+  doc.text(')', right, baseline)
+  doc.setFont('helvetica', weight)
+}
+
+function setRunFont(doc: jsPDF, run: Run, size: number, weight: string): void {
+  doc.setFontSize(sizeOf(run, size))
+  // SYMBOL HAS ONE WEIGHT. Asking for 'symbol','bold' makes jsPDF log "unable
+  // to look up font label" and quietly fall back, so a π in a bold heading
+  // used to come out in whatever font it landed on. Regular is the honest
+  // answer: there is no bold π in the standard 14.
+  if (run.kind !== 'frac' && run.kind !== 'vec' && run.kind !== 'paren' && run.symbol) doc.setFont('symbol', 'normal')
+  else doc.setFont('helvetica', weight)
+}
+
+/**
+ * A column vector's parts, in mm: the bracket glyph width, the widest entry,
+ * and the total. Measured once and reused by both the width and the drawing,
+ * so they cannot drift apart.
+ */
+function vecWidth(doc: jsPDF, run: Run & { kind: 'vec' }, size: number) {
+  const inner = size * VEC_SIZE
+  const height = stackHeight(doc, [run], size)
+  const { width: bracket } = bracketFor(doc, height, 'normal')
+  doc.setFontSize(size)
+  const entry = Math.max(...run.rows.map(r => measureRuns(doc, r, inner)))
+  return { bracket, entry, inner, height, total: bracket * 2 + entry + FRAC_PAD * 2 }
+}
+
+/** The same, for a bracketed group. */
+function parenWidth(doc: jsPDF, run: Run & { kind: 'paren' }, size: number) {
+  const height = stackHeight(doc, run.body, size) * 1.12
+  const { width: bracket } = bracketFor(doc, height, 'normal')
+  doc.setFontSize(size)
+  const body = measureRuns(doc, run.body, size)
+  return { bracket, body, height, total: bracket * 2 + body + FRAC_PAD }
+}
+
+/** Width of one run, in mm. */
+function runWidth(doc: jsPDF, run: Run, size: number): number {
+  const weight = (doc.getFont() as { fontStyle?: string }).fontStyle ?? 'normal'
+  if (run.kind === 'frac') {
+    const w = Math.max(measureRuns(doc, run.num, size * FRAC_SIZE), measureRuns(doc, run.den, size * FRAC_SIZE))
+    return w + FRAC_PAD * 2
+  }
+  if (run.kind === 'vec') return vecWidth(doc, run, size).total
+  if (run.kind === 'paren') return parenWidth(doc, run, size).total
+  setRunFont(doc, run, size, weight)
+  const w = doc.getTextWidth(run.text)
+  doc.setFontSize(size)
+  doc.setFont('helvetica', weight)
+  return w
+}
+
+/** Width of a run sequence at the current font, in mm. */
+function measureRuns(doc: jsPDF, runs: Run[], size: number): number {
+  let w = 0
+  for (const r of runs) w += runWidth(doc, r, size)
+  doc.setFontSize(size)
+  return w
+}
+
+/** Break runs into lines that fit `width`, honouring any newlines in the text. */
+export function wrapRuns(doc: jsPDF, runs: Run[], size: number, width: number): Run[][] {
+  const lines: Run[][] = []
+  let line: Run[] = []
+
+  const flush = () => { lines.push(line); line = [] }
+  for (const run of runs) {
+    // A raised or stacked run never begins a line on its own — it belongs to
+    // the token before it, so it rides along with whatever is already there.
+    if (run.kind !== 'text') { line.push(run); continue }
+    for (const part of run.text.split(/(\n)/)) {
+      if (part === '\n') { flush(); continue }
+      for (const word of part.split(/(\s+)/)) {
+        if (!word) continue
+        const candidate: Run[] = [...line, { kind: 'text', text: word, symbol: run.symbol }]
+        if (measureRuns(doc, candidate, size) > width && line.length) {
+          flush()
+          if (/^\s+$/.test(word)) continue   // don't start a line with the space
+        }
+        line.push({ kind: 'text', text: word, symbol: run.symbol })
+      }
+    }
+  }
+  flush()
+  return lines
+}
+
+/**
+ * Extra leading, in mm, that a line needs because of what is stacked on it.
+ *
+ * A fraction is drawn ABOUT the baseline — numerator up, denominator down —
+ * so it occupies roughly twice the height of ordinary text. At the fixed
+ * advance every other line uses, consecutive fraction lines very nearly touch,
+ * which is what "Work out 3/10 + 1/4 ÷ 1/2" looked like. Superscripts rise but
+ * do not descend, so they need much less.
+ */
+export function extraLeading(runs: Run[], size: number): number {
+  // No recursion needed: a fraction inside a fraction is flattened to a slash
+  // by flatRuns, so nesting never adds height.
+  if (runs.some(r => r.kind === 'vec' || r.kind === 'paren')) return size * PT_TO_MM * 0.95
+  if (runs.some(r => r.kind === 'frac')) return size * PT_TO_MM * 0.62
+  if (runs.some(r => r.kind === 'sup' || r.kind === 'sub')) return size * PT_TO_MM * 0.12
+  return 0
+}
+
+/** Draw one line of runs at (x, y). */
+export function drawRuns(doc: jsPDF, runs: Run[], x: number, y: number, size: number): void {
+  const weight = (doc.getFont() as { fontStyle?: string }).fontStyle ?? 'normal'
+  let cx = x
+  for (const r of runs) {
+    const w = runWidth(doc, r, size)
+    if (r.kind === 'frac') {
+      const inner = size * FRAC_SIZE
+      const numW = measureRuns(doc, r.num, inner)
+      const denW = measureRuns(doc, r.den, inner)
+      const barW = w - FRAC_PAD * 2
+      const ruleY = y - size * FRAC_RULE * PT_TO_MM
+      drawRuns(doc, r.num, cx + FRAC_PAD + (barW - numW) / 2, ruleY - size * FRAC_RISE * PT_TO_MM, inner)
+      drawRuns(doc, r.den, cx + FRAC_PAD + (barW - denW) / 2, ruleY + size * FRAC_DROP * PT_TO_MM, inner)
+      doc.setLineWidth(0.25)
+      doc.line(cx + FRAC_PAD, ruleY, cx + FRAC_PAD + barW, ruleY)
+    } else if (r.kind === 'vec') {
+      // Rows stacked about the line's middle with NO rule between them, inside
+      // brackets drawn as oversized parentheses. A real tall bracket would mean
+      // three glyphs a piece or a path; a 2.1× "(" is close enough at this size
+      // and stays a font glyph, so it scales with the text.
+      const { bracket, entry, inner, height } = vecWidth(doc, r, size)
+      const mid = y - size * 0.30 * PT_TO_MM        // optical centre of the pair
+      const step = size * VEC_GAP * PT_TO_MM
+      const first = mid - step * (r.rows.length - 1) / 2 + size * VEC_SIZE * 0.36 * PT_TO_MM
+      r.rows.forEach((row, i) => {
+        const rowW = measureRuns(doc, row, inner)
+        drawRuns(doc, row, cx + FRAC_PAD + bracket + (entry - rowW) / 2, first + step * i, inner)
+      })
+      drawBrackets(doc, cx + FRAC_PAD, cx + FRAC_PAD + bracket + entry, mid, height, weight)
+      doc.setFontSize(size)
+    } else if (r.kind === 'paren') {
+      const { bracket, body, height } = parenWidth(doc, r, size)
+      const mid = y - size * 0.30 * PT_TO_MM
+      drawRuns(doc, r.body, cx + FRAC_PAD / 2 + bracket, y, size)
+      drawBrackets(doc, cx + FRAC_PAD / 2, cx + FRAC_PAD / 2 + bracket + body, mid, height, weight)
+      doc.setFontSize(size)
+    } else {
+      setRunFont(doc, r, size, weight)
+      const dy = r.kind === 'sup' ? -size * SUP_RISE * PT_TO_MM
+        : r.kind === 'sub' ? size * SUB_DROP * PT_TO_MM
+          : 0
+      doc.text(r.text, cx, y + dy)
+    }
+    cx += w
+  }
+  doc.setFontSize(size)
+  doc.setFont('helvetica', weight)
+}
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+
+const CELL_PAD = 1.8         // mm of space each side of a cell's text
+const ROW_LEAD = 1.6         // mm above and below a row's text
+// mm below a table. The cursor tracks the next BASELINE, so clearing the rule
+// by a hair is not enough: the ascenders of the next line printed INTO the
+// bottom row on 2H 19. A whole line's worth keeps them clear.
+const TABLE_GAP = 2.5
+
+/** Column widths in mm, each the widest cell in that column plus padding. */
+function columnWidths(doc: jsPDF, rows: InlineToken[][][], size: number): number[] {
+  const cols = Math.max(...rows.map(r => r.length))
+  const w: number[] = Array.from({ length: cols }, () => 0)
+  for (const row of rows)
+    row.forEach((cell, i) => { w[i] = Math.max(w[i], measureRuns(doc, tokensToRuns(cell), size) + CELL_PAD * 2) })
+  return w
+}
+
+/** Height a table will take, so a caller can page-break before starting one. */
+export function tableHeight(rows: InlineToken[][][], size: number): number {
+  return rows.length * (size * 0.42 + ROW_LEAD * 2)
+}
+
+/**
+ * Draw a real table — ruled, with the columns aligned.
+ *
+ * Returns the height used. Cells go through drawRuns, so a cell can hold a
+ * fraction or an exponent like any other text; that is the whole reason this
+ * measures rather than using jspdf-autotable, which knows only about strings.
+ *
+ * Columns are sized to their content and then scaled down together if the
+ * total overflows, so a wide table shrinks rather than running off the page.
+ */
+export function drawTable(
+  doc: jsPDF, rows: InlineToken[][][], x: number, y: number, size: number, maxWidth: number,
+): number {
+  let widths = columnWidths(doc, rows, size)
+  const total = widths.reduce((a, b) => a + b, 0)
+  if (total > maxWidth) widths = widths.map(w => w * maxWidth / total)
+
+  const rowH = size * 0.42 + ROW_LEAD * 2
+  doc.setDrawColor(150)
+  doc.setLineWidth(0.2)
+
+  let cy = y
+  for (const row of rows) {
+    let cx = x
+    row.forEach((cell, i) => {
+      doc.rect(cx, cy, widths[i], rowH)
+      drawRuns(doc, tokensToRuns(cell), cx + CELL_PAD, cy + rowH - ROW_LEAD - 0.6, size)
+      cx += widths[i]
+    })
+    cy += rowH
+  }
+  doc.setDrawColor(0)
+  return rows.length * rowH
 }
 
 /** A4 portrait in mm, matching jsPDF's defaults and lib/results/generatePDF.ts. */
@@ -106,27 +496,37 @@ export type FeedbackPdfOptions = {
  * still produces a valid (single blank) document rather than throwing, because
  * the caller that asked for zero sheets has a UI problem, not an exception.
  */
-export function buildFeedbackPdf(
+export async function buildFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
-): jsPDF {
+  answerKey: AnswerKeyEntry[] = [],
+): Promise<jsPDF> {
   const doc = new jsPDF()
 
-  sheets.forEach((sheet, i) => {
+  for (const [i, sheet] of sheets.entries()) {
     // Each student gets their own page: these are handed out individually.
     if (i > 0) doc.addPage()
-    renderSheet(doc, sheet, options)
-  })
+    await renderSheet(doc, sheet, options)
+  }
+
+  // The key goes LAST and on its own page, so separating the student sheets
+  // leaves it behind rather than in the middle of the pile.
+  if (answerKey.length) {
+    if (sheets.length) doc.addPage()
+    renderAnswerKey(doc, answerKey, options)
+  }
 
   return doc
 }
 
 /** Build and download. The browser entry point. */
-export function downloadFeedbackPdf(
+export async function downloadFeedbackPdf(
   sheets: WwwEbiSheet[],
   options: FeedbackPdfOptions,
-): void {
-  buildFeedbackPdf(sheets, options).save(feedbackPdfFilename(options))
+  answerKey: AnswerKeyEntry[] = [],
+): Promise<void> {
+  const doc = await buildFeedbackPdf(sheets, options, answerKey)
+  doc.save(feedbackPdfFilename(options))
 }
 
 /** "mathsense-feedback-aqa-gcse-mathematics-8300-3f.pdf" */
@@ -142,7 +542,7 @@ export function feedbackPdfFilename(options: FeedbackPdfOptions): string {
 
 type Cursor = { y: number }
 
-function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): void {
+async function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): Promise<void> {
   const c: Cursor = { y: MARGIN_TOP }
 
   // Paper identity first, small — the sheet is about the student, not the paper.
@@ -178,8 +578,187 @@ function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions
   // it reads as a bug rather than as praise.
   section(doc, c, 'What went well', sheet.www)
   section(doc, c, 'Even better if', sheet.ebi)
-  section(doc, c, 'Practise these', sheet.practice.map(p => `${p.skill}: ${p.question}`))
+  await practiceSection(doc, c, sheet.practice)
   section(doc, c, 'Push yourself', sheet.challenge.map(q => `${q.skill}: ${q.question}`))
+}
+
+/**
+ * How a retry diagram is sized on the page.
+ *
+ * A FIXED WIDTH WAS A MISTAKE, and an expensive one: at a flat 72mm a
+ * twelve-column grid gives 5mm squares, and two questions were written off as
+ * impossible — a cuboid net and an exponential plot — on the strength of a
+ * constant chosen here rather than anything about paper.
+ *
+ * So the square is what is held roughly fixed, not the width. A grid is drawn
+ * at TARGET_CELL per square and then clamped: never wider than the text, never
+ * more than about a third of a page tall, and never so small that a pencil
+ * cannot work in it.
+ */
+const DIAGRAM_TARGET_CELL = 9    // mm per grid square
+const DIAGRAM_MIN_WIDTH = 58
+const DIAGRAM_MAX_WIDTH = 150
+const DIAGRAM_MAX_HEIGHT = 108
+
+/** Printed size for a diagram whose viewBox is w × h units. */
+function diagramSize(w: number, h: number): { width: number; height: number } {
+  let scale = DIAGRAM_TARGET_CELL / CELL
+  if (w * scale > DIAGRAM_MAX_WIDTH) scale = DIAGRAM_MAX_WIDTH / w
+  if (h * scale > DIAGRAM_MAX_HEIGHT) scale = DIAGRAM_MAX_HEIGHT / h
+  if (w * scale < DIAGRAM_MIN_WIDTH) scale = DIAGRAM_MIN_WIDTH / w
+  return { width: w * scale, height: h * scale }
+}
+
+/**
+ * "Practise these", which unlike every other section may carry a diagram.
+ *
+ * A grid is printed under its question so the student has something to draw on
+ * — which is what lets a `visual: true` item have a retry at all. Everything
+ * else on the sheet is text, which is why this is its own function rather than
+ * a flag on `section()`.
+ */
+async function practiceSection(
+  doc: jsPDF,
+  c: Cursor,
+  practice: WwwEbiSheet['practice'],
+): Promise<void> {
+  if (!practice.length) return
+
+  ensureSpace(doc, c, 18)
+  setBlack(doc, 12, 'bold')
+  line(doc, c, 'Practise these', 7)
+
+  for (const group of practice) {
+    // The question's number heads the block, so a multi-part question reads as
+    // one thing rather than as several unrelated bullets.
+    setBlack(doc, 10.5, 'bold')
+    plainLine(doc, c, `Question ${group.label} — ${group.parts[0].skill}`, 5.5, 10.5)
+
+    // The scenario the parts share, set once above them — the paper prints it
+    // once, and repeating it under (a) and again under (b) reads as two
+    // unrelated questions that happen to use the same numbers.
+    if (group.stem) {
+      setBlack(doc, 10.5, 'normal')
+      flowText(doc, c, group.stem, 10.5)
+      c.y += 1
+    }
+
+    // A diagram shared by every part is drawn ONCE, under the heading. Two
+    // parts reading off one conversion graph printed it twice before, which is
+    // how it looks on a sheet and not how it looks on the paper.
+    const shared = group.parts[0].diagram
+    const allSame = shared && group.parts.every(p => p.diagram && sameGrid(p.diagram, shared))
+    if (allSame) await drawGrid(doc, c, shared)
+
+    for (const part of group.parts) {
+      setBlack(doc, 10.5, 'normal')
+      bullet(doc, c, group.parts.length > 1 ? `${part.label}  ${part.body}` : part.body)
+      if (part.diagram && !allSame) await drawGrid(doc, c, part.diagram)
+    }
+    c.y += 2
+  }
+  c.y += 4
+}
+
+/** Same printed figure? Compared on what is drawn, not on object identity. */
+function sameGrid(a: RenderedGrid, b: RenderedGrid): boolean {
+  return a.background === b.background &&
+    a.mode === b.mode &&
+    JSON.stringify(a.x) === JSON.stringify(b.x) &&
+    JSON.stringify(a.y) === JSON.stringify(b.y) &&
+    JSON.stringify(a.labels ?? null) === JSON.stringify(b.labels ?? null)
+}
+
+/**
+ * Draw an EMPTY grid at the cursor.
+ *
+ * `showCanonical: false` is the whole point — the canonical layer is the
+ * answer, and printing it would hand the student what they are meant to work
+ * out. Same builder the student-facing canvas and the verification harness
+ * use, so what is printed is what the app would draw.
+ *
+ * SILENTLY SKIPS WITHOUT A DOM. svg2pdf walks a real SVG element, so this only
+ * works in a browser — which is where both callers run. Node keeps the rest of
+ * the document buildable and testable, which is the property the header of this
+ * file exists to protect; a sheet built in Node simply has no grids on it.
+ *
+ * The import is dynamic for the same reason: loading svg2pdf at module scope
+ * would drag a browser-only dependency into every test that touches a PDF.
+ */
+async function drawGrid(doc: jsPDF, c: Cursor, grid: RenderedGrid): Promise<void> {
+  if (typeof document === 'undefined') return
+
+  const svg = pdfSafeSvg(buildGridSvg(grid, { showCanonical: false }))
+  const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
+  if (!viewBox) return
+  const { width, height } = diagramSize(Number(viewBox[1]), Number(viewBox[2]))
+
+  ensureSpace(doc, c, height + 6)
+
+  // svg2pdf reads computed geometry, so the element has to be in the document.
+  // Off-screen rather than hidden: display:none collapses it to nothing.
+  const holder = document.createElement('div')
+  holder.style.cssText = 'position:absolute;left:-9999px;top:0'
+  holder.innerHTML = svg
+  const el = holder.querySelector('svg')
+  if (!el) return
+  document.body.appendChild(holder)
+
+  try {
+    const { svg2pdf } = await import('svg2pdf.js')
+    await svg2pdf(el, doc, { x: MARGIN_X + 6, y: c.y, width, height })
+    c.y += height + 4
+  } catch {
+    // A diagram that will not render must not cost the teacher the whole pack
+    // of sheets. The question above it still stands on its own.
+  } finally {
+    holder.remove()
+  }
+}
+
+/**
+ * The teacher's answer key, one page at the back.
+ *
+ * Answers exist on the evidence but are deliberately absent from every student
+ * sheet, so this is the only place they are printed. It is headed unambiguously
+ * because the rest of this document gets handed out.
+ */
+function renderAnswerKey(
+  doc: jsPDF,
+  entries: AnswerKeyEntry[],
+  options: FeedbackPdfOptions,
+): void {
+  const c: Cursor = { y: MARGIN_TOP }
+
+  setGrey(doc, 10)
+  line(doc, c, options.paperTitle)
+  if (options.paperSubtitle) line(doc, c, options.paperSubtitle)
+  c.y += 4
+
+  setBlack(doc, 18, 'bold')
+  line(doc, c, 'Answers — teacher copy', 8)
+
+  setGrey(doc, 10)
+  wrapped(doc, c, 'Not for handing out. These are the answers to the practice and challenge questions on the sheets in this pack.')
+  c.y += 5
+
+  for (const e of entries) {
+    ensureSpace(doc, c, 16)
+    setBlack(doc, 10.5, 'bold')
+    plainLine(doc, c, e.skill, 5)
+
+    setBlack(doc, 10.5, 'normal')
+    flowText(doc, c, e.question, 10.5, 5)
+
+    setBlack(doc, 10.5, 'bold')
+    line(doc, c, `Answer: ${e.answer}`, 5)
+
+    if (e.working) {
+      setGrey(doc, 9.5)
+      wrapped(doc, c, e.working)
+    }
+    c.y += 4
+  }
 }
 
 function section(doc: jsPDF, c: Cursor, heading: string, lines: string[]): void {
@@ -199,29 +778,86 @@ function section(doc: jsPDF, c: Cursor, heading: string, lines: string[]): void 
  * practice question stays readable as one item rather than merging into the
  * next.
  */
-function bullet(doc: jsPDF, c: Cursor, text: string): void {
-  // Sanitised BEFORE measuring, so the wrap points match the drawn glyphs.
-  const parts = doc.splitTextToSize(toPdfSafe(text), CONTENT_WIDTH - 6) as string[]
-  parts.forEach((part, i) => {
-    ensureSpace(doc, c, 6)
-    doc.text(i === 0 ? `• ${part}` : `  ${part}`, MARGIN_X, c.y)
-    c.y += 5.5
-  })
+function bullet(doc: jsPDF, c: Cursor, text: string, size = 10.5): void {
+  let first = true
+  for (const block of parseBlocks(text)) {
+    if (block.kind === 'table') {
+      ensureSpace(doc, c, tableHeight(block.rows, size - 0.5) + 2)
+      c.y += drawTable(doc, block.rows, MARGIN_X + 4, c.y - 3, size - 0.5, CONTENT_WIDTH - 10) + TABLE_GAP
+      continue
+    }
+    // Wrapped over RUNS, not a plain string: an exponent is drawn at a smaller
+    // size, so measuring it as body text would break the line in the wrong place.
+    for (const run of wrapRuns(doc, toRuns(block.text), size, CONTENT_WIDTH - 6)) {
+      ensureSpace(doc, c, 6)
+      doc.text(first ? '•' : ' ', MARGIN_X, c.y)
+      drawRuns(doc, run, MARGIN_X + 4, c.y, size)
+      c.y += 5.5 + extraLeading(run, size)
+      first = false
+    }
+  }
   c.y += 1
 }
 
 /** One line of text at the cursor, advancing by `advance` mm. */
-function line(doc: jsPDF, c: Cursor, text: string, advance = 5.5): void {
+function line(doc: jsPDF, c: Cursor, text: string, advance = 5.5, size?: number): void {
+  const size_ = size ?? doc.getFontSize()
+  const runs = toRuns(text)
   ensureSpace(doc, c, advance)
-  doc.text(toPdfSafe(text), MARGIN_X, c.y)
-  c.y += advance
+  drawRuns(doc, runs, MARGIN_X, c.y, size_)
+  c.y += advance + extraLeading(runs, size_)
 }
 
 /** Text that may need more than one line, at the current font. */
 function wrapped(doc: jsPDF, c: Cursor, text: string): void {
-  for (const part of doc.splitTextToSize(toPdfSafe(text), CONTENT_WIDTH) as string[]) {
-    line(doc, c, part, 4.5)
+  const size = doc.getFontSize()
+  for (const run of wrapRuns(doc, toRuns(text), size, CONTENT_WIDTH)) {
+    ensureSpace(doc, c, 4.5)
+    drawRuns(doc, run, MARGIN_X, c.y, size)
+    c.y += 4.5 + extraLeading(run, size)
   }
+}
+
+/**
+ * AUTHORED text at the cursor — tables and notation included, unbulleted.
+ *
+ * The scenario above a multi-part question and the answer key's copy of a
+ * question are authored exactly like a part's body, so they can carry a
+ * <table> or a <frac>. Both used to be drawn a line at a time instead:
+ * the stem printed "<table>Year | 2017 | …</table>" as text on 3F Nov24 19,
+ * and the key ran the string through splitTextToSize(toPdfSafe(...)), which
+ * also blanks every Symbol character — "Give your answer in terms of π"
+ * printed as "Give your answer in terms of".
+ */
+function flowText(doc: jsPDF, c: Cursor, text: string, size: number, advance = 4.6): void {
+  for (const block of parseBlocks(text)) {
+    if (block.kind === 'table') {
+      ensureSpace(doc, c, tableHeight(block.rows, size - 0.5) + 2)
+      c.y += drawTable(doc, block.rows, MARGIN_X, c.y - 3, size - 0.5, CONTENT_WIDTH) + TABLE_GAP
+      continue
+    }
+    for (const run of wrapRuns(doc, toRuns(block.text), size, CONTENT_WIDTH)) {
+      ensureSpace(doc, c, advance)
+      drawRuns(doc, run, MARGIN_X, c.y, size)
+      c.y += advance + extraLeading(run, size)
+    }
+  }
+}
+
+/**
+ * A heading drawn as PLAIN text.
+ *
+ * A skill name is a label, not maths to typeset. "Area of a Triangle (½ab
+ * sinC)" went through the inline parser, which stacked the ½ as a fraction
+ * across the bracket beside it (3H 24). WinAnsi has ½ itself, so drawing the
+ * string plainly is both simpler and right.
+ */
+function plainLine(doc: jsPDF, c: Cursor, text: string, advance = 5.5, size?: number): void {
+  const size_ = size ?? doc.getFontSize()
+  ensureSpace(doc, c, advance)
+  doc.setFontSize(size_)
+  doc.text(toPdfSafe(text), MARGIN_X, c.y)
+  c.y += advance
 }
 
 /**

@@ -6,7 +6,9 @@ import { PAPERS, DEFAULT_PAPER_ID } from '../../lib/demoPapers'
 import { topicColourFor } from '../../lib/demoTopicColours'
 import { marksTotal, selectedItems, type ItemMarks } from '../../lib/papers/sittingMarks'
 import { buildClassEvidence } from '../../lib/papers/feedbackEvidence'
-import { toWwwEbiSheets } from '../../lib/papers/wwwEbi'
+import { buildClassSummary } from '../../lib/papers/classSummary'
+import ClassView from '../../components/papers/ClassView'
+import { toWwwEbiSheets, answerKeyFor } from '../../lib/papers/wwwEbi'
 import { downloadFeedbackPdf } from '../../lib/papers/feedbackPdf'
 import { parseMarksCsv, marksCsvTemplate, parsePastedNames } from '../../lib/papers/marksCsv'
 import {
@@ -148,24 +150,47 @@ export default function FreeMarkingPage() {
     ])
   }
 
-  function generate() {
+  async function generate() {
     reset()
     if (!students.length) { setError('Add some students first.'); return }
     if (!items.length) { setError('Choose at least one question.'); return }
 
-    const sheets = toWwwEbiSheets(buildClassEvidence(
+    const evidence = buildClassEvidence(
       paper,
       students.map(name => ({ studentRef: name, marks: marks[name] ?? {} })),
       selection,
-    ))
-    downloadFeedbackPdf(sheets, {
+    )
+    const sheets = toWwwEbiSheets(evidence)
+    // The answer key is a final page the teacher keeps — never on a sheet.
+    await downloadFeedbackPdf(sheets, {
       paperTitle: paper.title,
       paperSubtitle: paper.subtitle,
-    })
+    }, answerKeyFor(evidence))
     setGenerated(sheets.length)
   }
 
   const marked = students.filter(n => Object.keys(marks[n] ?? {}).length > 0).length
+
+  /**
+   * The class view, recomputed as marks are typed.
+   *
+   * Built from the SAME evidence the sheets are, so the two can never
+   * disagree, and shown BEFORE anything is downloaded — the reteaching
+   * question is the one a teacher wants answered while the marks are still in
+   * front of them, not after they have printed thirty pages.
+   *
+   * Only students with at least one mark count: a row not yet reached would
+   * otherwise read as a class of zeroes and drag every figure down.
+   */
+  const summary = useMemo(() => {
+    const entered = students.filter(n => Object.keys(marks[n] ?? {}).length > 0)
+    if (!entered.length || !items.length) return null
+    return buildClassSummary(buildClassEvidence(
+      paper,
+      entered.map(name => ({ studentRef: name, marks: marks[name] ?? {} })),
+      selection,
+    ))
+  }, [paper, students, marks, items, selection])
 
   return (
     <div style={{ minHeight: '100dvh', background: colors.background, padding: '28px 20px 60px' }}>
@@ -376,6 +401,10 @@ export default function FreeMarkingPage() {
 
         {error && <div style={{ ...errorBox, marginBottom: 16 }}>{error}</div>}
 
+        {/* The class view — shared with the class papers page so the two
+            screens cannot drift apart. */}
+        {summary && <ClassView summary={summary} />}
+
         {/* ── Generate ── */}
         {students.length > 0 && (
           <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -427,3 +456,4 @@ const tdStyle: React.CSSProperties = {
   padding: '3px', textAlign: 'center',
   borderBottom: `1px solid ${colors.border}`, borderRight: `1px solid ${colors.border}`,
 }
+

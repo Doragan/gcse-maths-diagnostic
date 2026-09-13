@@ -19,83 +19,578 @@
     "q10b (find another pair of values for a two-step machine with a fixed output) tagged function_machines + factors_and_multiples: the machine is subtract-then-multiply, so the second value must divide the fixed output.",
     "q15b (why one correct area-of-a-circle answer can exceed another) tagged area_of_a_circle + rounding — the whole point is the accuracy of the value used for pi, which is a rounding judgement, and the taxonomy has no node for it.",
     "q18b (why a graph with a truncated vertical axis is misleading) tagged simple_charts: criticising a chart's scale sits inside reading charts, and there is no misleading-graphs node.",
-    "q19 (similar cuboids, height from base areas) tagged congruence_and_similarity. This is the taxonomy's known 'similar solids' gap noted in docs/coding-a-paper.md — area and volume scale factors have no node of their own — and it is a poor fit carrying 4 marks.",
-    "q7 (weekly pay to hourly pay) tagged simple_arithmetic: it is two successive divisions, and compound_units would over-claim a rates skill the question never tests."
+    "q7 (weekly pay to hourly pay) tagged simple_arithmetic: it is two successive divisions, and compound_units would over-claim a rates skill the question never tests.",
+    "q19 RETAGGED to area_and_volume_scale_factors (was congruence_and_similarity) when area_and_volume_scale_factors was added to data/skills.ts — height of a similar cuboid from two base areas."
   ],
   "rows": [
-    { "q": "1",  "part": "ai", "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name a straight line drawn across a circle" },
-    { "q": "1",  "part": "aii","marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name the perimeter of a circle" },
-    { "q": "1",  "part": "b",  "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "draw a diameter on a circle" },
-
-    { "q": "2",  "part": "ai", "marks": 1, "skill_ids": ["rounding"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "round an integer to the nearest hundred" },
-    { "q": "2",  "part": "aii","marks": 1, "skill_ids": ["rounding"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "round an amount of money to the nearest penny" },
-    { "q": "2",  "part": "b",  "marks": 2, "skill_ids": ["rounding", "simple_arithmetic"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "round an area up to the next multiple, then charge per unit" },
-
-    { "q": "3",  "part": "a",  "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write a repeated product as a power" },
-    { "q": "3",  "part": "b",  "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "value of one raised to a power" },
-    { "q": "3",  "part": "c",  "marks": 2, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "evaluate a difference of two cubes written in different forms" },
-
-    { "q": "4",  "part": "a",  "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a percentage as a decimal" },
-    { "q": "4",  "part": "b",  "marks": 2, "skill_ids": ["fractions_decimals_and_percentages", "simplifying_fractions"], "kind": "exam", "answer_form": "fraction", "app_gap_note": "write a percentage as a fraction in its simplest form" },
-    { "q": "4",  "part": "c",  "marks": 3, "skill_ids": ["fractions_of_amounts", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "percentage of a volume, answer converted from litres to millilitres" },
-
-    { "q": "5",  "part": null, "marks": 2, "skill_ids": ["enlargements"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "enlarge a shape by a positive integer scale factor about a given centre" },
-
-    { "q": "6",  "part": "a",  "marks": 2, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "exterior angle of a triangle from the two given interior angles" },
-    { "q": "6",  "part": "b",  "marks": 1, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "complete a general statement about the two smallest angles of a triangle" },
-
-    { "q": "7",  "part": null, "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "hourly pay from a weekly total, hours per day and days worked" },
-
-    { "q": "8",  "part": "a",  "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "reverse a subtract-then-divide chain to find the starting number" },
-    { "q": "8",  "part": "b",  "marks": 2, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "original amount given a percentage over 100% of it" },
-
-    { "q": "9",  "part": null, "marks": 2, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "convert a price using an exchange rate and compare with a budget" },
-
-    { "q": "10", "part": "ai", "marks": 1, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "output of a two-step function machine" },
-    { "q": "10", "part": "aii","marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "input of a two-step function machine from its output" },
-    { "q": "10", "part": "b",  "marks": 3, "skill_ids": ["function_machines", "factors_and_multiples"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "another pair of integer parameters for a two-step machine with a fixed input and output" },
-
-    { "q": "11", "part": "a",  "marks": 1, "skill_ids": ["relative_frequency"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "read a relative frequency off a marked scale" },
-    { "q": "11", "part": "bi", "marks": 2, "skill_ids": ["relative_frequency"], "kind": "mastery", "answer_form": "show_that", "app_gap_note": "use a calculation to explain why a set of relative frequencies cannot be right" },
-    { "q": "11", "part": "bii","marks": 1, "skill_ids": ["relative_frequency"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "mark the corrected relative frequency on a scale" },
-    { "q": "11", "part": "c",  "marks": 1, "skill_ids": ["relative_frequency"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "state the assumption behind predicting the next spin from relative frequency" },
-
-    { "q": "12", "part": "a",  "marks": 2, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "select the correct part-to-part and part-to-whole statements for a divided shape" },
-    { "q": "12", "part": "b",  "marks": 2, "skill_ids": ["ratio", "simplifying_expressions"], "kind": "exam", "answer_form": "expression", "app_gap_note": "algebraic area of the other part of a shape from a given part and the share ratio" },
-
-    { "q": "13", "part": null, "marks": 3, "skill_ids": ["venn_diagrams"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "complete a two-set Venn diagram from a total, one set size and an equality between two regions" },
-
-    { "q": "14", "part": "ai", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing term of a square number sequence" },
-    { "q": "14", "part": "aii","marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "name a familiar number sequence" },
-    { "q": "14", "part": "bi", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain why a set of dot patterns does not show triangular numbers" },
-    { "q": "14", "part": "bii","marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "draw the dot pattern for the fifth triangular number" },
-
-    { "q": "15", "part": "a",  "marks": 2, "skill_ids": ["converting_fractions_to_decimals"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "compare a fraction of an amount with a decimal of the same amount, with a reason" },
-    { "q": "15", "part": "b",  "marks": 2, "skill_ids": ["area_of_a_circle", "rounding"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "show how two correct areas of the same circle can differ, through the value used for pi" },
-
-    { "q": "16", "part": "a",  "marks": 1, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "complete a sample space table for the product of two dice" },
-    { "q": "16", "part": "b",  "marks": 2, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "probability of a multiple from a completed sample space" },
-
-    { "q": "17", "part": null, "marks": 2, "skill_ids": ["translations"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "translate a shape by a given column vector" },
-
-    { "q": "18", "part": "a",  "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "percentage reduction between two prices" },
-    { "q": "18", "part": "b",  "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain why a graph with a truncated vertical axis is misleading" },
-
-    { "q": "19", "part": null, "marks": 4, "skill_ids": ["congruence_and_similarity"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "height of a similar cuboid from the two base areas" },
-
-    { "q": "20", "part": "a",  "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "app_gap_note": "remaining fraction after two fractions are taken from a whole" },
-    { "q": "20", "part": "b",  "marks": 5, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "total items from one ingredient's mass, a two-part mixing ratio and a fixed portion size" },
-
-    { "q": "21", "part": null, "marks": 4, "skill_ids": ["surface_area_of_a_sphere", "circumfrence_of_a_circle"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "surface area of a sphere whose great-circle circumference is given" },
-    { "q": "22", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "two item values from two totals, by simultaneous equations" },
-    { "q": "23", "part": null, "marks": 2, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "draw an accurate plan view of a triangular prism" },
-
-    { "q": "24", "part": "a",  "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "error interval for a length given to the nearest centimetre" },
-    { "q": "24", "part": "b",  "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "compare two error intervals to show an object may not fit" },
-
-    { "q": "25", "part": null, "marks": 2, "skill_ids": ["constructions"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "construct the perpendicular from a point to a line" },
-
-    { "q": "26", "part": "a",  "marks": 3, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a linear equation with the unknown on both sides" },
-    { "q": "26", "part": "b",  "marks": 3, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a quadratic equation by factorising" }
+    {
+      "q": "1",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "parts_of_a_circle"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "name a straight line drawn across a circle"
+    },
+    {
+      "q": "1",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "parts_of_a_circle"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "name the perimeter of a circle"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "parts_of_a_circle"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "draw a diameter on a circle"
+    },
+    {
+      "q": "2",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "rounding"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "round an integer to the nearest hundred"
+    },
+    {
+      "q": "2",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "rounding"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "round an amount of money to the nearest penny"
+    },
+    {
+      "q": "2",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "rounding",
+        "simple_arithmetic"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "round an area up to the next multiple, then charge per unit"
+    },
+    {
+      "q": "3",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "write a repeated product as a power"
+    },
+    {
+      "q": "3",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "value of one raised to a power"
+    },
+    {
+      "q": "3",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "evaluate a difference of two cubes written in different forms"
+    },
+    {
+      "q": "4",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write a percentage as a decimal"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "fractions_decimals_and_percentages",
+        "simplifying_fractions"
+      ],
+      "kind": "exam",
+      "answer_form": "fraction",
+      "app_gap_note": "write a percentage as a fraction in its simplest form"
+    },
+    {
+      "q": "4",
+      "part": "c",
+      "marks": 3,
+      "skill_ids": [
+        "fractions_of_amounts",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "percentage of a volume, answer converted from litres to millilitres"
+    },
+    {
+      "q": "5",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "enlargements"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "enlarge a shape by a positive integer scale factor about a given centre"
+    },
+    {
+      "q": "6",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "angles_on_lines_and_circles"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "exterior angle of a triangle from the two given interior angles"
+    },
+    {
+      "q": "6",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "angles_on_lines_and_circles"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "complete a general statement about the two smallest angles of a triangle"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "hourly pay from a weekly total, hours per day and days worked"
+    },
+    {
+      "q": "8",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "function_machines"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "reverse a subtract-then-divide chain to find the starting number"
+    },
+    {
+      "q": "8",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "reverse_percentage"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "original amount given a percentage over 100% of it"
+    },
+    {
+      "q": "9",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "proportion"
+      ],
+      "kind": "mastery",
+      "answer_form": "show_that",
+      "app_gap_note": "convert a price using an exchange rate and compare with a budget"
+    },
+    {
+      "q": "10",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "function_machines"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "output of a two-step function machine"
+    },
+    {
+      "q": "10",
+      "part": "aii",
+      "marks": 2,
+      "skill_ids": [
+        "function_machines"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "input of a two-step function machine from its output"
+    },
+    {
+      "q": "10",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "function_machines",
+        "factors_and_multiples"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "another pair of integer parameters for a two-step machine with a fixed input and output"
+    },
+    {
+      "q": "11",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "relative_frequency"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "read a relative frequency off a marked scale"
+    },
+    {
+      "q": "11",
+      "part": "bi",
+      "marks": 2,
+      "skill_ids": [
+        "relative_frequency"
+      ],
+      "kind": "mastery",
+      "answer_form": "show_that",
+      "app_gap_note": "use a calculation to explain why a set of relative frequencies cannot be right"
+    },
+    {
+      "q": "11",
+      "part": "bii",
+      "marks": 1,
+      "skill_ids": [
+        "relative_frequency"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_plot",
+      "app_gap_note": "mark the corrected relative frequency on a scale"
+    },
+    {
+      "q": "11",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "relative_frequency"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "state the assumption behind predicting the next spin from relative frequency"
+    },
+    {
+      "q": "12",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "ratio"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "select the correct part-to-part and part-to-whole statements for a divided shape"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "ratio",
+        "simplifying_expressions"
+      ],
+      "kind": "exam",
+      "answer_form": "expression",
+      "app_gap_note": "algebraic area of the other part of a shape from a given part and the share ratio"
+    },
+    {
+      "q": "13",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "venn_diagrams"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "complete a two-set Venn diagram from a total, one set size and an equality between two regions"
+    },
+    {
+      "q": "14",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "sequences"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "missing term of a square number sequence"
+    },
+    {
+      "q": "14",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "sequences"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "name a familiar number sequence"
+    },
+    {
+      "q": "14",
+      "part": "bi",
+      "marks": 1,
+      "skill_ids": [
+        "sequences"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "explain why a set of dot patterns does not show triangular numbers"
+    },
+    {
+      "q": "14",
+      "part": "bii",
+      "marks": 1,
+      "skill_ids": [
+        "sequences"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw the dot pattern for the fifth triangular number"
+    },
+    {
+      "q": "15",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "converting_fractions_to_decimals"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "compare a fraction of an amount with a decimal of the same amount, with a reason"
+    },
+    {
+      "q": "15",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "area_of_a_circle",
+        "rounding"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "show how two correct areas of the same circle can differ, through the value used for pi"
+    },
+    {
+      "q": "16",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "probability_spaces"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "complete a sample space table for the product of two dice"
+    },
+    {
+      "q": "16",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "probability_spaces"
+      ],
+      "kind": "mastery",
+      "answer_form": "fraction",
+      "app_gap_note": "probability of a multiple from a completed sample space"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "translations"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "translate a shape by a given column vector"
+    },
+    {
+      "q": "18",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "percentage_change"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "percentage reduction between two prices"
+    },
+    {
+      "q": "18",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simple_charts"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "explain why a graph with a truncated vertical axis is misleading"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "area_and_volume_scale_factors"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "height of a similar cuboid from the two base areas"
+    },
+    {
+      "q": "20",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "adding_and_subtracting_fractions"
+      ],
+      "kind": "mastery",
+      "answer_form": "fraction",
+      "app_gap_note": "remaining fraction after two fractions are taken from a whole"
+    },
+    {
+      "q": "20",
+      "part": "b",
+      "marks": 5,
+      "skill_ids": [
+        "ratio",
+        "fractions_of_amounts"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "total items from one ingredient's mass, a two-part mixing ratio and a fixed portion size"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "surface_area_of_a_sphere",
+        "circumfrence_of_a_circle"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "surface area of a sphere whose great-circle circumference is given"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "simultaneous_equations"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "two item values from two totals, by simultaneous equations"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "plans_and_elevations"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "draw an accurate plan view of a triangular prism"
+    },
+    {
+      "q": "24",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "error interval for a length given to the nearest centimetre"
+    },
+    {
+      "q": "24",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "compare two error intervals to show an object may not fit"
+    },
+    {
+      "q": "25",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "constructions"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "construct the perpendicular from a point to a line"
+    },
+    {
+      "q": "26",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "solve a linear equation with the unknown on both sides"
+    },
+    {
+      "q": "26",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "solving_quadratic_equations_factorising"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "solve a quadratic equation by factorising"
+    }
   ]
 }

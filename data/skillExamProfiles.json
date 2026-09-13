@@ -28,7 +28,7 @@
         "November 2023",
         "November 2024"
       ],
-      "skillsPresent": 102,
+      "skillsPresent": 105,
       "skillsSufficient": 64
     },
     {
@@ -58,11 +58,3678 @@
         "November 2023",
         "November 2024"
       ],
-      "skillsPresent": 144,
-      "skillsSufficient": 92
+      "skillsPresent": 146,
+      "skillsSufficient": 94
+    },
+    {
+      "board": "OCR",
+      "tier": "Foundation",
+      "papers": [
+        null,
+        null,
+        null
+      ],
+      "series": [
+        "June 2025"
+      ],
+      "skillsPresent": 81,
+      "skillsSufficient": 14
+    },
+    {
+      "board": "OCR",
+      "tier": "Higher",
+      "papers": [
+        null,
+        null,
+        null
+      ],
+      "series": [
+        "June 2025"
+      ],
+      "skillsPresent": 87,
+      "skillsSufficient": 4
+    },
+    {
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "papers": [
+        null,
+        null,
+        null
+      ],
+      "series": [
+        "June 2025"
+      ],
+      "skillsPresent": 75,
+      "skillsSufficient": 11
+    },
+    {
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "papers": [
+        null,
+        null,
+        null
+      ],
+      "series": [
+        "June 2025"
+      ],
+      "skillsPresent": 82,
+      "skillsSufficient": 2
     }
   ],
   "profiles": {
+    "Pearson Edexcel|Foundation|simplifying_expressions": {
+      "skillId": "simplifying_expressions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|converting_fractions_to_decimals": {
+      "skillId": "converting_fractions_to_decimals",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|converting_measurements": {
+      "skillId": "converting_measurements",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 6,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|factors_and_multiples": {
+      "skillId": "factors_and_multiples",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|angles_on_lines_and_circles": {
+      "skillId": "angles_on_lines_and_circles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|simple_arithmetic": {
+      "skillId": "simple_arithmetic",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 6,
+      "marks": 14,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|simple_charts": {
+      "skillId": "simple_charts",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|properties_of_2d_shapes": {
+      "skillId": "properties_of_2d_shapes",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|properties_of_3d_solids": {
+      "skillId": "properties_of_3d_solids",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|forming_expressions_and_formulae": {
+      "skillId": "forming_expressions_and_formulae",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|solving_linear_equations": {
+      "skillId": "solving_linear_equations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|rounding": {
+      "skillId": "rounding",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|estimating": {
+      "skillId": "estimating",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|adding_and_subtracting_fractions": {
+      "skillId": "adding_and_subtracting_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|fractions_of_amounts": {
+      "skillId": "fractions_of_amounts",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|time_calculations": {
+      "skillId": "time_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|function_machines": {
+      "skillId": "function_machines",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|ratio": {
+      "skillId": "ratio",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 6,
+      "marks": 19,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|decimals": {
+      "skillId": "decimals",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|alternate_and_corresponding_angles": {
+      "skillId": "alternate_and_corresponding_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|proportion": {
+      "skillId": "proportion",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|gathering_and_organising_data": {
+      "skillId": "gathering_and_organising_data",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|highest_common_factor": {
+      "skillId": "highest_common_factor",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|mutually_exclusive_events": {
+      "skillId": "mutually_exclusive_events",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|calculating_simple_probability": {
+      "skillId": "calculating_simple_probability",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|expected_outcomes": {
+      "skillId": "expected_outcomes",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|substitution": {
+      "skillId": "substitution",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|quadratic_functions": {
+      "skillId": "quadratic_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|standard_form": {
+      "skillId": "standard_form",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|angles_in_polygons": {
+      "skillId": "angles_in_polygons",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|exterior_angles": {
+      "skillId": "exterior_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|understanding_straight_line_graphs": {
+      "skillId": "understanding_straight_line_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|vectors": {
+      "skillId": "vectors",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|fractions_decimals_and_percentages": {
+      "skillId": "fractions_decimals_and_percentages",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|mode": {
+      "skillId": "mode",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|range": {
+      "skillId": "range",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|simplifying_ratio": {
+      "skillId": "simplifying_ratio",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|compound_units": {
+      "skillId": "compound_units",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 14,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|indices": {
+      "skillId": "indices",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|pie_charts": {
+      "skillId": "pie_charts",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|kinematic_graphs": {
+      "skillId": "kinematic_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|percentage_change": {
+      "skillId": "percentage_change",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|volume_of_a_prism": {
+      "skillId": "volume_of_a_prism",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|areas_of_squares_and_rectangles": {
+      "skillId": "areas_of_squares_and_rectangles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|inequalities": {
+      "skillId": "inequalities",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|lowest_common_multiple": {
+      "skillId": "lowest_common_multiple",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|areas_of_compound_shapes": {
+      "skillId": "areas_of_compound_shapes",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|area_of_a_circle": {
+      "skillId": "area_of_a_circle",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|areas_of_triangles": {
+      "skillId": "areas_of_triangles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|loci": {
+      "skillId": "loci",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|reverse_percentage": {
+      "skillId": "reverse_percentage",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|mean": {
+      "skillId": "mean",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|trigonometry_missing_angles": {
+      "skillId": "trigonometry_missing_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|sequences": {
+      "skillId": "sequences",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|simplifying_fractions": {
+      "skillId": "simplifying_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|systematic_listing": {
+      "skillId": "systematic_listing",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|coordinates": {
+      "skillId": "coordinates",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|bearings": {
+      "skillId": "bearings",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|measuring_lines_and_angles": {
+      "skillId": "measuring_lines_and_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|frequency_trees": {
+      "skillId": "frequency_trees",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|median": {
+      "skillId": "median",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|exact_calculations": {
+      "skillId": "exact_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|significant_figures": {
+      "skillId": "significant_figures",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|simplifying_indices": {
+      "skillId": "simplifying_indices",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|expanding_brackets": {
+      "skillId": "expanding_brackets",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|expanding_double_brackets": {
+      "skillId": "expanding_double_brackets",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|frequency_diagrams": {
+      "skillId": "frequency_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|grouped_frequency_tables": {
+      "skillId": "grouped_frequency_tables",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|rearranging_formulae": {
+      "skillId": "rearranging_formulae",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|factorising": {
+      "skillId": "factorising",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|upper_and_lower_bounds": {
+      "skillId": "upper_and_lower_bounds",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|area_of_a_trapezium": {
+      "skillId": "area_of_a_trapezium",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|pythagoras_theorem": {
+      "skillId": "pythagoras_theorem",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|simultaneous_equations": {
+      "skillId": "simultaneous_equations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|highest_common_factor": {
+      "skillId": "highest_common_factor",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|mutually_exclusive_events": {
+      "skillId": "mutually_exclusive_events",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|calculating_simple_probability": {
+      "skillId": "calculating_simple_probability",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|expected_outcomes": {
+      "skillId": "expected_outcomes",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|substitution": {
+      "skillId": "substitution",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|quadratic_functions": {
+      "skillId": "quadratic_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|ratio": {
+      "skillId": "ratio",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 19,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|fractions_of_amounts": {
+      "skillId": "fractions_of_amounts",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|standard_form": {
+      "skillId": "standard_form",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|angles_in_polygons": {
+      "skillId": "angles_in_polygons",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|exterior_angles": {
+      "skillId": "exterior_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|algebraic_fractions": {
+      "skillId": "algebraic_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|inequalities": {
+      "skillId": "inequalities",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|congruence_and_similarity": {
+      "skillId": "congruence_and_similarity",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|rotations": {
+      "skillId": "rotations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|fractional_enlargements": {
+      "skillId": "fractional_enlargements",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|algebraic_proof": {
+      "skillId": "algebraic_proof",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|inverse_proportion": {
+      "skillId": "inverse_proportion",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|proportion_with_powers": {
+      "skillId": "proportion_with_powers",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|kinematic_graphs": {
+      "skillId": "kinematic_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|area_of_a_trapezium": {
+      "skillId": "area_of_a_trapezium",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|recurring_decimals_to_fractions": {
+      "skillId": "recurring_decimals_to_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|multiplying_fractions": {
+      "skillId": "multiplying_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|combined_events": {
+      "skillId": "combined_events",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|histograms": {
+      "skillId": "histograms",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|surds_expanding_and_rationalising": {
+      "skillId": "surds_expanding_and_rationalising",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|surds_simplifying": {
+      "skillId": "surds_simplifying",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|composite_functions": {
+      "skillId": "composite_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|expanding_double_brackets": {
+      "skillId": "expanding_double_brackets",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|lowest_common_multiple": {
+      "skillId": "lowest_common_multiple",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|areas_of_compound_shapes": {
+      "skillId": "areas_of_compound_shapes",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|area_of_a_circle": {
+      "skillId": "area_of_a_circle",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|areas_of_triangles": {
+      "skillId": "areas_of_triangles",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|loci": {
+      "skillId": "loci",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|reverse_percentage": {
+      "skillId": "reverse_percentage",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|mean": {
+      "skillId": "mean",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|trigonometry_missing_angles": {
+      "skillId": "trigonometry_missing_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|compound_units": {
+      "skillId": "compound_units",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|fractional_and_negative_indices": {
+      "skillId": "fractional_and_negative_indices",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|expanding_brackets": {
+      "skillId": "expanding_brackets",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|solving_linear_equations": {
+      "skillId": "solving_linear_equations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|tree_diagrams": {
+      "skillId": "tree_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|box_plots": {
+      "skillId": "box_plots",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|median": {
+      "skillId": "median",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|counting_without_listing": {
+      "skillId": "counting_without_listing",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|plotting_straight_line_graphs": {
+      "skillId": "plotting_straight_line_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|area_and_volume_scale_factors": {
+      "skillId": "area_and_volume_scale_factors",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|exponential_graphs": {
+      "skillId": "exponential_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|growth_and_decay": {
+      "skillId": "growth_and_decay",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|trigonometry_3d": {
+      "skillId": "trigonometry_3d",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|understanding_straight_line_graphs": {
+      "skillId": "understanding_straight_line_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|quadratic_inequalities": {
+      "skillId": "quadratic_inequalities",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|equation_of_a_circle": {
+      "skillId": "equation_of_a_circle",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|translations": {
+      "skillId": "translations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|cosine_rule": {
+      "skillId": "cosine_rule",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|sine_rule": {
+      "skillId": "sine_rule",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|frequency_diagrams": {
+      "skillId": "frequency_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|grouped_frequency_tables": {
+      "skillId": "grouped_frequency_tables",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|rearranging_formulae": {
+      "skillId": "rearranging_formulae",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|factorising": {
+      "skillId": "factorising",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|percentage_change": {
+      "skillId": "percentage_change",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|converting_measurements": {
+      "skillId": "converting_measurements",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|upper_and_lower_bounds": {
+      "skillId": "upper_and_lower_bounds",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|time_calculations": {
+      "skillId": "time_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|coordinates": {
+      "skillId": "coordinates",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|pythagoras_theorem": {
+      "skillId": "pythagoras_theorem",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|exact_calculations": {
+      "skillId": "exact_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|significant_figures": {
+      "skillId": "significant_figures",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|simplifying_indices": {
+      "skillId": "simplifying_indices",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|sketching_functions": {
+      "skillId": "sketching_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|area_of_triangle_sine": {
+      "skillId": "area_of_triangle_sine",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|systematic_listing": {
+      "skillId": "systematic_listing",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|volume_of_a_pyramid_and_cone": {
+      "skillId": "volume_of_a_pyramid_and_cone",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|volume_of_a_prism": {
+      "skillId": "volume_of_a_prism",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|venn_diagrams": {
+      "skillId": "venn_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|conditional_probability": {
+      "skillId": "conditional_probability",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|circle_theorem_angle_at_centre": {
+      "skillId": "circle_theorem_angle_at_centre",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|circle_theorem_cyclic_quadrilateral": {
+      "skillId": "circle_theorem_cyclic_quadrilateral",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|simultaneous_equations_quadratic": {
+      "skillId": "simultaneous_equations_quadratic",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|perpendicular_gradients": {
+      "skillId": "perpendicular_gradients",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|vector_proof": {
+      "skillId": "vector_proof",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
     "AQA|Foundation|factors_and_multiples": {
       "skillId": "factors_and_multiples",
       "board": "AQA",
@@ -1624,8 +5291,8 @@
       "skillId": "simplifying_expressions",
       "board": "AQA",
       "tier": "Foundation",
-      "parts": 22,
-      "marks": 45,
+      "parts": 21,
+      "marks": 44,
       "papersSeen": 12,
       "papersTotal": 15,
       "markRange": [
@@ -1633,15 +5300,14 @@
         4
       ],
       "framing": {
-        "bare": 22,
-        "decision_justify": 1,
+        "bare": 21,
         "multi_route": 2
       },
-      "barePct": 88,
+      "barePct": 91,
       "bareBand": "almost always",
       "calc": {
         "non_calc": 3,
-        "na": 11,
+        "na": 10,
         "calc": 8
       },
       "markSplits": [
@@ -1658,7 +5324,6 @@
         "sign_error_on_subtraction",
         "coefficient_read_as_a_power",
         "description_matched_to_the_wrong_operation",
-        "identity_vs_equation",
         "leave_multiplication_sign",
         "add_becomes_power",
         "sign_error_expanding_negative",
@@ -1797,9 +5462,9 @@
       "skillId": "congruence_and_similarity",
       "board": "AQA",
       "tier": "Foundation",
-      "parts": 10,
-      "marks": 15,
-      "papersSeen": 7,
+      "parts": 9,
+      "marks": 13,
+      "papersSeen": 6,
       "papersTotal": 15,
       "markRange": [
         1,
@@ -1807,19 +5472,18 @@
       ],
       "framing": {
         "bare": 8,
-        "decision_justify": 3,
-        "consequence": 2
+        "decision_justify": 2,
+        "consequence": 1
       },
-      "barePct": 62,
+      "barePct": 73,
       "bareBand": "usually",
       "calc": {
-        "na": 8,
+        "na": 7,
         "calc": 2
       },
       "markSplits": [
         "B1",
         "M1 A1",
-        "B2 (B1 tick alone)",
         "B3 (B1 per correct row)"
       ],
       "chainedPct": 0,
@@ -1828,8 +5492,6 @@
         "rotated_shape_not_recognised",
         "compare_a_non_corresponding_pair",
         "additive_difference_instead_of_a_ratio",
-        "volume_ratio_assumed_to_carry_to_surface_area",
-        "reason_omits_the_hidden_faces",
         "match_wrong_corresponding_side",
         "scale_the_angle",
         "wrong_corresponding_pair",
@@ -2319,24 +5981,24 @@
       "skillId": "angles_in_polygons",
       "board": "AQA",
       "tier": "Foundation",
-      "parts": 6,
-      "marks": 11,
-      "papersSeen": 5,
+      "parts": 4,
+      "marks": 9,
+      "papersSeen": 3,
       "papersTotal": 15,
       "markRange": [
         1,
         3
       ],
       "framing": {
-        "bare": 3,
+        "bare": 1,
         "consequence": 3,
-        "decision_justify": 4
+        "decision_justify": 3
       },
-      "barePct": 30,
-      "bareBand": "sometimes",
+      "barePct": 14,
+      "bareBand": "rarely",
       "calc": {
         "calc": 2,
-        "na": 4
+        "na": 2
       },
       "markSplits": [
         "M1 A1",
@@ -2351,10 +6013,7 @@
         "assume_more_sides_means_a_bigger_angle",
         "reflex_angle_thought_possible_in_a_triangle",
         "obtuse_assumed_always_present",
-        "angle_sum_choice",
-        "odd_sided_polygon_chosen",
-        "boundary_shape_included",
-        "isosceles_named_instead_of_equilateral"
+        "angle_sum_choice"
       ],
       "sufficient": true
     },
@@ -2885,6 +6544,37 @@
         "multiply_the_single_year_loss_by_five",
         "compound_not_simple",
         "repeated_decrease"
+      ],
+      "sufficient": false
+    },
+    "AQA|Foundation|area_and_volume_scale_factors": {
+      "skillId": "area_and_volume_scale_factors",
+      "board": "AQA",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 15,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {
+        "decision_justify": 1,
+        "consequence": 1
+      },
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "na": 1
+      },
+      "markSplits": [
+        "B2 (B1 tick alone)"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "volume_ratio_assumed_to_carry_to_surface_area",
+        "reason_omits_the_hidden_faces"
       ],
       "sufficient": false
     },
@@ -3952,6 +7642,36 @@
       ],
       "sufficient": false
     },
+    "AQA|Foundation|equations_and_identities": {
+      "skillId": "equations_and_identities",
+      "board": "AQA",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {
+        "bare": 1,
+        "decision_justify": 1
+      },
+      "barePct": 50,
+      "bareBand": "usually",
+      "calc": {
+        "na": 1
+      },
+      "markSplits": [
+        "B1 (tick: true for all x)"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "identity_vs_equation"
+      ],
+      "sufficient": false
+    },
     "AQA|Foundation|plans_and_elevations": {
       "skillId": "plans_and_elevations",
       "board": "AQA",
@@ -4258,6 +7978,38 @@
         "use_diameter_for_radius",
         "forget_the_sector_fraction",
         "compare_in_unlike_forms"
+      ],
+      "sufficient": false
+    },
+    "AQA|Foundation|properties_of_2d_shapes": {
+      "skillId": "properties_of_2d_shapes",
+      "board": "AQA",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 2,
+      "papersTotal": 15,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {
+        "bare": 2,
+        "decision_justify": 1
+      },
+      "barePct": 67,
+      "bareBand": "usually",
+      "calc": {
+        "na": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "odd_sided_polygon_chosen",
+        "boundary_shape_included",
+        "isosceles_named_instead_of_equilateral"
       ],
       "sufficient": false
     },
@@ -4731,26 +8483,26 @@
       "skillId": "solving_linear_equations",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 12,
-      "marks": 39,
-      "papersSeen": 10,
+      "parts": 11,
+      "marks": 37,
+      "papersSeen": 9,
       "papersTotal": 15,
       "markRange": [
         2,
         5
       ],
       "framing": {
-        "bare": 10,
+        "bare": 9,
         "multi_route": 7,
         "real_world": 1,
-        "inverse_operand": 3
+        "inverse_operand": 2
       },
-      "barePct": 48,
+      "barePct": 47,
       "bareBand": "sometimes",
       "calc": {
         "non_calc": 4,
-        "na": 2,
-        "calc": 6
+        "calc": 6,
+        "na": 1
       },
       "markSplits": [
         "M1 M1dep A1",
@@ -4758,14 +8510,12 @@
         "M1 equation + M1dep collect + M1dep solve + A1 ratio",
         "M1 M1dep M1dep A1"
       ],
-      "chainedPct": 42,
+      "chainedPct": 45,
       "traps": [
         "use_360_not_180",
         "give_the_unit_angle_not_the_multiple",
         "equate_the_age_sum_to_the_mean",
         "answer_for_the_wrong_person",
-        "match_the_constant_without_halving",
-        "embedded_values_not_evaluated",
         "variable_both_sides",
         "sign_error_on_transfer",
         "add_numerators_without_a_common_denominator",
@@ -5011,25 +8761,24 @@
       "skillId": "expanding_brackets",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 7,
-      "marks": 17,
-      "papersSeen": 7,
+      "parts": 5,
+      "marks": 11,
+      "papersSeen": 5,
       "papersTotal": 15,
       "markRange": [
         1,
         4
       ],
       "framing": {
-        "bare": 7,
-        "decision_justify": 2,
-        "inverse_operand": 1,
+        "bare": 5,
+        "decision_justify": 1,
         "multi_route": 1
       },
-      "barePct": 64,
+      "barePct": 71,
       "bareBand": "usually",
       "calc": {
         "non_calc": 1,
-        "na": 5,
+        "na": 3,
         "calc": 1
       },
       "markSplits": [
@@ -5038,16 +8787,13 @@
         "B2 (B1 one bracket expanded correctly)",
         "B1"
       ],
-      "chainedPct": 29,
+      "chainedPct": 40,
       "traps": [
         "sign_error_expanding_the_negative",
         "collect_unlike_terms",
         "sign_error_on_expansion",
         "incomplete_simplification",
         "confuse_identity_vs_equation",
-        "assume_a_unique_answer",
-        "match_only_the_x_term",
-        "divide_the_constant_by_the_wrong_factor",
         "add_indices_incorrectly",
         "expand_only_the_first_term",
         "forget_to_collect_all_terms_on_one_side",
@@ -5059,47 +8805,37 @@
       "skillId": "simplifying_expressions",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 10,
-      "marks": 26,
-      "papersSeen": 9,
+      "parts": 6,
+      "marks": 15,
+      "papersSeen": 6,
       "papersTotal": 15,
       "markRange": [
         1,
         3
       ],
       "framing": {
-        "bare": 10,
-        "inverse_operand": 2,
-        "consequence": 1,
-        "decision_justify": 1,
+        "bare": 6,
         "multi_route": 1
       },
-      "barePct": 67,
-      "bareBand": "usually",
+      "barePct": 86,
+      "bareBand": "almost always",
       "calc": {
-        "non_calc": 3,
-        "na": 7
+        "non_calc": 2,
+        "na": 4
       },
       "markSplits": [
         "M1 one term + M1dep two terms + A1 to integer",
         "M1 first product + M1dep full expansion + A1 (6x^3+29x^2+46x+24)",
         "B2 (B1 one bracket expanded correctly)",
-        "B2 (B1 one value correct)"
+        "B1"
       ],
-      "chainedPct": 20,
+      "chainedPct": 33,
       "traps": [
         "sign_error_expanding_the_negative",
         "collect_unlike_terms",
-        "match_the_constant_without_halving",
-        "embedded_values_not_evaluated",
-        "coefficient_mismatch",
-        "ft_chain_error",
         "sign_error_on_expansion",
         "incomplete_simplification",
-        "assume_a_unique_answer",
-        "match_only_the_x_term",
         "treat_the_bare_term_as_zero",
-        "divide_the_constant_by_the_wrong_factor",
         "stop_before_factorising_out_the_multiple",
         "apply_the_rule_only_once",
         "like_term_collection",
@@ -5604,51 +9340,41 @@
       "skillId": "congruence_and_similarity",
       "board": "AQA",
       "tier": "Higher",
-      "parts": 9,
-      "marks": 27,
-      "papersSeen": 8,
+      "parts": 5,
+      "marks": 12,
+      "papersSeen": 5,
       "papersTotal": 15,
       "markRange": [
         1,
-        5
+        4
       ],
       "framing": {
-        "decision_justify": 6,
-        "consequence": 2,
-        "bare": 3,
-        "real_world": 2,
-        "multi_route": 4
+        "decision_justify": 5,
+        "consequence": 1,
+        "bare": 2,
+        "multi_route": 1
       },
-      "barePct": 18,
+      "barePct": 22,
       "bareBand": "sometimes",
       "calc": {
-        "na": 5,
-        "calc": 4
+        "na": 4,
+        "calc": 1
       },
       "markSplits": [
-        "M1 volume expr + M1dep ratio + M1dep cube-root sf + M1dep edge sum + A1 (150)",
-        "M1 M1dep M1dep A1",
         "B4 (B1 per correct row)",
-        "M1 A1"
+        "M1 A1",
+        "B1 (SSS)",
+        "B1"
       ],
-      "chainedPct": 33,
+      "chainedPct": 0,
       "traps": [
         "similar_assumed_congruent",
         "equal_area_assumed_to_need_congruence",
         "compare_a_non_corresponding_pair",
         "additive_difference_instead_of_a_ratio",
-        "volume_ratio_assumed_to_carry_to_surface_area",
-        "reason_omits_the_hidden_faces",
         "sas_vs_sss",
         "asa_confusion",
-        "scale_factor_not_cubed",
-        "miss_an_edge",
-        "linear_vs_volume_sf",
         "incomplete_congruence_reason_SSA_vs_SAS",
-        "length_scale_factor_used_for_area",
-        "omit_the_half_in_the_area_formula",
-        "scale_factor_inverted",
-        "length_scale_factor_used_for_volume",
         "assert_congruence_without_naming_the_condition",
         "use_a_non_corresponding_pair"
       ],
@@ -6828,6 +10554,48 @@
       ],
       "sufficient": true
     },
+    "AQA|Higher|equations_and_identities": {
+      "skillId": "equations_and_identities",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 11,
+      "papersSeen": 4,
+      "papersTotal": 15,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {
+        "bare": 4,
+        "inverse_operand": 2,
+        "consequence": 1,
+        "decision_justify": 1
+      },
+      "barePct": 50,
+      "bareBand": "usually",
+      "calc": {
+        "na": 3,
+        "non_calc": 1
+      },
+      "markSplits": [
+        "B2 (B1 one value correct)",
+        "B1 B1ft B1ft",
+        "B3 (B2 correct leading value plus a valid pair, B1 leading value alone)",
+        "B3 (B1 per correct value with method)"
+      ],
+      "chainedPct": 0,
+      "traps": [
+        "match_the_constant_without_halving",
+        "embedded_values_not_evaluated",
+        "coefficient_mismatch",
+        "ft_chain_error",
+        "assume_a_unique_answer",
+        "match_only_the_x_term",
+        "divide_the_constant_by_the_wrong_factor"
+      ],
+      "sufficient": true
+    },
     "AQA|Higher|translations": {
       "skillId": "translations",
       "board": "AQA",
@@ -7788,6 +11556,50 @@
         "give_as_a_mixed_number",
         "ratio_reversed",
         "units_not_converted"
+      ],
+      "sufficient": true
+    },
+    "AQA|Higher|area_and_volume_scale_factors": {
+      "skillId": "area_and_volume_scale_factors",
+      "board": "AQA",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 15,
+      "papersSeen": 4,
+      "papersTotal": 15,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {
+        "decision_justify": 1,
+        "consequence": 1,
+        "real_world": 2,
+        "multi_route": 3,
+        "bare": 1
+      },
+      "barePct": 13,
+      "bareBand": "rarely",
+      "calc": {
+        "na": 1,
+        "calc": 3
+      },
+      "markSplits": [
+        "M1 volume expr + M1dep ratio + M1dep cube-root sf + M1dep edge sum + A1 (150)",
+        "M1 M1dep M1dep A1",
+        "B2 (B1 tick alone)"
+      ],
+      "chainedPct": 75,
+      "traps": [
+        "volume_ratio_assumed_to_carry_to_surface_area",
+        "reason_omits_the_hidden_faces",
+        "scale_factor_not_cubed",
+        "miss_an_edge",
+        "linear_vs_volume_sf",
+        "length_scale_factor_used_for_area",
+        "omit_the_half_in_the_area_formula",
+        "scale_factor_inverted",
+        "length_scale_factor_used_for_volume"
       ],
       "sufficient": true
     },
@@ -10630,6 +14442,3870 @@
         "substitution_sign_error",
         "pair_x_with_correct_y"
       ],
+      "sufficient": false
+    },
+    "OCR|Foundation|simple_arithmetic": {
+      "skillId": "simple_arithmetic",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 10,
+      "marks": 21,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 10
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|indices": {
+      "skillId": "indices",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 6,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|coordinates": {
+      "skillId": "coordinates",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|reflections": {
+      "skillId": "reflections",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|mode": {
+      "skillId": "mode",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|median": {
+      "skillId": "median",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|pie_charts": {
+      "skillId": "pie_charts",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|ratio": {
+      "skillId": "ratio",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 8,
+      "marks": 24,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 8
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|measuring_lines_and_angles": {
+      "skillId": "measuring_lines_and_angles",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|bearings": {
+      "skillId": "bearings",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|simplifying_indices": {
+      "skillId": "simplifying_indices",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|solving_linear_equations": {
+      "skillId": "solving_linear_equations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|multiplying_fractions": {
+      "skillId": "multiplying_fractions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|factors_and_multiples": {
+      "skillId": "factors_and_multiples",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|highest_common_factor": {
+      "skillId": "highest_common_factor",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|fractions_decimals_and_percentages": {
+      "skillId": "fractions_decimals_and_percentages",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 6,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|mean": {
+      "skillId": "mean",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|substitution": {
+      "skillId": "substitution",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|frequency_trees": {
+      "skillId": "frequency_trees",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|fractions_of_amounts": {
+      "skillId": "fractions_of_amounts",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 23,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|converting_measurements": {
+      "skillId": "converting_measurements",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 18,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|sketching_functions": {
+      "skillId": "sketching_functions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|inequalities": {
+      "skillId": "inequalities",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|vectors": {
+      "skillId": "vectors",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|exact_calculations": {
+      "skillId": "exact_calculations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|significant_figures": {
+      "skillId": "significant_figures",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|simplifying_ratio": {
+      "skillId": "simplifying_ratio",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|fractional_and_negative_indices": {
+      "skillId": "fractional_and_negative_indices",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|scatter_graphs": {
+      "skillId": "scatter_graphs",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|percentage_change": {
+      "skillId": "percentage_change",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 15,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|equations_and_identities": {
+      "skillId": "equations_and_identities",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|understanding_straight_line_graphs": {
+      "skillId": "understanding_straight_line_graphs",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|trigonometry_missing_angles": {
+      "skillId": "trigonometry_missing_angles",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|sampling": {
+      "skillId": "sampling",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|inverse_proportion": {
+      "skillId": "inverse_proportion",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|time_calculations": {
+      "skillId": "time_calculations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|pythagoras_theorem": {
+      "skillId": "pythagoras_theorem",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|circumfrence_of_a_circle": {
+      "skillId": "circumfrence_of_a_circle",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|standard_form": {
+      "skillId": "standard_form",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|compound_units": {
+      "skillId": "compound_units",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|areas_of_triangles": {
+      "skillId": "areas_of_triangles",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|adding_and_subtracting_fractions": {
+      "skillId": "adding_and_subtracting_fractions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|properties_of_2d_shapes": {
+      "skillId": "properties_of_2d_shapes",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|symmetry": {
+      "skillId": "symmetry",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|simple_charts": {
+      "skillId": "simple_charts",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|converting_fractions_to_decimals": {
+      "skillId": "converting_fractions_to_decimals",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|irregular_and_improper_fractions": {
+      "skillId": "irregular_and_improper_fractions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|simplifying_expressions": {
+      "skillId": "simplifying_expressions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|expanding_brackets": {
+      "skillId": "expanding_brackets",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|estimating": {
+      "skillId": "estimating",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|simplifying_fractions": {
+      "skillId": "simplifying_fractions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|rearranging_formulae": {
+      "skillId": "rearranging_formulae",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|rotations": {
+      "skillId": "rotations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|decimals": {
+      "skillId": "decimals",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|sequences": {
+      "skillId": "sequences",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|lowest_common_multiple": {
+      "skillId": "lowest_common_multiple",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|finding_the_nth_term": {
+      "skillId": "finding_the_nth_term",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|simultaneous_equations": {
+      "skillId": "simultaneous_equations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|plotting_straight_line_graphs": {
+      "skillId": "plotting_straight_line_graphs",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|congruence_and_similarity": {
+      "skillId": "congruence_and_similarity",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|gathering_and_organising_data": {
+      "skillId": "gathering_and_organising_data",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|tree_diagrams": {
+      "skillId": "tree_diagrams",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|sector_calculations": {
+      "skillId": "sector_calculations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|area_of_a_circle": {
+      "skillId": "area_of_a_circle",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|rounding": {
+      "skillId": "rounding",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|enlargements": {
+      "skillId": "enlargements",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|angles_on_lines_and_circles": {
+      "skillId": "angles_on_lines_and_circles",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|function_machines": {
+      "skillId": "function_machines",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|reverse_percentage": {
+      "skillId": "reverse_percentage",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|proportion": {
+      "skillId": "proportion",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|relative_frequency": {
+      "skillId": "relative_frequency",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Foundation|venn_diagrams": {
+      "skillId": "venn_diagrams",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|probability_spaces": {
+      "skillId": "probability_spaces",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|translations": {
+      "skillId": "translations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|area_and_volume_scale_factors": {
+      "skillId": "area_and_volume_scale_factors",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|surface_area_of_a_sphere": {
+      "skillId": "surface_area_of_a_sphere",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|plans_and_elevations": {
+      "skillId": "plans_and_elevations",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|upper_and_lower_bounds": {
+      "skillId": "upper_and_lower_bounds",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|constructions": {
+      "skillId": "constructions",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Foundation|solving_quadratic_equations_factorising": {
+      "skillId": "solving_quadratic_equations_factorising",
+      "board": "OCR",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|exact_calculations": {
+      "skillId": "exact_calculations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|significant_figures": {
+      "skillId": "significant_figures",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|simplifying_ratio": {
+      "skillId": "simplifying_ratio",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|converting_measurements": {
+      "skillId": "converting_measurements",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|lengths_and_perimeters": {
+      "skillId": "lengths_and_perimeters",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|circumfrence_of_a_circle": {
+      "skillId": "circumfrence_of_a_circle",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|scatter_graphs": {
+      "skillId": "scatter_graphs",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|equations_and_identities": {
+      "skillId": "equations_and_identities",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|understanding_straight_line_graphs": {
+      "skillId": "understanding_straight_line_graphs",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|compound_units": {
+      "skillId": "compound_units",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 18,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Higher|angles_in_polygons": {
+      "skillId": "angles_in_polygons",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|exterior_angles": {
+      "skillId": "exterior_angles",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|sampling": {
+      "skillId": "sampling",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|standard_form": {
+      "skillId": "standard_form",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|simplifying_indices": {
+      "skillId": "simplifying_indices",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|simultaneous_equations": {
+      "skillId": "simultaneous_equations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|function_machines": {
+      "skillId": "function_machines",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|area_of_a_trapezium": {
+      "skillId": "area_of_a_trapezium",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|pythagoras_theorem": {
+      "skillId": "pythagoras_theorem",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|circle_theorem_angle_at_centre": {
+      "skillId": "circle_theorem_angle_at_centre",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|cumulative_frequency": {
+      "skillId": "cumulative_frequency",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|proportion_with_powers": {
+      "skillId": "proportion_with_powers",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|growth_and_decay": {
+      "skillId": "growth_and_decay",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Higher|equation_of_a_circle": {
+      "skillId": "equation_of_a_circle",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|sequences": {
+      "skillId": "sequences",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Higher|solving_linear_equations": {
+      "skillId": "solving_linear_equations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 15,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "OCR|Higher|surds_expanding_and_rationalising": {
+      "skillId": "surds_expanding_and_rationalising",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|sine_rule": {
+      "skillId": "sine_rule",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|gradient_of_a_curve": {
+      "skillId": "gradient_of_a_curve",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|conditional_probability": {
+      "skillId": "conditional_probability",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|expanding_double_brackets": {
+      "skillId": "expanding_double_brackets",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|factorising_quadratics": {
+      "skillId": "factorising_quadratics",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|completing_the_square": {
+      "skillId": "completing_the_square",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|decimals": {
+      "skillId": "decimals",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|fractions_decimals_and_percentages": {
+      "skillId": "fractions_decimals_and_percentages",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|rotations": {
+      "skillId": "rotations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|inequalities": {
+      "skillId": "inequalities",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|adding_and_subtracting_fractions": {
+      "skillId": "adding_and_subtracting_fractions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|lowest_common_multiple": {
+      "skillId": "lowest_common_multiple",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|finding_the_nth_term": {
+      "skillId": "finding_the_nth_term",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|plotting_straight_line_graphs": {
+      "skillId": "plotting_straight_line_graphs",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|ratio": {
+      "skillId": "ratio",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 17,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|gathering_and_organising_data": {
+      "skillId": "gathering_and_organising_data",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|percentage_change": {
+      "skillId": "percentage_change",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|fractions_of_amounts": {
+      "skillId": "fractions_of_amounts",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|forming_expressions_and_formulae": {
+      "skillId": "forming_expressions_and_formulae",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|simplifying_expressions": {
+      "skillId": "simplifying_expressions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|estimating": {
+      "skillId": "estimating",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|volume_of_a_prism": {
+      "skillId": "volume_of_a_prism",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|congruence_and_similarity": {
+      "skillId": "congruence_and_similarity",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|fractional_and_negative_indices": {
+      "skillId": "fractional_and_negative_indices",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|rearranging_formulae": {
+      "skillId": "rearranging_formulae",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|histograms": {
+      "skillId": "histograms",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|range": {
+      "skillId": "range",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|upper_and_lower_bounds": {
+      "skillId": "upper_and_lower_bounds",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|recurring_decimals_to_fractions": {
+      "skillId": "recurring_decimals_to_fractions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|dividing_fractions": {
+      "skillId": "dividing_fractions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|sector_calculations": {
+      "skillId": "sector_calculations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|area_of_a_circle": {
+      "skillId": "area_of_a_circle",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|algebraic_fractions": {
+      "skillId": "algebraic_fractions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|combined_events": {
+      "skillId": "combined_events",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|tree_diagrams": {
+      "skillId": "tree_diagrams",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|cosine_rule": {
+      "skillId": "cosine_rule",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|area_of_triangle_sine": {
+      "skillId": "area_of_triangle_sine",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|probability_spaces": {
+      "skillId": "probability_spaces",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|translations": {
+      "skillId": "translations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|simple_charts": {
+      "skillId": "simple_charts",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|plans_and_elevations": {
+      "skillId": "plans_and_elevations",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|constructions": {
+      "skillId": "constructions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|solving_quadratic_equations_factorising": {
+      "skillId": "solving_quadratic_equations_factorising",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|surface_area_of_a_sphere": {
+      "skillId": "surface_area_of_a_sphere",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|areas_of_squares_and_rectangles": {
+      "skillId": "areas_of_squares_and_rectangles",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|reverse_percentage": {
+      "skillId": "reverse_percentage",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|substitution": {
+      "skillId": "substitution",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|indices": {
+      "skillId": "indices",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|quadratic_functions": {
+      "skillId": "quadratic_functions",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|trig_graphs": {
+      "skillId": "trig_graphs",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|box_plots": {
+      "skillId": "box_plots",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|counting_without_listing": {
+      "skillId": "counting_without_listing",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|fractional_enlargements": {
+      "skillId": "fractional_enlargements",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|kinematic_graphs": {
+      "skillId": "kinematic_graphs",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|simultaneous_equations_quadratic": {
+      "skillId": "simultaneous_equations_quadratic",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|trigonometry_3d": {
+      "skillId": "trigonometry_3d",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        6,
+        6
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|exponential_graphs": {
+      "skillId": "exponential_graphs",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "OCR|Higher|iteration": {
+      "skillId": "iteration",
+      "board": "OCR",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 3,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
       "sufficient": false
     }
   }

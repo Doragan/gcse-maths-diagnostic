@@ -19,77 +19,538 @@
     "q6a/q6b (scale drawing: measure a distance, then plot a point at a bearing) tagged with measuring_lines_and_angles as the second skill — the doc warns that node is about protractor use, which here is exactly what the question demands.",
     "q18 tagged exact_calculations: its example in data/skills.ts is literally 'use your calculator to work out ...', which is what this question is.",
     "q22 (simple interest, find the rate) tagged percentage_change, NOT growth_and_decay — growth_and_decay is compound, and simple interest demonstrates nothing about a repeated multiplier.",
-    "q23a (decide whether each statement is an equation or an identity) tagged expanding_double_brackets: the taxonomy has no equation-vs-identity node, and expanding the brackets is the only way to tell them apart.",
-    "q15 (match sketched graphs to equations) tagged sketching_functions rather than quadratic_functions — the demand is recognising standard graph shapes, and sketching_functions credits fewer skills."
+    "q15 (match sketched graphs to equations) tagged sketching_functions rather than quadratic_functions — the demand is recognising standard graph shapes, and sketching_functions credits fewer skills.",
+    "q23a RETAGGED to equations_and_identities (was expanding_double_brackets) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one."
   ],
   "rows": [
-    { "q": "1",  "part": "a",  "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write down an odd number in a given range" },
-    { "q": "1",  "part": "b",  "marks": 2, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write down two cube numbers below a bound" },
-
-    { "q": "2",  "part": "a",  "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "coordinate", "app_gap_note": "read the coordinates of a plotted point" },
-    { "q": "2",  "part": "b",  "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "draw_plot", "app_gap_note": "plot a point at given coordinates" },
-
-    { "q": "3",  "part": null, "marks": 2, "skill_ids": ["reflections"], "kind": "mastery", "answer_form": "draw_shape", "app_gap_note": "reflect a shape in a given mirror line" },
-
-    { "q": "4",  "part": "a",  "marks": 1, "skill_ids": ["mode"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "mode of a list of numbers" },
-    { "q": "4",  "part": "b",  "marks": 1, "skill_ids": ["median"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "explain why a stated median is wrong" },
-
-    { "q": "5",  "part": "a",  "marks": 2, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "total from one pie chart sector and its frequency" },
-    { "q": "5",  "part": "b",  "marks": 2, "skill_ids": ["pie_charts", "ratio"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "complete a pie chart, splitting the remainder in a given ratio" },
-
-    { "q": "6",  "part": "a",  "marks": 2, "skill_ids": ["ratio", "measuring_lines_and_angles"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "actual distance from a scale drawing" },
-    { "q": "6",  "part": "b",  "marks": 2, "skill_ids": ["bearings", "ratio"], "kind": "exam", "answer_form": "draw_plot", "app_gap_note": "mark a point at a given bearing and distance on a scale drawing" },
-
-    { "q": "7",  "part": "ai", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "index law for a repeated product of one letter" },
-    { "q": "7",  "part": "aii","marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "multiply two monomials carrying powers" },
-    { "q": "7",  "part": "b",  "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "solve a two-step linear equation" },
-
-    { "q": "8",  "part": "a",  "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing addend giving a negative total" },
-    { "q": "8",  "part": "b",  "marks": 1, "skill_ids": ["multiplying_fractions"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing denominator making a doubling statement true" },
-
-    { "q": "9",  "part": "ai", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "identify a number from its complete list of factors" },
-    { "q": "9",  "part": "aii","marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "HCF from a factor list and a prime factorisation" },
-    { "q": "9",  "part": "b",  "marks": 2, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "number in a range divisible by two given factors" },
-
-    { "q": "10", "part": null, "marks": 2, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "ordering", "app_gap_note": "order mixed fractions, decimals and percentages by size" },
-    { "q": "11", "part": null, "marks": 3, "skill_ids": ["mean"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing value from a known mean of four numbers" },
-
-    { "q": "12", "part": "a",  "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "substitute three values into a given formula" },
-    { "q": "12", "part": "b",  "marks": 2, "skill_ids": ["substitution", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "substitute into a formula and solve for a variable that is not the subject" },
-
-    { "q": "13", "part": "a",  "marks": 4, "skill_ids": ["frequency_trees", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "complete a frequency tree from a fraction of the total" },
-    { "q": "13", "part": "b",  "marks": 2, "skill_ids": ["frequency_trees", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "show_that", "app_gap_note": "show a combined branch total is a stated percentage of the whole" },
-
-    { "q": "14", "part": null, "marks": 5, "skill_ids": ["simple_arithmetic", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "budget-limited whole purchases, then daily consumption with a litres-to-millilitres conversion" },
-
-    { "q": "15", "part": null, "marks": 2, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "match sketched graphs to their equations from a list" },
-    { "q": "16", "part": null, "marks": 2, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "write the inequality shown on a number line" },
-
-    { "q": "17", "part": "a",  "marks": 2, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a drawn vector as a column vector" },
-    { "q": "17", "part": "b",  "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "add two column vectors" },
-    { "q": "17", "part": "c",  "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "scalar multiple of a column vector" },
-
-    { "q": "18", "part": null, "marks": 2, "skill_ids": ["exact_calculations", "significant_figures"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "calculator evaluation of a compound expression, answer to 3 significant figures" },
-    { "q": "19", "part": null, "marks": 2, "skill_ids": ["simplifying_ratio", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "express a ratio of two metric units in the form 1 : n" },
-
-    { "q": "20", "part": "a",  "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing power in a power raised to a power" },
-    { "q": "20", "part": "b",  "marks": 1, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "missing power expressing a reciprocal" },
-
-    { "q": "21", "part": "a",  "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "describe the correlation shown by each of three scatter diagrams" },
-    { "q": "21", "part": "b",  "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "draw a line of best fit and estimate from it" },
-
-    { "q": "22", "part": null, "marks": 4, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "simple interest rate from the final value after several years" },
-
-    { "q": "23", "part": "a",  "marks": 1, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "decide whether each algebraic statement is an equation or an identity" },
-    { "q": "23", "part": "b",  "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "expression", "app_gap_note": "equation of a line parallel to a given line through a given point" },
-
-    { "q": "24", "part": null, "marks": 3, "skill_ids": ["trigonometry_missing_angles"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "angle in a right-angled triangle from two given sides" },
-    { "q": "25", "part": null, "marks": 3, "skill_ids": ["sampling"], "kind": "mastery", "answer_form": "free_text", "app_gap_note": "three criticisms of a sampling method" },
-    { "q": "26", "part": null, "marks": 4, "skill_ids": ["ratio"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "chain two ratios sharing a term to find one part of a known total" },
-    { "q": "27", "part": null, "marks": 4, "skill_ids": ["inverse_proportion", "time_calculations"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "inverse proportion between workers and time, answer in hours and minutes" },
-    { "q": "28", "part": null, "marks": 6, "skill_ids": ["pythagoras_theorem", "circumfrence_of_a_circle"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "perimeter of a shape made from a right-angled triangle and a semicircle" },
-
-    { "q": "29", "part": "a",  "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "app_gap_note": "write a small decimal in standard form" },
-    { "q": "29", "part": "b",  "marks": 4, "skill_ids": ["standard_form", "compound_units"], "kind": "exam", "answer_form": "numeric", "app_gap_note": "population density from populations and areas given in standard form" }
+    {
+      "q": "1",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write down an odd number in a given range"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write down two cube numbers below a bound"
+    },
+    {
+      "q": "2",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "coordinates"
+      ],
+      "kind": "mastery",
+      "answer_form": "coordinate",
+      "app_gap_note": "read the coordinates of a plotted point"
+    },
+    {
+      "q": "2",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "coordinates"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_plot",
+      "app_gap_note": "plot a point at given coordinates"
+    },
+    {
+      "q": "3",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "reflections"
+      ],
+      "kind": "mastery",
+      "answer_form": "draw_shape",
+      "app_gap_note": "reflect a shape in a given mirror line"
+    },
+    {
+      "q": "4",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "mode"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "mode of a list of numbers"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "median"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "explain why a stated median is wrong"
+    },
+    {
+      "q": "5",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "pie_charts"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "total from one pie chart sector and its frequency"
+    },
+    {
+      "q": "5",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "pie_charts",
+        "ratio"
+      ],
+      "kind": "exam",
+      "answer_form": "draw_plot",
+      "app_gap_note": "complete a pie chart, splitting the remainder in a given ratio"
+    },
+    {
+      "q": "6",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "ratio",
+        "measuring_lines_and_angles"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "actual distance from a scale drawing"
+    },
+    {
+      "q": "6",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "bearings",
+        "ratio"
+      ],
+      "kind": "exam",
+      "answer_form": "draw_plot",
+      "app_gap_note": "mark a point at a given bearing and distance on a scale drawing"
+    },
+    {
+      "q": "7",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "index law for a repeated product of one letter"
+    },
+    {
+      "q": "7",
+      "part": "aii",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "multiply two monomials carrying powers"
+    },
+    {
+      "q": "7",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "solve a two-step linear equation"
+    },
+    {
+      "q": "8",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "missing addend giving a negative total"
+    },
+    {
+      "q": "8",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "multiplying_fractions"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "missing denominator making a doubling statement true"
+    },
+    {
+      "q": "9",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "factors_and_multiples"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "identify a number from its complete list of factors"
+    },
+    {
+      "q": "9",
+      "part": "aii",
+      "marks": 2,
+      "skill_ids": [
+        "highest_common_factor"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "HCF from a factor list and a prime factorisation"
+    },
+    {
+      "q": "9",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "factors_and_multiples"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "number in a range divisible by two given factors"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "mastery",
+      "answer_form": "ordering",
+      "app_gap_note": "order mixed fractions, decimals and percentages by size"
+    },
+    {
+      "q": "11",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "mean"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "missing value from a known mean of four numbers"
+    },
+    {
+      "q": "12",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "substitution"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "substitute three values into a given formula"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "substitution",
+        "solving_linear_equations"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "substitute into a formula and solve for a variable that is not the subject"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 4,
+      "skill_ids": [
+        "frequency_trees",
+        "fractions_of_amounts"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "complete a frequency tree from a fraction of the total"
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "frequency_trees",
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "exam",
+      "answer_form": "show_that",
+      "app_gap_note": "show a combined branch total is a stated percentage of the whole"
+    },
+    {
+      "q": "14",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "simple_arithmetic",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "budget-limited whole purchases, then daily consumption with a litres-to-millilitres conversion"
+    },
+    {
+      "q": "15",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "sketching_functions"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "match sketched graphs to their equations from a list"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "inequalities"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "write the inequality shown on a number line"
+    },
+    {
+      "q": "17",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write a drawn vector as a column vector"
+    },
+    {
+      "q": "17",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "add two column vectors"
+    },
+    {
+      "q": "17",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "scalar multiple of a column vector"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "exact_calculations",
+        "significant_figures"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "calculator evaluation of a compound expression, answer to 3 significant figures"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_ratio",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "express a ratio of two metric units in the form 1 : n"
+    },
+    {
+      "q": "20",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "missing power in a power raised to a power"
+    },
+    {
+      "q": "20",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "fractional_and_negative_indices"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "missing power expressing a reciprocal"
+    },
+    {
+      "q": "21",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "scatter_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "describe the correlation shown by each of three scatter diagrams"
+    },
+    {
+      "q": "21",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "scatter_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "draw a line of best fit and estimate from it"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "percentage_change"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "simple interest rate from the final value after several years"
+    },
+    {
+      "q": "23",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "equations_and_identities"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "decide whether each algebraic statement is an equation or an identity"
+    },
+    {
+      "q": "23",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "understanding_straight_line_graphs"
+      ],
+      "kind": "mastery",
+      "answer_form": "expression",
+      "app_gap_note": "equation of a line parallel to a given line through a given point"
+    },
+    {
+      "q": "24",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "trigonometry_missing_angles"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "angle in a right-angled triangle from two given sides"
+    },
+    {
+      "q": "25",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "sampling"
+      ],
+      "kind": "mastery",
+      "answer_form": "free_text",
+      "app_gap_note": "three criticisms of a sampling method"
+    },
+    {
+      "q": "26",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "ratio"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "chain two ratios sharing a term to find one part of a known total"
+    },
+    {
+      "q": "27",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "inverse_proportion",
+        "time_calculations"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "inverse proportion between workers and time, answer in hours and minutes"
+    },
+    {
+      "q": "28",
+      "part": null,
+      "marks": 6,
+      "skill_ids": [
+        "pythagoras_theorem",
+        "circumfrence_of_a_circle"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "perimeter of a shape made from a right-angled triangle and a semicircle"
+    },
+    {
+      "q": "29",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "mastery",
+      "answer_form": "numeric",
+      "app_gap_note": "write a small decimal in standard form"
+    },
+    {
+      "q": "29",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "standard_form",
+        "compound_units"
+      ],
+      "kind": "exam",
+      "answer_form": "numeric",
+      "app_gap_note": "population density from populations and areas given in standard form"
+    }
   ]
 }

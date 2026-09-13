@@ -10,6 +10,7 @@ import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
 import { computeWeeklyGoal, daysToGoal, WEEKLY_GOAL, type WeeklyGoalProgress } from '../../../lib/skills/weeklyGoal'
 import { skills } from '../../../data/skills'
+import { fetchPublishedSkillIds, isPractisable } from '../../../lib/skills/publishedSkills'
 import { isPaidStudent } from '../../../lib/entitlements'
 import FeedbackWidget from '../../../components/FeedbackWidget'
 import FounderUpgradeModal from '../../../components/FounderUpgradeModal'
@@ -88,6 +89,10 @@ export default function StudentDashboardPage() {
       if (!user) { router.push('/student'); return }
       setEmailReminders(Boolean(user.user_metadata?.email_reminders))
 
+      // Started now and awaited when the topic map is built, so it runs
+      // alongside the profile and attempts rather than after them.
+      const publishedIds = fetchPublishedSkillIds()
+
       const [{ data: p }, { data: attempts }] = await Promise.all([
         supabase.from('students').select('*').eq('id', user.id).single(),
         supabase
@@ -122,9 +127,12 @@ export default function StudentDashboardPage() {
         )
         setPlacementGaps(placementGapIds(augmented).length)
 
-        // Build groups from ALL skills (not just attempted), preserving skills.ts order
+        // Build groups from ALL skills (not just attempted), preserving skills.ts
+        // order — less any skill with no published question to practise yet.
+        const published = await publishedIds
         const groupMap: Record<string, SkillWithMastery[]> = {}
         for (const skill of skills) {
+          if (!isPractisable(skill.id, published)) continue
           if (!groupMap[skill.topic]) groupMap[skill.topic] = []
           groupMap[skill.topic].push({ skillId: skill.id, mastery: augmented[skill.id] ?? null })
         }

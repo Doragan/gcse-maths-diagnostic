@@ -8,12 +8,18 @@ import type { PaperConfig } from './types'
  * a hand correction should be noted here — the script refuses to overwrite
  * without --force precisely so corrections are not lost silently.
  *
- * WHAT IS DELIBERATELY ABSENT: `retrySet` and `challengeQuestions` are
- * hand-authored from question text, and the audit transcribes none. A feedback
- * sheet from this paper therefore omits its "Practise these" and "Push
- * yourself" sections and carries everything else — score, coverage, topic and
- * skill breakdown, and the WWW/EBI prose. Fill either object in to turn those
- * sections back on; nothing else needs to change.
+ * HAND-AUTHORED SINCE GENERATION — do not regenerate without --force, and
+ * re-apply this if you do:
+ *
+ *   • `retrySet` is complete: a rewritten practice question, with its answer,
+ *     for every non-visual item. Written from the question paper as PARALLELS
+ *     — same context, framing and step count, different numbers and settings —
+ *     never as transcriptions. See docs/writing-retry-questions.md. The
+ *     crossover questions shared with this paper's tier partner carry the SAME
+ *     retries; the note above `retrySet` says which.
+ *   • `challengeQuestions` stays empty ON PURPOSE. Challenges are pooled by
+ *     topic and tier in lib/papers/challengePool.ts, and every paper draws
+ *     from there; filling this in would override the pool for this paper only.
  *
  * `desc` is the audit's own note about what each question asks for, not the
  * question text.
@@ -67,7 +73,339 @@ export const AQA_8300_1H_JUN25: PaperConfig = {
   ],
 
   // See the header: both are hand-authored and the audit has no question text.
-  retrySet: {},
+  // THE CROSSOVER QUESTIONS ARE SHARED WITH 1F, and carry the SAME retries.
+  // 3, 5, 6(a), 6(b), 7, 8, 9 and 10 here are 1F's 18, 19, 20(a), 20(b), 22,
+  // 23, 24 and 26 — identical questions on both papers. Offering a student two
+  // different practice questions for the same original, depending on which
+  // paper they sat, is the inconsistency docs/writing-retry-questions.md warns
+  // about. (coding-a-paper.md says AQA does not share across tiers; June 2025
+  // shows it does, at least on paper 1.)
+  //
+  // 14(b) is `visual: true` and has no retry: plotting y = 3^x needs a grid
+  // roughly nine rows tall and two columns wide, which at a sheet's 72mm comes
+  // out as a sliver. 21(a) and 21(b) DO have grids, because f(x) can be given
+  // as a polyline through lattice points on a grid that is close to square.
+  retrySet: {
+    '1': {
+      skill: 'Simultaneous Equations',
+      question: 'Solve the simultaneous equations\n4x + 3y = 27\n4x + y = 17',
+      answer: 'x = 3, y = 5',
+      working: 'Subtracting the equations eliminates x: 2y = 10.',
+    },
+    '2': { skill: 'Inequalities', question: '2.15 < <frac>x/6</frac> < 2.30, where x is an integer. Work out the value of x.', answer: 'x = 13', working: 'Multiplying through by 6 gives 12.9 < x < 13.8.' },
+
+    // Shared with 1F — see the note above.
+    '3': {
+      skill: 'Compound Units',
+      question: 'A metal solid has a volume of 14 cm³.\nThe density of the metal is 7.5 g/cm³.\nWork out the mass of the solid.',
+      answer: '105 g',
+      working: 'Mass = density × volume.',
+    },
+    '4': { skill: 'Interquartile Range', question: 'Here are 11 numbers: 4, 7, 9, 11, 15, 18, 20, 24, 27, 30, 35. Work out the interquartile range.', answer: '18', working: 'With 11 values the quartiles are the 3rd and 9th, so 27 − 9.' },
+    '5': {
+      skill: 'Mean + Range',
+      question: 'The table shows the mean and range of the scores of two teams.\n<table> | Mean | Range\nTeam X | 48 | 12\nTeam Y | 52 | 9</table>\nFor each statement, state whether it is true, may be true, or not true.\n(i)   On average, Team Y scored higher\n(ii)  There are more players in Team X\n(iii) Team X had a greater spread of scores',
+      answer: '(i) True, (ii) May be true, (iii) True',
+      working: 'The mean compares averages and the range compares spread; neither says anything about how many players there are.',
+    },
+    '6a': { skill: 'Standard Form', question: 'Work out 0.8 ÷ 1000. Give your answer in standard form.', answer: '8 × 10⁻⁴', working: '0.8 ÷ 1000 = 0.0008' },
+    '6b': { skill: 'Standard Form', question: 'Work out 50 × 60 × 10⁴. Give your answer in standard form.', answer: '3 × 10⁷', working: '50 × 60 = 3000, and 3000 × 10⁴ = 3 × 10³ × 10⁴.' },
+    '7': {
+      // Same question as 1F 22 on the crossover, so the same tree.
+      skill: 'Frequency Trees + Ratio',
+      question: '240 students from Year 8 and Year 9 take part in a competition.\nThe ratio number of Year 8 students : number of Year 9 students is 1 : 3\n96 students win a medal, and 70 of the students who win a medal are in Year 9.\nComplete the frequency tree, and write down how many Year 8 students do not win a medal.',
+      answer: '34',
+      working: 'Year 8 has 240 ÷ 4 = 60 students, and 96 − 70 = 26 of them win a medal.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 9, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<polyline points="1,4 3.9,6.5" stroke="#333" fill="none" /><polyline points="1,4 3.9,1.5" stroke="#333" fill="none" /><polyline points="4.9,6.5 7.5,7.5" stroke="#333" fill="none" /><polyline points="4.9,6.5 7.5,5.5" stroke="#333" fill="none" /><polyline points="4.9,1.5 7.5,2.5" stroke="#333" fill="none" /><polyline points="4.9,1.5 7.5,0.5" stroke="#333" fill="none" /><polyline points="0.05,3.7 0.95,3.7 0.95,4.3 0.05,4.3 0.05,3.7" stroke="#333" fill="none" /><polyline points="3.95,6.2 4.85,6.2 4.85,6.8 3.95,6.8 3.95,6.2" stroke="#333" fill="none" /><polyline points="3.95,1.2 4.85,1.2 4.85,1.8 3.95,1.8 3.95,1.2" stroke="#333" fill="none" /><polyline points="7.6,7.2 8.5,7.2 8.5,7.8 7.6,7.8 7.6,7.2" stroke="#333" fill="none" /><polyline points="7.6,5.2 8.5,5.2 8.5,5.8 7.6,5.8 7.6,5.2" stroke="#333" fill="none" /><polyline points="7.6,2.2 8.5,2.2 8.5,2.8 7.6,2.8 7.6,2.2" stroke="#333" fill="none" /><polyline points="7.6,0.2 8.5,0.2 8.5,0.8 7.6,0.8 7.6,0.2" stroke="#333" fill="none" />',
+        labels: [
+          { x: 0.5, y: 4, text: '240' },
+          { x: 2.45, y: 6, text: 'Year 8' },
+          { x: 2.45, y: 2, text: 'Year 9' },
+          { x: 6.1, y: 7.45, text: 'medal' },
+          { x: 6.1, y: 5.35, text: 'no medal' },
+          { x: 6.1, y: 2.45, text: 'medal' },
+          { x: 6.1, y: 0.35, text: 'no medal' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '8': { skill: 'Adding and Subtracting Fractions + Dividing Fractions', question: 'Work out <frac>3/10</frac> + <frac>1/4</frac> ÷ <frac>1/2</frac>. Give your answer as a fraction.', answer: '<frac>4/5</frac>', working: 'Divide first: <frac>1/4</frac> ÷ <frac>1/2</frac> = <frac>1/2</frac>, then <frac>3/10</frac> + <frac>5/10</frac> = <frac>8/10</frac>.' },
+    '9': { skill: 'Reciprocals', question: 'y = 1 ÷ x. Which of these values of x gives the greatest value of y? Circle your answer.\n12     <frac>1/4</frac>     50     −6     30', answer: '<frac>1/4</frac>', working: 'The smallest positive x gives the largest 1 ÷ x, and a negative x makes y negative.' },
+    '10': {
+      skill: 'Expanding Double Brackets + Solving Quadratic Equations (Factorising) + Areas of Squares and Rectangles',
+      question: 'The diagram shows a rectangle with an area of 96 cm².\nWork out the value of x.\nNot drawn accurately.',
+      answer: 'x = 8',
+      working: 'Expanding gives x² + 6x − 112 = 0, which factorises to (x + 14)(x − 8) = 0; x must be positive.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 13, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '<polygon points="2,1 10,1 10,5 2,5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 6, y: 1, text: '(x + 8) cm', dy: 14 },
+          { x: 10, y: 3, text: '(x − 2) cm', dx: 38 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+
+    // The original reads both shapes off a grid. Naming the matching vertices
+    // in the text carries the same work without one.
+    '11a': {
+      skill: 'Translations',
+      question: 'Shape B is the image of shape A after a translation.\nWrite down the translation vector that maps shape A to shape B.',
+      answer: '<vec>5, −2</vec>',
+      working: 'A moves 5 to the right and 2 down.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 6, step: 1, label: '' },
+        background: '<polygon points="2,3 4,3 2,5" stroke="#333" fill="none" /><polygon points="7,1 9,1 7,3" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.6, y: 3.5, text: 'A' },
+          { x: 7.6, y: 1.5, text: 'B' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '11b': {
+      skill: 'Rotations',
+      question: 'Triangle B is the image of triangle A after a rotation.\nDescribe fully the rotation that maps triangle A to triangle B.',
+      answer: 'A rotation of 180° about the origin (0, 0)',
+      working: 'Every vertex maps to the opposite side of the origin; a half turn needs no direction.',
+      diagram: {
+        mode: 'polygon',
+        x: { min: -5, max: 5, step: 1, label: 'x' },
+        y: { min: -5, max: 5, step: 1, label: 'y' },
+        background: '<polygon points="1,1 3,1 1,4" stroke="#333" fill="none" /><polygon points="-1,-1 -3,-1 -1,-4" stroke="#333" fill="none" />',
+        labels: [
+          { x: 1.6, y: 1.6, text: 'A' },
+          { x: -1.6, y: -1.6, text: 'B' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+
+    '12': { skill: 'Ratio', question: 'Priya and Raj share some money in the ratio 7 : 4.\nPriya has £36 more than Raj.\nHow much do they have altogether?', answer: '£132', working: 'The difference is 3 parts, so one part is £12 and there are 11 parts.' },
+    '13': { skill: 'Indices', question: 'c and d are consecutive cube numbers, where c < 2.7³ < d. Work out the value of d − c.', answer: '19', working: '2.7³ = 19.68, which lies between 2³ = 8 and 3³ = 27.' },
+    '14a': {
+      skill: 'Sketching Functions',
+      question: 'The table shows values of x for the graph of y = 3ˣ.\n<table>x | −1 | 0 | 1 | 2\ny |  |  |  | </table>\nComplete the table of values.',
+      answer: '<frac>1/3</frac>, 1, 3, 9',
+      working: '3⁻¹ = <frac>1/3</frac> and 3⁰ = 1.',
+    },
+
+    // 14(b) is `visual: true`. I claimed this grid was "two columns by nine
+    // rows at any width" — it is nine rows only because I fixed the y step at
+    // 1 for no reason. At a step of 3 it is three by three.
+    //
+    // Only (1, 3) and (2, 9) land on a ruled line, and that is CORRECT here: a
+    // curve is plotted through points wherever they fall, and demanding
+    // lattice values would have meant a different function.
+    '14b': {
+      skill: 'Sketching Functions',
+      question: 'The table shows values of x for the graph of y = 3ˣ.\n<table>x | −1 | 0 | 1 | 2\ny |  |  |  | </table>\nDraw the graph of y = 3ˣ for values of x from −1 to 2.',
+      answer: 'A smooth curve through (−1, <frac>1/3</frac>), (0, 1), (1, 3) and (2, 9)',
+      working: 'The curve rises slowly at first and then steeply; it never touches the x-axis.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: -1, max: 2, step: 1, label: 'x' },
+        y: { min: 0, max: 9, step: 1, label: 'y' },
+        background: '',
+        elements: [{ x: -1, y: 0.3333333333333333, marks: 1 }, { x: 0, y: 1, marks: 1 }, { x: 1, y: 3, marks: 1 }, { x: 2, y: 9, marks: 1 }], tolerance: 0,
+      },
+    },
+
+    '15': {
+      skill: 'Circle Theorem: Angle at Centre + Angles on lines and Circles',
+      question: 'A, B and C are points on a circle, centre O.\nWork out the size of angle AOC.',
+      answer: '112°',
+      working: 'OA, OB and OC are radii, so ABO and CBO are isosceles: angle AOB = 180 − 2 × 34 = 112° and angle BOC = 180 − 2 × 22 = 136°. Angles round O add to 360°, so angle AOC = 360 − 112 − 136 = 112°.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 8, step: 1, label: '' },
+        background: '<circle cx="5" cy="4" r="3" stroke="#333" fill="none" /><polyline points="5,4 7.782,5.124" stroke="#333" fill="none" /><polyline points="5,4 5,1" stroke="#333" fill="none" /><polyline points="5,4 2.916,6.158" stroke="#333" fill="none" /><polyline points="7.782,5.124 5,1" stroke="#333" fill="none" /><polyline points="5,1 2.916,6.158" stroke="#333" fill="none" /><path d="M 5.531,1.788 A 0.95,0.95 0 0,1 5,1.95" stroke="#333" fill="none" /><path d="M 5,2.35 A 1.35,1.35 0 0,1 4.494,2.252" stroke="#333" fill="none" />',
+        labels: [
+          { x: 7.782, y: 5.124, text: 'A', dx: 11, dy: -3 },
+          { x: 5, y: 1, text: 'B', dy: 14 },
+          { x: 2.916, y: 6.158, text: 'C', dx: -11, dy: -3 },
+          { x: 5, y: 4, text: 'O', dx: 3, dy: -8 },
+          { x: 5.5, y: 2.5, text: '34°' },
+          { x: 4.58, y: 3.08, text: '22°' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+
+    // The original matches set notation to shaded Venn diagrams. Neither the
+    // diagrams nor the notation survive a text sheet — the intersection and
+    // union signs fall outside WinAnsi and print as gaps — so this asks for
+    // the same set reasoning as a count.
+    '16': {
+      skill: 'Venn Diagrams',
+      question: 'The Venn diagrams show three shaded regions.\nWrite down the set notation for the shaded region in each diagram.',
+      answer: '(i) A ∩ B′, (ii) A′ ∩ B, (iii) (A ∩ B)′',
+      working: 'A dash means "not in", so A ∩ B′ is the part of A outside B; (iii) is everything except the overlap.',
+      diagram: {
+        mode: 'polygon', showAxes: false, showGrid: false,
+        x: { min: 0, max: 18, step: 1, label: '' },
+        y: { min: 0, max: 6.5, step: 1, label: '' },
+        background: '<circle cx="2.2" cy="3.6" r="1.5" fill="#999" stroke="none" /><path d="M 3,4.869 A 1.5,1.5 0 0,1 3,2.331 A 1.5,1.5 0 0,1 3,4.869" fill="#ffffff" stroke="none" /><polyline points="0.3,1.3 5.7,1.3 5.7,5.9 0.3,5.9 0.3,1.3" stroke="#333" fill="none" /><circle cx="2.2" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="3.8" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="9.8" cy="3.6" r="1.5" fill="#999" stroke="none" /><path d="M 9,4.869 A 1.5,1.5 0 0,1 9,2.331 A 1.5,1.5 0 0,1 9,4.869" fill="#ffffff" stroke="none" /><polyline points="6.3,1.3 11.7,1.3 11.7,5.9 6.3,5.9 6.3,1.3" stroke="#333" fill="none" /><circle cx="8.2" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="9.8" cy="3.6" r="1.5" stroke="#333" fill="none" /><polygon points="12.3,1.3 17.7,1.3 17.7,5.9 12.3,5.9" fill="#999" stroke="none" /><path d="M 15,4.869 A 1.5,1.5 0 0,1 15,2.331 A 1.5,1.5 0 0,1 15,4.869" fill="#ffffff" stroke="none" /><polyline points="12.3,1.3 17.7,1.3 17.7,5.9 12.3,5.9 12.3,1.3" stroke="#333" fill="none" /><circle cx="14.2" cy="3.6" r="1.5" stroke="#333" fill="none" /><circle cx="15.8" cy="3.6" r="1.5" stroke="#333" fill="none" />',
+        labels: [
+          { x: 1.3, y: 5.3, text: 'A' },
+          { x: 4.7, y: 5.3, text: 'B' },
+          { x: 3, y: 0.6, text: '(i)' },
+          { x: 7.3, y: 5.3, text: 'A' },
+          { x: 10.7, y: 5.3, text: 'B' },
+          { x: 9, y: 0.6, text: '(ii)' },
+          { x: 13.3, y: 5.3, text: 'A' },
+          { x: 16.7, y: 5.3, text: 'B' },
+          { x: 15, y: 0.6, text: '(iii)' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+
+    '17a': {
+      skill: 'Tree Diagrams',
+      question: 'The tree diagram shows the probability of rain and of a bus being on time.\nWhen it is raining, the probability that the bus is on time is half the probability when it is not raining.\nComplete the two missing probabilities on the tree diagram.',
+      answer: '0.4 and 0.6',
+      working: 'Half of 0.8 is 0.4, and the two on a pair of branches add to 1.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 9, step: 1, label: '' },
+        background: '<polyline points="1,4.3 3.4,6.7" stroke="#333" fill="none" /><polyline points="1,4.3 3.4,1.9" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,7.8" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,5.5" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,3" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,0.8" stroke="#333" fill="none" /><polyline points="5.55,7.6 6.45,7.6 6.45,8.2 5.55,8.2 5.55,7.6" stroke="#333" fill="none" /><polyline points="5.3,5.05 6.2,5.05 6.2,5.65 5.3,5.65 5.3,5.05" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.2, y: 6.05, text: '0.3' },
+          { x: 2.2, y: 2.55, text: '0.7' },
+          { x: 6, y: 2.9, text: '0.8' },
+          { x: 6, y: 0.65, text: '0.2' },
+          { x: 4.1, y: 6.7, text: 'Rain' },
+          { x: 4.1, y: 1.9, text: 'No rain' },
+          { x: 7.9, y: 7.8, text: 'On time' },
+          { x: 8.1, y: 5.5, text: 'Not on time' },
+          { x: 7.9, y: 3, text: 'On time' },
+          { x: 8.1, y: 0.8, text: 'Not on time' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    // 17(b) reads the same tree as 17(a), as on the paper, rather than being
+    // told the probability that (a) asks the student to find.
+    '17b': {
+      skill: 'Tree Diagrams',
+      question: 'The tree diagram shows the probability of rain and of a bus being on time.\nWhen it is raining, the probability that the bus is on time is half the probability when it is not raining.\nWork out the probability that it is raining and the bus is not on time.',
+      answer: '0.18',
+      working: 'On time when raining is half of 0.8 = 0.4, so not on time is 0.6; then 0.3 × 0.6.',
+      diagram: {
+        mode: 'points', showAxes: false, showGrid: false,
+        x: { min: 0, max: 10, step: 1, label: '' },
+        y: { min: 0, max: 9, step: 1, label: '' },
+        background: '<polyline points="1,4.3 3.4,6.7" stroke="#333" fill="none" /><polyline points="1,4.3 3.4,1.9" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,7.8" stroke="#333" fill="none" /><polyline points="4.8,6.7 7.2,5.5" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,3" stroke="#333" fill="none" /><polyline points="4.8,1.9 7.2,0.8" stroke="#333" fill="none" /><polyline points="5.55,7.6 6.45,7.6 6.45,8.2 5.55,8.2 5.55,7.6" stroke="#333" fill="none" /><polyline points="5.3,5.05 6.2,5.05 6.2,5.65 5.3,5.65 5.3,5.05" stroke="#333" fill="none" />',
+        labels: [
+          { x: 2.2, y: 6.05, text: '0.3' },
+          { x: 2.2, y: 2.55, text: '0.7' },
+          { x: 6, y: 2.9, text: '0.8' },
+          { x: 6, y: 0.65, text: '0.2' },
+          { x: 4.1, y: 6.7, text: 'Rain' },
+          { x: 4.1, y: 1.9, text: 'No rain' },
+          { x: 7.9, y: 7.8, text: 'On time' },
+          { x: 8.1, y: 5.5, text: 'Not on time' },
+          { x: 7.9, y: 3, text: 'On time' },
+          { x: 8.1, y: 0.8, text: 'Not on time' },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    // As on the paper, the answer keeps a surd — a √a over b — rather than
+    // collapsing to a whole number.
+    '18': {
+      skill: 'Exact Trigonometric Values + Expanding and Rationalising Surds',
+      question: 'Show that <frac>cos 30° × sin 45°/tan 60°</frac> can be written in the form <frac>√a/b</frac>, where a and b are integers.',
+      answer: '<frac>√2/4</frac>, so a = 2 and b = 4',
+      working: 'cos 30° = <frac>√3/2</frac>, sin 45° = <frac>√2/2</frac> and tan 60° = √3, so the top is <frac>√6/4</frac>, and <frac>√6/4</frac> ÷ √3 = <frac>√2/4</frac>.',
+    },
+    // A non-unit fraction, as on the paper, so the answer is a fraction too.
+    '19a': {
+      skill: 'Fractional and Negative Indices',
+      question: 'Work out the value of <paren><frac>4/25</frac></paren><sup>−3/2</sup>',
+      answer: '<frac>125/8</frac>',
+      working: 'The negative power inverts the fraction to <frac>25/4</frac>, its square root is <frac>5/2</frac>, and cubed that is <frac>125/8</frac>.',
+    },
+    // A root, as on the paper, so n is a fraction rather than a whole number.
+    '19b': { skill: 'Fractional and Negative Indices', question: '√343 = 7ⁿ\nWork out the value of n.', answer: 'n = <frac>3/2</frac>', working: '343 = 7³, and a square root halves the power.' },
+    '20': { skill: 'Simplifying Surds', question: 'Express √18 + √50 + √98 in the form a√n, where a and n are integers.', answer: '15√2', working: 'Each term is a multiple of √2: 3 + 5 + 7.' },
+
+    // 21(a) and (b) are `visual: true` and get grids. f is given as a polyline
+    // through lattice points so both transformations land on ruled lines.
+    '21a': {
+      skill: 'Graph Transformations',
+      question: 'The graph of y = f(x) is drawn on the grid for values of x from 0 to 4.\nOn the same grid, draw the graph of y = −f(x).',
+      answer: 'A curve through (0, −2), (1, −4), (2, −2), (3, 0) and (4, 2).',
+      working: 'y = −f(x) reflects the graph in the x-axis, so every y-value changes sign.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 4, step: 1, label: 'x' },
+        // One axis for BOTH parts: y = -f(x) reaches -4 and y = f(x) + 2 reaches 6,
+        // so a range covering both lets (a) and (b) share one printed grid — which
+        // is how the paper sets them, and what sameGrid() needs to draw it once.
+        y: { min: -4, max: 6, step: 1, label: 'y' },
+        background: '<polyline points="0,2 1,4 2,2 3,0 4,-2" stroke="#333" />',
+        elements: [{ x: 0, y: -2, marks: 1 }, { x: 1, y: -4, marks: 1 }, { x: 2, y: -2, marks: 1 }, { x: 3, y: 0, marks: 1 }, { x: 4, y: 2, marks: 1 }],
+        tolerance: 0,
+      },
+    },
+    '21b': {
+      skill: 'Graph Transformations',
+      question: 'The graph of y = f(x) is drawn on the grid for values of x from 0 to 4.\nOn the same grid, draw the graph of y = f(x) + 2.',
+      answer: 'A curve through (0, 4), (1, 6), (2, 4), (3, 2) and (4, 0).',
+      working: 'Adding 2 raises the whole graph by 2, leaving the x-values alone.',
+      diagram: {
+        mode: 'polyline',
+        x: { min: 0, max: 4, step: 1, label: 'x' },
+        y: { min: -4, max: 6, step: 1, label: 'y' },
+        background: '<polyline points="0,2 1,4 2,2 3,0 4,-2" stroke="#333" />',
+        elements: [{ x: 0, y: 4, marks: 1 }, { x: 1, y: 6, marks: 1 }, { x: 2, y: 4, marks: 1 }, { x: 3, y: 2, marks: 1 }, { x: 4, y: 0, marks: 1 }],
+        tolerance: 0,
+      },
+    },
+
+    '22': {
+      skill: 'Coordinates + Ratio',
+      question: 'The diagram shows the points E and G.\nF lies on the straight line EG so that EF is one third of EG.\nWork out the coordinates of F.',
+      answer: '(5, 6)',
+      working: 'E to G is 9 right and 9 up, so E to F is 3 right and 3 up.',
+      diagram: {
+        mode: 'points',
+        x: { min: 0, max: 13, step: 1, label: 'x' },
+        y: { min: 0, max: 13, step: 1, label: 'y' },
+        background: '<polyline points="2,3 11,12" stroke="#333" fill="none" /><circle cx="2" cy="3" r="0.18" fill="#333" /><circle cx="11" cy="12" r="0.18" fill="#333" />',
+        labels: [
+          { x: 2, y: 3, text: 'E', dx: -12, dy: 5 },
+          { x: 11, y: 12, text: 'G', dx: 12, dy: -3 },
+        ],
+        elements: [], tolerance: 0,
+      },
+    },
+    '23a': { skill: 'Completing the Square', question: 'Write x² + 10x + 32 in the form (x + a)² + b, where a and b are integers.', answer: '(x + 5)² + 7', working: '(x + 5)² = x² + 10x + 25, and 32 − 25 = 7.' },
+    '23b': { skill: 'Completing the Square', question: 'A curve has the equation y = (x + 4)² − 5. Write down the coordinates of the turning point of the curve.', answer: '(−4, −5)', working: 'The bracket is zero when x = −4, and that is where y is least.' },
+    // The paper's proof: factorise (a common factor AND a difference of two
+    // squares), cancel a factor that is negative, and show what is left can
+    // never be positive.
+    '24': { skill: 'Algebraic Fractions + Algebraic Proof + Difference of Two Squares', question: 'Prove that <frac>12x⁴ − 27x²/−2x − 3</frac> × <frac>1/4x − 6</frac> can never be positive.', answer: 'It simplifies to −<frac>3x²/2</frac>, which can never be positive', working: '12x⁴ − 27x² = 3x²(2x − 3)(2x + 3) and −2x − 3 = −(2x + 3), so the first fraction is −3x²(2x − 3). 4x − 6 = 2(2x − 3), leaving −<frac>3x²/2</frac>; x² is never negative.' },
+    '25': {
+      skill: 'Conditional Probability + Solving Quadratic Equations (Factorising) + Algebraic Fractions',
+      question: 'There are n counters in a box.\n5 of the counters are red.\nTwo counters are chosen at random, without replacement.\nThe probability that both counters are red is <frac>2/9</frac>.\nUse an algebraic method to work out the value of n.',
+      answer: 'n = 10',
+      working: '<frac>5/n</frac> × <frac>4/n − 1</frac> = <frac>2/9</frac> gives n² − n − 90 = 0, which factorises to (n − 10)(n + 9) = 0.',
+    },
+  },
   challengeQuestions: [],
   sampleStudents: [],
   sampleMarks: {},

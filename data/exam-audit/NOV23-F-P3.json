@@ -13,40 +13,879 @@
     "note": "Derived metadata only. No exam question text transcribed; traps coded as short labels."
   },
   "rows": [
-    {"q":"1","part":null,"marks":1,"skill_ids":["fractions_decimals_and_percentages"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["wrong_power_of_ten"],"app_supported":"yes","app_gap_note":null},
-    {"q":"2","part":null,"marks":1,"skill_ids":["decimals"],"skill_gap":"place value naming has no node","answer_form":"numeric","framing":["bare"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["give_the_digit_not_its_value"],"app_supported":"yes","app_gap_note":null},
-    {"q":"3","part":"a","marks":1,"skill_ids":["angles_in_polygons"],"skill_gap":"polygon naming by properties has no node","answer_form":"free_text","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["isosceles_named_instead_of_equilateral"],"app_supported":"partial","app_gap_note":"single-word name; needs synonym matching"},
-    {"q":"3","part":"b","marks":1,"skill_ids":["parts_of_a_circle"],"skill_gap":null,"answer_form":"free_text","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["diameter_named_instead_of_chord","tangent_named_instead_of_chord"],"app_supported":"partial","app_gap_note":"single-word name; needs synonym matching"},
-    {"q":"4","part":null,"marks":2,"skill_ids":["factors_and_multiples"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B2 (B1 most factors with no extras)","traps":["omit_one_or_the_number_itself","include_a_non_factor"],"app_supported":"partial","app_gap_note":"list answer; needs set-equality marking"},
-    {"q":"5","part":"a","marks":2,"skill_ids":["substitution","indices"],"skill_gap":null,"answer_form":"numeric","framing":["given_formula"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["square_vs_double","order_of_operations"],"app_supported":"yes","app_gap_note":null},
-    {"q":"5","part":"b","marks":1,"skill_ids":["rearranging_formulae"],"skill_gap":null,"answer_form":"expression","framing":["bare","inverse_operand"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["sign_error_on_transfer"],"app_supported":"partial","app_gap_note":"algebraic answer needs equivalence checker"},
-    {"q":"6","part":"a","marks":1,"skill_ids":["coordinates"],"skill_gap":null,"answer_form":"coordinate","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["axis_swap","endpoint_not_midpoint"],"app_supported":"partial","app_gap_note":"coordinate answer needs pair-equivalence checker"},
-    {"q":"6","part":"b","marks":1,"skill_ids":["areas_of_triangles"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1","traps":["forget_half"],"app_supported":"yes","app_gap_note":"static grid diagram supported"},
-    {"q":"7","part":null,"marks":3,"skill_ids":["proportion"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["use_two_not_twenty_four_months","scale_from_the_wrong_period"],"app_supported":"yes","app_gap_note":null},
-    {"q":"8","part":null,"marks":2,"skill_ids":["volume_of_a_prism"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["surface_area_instead_of_volume","rounding_to_the_wrong_place"],"app_supported":"yes","app_gap_note":"static diagram supported"},
-    {"q":"9","part":null,"marks":2,"skill_ids":["simple_charts"],"skill_gap":null,"answer_form":"free_text","framing":["decision_justify","consequence"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B2 (B1 per correct mistake identified)","traps":["vague_criticism_of_the_pictogram","name_the_key_without_saying_why"],"app_supported":"no","app_gap_note":"spot-the-error free text; two distinct faults must be named"},
-    {"q":"10","part":null,"marks":4,"skill_ids":["compound_units","simple_arithmetic"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep M1dep A1","traps":["mixed_units_pence_and_pounds","divide_by_the_wrong_mass"],"app_supported":"yes","app_gap_note":null},
-    {"q":"11","part":"a","marks":3,"skill_ids":["simplifying_expressions"],"skill_gap":null,"answer_form":"expression","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B3 (B1 per correct collected term)","traps":["sign_error_on_the_subtracted_terms","collect_unlike_terms"],"app_supported":"partial","app_gap_note":"algebraic answer needs equivalence checker"},
-    {"q":"11","part":"b","marks":1,"skill_ids":["simplifying_expressions","indices"],"skill_gap":null,"answer_form":"multiple_choice","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1 (circle one of four)","traps":["halve_the_index_instead_of_the_coefficient"],"app_supported":"yes","app_gap_note":"genuine circle-one-answer"},
-    {"q":"12","part":null,"marks":3,"skill_ids":["systematic_listing"],"skill_gap":null,"answer_form":"table_complete","framing":["real_world","decision_justify","multi_route"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B3 (partial credit by number of valid distinct groups)","traps":["two_subjects_from_the_same_block","repeat_a_group_reordered"],"app_supported":"no","app_gap_note":"requires structured listing against exclusion constraints with set-equality marking"},
-    {"q":"13","part":"a","marks":2,"skill_ids":["expected_outcomes"],"skill_gap":null,"answer_form":"numeric","framing":["real_world"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["divide_by_the_probability","give_the_complement"],"app_supported":"yes","app_gap_note":null},
-    {"q":"13","part":"b","marks":2,"skill_ids":["probability_spaces"],"skill_gap":null,"answer_form":"show_that","framing":["decision_justify","multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"M1 A1","traps":["treat_the_events_as_mutually_exclusive","stop_before_stating_the_overlap"],"app_supported":"no","app_gap_note":"show-that on a probability total exceeding one; the reasoning must be evidenced"},
-    {"q":"14","part":null,"marks":4,"skill_ids":["proportion","simple_arithmetic","lengths_and_perimeters"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 M1dep M1 A1","traps":["forget_the_return_leg","forget_the_scale_factor","count_the_wrong_number_of_deliveries"],"app_supported":"partial","app_gap_note":"distances measured off a scale drawing, so the answer is accepted over a range"},
-    {"q":"15","part":null,"marks":4,"skill_ids":["function_machines","solving_linear_equations"],"skill_gap":null,"answer_form":"numeric","framing":["bare","inverse_operand","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1 M1dep A1","traps":["run_one_machine_backwards_only","operations_out_of_order"],"app_supported":"yes","app_gap_note":"static machine diagram supported"},
-    {"q":"16","part":null,"marks":3,"skill_ids":["irregular_and_improper_fractions","converting_fractions_to_decimals"],"skill_gap":null,"answer_form":"show_that","framing":["bare","decision_justify","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"M1 M1dep A1","traps":["compare_without_a_common_form","ignore_the_direction_of_the_difference"],"app_supported":"partial","app_gap_note":"choice credited only with both differences shown"},
-    {"q":"17","part":null,"marks":4,"skill_ids":["sequences","simple_arithmetic"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route","inverse_operand"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep M1dep A1","traps":["extend_the_sequence_by_the_wrong_difference","subtract_the_shortfall_from_the_wrong_total"],"app_supported":"yes","app_gap_note":null},
-    {"q":"18","part":null,"marks":4,"skill_ids":["venn_diagrams","frequency_trees"],"skill_gap":null,"answer_form":"table_complete","framing":["real_world","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"exam","mark_split":"B4 (B1 per correct region)","traps":["overlap_counted_twice","forget_the_region_outside_both_sets"],"app_supported":"no","app_gap_note":"Venn multi-cell entry translated from a frequency tree"},
-    {"q":"19","part":null,"marks":2,"skill_ids":["upper_and_lower_bounds"],"skill_gap":null,"answer_form":"expression","framing":["real_world"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B2 (B1 one bound in the correct position)","traps":["half_the_wrong_unit","bounds_reversed"],"app_supported":"partial","app_gap_note":"two-blank error interval; needs inequality-form entry"},
-    {"q":"20","part":null,"marks":1,"skill_ids":["grouped_frequency_tables","mean"],"skill_gap":null,"answer_form":"multiple_choice","framing":["bare","decision_justify"],"calc":"na","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B1 (tick one of four)","traps":["modal_class_assumed_to_be_an_estimate"],"app_supported":"yes","app_gap_note":"genuine tick-box"},
-    {"q":"21","part":null,"marks":4,"skill_ids":["percentage_change"],"skill_gap":null,"answer_form":"numeric","framing":["real_world","multi_route","decision_justify"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1 M1dep A1","traps":["average_the_two_percentages","percentage_change_from_the_wrong_base"],"app_supported":"partial","app_gap_note":"answer combines a percentage with an increase-or-decrease label"},
-    {"q":"22","part":null,"marks":3,"skill_ids":["indices","factors_and_multiples"],"skill_gap":"no node for constrained construction with number properties (choose primes/squares meeting a stated condition); 3 rows, thin","answer_form":"numeric","framing":["bare","inverse_operand","decision_justify"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"B3 (partial credit by conditions met)","traps":["reuse_the_same_prime","non_prime_used","cube_vs_multiply_by_three"],"app_supported":"partial","app_gap_note":"three-blank calculation graded against several simultaneous conditions"},
-    {"q":"23","part":null,"marks":3,"skill_ids":["trigonometry_missing_angles"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["wrong_trig_ratio","calculator_in_radians","forget_the_inverse_function"],"app_supported":"yes","app_gap_note":"static diagram supported; answer accepted over a rounding range"},
-    {"q":"24","part":"a","marks":2,"skill_ids":["tree_diagrams"],"skill_gap":null,"answer_form":"table_complete","framing":["bare"],"calc":"na","multi_part":true,"back_ref":false,"kind":"mastery","mark_split":"B1 B1","traps":["complement_error","use_the_same_probabilities_for_both_bags"],"app_supported":"no","app_gap_note":"tree-diagram multi-cell entry"},
-    {"q":"24","part":"b","marks":2,"skill_ids":["tree_diagrams","combined_events"],"skill_gap":null,"answer_form":"fraction","framing":["bare"],"calc":"calc","multi_part":true,"back_ref":true,"kind":"mastery","mark_split":"M1 A1","traps":["add_not_multiply"],"app_supported":"partial","app_gap_note":"fraction answer needs equivalence checker"},
-    {"q":"25","part":null,"marks":3,"skill_ids":["simultaneous_equations"],"skill_gap":null,"answer_form":"numeric","framing":["bare"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["sign_error_on_elimination","solve_for_one_variable_only"],"app_supported":"partial","app_gap_note":"two-value answer needs a multi-blank response"},
-    {"q":"26","part":"a","marks":3,"skill_ids":["circumfrence_of_a_circle","areas_of_squares_and_rectangles"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":true,"back_ref":false,"kind":"exam","mark_split":"M1 M1dep A1","traps":["use_the_area_formula_for_the_curved_length","use_diameter_for_radius"],"app_supported":"yes","app_gap_note":"static diagram supported"},
-    {"q":"26","part":"b","marks":1,"skill_ids":["areas_of_squares_and_rectangles"],"skill_gap":null,"answer_form":"multiple_choice","framing":["consequence","decision_justify"],"calc":"na","multi_part":true,"back_ref":true,"kind":"mastery","mark_split":"B1 (tick: equal to the rectangle)","traps":["assume_a_slanted_net_has_a_different_area"],"app_supported":"yes","app_gap_note":"genuine tick-box"},
-    {"q":"26","part":"c","marks":1,"skill_ids":["lengths_and_perimeters"],"skill_gap":null,"answer_form":"multiple_choice","framing":["consequence","decision_justify"],"calc":"na","multi_part":true,"back_ref":true,"kind":"mastery","mark_split":"B1 (tick: more than the rectangle)","traps":["assume_perimeter_follows_area"],"app_supported":"yes","app_gap_note":"genuine tick-box"},
-    {"q":"27","part":null,"marks":3,"skill_ids":["alternate_and_corresponding_angles","solving_linear_equations"],"skill_gap":null,"answer_form":"numeric","framing":["bare","multi_route"],"calc":"calc","multi_part":false,"back_ref":false,"kind":"mastery","mark_split":"M1 M1dep A1","traps":["alternate_and_corresponding_confused","give_the_unit_angle_not_the_multiple"],"app_supported":"yes","app_gap_note":"static diagram supported"}
+    {
+      "q": "1",
+      "part": null,
+      "marks": 1,
+      "skill_ids": [
+        "fractions_decimals_and_percentages"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "wrong_power_of_ten"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 1,
+      "skill_ids": [
+        "decimals"
+      ],
+      "skill_gap": "place value naming has no node",
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "give_the_digit_not_its_value"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "3",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "properties_of_2d_shapes"
+      ],
+      "answer_form": "free_text",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "isosceles_named_instead_of_equilateral"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "single-word name; needs synonym matching"
+    },
+    {
+      "q": "3",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "parts_of_a_circle"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "diameter_named_instead_of_chord",
+        "tangent_named_instead_of_chord"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "single-word name; needs synonym matching"
+    },
+    {
+      "q": "4",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "factors_and_multiples"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B2 (B1 most factors with no extras)",
+      "traps": [
+        "omit_one_or_the_number_itself",
+        "include_a_non_factor"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "list answer; needs set-equality marking"
+    },
+    {
+      "q": "5",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "substitution",
+        "indices"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "given_formula"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "square_vs_double",
+        "order_of_operations"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "5",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "rearranging_formulae"
+      ],
+      "skill_gap": null,
+      "answer_form": "expression",
+      "framing": [
+        "bare",
+        "inverse_operand"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "sign_error_on_transfer"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "algebraic answer needs equivalence checker"
+    },
+    {
+      "q": "6",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "coordinates"
+      ],
+      "skill_gap": null,
+      "answer_form": "coordinate",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "axis_swap",
+        "endpoint_not_midpoint"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "coordinate answer needs pair-equivalence checker"
+    },
+    {
+      "q": "6",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "areas_of_triangles"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1",
+      "traps": [
+        "forget_half"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static grid diagram supported"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "proportion"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "use_two_not_twenty_four_months",
+        "scale_from_the_wrong_period"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "volume_of_a_prism"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "surface_area_instead_of_volume",
+        "rounding_to_the_wrong_place"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported"
+    },
+    {
+      "q": "9",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "simple_charts"
+      ],
+      "skill_gap": null,
+      "answer_form": "free_text",
+      "framing": [
+        "decision_justify",
+        "consequence"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B2 (B1 per correct mistake identified)",
+      "traps": [
+        "vague_criticism_of_the_pictogram",
+        "name_the_key_without_saying_why"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "spot-the-error free text; two distinct faults must be named"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "compound_units",
+        "simple_arithmetic"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep M1dep A1",
+      "traps": [
+        "mixed_units_pence_and_pounds",
+        "divide_by_the_wrong_mass"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "11",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "simplifying_expressions"
+      ],
+      "skill_gap": null,
+      "answer_form": "expression",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B3 (B1 per correct collected term)",
+      "traps": [
+        "sign_error_on_the_subtracted_terms",
+        "collect_unlike_terms"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "algebraic answer needs equivalence checker"
+    },
+    {
+      "q": "11",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_expressions",
+        "indices"
+      ],
+      "skill_gap": null,
+      "answer_form": "multiple_choice",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 (circle one of four)",
+      "traps": [
+        "halve_the_index_instead_of_the_coefficient"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "genuine circle-one-answer"
+    },
+    {
+      "q": "12",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "systematic_listing"
+      ],
+      "skill_gap": null,
+      "answer_form": "table_complete",
+      "framing": [
+        "real_world",
+        "decision_justify",
+        "multi_route"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B3 (partial credit by number of valid distinct groups)",
+      "traps": [
+        "two_subjects_from_the_same_block",
+        "repeat_a_group_reordered"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "requires structured listing against exclusion constraints with set-equality marking"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "expected_outcomes"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "divide_by_the_probability",
+        "give_the_complement"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "probability_spaces"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "decision_justify",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "treat_the_events_as_mutually_exclusive",
+        "stop_before_stating_the_overlap"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "show-that on a probability total exceeding one; the reasoning must be evidenced"
+    },
+    {
+      "q": "14",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "proportion",
+        "simple_arithmetic",
+        "lengths_and_perimeters"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1dep M1 A1",
+      "traps": [
+        "forget_the_return_leg",
+        "forget_the_scale_factor",
+        "count_the_wrong_number_of_deliveries"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "distances measured off a scale drawing, so the answer is accepted over a range"
+    },
+    {
+      "q": "15",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "function_machines",
+        "solving_linear_equations"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "inverse_operand",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1 M1dep A1",
+      "traps": [
+        "run_one_machine_backwards_only",
+        "operations_out_of_order"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static machine diagram supported"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "irregular_and_improper_fractions",
+        "converting_fractions_to_decimals"
+      ],
+      "skill_gap": null,
+      "answer_form": "show_that",
+      "framing": [
+        "bare",
+        "decision_justify",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "compare_without_a_common_form",
+        "ignore_the_direction_of_the_difference"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "choice credited only with both differences shown"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "sequences",
+        "simple_arithmetic"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route",
+        "inverse_operand"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep M1dep A1",
+      "traps": [
+        "extend_the_sequence_by_the_wrong_difference",
+        "subtract_the_shortfall_from_the_wrong_total"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": null
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "venn_diagrams",
+        "frequency_trees"
+      ],
+      "skill_gap": null,
+      "answer_form": "table_complete",
+      "framing": [
+        "real_world",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "B4 (B1 per correct region)",
+      "traps": [
+        "overlap_counted_twice",
+        "forget_the_region_outside_both_sets"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "Venn multi-cell entry translated from a frequency tree"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "skill_gap": null,
+      "answer_form": "expression",
+      "framing": [
+        "real_world"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B2 (B1 one bound in the correct position)",
+      "traps": [
+        "half_the_wrong_unit",
+        "bounds_reversed"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "two-blank error interval; needs inequality-form entry"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 1,
+      "skill_ids": [
+        "grouped_frequency_tables",
+        "mean"
+      ],
+      "skill_gap": null,
+      "answer_form": "multiple_choice",
+      "framing": [
+        "bare",
+        "decision_justify"
+      ],
+      "calc": "na",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 (tick one of four)",
+      "traps": [
+        "modal_class_assumed_to_be_an_estimate"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "genuine tick-box"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "percentage_change"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "real_world",
+        "multi_route",
+        "decision_justify"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1 M1dep A1",
+      "traps": [
+        "average_the_two_percentages",
+        "percentage_change_from_the_wrong_base"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "answer combines a percentage with an increase-or-decrease label"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "indices",
+        "factors_and_multiples"
+      ],
+      "skill_gap": "no node for constrained construction with number properties (choose primes/squares meeting a stated condition); 3 rows, thin",
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "inverse_operand",
+        "decision_justify"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B3 (partial credit by conditions met)",
+      "traps": [
+        "reuse_the_same_prime",
+        "non_prime_used",
+        "cube_vs_multiply_by_three"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "three-blank calculation graded against several simultaneous conditions"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "trigonometry_missing_angles"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "wrong_trig_ratio",
+        "calculator_in_radians",
+        "forget_the_inverse_function"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported; answer accepted over a rounding range"
+    },
+    {
+      "q": "24",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams"
+      ],
+      "skill_gap": null,
+      "answer_form": "table_complete",
+      "framing": [
+        "bare"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "B1 B1",
+      "traps": [
+        "complement_error",
+        "use_the_same_probabilities_for_both_bags"
+      ],
+      "app_supported": "no",
+      "app_gap_note": "tree-diagram multi-cell entry"
+    },
+    {
+      "q": "24",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams",
+        "combined_events"
+      ],
+      "skill_gap": null,
+      "answer_form": "fraction",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "traps": [
+        "add_not_multiply"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "fraction answer needs equivalence checker"
+    },
+    {
+      "q": "25",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "simultaneous_equations"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "sign_error_on_elimination",
+        "solve_for_one_variable_only"
+      ],
+      "app_supported": "partial",
+      "app_gap_note": "two-value answer needs a multi-blank response"
+    },
+    {
+      "q": "26",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "circumfrence_of_a_circle",
+        "areas_of_squares_and_rectangles"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": true,
+      "back_ref": false,
+      "kind": "exam",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "use_the_area_formula_for_the_curved_length",
+        "use_diameter_for_radius"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported"
+    },
+    {
+      "q": "26",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "areas_of_squares_and_rectangles"
+      ],
+      "skill_gap": null,
+      "answer_form": "multiple_choice",
+      "framing": [
+        "consequence",
+        "decision_justify"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "mastery",
+      "mark_split": "B1 (tick: equal to the rectangle)",
+      "traps": [
+        "assume_a_slanted_net_has_a_different_area"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "genuine tick-box"
+    },
+    {
+      "q": "26",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "lengths_and_perimeters"
+      ],
+      "skill_gap": null,
+      "answer_form": "multiple_choice",
+      "framing": [
+        "consequence",
+        "decision_justify"
+      ],
+      "calc": "na",
+      "multi_part": true,
+      "back_ref": true,
+      "kind": "mastery",
+      "mark_split": "B1 (tick: more than the rectangle)",
+      "traps": [
+        "assume_perimeter_follows_area"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "genuine tick-box"
+    },
+    {
+      "q": "27",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "alternate_and_corresponding_angles",
+        "solving_linear_equations"
+      ],
+      "skill_gap": null,
+      "answer_form": "numeric",
+      "framing": [
+        "bare",
+        "multi_route"
+      ],
+      "calc": "calc",
+      "multi_part": false,
+      "back_ref": false,
+      "kind": "mastery",
+      "mark_split": "M1 M1dep A1",
+      "traps": [
+        "alternate_and_corresponding_confused",
+        "give_the_unit_angle_not_the_multiple"
+      ],
+      "app_supported": "yes",
+      "app_gap_note": "static diagram supported"
+    }
+  ],
+  "coding_notes": [
+    "q3a RETAGGED to properties_of_2d_shapes (was angles_in_polygons (polygon naming by properties)) when that skill was added to data/skills.ts. The audit had flagged this row as a taxonomy gap; it is no longer one."
   ]
 }

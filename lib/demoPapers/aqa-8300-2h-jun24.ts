@@ -62,7 +62,7 @@ export const AQA_8300_2H_JUN24: PaperConfig = {
     { id: '23',  label: '23',    marks: 4,  topic: 'shape',    skill: 'Vectors + Vector Proof',                                 skillIds: ['vectors', 'vector_proof'], kind: 'mastery', visual: false, desc: 'collinearity proof requires marking a chain of vector expressions plus a parallel/common-point statement' },
     { id: '24a', label: '24(a)', marks: 2,  topic: 'ratio',    skill: 'Inverse Proportion',                                     skillIds: ['inverse_proportion'], kind: 'mastery', visual: false, desc: 'single numeric answer' },
     { id: '24b', label: '24(b)', marks: 2,  topic: 'ratio',    skill: 'Growth and Decay',                                       skillIds: ['growth_and_decay'], kind: 'mastery', visual: false, desc: 'compute value then justify a tick decision; the decision is the assessed deliverable' },
-    { id: '25',  label: '25',    marks: 5,  topic: 'shape',    skill: 'Congruence and Similarity + Volume of a prism',          skillIds: ['congruence_and_similarity', 'volume_of_a_prism'], kind: 'exam', visual: false, desc: 'single numeric total edge length' },
+    { id: '25',  label: '25',    marks: 5,  topic: 'shape',    skill: 'Area and Volume Scale Factors + Volume of a prism',      skillIds: ['area_and_volume_scale_factors', 'volume_of_a_prism'], kind: 'exam', visual: false, desc: 'single numeric total edge length' },
   ],
 
   // See the header: both are hand-authored and the audit has no question text.

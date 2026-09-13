@@ -17,10 +17,6 @@ import type { PaperConfig } from './types'
  *
  * `desc` is the audit's own note about what each question asks for, not the
  * question text.
- *
- * KNOWN GAPS in this paper, carried here so they survive regeneration:
- *   • item 4(ai) is untagged by design — filed under Shape and Space, contributing 2 mark(s) with no skill evidence. Check coding_notes says why.
- *   • item 4(b) is untagged by design — filed under Shape and Space, contributing 1 mark(s) with no skill evidence. Check coding_notes says why.
  */
 export const OCR_J560_02_JUN25: PaperConfig = {
   id: 'ocr-j560-02-jun25',
@@ -42,9 +38,9 @@ export const OCR_J560_02_JUN25: PaperConfig = {
     { id: '2',     label: '2',       marks: 2,  topic: 'shape',    skill: 'Areas of Triangles',                                                       skillIds: ['areas_of_triangles'], kind: 'mastery', visual: false, desc: 'area of a right-angled triangle from base and height' },
     { id: '3a',    label: '3(a)',    marks: 1,  topic: 'number',   skill: 'Multiplying Fractions',                                                    skillIds: ['multiplying_fractions'], kind: 'mastery', visual: false, desc: 'half of a unit fraction' },
     { id: '3b',    label: '3(b)',    marks: 1,  topic: 'number',   skill: 'Adding and Subtracting Fractions',                                         skillIds: ['adding_and_subtracting_fractions'], kind: 'mastery', visual: false, desc: 'add two fractions with the same denominator' },
-    { id: '4ai',   label: '4(ai)',   marks: 2,  topic: 'shape',    skill: 'Untagged',                                                                 skillIds: [], kind: 'mastery', visual: false, desc: 'name two 2D shapes from their pictures' },
+    { id: '4ai',   label: '4(ai)',   marks: 2,  topic: 'shape',    skill: 'Properties of 2D Shapes',                                                  skillIds: ['properties_of_2d_shapes'], kind: 'mastery', visual: false, desc: 'name two 2D shapes from their pictures' },
     { id: '4aii',  label: '4(aii)',  marks: 1,  topic: 'shape',    skill: 'Symmetry (Line and Rotational)',                                           skillIds: ['symmetry'], kind: 'mastery', visual: false, desc: 'order of rotational symmetry of a 2D shape' },
-    { id: '4b',    label: '4(b)',    marks: 1,  topic: 'shape',    skill: 'Untagged',                                                                 skillIds: [], kind: 'mastery', visual: true, desc: 'add notation to a triangle to show it is isosceles' },
+    { id: '4b',    label: '4(b)',    marks: 1,  topic: 'shape',    skill: 'Properties of 2D Shapes',                                                  skillIds: ['properties_of_2d_shapes'], kind: 'mastery', visual: true, desc: 'add notation to a triangle to show it is isosceles' },
     { id: '5a',    label: '5(a)',    marks: 1,  topic: 'probdata', skill: 'Simple Charts',                                                            skillIds: ['simple_charts'], kind: 'mastery', visual: false, desc: 'read one value off a bar chart' },
     { id: '5b',    label: '5(b)',    marks: 2,  topic: 'probdata', skill: 'Simple Charts',                                                            skillIds: ['simple_charts'], kind: 'mastery', visual: false, desc: 'difference between two bars on a bar chart' },
     { id: '5c',    label: '5(c)',    marks: 1,  topic: 'probdata', skill: 'Simple Charts',                                                            skillIds: ['simple_charts'], kind: 'mastery', visual: true, desc: 'complete a bar chart from a given figure' },

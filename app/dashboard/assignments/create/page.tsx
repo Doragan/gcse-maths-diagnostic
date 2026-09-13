@@ -7,6 +7,7 @@ import { supabase } from '../../../../lib/supabase'
 import { getTeacherClasses, getClassMembers, type TeacherClass, type ClassMember } from '../../../../lib/classes'
 import { createAssignment } from '../../../../lib/assignments'
 import { skills } from '../../../../data/skills'
+import { usePublishedSkillIds, isPractisable } from '../../../../lib/skills/publishedSkills'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, radius, card,
@@ -43,6 +44,7 @@ const COMPLETION_OPTIONS = [
 ]
 
 export default function CreateAssignmentPage() {
+  const published = usePublishedSkillIds()
   const router = useRouter()
   const dateInputRef = useRef<HTMLInputElement>(null)
 
@@ -173,11 +175,12 @@ export default function CreateAssignmentPage() {
   }
 
   // ── Skill lists filtered by topic ────────────────────────────────────────
+  // Only skills with a published question — there is nothing to assign for the rest.
   const skillsForBrowseTopic = browseTopic
-    ? skills.filter(s => s.topic === browseTopic)
+    ? skills.filter(s => s.topic === browseTopic && isPractisable(s.id, published))
     : []
   const skillsForPoolTopic = poolTopic
-    ? skills.filter(s => s.topic === poolTopic)
+    ? skills.filter(s => s.topic === poolTopic && isPractisable(s.id, published))
     : []
 
   return (
