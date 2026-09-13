@@ -63,8 +63,12 @@ export type WeeklyNudgeEmailInput = {
   displayName: string
   /** Questions answered so far in the current week. */
   answered: number
+  /** Distinct days practised so far in the current week. */
+  days: number
   /** The weekly goal (injected rather than imported, so the email states what the cron actually used). */
   goal: number
+  /** Days the goal must be spread over (injected for the same reason as the goal). */
+  minDays: number
   /** Click-tracked URL that redirects to practice (CTA target). */
   practiceUrl: string
   /** One-click unsubscribe URL (opaque send-id token, no login needed). */
@@ -82,16 +86,32 @@ export function buildWeeklyNudgeEmail(input: WeeklyNudgeEmailInput): BuiltEmail 
   const greet = name ? `Hi ${escapeHtml(name)},` : 'Hi there,'
 
   const remaining = Math.max(0, input.goal - input.answered)
+  const daysShort = Math.max(0, input.minDays - input.days)
   const q = (n: number) => `${n} question${n === 1 ? '' : 's'}`
+  const d = (n: number) => `${n} day${n === 1 ? '' : 's'}`
 
   // Lead with what they've done, not what they haven't. The number they are
   // short by follows as information, not as a demand.
+  // Two ways to be short of a goal that is "N questions across M days": the
+  // count, the spread, or both. Someone who did the whole count in one sitting
+  // has nothing left to answer, so "0 questions to go" would read as finished —
+  // the subject has to name the day instead.
+  const shortfall = remaining > 0 ? `${q(remaining)} to go` : 'one more day to go'
   const subject = name
-    ? `Nice work this week, ${name} — ${q(remaining)} to go`
-    : `Nice work this week — ${q(remaining)} to go`
+    ? `Nice work this week, ${name} — ${shortfall}`
+    : `Nice work this week — ${shortfall}`
 
-  const didLine = `You’ve answered ${q(input.answered)} on Mathsense this week.`
-  const goLine  = `That leaves ${q(remaining)} to reach your weekly goal of ${input.goal}.`
+  const didLine  = `You’ve answered ${q(input.answered)} on Mathsense this week, on ${d(input.days)}.`
+  const goalLine = `Your weekly goal is ${q(input.goal)} across ${d(input.minDays)}.`
+  // Naming the day as part of the goal, rather than as a separate ask, is the
+  // whole point of the spread rule: coming back IS the goal, not a nag on top
+  // of it. Still no deadline and no countdown — any day will do.
+  const goLine =
+    remaining > 0 && daysShort > 0
+      ? `${goalLine} That leaves ${q(remaining)}, and another day to practise on.`
+      : remaining > 0
+        ? `${goalLine} That leaves ${q(remaining)}.`
+        : `${goalLine} You’ve answered plenty — a few more on any other day finishes it off.`
   // The anti-pressure line. Load-bearing: it is what stops this being a
   // countdown email, and it is a true description of how the model works.
   const easeLine = `No rush though — the goal starts fresh every Monday, and a quiet week doesn’t undo anything you’ve already learned.`

@@ -8,7 +8,7 @@ import { trackEvent } from '../../../lib/analytics'
 import { studentMastery, placementGapIds, type MasteryStatus, type SkillMastery } from '../../../lib/skills/masteryEngine'
 import { skillsById, getPrerequisiteTree } from '../../../lib/skills/skillGraph'
 import { buildProgressSeries, type ProgressSeries } from '../../../lib/skills/progressSeries'
-import { computeWeeklyGoal, WEEKLY_GOAL, type WeeklyGoalProgress } from '../../../lib/skills/weeklyGoal'
+import { computeWeeklyGoal, daysToGoal, WEEKLY_GOAL, type WeeklyGoalProgress } from '../../../lib/skills/weeklyGoal'
 import { skills } from '../../../data/skills'
 import { isPaidStudent } from '../../../lib/entitlements'
 import FeedbackWidget from '../../../components/FeedbackWidget'
@@ -234,6 +234,11 @@ export default function StudentDashboardPage() {
   const weeklyAnswered = weekly?.answered ?? 0
   const weeklyStreak = weekly?.streak ?? 0
   const weeklyMet = weekly?.met ?? false
+  // Days still to practise on. Only ever surfaced when the COUNT is already
+  // there: otherwise "1 more day" would compete with the questions number and
+  // say two things at once in a 60px column.
+  const weeklyDaysToGo = weekly ? daysToGoal(weekly) : 0
+  const weeklyCountDone = weeklyAnswered >= (weekly?.goal ?? WEEKLY_GOAL)
 
   const hasAttempts = totalAttempts > 0
 
@@ -446,7 +451,14 @@ export default function StudentDashboardPage() {
             streak" wrapped to three.
           */}
           <Stat
-            label={weeklyStreak > 0 ? `🔥 ${weeklyStreak} week${weeklyStreak === 1 ? '' : 's'}` : 'This week'}
+            label={
+              // A student who did the whole count in one sitting is NOT done —
+              // the goal is 10 across 2 days. Without this the card would show
+              // "12/10" in a neutral colour and explain nothing.
+              weeklyCountDone && weeklyDaysToGo > 0
+                ? `${weeklyDaysToGo} more day${weeklyDaysToGo === 1 ? '' : 's'}`
+                : weeklyStreak > 0 ? `🔥 ${weeklyStreak} week${weeklyStreak === 1 ? '' : 's'}` : 'This week'
+            }
             value={`${weeklyAnswered}/${WEEKLY_GOAL}`}
             color={
               weeklyMet ? colors.successText

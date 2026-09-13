@@ -34,7 +34,7 @@ import './env'
 import { Resend } from 'resend'
 import { buildReengagementEmail } from '../lib/email/reengagement'
 import { buildWeeklyNudgeEmail } from '../lib/email/weeklyNudge'
-import { WEEKLY_GOAL } from '../lib/skills/weeklyGoal'
+import { WEEKLY_GOAL, MIN_GOAL_DAYS } from '../lib/skills/weeklyGoal'
 
 const MAX_RECIPIENTS = 6
 
@@ -118,7 +118,9 @@ const emails = [
     ...buildWeeklyNudgeEmail({
       displayName: 'Alex',
       answered:    7,
+      days:        1,
       goal:        WEEKLY_GOAL,
+      minDays:     MIN_GOAL_DAYS,
       practiceUrl:    `${siteUrl}/api/email/click?s=${TOKEN}&k=nudge`,
       unsubscribeUrl: `${siteUrl}/api/email/unsubscribe?s=${TOKEN}&k=nudge`,
     }),

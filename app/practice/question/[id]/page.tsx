@@ -23,7 +23,7 @@ import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import { calculatorValuesFor, type CalculatorFilter } from '../../../../lib/questions/calculator'
 import { getCalculatorFilter } from '../../../../lib/questions/calculatorPreference'
 import { isCheckpoint, closestToMastery, SESSION_LENGTH } from '../../../../lib/practice/session'
-import { computeWeeklyGoal } from '../../../../lib/skills/weeklyGoal'
+import { computeWeeklyGoal, questionsToGoal, daysToGoal } from '../../../../lib/skills/weeklyGoal'
 import { pickStepUp, type StepUpCandidate } from '../../../../lib/skills/stepUp'
 import { masteryStatusFor, attemptsToMastery } from '../../../../lib/skills/masteryEngine'
 import type { QuestionPart } from '../../../../lib/questions/parts'
@@ -206,7 +206,9 @@ function QuestionPage() {
   // This week's progress, fetched only when the summary opens. Null while
   // loading or for an anonymous student, in which case the line is omitted
   // rather than guessed at.
-  const [weekly, setWeekly] = useState<{ answered: number; goal: number } | null>(null)
+  const [weekly, setWeekly] = useState<{
+    answered: number; goal: number; toGo: number; daysToGo: number; met: boolean
+  } | null>(null)
   // How the summary was opened, which decides what "Keep practising" means:
   // continue to the next question (the checkpoint interrupted that), or simply
   // close (they opened it themselves mid-question).
@@ -691,7 +693,10 @@ function QuestionPage() {
       .then(({ data }) => {
         if (!data) return
         const w = computeWeeklyGoal(data as { attempted_at: string }[])
-        setWeekly({ answered: w.answered, goal: w.goal })
+        setWeekly({
+          answered: w.answered, goal: w.goal, met: w.met,
+          toGo: questionsToGoal(w), daysToGo: daysToGoal(w),
+        })
       })
   }
 
@@ -1426,9 +1431,20 @@ function QuestionPage() {
                   {weekly && (
                     <p style={{ fontSize: font.base, color: colors.textPrimary, margin: 0 }}>
                       <strong>{weekly.answered}/{weekly.goal}</strong> this week
-                      {weekly.answered >= weekly.goal
+                      {/*
+                        The goal is a count AND a spread, so "10/10" is not
+                        necessarily done. Saying "come back on another day"
+                        here is the point of the two-day rule: this line shows
+                        at the checkpoint, the moment a student is deciding
+                        whether to stop.
+                      */}
+                      {weekly.met
                         ? ' — goal reached 🎉'
-                        : ` — ${weekly.goal - weekly.answered} to go`}
+                        : weekly.toGo > 0 && weekly.daysToGo > 0
+                          ? ` — ${weekly.toGo} to go, on another day`
+                        : weekly.toGo > 0
+                          ? ` — ${weekly.toGo} to go`
+                          : ' — come back on another day to finish the week'}
                     </p>
                   )}
                   {nextUp && (
