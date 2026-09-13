@@ -3,7 +3,7 @@ import { PAPERS } from '../demoPapers/index'
 import { buildStudentEvidence, buildClassEvidence } from './feedbackEvidence'
 import {
   toWwwEbi, toWwwEbiSheets,
-  MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, NEAR_MISS_RATIO, STRUGGLING_RATIO,
+  MAX_WWW, MAX_EBI_TOPICS, MAX_PRACTICE, MAX_QUESTIONS, NEAR_MISS_RATIO, STRUGGLING_RATIO,
 } from './wwwEbi'
 import {
   STRONG_PHRASES, NEAR_MISS_PHRASES, PARTIAL_PHRASES, STRUGGLING_PHRASES,
@@ -248,9 +248,19 @@ describe('practice and challenge', () => {
     expect(s.practice[0].parts[0].skill).toBe('Equations')
   })
 
-  it('offers challenges to a student doing well overall, on their strong topics', () => {
+  it('offers a challenge to a student doing well overall, on their strongest topic', () => {
     const s = sheetFor({ '1': 5, '2': 7, '3': 4, '4': 3 })
-    expect(s.challenge.map(c => c.skill)).toEqual(['Standard Form', 'Reverse Percentages'])
+    expect(s.challenge.map(c => c.skill)).toEqual(['Standard Form'])
+  })
+
+  // A sheet sets MAX_QUESTIONS questions in total and practice has first claim,
+  // so a challenge question REPLACES the third practice one rather than being
+  // added after it. 16 of 20 clears the bar for extension work while still
+  // dropping marks on three separate questions.
+  it('spends a practice slot on the challenge rather than adding to the pile', () => {
+    const s = sheetFor({ '1': 5, '2': 6, '3': 3, '4': 2 })
+    expect(s.challenge).toHaveLength(1)
+    expect(s.practice.length + s.challenge.length).toBe(MAX_QUESTIONS)
   })
 
   // The regression this guards: judged on topics alone, a struggling student

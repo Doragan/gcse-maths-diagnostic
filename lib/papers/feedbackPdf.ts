@@ -545,11 +545,15 @@ type Cursor = { y: number }
 async function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfOptions): Promise<void> {
   const c: Cursor = { y: MARGIN_TOP }
 
-  // Paper identity first, small — the sheet is about the student, not the paper.
+  // Paper identity first, small — the sheet is about the student, not the
+  // paper. ONE line: which paper on the left, when it was sat on the right.
+  //
+  // The full title ("AQA GCSE Mathematics 8300/3F") is deliberately NOT here.
+  // The subtitle already names the tier, the paper and the series, and three
+  // grey lines above the student's own name spent the top of the sheet on the
+  // least interesting thing on it. The teacher copy still carries both.
   setGrey(doc, 10)
-  line(doc, c, options.paperTitle)
-  if (options.paperSubtitle) line(doc, c, options.paperSubtitle)
-  if (options.satOn) line(doc, c, `Sat ${options.satOn}`)
+  splitLine(doc, c, options.paperSubtitle ?? options.paperTitle, options.satOn ? `Sat ${options.satOn}` : '')
   c.y += 4
 
   setBlack(doc, 18, 'bold')
@@ -806,6 +810,24 @@ function line(doc: jsPDF, c: Cursor, text: string, advance = 5.5, size?: number)
   ensureSpace(doc, c, advance)
   drawRuns(doc, runs, MARGIN_X, c.y, size_)
   c.y += advance + extraLeading(runs, size_)
+}
+
+/**
+ * Two texts on one line: `left` at the margin, `right` ending flush with the
+ * right-hand edge of the content.
+ *
+ * Plain text only. It measures with getTextWidth, which knows nothing about
+ * the superscript and fraction runs drawRuns can draw — and nothing that
+ * belongs on a header line needs them.
+ */
+function splitLine(doc: jsPDF, c: Cursor, left: string, right: string, advance = 5.5): void {
+  ensureSpace(doc, c, advance)
+  if (left) doc.text(toPdfSafe(left), MARGIN_X, c.y)
+  if (right) {
+    const text = toPdfSafe(right)
+    doc.text(text, MARGIN_X + CONTENT_WIDTH - doc.getTextWidth(text), c.y)
+  }
+  c.y += advance
 }
 
 /** Text that may need more than one line, at the current font. */

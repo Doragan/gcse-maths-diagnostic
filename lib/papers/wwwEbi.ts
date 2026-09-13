@@ -105,11 +105,24 @@ export const MIN_TOPIC_MARKS = 3
  * teacher who wanted twelve bullet points would have written them. Worst- and
  * best-first ordering upstream means a cap keeps the most important lines.
  */
-export const MAX_WWW = 4
-export const MAX_EBI_TOPICS = 3
+export const MAX_WWW = 3
+/**
+ * TOPIC sentences in "Even better if". The section runs to MAX_EBI_TOPICS + 1,
+ * the extra line being the one that names the specific skills — so two topics
+ * plus that line is the three points the section is allowed.
+ */
+export const MAX_EBI_TOPICS = 2
 export const MAX_FOCUS_SKILLS = 3
 export const MAX_PRACTICE = 3
-export const MAX_CHALLENGE = 2
+export const MAX_CHALLENGE = 1
+/**
+ * Questions on a sheet, practice and extension together.
+ *
+ * Three practice questions AND two to push on is a worksheet, not a feedback
+ * sheet, and it ran every sheet to a second page. Practice has first claim on
+ * the slots: a challenge question costs one rather than adding to the pile.
+ */
+export const MAX_QUESTIONS = 3
 /** How many skills the "full marks on every question testing…" line may name. */
 export const MAX_FULL_MARK_SKILLS = 3
 
@@ -337,17 +350,21 @@ export function toWwwEbi(evidence: StudentEvidence): WwwEbiSheet {
     ebi.push(pickPhrase(FOCUS_PHRASES, ref, ebi.length)(listOf(focusSkills)))
   }
 
+  // ── Questions ─────────────────────────────────────────────────────────────
+  // Extension work is for students who are actually ahead — see the constant.
+  const challenge = highAchieving(evidence)
+    ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))
+    : []
+
   return {
     studentRef: ref,
     score: `${evidence.earned} out of ${evidence.available} (${evidence.percentage}%)`,
     coverage: evidence.coverage.fullPaper ? null : coverageLine(evidence),
     www,
     ebi,
-    practice: groupPractice(evidence),
-    // Extension work is for students who are actually ahead — see the constant.
-    challenge: highAchieving(evidence)
-      ? evidence.challenges.slice(0, MAX_CHALLENGE).map(c => ({ skill: c.skill, question: c.question }))
-      : [],
+    // MAX_QUESTIONS across both sections, practice first — see the constant.
+    practice: groupPractice(evidence).slice(0, MAX_QUESTIONS - challenge.length),
+    challenge,
   }
 }
 
