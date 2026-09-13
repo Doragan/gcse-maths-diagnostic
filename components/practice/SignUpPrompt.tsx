@@ -137,7 +137,7 @@ export default function SignUpPrompt({ onDismiss }: { onDismiss: () => void }) {
           onBeforeSignIn={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'google' })}
         />
         <a
-          href="/student"
+          href="/student?mode=signup"
           onClick={() => trackEvent('practice_signup_prompt_clicked', { questions: total, method: 'email' })}
           style={{ ...secondaryButton, textAlign: 'center' as const, textDecoration: 'none', display: 'block', boxSizing: 'border-box' as const }}
         >
