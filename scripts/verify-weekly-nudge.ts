@@ -13,7 +13,7 @@
  */
 import './env'
 import { createClient } from '@supabase/supabase-js'
-import { WEEKLY_GOAL, mondayOf, weekStartDate } from '../lib/skills/weeklyGoal'
+import { WEEKLY_GOAL, MIN_GOAL_DAYS, mondayOf, weekStartDate } from '../lib/skills/weeklyGoal'
 import { buildWeeklyNudgeEmail, nudgeActiveDays } from '../lib/email/weeklyNudge'
 
 const url     = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -32,6 +32,9 @@ const LAPSED_DAYS  = parseInt(process.env.REENGAGEMENT_DAYS || '', 10) || 4
 const ACTIVE_DAYS  = RELAXED ? 3650 : nudgeActiveDays(LAPSED_DAYS)
 const MIN_PROGRESS = RELAXED ? 1 : (parseInt(process.env.WEEKLY_NUDGE_MIN_PROGRESS || '', 10) || 3)
 const GOAL         = parseInt(process.env.WEEKLY_GOAL || '', 10) || WEEKLY_GOAL
+// NOT relaxed by --relaxed: lowering it to 1 would NARROW the cohort (the
+// spread clause could never fire), which is the opposite of that flag's job.
+const MIN_DAYS     = parseInt(process.env.WEEKLY_GOAL_MIN_DAYS || '', 10) || MIN_GOAL_DAYS
 
 async function main() {
   const supabase = createClient(url!, service!)
@@ -40,7 +43,7 @@ async function main() {
   const weekKey   = weekStartDate(now)
 
   console.log(`Week beginning ${weekKey} (UTC Monday)`)
-  console.log(`goal=${GOAL}  min_progress=${MIN_PROGRESS}  active_days=${ACTIVE_DAYS}`)
+  console.log(`goal=${GOAL} across ${MIN_DAYS} day(s)  min_progress=${MIN_PROGRESS}  active_days=${ACTIVE_DAYS}`)
   if (RELAXED) {
     console.log('--relaxed: NOT the cron\'s thresholds. Proves the query runs and shows')
     console.log('           who WOULD qualify on a wider window — never what will send.')
@@ -53,16 +56,20 @@ async function main() {
     p_goal:         GOAL,
     p_min_progress: MIN_PROGRESS,
     p_active_days:  ACTIVE_DAYS,
+    p_min_days:     MIN_DAYS,
   })
   if (error) {
     console.error('✗ get_weekly_goal_candidates failed:', error.message)
-    console.error('  Has 20260901_weekly_nudge.sql been applied in the SQL Editor?')
+    console.error('  Has 20260913_weekly_goal_min_days.sql been applied in the SQL Editor?')
+    console.error('  (it adds the five-argument overload this script calls)')
     process.exit(1)
   }
-  const cohort = (data as { student_id: string; answered: number }[]) ?? []
+  const cohort = (data as { student_id: string; answered: number; days: number }[]) ?? []
   console.log(`✓ selector returned ${cohort.length} candidate(s)`)
   for (const c of cohort) {
-    console.log(`    ${c.student_id.slice(0, 8)}…  ${c.answered}/${GOAL} this week`)
+    // Both halves of the goal, so a student who is only short of the SPREAD
+    // is legible here rather than looking like a mistake.
+    console.log(`    ${c.student_id.slice(0, 8)}…  ${c.answered}/${GOAL} over ${c.days} day(s)`)
   }
 
   // ── 2. The frequency cap ────────────────────────────────────────────────────
@@ -82,6 +89,7 @@ async function main() {
   if (anon) {
     const { error: anonErr } = await createClient(url!, anon).rpc('get_weekly_goal_candidates', {
       p_week_start: weekStart, p_goal: GOAL, p_min_progress: MIN_PROGRESS, p_active_days: ACTIVE_DAYS,
+      p_min_days: MIN_DAYS,
     })
     console.log(anonErr
       ? `✓ anon call refused (${anonErr.code ?? 'error'}) — the selector exposes auth.users email`
@@ -93,7 +101,8 @@ async function main() {
   // ── 4. What the first recipient would actually read ─────────────────────────
   if (wouldSend.length > 0) {
     const { subject } = buildWeeklyNudgeEmail({
-      displayName: '', answered: wouldSend[0].answered, goal: GOAL,
+      displayName: '', answered: wouldSend[0].answered, days: wouldSend[0].days,
+      goal: GOAL, minDays: MIN_DAYS,
       practiceUrl: '…', unsubscribeUrl: '…',
     })
     console.log(`\nFirst subject line would be: "${subject}"`)

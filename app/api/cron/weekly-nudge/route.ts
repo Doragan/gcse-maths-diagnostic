@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { buildWeeklyNudgeEmail, nudgeActiveDays } from '../../../../lib/email/weeklyNudge'
 import { SEND_ANALYTICS } from '../../../../lib/email/sendKind'
-import { WEEKLY_GOAL, mondayOf, weekStartDate } from '../../../../lib/skills/weeklyGoal'
+import { WEEKLY_GOAL, MIN_GOAL_DAYS, mondayOf, weekStartDate } from '../../../../lib/skills/weeklyGoal'
 
 // Weekly-goal nudge cron. Emails opted-in students who have practised this week
 // but are still short of the goal. Scheduled for SATURDAY (see vercel.json) —
@@ -31,6 +31,8 @@ type Candidate = {
   email: string
   display_name: string
   answered: number
+  /** Distinct days practised this week — the second half of the goal. */
+  days: number
 }
 
 export async function GET(req: NextRequest) {
@@ -60,6 +62,7 @@ export async function GET(req: NextRequest) {
   const activeDays  = nudgeActiveDays(lapsedDays)
   const minProgress = parseInt(process.env.WEEKLY_NUDGE_MIN_PROGRESS || '', 10) || DEFAULT_MIN_PROGRESS
   const goal        = parseInt(process.env.WEEKLY_GOAL || '', 10) || WEEKLY_GOAL
+  const minDays     = parseInt(process.env.WEEKLY_GOAL_MIN_DAYS || '', 10) || MIN_GOAL_DAYS
 
   const now       = Date.now()
   const weekStart = new Date(mondayOf(now)).toISOString()
@@ -72,11 +75,17 @@ export async function GET(req: NextRequest) {
   const resend = new Resend(resendKey)
 
   // ── Who is short of their goal? ──────────────────────────────────────────────
+  // Short of the goal means short of the COUNT or of the SPREAD — a student who
+  // did all ten in one sitting still has a day to come, and is exactly who this
+  // email is for. The five-argument selector knows about days; the old
+  // four-argument one is left in place so code and migration can deploy in
+  // either order (see the 20260913 migration).
   const { data, error } = await supabase.rpc('get_weekly_goal_candidates', {
     p_week_start:   weekStart,
     p_goal:         goal,
     p_min_progress: minProgress,
     p_active_days:  activeDays,
+    p_min_days:     minDays,
   })
   if (error) {
     console.error('[weekly-nudge] get_weekly_goal_candidates failed:', error.message)
@@ -128,7 +137,9 @@ export async function GET(req: NextRequest) {
     const { subject, html, text } = buildWeeklyNudgeEmail({
       displayName: s.display_name,
       answered:    Number(s.answered) || 0,
+      days:        Number(s.days) || 0,
       goal,
+      minDays,
       practiceUrl,
       unsubscribeUrl,
     })
@@ -162,13 +173,15 @@ export async function GET(req: NextRequest) {
       properties: {
         student_id: s.student_id,
         answered:   Number(s.answered) || 0,
+        days:       Number(s.days) || 0,
         goal,
+        min_days:   minDays,
         week_start: weekKey,
       },
     })
     sent++
   }
 
-  console.log(`[weekly-nudge] run complete — week=${weekKey} cohort=${cohort.length} sent=${sent} failed=${failed}`)
+  console.log(`[weekly-nudge] run complete — week=${weekKey} goal=${goal}/${minDays}d cohort=${cohort.length} sent=${sent} failed=${failed}`)
   return NextResponse.json({ ok: true, week: weekKey, cohort: cohort.length, sent, failed })
 }

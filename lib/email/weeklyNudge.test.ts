@@ -4,7 +4,9 @@ import { buildWeeklyNudgeEmail, nudgeActiveDays } from './weeklyNudge'
 const base = {
   displayName: 'Jamie Smith',
   answered: 7,
+  days: 1,
   goal: 10,
+  minDays: 2,
   practiceUrl: 'https://mathsense.net/api/email/click?s=abc&k=nudge',
   unsubscribeUrl: 'https://mathsense.net/api/email/unsubscribe?s=abc&k=nudge',
 }
@@ -38,14 +40,44 @@ describe('buildWeeklyNudgeEmail', () => {
 
   it('respects a goal other than 10 rather than hardcoding it', () => {
     const { html } = buildWeeklyNudgeEmail({ ...base, answered: 4, goal: 20 })
-    expect(html).toContain('weekly goal of 20')
+    expect(html).toContain('Your weekly goal is 20 questions across 2 days')
     expect(html).toContain('16 questions')
   })
 
+  it('states the spread as part of the goal, not as an extra demand', () => {
+    const { html, text } = buildWeeklyNudgeEmail({ ...base, days: 1, minDays: 2 })
+    for (const body of [html, text]) {
+      expect(body).toContain('Your weekly goal is 10 questions across 2 days')
+      expect(body).toContain('on 1 day')
+    }
+  })
+
+  it('names the day, not a zero, when only the spread is missing', () => {
+    // 12 answers on one day: nothing left to answer, so "0 questions to go"
+    // would read as finished when the week is not.
+    const { subject, html } = buildWeeklyNudgeEmail({ ...base, answered: 12, days: 1 })
+    expect(subject).toBe('Nice work this week, Jamie — one more day to go')
+    expect(subject).not.toContain('0 questions')
+    expect(html).toContain('any other day finishes it off')
+  })
+
+  it('asks for both when both are short', () => {
+    const { html } = buildWeeklyNudgeEmail(base)
+    expect(html).toContain('That leaves 3 questions, and another day to practise on')
+  })
+
+  it('reads as plural once the days are there', () => {
+    const { html } = buildWeeklyNudgeEmail({ ...base, days: 2 })
+    expect(html).toContain('on 2 days')
+    expect(html).not.toContain('on 2 day ')
+  })
+
   it('never reports a negative shortfall', () => {
-    const { subject } = buildWeeklyNudgeEmail({ ...base, answered: 14 })
-    expect(subject).toContain('0 questions to go')
-    expect(subject).not.toContain('-')
+    const { subject } = buildWeeklyNudgeEmail({ ...base, answered: 14, days: 3, minDays: 2 })
+    // Nothing short either way — the subject still has to say something, and
+    // it must not be a negative number.
+    expect(subject).not.toMatch(/-d/)
+    expect(subject).not.toContain('0 questions to go')
   })
 })
 
@@ -57,6 +89,9 @@ describe('buildWeeklyNudgeEmail — no pressure mechanics', () => {
     buildWeeklyNudgeEmail(base),
     buildWeeklyNudgeEmail({ ...base, answered: 9 }),
     buildWeeklyNudgeEmail({ ...base, displayName: '' }),
+    // The spread-only variant: the newest copy path, and the one most at risk
+    // of drifting into "come back before the week ends".
+    buildWeeklyNudgeEmail({ ...base, answered: 12, days: 1 }),
   ]
 
   it('never mentions a deadline or a countdown', () => {
