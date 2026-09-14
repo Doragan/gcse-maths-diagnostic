@@ -390,8 +390,9 @@ truth from the start is both less work and less risk.
 
 | # | Step | Depends on | Size |
 |---|---|---|---|
-| 1 | **Teacher signup entry point.** `/auth` honours `?mode=signup`; the CTAs that promise an account point at it. | — | small |
-| 2 | **Capture `students` and `teachers` in a migration.** No-op to apply; closes the same gap as PR #71. | user-run introspection | small |
+| 1a | **Teacher signup entry point.** `/auth` honours `?mode=signup`; the CTAs that promise an account point at it. | — | small |
+| 1b | **Fix teacher signup itself.** `handle_new_user` and the provision route must supply `teachers.email`. Without this, 1a opens a form that cannot submit. | 2 | small |
+| 2 | **Capture `students` and `teachers` in a migration.** No-op to apply; closes the same gap as PR #71, and is what surfaced 1b. | user-run introspection | small |
 | 3 | **`schools` + `classes.school_id` + `student_has_class_grant()`,** plus surviving class ownership per §4: `classes.teacher_id` and `assignments.teacher_id` nullable with `ON DELETE SET NULL`, and the join route refusing an unowned class. SQL only, inert until step 4. | 2 | medium |
 | 4 | **Wire the class grant through `isPaidStudent`** at every call site in §5, client and server together. | 3 | medium |
 | 5 | **Seat counting + a read-only school row in `app/admin`.** Only once a real school exists. | 4 | small |
@@ -477,9 +478,39 @@ Three things follow.
   constraint is the part worth adding eventually, since the webhook updates
   every matching row.
 
-**Still outstanding:** the columns query, covering types, nullability and
-defaults. It is the last piece, and the capture migration cannot state the table
-definitions exactly without it.
+### 🔴 The columns query found that teacher signup was broken
+
+The last query returned on 2026-09-14, the capture was written, and it exposed
+the thing this whole section was worth doing for.
+
+`teachers.email` is `not null` with no default. `handle_new_user` inserts only
+the id, and so does `/api/auth/provision` for Google. That is a 23502 not-null
+violation, raised inside an `AFTER INSERT` trigger on `auth.users`, which aborts
+the entire signup. Trigger introspection on `public.students` and
+`public.teachers` then returned **zero rows**, so nothing populated the column
+and nothing rescued it.
+
+The evidence fits exactly. Two teacher accounts exist, created 31 March and
+4 April, and none since. Three signup starts and no completions over 90 days.
+Students were unaffected throughout, because `handle_new_student` supplies every
+not-null column on `students` and the Google student path does too. The
+asymmetry between the two tables is precisely where the bug lived.
+
+**This revises §1 of this document.** The missing entry point was real and worth
+fixing, but the form behind it could not have succeeded. The teacher funnel read
+zero for two independent reasons, and step 1 is not complete until both are
+fixed and one throwaway signup has been made by hand. Fixed by supplying the
+column on both paths.
+
+It also revises what the brief said about this area. The teacher problem is
+still distribution, but "nobody arrives" was not the whole story: nobody could
+have completed a signup even if they had.
+
+**One methodological note worth keeping.** Three separate gaps in this area
+turned out to be the same gap: objects that exist only in the database. The
+triggers, caught by PR #71. The tables, caught here. And the policy that carried
+the escalation, which was in version control but had never been re-read. The
+capture is not bookkeeping; every pass over it has found a live defect.
 
 ### Step 2 needs introspection first
 
