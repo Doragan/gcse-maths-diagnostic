@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   colors, font, radius,
   pageContainer, narrowCard, pageTitle,
@@ -11,9 +11,22 @@ import { signIn, signUp, getSession } from '../../lib/auth'
 import { trackEvent } from '../../lib/analytics'
 import { GoogleButton } from '../../components/GoogleButton'
 
-export default function AuthPage() {
+function AuthPage() {
   const router = useRouter()
-  const [isSignUp, setIsSignUp] = useState(false)
+  const searchParams = useSearchParams()
+
+  // A CTA that promises an account has to land on a SIGNUP form. Every teacher
+  // CTA on the site linked to a bare /auth, which renders the login form with
+  // the signup toggle below it — under the submit button and under the
+  // forgot-password link. That included /mark's "Create a free account", shown
+  // straight after a teacher has marked a paper, and the /demo tour's "Create a
+  // teacher account".
+  //
+  // Measured over the 90 days to 2026-09-13: 39 sessions reached /for-teachers,
+  // 3 ever fired teacher_signup_start (i.e. found the toggle), and 0 completed.
+  // Same defect, same fix as /student in PR #70, where 10 of 10 email signups
+  // were lost to it.
+  const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -21,7 +34,8 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
 
-  // Track teacher_signup_start once when they first switch to the signup form
+  // Track teacher_signup_start once — on the toggle, or immediately on mount
+  // when ?mode=signup opened the form directly.
   const signupTracked = useRef(false)
   useEffect(() => {
     if (isSignUp && !signupTracked.current) {
@@ -187,6 +201,18 @@ export default function AuthPage() {
         </button>
       </div>
     </main>
+  )
+}
+
+/**
+ * useSearchParams needs a Suspense boundary in the app router. Same wrapper as
+ * app/student/page.tsx.
+ */
+export default function AuthPageWrapper() {
+  return (
+    <Suspense fallback={<main style={pageContainer}><div style={narrowCard}><p>Loading…</p></div></main>}>
+      <AuthPage />
+    </Suspense>
   )
 }
 

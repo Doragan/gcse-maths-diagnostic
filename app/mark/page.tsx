@@ -432,7 +432,7 @@ export default function FreeMarkingPage() {
               with this one and you can see what has actually improved.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <Link href="/auth" style={{ ...primaryButton, width: 'auto', textDecoration: 'none', display: 'inline-block' }}>
+              <Link href="/auth?mode=signup" style={{ ...primaryButton, width: 'auto', textDecoration: 'none', display: 'inline-block' }}>
                 Create a free account
               </Link>
               <Link href="/for-teachers" style={{ ...secondaryButton, width: 'auto', textDecoration: 'none', display: 'inline-block' }}>

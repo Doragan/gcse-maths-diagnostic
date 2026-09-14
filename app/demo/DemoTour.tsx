@@ -291,7 +291,7 @@ export default function DemoTour({ demoPool, demoQuestion, stats }: {
               Tell me what you think
             </Link>
             <Link
-              href="/auth"
+              href="/auth?mode=signup"
               onClick={() => trackEvent('tour_signup_clicked')}
               style={{
                 background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff',
