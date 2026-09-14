@@ -259,6 +259,40 @@ entitlement flips. Class memberships survive too — the consent the student gav
 did not expire, so the teacher's view and the student's history both persist and
 the grant resumes if the school renews.
 
+**A departing teacher currently takes the school's classes with them.** Found in
+the constraints introspection on 2026-09-14, and it is the most consequential
+thing that pass turned up. Every link in this chain is `ON DELETE CASCADE`:
+
+```
+auth.users -> teachers -> classes     -> class_memberships
+                       -> assignments -> assignment_targets
+                                      -> assignment_attempts
+```
+
+So deleting one teacher's account destroys their classes, every membership row
+in them, every assignment, and **every student's attempts at those assignments**.
+The last of those is student-owned work deleted by someone else's action, which
+contradicts the principle the rest of this design rests on. Core mastery history
+survives, because `practice_attempts` hangs off the student rather than the
+teacher, but assignment work does not.
+
+For an individual teacher that is merely untidy. For a school it is a real
+operational hazard: staff turnover is normal, and a school buying seats cannot
+have a leaver's account deletion erase class records and pupil work.
+
+**Recommended, as part of step 3:** once `classes.school_id` exists, make
+`classes.teacher_id` nullable with `ON DELETE SET NULL`, and the same for
+`assignments.teacher_id`. A class then survives its teacher and belongs to the
+school, and reassignment is one `update`. The existing RLS needs no change to be
+safe: `teacher_owns_class()` compares `teacher_id` to `auth.uid()`, and a null
+never matches, so an unowned class is invisible until a human reassigns it.
+
+Two details that come with it. A class with no teacher **and** no school is an
+orphan nobody can see, which is harmless but should be swept periodically rather
+than accumulating. And `app/api/classes/join` resolves a code to a class without
+checking who owns it, so it would still admit students to an orphaned class and
+grant them nothing. That check belongs in the same step.
+
 **Leaving a class ends the class grant at once, with no tail.** The tempting
 answer is a grace period, but the Children's Code argument actually runs the
 other way: what it asks for is that the child understands what happens, not that
@@ -358,7 +392,7 @@ truth from the start is both less work and less risk.
 |---|---|---|---|
 | 1 | **Teacher signup entry point.** `/auth` honours `?mode=signup`; the CTAs that promise an account point at it. | — | small |
 | 2 | **Capture `students` and `teachers` in a migration.** No-op to apply; closes the same gap as PR #71. | user-run introspection | small |
-| 3 | **`schools` + `classes.school_id` + `student_has_class_grant()`.** SQL only; inert until step 4. | 2 | medium |
+| 3 | **`schools` + `classes.school_id` + `student_has_class_grant()`,** plus surviving class ownership per §4: `classes.teacher_id` and `assignments.teacher_id` nullable with `ON DELETE SET NULL`, and the join route refusing an unowned class. SQL only, inert until step 4. | 2 | medium |
 | 4 | **Wire the class grant through `isPaidStudent`** at every call site in §5, client and server together. | 3 | medium |
 | 5 | **Seat counting + a read-only school row in `app/admin`.** Only once a real school exists. | 4 | small |
 | 6 | **`teachers.school_id`, teacher entitlement, paid tier, refunds.** | §6A | blocked |
@@ -421,9 +455,31 @@ of a clause written to answer "which rows can this caller see". §3 already
 specifies `schools` with RLS enabled and **no policy at all**, which is the
 right shape, and any policy added later should name its command explicitly.
 
-**Still outstanding:** the three remaining queries, covering columns with types
-and defaults, constraints, and indexes. Those are what the capture migration
-needs in order to state the table definitions exactly.
+**Constraints and indexes came back on 2026-09-14.** Both tables are minimal:
+
+| | `students` | `teachers` |
+|---|---|---|
+| Primary key | `id` | `id` |
+| Foreign key | `id` to `auth.users(id)`, cascade | `id` to `auth.users(id)`, cascade |
+| Check | `subscription_tier in ('free','paid')` | none |
+| Indexes | the primary key only | the primary key only |
+
+Three things follow.
+
+- The cascade from `auth.users` is the head of the chain described in §4, where
+  deleting a teacher account destroys their classes and their students'
+  assignment work. That is the finding this pass was worth having for.
+- `subscription_tier` is constrained to the two values `isPaidStudent` expects,
+  so the personal arm of the union cannot be fed a third value.
+- No index exists on `stripe_subscription_id`, which the Stripe webhook looks
+  rows up by, and no unique constraint either. At the current number of students
+  the scan costs nothing, and this is noted rather than proposed: the unique
+  constraint is the part worth adding eventually, since the webhook updates
+  every matching row.
+
+**Still outstanding:** the columns query, covering types, nullability and
+defaults. It is the last piece, and the capture migration cannot state the table
+definitions exactly without it.
 
 ### Step 2 needs introspection first
 
