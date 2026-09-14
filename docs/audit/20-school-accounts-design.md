@@ -272,6 +272,13 @@ and sitting results. That is a real distinction and it is the honest one, but a
 school's data protection officer will ask for it in writing, and that answer
 needs more than an inference from the schema (§6C).
 
+One concrete fact supports it, confirmed by introspection on 2026-09-14:
+**`public.students` has no email column.** A student's email address exists only
+in `auth.users`, which no teacher-facing query reaches. Whatever the school is
+told about controllership, it cannot obtain a child's email address through the
+class-scoped view, because the application's own student table does not hold
+one.
+
 ---
 
 ## 5. What the class grant changes in the code
@@ -358,6 +365,39 @@ until a school is provisioned.
 **Not built, per the brief:** school self-signup, a provisioning UI, and any
 further teacher feature before one real class has used the existing ones for a
 term.
+
+### What the first introspection pass returned (2026-09-14)
+
+The column-privileges query has been run. It settles three things and turned up
+one defect.
+
+**Confirmed column inventory.** `students` holds `id`, `display_name`,
+`year_group`, `confirmed_13`, `created_at`, `subscription_tier`, `paid_until`,
+`stripe_customer_id`, `stripe_subscription_id`, `mini_exam_period`,
+`mini_exams_used`. `teachers` holds `id`, `email`, `created_at`,
+`free_assessments_used`, `is_admin`, `paid_until`.
+
+- Neither table has a `school_id`, as §3 assumed.
+- `teachers.paid_until` already exists, so step 6 needs no new column for
+  teacher entitlement, only a price and a writer.
+- **`students` has no email column at all.** Student email addresses live only
+  in `auth.users`. This is worth stating to a school's data protection officer:
+  the school's teachers cannot read a student's email through the application's
+  tables, because the application does not hold one. It strengthens the position
+  in §4 rather than merely being consistent with it.
+
+**The 2026-06-11 lockdown held.** No UPDATE and no DELETE remains for `anon` or
+`authenticated` on either table.
+
+**One defect, fixed separately.** Both client roles still held INSERT on every
+column of both tables. `20260611_lock_sensitive_columns.sql` revoked UPDATE and
+only UPDATE, while a comment in `app/api/auth/provision/route.ts` asserted that
+INSERT had been revoked too. Closed in its own PR, not folded in here, per the
+PR #71 rule that a capture file must not also change behaviour.
+
+**Still outstanding:** the other four queries, and the RLS policies query most
+of all. Until the INSERT and SELECT policies are known, the capture migration
+cannot honestly record the row-level half of the gate.
 
 ### Step 2 needs introspection first
 
