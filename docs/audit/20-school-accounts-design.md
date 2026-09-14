@@ -126,6 +126,12 @@ teacher. Seat counts and grant dates are commercial data. The grant is observed
 only through the function below, and the admin view reads it under the service
 role.
 
+If a policy is ever added to `schools`, **name its command**. Never `FOR ALL`.
+That is not a style preference: a `FOR ALL` policy with no `WITH CHECK` reuses
+its `USING` clause to decide which new rows may be inserted, which is how the
+`teachers` escalation described in §7 happened. Revoking the table-level INSERT
+grant as well is the second half of the same habit.
+
 ```sql
 create or replace function public.student_has_class_grant()
 returns boolean
@@ -389,15 +395,35 @@ one defect.
 **The 2026-06-11 lockdown held.** No UPDATE and no DELETE remains for `anon` or
 `authenticated` on either table.
 
-**One defect, fixed separately.** Both client roles still held INSERT on every
-column of both tables. `20260611_lock_sensitive_columns.sql` revoked UPDATE and
-only UPDATE, while a comment in `app/api/auth/provision/route.ts` asserted that
-INSERT had been revoked too. Closed in its own PR, not folded in here, per the
-PR #71 rule that a capture file must not also change behaviour.
+**One defect, and it was a live privilege escalation.** Both client roles still
+held INSERT on every column of both tables. `20260611_lock_sensitive_columns.sql`
+revoked UPDATE and only UPDATE, while a comment in
+`app/api/auth/provision/route.ts` asserted that INSERT had been revoked too.
 
-**Still outstanding:** the other four queries, and the RLS policies query most
-of all. Until the INSERT and SELECT policies are known, the capture migration
-cannot honestly record the row-level half of the gate.
+The policies query settled whether that was reachable, and it was. The policy
+`teachers: own row` is `FOR ALL` with a `USING` clause and no `WITH CHECK`, and
+PostgreSQL uses the `USING` expression as the `WITH CHECK` when one is omitted,
+so it governs which new rows may be **added**. ALL covers INSERT, and the
+resulting check constrained the id column and nothing else. Any signed-in
+student could therefore insert a `teachers` row carrying their own id with
+`is_admin` set true, which grants write access to the whole question bank
+including publishing, write access to the public question-images bucket, and the
+admin analytics. `students` was never exposed: it has no INSERT policy, so RLS
+denied client inserts whatever the grant said.
+
+Closed at both layers in its own PR, not folded into the capture, per the PR #71
+rule that a file recording what exists must not also change behaviour.
+
+**The lesson generalises and is worth carrying into §3.** This design adds
+policies to `schools` and later to school membership. A `FOR ALL` policy is the
+wrong default every time: it silently grants INSERT and DELETE on the strength
+of a clause written to answer "which rows can this caller see". §3 already
+specifies `schools` with RLS enabled and **no policy at all**, which is the
+right shape, and any policy added later should name its command explicitly.
+
+**Still outstanding:** the three remaining queries, covering columns with types
+and defaults, constraints, and indexes. Those are what the capture migration
+needs in order to state the table definitions exactly.
 
 ### Step 2 needs introspection first
 
