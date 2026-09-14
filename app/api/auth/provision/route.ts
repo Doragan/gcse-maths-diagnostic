@@ -15,7 +15,7 @@ import { NextResponse } from 'next/server'
 // is validated with the anon client, then the service-role client does the
 // insert. Client-role UPDATE on these tables is REVOKE'd by
 // 20260611_lock_sensitive_columns.sql, and client-role INSERT by
-// 20260914_revoke_client_insert_accounts.sql — two separate migrations, because
+// 20260914_close_teachers_self_admin.sql — two separate migrations, because
 // the 2026-06-11 lockdown covered UPDATE only and the INSERT grant sat open
 // until it was found by introspection on 2026-09-14. Idempotent: a returning
 // user (row already present) is a no-op success.
@@ -117,6 +117,12 @@ export async function POST(req: Request) {
     // is_admin / paid_until / free_assessments_used are intentionally NOT taken
     // from the body: they keep their column defaults (false / null / 0) so this
     // route can't be used to self-grant admin or a paid pass.
+    //
+    // That guard only ever covered THIS route. Until
+    // 20260914_close_teachers_self_admin.sql, a client could insert a teachers
+    // row directly through PostgREST and set is_admin itself, never touching
+    // the route at all. Worth remembering if a future guard is written here:
+    // the table's own grants and policies are what actually hold the line.
     const { error: insertErr } = await admin.from('teachers').insert({ id: user.id })
     if (insertErr) {
       console.error('teacher provision insert failed:', insertErr)

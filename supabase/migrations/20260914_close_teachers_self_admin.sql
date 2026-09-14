@@ -1,0 +1,208 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Close a self-granted-admin hole on `teachers`, and revoke client-role INSERT.
+--
+-- FOUND BY: introspecting column privileges on 2026-09-14, while gathering the
+-- shape of `students` and `teachers` to capture them in version control
+-- (docs/audit/20-school-accounts-design.md §7 step 2). The grant dump shows
+-- anon AND authenticated holding INSERT, REFERENCES and SELECT on EVERY column
+-- of BOTH tables.
+--
+-- 20260611_lock_sensitive_columns.sql revoked UPDATE, and only UPDATE:
+--
+--     revoke update on students from anon, authenticated;
+--     revoke update on teachers from anon, authenticated;
+--
+-- The introspection confirms that worked — no UPDATE and no DELETE remains for
+-- either client role. INSERT was never in scope of that migration and is still
+-- granted.
+--
+-- ⚠ A LOAD-BEARING COMMENT SAYS OTHERWISE. app/api/auth/provision/route.ts
+-- explains why it uses the service role with:
+--
+--     "client-role INSERT/UPDATE on these tables is REVOKE'd — see
+--      20260611_lock_sensitive_columns.sql"
+--
+-- Half of that is false. The next person to reason about account creation would
+-- have read it and concluded the INSERT path was already closed. This migration
+-- makes the comment true; the same commit corrects its wording either way.
+--
+-- ── 🔴 IT WAS REACHABLE: SELF-GRANTED ADMIN ON `teachers` ───────────────────
+-- The RLS policies were introspected next (2026-09-14) and close the question
+-- the paragraph above left open. They are:
+--
+--   students   Students can view own record     SELECT  using (auth.uid() = id)
+--   students   Students can update own record   UPDATE  using (auth.uid() = id)
+--   teachers   teachers: own row                ALL     using (auth.uid() = id)
+--   teachers   teachers: update own row         UPDATE  using (auth.uid() = id)
+--
+-- `students` is fine: SELECT and UPDATE only, no INSERT policy, so RLS denied
+-- client inserts regardless of the grant.
+--
+-- `teachers` is NOT fine, because of a PostgreSQL rule that is easy to miss:
+--
+--     For a policy with no WITH CHECK, the USING expression is used as the
+--     WITH CHECK expression as well — i.e. it decides which NEW ROWS may be
+--     ADDED, not just which existing rows are visible.
+--
+-- `teachers: own row` is FOR **ALL** with a USING clause and no WITH CHECK. ALL
+-- covers INSERT. So the effective insert check was `auth.uid() = id`, and that
+-- constrains the id column and NOTHING ELSE.
+--
+-- The full chain, with every link confirmed:
+--
+--   1. `authenticated` held INSERT on every column of `teachers` (grant dump).
+--   2. The FOR ALL policy admitted any row whose id is the caller's own.
+--   3. `is_admin` is one of those columns and is checked by neither layer.
+--   4. A STUDENT has no `teachers` row, so the primary key does not collide,
+--      and their auth.users row satisfies the foreign key.
+--
+-- Meaning any signed-in student could run, from the browser, with the anon key:
+--
+--     insert into teachers (id, is_admin) values (auth.uid(), true);
+--
+-- and become an administrator. What that grants, in this schema:
+--
+--   * `questions: admin full access` (20260611_rls_baseline.sql) — FOR ALL on
+--     the entire question bank. Write, rewrite and PUBLISH questions.
+--   * `question_images_admin_write` (20260727_storage_question_images.sql) —
+--     FOR ALL on the question-images storage bucket. Arbitrary upload to a
+--     publicly readable bucket.
+--   * `/api/admin/usage` — the admin analytics over student activity.
+--
+-- The provision route's guard against exactly this ("is_admin / paid_until /
+-- free_assessments_used are intentionally NOT taken from the body ... so this
+-- route can't be used to self-grant admin or a paid pass") protects the ROUTE.
+-- A direct PostgREST insert never went near the route.
+--
+-- ⚠ ONE UNKNOWN, deliberately not overstated: a BEFORE INSERT trigger on
+-- public.teachers would also have blocked this, and the introspection so far
+-- covered triggers on auth.users only, not on public.teachers. Both gate layers
+-- permitted it; whether a third, undiscovered one stopped it is unverified. The
+-- fix does not depend on the answer.
+--
+-- Two further things the grant bought on top of the escalation:
+--
+--   1. Breaking the "a user is EITHER a teacher OR a student" invariant that
+--      app/api/auth/provision/route.ts §3 goes out of its way to protect.
+--      There is no constraint spanning the two tables to stop it.
+--   2. `teachers.paid_until` is insertable, so the same row could carry a paid
+--      teacher pass nobody paid for.
+--
+-- ── WHY THIS IS SAFE WITH NO CODE CHANGE ────────────────────────────────────
+-- Same argument 20260611 made for UPDATE, re-checked for INSERT. There are ZERO
+-- client-side inserts into either table anywhere in app/, lib/ or scripts/. All
+-- 31 `.from('students'|'teachers')` call sites are either reads or run under
+-- the SERVICE ROLE, which bypasses grants entirely:
+--
+--   * app/api/auth/provision/route.ts — the Google OAuth path, service role
+--   * app/api/stripe/webhook/route.ts — service role
+--
+-- Email/password signup does not touch these grants either: the rows come from
+-- handle_new_user / handle_new_student, which are SECURITY DEFINER (see
+-- 20260913_auth_signup_triggers.sql) and so run as the definer, not the caller.
+--
+-- Account creation is therefore unaffected by this change, on BOTH paths.
+--
+-- ── DELIBERATELY NOT CHANGED ────────────────────────────────────────────────
+--
+-- 1. SELECT stays. The student dashboard reads the student's own row from the
+--    browser, and RLS scopes it to that row. Worth a separate look later:
+--    app/student/dashboard/page.tsx uses `.select('*')`, so a student's own
+--    stripe_customer_id and stripe_subscription_id are shipped to their own
+--    browser. That is their own data and low severity, but narrowing the grant
+--    to the columns the UI needs would mean editing the `select('*')` call
+--    sites, which is a behavioural change and does not belong here.
+--
+-- 2. REFERENCES stays. Supabase grants it by default. Exploiting it needs CREATE
+--    on a schema in order to make the referencing table, which neither client
+--    role has. Recorded rather than fixed, to keep this change to one idea.
+--
+-- 3. The two self-UPDATE policies ("Students can update own record",
+--    "teachers: update own row") stay. 20260611 already considered them and
+--    recorded them as latent and unreachable, because the table-level UPDATE
+--    grant is revoked and the privilege is checked before the policy. That
+--    reasoning still holds and the introspection confirms the grant is still
+--    gone. Worth stating plainly, though, since this migration exists because
+--    of a policy nobody re-read: if UPDATE is ever granted back on either
+--    table, those two policies let a caller rewrite their own is_admin,
+--    subscription_tier and paid_until. They are a trap armed by a future
+--    `grant`, and removing them is a separate, reviewable change.
+--
+-- 4. No capture of the table definitions. That is its own file, and PR #71 set
+--    the rule this follows: a file that records what already exists must not
+--    also change behaviour.
+--
+-- Apply via the Supabase SQL Editor (DDL constraint). Idempotent. No code
+-- change is required for it, and no deploy ordering applies.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+begin;
+
+-- ── 1. Grant layer ───────────────────────────────────────────────────────────
+revoke insert on students from anon, authenticated;
+revoke insert on teachers from anon, authenticated;
+
+-- ── 2. Policy layer ──────────────────────────────────────────────────────────
+-- Fixing only the grant would leave the hole one `grant insert` away from
+-- reopening, and the thing that created it — a FOR ALL policy silently covering
+-- INSERT — would still be sitting there for the next person to trip over.
+--
+-- `teachers: own row` becomes SELECT-only, which is the access it was there to
+-- give. Nothing legitimate is lost: every teachers row is created either by the
+-- handle_new_user trigger (SECURITY DEFINER, ignores RLS) or by
+-- /api/auth/provision under the service role (bypasses RLS). No client has ever
+-- needed to insert one.
+--
+-- CREATE OR REPLACE POLICY is not available, so this is a drop-then-create
+-- inside the transaction: the swap is atomic, and a teacher's read of their own
+-- row is never interrupted.
+drop policy if exists "teachers: own row" on teachers;
+create policy "teachers: own row" on teachers
+  for select to public
+  using (auth.uid() = id);
+
+commit;
+
+-- ── Verify after applying ────────────────────────────────────────────────────
+--
+-- 🚨 DO NOT verify by inserting from the SQL Editor. It runs as SUPERUSER,
+-- which bypasses both grants and RLS, so the insert would succeed regardless
+-- and tell you nothing. This fix lives entirely in the grant layer and is
+-- invisible to a superuser. The same trap is documented at the foot of
+-- 20260727_class_membership_scope.sql.
+--
+-- (a) Read the grants back. EXPECT only REFERENCES and SELECT to remain:
+--
+--       select table_name, grantee, privilege_type
+--       from information_schema.table_privileges
+--       where table_schema = 'public'
+--         and table_name in ('students','teachers')
+--         and grantee in ('anon','authenticated')
+--       order by table_name, grantee, privilege_type;
+--
+-- (b) Read the policies back. EXPECT `teachers: own row` to show cmd = SELECT,
+--     not ALL:
+--
+--       select tablename, policyname, cmd from pg_policies
+--       where schemaname = 'public' and tablename in ('students','teachers');
+--
+-- (c) Reproduce the escalation as a client. `begin/rollback` writes nothing, so
+--     this is safe against production. Substitute the uuid of a real STUDENT
+--     account, which is the account that had no teachers row and so no primary
+--     key collision:
+--
+--       begin;
+--         set local role authenticated;
+--         set local request.jwt.claims = '{"sub":"<STUDENT_UUID>"}';
+--
+--         -- EXPECT ERROR 42501. Before this migration this SUCCEEDED, and the
+--         -- caller was an administrator with write access to the question bank.
+--         insert into teachers (id, is_admin) values ('<STUDENT_UUID>', true);
+--       rollback;
+--
+--     Run it BEFORE applying as well, if you want to see the hole for yourself.
+--     Inside begin/rollback it commits nothing either way.
+--
+-- (d) Smoke-test both real signup paths, which must keep working:
+--     email/password at /auth?mode=signup (trigger path), and Continue with
+--     Google (service-role path through /api/auth/provision).
