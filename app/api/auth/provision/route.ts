@@ -13,9 +13,12 @@ import { NextResponse } from 'next/server'
 //
 // Mirrors the Bearer-token pattern in app/api/classes/create: the caller's JWT
 // is validated with the anon client, then the service-role client does the
-// insert (client-role INSERT/UPDATE on these tables is REVOKE'd — see
-// 20260611_lock_sensitive_columns.sql). Idempotent: a returning user (row
-// already present) is a no-op success.
+// insert. Client-role UPDATE on these tables is REVOKE'd by
+// 20260611_lock_sensitive_columns.sql, and client-role INSERT by
+// 20260914_revoke_client_insert_accounts.sql — two separate migrations, because
+// the 2026-06-11 lockdown covered UPDATE only and the INSERT grant sat open
+// until it was found by introspection on 2026-09-14. Idempotent: a returning
+// user (row already present) is a no-op success.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
