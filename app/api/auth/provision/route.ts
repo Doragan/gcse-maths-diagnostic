@@ -123,7 +123,19 @@ export async function POST(req: Request) {
     // row directly through PostgREST and set is_admin itself, never touching
     // the route at all. Worth remembering if a future guard is written here:
     // the table's own grants and policies are what actually hold the line.
-    const { error: insertErr } = await admin.from('teachers').insert({ id: user.id })
+    //
+    // `email` is NOT NULL on public.teachers with no default, and omitting it
+    // raised 23502 — the same break that stopped the email signup path at the
+    // trigger. See 20260914_fix_teacher_signup_email.sql. Google always returns
+    // a verified address, so this is a guard against the impossible rather than
+    // a case we expect; it exists so the failure is legible if it ever happens.
+    if (!user.email) {
+      return NextResponse.json({ error: 'This account has no email address' }, { status: 400 })
+    }
+    const { error: insertErr } = await admin.from('teachers').insert({
+      id: user.id,
+      email: user.email,
+    })
     if (insertErr) {
       console.error('teacher provision insert failed:', insertErr)
       return NextResponse.json({ error: 'Failed to create account' }, { status: 500 })
