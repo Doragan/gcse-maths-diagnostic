@@ -132,6 +132,22 @@
 --    the rule this follows: a file that records what already exists must not
 --    also change behaviour.
 --
+-- ── ⚠ THE POLICY'S HOME IS 20260611_rls_baseline.sql ────────────────────────
+-- That file is where `teachers: own row` is created, it said `for all`, and it
+-- is written to be re-appliable (drop policy if exists / create). So applying
+-- only this file would leave a re-run of the baseline free to silently reopen
+-- the hole later.
+--
+-- The baseline has therefore been AMENDED IN PLACE in the same commit, to
+-- `for select`, with a comment recording what it said before and why. The two
+-- files now agree in both directions, so no apply order between them can
+-- reintroduce the escalation.
+--
+-- Yes, that is two definitions of one policy, which PR #71 warned against. It
+-- is the lesser evil here: the alternative is leaving a known-vulnerable
+-- statement in a file whose whole purpose is to be re-run. They are identical
+-- and each points at the other.
+--
 -- Apply via the Supabase SQL Editor (DDL constraint). Idempotent. No code
 -- change is required for it, and no deploy ordering applies.
 -- ─────────────────────────────────────────────────────────────────────────────
