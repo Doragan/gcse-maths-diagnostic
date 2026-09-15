@@ -87,8 +87,26 @@ export async function updateEmail(newEmail: string) {
 }
 
 export async function deleteAccount() {
-  const response = await fetch('/api/account/delete', { method: 'DELETE' })
-  if (!response.ok) throw new Error('Failed to delete account')
+  // This sent NO credentials at all. The route read the session from cookies,
+  // and this client keeps it in localStorage, so there was never a cookie to
+  // read: every call answered 401 and the generic message below hid it. Account
+  // deletion has therefore never worked, for teachers or students.
+  //
+  // Send the token the way every other authenticated route in this app expects.
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('You are not signed in.')
+
+  const response = await fetch('/api/account/delete', {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+
+  if (!response.ok) {
+    // Surface what the server actually said. Swallowing it is what made this
+    // invisible: a 401 and a foreign-key failure looked identical from here.
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.error || 'Failed to delete account')
+  }
 }
 
 export async function signUpStudent(
