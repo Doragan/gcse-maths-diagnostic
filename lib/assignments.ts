@@ -5,7 +5,14 @@ import { getSession } from './auth'
 
 export type Assignment = {
   id: string
-  teacher_id: string
+  /**
+   * Nullable since 20260915_class_ownership_survives_teacher.sql: deleting a
+   * teacher account sets this to NULL rather than destroying the assignment and
+   * every student's attempts at it. A client will not normally see null — the
+   * RLS policy is `auth.uid() = teacher_id`, which no null row satisfies — but
+   * the column can hold one, so the type says so.
+   */
+  teacher_id: string | null
   title: string
   instructions: string | null
   selection_mode: 'picked' | 'pool'
