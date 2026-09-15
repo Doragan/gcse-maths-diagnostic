@@ -4,10 +4,11 @@ _Written 2026-09-13, from `docs/audit/19-school-accounts-brief.md`. The brief's
 measured figures are taken as given and not re-derived. This document answers
 the brief's §5, revises its §7 build order, and specifies the schema._
 
-**Status of each part.** §2–§5 are decisions this document takes. §6 is four
-items where the user's product or commercial judgment is genuinely required;
-nothing downstream of them is built until they are answered. §7–§9 are the
-build order and the provisioning runbook.
+**Status of each part.** §2–§5 are decisions this document takes. §6 tracks the
+items needing the user's product or commercial judgment — **three of the four are
+now answered**, and only teacher pricing remains genuinely open. §7–§8 are the
+build order and the provisioning runbook. §9–§10 were added on 2026-09-15: the
+free/paid teacher boundary, and whether a teacher may create student accounts.
 
 ---
 
@@ -369,11 +370,12 @@ must move together, which is why they are one build step.
 
 Work does not proceed past these on an assumption.
 
-**A. Teacher pricing.** There is no teacher paid tier; the £10 pass was closed
-deliberately pending this design. Everything in the refund section, the teacher
-side of the free/paid boundary, and step 6 of the build order waits on a price
-and a shape. It blocks nothing earlier — the promo, the class grant and the
-school mechanism are all student-seat-funded and need no teacher price at all.
+**A. Teacher pricing — narrowed 2026-09-15 to a number and a billing unit.** The
+*shape* is no longer open: answering B fixed it. The proposed boundary is §9.
+What still needs deciding is what it costs and what the unit is (per teacher, or
+per department). It blocks the refund design and step 6, and nothing earlier —
+the promo, the class grant and the school mechanism are student-seat-funded and
+need no teacher price at all.
 
 **B. Does a free teacher's marking still write the student's mastery signal?**
 The brief says a free teacher's feedback "is not saved". Read literally that
@@ -396,10 +398,16 @@ implies. Whether the user is comfortable asserting it to a school's data
 protection officer, and what the agreement says, needs a decision and possibly
 advice. It blocks the first invoice, not the build.
 
-**D. The "full year refunded" promotion.** Exposure is £0 today and becomes real
-the moment A is answered. Worth costing then, not now: the arithmetic is
-teachers-in-one-school × annual price, and the number of teachers is not bounded
-by anything in the design.
+**D. ✅ ACCEPTED 2026-09-15 — the "full year refunded" exposure is fine.** The
+arithmetic is teachers-in-one-school × annual price, unbounded by anything in the
+design, and that is accepted deliberately. It is also self-limiting in the way
+that matters: the refund only ever triggers when a school has just bought seats
+for its students, which is worth more than the handful of teacher subscriptions
+it refunds. Paying it is the good outcome.
+
+No cap is being built. If a single school ever produces enough teacher
+subscriptions for the number to sting, that is a problem worth having and can be
+handled by hand at the time.
 
 ---
 
@@ -664,7 +672,165 @@ actually run.
 
 ---
 
-## 9. Pointers
+## 9. The free/paid teacher boundary
+
+Written 2026-09-15, once §6B was answered. **The price is still open (§6A); this
+is the shape it prices.**
+
+### The principle, which follows from §6B rather than being chosen
+
+Paid gates the teacher's view **over time** and **across students**. It never
+gates a student's own record, and it never gates the act of teaching.
+
+That single rule decides almost every case, which is the test of whether it is
+the right rule. Free is everything about **now**; paid is everything about
+**then**.
+
+### Where the line falls
+
+| | Free | Paid |
+|---|---|---|
+| Mark a paper, any number of papers | yes | yes |
+| Feedback sheets for that sitting | yes | yes |
+| The sitting is recorded | yes | yes |
+| Student's mastery updates from it | **always** | **always** |
+| Student sees their own progress | **always** | **always** |
+| Classes | one | unlimited |
+| Live class skill map — where they are now | yes | yes |
+| Set assignments | yes | yes |
+| The most recent sitting's results | yes | yes |
+| History across sittings, trends over time | no | yes |
+| Compare paper to paper, term to term | no | yes |
+| Exam-readiness tracking | no | yes |
+| Export | no | yes |
+
+The "always" rows are the constraint from §6B and are not negotiable against
+price. Everything else is a commercial choice.
+
+**This supersedes the brief on one point.** The brief said the free tier means
+"exam feedback is not saved". It is saved — it has to be, or the student loses
+their own record. What free withholds is the teacher's *view across sittings*,
+not the sitting.
+
+### Why the class limit rather than a marking limit
+
+A cap on marking would make the product worse at the exact moment a teacher is
+evaluating it, and it gates the act of teaching, which the principle forbids. A
+cap on *classes* gates none of that: everything works completely, for one class.
+
+It also matches how adoption actually goes. A teacher trying this has one class;
+a teacher who has adopted it has four or five. The limit therefore bites exactly
+when the product has already proved itself, which is the only moment anyone is
+willing to pay. And it takes nothing away retroactively: a free teacher's one
+class keeps working forever.
+
+### A school grant must carry the teacher tier
+
+If a school buys seats for its students, its teachers must get the paid teacher
+tier with it. Otherwise the school has paid and its teachers still cannot see a
+trend, which is absurd to explain and worse to discover.
+
+That needs `teachers.school_id`, deliberately deferred in §3 until there was a
+reason for it. This is the reason. It lands in step 6 with the rest of the
+teacher tier.
+
+### One strategic observation, offered rather than decided
+
+Teacher pricing is a **wedge, not a revenue line**. A department of 300 students
+at any plausible per-seat price dwarfs five teacher subscriptions at any
+plausible teacher price. The teacher tier exists to convert an individual who has
+no budget and to give them a reason to argue internally, not to earn.
+
+That argues for pricing it low, simply, and per teacher rather than per
+department — a per-department price is a purchase decision, and a teacher who has
+to make a purchase decision goes to ask their head of department, which is the
+conversation the school tier is for anyway.
+
+---
+
+## 10. Teacher-provisioned student accounts
+
+Asked 2026-09-15: is anything **fundamental** in the student-centric model
+blocking a teacher from setting up accounts for their students in advance, using
+school email addresses?
+
+**No. Nothing in the schema or the entitlement model stands in the way.** The
+grant path is school → class → membership → student, and a membership created by
+a teacher reads identically to one created by a student. Bulk creation is a
+service-role route and an afternoon's work.
+
+What it costs is not technical, and it is worth being precise about, because
+three of the four costs are recoverable and one is not.
+
+### What pre-created accounts would actually break
+
+1. **`confirmed_13` stops being evidence.** It is currently hardcoded true and
+   means "the 13+ gate was passed", because the form will not submit without it.
+   If a teacher creates the account, no child ever saw that gate, and the one
+   piece of age assurance in the system becomes a column that says true because
+   it always says true.
+
+2. **The consent basis flips.** Today the student creates the account and joins
+   by code, and *that act is the consent* that lets a teacher see their data. If
+   the teacher creates both the account and the membership, no student act exists
+   anywhere in the chain. This is the constraint in §6 — it is why the
+   entitlement model is a union — and pre-creation removes its foundation.
+
+3. **A school email is not the student's.** An account created on a school
+   address dies with the school place. "Standalone and student-owned" is only
+   true in practice if the account outlives the institution.
+
+4. **Whoever sets the password can log in as the child.** A teacher holding the
+   initial credential can enter a student's account, which undermines both the
+   student's ownership and the integrity of self-reported mastery.
+
+### The version that costs none of them: invite, don't impersonate
+
+The teacher bulk-creates **invitations**, not accounts: an email address and a
+class, nothing more. Each student receives a link. The first time they open it
+they set their own password and pass the 13+ gate, and the account comes into
+existence at that moment.
+
+The teacher gets everything they actually wanted — a roster prepared in advance,
+no join codes read out over a classroom, no student mistyping a code. The student
+still performs the act that makes the account theirs. Every one of the four costs
+above disappears:
+
+- `confirmed_13` is evidence again, because the child passed the gate.
+- The membership is still the student's own act — accepting is consenting.
+- The account is theirs from the first moment and survives leaving the school.
+  `/account` already lets them change the email address away from the school one.
+- No teacher ever holds a student credential.
+
+It is also barely more work than bulk-creating accounts: a `class_invitations`
+table (email, class_id, token, status, expiry), one service-role route to create
+them in bulk, and the existing signup flow taught to accept a token. The
+invitation replaces the join code rather than adding a mechanism beside it.
+
+### The one thing this does not solve
+
+If a school wants pupils enrolled **without any pupil action at all**, no
+invitation design helps, because the whole point is that the pupil acts. That is
+a genuine fork, not a detail:
+
+> Either the student owns the account and must therefore do something, or the
+> school owns it and no student act is required. There is no third option, and
+> the union model is built on the first.
+
+School-directed enrolment is lawful — schools routinely deploy software under
+public task rather than consent — but it is a different product with a different
+data protection posture, and it would mean the school, not the student, is the
+controller of the account. **That is exactly open item §6C**, and this question
+collapses into it: answer C and this answers itself.
+
+**Recommendation: build invitations, not pre-created accounts.** It gives the
+teacher the convenience that makes bulk provisioning attractive, costs nothing
+architecturally, and leaves the §6C decision genuinely open rather than quietly
+taken by an implementation.
+
+---
+
+## 11. Pointers
 
 - `docs/audit/19-school-accounts-brief.md` — the brief this answers
 - `lib/entitlements.ts` — the union; the class arm is step 4
