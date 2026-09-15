@@ -192,9 +192,21 @@ drop policy if exists "Students can update own record" on students;
 create policy "Students can update own record" on students
   for update to public using (auth.uid() = id);
 
+-- ⚠ AMENDED 2026-09-14 — this policy said `for all` until that date, and that
+-- was a privilege escalation. A policy with no WITH CHECK reuses its USING
+-- expression as the WITH CHECK, so it governs which NEW ROWS may be INSERTED,
+-- and `for all` covers INSERT. The resulting check constrained `id` and nothing
+-- else, so any signed-in student — who has no teachers row, hence no primary
+-- key collision — could insert one carrying their own id with is_admin = true
+-- and become an administrator. Full write-up in
+-- 20260914_close_teachers_self_admin.sql.
+--
+-- Amended IN PLACE rather than only superseded, because this file is designed
+-- to be re-appliable: leaving `for all` here would mean a later re-run of the
+-- baseline silently reopened the hole. The two files now agree, and both say so.
 drop policy if exists "teachers: own row" on teachers;
 create policy "teachers: own row" on teachers
-  for all to public using (auth.uid() = id);
+  for select to public using (auth.uid() = id);
 
 drop policy if exists "teachers: update own row" on teachers;
 create policy "teachers: update own row" on teachers
