@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { computeUsage } from '../../../../lib/adminUsage'
+import { fetchClassGrantedStudentIds } from '../../../../lib/classGrant'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Product-usage aggregates for /admin/usage.
@@ -130,9 +131,14 @@ export async function GET(req: Request) {
       return data ?? []
     }
 
+    // Who currently has premium via a SCHOOL rather than a card. Without this
+    // the headline premium count reports school-covered students as free.
+    const classGrantedStudentIds = await fetchClassGrantedStudentIds(admin)
+
     const report = computeUsage({
       students: students ?? [],
       attempts,
+      classGrantedStudentIds,
       conversions: conversions ?? 0,
       analytics,
       acquisitionWindowDays: ACQUISITION_WINDOW_DAYS,

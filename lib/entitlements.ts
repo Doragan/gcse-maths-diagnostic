@@ -4,18 +4,35 @@
  * Access is a UNION of two independent grants:
  *   1. Personal grant  — the student bought a plan (subscription_tier 'paid'
  *                        with a future paid_until).
- *   2. Class grant     — the student belongs to a teacher's class that covers
- *                        premium features (Phase 2 — not yet wired up).
+ *   2. Class grant     — the student is in a class whose SCHOOL has an in-date
+ *                        grant. Invoice-paced, set by hand. Read it with
+ *                        lib/classGrant.ts and pass it in as
+ *                        `activeClassMembership` below.
  *
  * Defining access as `class OR personal` means an already-paid student who
- * later joins a class never loses anything: while class-covered their personal
- * grant is PAUSED (paid_until set to null, remaining time banked in
- * paid_remaining_seconds — see the class join/leave handlers in Phase 2), so
- * the personal side reads false but the class side keeps them premium. When
- * they leave the class their banked time resumes.
+ * later joins a covered class never loses anything: their personal grant keeps
+ * running, untouched, alongside the class one.
  *
- * Keep ALL premium checks routed through this helper so that when classes ship
- * we flip one function instead of editing every call site.
+ * ── A mechanism this comment used to describe, deliberately NOT built ───────
+ * It used to say the personal grant was PAUSED while class-covered, with the
+ * remaining time banked in `paid_remaining_seconds`. That column never existed
+ * and no code ever referenced it. It is not coming:
+ *
+ *   1. Pausing only pays off if we own the clock, and for the recurring monthly
+ *      and annual plans the clock is Stripe's. A column cannot pause a
+ *      subscription; only cancelling it can.
+ *   2. The exam pass expires on a fixed calendar date, so there is no
+ *      per-student remainder to bank in the first place.
+ *   3. It would need a write to students.paid_until on every class join and
+ *      leave — a path that can fail halfway and destroy paid time, on columns
+ *      the client is deliberately forbidden to write.
+ *
+ * The union already protects what the banking was meant to protect. A student
+ * paying for something their school now covers is a refund conversation, not a
+ * mechanism. See docs/audit/20-school-accounts-design.md §2.
+ *
+ * Keep ALL premium checks routed through this helper, so the rule has one
+ * definition rather than one per call site.
  */
 export type StudentEntitlementInputs = {
   subscription_tier: 'free' | 'paid'

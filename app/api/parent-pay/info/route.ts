@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { verifyPayToken } from '../../../../lib/parentPay'
 import { isPaidStudent } from '../../../../lib/entitlements'
+import { fetchClassGrant } from '../../../../lib/classGrant'
 
 /**
  * Public: describe a parent-pay link to the (unauthenticated) parent opening it.
@@ -29,9 +30,13 @@ export async function GET(req: Request) {
   if (!student) return NextResponse.json({ status: 'invalid' })
 
   const firstName = (student.display_name ?? '').trim().split(/\s+/)[0] || null
+  // Includes the class arm: a student whose school has paid must show as
+  // already covered, so the page never invites a parent to buy what the school
+  // is providing. Mirrors the same check in the checkout route.
   const alreadyPaid = isPaidStudent({
     subscription_tier: student.subscription_tier,
     paid_until: student.paid_until,
+    activeClassMembership: await fetchClassGrant(admin, verified.studentId),
   })
 
   return NextResponse.json({ status: alreadyPaid ? 'already_paid' : 'ok', firstName })

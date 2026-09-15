@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { trackEvent } from './analytics'
 import { PENDING_KEY, pendingPracticeRows } from './pendingPractice'
+import { fetchMyClassGrant } from './classGrant'
 
 export async function signUp(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({ email, password })
@@ -200,12 +201,21 @@ export async function getStudentProfile() {
   const { data: { session } } = await supabase.auth.getSession()
   const user = session?.user
   if (!user) return null
-  const { data } = await supabase
-    .from('students')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-  return data
+  // The class grant is fetched ALONGSIDE the profile, not after it: the RPC
+  // identifies the caller itself, so it depends on nothing here and costs no
+  // extra latency.
+  //
+  // Attaching it to the profile — rather than threading a second boolean
+  // through every page — is what lets the existing `isPaidStudent(profile)`
+  // call sites in /practice, /skill/[slug] and the student dashboard pick up
+  // school-granted access without being touched. One place reads the grant;
+  // one function decides what it means.
+  const [{ data }, activeClassMembership] = await Promise.all([
+    supabase.from('students').select('*').eq('id', user.id).single(),
+    fetchMyClassGrant(),
+  ])
+  if (!data) return data
+  return { ...data, activeClassMembership }
 }
 
 const STUDENT_ID_CACHE_KEY = 'cached_student_id'
