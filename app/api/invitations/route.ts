@@ -32,7 +32,7 @@ import { NextResponse } from 'next/server'
 async function authedStudent(req: Request) {
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
-    return { error: 'Not authenticated' as const, status: 401 }
+    return { error: 'Not authenticated' as const, code: 'unauthenticated' as const, status: 401 }
   }
   const token = authHeader.replace('Bearer ', '')
 
@@ -42,11 +42,20 @@ async function authedStudent(req: Request) {
     { auth: { persistSession: false } },
   )
   const { data: { user }, error: userError } = await authClient.auth.getUser(token)
-  if (userError || !user) return { error: 'Not authenticated' as const, status: 401 }
+  if (userError || !user) return { error: 'Not authenticated' as const, code: 'unauthenticated' as const, status: 401 }
 
   // See (1) above. Without a confirmed address, email is not proof of anything.
+  //
+  // `code` is returned because two different conditions answer 403 here, and the
+  // client has to tell them apart: an unconfirmed student needs to be told to
+  // check their inbox, while a teacher who somehow reached this needs nothing at
+  // all. Matching on the prose would work until someone reworded it.
   if (!user.email_confirmed_at || !user.email) {
-    return { error: 'Please confirm your email address first' as const, status: 403 }
+    return {
+      error: 'Please confirm your email address first' as const,
+      code: 'email_unconfirmed' as const,
+      status: 403,
+    }
   }
 
   const admin = createClient(
@@ -63,7 +72,11 @@ async function authedStudent(req: Request) {
     .eq('id', user.id)
     .maybeSingle()
   if (!student) {
-    return { error: 'Only student accounts can accept a class invitation' as const, status: 403 }
+    return {
+      error: 'Only student accounts can accept a class invitation' as const,
+      code: 'not_a_student' as const,
+      status: 403,
+    }
   }
 
   return { user, admin, email: user.email.toLowerCase() }
@@ -72,7 +85,7 @@ async function authedStudent(req: Request) {
 export async function GET(req: Request) {
   try {
     const ctx = await authedStudent(req)
-    if ('error' in ctx) return NextResponse.json({ error: ctx.error }, { status: ctx.status })
+    if ('error' in ctx) return NextResponse.json({ error: ctx.error, code: ctx.code }, { status: ctx.status })
 
     const { data, error } = await ctx.admin
       .from('class_invitations')
@@ -103,7 +116,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const ctx = await authedStudent(req)
-    if ('error' in ctx) return NextResponse.json({ error: ctx.error }, { status: ctx.status })
+    if ('error' in ctx) return NextResponse.json({ error: ctx.error, code: ctx.code }, { status: ctx.status })
 
     const body = await req.json().catch(() => null)
     const invitationId = typeof body?.id === 'string' ? body.id : ''

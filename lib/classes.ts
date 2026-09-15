@@ -235,25 +235,55 @@ export type TeacherInvitation = {
   accepted_at: string | null
 }
 
+export type MyInvitations = {
+  invitations: StudentInvitation[]
+  /**
+   * The account exists but its email is not confirmed, so the server refused to
+   * look for invitations at all.
+   *
+   * This is reported rather than swallowed because the two cases are
+   * indistinguishable to a student otherwise: "your teacher has not invited you"
+   * and "we will not tell you until you confirm your address" both render as an
+   * empty page. A pupil told to expect an invitation, seeing nothing and given
+   * no reason, concludes the product is broken — and they would be right to.
+   */
+  needsEmailConfirmation: boolean
+}
+
 /**
  * Pending invitations for the signed-in student.
  *
- * Returns [] rather than throwing when the table is not there yet, so the code
- * can be deployed before the migration is applied without breaking the classes
- * page. Every other failure still throws.
+ * Never throws for an absent table: returns an empty result so the code can be
+ * deployed before the migration is applied without breaking the classes page.
  */
-export async function getMyInvitations(): Promise<StudentInvitation[]> {
+export async function getMyInvitations(): Promise<MyInvitations> {
+  const empty: MyInvitations = { invitations: [], needsEmailConfirmation: false }
+
   const session = await getSession()
-  if (!session) return []
+  if (!session) return empty
 
   const res = await fetch('/api/invitations', {
     headers: { Authorization: `Bearer ${session.access_token}` },
   })
-  if (res.status === 403 || res.status === 404 || res.status === 500) return []
+
+  // Two conditions answer 403, so match on the machine-readable code rather than
+  // the status: only the unconfirmed one is worth telling a student about. A
+  // teacher who somehow reached this gets nothing, which is right.
+  if (res.status === 403) {
+    const json = await res.json().catch(() => null)
+    return { invitations: [], needsEmailConfirmation: json?.code === 'email_unconfirmed' }
+  }
+
+  // Table absent, or a server fault. Neither is the student's problem and
+  // neither should take the page down.
+  if (res.status === 404 || res.status === 500) return empty
   if (!res.ok) throw new Error('Could not load your invitations')
 
   const json = await res.json().catch(() => null)
-  return (json?.invitations ?? []) as StudentInvitation[]
+  return {
+    invitations: (json?.invitations ?? []) as StudentInvitation[],
+    needsEmailConfirmation: false,
+  }
 }
 
 /** Accept one. This is the student's own act — nothing joins them automatically. */
