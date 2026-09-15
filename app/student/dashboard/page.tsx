@@ -12,6 +12,7 @@ import { computeWeeklyGoal, daysToGoal, WEEKLY_GOAL, type WeeklyGoalProgress } f
 import { skills } from '../../../data/skills'
 import { fetchPublishedSkillIds, isPractisable } from '../../../lib/skills/publishedSkills'
 import { isPaidStudent } from '../../../lib/entitlements'
+import { fetchMyClassGrant } from '../../../lib/classGrant'
 import FeedbackWidget from '../../../components/FeedbackWidget'
 import FounderUpgradeModal from '../../../components/FounderUpgradeModal'
 import ProgressChart from '../../../components/ProgressChart'
@@ -31,6 +32,8 @@ type StudentProfile = {
   stripe_customer_id: string | null
   /** Set only while a recurring subscription exists — the gate on "Manage subscription". */
   stripe_subscription_id: string | null
+  /** The class arm of the entitlement union — see lib/classGrant.ts. */
+  activeClassMembership?: boolean
 }
 
 type ExtendedStatus = MasteryStatus | 'not_started'
@@ -93,16 +96,21 @@ export default function StudentDashboardPage() {
       // alongside the profile and attempts rather than after them.
       const publishedIds = fetchPublishedSkillIds()
 
-      const [{ data: p }, { data: attempts }] = await Promise.all([
+      // This page reads the students row directly rather than through
+      // getStudentProfile(), so it has to fetch the class grant itself. Same
+      // batch, no extra latency: the RPC identifies the caller and depends on
+      // nothing else here.
+      const [{ data: p }, { data: attempts }, activeClassMembership] = await Promise.all([
         supabase.from('students').select('*').eq('id', user.id).single(),
         supabase
           .from('practice_attempts')
           .select('skill_ids, correct, attempted_at, kind')
           .eq('student_id', user.id),
+        fetchMyClassGrant(),
       ])
 
       if (!p) { router.push('/student'); return }
-      setProfile(p)
+      setProfile({ ...p, activeClassMembership })
       // Seed the session student-id cache so a later dashboard → practice →
       // question hop skips its own auth.getUser() + students fetch.
       primeStudentIdCache(p.id)

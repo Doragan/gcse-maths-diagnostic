@@ -205,11 +205,18 @@ export function computeUsage(input: {
   /** Analytics rows for the pre-signup funnel. Omit to leave `acquisition` null. */
   analytics?: AcquisitionEvent[]
   acquisitionWindowDays?: number
+  /**
+   * Ids of students who currently hold a CLASS grant — their school has paid.
+   * From lib/classGrant.ts. Optional, and an absent value means "none", so this
+   * stays a pure function and every existing caller and test is unaffected.
+   */
+  classGrantedStudentIds?: Iterable<string>
   now?: number
   weeks?: number
 }): UsageReport {
   const now = input.now ?? Date.now()
   const weeksBack = input.weeks ?? 8
+  const classGranted = new Set(input.classGrantedStudentIds ?? [])
 
   // ── Per-student attempt summary ──────────────────────────────────────────────
   const byStudent = new Map<string, { count: number; days: Set<string>; last: number }>()
@@ -305,9 +312,13 @@ export function computeUsage(input: {
       // A bare `subscription_tier === 'paid'` also counts a student whose
       // paid_until is null or in the past — someone the app itself treats as
       // free — which overstated this figure before.
+      // Both arms of the union. Counting only the personal one would report a
+      // school-covered student as free, which is precisely the population this
+      // number exists to track once schools are selling.
       withPremiumAccess: input.students.filter(s => isPaidStudent({
         subscription_tier: s.subscription_tier === 'paid' ? 'paid' : 'free',
         paid_until: s.paid_until ?? null,
+        activeClassMembership: classGranted.has(s.id),
       }, now)).length,
       conversions: input.conversions ?? 0,
       attempts: input.attempts.length,

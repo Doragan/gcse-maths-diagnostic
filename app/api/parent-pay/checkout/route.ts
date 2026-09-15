@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { verifyPayToken } from '../../../../lib/parentPay'
 import { isPaidStudent } from '../../../../lib/entitlements'
+import { fetchClassGrant } from '../../../../lib/classGrant'
 import { priceIdFor, isSubscriptionPlan, toPlan } from '../../../../lib/stripePlans'
 import { founderSeatsLeft } from '../../../../lib/founderSeats'
 
@@ -44,7 +45,16 @@ export async function POST(req: Request) {
     }
     // Guard: don't charge an already-subscribed student (makes the link inert
     // once the first payment succeeds).
-    if (isPaidStudent({ subscription_tier: student.subscription_tier, paid_until: student.paid_until })) {
+    //
+    // The class arm counts here too. If the student's school has paid for them,
+    // taking a parent's money for the same access is the worst error available
+    // in this route, and it is the parent — who cannot see any of this — who
+    // would be out of pocket. Erring towards not charging.
+    if (isPaidStudent({
+      subscription_tier: student.subscription_tier,
+      paid_until: student.paid_until,
+      activeClassMembership: await fetchClassGrant(admin, studentId),
+    })) {
       return NextResponse.json({ alreadyPaid: true })
     }
 

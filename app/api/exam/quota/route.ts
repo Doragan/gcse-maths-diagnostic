@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { isPaidStudent } from '../../../../lib/entitlements'
+import { fetchClassGrant } from '../../../../lib/classGrant'
 import { resolveMiniExamQuota, FREE_MINI_EXAMS_PER_MONTH } from '../../../../lib/exam/monthlyQuota'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -43,7 +44,17 @@ async function authedStudent(req: Request) {
     .single()
   if (sErr || !student) return { error: 'Student not found' as const, status: 404 }
 
-  return { userId: user.id, admin, student }
+  // This route is the gate that actually enforces the allowance, so the class
+  // arm has to be read HERE and not only in the browser. Without it a
+  // school-covered student would be shown unlimited mini-exams by the client
+  // and refused by the server on the fourth one.
+  //
+  // It cannot use the student_has_class_grant() RPC: that function reads
+  // auth.uid(), which is null under the service role, so it would answer false
+  // for everyone. The service role reads the tables directly instead.
+  const activeClassMembership = await fetchClassGrant(admin, user.id)
+
+  return { userId: user.id, admin, student: { ...student, activeClassMembership } }
 }
 
 export async function GET(req: Request) {

@@ -244,6 +244,38 @@ describe('computeUsage — premium access vs actual customers', () => {
     expect(r.totals.withPremiumAccess).toBe(1)
   })
 
+  it('counts a free student whose SCHOOL has paid', () => {
+    // The class arm of the union. Counting only the personal grant would report
+    // every school-covered student as free — the exact population this number
+    // exists to track once schools are selling.
+    const r = computeUsage({
+      students: [raw('a', 'free', null)],
+      attempts: [], sends: [], now: NOW,
+      classGrantedStudentIds: ['a'],
+    })
+    expect(r.totals.withPremiumAccess).toBe(1)
+  })
+
+  it('does not count a student whose class grant belongs to someone else', () => {
+    const r = computeUsage({
+      students: [raw('a', 'free', null), raw('b', 'free', null)],
+      attempts: [], sends: [], now: NOW,
+      classGrantedStudentIds: ['b'],
+    })
+    expect(r.totals.withPremiumAccess).toBe(1)
+  })
+
+  it('counts a school-covered student once, not twice, when they also pay', () => {
+    // Both arms true is a real state: a student who bought a plan and whose
+    // school later covered them. The union must not double-count them.
+    const r = computeUsage({
+      students: [raw('a', 'paid', iso(NOW + DAY))],
+      attempts: [], sends: [], now: NOW,
+      classGrantedStudentIds: ['a'],
+    })
+    expect(r.totals.withPremiumAccess).toBe(1)
+  })
+
   it('keeps tracked purchases separate from access', () => {
     // Access includes comped and manually-granted accounts, which nothing in
     // the schema distinguishes from purchases. The two numbers must not be
