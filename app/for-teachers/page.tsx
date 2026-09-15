@@ -58,8 +58,8 @@ export default function ForTeachersPage() {
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
             <Link
-              href="/auth"
-              onClick={() => trackEvent('teacher_hero_login_clicked')}
+              href="/auth?mode=signup"
+              onClick={() => trackEvent('teacher_hero_signup_clicked')}
               style={{
                 background: colors.primary,
                 color: '#fff',
@@ -71,7 +71,7 @@ export default function ForTeachersPage() {
                 display: 'inline-block',
               }}
             >
-              Teacher login →
+              Create a teacher account →
             </Link>
             <Link
               href="/contact?from=for_teachers_hero"
