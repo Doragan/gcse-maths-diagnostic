@@ -269,6 +269,12 @@ export default function StudentDashboardPage() {
             </button>
             <AssignmentsButton count={pendingAssignments} onClick={() => router.push('/student/assignments')} />
             <button
+              onClick={() => router.push('/account')}
+              style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+            >
+              Account
+            </button>
+            <button
               onClick={handleSignOut}
               style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
             >
@@ -381,6 +387,15 @@ export default function StudentDashboardPage() {
             Classes
           </button>
           <AssignmentsButton count={pendingAssignments} onClick={() => router.push('/student/assignments')} />
+          {/* The only student-side route to /account. Without it a student could
+              not change their password or close their own account, on an account
+              they own. */}
+          <button
+            onClick={() => router.push('/account')}
+            style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+          >
+            Account
+          </button>
           <button
             onClick={handleSignOut}
             style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
