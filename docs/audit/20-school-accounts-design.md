@@ -578,28 +578,52 @@ actually is, or re-applying the file would quietly hand those privileges back.
 Run in the Supabase SQL Editor. This is the whole mechanism for the early-access
 promo and for a paying school; they differ only in `seats` and `notes`.
 
+**Edit the two quoted literals, then run it. Copy no ids.** An earlier version of
+this runbook had you paste a returned uuid into the next statement, and a
+separate probe keyed on a school name containing an em dash. Both failed, and
+neither failure was in the mechanism: one pasted `<SCHOOL_UUID>` literally, the
+other silently set `school_id` to NULL and reported a perfectly correct `false`.
+A runbook that only works after a manual edit will eventually be run without it.
+
 ```sql
--- 1. Create the school. Promo and paying schools are the same row.
-insert into schools (name, seats, granted_until, notes)
-values ('Example High School', 35, '2027-08-31', 'early access promo, 3 teachers')
-returning id;
+-- Create the school AND attach the teacher's classes, in ONE statement. The
+-- INSERT feeds its new id straight into the UPDATE through a data-modifying CTE,
+-- so no id is ever copied by hand.
+--
+-- The teacher is found by email, which is the only human-readable handle on the
+-- teachers table. A wrong address matches nothing, the UPDATE touches no rows,
+-- and you get an empty result rather than a wrong one.
+with s as (
+  insert into schools (name, seats, granted_until, notes)
+  values (
+    'Example High School',            -- ← edit
+    32,                               -- one class, with headroom
+    '2027-08-31',                     -- settled: end of the next academic year
+    'early access promo, 1 class, free'
+  )
+  returning id
+)
+update classes
+   set school_id = (select id from s)
+ where teacher_id = (select id from teachers where email = 'teacher@school.ac.uk')  -- ← edit
+returning id as class_id, teacher_id, school_id;
+```
 
--- 2. Attach the teacher's classes to it. Look the classes up by the teacher's
---    id; do not guess by name.
-update classes set school_id = '<SCHOOL_UUID>' where teacher_id = '<TEACHER_UUID>';
-
--- 3. Check what was granted, and to how many students.
+```sql
+-- What was granted, and to how many students. Distinct students, so somebody in
+-- two of the school's classes counts once.
 select s.name, s.seats, s.granted_until,
        count(distinct m.student_id) filter (where m.status = 'active') as seats_used
 from schools s
 left join classes c on c.school_id = s.id
 left join class_memberships m on m.class_id = c.id
-where s.id = '<SCHOOL_UUID>'
 group by s.id, s.name, s.seats, s.granted_until;
 ```
 
-Renewal is `update schools set granted_until = '<date>' where id = '<uuid>';`.
-Withdrawal is the same statement with a past date — never a delete.
+Renewal sets `granted_until` to a later date; withdrawal sets it to `now()`.
+**Never delete a school to end access** — deleting sets `classes.school_id` back
+to NULL, losing the record of what was granted to whom, and an expired grant can
+be renewed where a deleted one cannot.
 
 **Verify the grant as a client, not as the SQL Editor.** The editor runs as
 superuser and bypasses both RLS and grants, so it will report success no matter
@@ -609,11 +633,34 @@ what the policies say. The same trap is documented at the foot of
 ```sql
 begin;
   set local role authenticated;
-  set local request.jwt.claims = '{"sub":"<STUDENT_UUID>"}';
-  select public.student_has_class_grant();   -- expect true once step 2 is done
-  select * from schools;                     -- EXPECT 0 rows: RLS denies clients
+  set local request.jwt.claims = '{"sub":"<a student uuid>"}';
+  -- One SELECT: the editor shows only the last result set, so a block ending in
+  -- several of them hides exactly the intermediate check you wanted.
+  select coalesce(auth.uid()::text, 'NULL - impersonation not taking') as uid,
+         public.student_has_class_grant()                              as has_grant;
 rollback;
 ```
+
+The impersonation does work in the Supabase editor — verified 2026-09-15, uid
+resolved and the function returned true — so a NULL `uid` here means the claim
+was not set, not that the pattern is unsupported.
+
+### Verified end to end, 2026-09-15
+
+The mechanism was run against the live database with a real class and a real
+student, and every layer agreed:
+
+| Check | Result |
+|---|---|
+| School created, class attached | one row, `school_id` populated |
+| Seat count | 1 |
+| Grant present in the data (superuser join) | true |
+| `student_has_class_grant()` as the student | true, with `auth.uid()` resolving |
+
+What that does **not** cover is the browser path — `getStudentProfile()` reading
+the RPC and `isPaidStudent` acting on it. Only signing in as a covered student
+and seeing premium unlocked proves that, and it is the half real students
+actually run.
 
 ---
 
