@@ -46,11 +46,23 @@ useEffect(() => {
       .single()
 
     if (!teacher) {
-      // No teachers row — a signed-in student (or non-teacher) landed on the
-      // teacher dashboard. It isn't theirs to see; send them to their own
-      // dashboard. (Data was never exposed: the assessments list is RLS-scoped
-      // to the owning teacher_id, and creation is blocked server-side.)
-      router.push('/student/dashboard')
+      // No teachers row. It isn't theirs to see. (Data was never exposed: the
+      // assessments list is RLS-scoped to the owning teacher_id, and creation is
+      // blocked server-side.)
+      //
+      // This used to send them straight to /student/dashboard, assuming that
+      // "not a teacher" means "student". It doesn't: a user whose provisioning
+      // never finished has NEITHER row, and that redirect bounced them on to
+      // /student, a login form which is no use to someone already signed in.
+      // Check before routing, and let /auth own the third case — it explains
+      // the state and offers a sign-out.
+      const { data: student } = await supabase
+        .from('students')
+        .select('id')
+        .eq('id', session.user.id)
+        .maybeSingle()
+
+      router.push(student ? '/student/dashboard' : '/auth')
       return
     }
 

@@ -7,7 +7,7 @@ import {
   pageContainer, narrowCard, pageTitle,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
-import { signIn, signUp, getSession } from '../../lib/auth'
+import { signIn, signUp, getSession, getUserRole, signOut } from '../../lib/auth'
 import { trackEvent } from '../../lib/analytics'
 import { GoogleButton } from '../../components/GoogleButton'
 
@@ -34,6 +34,10 @@ function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
 
+  // "Signed in" and "has an account" are not the same thing. See the redirect
+  // effect below.
+  const [strandedEmail, setStrandedEmail] = useState<string | null>(null)
+
   // Track teacher_signup_start once — on the toggle, or immediately on mount
   // when ?mode=signup opened the form directly.
   const signupTracked = useRef(false)
@@ -44,11 +48,39 @@ function AuthPage() {
     }
   }, [isSignUp])
 
-	useEffect(() => {
-	  getSession().then(session => {
-		if (session) router.push('/dashboard')
-	  })
-	}, [])
+  // Route a signed-in visitor by their ACTUAL role, not by assuming one.
+  //
+  // This used to be `if (session) router.push('/dashboard')`, which treats any
+  // session as a teacher's. /dashboard then made the mirror-image assumption,
+  // treating anyone without a teachers row as a student and forwarding them to
+  // /student/dashboard, which forwarded them to /student. Each hop guessed, and
+  // the guesses chained.
+  //
+  // A user with a session but NO profile row of either kind falls through all
+  // of it and lands on a student login form they cannot use, with no sign-out
+  // anywhere on the way. That state is real: it is what an account is left in
+  // whenever provisioning fails after the OAuth exchange — a dropped connection
+  // between Google and /api/auth/provision is enough, and the teacher signup bug
+  // fixed in PR #80 produced several.
+  //
+  // So: resolve the role, and treat "no account yet" as its own case rather
+  // than as somebody else's problem to redirect onward.
+  useEffect(() => {
+    getSession().then(async session => {
+      if (!session) return
+
+      const role = await getUserRole()
+      if (role === 'teacher') { router.push('/dashboard'); return }
+      if (role === 'student') { router.push('/student/dashboard'); return }
+
+      setStrandedEmail(session.user.email ?? '')
+    })
+  }, [])
+
+  async function handleStrandedSignOut() {
+    await signOut()
+    setStrandedEmail(null)
+  }
 
   async function handleSubmit() {
     setError(null)
@@ -81,6 +113,30 @@ function AuthPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Signed in, but no account was ever created. Tell them plainly and give them
+  // the one action that helps. Rendering the login form here would be worse than
+  // useless: they ARE logged in, so logging in again changes nothing.
+  if (strandedEmail !== null) {
+    return (
+      <main style={pageContainer}>
+        <div style={narrowCard}>
+          <h1 style={pageTitle}>Your account wasn&apos;t finished</h1>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+            You&apos;re signed in as <strong>{strandedEmail}</strong>, but setting up the
+            account didn&apos;t complete, so there&apos;s nothing to log in to yet.
+          </p>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+            Sign out and sign up again. If you used Google, choose the same Google
+            account and it will carry on from where it stopped.
+          </p>
+          <button onClick={handleStrandedSignOut} style={primaryButton}>
+            Sign out
+          </button>
+        </div>
+      </main>
+    )
   }
 
   if (confirmationSent) {
