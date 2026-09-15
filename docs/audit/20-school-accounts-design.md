@@ -247,8 +247,18 @@ student, and that is all it is.
 paper and see the feedback sheet; what they do not get is history — trends
 across sittings, class aggregates, the longitudinal view. That is the "free to
 use, paid to keep" doctrine already set in
-`docs/audit/16-teacher-paywall-plan.md`. One part of this needs the user's
-decision and is flagged as §6B.
+`docs/audit/16-teacher-paywall-plan.md`.
+
+**A free teacher's marking DOES write the student's mastery. Settled
+2026-09-15.** The paid line is drawn at the teacher's data, never at the child's.
+A `paper_sittings` row is recorded whoever marked it, the student's mastery
+updates from it, and the student sees their own progress — because it is their
+work and their account. What the teacher buys is the longitudinal view over it.
+
+This is a constraint on the teacher tier, not a detail of it: **no paywall may be
+implemented by discarding a student's own record.** Anything that would withhold
+a teacher feature by not writing student data is the wrong design and has to be
+built as a read-side restriction instead.
 
 ### Refund mechanics
 
@@ -375,21 +385,16 @@ side of the free/paid boundary, and step 6 of the build order waits on a price
 and a shape. It blocks nothing earlier — the promo, the class grant and the
 school mechanism are all student-seat-funded and need no teacher price at all.
 
-**B. Does a free teacher's marking still write the student's mastery signal?**
-The brief says a free teacher's feedback "is not saved". Read literally that
-means no `paper_sittings` row, which means the *student* loses a mastery signal
-derived from their own work because their teacher has not paid. That sits badly
-with student-owned accounts, and arguably with the Children's Code's fairness
-limb.
+**B. ✅ ANSWERED 2026-09-15 — a free teacher's marking DOES write the student's
+mastery.** The question was whether "a free teacher's feedback is not saved",
+read literally, meant no `paper_sittings` row — which would have made a child
+lose a signal derived from their own work because their teacher had not paid.
 
-> **Recommendation: write the sitting; withhold the teacher's longitudinal
-> view.** The student's mastery updates either way, because it is theirs. What
-> the paid tier buys the teacher is history and aggregation across sittings —
-> which is still "free to use, paid to keep", just with the line drawn at the
-> teacher's data rather than the child's.
-
-This is a product call, not an architectural one, and it changes what gets built
-in the teacher tier.
+Answered as recommended: the sitting is written whoever marked it, the student's
+mastery updates, and the paid tier buys the teacher the longitudinal view over
+it. The line falls on the teacher's data, never the child's. Recorded in §4,
+where it now stands as a constraint on the teacher tier rather than a preference:
+no paywall may be implemented by discarding a student's own record.
 
 **C. The school data protection position.** §4 states what the architecture
 implies. Whether the user is comfortable asserting it to a school's data
