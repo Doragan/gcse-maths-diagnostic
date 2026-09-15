@@ -70,10 +70,25 @@ export async function POST(req: Request) {
     // ── 4. Resolve the code → class (the gate the old flow was missing) ────────
     const { data: cls } = await admin
       .from('classes')
-      .select('id, name')
+      .select('id, name, teacher_id, school_id')
       .eq('code', raw)
       .single()
     if (!cls) {
+      return NextResponse.json({ error: 'Code not found' }, { status: 404 })
+    }
+
+    // A class can now outlive its teacher: deleting a teacher account sets
+    // classes.teacher_id to NULL instead of destroying the class and everyone's
+    // work in it (20260915_class_ownership_survives_teacher.sql). A class owned
+    // by a school is still perfectly real in that state and is waiting to be
+    // reassigned. A class owned by NEITHER a teacher nor a school is an orphan:
+    // nobody can see the roster, nobody is coming back for it, and joining it
+    // grants the student precisely nothing.
+    //
+    // Treated as "not found" rather than as its own error, because that is what
+    // it is from the student's side, and because a distinct message would tell
+    // an enumerator that the code was real.
+    if (!cls.teacher_id && !cls.school_id) {
       return NextResponse.json({ error: 'Code not found' }, { status: 404 })
     }
 
