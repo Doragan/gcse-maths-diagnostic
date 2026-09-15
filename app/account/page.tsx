@@ -3,14 +3,22 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getUser, updateEmail, updatePassword, deleteAccount, signOut } from '../../lib/auth'
+import { supabase } from '../../lib/supabase'
 import {
   colors, font, card,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
 } from '../../lib/styles'
 
+// This page serves BOTH roles. It was written for teachers and only the teacher
+// dashboard linked to it, so a student had no route to changing their password
+// or closing their account — on accounts the student owns, which made the right
+// to erasure undeliverable in practice for them. The student dashboard now links
+// here too, so the three things that differ by role are resolved at runtime:
+// where "back" goes, what deletion actually removes, and the email placeholder.
 export default function AccountPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
+  const [isStudent, setIsStudent] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const [newEmail, setNewEmail] = useState('')
@@ -29,9 +37,23 @@ export default function AccountPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
-    getUser().then(user => {
-      if (!user) { router.push('/auth'); return }
+    getUser().then(async user => {
+      // Logged out, so the role is unknowable. This used to send everyone to
+      // /auth, the TEACHER login, which is the wrong-role confusion this
+      // codebase keeps running into. Home serves both.
+      if (!user) { router.push('/'); return }
       setEmail(user.email ?? '')
+
+      // A student may read their own students row; a teacher gets nothing back,
+      // because the SELECT policy is auth.uid() = id. So "a row came back" is a
+      // sufficient role test and needs no new endpoint.
+      const { data: studentRow } = await supabase
+        .from('students')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle()
+      setIsStudent(!!studentRow)
+
       setLoading(false)
     })
   }, [])
@@ -110,7 +132,7 @@ export default function AccountPage() {
     <main style={styles.page}>
       <div style={styles.header}>
         <button
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push(isStudent ? '/student/dashboard' : '/dashboard')}
           style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
         >
           ← Back to dashboard
@@ -137,7 +159,7 @@ export default function AccountPage() {
             value={newEmail}
             onChange={e => setNewEmail(e.target.value)}
             style={inputStyle}
-            placeholder="new@school.ac.uk"
+            placeholder={isStudent ? 'new@example.com' : 'new@school.ac.uk'}
             autoComplete="email"
             onKeyDown={e => e.key === 'Enter' && handleEmailChange()}
           />
@@ -215,8 +237,15 @@ export default function AccountPage() {
       {/* Delete account */}
       <div style={{ ...card, border: `1px solid ${colors.dangerBorder}` }}>
         <h2 style={{ ...sectionTitle, color: colors.dangerText }}>Delete account</h2>
+        {/* Stated plainly and in full, with no persuasion either way. The
+            Children's Code asks that a child understands what happens, not that
+            the consequence be dressed up to discourage them — so this lists what
+            goes and stops. The typed-email confirmation is the safeguard against
+            an accidental click; the copy is not. */}
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
-          This will permanently delete your account, all your assessments, and all student results. This cannot be undone.
+          {isStudent
+            ? 'This permanently deletes your account and everything in it: your practice history, your progress on every skill, any classes you have joined, and any mini-exams you have taken. Your teacher will no longer see your results. This cannot be undone.'
+            : 'This will permanently delete your account, all your assessments, and all student results. This cannot be undone.'}
         </p>
         <div style={styles.field}>
           <label style={labelStyle}>
