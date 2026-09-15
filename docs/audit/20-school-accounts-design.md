@@ -64,9 +64,9 @@ Three properties this shape buys, all of which are load-bearing:
 - **The school never owns the student.** The grant is read *through* a
   membership the student created themselves. Revoking consent by leaving the
   class removes the grant and touches nothing the student owns.
-- **The promo is not a special case.** Three free teacher accounts = one
-  `schools` row with `granted_until = '2027-08-31'`, its teachers' classes
-  attached to it. No promo code, no second mechanism.
+- **The promo is not a special case.** A free teacher account is a `schools` row
+  with `granted_until = '2027-08-31'` and that teacher's classes attached to it.
+  No promo code, no second mechanism. See below for how many rows.
 - **One writer per arm.** Stripe writes the personal arm; a human writes the
   school arm. Neither can corrupt the other, which is why a school grant and a
   personal subscription can coexist without reconciliation.
@@ -195,6 +195,28 @@ signed the invoice rather than on a child.
 a second entitlement axis threaded through every call site, which is exactly
 what routing everything through `isPaidStudent` was built to prevent. A school
 paying per student expects that student to have the product.
+
+### The promo's shape — settled 2026-09-15
+
+**Three separate schools, one row each, seats for one class.** The three
+early-access classes are expected to be at three different schools, so the promo
+is three `schools` rows of roughly 32 seats, not one shared row. Nothing about
+the mechanism changes; it is the same row either way, which is what makes this a
+recruitment question rather than a technical one.
+
+**If a school wants more than one class, that is a negotiation at the time**, not
+a policy set in advance. The likely shape is a second free class for that school
+while the remaining promo places go elsewhere, so the three places still reach
+three schools. Implementation is the same row: raise `seats`, attach the second
+teacher's classes to it. The seat count then reports what is actually being given
+away, which is the number the renewal conversation turns on.
+
+The pull the other way was real and was rejected deliberately. Three teachers
+inside one department is a stronger position for the school conversation the
+promo exists to create, because the head of maths hears it from three colleagues
+rather than one. But with zero teacher signups ever recorded, requiring a cluster
+of three from one school sets a recruitment bar above one that has not yet been
+cleared at all. Reach beats concentration while the constraint is distribution.
 
 ### School ↔ teacher
 
