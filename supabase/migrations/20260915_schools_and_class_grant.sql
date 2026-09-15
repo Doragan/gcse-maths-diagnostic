@@ -150,14 +150,37 @@ commit;
 --     first, before suspecting the function.
 --
 -- ── Provisioning (the real thing) ────────────────────────────────────────────
+-- ⚠ COMMENT-ONLY AMENDMENT, 2026-09-15. The SQL this file applies is unchanged;
+-- only this runbook below it was rewritten, because the original version made a
+-- provisioning attempt fail twice in a row. It told you to paste a returned uuid
+-- into the next statement, and a companion probe keyed on a school name
+-- containing an em dash. One run pasted `<SCHOOL_UUID>` literally; the other
+-- silently set school_id to NULL and reported a perfectly correct `false`.
+-- Neither failure was in the mechanism. A runbook that only works after a manual
+-- edit will eventually be run without it.
+--
 -- The whole mechanism, for the promo and for a paying school alike. They differ
--- only in `seats` and `notes`.
+-- only in `seats` and `notes`. EDIT THE TWO MARKED LITERALS; COPY NO IDS.
 --
---   insert into schools (name, seats, granted_until, notes)
---   values ('Example High School', 35, '2027-08-31', 'early access promo, 3 teachers')
---   returning id;
---
---   update classes set school_id = '<SCHOOL_UUID>' where teacher_id = '<TEACHER_UUID>';
+--   -- Create the school AND attach the teacher's classes in ONE statement: the
+--   -- INSERT feeds its new id straight into the UPDATE, so nothing is carried by
+--   -- hand. The teacher is found by email, the only human-readable handle on the
+--   -- table; a wrong address matches nothing and the UPDATE touches no rows, so
+--   -- you get an empty result rather than a wrong one.
+--   with s as (
+--     insert into schools (name, seats, granted_until, notes)
+--     values (
+--       'Example High School',          -- <- edit
+--       32,                             -- one class, with headroom
+--       '2027-08-31',                   -- settled: end of the next academic year
+--       'early access promo, 1 class, free'
+--     )
+--     returning id
+--   )
+--   update classes
+--      set school_id = (select id from s)
+--    where teacher_id = (select id from teachers where email = 'teacher@school.ac.uk')  -- <- edit
+--   returning id as class_id, teacher_id, school_id;
 --
 --   -- what was granted, and to how many distinct students (the seat count)
 --   select s.name, s.seats, s.granted_until,
@@ -165,5 +188,11 @@ commit;
 --   from schools s
 --   left join classes c on c.school_id = s.id
 --   left join class_memberships m on m.class_id = c.id
---   where s.id = '<SCHOOL_UUID>'
 --   group by s.id, s.name, s.seats, s.granted_until;
+--
+-- ── Proven end to end, 2026-09-15 ───────────────────────────────────────────
+-- Run against the live database with a real class and a real student. The school
+-- was created and attached, the seat count read 1, the superuser join found the
+-- grant, and student_has_class_grant() returned true as the student with
+-- auth.uid() resolving. The impersonation pattern above does work in the Supabase
+-- editor, so a NULL uid means the claim was not set, not that it is unsupported.
