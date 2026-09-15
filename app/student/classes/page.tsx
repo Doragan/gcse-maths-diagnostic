@@ -25,6 +25,7 @@ function StudentClassesInner() {
   const [joinedName, setJoinedName] = useState('')
   const [invitations, setInvitations] = useState<StudentInvitation[]>([])
   const [acceptingId, setAcceptingId] = useState<string | null>(null)
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -50,7 +51,8 @@ function StudentClassesInner() {
       // An invitation to a class they are already in is noise — it means they
       // joined by code before accepting, which is a perfectly normal order.
       const joined = new Set(cls.map(c => c.class_id))
-      setInvitations(invites.filter(i => !joined.has(i.class_id)))
+      setInvitations(invites.invitations.filter(i => !joined.has(i.class_id)))
+      setNeedsEmailConfirmation(invites.needsEmailConfirmation)
     } finally {
       setLoading(false)
     }
@@ -132,6 +134,21 @@ function StudentClassesInner() {
           Dashboard
         </button>
       </div>
+
+      {/* Without this, an unconfirmed student sees an empty page and no reason.
+          "Your teacher has not invited you" and "we will not tell you until you
+          confirm" look identical from here, and a pupil told to expect an
+          invitation would reasonably conclude the product is broken. Worded
+          without promising an invitation exists, because at this point we have
+          deliberately not looked. */}
+      {needsEmailConfirmation && (
+        <div style={{ ...card, border: `1px solid ${colors.warningBorder}` }}>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: '1.6' }}>
+            Confirm your email address to see any class invitations from your teacher.
+            Check your inbox for the link we sent when you signed up.
+          </p>
+        </div>
+      )}
 
       {/* Invitations — shown first, because this is the one thing on the page
           that is waiting on the student rather than the other way round.
