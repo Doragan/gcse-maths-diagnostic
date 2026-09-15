@@ -209,3 +209,120 @@ export async function getStudentClasses(): Promise<StudentClass[]> {
     joined_at: m.joined_at,
   }))
 }
+
+// ── Invitations ───────────────────────────────────────────────────────────────
+// A teacher prepares a roster by inviting EMAIL addresses to a class; the
+// student still creates their own account and accepts. See
+// supabase/migrations/20260915_class_invitations.sql for why it works this way
+// rather than the teacher creating accounts directly.
+//
+// `class_invitations` denies every client role, so every call here goes through
+// a service-role route — there is no direct-from-browser variant to add later.
+
+export type StudentInvitation = {
+  id: string
+  class_id: string
+  class_name: string
+  created_at: string
+}
+
+export type TeacherInvitation = {
+  id: string
+  email: string
+  status: 'pending' | 'accepted' | 'revoked'
+  created_at: string
+  expires_at: string
+  accepted_at: string | null
+}
+
+/**
+ * Pending invitations for the signed-in student.
+ *
+ * Returns [] rather than throwing when the table is not there yet, so the code
+ * can be deployed before the migration is applied without breaking the classes
+ * page. Every other failure still throws.
+ */
+export async function getMyInvitations(): Promise<StudentInvitation[]> {
+  const session = await getSession()
+  if (!session) return []
+
+  const res = await fetch('/api/invitations', {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  if (res.status === 403 || res.status === 404 || res.status === 500) return []
+  if (!res.ok) throw new Error('Could not load your invitations')
+
+  const json = await res.json().catch(() => null)
+  return (json?.invitations ?? []) as StudentInvitation[]
+}
+
+/** Accept one. This is the student's own act — nothing joins them automatically. */
+export async function acceptInvitation(id: string): Promise<{ id: string; name: string }> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch('/api/invitations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ id }),
+  })
+  const json = await res.json().catch(() => null)
+  if (!res.ok || !json?.class) {
+    throw new Error(json?.error ?? 'Could not join the class')
+  }
+  return json.class as { id: string; name: string }
+}
+
+/** Teacher: every invitation on a class they own. */
+export async function getClassInvitations(classId: string): Promise<TeacherInvitation[]> {
+  const session = await getSession()
+  if (!session) return []
+
+  const res = await fetch(`/api/classes/${classId}/invitations`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  if (!res.ok) return []
+
+  const json = await res.json().catch(() => null)
+  return (json?.invitations ?? []) as TeacherInvitation[]
+}
+
+/** Teacher: invite a pasted list. Returns how many landed and what was rejected. */
+export async function inviteToClass(
+  classId: string,
+  emails: string,
+): Promise<{ invited: number; rejected: string[] }> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch(`/api/classes/${classId}/invitations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ emails }),
+  })
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(json?.error ?? 'Could not send the invitations')
+  return { invited: json?.invited ?? 0, rejected: json?.rejected ?? [] }
+}
+
+/** Teacher: withdraw a PENDING invitation. Accepted ones are left alone. */
+export async function revokeInvitation(classId: string, id: string): Promise<void> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch(`/api/classes/${classId}/invitations`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ id }),
+  })
+  if (!res.ok) throw new Error('Could not withdraw the invitation')
+}
