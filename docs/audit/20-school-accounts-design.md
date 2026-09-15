@@ -65,9 +65,10 @@ Three properties this shape buys, all of which are load-bearing:
 - **The school never owns the student.** The grant is read *through* a
   membership the student created themselves. Revoking consent by leaving the
   class removes the grant and touches nothing the student owns.
-- **The promo is not a special case.** A free teacher account is a `schools` row
+- **The promo is not a special case.** A promo teacher account is a `schools` row
   with `granted_until = '2027-08-31'` and that teacher's classes attached to it.
-  No promo code, no second mechanism. See below for how many rows.
+  No promo code, no second mechanism, and no promo *tier* either: it is a paid
+  school account whose grant happens to cost £0 (§9). See §4 for how many rows.
 - **One writer per arm.** Stripe writes the personal arm; a human writes the
   school arm. Neither can corrupt the other, which is why a school grant and a
   personal subscription can coexist without reconciliation.
@@ -738,6 +739,35 @@ trend, which is absurd to explain and worse to discover.
 That needs `teachers.school_id`, deliberately deferred in §3 until there was a
 reason for it. This is the reason. It lands in step 6 with the rest of the
 teacher tier.
+
+### The promo is a PAID school account, not a free one — settled 2026-09-15
+
+A promo teacher is not on the free tier. They are a teacher whose school holds a
+grant, and the rule above then gives them the paid tier. The grant costs £0; that
+is the only difference between the promo and a school that pays an invoice.
+
+**There is no promo tier, and there is nothing to build for one.** That is the
+real value of this decision — it removes a concept rather than adding one:
+
+- The free tier's design in this section never has to describe the promo. Free
+  means an individual who found the product alone and has no school behind them.
+- Step 6 needs one code path, not two: school grant in date → paid teacher tier.
+  A promo flag would have been a second way to be paid, and second ways to be
+  paid are where entitlement bugs live.
+- The promo teacher sees **the product you are selling**, which is the point of a
+  trial meant to convert a school. A promo that showed them the free tier would
+  be demonstrating the wrong thing.
+
+**It also puts the renewal conversation in the right place.** On 31 August 2027
+the grant lapses and the teacher drops to the free tier: their classes and every
+sitting remain, but the view across sittings stops. That is "free to use, paid to
+keep" landing exactly where §6B says it must — on the teacher's aggregated view,
+never on anyone's record, and with nothing deleted.
+
+⚠ The students in those classes revert to free on the same day, and that surface
+is child-facing. §4's lifecycle rules bind: history is kept, membership survives,
+**no countdown and no loss-aversion prompt**. The teacher may be told their
+renewal date plainly. A fifteen-year-old must not be shown a timer.
 
 ### One strategic observation, offered rather than decided
 
