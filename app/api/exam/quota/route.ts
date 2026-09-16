@@ -92,16 +92,23 @@ export async function POST(req: Request) {
       )
     }
 
-    // Persist the consumed generation. Read-then-write (not atomic): the worst a
-    // deliberate race buys a free student is one extra mini-exam — the same
-    // trade-off the assessments free counter accepts.
-    const { error: upErr } = await ctx.admin
-      .from('students')
-      .update({ mini_exam_period: q.next.period, mini_exams_used: q.next.used })
-      .eq('id', ctx.userId)
-    if (upErr) {
-      console.error('exam quota increment failed:', upErr.message)
-      return NextResponse.json({ error: 'Could not start the mini-exam' }, { status: 500 })
+    // Persist the consumed generation — but only when one was actually consumed.
+    // `persist` is false for a paid or school-covered student, whose generation
+    // rations nothing; see lib/exam/monthlyQuota.ts for why that matters once a
+    // grant can lapse mid-month.
+    //
+    // Read-then-write (not atomic): the worst a deliberate race buys a free
+    // student is one extra mini-exam — the same trade-off the assessments free
+    // counter accepts.
+    if (q.persist) {
+      const { error: upErr } = await ctx.admin
+        .from('students')
+        .update({ mini_exam_period: q.next.period, mini_exams_used: q.next.used })
+        .eq('id', ctx.userId)
+      if (upErr) {
+        console.error('exam quota increment failed:', upErr.message)
+        return NextResponse.json({ error: 'Could not start the mini-exam' }, { status: 500 })
+      }
     }
 
     const remaining = isPaid ? null : Math.max(0, FREE_MINI_EXAMS_PER_MONTH - q.next.used)
