@@ -5,10 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
-import {
-  getClassMembers, rotateClassCode, type ClassMember,
-  getClassInvitations, inviteToClass, revokeInvitation, type TeacherInvitation,
-} from '../../../../lib/classes'
+import { getClassMembers, rotateClassCode, type ClassMember } from '../../../../lib/classes'
 import ClassAnalytics from '../../../../components/ClassAnalytics'
 import ClassCoverage from '../../../../components/ClassCoverage'
 import {
@@ -31,12 +28,6 @@ export default function ClassRosterPage() {
   // Bumped when coverage edits are committed → remounts ClassAnalytics to refetch.
   const [coverageVersion, setCoverageVersion] = useState(0)
 
-  const [invitations, setInvitations] = useState<TeacherInvitation[]>([])
-  const [emailInput, setEmailInput] = useState('')
-  const [inviting, setInviting] = useState(false)
-  const [inviteError, setInviteError] = useState('')
-  const [inviteResult, setInviteResult] = useState<{ invited: number; rejected: string[] } | null>(null)
-
   useEffect(() => {
     getSession().then(async session => {
       if (!session) { router.push('/auth'); return }
@@ -55,9 +46,6 @@ export default function ClassRosterPage() {
       } catch {
         // Roster fetch failed (e.g. not the owner) — show empty rather than break.
       }
-      // Returns [] on any failure, including the table not existing yet, so the
-      // page works whether or not the invitations migration has been applied.
-      setInvitations(await getClassInvitations(classId))
       setLoading(false)
     })
   }, [classId])
@@ -65,40 +53,6 @@ export default function ClassRosterPage() {
   const joinUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/student/classes?code=${code}`
     : ''
-
-  /** Where an invited student goes. No code needed — the invitation is waiting. */
-  const invitedUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/student/classes`
-    : ''
-
-  async function handleInvite() {
-    setInviteError('')
-    setInviteResult(null)
-    if (!emailInput.trim()) { setInviteError('Paste some email addresses first.'); return }
-    setInviting(true)
-    try {
-      const result = await inviteToClass(classId, emailInput)
-      setInviteResult(result)
-      setEmailInput('')
-      setInvitations(await getClassInvitations(classId))
-    } catch (e: any) {
-      setInviteError(e.message ?? 'Could not save the invitations.')
-    } finally {
-      setInviting(false)
-    }
-  }
-
-  async function handleRevoke(id: string, email: string) {
-    if (!confirm(`Withdraw the invitation for ${email}?`)) return
-    try {
-      await revokeInvitation(classId, id)
-      setInvitations(await getClassInvitations(classId))
-    } catch {
-      alert('Could not withdraw the invitation. Please try again.')
-    }
-  }
-
-  const pending = invitations.filter(i => i.status === 'pending')
 
   async function handleRotate() {
     // Worth a confirm: the old code and every link already shared stop working
@@ -199,90 +153,6 @@ export default function ClassRosterPage() {
             Copy
           </button>
         </div>
-      </div>
-
-      {/* Invitations — the alternative to reading a code out in a lesson.
-          Deliberately does NOT create accounts: the student still signs up and
-          accepts, which is what keeps the account theirs and the membership
-          consented. See supabase/migrations/20260915_class_invitations.sql. */}
-      <div style={card}>
-        <h2 style={sectionTitle}>
-          Invite by email {pending.length > 0 && (
-            <span style={{ color: colors.textHint, fontWeight: '400' }}>({pending.length} waiting)</span>
-          )}
-        </h2>
-        <p style={{ fontSize: font.sm, color: colors.textHint, margin: '4px 0 12px', lineHeight: '1.6' }}>
-          Paste your class list — commas, spaces or one per line. This does not create
-          accounts or send anything: each student signs up themselves with that address,
-          and the invitation is waiting for them. Tell them to go to{' '}
-          <strong>{invitedUrl}</strong>.
-        </p>
-        <textarea
-          value={emailInput}
-          onChange={e => setEmailInput(e.target.value)}
-          placeholder={'a.pupil@school.sch.uk\nb.pupil@school.sch.uk'}
-          rows={4}
-          style={{
-            width: '100%', padding: '10px 12px', fontSize: font.base,
-            border: `1px solid ${colors.border}`, borderRadius: radius.md,
-            fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box',
-          }}
-        />
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
-          <button
-            onClick={handleInvite}
-            disabled={inviting || !emailInput.trim()}
-            style={{
-              ...secondaryButton,
-              width: 'auto', padding: '8px 16px',
-              background: colors.primary, color: '#fff', border: 'none',
-              opacity: inviting || !emailInput.trim() ? 0.6 : 1,
-            }}
-          >
-            {inviting ? 'Saving…' : 'Invite'}
-          </button>
-          {inviteResult && (
-            <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
-              {inviteResult.invited} invited
-              {inviteResult.rejected.length > 0 && `; skipped ${inviteResult.rejected.join(', ')}`}
-            </span>
-          )}
-        </div>
-        {inviteError && (
-          <p style={{ fontSize: font.sm, color: colors.dangerText, margin: '8px 0 0' }}>{inviteError}</p>
-        )}
-
-        {pending.length > 0 && (
-          <div style={{ marginTop: '16px' }}>
-            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 8px', fontWeight: '600' }}>
-              Invited, not joined yet
-            </p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {pending.map(i => (
-                <li
-                  key={i.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    gap: '12px', padding: '6px 0', borderBottom: `1px solid ${colors.border}`,
-                  }}
-                >
-                  <span style={{ fontSize: font.sm, color: colors.textPrimary, wordBreak: 'break-all' }}>
-                    {i.email}
-                  </span>
-                  <button
-                    onClick={() => handleRevoke(i.id, i.email)}
-                    style={{
-                      ...secondaryButton, width: 'auto', padding: '4px 10px',
-                      fontSize: font.sm, flexShrink: 0,
-                    }}
-                  >
-                    Withdraw
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
 
       {/* Roster */}

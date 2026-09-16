@@ -1,4 +1,38 @@
 -- ─────────────────────────────────────────────────────────────────────────────
+-- ⚠ THIS TABLE IS APPLIED BUT UNUSED. The code that read it was reverted on
+-- 2026-09-16, one day after it shipped. Nothing writes to it and nothing reads
+-- it. It holds one test row.
+--
+-- WHY IT WAS REVERTED: without email delivery, invitations are strictly worse
+-- than the join code they were meant to improve on. Both require the teacher to
+-- tell the class something. A code is explicit and self-checking — typing it
+-- wrong says "code not found" — whereas an invitation is matched on an invisible
+-- key, so a pupil who signs up with a personal address instead of their school
+-- one sees an empty page and no explanation. It added a failure mode and
+-- removed nothing.
+--
+-- The one thing a join code cannot do is tell a teacher WHO HAS NOT JOINED yet,
+-- since a code implies no expected roster. That is real, and it is the reason to
+-- revisit this. It only matters once a real class is chasing stragglers, and
+-- docs/audit/19 §4 is explicit that teacher features should not be built before
+-- a real class has used the existing ones. This was built ahead of that rule.
+--
+-- WHY THE FILE STAYS: the table EXISTS in production. Deleting this migration
+-- would leave a live table defined nowhere in version control, which is audit
+-- finding S1 and the exact gap this whole line of work has been closing (see
+-- 20260913_auth_signup_triggers.sql and 20260914_capture_students_teachers.sql).
+-- A file describing an unused table is a much smaller problem than a table
+-- nobody can find.
+--
+-- TO REVIVE IT: `git revert` the revert. The schema below is unchanged and still
+-- correct, and the design reasoning is docs/audit/20 §10. Do the email delivery
+-- at the same time, or it will be worse than a join code again.
+--
+-- The one pending test row can be removed at any time; it is inert either way:
+--   delete from public.class_invitations;
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- Class invitations — a teacher prepares a roster without owning the accounts.
 --
 -- docs/audit/20-school-accounts-design.md §10. The question was whether a teacher
