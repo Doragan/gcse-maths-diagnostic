@@ -671,10 +671,37 @@ student, and every layer agreed:
 | Grant present in the data (superuser join) | true |
 | `student_has_class_grant()` as the student | true, with `auth.uid()` resolving |
 
-What that does **not** cover is the browser path — `getStudentProfile()` reading
-the RPC and `isPaidStudent` acting on it. Only signing in as a covered student
-and seeing premium unlocked proves that, and it is the half real students
-actually run.
+### The browser path too, 2026-09-16
+
+The above proved the database agrees with itself. What it could not prove was the
+half real students actually run. That was closed by signing in as the covered
+student and looking, with the grant temporarily back in date:
+
+| Surface | Free state | Observed while covered |
+|---|---|---|
+| Weak spots card | blurred behind a lock | skills listed plainly |
+| Its button | "Upgrade to blitz these" | "Blitz weak spots" |
+| Per-skill actions | padlocks | play arrows |
+| Upgrade modal | shown | absent |
+| Mini-exam allowance | 1 per month | no limit |
+
+**The mini-exam row is the one that mattered most**, and it is why it was worth
+checking rather than reasoning about. Everything above it reads the client path —
+`getStudentProfile()` calling the RPC, merging it, and `isPaidStudent` acting on
+the result. The allowance is decided by `/api/exam/quota`, which runs under the
+service role, cannot use the RPC at all, and reaches the same conclusion by a
+completely separate query. Had the dashboard looked paid while the allowance
+still read 1, the break would have been exactly the one that matters
+commercially: a school pays, and their pupils notice nothing.
+
+Both arms of the union are now proven against live data, at both layers. The test
+school was expired again immediately afterwards; the class stays attached to it,
+which is the correct resting state for a lapsed grant and what a real school will
+look like after August 2027.
+
+**Still never exercised:** expiry itself. Nobody has watched access actually
+revert. §4's rules say history and membership survive and only the entitlement
+flips, and the data is arranged so that follows, but it has not been seen.
 
 ---
 
