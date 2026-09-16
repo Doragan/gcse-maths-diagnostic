@@ -5,8 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getStudentProfile } from '../../../lib/auth'
 import {
   getStudentClasses, joinClass, leaveClass,
-  getMyInvitations, acceptInvitation,
-  type StudentClass, type StudentInvitation,
+  type StudentClass,
 } from '../../../lib/classes'
 import {
   colors, font, radius, card,
@@ -23,9 +22,6 @@ function StudentClassesInner() {
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState('')
   const [joinedName, setJoinedName] = useState('')
-  const [invitations, setInvitations] = useState<StudentInvitation[]>([])
-  const [acceptingId, setAcceptingId] = useState<string | null>(null)
-  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -43,43 +39,10 @@ function StudentClassesInner() {
 
   async function load() {
     try {
-      // Independent of each other, so fetched together. Invitations never block
-      // the page: getMyInvitations returns [] rather than throwing if the table
-      // is not there yet, so the code deploys safely before the migration.
-      const [cls, invites] = await Promise.all([getStudentClasses(), getMyInvitations()])
-      setClasses(cls)
-      // An invitation to a class they are already in is noise — it means they
-      // joined by code before accepting, which is a perfectly normal order.
-      const joined = new Set(cls.map(c => c.class_id))
-      setInvitations(invites.invitations.filter(i => !joined.has(i.class_id)))
-      setNeedsEmailConfirmation(invites.needsEmailConfirmation)
+      setClasses(await getStudentClasses())
     } finally {
       setLoading(false)
     }
-  }
-
-  async function handleAccept(invitation: StudentInvitation) {
-    setAcceptingId(invitation.id)
-    setJoinError('')
-    setJoinedName('')
-    try {
-      const cls = await acceptInvitation(invitation.id)
-      setJoinedName(cls.name)
-      await load()
-    } catch (e: any) {
-      setJoinError(e.message ?? 'Could not join the class.')
-    } finally {
-      setAcceptingId(null)
-    }
-  }
-
-  /**
-   * Dismissing hides the invitation for this visit only; it is not revoked.
-   * A student who says "not now" should not have the decision made permanent on
-   * their behalf, and only their teacher can actually withdraw it.
-   */
-  function handleDismiss(id: string) {
-    setInvitations(prev => prev.filter(i => i.id !== id))
   }
 
   async function handleJoin() {
@@ -134,57 +97,6 @@ function StudentClassesInner() {
           Dashboard
         </button>
       </div>
-
-      {/* Without this, an unconfirmed student sees an empty page and no reason.
-          "Your teacher has not invited you" and "we will not tell you until you
-          confirm" look identical from here, and a pupil told to expect an
-          invitation would reasonably conclude the product is broken. Worded
-          without promising an invitation exists, because at this point we have
-          deliberately not looked. */}
-      {needsEmailConfirmation && (
-        <div style={{ ...card, border: `1px solid ${colors.warningBorder}` }}>
-          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: '1.6' }}>
-            Confirm your email address to see any class invitations from your teacher.
-            Check your inbox for the link we sent when you signed up.
-          </p>
-        </div>
-      )}
-
-      {/* Invitations — shown first, because this is the one thing on the page
-          that is waiting on the student rather than the other way round.
-          Nothing here is automatic: an invitation is an offer, and joining is
-          the student's own act. That is the property the whole invitation
-          design exists to protect. No timer, no urgency, and "Not now" simply
-          hides it for this visit rather than refusing it for good. */}
-      {invitations.map(invitation => (
-        <div key={invitation.id} style={{ ...card, border: `2px solid ${colors.primary}` }}>
-          <h2 style={sectionTitle}>You have been invited to a class</h2>
-          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '4px 0 12px', lineHeight: '1.6' }}>
-            Your teacher has invited you to join <strong>{invitation.class_name}</strong>.
-            Joining shares your relevant Mathsense data with them. You can leave any time,
-            and your account and progress always stay with you.
-          </p>
-          <div style={styles.row}>
-            <button
-              onClick={() => handleAccept(invitation)}
-              disabled={acceptingId === invitation.id}
-              style={{
-                ...primaryButton,
-                width: 'auto',
-                opacity: acceptingId === invitation.id ? 0.6 : 1,
-              }}
-            >
-              {acceptingId === invitation.id ? 'Joining…' : `Join ${invitation.class_name}`}
-            </button>
-            <button
-              onClick={() => handleDismiss(invitation.id)}
-              style={{ ...secondaryButton, width: 'auto' }}
-            >
-              Not now
-            </button>
-          </div>
-        </div>
-      ))}
 
       {/* Join */}
       <div style={card}>
