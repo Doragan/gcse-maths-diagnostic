@@ -67,7 +67,15 @@ function StudentClassesInner() {
   }
 
   async function handleLeave(classId: string, name: string) {
-    if (!confirm(`Leave "${name}"? Your teacher will no longer see your data for this class. Your account and progress stay with you.`)) return
+    // States what actually stops, and what does not. "Your data for this class"
+    // was wrong in both directions: the teacher sees the student's whole
+    // practice record, not a class-shaped subset of it, and leaving stops future
+    // access rather than unmaking what they have already seen.
+    if (!confirm(
+      `Leave "${name}"?\n\n`
+      + `Your teacher will no longer see your practice record.\n\n`
+      + `Your account, your progress and everything you have done stay with you.`
+    )) return
     try {
       await leaveClass(classId)
       setClasses(prev => prev.filter(c => c.class_id !== classId))
@@ -102,8 +110,10 @@ function StudentClassesInner() {
       <div style={card}>
         <h2 style={sectionTitle}>Join a class</h2>
         <p style={{ fontSize: font.sm, color: colors.textHint, margin: '4px 0 12px', lineHeight: '1.6' }}>
-          Enter the code from your teacher. Joining shares your relevant Mathsense data
-          with them. You can leave any time.
+          Enter the code from your teacher. Joining lets them see your practice record —
+          which skills you have tried, how you did, and when — including practice you do
+          on your own, not just work they set. They never see your email address or the
+          answers you type. You can leave any time.
         </p>
         <div style={styles.row}>
           <input
