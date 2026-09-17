@@ -97,6 +97,8 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/admin\/questions\/preview$/, 'Admin – question preview'],
   [/^\/admin\/questions\/[^/]+$/, 'Admin – edit question', '/admin/questions/[id]'],
   [/^\/admin\/questions$/, 'Admin – questions'],
+  [/^\/admin\/schools$/, 'Admin – schools'],
+  [/^\/admin\/usage$/, 'Admin – usage'],
   [/^\/admin$/, 'Admin'],
 
   // Demo — the guided tour and its four stops. The /demo hub is last of these

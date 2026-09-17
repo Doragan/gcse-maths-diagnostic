@@ -58,6 +58,19 @@ export default function AdminPage() {
           View usage
         </button>
       </div>
+
+      <div style={card}>
+        <h2 style={sectionTitle}>Schools</h2>
+        <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+          Seats granted and seats used, per school. Read-only — provisioning is by hand.
+        </p>
+        <button
+          onClick={() => router.push('/admin/schools')}
+          style={{ ...primaryButton, marginTop: '8px' }}
+        >
+          View schools
+        </button>
+      </div>
     </main>
   )
 }
