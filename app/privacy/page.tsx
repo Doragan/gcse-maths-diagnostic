@@ -29,25 +29,36 @@ export default function PrivacyNoticePage() {
         <Section title="3. What data we collect">
           <SubHeading>Teachers</SubHeading>
           <Ul items={[
-            'Name and email address (via account registration)',
-            'School or institution name',
+            'Email address (via account registration)',
             'Payment information (processed securely by Stripe — we do not store card details)',
-            'Assessment data you create',
+            'Classes you create, and the work you set and mark',
           ]} />
           <SubHeading>Students</SubHeading>
           <Ul items={[
             'Display name (the name you choose at registration or enter when joining an assessment)',
-            'Email address (for account registration and password recovery)',
+            'Email address — held by our authentication provider for sign-in and password recovery. It is not stored in your student record, and your teacher cannot see it through Mathsense.',
             'Year group (if provided)',
             'Confirmation that you are aged 13 or over',
-            'Diagnostic results: which maths skills are mastered or need practice',
-            'Assessment participation records',
+            'Practice and diagnostic results: which maths skills are mastered or need practice',
+            'Assessment and class participation records',
           ]} />
           <SubHeading>Automatically collected data</SubHeading>
           <Ul items={[
             'Basic usage logs (collected by Supabase and Vercel for security and performance purposes)',
+            'Product analytics we store ourselves: pages viewed and actions taken, recorded against a per-tab session identifier rather than your account',
+            'Google Analytics — only if you accept analytics cookies. See below.',
           ]} />
-          <P>We do not use tracking cookies, advertising pixels, or behavioural analytics.</P>
+          <P>
+            We use Google Analytics to understand how people find and use Mathsense.
+            It is loaded <strong>only after you accept analytics cookies</strong>, and not
+            at all if you decline or ignore the banner. Declining does not limit anything
+            you can do on Mathsense. Google is based in the United States, so accepting
+            means some usage data is transferred there.
+          </P>
+          <P>
+            We do not use advertising pixels, and we do not share your data with
+            advertisers.
+          </P>
         </Section>
 
         <Section title="4. Why we collect your data and our legal basis">
@@ -80,18 +91,34 @@ export default function PrivacyNoticePage() {
           <Ul items={[
             'Supabase (database and authentication) — servers in EU West (eu-west-2)',
             'Vercel (website hosting) — servers in London, UK (eu-west-2)',
-            'Stripe (payment processing for teacher accounts) — does not process student data',
+            'Stripe (payment processing) — receives an email address and payment details when an account is paid for, whether by a teacher, a student, or a parent paying on a student’s behalf. It never receives practice or results data.',
+            'Resend (email delivery) — receives an email address when we send a password reset, a confirmation, or a practice reminder you have opted in to.',
+            'Upstash (rate limiting) — briefly holds a request identifier to stop automated abuse of sign-in and class-join endpoints.',
+            'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States.',
           ]} />
           <P>Each of these providers acts as a data processor under a formal data processing agreement. We do not share your data with any other third parties without your consent, unless required by law.</P>
+          <P>
+            <strong>Teachers and schools.</strong> When you join a class, your teacher can
+            see your display name, year group, and your progress in the maths skills the
+            class covers, together with any work they set or mark for you. They cannot see
+            your email address, your password, or anything you practise outside that
+            relationship. Joining a class is your own choice, and you can leave at any
+            time from <em>My classes</em>, which stops that sharing.
+          </P>
         </Section>
 
         <Section title="7. How long we keep your data">
           <Ul items={[
-            'Active accounts: data is retained while your account is active',
-            'Student diagnostic results: retained for 1 year after last login, then deleted',
+            'Active accounts: data is retained while your account is in use',
+            'Inactive student accounts: if you do not sign in or practise for 1 year, we delete the account and everything in it',
             'Deleted accounts: all personal data is permanently deleted within 30 days of account deletion',
             'Teacher payment records: retained for 7 years as required by HMRC rules',
           ]} />
+          <P>
+            You do not have to wait for that. You can delete your account yourself at any
+            time from <em>Account settings</em>, which removes your practice history,
+            your progress, and your class memberships permanently.
+          </P>
         </Section>
 
         <Section title="8. Your rights">
