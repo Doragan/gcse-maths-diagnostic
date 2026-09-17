@@ -2,7 +2,7 @@
 
 **DRAFT. NOT SIGNED OFF.**
 
-_Version 0.1, 2026-09-17. Follows the ICO's DPIA structure so a school's data
+_Version 0.2, 2026-09-18 (see revision history at the foot). Follows the ICO's DPIA structure so a school's data
 protection officer recognises the shape. Every factual statement was checked
 against the code and the live database on the day; the evidence trail is in
 `docs/audit/21-school-data-protection-position.md`._
@@ -187,13 +187,54 @@ Likelihood and severity are judged for a learner, not for the business.
 
 ### R3 — Inaccurate attainment data informs a decision about a child
 
+_Revised 2026-09-18, downwards. The first version of this entry rated the risk
+medium-to-high and recommended server-side grading before any school contract.
+The controller challenged that as disproportionate, and was right. The original
+reasoning conflated two different things, and the revision is recorded here
+rather than replacing the original silently._
+
+**The conflation.** There are two ways a skill map could overstate a pupil, and
+they are not the same risk.
+
+*Forging the record.* Answer checking happens in the browser and the pupil's own
+device reports whether they were correct, so the request could be tampered with.
+This needs developer tools and some understanding of what is being sent. It is
+rare, and the motive is weak: the only prize is a flattering chart that misleads
+nobody but themselves.
+
+*Looking up the answer.* This needs no knowledge at all — but it is **not an
+accuracy failure**. It is the nature of unsupervised practice, every teacher
+already knows homework is not invigilated, and "the pupil answered this
+correctly" is an accurate record of what happened. Calling it inaccurate data
+conflates a limit on what the data *means* with the data being *wrong*, which is
+a materially weaker claim than the first version made.
+
 | | |
 |---|---|
-| Harm | A teacher intervenes, sets work, or forms a view on the basis of a skill map that is wrong |
-| Likelihood | **High.** Answer checking happens in the browser and the learner's own device records whether they were correct. A learner can inflate their map, and a bored one might. |
-| Severity | Medium. Misdirected teaching, or a child's difficulty going unseen because the data says otherwise. |
-| Measures | Today: none that prevent it. The accuracy limitation is known internally (accepted risk "F5", 2026-07-28) with the stated trigger for fixing it being teachers paying for mastery data. |
-| Residual | **Medium–high, and this is the most substantial unmitigated risk in this assessment.** Article 5(1)(d) requires personal data to be accurate. Selling a school a skills map that the pupil can alter sits badly against that, independently of whether it is commercially acceptable. **Recommendation: server-side grading of at least assignment and class-visible attempts before the first school contract.** |
+| Harm | A teacher forms a view, or sets work, on a skill map that overstates a pupil |
+| Likelihood | **Low** for forgery, which needs technical knowledge and offers nothing. Unsupervised practice being unsupervised is expected rather than a failure. |
+| Severity | Low to medium. Practice charts are not assessment evidence, and a teacher triangulates against classwork and tests. |
+| Measures | Teacher-marked papers are written under the **service role** (`app/api/papers/sittings`), so the evidence a teacher most relies on is not self-reported at all. Each attempt already carries a `sitting_id`, so marked and self-reported evidence are distinguishable in the data. |
+| Residual | **Low.** |
+
+**Not being done, deliberately.** `get_class_skill_mastery` does not return
+`sitting_id`, so a teacher cannot currently see which skills rest on a paper they
+marked and which on self-practice. Surfacing that would be the proportionate fix,
+and it is not being built, because **no paper sitting has ever been recorded**.
+Every piece of mastery data in the system is self-reported, so a provenance split
+would show the same thing for every pupil on every skill — which is to say
+nothing. Building it now would repeat the mistake of the class-invitations
+feature, built ahead of use and reverted a week later.
+
+**Trigger to revisit.** The first time a teacher marks a paper. From that point
+marked and self-reported evidence coexist, the distinction becomes real, and the
+useful version is not a disclaimer but a prompt: where a pupil looks strong on
+self-practice with no marked evidence, that is where the next test should spend a
+question.
+
+**One caveat that survives the downgrade.** If exam readiness or a predicted
+grade is ever surfaced to a school off this data, the stakes rise, because a
+prediction carries more weight than a practice chart. Revisit then.
 
 ### R4 — One learner's data is shown to the wrong person
 
@@ -249,24 +290,32 @@ Likelihood and severity are judged for a learner, not for the business.
 
 ## Step 7 — Outcome
 
-**Risks accepted as low after mitigation:** R5, R6, R7, and R1 and R4 at the lower
-end of their ranges.
+**Risks accepted as low after mitigation:** R3 (revised), R5, R6, R7, and R1 and
+R4 at the lower end of their ranges.
 
-**Risks requiring action before a school contract:**
+**Outstanding actions**
 
 | Action | Addresses | Status |
 |---|---|---|
-| Server-side grading of class-visible attempts | R3 | **Not started. The most significant gap.** |
-| Two-factor authentication on all provider accounts, written recovery procedure | R8 | Not started, cheap |
+| Two-factor authentication on Supabase, Vercel, Stripe and the domain registrar; a written recovery procedure | R8 | **Not started. The largest remaining gap, and cheap.** |
 | Test the class-sharing wording with real teachers and learners | R1, Step 3 | Not started |
 | Cyber Essentials certification | R4 | Optional; increasingly a procurement expectation |
 | Independent penetration test | R4 | Optional at this scale |
+| Surface marked-versus-self-reported evidence in the teacher view | R3 | Deliberately deferred. Trigger: the first recorded paper sitting. |
 
-**Not approved for sign-off in this state.** R3 is the item to resolve, and not
-because a school will ask about it. It will not. It matters because charging a
-school for a skills map that the pupil can alter is a poor foundation for the
-thing being sold, and Article 5(1)(d) has a view about accuracy independent of
-what any customer notices.
+**Ready for the controller's sign-off, with those actions recorded as
+outstanding.** No risk in this assessment is now rated above medium residual, and
+the one that is — R8, a single person holding every key — is inherent to a
+one-person business rather than a defect, and is partly addressable this week for
+almost nothing.
+
+The earlier version of this section withheld sign-off over R3. That has been
+revised: see R3 for the reasoning, and for the record that the original rating
+was the assessor's error rather than a change in the facts.
+
+**Sign-off is the controller's, not the assessor's.** Nothing above should be read
+as approval; it is a recommendation that the document is now in a state where
+approval is a reasonable decision.
 
 ---
 
@@ -274,6 +323,11 @@ what any customer notices.
 
 **Reviewed by:** .................................  Date: ..............
 
-_A DPIA is a living document. It should be revisited when: server-side grading
-ships; the first school contract is signed; the teacher paid tier launches; or any
-new category of personal data is collected._
+_A DPIA is a living document. It should be revisited when: **the first paper
+sitting is recorded** (R3); the first school contract is signed; the teacher paid
+tier launches; exam readiness or a predicted grade is surfaced to a school (R3);
+or any new category of personal data is collected._
+
+_Revision history: v0.1 2026-09-17 first draft. v0.2 2026-09-18 R3 downgraded
+from medium-high to low and the recommended action withdrawn, on the controller's
+challenge; outcome changed from withheld to ready for sign-off._
