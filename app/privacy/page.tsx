@@ -99,11 +99,20 @@ export default function PrivacyNoticePage() {
           <P>Each of these providers acts as a data processor under a formal data processing agreement. We do not share your data with any other third parties without your consent, unless required by law.</P>
           <P>
             <strong>Teachers and schools.</strong> When you join a class, your teacher can
-            see your display name, year group, and your progress in the maths skills the
-            class covers, together with any work they set or mark for you. They cannot see
-            your email address, your password, or anything you practise outside that
-            relationship. Joining a class is your own choice, and you can leave at any
-            time from <em>My classes</em>, which stops that sharing.
+            see your display name, your year group, and your practice record: which skills
+            you have attempted, whether you got each one right, and when. That includes
+            practice you do on your own, not only work your teacher sets — your skill map
+            is built from everything you do, so sharing it shares all of it. They can also
+            see any work they set or mark for you.
+          </P>
+          <P>
+            They <strong>cannot</strong> see your email address, your password, which
+            individual questions you answered, or the answers you typed.
+          </P>
+          <P>
+            Joining a class is your own choice, and nobody can add you to one. You can
+            leave at any time from <em>My classes</em>, which stops the sharing from that
+            point on.
           </P>
         </Section>
 
