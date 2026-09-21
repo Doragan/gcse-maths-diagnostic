@@ -85,9 +85,19 @@ Every row below was checked against the code on 2026-09-17.
 |---|---|
 | Email address | `students` has **no email column at all**. It lives only in `auth.users`, which no teacher-facing query reaches. |
 | Password | Never held in readable form; authentication is the provider's. |
-| Which questions, or the answers typed | `get_class_skill_mastery` deliberately withholds `question_id` and the submitted answer |
+| Which questions, or the answers typed, **in practice** | `get_class_skill_mastery` deliberately withholds `question_id` and the submitted answer. **Mini-exams are the exception — see the row below.** |
 | Anything about a pupil not in their class | Every read is gated on `teacher_owns_class` and active membership |
 | Seat counts, grant dates, commercial data | `schools` denies every client role — no policy, grants revoked |
+
+**🔴 Corrected 2026-09-17: mini-exam scripts ARE visible, and this table said
+they were not.** `get_class_exam_paper` (`20260801_class_exam_readiness.sql`)
+returns the whole paper — every question id and everything the pupil typed — and
+`app/dashboard/classes/[id]/exam/[sessionId]` renders it. The migration's own
+header says so plainly; this document simply did not read it. The product
+decision is defensible (a mini-exam is assessment, and marking it means reading
+it), but four documents asserted the opposite, and it is the one claim in this
+position a DPO could have disproved in ten minutes. Now stated in the school
+agreement at §4.2 and on the live page. Found by `docs/audit/23` §2.3.
 
 **The email point is the strongest single fact in the whole position.** Most
 edtech can hand a school a pupil's email address. We cannot, because the
@@ -161,9 +171,10 @@ off for everyone is a configuration change rather than a rebuild.
 
 **Cannot yet, and a DPO may ask:**
 
-- **No DPIA.** Processing children's data and profiling their attainment is
-  squarely the kind of processing the ICO expects one for. This is the largest
-  documentation gap and it is not satisfied by this document.
+- ~~**No DPIA.**~~ **Written since — `docs/legal/dpia-student-data.md`, v0.2.** It
+  is drafted and recommended for sign-off, but still carries a DRAFT status line,
+  so a school asking for it today would be handed an unsigned document. Signing
+  it off is the remaining step, not writing it.
 - **No named data protection officer.** Not required at this size, but the
   question gets asked; the honest answer is the contact address in the notice.
 - **No formal security certification.** No ISO 27001, no Cyber Essentials.
@@ -198,6 +209,10 @@ deliberately rather than arrived at by an implementation.
 ## 8. Pointers
 
 - `docs/legal/dpa-schools.md` — the school-facing document this reasoning backs
+- `app/dpa/page.tsx` — the live page at mathsense.net/dpa. Until 2026-09-17 it
+  served an Article 28 **processor** agreement contradicting everything above,
+  and this document did not know it existed. Now a position statement consistent
+  with §2. See `docs/audit/23` §2.1.
 - `docs/audit/20-school-accounts-design.md` §10 — teacher-provisioned accounts,
   and why they were not built
 - `app/privacy/page.tsx` — the published notice, corrected 2026-09-17

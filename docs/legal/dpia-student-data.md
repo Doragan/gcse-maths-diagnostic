@@ -2,7 +2,7 @@
 
 **DRAFT. NOT SIGNED OFF.**
 
-_Version 0.2, 2026-09-18 (see revision history at the foot). Follows the ICO's DPIA structure so a school's data
+_Version 0.3, 2026-09-18 (see revision history at the foot). Follows the ICO's DPIA structure so a school's data
 protection officer recognises the shape. Every factual statement was checked
 against the code and the live database on the day; the evidence trail is in
 `docs/audit/21-school-data-protection-position.md`._
@@ -69,6 +69,7 @@ website analytics go to Google in the United States.
 | Practice attempts | Skills, correct or not, timestamp, kind. No question identifier, no submitted answer is retained for teacher view |
 | Derived skill mastery | Computed, not stored as a judgement |
 | Class memberships | Which classes, joined when, active or left |
+| Mini-exam papers | The paper, **every answer the learner gave**, and the score (`exam_sessions.paper`). Durable, and readable in full by a teacher of their class |
 | Exam sittings and marked papers | Where a teacher has marked work |
 | Subscription status | Tier, paid-until, Stripe identifiers where the learner or a parent has paid |
 
@@ -131,8 +132,12 @@ service is the skill map, and it cannot exist without the attempts behind it.
 
 - No email address on the learner record, so none can be disclosed to a teacher.
   A structural limit rather than an access rule.
-- The teacher view withholds the question identifier and the submitted answer, so
-  a teacher gets the skill map and never a transcript of what a child typed.
+- The **practice** teacher view withholds the question identifier and the
+  submitted answer, so a teacher gets the skill map and never a transcript of
+  what a child typed in practice. **Mini-exams are the exception and are
+  disclosed in full** (`get_class_exam_paper`): a mini-exam is assessment, and
+  marking it means reading it. v0.2 of this assessment stated the withholding
+  without the exception, which overstated the minimisation; see R1.
 - No real name is required. A display name may be anything.
 - Year group is optional.
 - No school name is collected from teachers, and none from learners.
@@ -172,8 +177,20 @@ Likelihood and severity are judged for a learner, not for the business.
 | Harm | A child's private practice, including failures, seen by a teacher they did not expect to see it |
 | Likelihood | Medium before mitigation. Children skim. |
 | Severity | Low to medium. Embarrassment; in the worst case a teacher's judgement formed on private struggle. |
-| Measures | Stated in three places in matching words: privacy notice, the join screen, and the school agreement. Joining requires the learner's own act, and a code they must be given. Leaving is one click and ends it. |
+| Measures | Stated in four places in matching words: privacy notice, the join screen, the school agreement and the school-facing page. Joining requires the learner's own act, and a code they must be given. Leaving is one click and ends it. |
 | Residual | **Low–medium.** Wording can only do so much. Step 3 consultation is the real test and has not happened. |
+
+**🔴 The wording was wrong until 2026-09-18, in the learner's favour twice over.**
+Every one of those places told the learner a teacher never sees the answers they
+type, and told them the sharing covered their practice without saying it reached
+back before they joined. Mini-exam scripts are readable in full, and the practice
+record shared is the whole history. Both are now stated on the join screen and in
+the notice, which is where a learner actually reads them.
+
+This does not change the rating, but it changes what the rating rests on. The
+residual was justified by "stated in three places in matching words" — the words
+matched each other and did not match the system. Any future measure of this kind
+should be checked against the code, not against the other copies of itself.
 
 ### R2 — An under-13 uses the service
 
@@ -330,4 +347,7 @@ or any new category of personal data is collected._
 
 _Revision history: v0.1 2026-09-17 first draft. v0.2 2026-09-18 R3 downgraded
 from medium-high to low and the recommended action withdrawn, on the controller's
-challenge; outcome changed from withheld to ready for sign-off._
+challenge; outcome changed from withheld to ready for sign-off. v0.3 2026-09-18
+corrected the scope table and the minimisation claim: mini-exam papers are held
+in full and are readable by a teacher, which v0.1 and v0.2 both denied. R1 amended
+with the reason the error survived three documents._
