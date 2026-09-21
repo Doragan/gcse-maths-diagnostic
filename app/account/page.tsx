@@ -244,7 +244,7 @@ export default function AccountPage() {
             an accidental click; the copy is not. */}
         <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
           {isStudent
-            ? 'This permanently deletes your account and everything in it: your practice history, your progress on every skill, any classes you have joined, and any mini-exams you have taken. Your teacher will no longer see your results. This cannot be undone.'
+            ? 'This permanently deletes your account and everything in it: your practice history, your progress on every skill, any classes you have joined, and any mini-exams you have taken. Your teacher will no longer see your results. If you have a paid subscription, it is cancelled at the same time, so you will not be charged again — whoever was paying for it, including a parent. This cannot be undone.'
             : 'This will permanently delete your account, all your assessments, and all student results. This cannot be undone.'}
         </p>
         <div style={styles.field}>
