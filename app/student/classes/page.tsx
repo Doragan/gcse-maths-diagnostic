@@ -112,8 +112,10 @@ function StudentClassesInner() {
         <p style={{ fontSize: font.sm, color: colors.textHint, margin: '4px 0 12px', lineHeight: '1.6' }}>
           Enter the code from your teacher. Joining lets them see your practice record —
           which skills you have tried, how you did, and when — including practice you do
-          on your own, not just work they set. They never see your email address or the
-          answers you type. You can leave any time.
+          on your own, not just work they set, and practice from before you joined. If
+          you sit a mini-exam, they can open it and read your answers, because that is
+          what marking is. They never see your email address, and they never see the
+          answers you type in ordinary practice. You can leave any time.
         </p>
         <div style={styles.row}>
           <input
