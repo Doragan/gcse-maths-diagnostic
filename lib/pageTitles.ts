@@ -34,7 +34,9 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/privacy\/complaints$/, 'Privacy complaints'],
   [/^\/privacy$/, 'Privacy policy'],
   [/^\/terms$/, 'Terms of service'],
-  [/^\/dpa$/, 'Data processing agreement'],
+  // Was 'Data processing agreement' until 2026-09-17, when the route stopped
+  // serving one: Mathsense is not a school's processor. See app/dpa/page.tsx.
+  [/^\/dpa$/, 'School data protection'],
 
   // Auth
   [/^\/auth\/confirm$/, 'Confirm your email'],
