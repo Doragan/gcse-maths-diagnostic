@@ -1,3 +1,5 @@
+import CookieSettings from '../../components/CookieSettings'
+
 export default function PrivacyNoticePage() {
   return (
     <main style={styles.page}>
@@ -71,6 +73,13 @@ export default function PrivacyNoticePage() {
             ignore the banner, nothing is sent to Google at all, and nothing about
             Mathsense works differently for you.
           </P>
+          <SubHeading>Change your choice</SubHeading>
+          <P>
+            You can turn analytics on or off here at any time, whether or not you have
+            an account. Turning it off stops anything further being sent, and deletes
+            the cookies Google has already set.
+          </P>
+          <CookieSettings />
         </Section>
 
         <Section title="4. Why we collect your data and our legal basis">
