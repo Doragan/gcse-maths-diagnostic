@@ -19,7 +19,10 @@ import { normalizePath } from './pageTitles'
  * analytics keep working even if the env var isn't set in an environment.
  * (Measurement IDs are public — they ship in the client either way.)
  */
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-7FCDN55EVJ'
+// Defined in lib/cookieConsent, which imports nothing, and re-exported here so
+// existing callers are unaffected. It moved because this file reaches Supabase
+// at module load, which made the consent rules impossible to unit-test.
+export { GA_MEASUREMENT_ID } from './cookieConsent'
 
 const SESSION_KEY = 'mathsense_sid'
 const DEV_KEY     = 'mathsense_dev'

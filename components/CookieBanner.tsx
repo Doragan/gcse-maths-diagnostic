@@ -1,44 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GA_MEASUREMENT_ID, trackEvent } from "../lib/analytics";
+import { trackEvent } from "../lib/analytics";
+import { readConsent, writeConsent, loadGA, shouldShowBanner } from "../lib/cookieConsent";
 
+// The consent question, asked once. The stored choice, the GA loader and the
+// withdrawal path all live in lib/cookieConsent.ts, shared with the settings
+// control on /privacy — so there is one definition of what consent means and
+// one place that can turn Google Analytics on or off.
 export default function CookieBanner() {
-  const [consent, setConsent] = useState(false);
+  const [show, setShow] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("cookie-consent");
-    if (stored === "true") {
-      setConsent(true);
-      loadGA();
-    }
+    const state = readConsent();
+    if (state === "accepted") loadGA();
+    setShow(shouldShowBanner(state));
     setLoaded(true);
   }, []);
 
-  const loadGA = () => {
-    // The single GA loader (after consent). send_page_view is disabled — the
-    // Analytics component sends every page_view manually (initial + SPA routes),
-    // so leaving auto page_view on would double-count.
-    const script1 = document.createElement("script");
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    script1.async = true;
-    document.head.appendChild(script1);
-
-    const script2 = document.createElement("script");
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
-    `;
-    document.head.appendChild(script2);
-  };
-
   const acceptCookies = () => {
-    localStorage.setItem("cookie-consent", "true");
-    setConsent(true);
+    writeConsent("accepted");
+    setShow(false);
     loadGA(); // ✅ load GA AFTER consent
     // Record the decision in our own (consent-independent) store so we can
     // measure the true accept rate — i.e. how much of our traffic GA is blind to.
@@ -47,13 +30,18 @@ export default function CookieBanner() {
   };
 
   const declineCookies = () => {
+    // PERSISTED, unlike the original, which set React state and wrote nothing —
+    // so the banner came back on the next page load while "accept" was
+    // remembered forever. Asking again until the answer changes is a nudge, and
+    // most of the people being asked here are 13 to 16.
+    writeConsent("declined");
+    setShow(false);
     // GA never loads, so this only lands in Supabase — which is exactly the point:
     // it lets us count declines that GA can't see.
     trackEvent("cookie_consent", { decision: "decline" });
-    setConsent(true);
   };
 
-  if (!loaded || consent) return null;
+  if (!loaded || !show) return null;
 
   return (
   <div
@@ -72,8 +60,13 @@ export default function CookieBanner() {
       border: "1px solid #e0e0e0",
     }}
   >
+    {/* Named Google, because consent has to be informed to be consent, and
+        "we use analytics" does not tell a fourteen-year-old who receives it.
+        Declining is stated as costing nothing, so the choice is a real one. */}
     <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.5" }}>
-		📊 We use analytics to improve <strong>Mathsense</strong>.
+      📊 We use Google Analytics to see how <strong>Mathsense</strong> is used.
+      Declining changes nothing about the site. You can change your mind any time
+      on our <a href="/privacy" style={{ color: "#1976d2" }}>privacy page</a>.
     </p>
 
     <div
