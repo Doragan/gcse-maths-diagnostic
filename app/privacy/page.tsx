@@ -8,7 +8,7 @@ export default function PrivacyNoticePage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Privacy Notice</h1>
           <p style={styles.subtitle}>How Mathsense collects, uses and protects your personal data</p>
-          <p style={styles.meta}>Version 1.2 — Last reviewed: 21 September 2026</p>
+          <p style={styles.meta}>Version 1.2 — Last reviewed: 22 September 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -166,9 +166,9 @@ export default function PrivacyNoticePage() {
             for, including by a parent. You do not need to cancel it separately first.
           </P>
           <P>
-            Until 18 September 2026 this was not the case, and a subscription could carry
-            on being charged after the account was deleted. If that happened to you, email
-            us at <a href="mailto:privacy@mathsense.net" style={styles.link}>privacy@mathsense.net</a> and
+            Before this version of the notice, that was not the case, and a subscription
+            could carry on being charged after the account was deleted. If that happened
+            to you, email us at <a href="mailto:privacy@mathsense.net" style={styles.link}>privacy@mathsense.net</a> and
             we will cancel it and refund anything taken after the deletion.
           </P>
         </Section>
@@ -210,7 +210,7 @@ export default function PrivacyNoticePage() {
 
         <Section title="11. Changes to this notice">
           <P>We may update this privacy notice from time to time. We will notify registered users of any significant changes by email. The current version will always be available at mathsense.net/privacy.</P>
-          <SubHeading>What changed in version 1.2 (21 September 2026)</SubHeading>
+          <SubHeading>What changed in version 1.2 (22 September 2026)</SubHeading>
           <P>Version 1.1 was written in May 2026 and was not revised while the service changed. This version corrects it. We are recording the changes rather than making them quietly, because one of them tells you something about your data that the previous version got wrong.</P>
           <Ul items={[
             'Mini-exams. Version 1.1 said a teacher can never see the answers you type. That is true of practice and was wrong about mini-exams, which a teacher of your class can open and read in full. Section 6 now says so.',
@@ -219,10 +219,11 @@ export default function PrivacyNoticePage() {
             'Section 3 now lists everything we hold, including mini-exam papers and payment references. The old list was incomplete.',
             'Rate limiting: we now say plainly that this briefly holds your IP address, rather than calling it a request identifier.',
             'Advertising. Version 1.1 said we do not share your data with advertisers. Our Google Analytics account is linked to our Google Ads account, so that was not accurate about website usage data, and sections 3, 4 and 6 now say what actually happens. Your practice and results have never been part of it, and still are not.',
-            'Deleting your account now cancels any paid subscription too. Until 18 September 2026 it did not, and a subscription could carry on being charged after the account was gone. Section 7 says what to do if that happened to you.',
+            'Deleting your account now cancels any paid subscription too. Before this version it did not, and a subscription could carry on being charged after the account was gone. Section 7 says what to do if that happened to you.',
+            'You can now turn analytics off again after turning it on, using the switch in section 3. Before this version there was no way to change your mind. Declining is also remembered now, instead of the banner asking again on every visit.',
             'Section 9 described access as being limited to the teacher who created an assessment. That was out of date; access now runs through class membership, and section 9 describes what actually happens.',
           ]} />
-          <P>Last updated: 21 September 2026</P>
+          <P>Last updated: 22 September 2026</P>
         </Section>
 
       </div>
