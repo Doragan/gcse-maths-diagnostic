@@ -15,8 +15,9 @@ import type { SkillBriefing } from './types'
 // `percent_of_the_wrong_total`, `give_the_complement` / `answer_the_complement`.
 // On Higher `percent_of_a_percent` recurs, which gets its own step.
 //
-// `reverse_percentage` is Higher-only in courses.ts, so that comparison sits in
-// the higher block, as it does in percentageChange.ts.
+// The `reverse_percentage` comparison sits in the higher block, as it does in
+// percentageChange.ts — see the note there, which now carries the reasoning for
+// both since the skill moved to Foundation.
 //
 // Do not restate any framing percentage here or in `recognise`: the page
 // computes its own headline claim from the audit.

@@ -5,12 +5,12 @@ import type { SkillBriefing } from './types'
 // percentage comparisons: `percentage_change` has pointed here from its Higher
 // block since it was written.
 //
-// The method lives in the SHARED block even though courses.ts lists the skill
-// as Higher-only, for two reasons. The page opens on Foundation until a student
-// picks a tier, so a Higher-only method would leave a Higher student looking at
-// an empty page. And the coded papers put it on Foundation too — AQA, Edexcel
-// and OCR Foundation all have reverse-percentage parts, just too few to clear
-// the evidence bar.
+// The method lives in the SHARED block, which matches the tier lists: the skill
+// moved to Foundation on 2026-09-22, on the coded evidence of five Foundation
+// parts across all three boards (see the citation in courses.ts). It is still
+// late-paper stretch content, and below the four-part evidence bar on any single
+// board, so the audit panel stays suppressed on Foundation and the page shows
+// the authored briefing alone.
 //
 // The coded traps are all the same error, going forwards when the question goes
 // backwards: `forward_percentage_instead_of_reverse`,
