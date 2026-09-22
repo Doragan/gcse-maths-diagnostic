@@ -1,166 +1,124 @@
-export default function DpaPage() {
+/**
+ * The school data protection page.
+ *
+ * ⚠ THIS PAGE REPLACES A PROCESSOR AGREEMENT THAT SHOULD NEVER HAVE BEEN
+ * PUBLISHED. Until 2026-09-17 this route served a full Article 28 Data
+ * Processing Agreement naming the School as Controller and Mathsense as its
+ * Processor, with a signature block and a Schedule 1 of sub-processors.
+ *
+ * It described an arrangement this product does not implement. A pupil creates
+ * their own Mathsense account; the school cannot create one, cannot read one
+ * without the pupil joining a class, and cannot delete one. We are the
+ * controller of that account. There is no instruction path by which a school
+ * could direct us to process a pupil's data, which is the thing an Article 28
+ * agreement exists to govern. See docs/audit/21-school-data-protection-position.md.
+ *
+ * WHY THIS IS A POSITION STATEMENT AND NOT THE NEW AGREEMENT. The school-facing
+ * agreement is docs/legal/dpa-schools.md, which is marked DRAFT and not for
+ * signature without legal review. Publishing an unreviewed agreement in place of
+ * a wrong one would repeat the mistake in the other direction. This page states
+ * the position and invites a school to ask for the agreement.
+ *
+ * WHY THE ROUTE STAYS ALIVE. app/terms links here, and a school part-way through
+ * procurement may hold the link. A 404 would lose them the explanation at the
+ * exact moment they need it.
+ *
+ * NO SUB-PROCESSOR TABLE HERE, DELIBERATELY. The old table listed three
+ * providers, omitted Resend, Upstash, Google Analytics and Google sign-in, and
+ * gave locations that are not evidenced anywhere in this repository. The
+ * privacy notice carries the current list; the full schedule belongs with the
+ * agreement, once its locations and transfer mechanisms have been verified
+ * rather than recalled.
+ */
+export default function SchoolDataProtectionPage() {
   return (
     <main style={styles.page}>
       <div style={styles.container}>
 
         <div style={styles.header}>
-          <h1 style={styles.title}>Mathsense Data Processing Agreement</h1>
-          <p style={styles.subtitle}>Between schools and Mathsense — governing the processing of student personal data</p>
-          <p style={styles.meta}>Version 1.1 — Last reviewed: 21 May 2026</p>
+          <h1 style={styles.title}>Mathsense and school data protection</h1>
+          <p style={styles.subtitle}>How pupil data works when a school uses Mathsense</p>
+          <p style={styles.meta}>Version 2.0 — Last reviewed: 17 September 2026</p>
         </div>
 
-        <Section title="1. Parties">
-          <P>This Data Processing Agreement ("Agreement") is entered into between:</P>
-          <Ul items={[
-            'The School or educational institution accessing Mathsense ("Controller"); and',
-            'Christopher Reay, a sole trader operating under the trading name Mathsense, whose principal address is 65 Amherst Road, Fawdon, NE3 2QR ("Processor").',
-          ]} />
-          <P>Together referred to as the "Parties".</P>
+        <div style={styles.notice}>
+          <p style={styles.noticeText}>
+            <strong>This replaces version 1.1 of this page</strong>, which was a data
+            processing agreement describing Mathsense as a school&rsquo;s data processor.
+            That did not describe how Mathsense actually works, and it has been withdrawn.
+            If your school holds a copy, please treat this page as superseding it and
+            contact us before relying on it.
+          </p>
+        </div>
+
+        <Section title="1. Why this is not a data processing agreement">
+          <P>Most school software is supplied on the basis that the school is the controller and the supplier is its processor: the school decides, and the supplier acts on the school&rsquo;s instruction. Mathsense is not built that way, and it is better to say so plainly than to sign a document describing something the product does not do.</P>
+          <P>A Mathsense pupil account is created by the pupil. It exists before any school is involved, and it continues to exist if the school&rsquo;s arrangement ends. A school cannot create one, cannot read one unless the pupil joins a class, and cannot delete one. There is no mechanism by which a school could instruct us to process a pupil&rsquo;s data, which is the thing an Article 28 agreement exists to govern.</P>
         </Section>
 
-        <Section title="2. Background">
-          <P>The Controller uses the Mathsense platform to administer GCSE maths diagnostic assessments for its students. In doing so, the Processor will process personal data on behalf of the Controller. This Agreement sets out the terms on which that processing will occur, as required by Article 28 of the UK GDPR.</P>
-          <P>The Processor is registered with the ICO as a data controller under registration number ZC152231.</P>
+        <Section title="2. Who is the controller of what">
+          <Ul items={[
+            'The pupil account — sign-up, practice, skill mastery. Mathsense is the controller, and the pupil is our data subject.',
+            'The class view — a teacher seeing the record of a pupil who joined their class. The pupil authorises the disclosure; we build it; the school uses it.',
+            'What the school then does with what it sees, including anything it records in its own systems. The school is the controller of that, and we are not involved.',
+          ]} />
+          <P>A school&rsquo;s data protection officer may reasonably say: these are our pupils, we told them to use it, and the educational purpose is ours. That argument has real force, and how the roles are best described is a question we are happy to work through with you rather than assert at you. What is not in doubt is the mechanism: the account is the pupil&rsquo;s, and a teacher sees it because the pupil joined their class.</P>
         </Section>
 
-        <Section title="3. Definitions">
+        <Section title="3. What a teacher of your school can see">
+          <SubHeading>Disclosed to the teacher of a class the pupil has joined</SubHeading>
           <Ul items={[
-            '"UK GDPR" means the UK General Data Protection Regulation as it forms part of the law of England and Wales by virtue of the European Union (Withdrawal) Act 2018',
-            '"Data Protection Law" means the UK GDPR and the Data Protection Act 2018',
-            '"Personal Data" has the meaning given in UK GDPR Article 4',
-            '"Processing" has the meaning given in UK GDPR Article 4',
-            '"Data Subject" means the students whose personal data is processed under this Agreement',
+            'The pupil’s chosen display name, and their year group if they supplied one.',
+            'Their practice record: which maths skills they attempted, whether each attempt was correct, when it happened, and of what kind.',
+            'Any mini-exam the pupil sits, including the paper itself and the answers they gave. A mini-exam is assessment rather than private practice, and marking it means reading it.',
+            'Work the teacher set for them, and papers the teacher marked for them.',
           ]} />
-        </Section>
+          <P><strong>The practice record includes private practice.</strong> A pupil&rsquo;s skill map is built from everything they do on Mathsense, not only from work a teacher set, and what a teacher sees is that whole record — including practice done before they joined the class. This is stated in the pupil-facing privacy notice and on the screen where a pupil joins a class. It is drawn to your attention here because it is more than a school might assume.</P>
 
-        <Section title="4. Subject matter and nature of processing">
-          <SubHeading>4.1 Purpose</SubHeading>
-          <P>The Processor will process Personal Data solely for the purpose of providing the Mathsense diagnostic assessment service to the Controller, including:</P>
+          <SubHeading>Not disclosed to the teacher</SubHeading>
           <Ul items={[
-            'Storing student display names and assessment participation records',
-            'Recording and displaying diagnostic skill results',
-            'Enabling teachers to view class and individual results via the dashboard',
-          ]} />
-
-          <SubHeading>4.2 Categories of data subjects</SubHeading>
-          <P>Students enrolled at the Controller's institution who participate in Mathsense assessments.</P>
-
-          <SubHeading>4.3 Categories of personal data</SubHeading>
-          <Ul items={[
-            'Student display name',
-            'Year group (if provided)',
-            'Diagnostic results (skill mastery status)',
-            'Assessment participation records',
-          ]} />
-
-          <SubHeading>4.4 Duration</SubHeading>
-          <P>Processing will continue for the duration of the Controller's active subscription to Mathsense, and for up to 30 days thereafter to allow for data export, unless earlier deletion is requested.</P>
-        </Section>
-
-        <Section title="5. Processor obligations">
-          <P>The Processor shall:</P>
-          <Ul items={[
-            'Process Personal Data only on the documented instructions of the Controller, as set out in this Agreement and the Mathsense Terms of Service',
-            'Ensure that persons authorised to process the Personal Data are bound by appropriate confidentiality obligations',
-            'Implement appropriate technical and organisational measures to protect Personal Data against unauthorised or unlawful processing, accidental loss, destruction or damage',
-            'Not engage any sub-processor without prior written authorisation from the Controller, except as set out in Schedule 1',
-            'Assist the Controller in responding to Data Subject rights requests, including access, rectification, erasure, and portability requests',
-            'Notify the Controller without undue delay (and in any event within 72 hours) upon becoming aware of a Personal Data breach involving the Controller\'s data',
-            'Delete or return all Personal Data to the Controller upon termination of this Agreement, at the Controller\'s choice',
-            'Make available to the Controller all information necessary to demonstrate compliance with this Agreement',
+            'The pupil’s email address. The Mathsense pupil record contains no email address at all — it is held only by our authentication provider and is not reachable by any teacher-facing function. This is a property of the system’s design, not an access rule that could be changed by configuration.',
+            'The pupil’s password, which we do not hold in readable form.',
+            'For private practice, which individual questions the pupil answered or the answers they gave. The teacher gets the skill map, not a transcript.',
+            'Anything about a pupil who is not an active member of that teacher’s class.',
           ]} />
         </Section>
 
-        <Section title="6. Controller obligations">
-          <P>The Controller shall:</P>
+        <Section title="4. Where the data is held">
+          <P>Pupil data is held in the United Kingdom and the European Union. The current list of the providers we use, what each one receives, and where it processes it, is in the <a href="/privacy" style={styles.link}>privacy notice</a>. A full sub-processor schedule, with the transfer mechanism for each, comes with the school agreement.</P>
+          <P>We will give you reasonable notice of any new sub-processor that would process your pupils&rsquo; data, and you may object.</P>
+        </Section>
+
+        <Section title="5. What we commit to">
+          <P>We do not claim to be your processor. We do offer the assurances a school would ordinarily obtain from one, because they reflect what we do in any event:</P>
           <Ul items={[
-            'Ensure it has a lawful basis for sharing student personal data with the Processor',
-            'Ensure students (and parents where required) are informed about the use of Mathsense, including by reference to the Mathsense Privacy Notice at mathsense.net/privacy',
-            'Only instruct the Processor to process Personal Data in accordance with Data Protection Law',
-            'Be responsible for the accuracy of any personal data provided to the Processor',
+            'Row-level security on every database table, so access is enforced by the database rather than only by application code.',
+            'Every cross-account read confined to a server-side route gated on class ownership and active membership, returning named columns only.',
+            'Encryption in transit throughout, and at rest by our hosting providers.',
+            'Notification of a personal data breach affecting your pupils without undue delay, and in any event within 72 hours of becoming aware of it.',
+            'Answers to reasonable written questions about how we handle pupil data, with evidence where we can give it.',
+            'Deletion of a named pupil’s account on request. A pupil may also delete their own account at any time, and an account unused for a year is deleted automatically.',
+          ]} />
+          <P>If your seat arrangement ends, pupil accounts are not deleted and pupils keep their own records. What ends is the additional service you paid for, and the teacher&rsquo;s continued view of their class members.</P>
+        </Section>
+
+        <Section title="6. What we do not have">
+          <P>We state these rather than leave them to be discovered by a questionnaire.</P>
+          <Ul items={[
+            'No ISO 27001 and no Cyber Essentials certification.',
+            'No independent penetration test.',
+            'No statutory data protection officer. Mathsense is a sole trader and is not required to appoint one; the contact below is the route for any data protection question.',
           ]} />
         </Section>
 
-        <Section title="7. Sub-processors">
-          <P>The Controller authorises the Processor to use the sub-processors listed in Schedule 1. The Processor shall ensure each sub-processor is bound by obligations equivalent to those in this Agreement and shall remain liable to the Controller for the acts or omissions of sub-processors.</P>
-          <P>The Processor shall provide the Controller with at least 14 days' notice of any intended changes to sub-processors, giving the Controller the opportunity to object.</P>
+        <Section title="7. If your school needs to be the controller">
+          <P>Some schools will require pupils to be enrolled without any pupil action, which means the school is the controller of the account and we are processing on its behalf. That is lawful and ordinary, but it is a different arrangement from the one described above rather than a setting we can switch on, and it would need a different agreement in place before it began.</P>
+          <P>If that is what your school needs, tell us and we will work out what it involves rather than quietly treat it as covered by this page.</P>
         </Section>
 
-        <Section title="8. International transfers">
-          <P>Some sub-processors may process data outside the UK. Where this occurs, the Processor shall ensure appropriate safeguards are in place in accordance with UK GDPR Chapter V, including the use of UK International Data Transfer Agreements (IDTAs) or equivalent mechanisms.</P>
-        </Section>
-
-        <Section title="9. Security measures">
-          <P>The Processor implements the following technical and organisational measures:</P>
-          <Ul items={[
-            'Encryption of all data in transit using TLS',
-            'Row-level security policies restricting database access',
-            'Role-based access controls limiting access to personal data',
-            'Incident response procedures for personal data breaches',
-          ]} />
-        </Section>
-
-        <Section title="10. Data subject rights">
-          <P>Where the Controller receives a Data Subject rights request relating to data processed by the Processor, the Processor shall provide reasonable assistance to enable the Controller to respond within the statutory timeframe. The Processor will provide this assistance at no additional cost unless the volume of requests is disproportionate.</P>
-        </Section>
-
-        <Section title="11. Audit">
-          <P>The Processor shall, on reasonable notice (not less than 14 days), provide the Controller with information and access reasonably necessary to demonstrate compliance with this Agreement. The Controller may carry out audits no more than once per calendar year unless there are reasonable grounds to suspect non-compliance.</P>
-        </Section>
-
-        <Section title="12. Term and termination">
-          <P>This Agreement shall remain in force for the duration of the Controller's use of Mathsense. Either party may terminate this Agreement on written notice if the other party materially breaches its obligations and fails to remedy that breach within 30 days of written notice.</P>
-          <P>On termination, the Processor shall, at the Controller's written election, either securely delete or return all Personal Data within 30 days.</P>
-        </Section>
-
-        <Section title="13. Governing law">
-          <P>This Agreement is governed by the laws of England and Wales. The parties submit to the exclusive jurisdiction of the courts of England and Wales.</P>
-        </Section>
-
-        <Section title="14. Signatures">
-          <SubHeading>Signed on behalf of the Controller:</SubHeading>
-          <div style={styles.signatureBlock}>
-            <SignatureLine label="Name" />
-            <SignatureLine label="Title" />
-            <SignatureLine label="Institution" />
-            <SignatureLine label="Date" />
-          </div>
-          <SubHeading>Signed on behalf of the Processor (Mathsense):</SubHeading>
-          <div style={styles.signatureBlock}>
-            <SignatureLine label="Name" />
-            <SignatureLine label="Date" />
-          </div>
-          <P>To request a signed copy of this agreement, please contact <a href="mailto:privacy@mathsense.net" style={styles.link}>privacy@mathsense.net</a>.</P>
-        </Section>
-
-        <Section title="Schedule 1 — Authorised Sub-processors">
-          <P>The following sub-processors are authorised as of the date of this Agreement:</P>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Provider</th>
-                <th style={styles.th}>Purpose</th>
-                <th style={styles.th}>Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={styles.td}>Supabase Inc</td>
-                <td style={styles.td}>Database hosting and authentication</td>
-                <td style={styles.td}>EU West (eu-west-2)</td>
-              </tr>
-              <tr style={{ background: '#f9fafb' }}>
-                <td style={styles.td}>Vercel Inc</td>
-                <td style={styles.td}>Website hosting and deployment</td>
-                <td style={styles.td}>London, UK (eu-west-2)</td>
-              </tr>
-              <tr>
-                <td style={styles.td}>Stripe Inc</td>
-                <td style={styles.td}>Payment processing (teacher accounts only; does not process student data)</td>
-                <td style={styles.td}>US</td>
-              </tr>
-            </tbody>
-          </table>
+        <Section title="8. The agreement, and getting in touch">
+          <P>There is a school agreement covering the arrangement described here. To ask for a copy, to send us your own questionnaire, or to raise anything on this page, contact us at <a href="mailto:privacy@mathsense.net" style={styles.link}>privacy@mathsense.net</a>.</P>
+          <P>Mathsense is operated by Christopher Reay, a sole trader, registered with the Information Commissioner&rsquo;s Office under registration number ZC152231. Our pupil-facing privacy notice is at <a href="/privacy" style={styles.link}>mathsense.net/privacy</a>.</P>
         </Section>
 
       </div>
@@ -193,15 +151,6 @@ function Ul({ items }: { items: string[] }) {
   )
 }
 
-function SignatureLine({ label }: { label: string }) {
-  return (
-    <div style={styles.signatureLine}>
-      <span style={styles.signatureLabel}>{label}:</span>
-      <span style={styles.signatureDots}>................................................................</span>
-    </div>
-  )
-}
-
 const styles: Record<string, React.CSSProperties> = {
   page: {
     background: '#f4f6f8',
@@ -216,7 +165,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '0',
   },
   header: {
-    marginBottom: '32px',
+    marginBottom: '20px',
   },
   title: {
     fontSize: '28px',
@@ -232,6 +181,19 @@ const styles: Record<string, React.CSSProperties> = {
   meta: {
     fontSize: '13px',
     color: '#9ca3af',
+    margin: 0,
+  },
+  notice: {
+    background: '#fffbeb',
+    border: '1px solid #fcd34d',
+    borderRadius: '8px',
+    padding: '14px 16px',
+    marginBottom: '12px',
+  },
+  noticeText: {
+    fontSize: '14px',
+    color: '#78350f',
+    lineHeight: '1.7',
     margin: 0,
   },
   section: {
@@ -274,47 +236,5 @@ const styles: Record<string, React.CSSProperties> = {
   link: {
     color: '#2563eb',
     textDecoration: 'underline',
-  },
-  signatureBlock: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    margin: '8px 0 16px',
-  },
-  signatureLine: {
-    display: 'flex',
-    gap: '12px',
-    alignItems: 'baseline',
-  },
-  signatureLabel: {
-    fontSize: '14px',
-    color: '#374151',
-    fontWeight: '500',
-    minWidth: '80px',
-  },
-  signatureDots: {
-    fontSize: '14px',
-    color: '#9ca3af',
-    letterSpacing: '0.05em',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    fontSize: '14px',
-    marginTop: '8px',
-  },
-  th: {
-    textAlign: 'left' as const,
-    padding: '10px 12px',
-    background: '#f3f4f6',
-    color: '#111827',
-    fontWeight: '600',
-    borderBottom: '1px solid #e5e5e5',
-  },
-  td: {
-    padding: '10px 12px',
-    color: '#374151',
-    borderBottom: '1px solid #e5e5e5',
-    verticalAlign: 'top' as const,
   },
 }

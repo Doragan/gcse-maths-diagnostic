@@ -6,7 +6,7 @@ export default function PrivacyNoticePage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Privacy Notice</h1>
           <p style={styles.subtitle}>How Mathsense collects, uses and protects your personal data</p>
-          <p style={styles.meta}>Version 1.1 — Last reviewed: 21 May 2026</p>
+          <p style={styles.meta}>Version 1.2 — Last reviewed: 21 September 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -20,8 +20,8 @@ export default function PrivacyNoticePage() {
         <Section title="2. Who this notice applies to">
           <P>This privacy notice applies to:</P>
           <Ul items={[
-            'Teachers and school staff who create accounts and assessments',
-            'Students (learners) who create accounts or complete assessments',
+            'Students (learners) who create their own account to practise, and anyone who practises without one',
+            'Teachers and school staff who create accounts, classes and assessments',
           ]} />
           <P>Mathsense is intended for users aged 13 and over. If you are under 13, you must not create an account. We treat all learner accounts as potentially belonging to a child under 18 and apply heightened privacy protections accordingly.</P>
         </Section>
@@ -39,8 +39,11 @@ export default function PrivacyNoticePage() {
             'Email address — held by our authentication provider for sign-in and password recovery. It is not stored in your student record, and your teacher cannot see it through Mathsense.',
             'Year group (if provided)',
             'Confirmation that you are aged 13 or over',
-            'Practice and diagnostic results: which maths skills are mastered or need practice',
-            'Assessment and class participation records',
+            'Your practice record: which maths skills you attempted, whether each attempt was correct, when it happened, and what kind of activity it was. Your skill map is worked out from these.',
+            'Mini-exams you sit: the paper itself, the answers you gave, and the score. These are kept so you can re-open a paper and so your progress is comparable over time.',
+            'Papers a teacher marks for you, and the marks they entered',
+            'Assignments set for you and your attempts at them, and which classes you have joined or left',
+            'If you or a parent pays for a subscription: your subscription status, and the reference numbers our payment provider uses to identify the subscription. We never hold your card details.',
           ]} />
           <SubHeading>Automatically collected data</SubHeading>
           <Ul items={[
@@ -56,8 +59,17 @@ export default function PrivacyNoticePage() {
             means some usage data is transferred there.
           </P>
           <P>
-            We do not use advertising pixels, and we do not share your data with
-            advertisers.
+            <strong>Advertising.</strong> We advertise Mathsense on Google, and our
+            Google Analytics account is linked to our Google Ads account. That means
+            the usage data described above can be used by Google to measure and improve
+            those adverts. There is no advertising tag on Mathsense, we never send
+            Google your practice, your results or your account details, and we do not
+            sell your personal data to anyone.
+          </P>
+          <P>
+            All of this depends on accepting analytics cookies. If you decline, or
+            ignore the banner, nothing is sent to Google at all, and nothing about
+            Mathsense works differently for you.
           </P>
         </Section>
 
@@ -67,17 +79,18 @@ export default function PrivacyNoticePage() {
           <SubHeading>Students</SubHeading>
           <P>We process student data on the basis of:</P>
           <Ul items={[
-            'Contract performance — to deliver the diagnostic assessment service to you',
-            'Legitimate interests — to enable teachers to view class results and to maintain the integrity of assessments',
+            'Contract performance — to give you the practice, progress tracking and mini-exams the service is made of',
+            'Legitimate interests — to let a teacher whose class you have chosen to join see your results, and to maintain the integrity of assessments',
             'Consent — to send you optional practice-reminder emails, only if you opt in. You can withdraw this consent at any time, either from your dashboard settings or via the unsubscribe link in any reminder email.',
           ]} />
-          <P>We do not use student data for advertising or for any commercial purpose beyond delivering the core service. The only non-essential emails we send are practice reminders, and only to students who have actively opted in; we never share your data for marketing.</P>
+          <P>Your practice, your results and your progress are never used for advertising, and we never sell your personal data or share it for marketing. There is one thing to be aware of alongside that: if you accept analytics cookies, website usage data goes to Google and can be used to measure our adverts, as described in section 3. That is usage data only and never your work. The only non-essential emails we send are practice reminders, and only to students who have actively opted in.</P>
         </Section>
 
         <Section title="5. How we use your data">
           <Ul items={[
-            'To run the GCSE maths diagnostic and display your results',
-            'To allow teachers to view class and individual results',
+            'To give you practice questions, work out your skill map, and show you your progress',
+            'To run mini-exams and diagnostics, and display your results',
+            'To allow a teacher whose class you have joined to view class and individual results',
             'To maintain your account across sessions',
             'To send password reset emails if requested',
             'To send occasional practice-reminder emails — only if you have opted in, and you can turn these off at any time',
@@ -93,21 +106,31 @@ export default function PrivacyNoticePage() {
             'Vercel (website hosting) — servers in London, UK (eu-west-2)',
             'Stripe (payment processing) — receives an email address and payment details when an account is paid for, whether by a teacher, a student, or a parent paying on a student’s behalf. It never receives practice or results data.',
             'Resend (email delivery) — receives an email address when we send a password reset, a confirmation, or a practice reminder you have opted in to.',
-            'Upstash (rate limiting) — briefly holds a request identifier to stop automated abuse of sign-in and class-join endpoints.',
-            'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States.',
+            'Upstash (rate limiting) — briefly holds your IP address to stop automated abuse of sign-in and class-join endpoints. It is held for minutes, is never linked to your account, and is not used for anything else.',
+            'Google sign-in — only if you choose to sign in with Google. Google then knows you use Mathsense, and passes us your email address and the name on your Google account, which we use to pre-fill your display name. You can sign up with an email address and password instead, and nothing about Mathsense works differently if you do. Google is based in the United States.',
+            'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States. This account is linked to our Google Ads account, so that usage data can also be used to measure our adverts. See section 3.',
           ]} />
           <P>Each of these providers acts as a data processor under a formal data processing agreement. We do not share your data with any other third parties without your consent, unless required by law.</P>
           <P>
             <strong>Teachers and schools.</strong> When you join a class, your teacher can
             see your display name, your year group, and your practice record: which skills
             you have attempted, whether you got each one right, and when. That includes
-            practice you do on your own, not only work your teacher sets — your skill map
-            is built from everything you do, so sharing it shares all of it. They can also
-            see any work they set or mark for you.
+            practice you do on your own, not only work your teacher sets, and practice you
+            did before you joined the class — your skill map is built from everything you
+            do, so sharing it shares all of it. They can also see any work they set or mark
+            for you.
           </P>
           <P>
-            They <strong>cannot</strong> see your email address, your password, which
-            individual questions you answered, or the answers you typed.
+            <strong>Mini-exams are different from practice.</strong> If you sit a mini-exam,
+            a teacher of your class can open the paper and see every question and the answer
+            you gave. A mini-exam is assessment rather than private practice, and marking it
+            means reading it. This is the one place the limit below does not apply.
+          </P>
+          <P>
+            They <strong>cannot</strong> see your email address, your password, or — for
+            ordinary practice — which individual questions you answered or the answers you
+            typed. For practice, your teacher gets your skill map, never a transcript of
+            what you wrote.
           </P>
           <P>
             Joining a class is your own choice, and nobody can add you to one. You can
@@ -121,12 +144,23 @@ export default function PrivacyNoticePage() {
             'Active accounts: data is retained while your account is in use',
             'Inactive student accounts: if you do not sign in or practise for 1 year, we delete the account and everything in it',
             'Deleted accounts: all personal data is permanently deleted within 30 days of account deletion',
-            'Teacher payment records: retained for 7 years as required by HMRC rules',
+            'Payment records: where anyone has paid us — a teacher, a student, or a parent — the record of that payment is retained for 7 years as required by HMRC rules. This is held by us and by our payment provider, and it survives deletion of the account, because we are required to keep it.',
           ]} />
           <P>
             You do not have to wait for that. You can delete your account yourself at any
             time from <em>Account settings</em>, which removes your practice history,
             your progress, and your class memberships permanently.
+          </P>
+          <P>
+            <strong>Deleting your account also cancels any paid subscription</strong>, so
+            you will not be charged again. This applies however the subscription was paid
+            for, including by a parent. You do not need to cancel it separately first.
+          </P>
+          <P>
+            Until 18 September 2026 this was not the case, and a subscription could carry
+            on being charged after the account was deleted. If that happened to you, email
+            us at <a href="mailto:privacy@mathsense.net" style={styles.link}>privacy@mathsense.net</a> and
+            we will cancel it and refund anything taken after the deletion.
           </P>
         </Section>
 
@@ -148,9 +182,10 @@ export default function PrivacyNoticePage() {
           <P>We take the security of your data seriously. Our measures include:</P>
           <Ul items={[
             'All data is encrypted in transit (HTTPS/TLS)',
-            'Database access is protected by row-level security policies',
+            'Every database table is protected by row-level security, so access is enforced by the database itself rather than only by the website',
             'Authentication is handled by Supabase with industry-standard protections',
-            'Access to student data is restricted to the teacher who created the relevant assessment',
+            'A teacher can only reach a student’s record through a class they own, and only while that student is an active member of it. Leaving the class ends that access.',
+            'Anywhere the site reads across accounts, it runs on our server, checks who is asking, and returns only the named fields it needs',
           ]} />
         </Section>
 
@@ -166,7 +201,19 @@ export default function PrivacyNoticePage() {
 
         <Section title="11. Changes to this notice">
           <P>We may update this privacy notice from time to time. We will notify registered users of any significant changes by email. The current version will always be available at mathsense.net/privacy.</P>
-          <P>Last updated: 21 May 2026</P>
+          <SubHeading>What changed in version 1.2 (21 September 2026)</SubHeading>
+          <P>Version 1.1 was written in May 2026 and was not revised while the service changed. This version corrects it. We are recording the changes rather than making them quietly, because one of them tells you something about your data that the previous version got wrong.</P>
+          <Ul items={[
+            'Mini-exams. Version 1.1 said a teacher can never see the answers you type. That is true of practice and was wrong about mini-exams, which a teacher of your class can open and read in full. Section 6 now says so.',
+            'We also now say plainly that a teacher who you share with sees practice from before you joined their class, not only practice since.',
+            'Google sign-in is now listed in section 6. It was missing, and it means Google knows you use Mathsense and passes us your name and email address.',
+            'Section 3 now lists everything we hold, including mini-exam papers and payment references. The old list was incomplete.',
+            'Rate limiting: we now say plainly that this briefly holds your IP address, rather than calling it a request identifier.',
+            'Advertising. Version 1.1 said we do not share your data with advertisers. Our Google Analytics account is linked to our Google Ads account, so that was not accurate about website usage data, and sections 3, 4 and 6 now say what actually happens. Your practice and results have never been part of it, and still are not.',
+            'Deleting your account now cancels any paid subscription too. Until 18 September 2026 it did not, and a subscription could carry on being charged after the account was gone. Section 7 says what to do if that happened to you.',
+            'Section 9 described access as being limited to the teacher who created an assessment. That was out of date; access now runs through class membership, and section 9 describes what actually happens.',
+          ]} />
+          <P>Last updated: 21 September 2026</P>
         </Section>
 
       </div>

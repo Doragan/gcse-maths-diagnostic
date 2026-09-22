@@ -6,7 +6,7 @@ export default function TermsPage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Terms of Service</h1>
           <p style={styles.subtitle}>Please read these terms carefully before using Mathsense.</p>
-          <p style={styles.meta}>Version 1.0 — Last reviewed: 21 May 2026</p>
+          <p style={styles.meta}>Version 1.1 — Last reviewed: 17 September 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -58,7 +58,7 @@ export default function TermsPage() {
             "Ensuring your school or institution's data protection policies permit the use of Mathsense",
             'Informing students that they will be participating in a Mathsense diagnostic',
             'Sharing class codes only with your intended students — codes must not be made publicly available',
-            'Complying with the terms of any Data Processing Agreement in place with Mathsense',
+            'Complying with the terms of any agreement in place between your school and Mathsense',
           ]} />
         </Section>
 
@@ -118,7 +118,7 @@ export default function TermsPage() {
 
         <Section title="13. Data protection">
           <P>We handle personal data in accordance with our <a href="/privacy" style={styles.link}>Privacy Notice</a> at mathsense.net/privacy. By using Mathsense, you confirm you have read and understood our Privacy Notice.</P>
-          <P>Teachers who use Mathsense to process student data should also refer to the <a href="/dpa" style={styles.link}>Data Processing Agreement</a> at mathsense.net/dpa.</P>
+          <P>Teachers and schools should also read <a href="/dpa" style={styles.link}>Mathsense and school data protection</a> at mathsense.net/dpa, which sets out who controls what when a school uses Mathsense, and what a teacher of a class can and cannot see about a pupil who joins it.</P>
         </Section>
 
         <Section title="14. Governing law">
@@ -130,7 +130,7 @@ export default function TermsPage() {
             'Email: hello@mathsense.net',
             'Post: Christopher Reay (trading as Mathsense), 65 Amherst Road, Fawdon, NE3 2QR',
           ]} />
-          <P>Last updated: 21 May 2026</P>
+          <P>Last updated: 17 September 2026</P>
         </Section>
 
       </div>

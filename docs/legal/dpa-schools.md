@@ -2,11 +2,18 @@
 
 **DRAFT. NOT FOR SIGNATURE WITHOUT LEGAL REVIEW.**
 
-_Version 0.1, 2026-09-17. The reasoning behind this document, and the evidence for
+_Version 0.2, 2026-09-17. The reasoning behind this document, and the evidence for
 every factual claim in it, is in `docs/audit/21-school-data-protection-position.md`.
 Section 3 (Roles) is the part a solicitor most needs to look at: it departs
 deliberately from the processor arrangement a school will expect, and the
 departure is substantive rather than cosmetic._
+
+_**v0.2 corrects a factual error in §4.** v0.1 told the School that a teacher
+cannot see which questions a Pupil answered or the answers they gave. That is
+true of practice and false of mini-exams, which a teacher may open in full
+(`get_class_exam_paper`). The correction is §4.2, and it matters more than a
+wording fix: it was a claim a DPO could have disproved in ten minutes by sitting
+a mini-exam as a pupil and opening it as a teacher. See `docs/audit/23` §2.3._
 
 **Before issuing this to anyone, fill in:** the Provider's address (see §1 — a
 service address is sufficient and need not be a home address), and the School's
@@ -86,13 +93,23 @@ Mathsense accounts.
 - the Pupil's year group, where they supplied one
 - the Pupil's **practice record**: which maths skills they attempted, whether each
   attempt was correct, when it happened, and of what kind
+- any **mini-exam the Pupil sits**, including the paper itself and the answers
+  they gave (§4.2)
 - work the teacher set for them, and papers the teacher marked for them
 
-**§4.1 — the practice record includes private practice.** A Pupil's skill map is
-built from everything they do on Mathsense, not only from work a teacher set, and
-what a teacher sees is that whole record. This is stated in the Pupil-facing
+**§4.1 — the practice record includes private practice, and pre-dates the class.**
+A Pupil's skill map is built from everything they do on Mathsense, not only from
+work a teacher set, and what a teacher sees is that whole record — including
+practice done before they joined the class. This is stated in the Pupil-facing
 privacy notice and on the screen where a Pupil joins a class, and it is drawn to
 the School's attention here because it is more than a school might assume.
+
+**§4.2 — mini-exams are disclosed in full, unlike practice.** Where a Pupil sits
+a Mathsense mini-exam, a teacher of their class may open the paper and see every
+question and every answer the Pupil gave. A mini-exam is assessment rather than
+private practice, and marking it means reading it. This is the one place the
+withholding in the list below does not apply, and it is stated separately so it
+cannot be read as an exception the School was not told about.
 
 **Personal data NOT disclosed to the School:**
 
@@ -101,7 +118,9 @@ the School's attention here because it is more than a school might assume.
   any teacher-facing function. This is a property of the system's design, not an
   access rule that could be changed by configuration.
 - the Pupil's password, which the Provider does not hold in readable form
-- which individual questions a Pupil answered, or the answers they gave
+- which individual questions a Pupil answered **in practice**, or the answers they
+  gave there. The teacher gets the skill map, never a transcript of private
+  practice. Mini-exams are the exception and are disclosed in full (§4.2).
 - any data about a person who is not an active member of that teacher's class
 
 **Special category data:** none is collected. Mathsense does not ask for, and has
@@ -230,6 +249,22 @@ _Drafting notes, to be removed before issue:_
    processor agreement as a matter of course; that document will describe an
    arrangement this product does not implement, and signing it would commit the
    Provider to instructions it has no mechanism to receive._
-3. _No DPIA exists. A school may ask for one, and processing children's
-   attainment data is the kind for which one is expected. See
-   `docs/audit/21` §6._
+3. _A DPIA now exists — `docs/legal/dpia-student-data.md`, v0.2, draft and not
+   yet signed off. It should be signed off before this agreement is issued to
+   anyone, because a school that asks for it will be given a document whose
+   own status line says DRAFT._
+4. _**The contradictory live page is gone, as of 2026-09-17.** `mathsense.net/dpa`
+   served an Article 28 processor agreement — School as Controller, Mathsense as
+   Processor, signature block, a three-row sub-processor schedule — for as long
+   as this draft has existed, and neither this document nor `docs/audit/21`
+   noticed. It has been replaced by a position statement consistent with §3 here
+   (`app/dpa/page.tsx`), and the two Terms references to a "Data Processing
+   Agreement" now point at it. **Nobody is known to have signed the old page**,
+   which invited a school to request a signed copy by email; if anyone did, this
+   note is where to start. Found by the red-team pass in `docs/audit/23`._
+5. _§7's sub-processor table is **not yet safe to issue**. Google sign-in is a
+   live pupil path and appears in no list; Resend and Upstash have no location;
+   Stripe is "UK / EU" here and was "US" on the old live page; the Vercel region
+   is not pinned anywhere in the repository. Verify each, and name a transfer
+   mechanism for each, before this goes to a school. This is why the replacement
+   live page carries no table and points at the privacy notice instead._
