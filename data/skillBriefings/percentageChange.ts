@@ -53,6 +53,13 @@ export const percentageChangeBriefing: SkillBriefing = {
       theOther: 'Interest or loss that builds on the new amount each time — compound.',
       ask: 'Is the percentage applied once, or again and again once per year?',
     },
+    {
+      // Mirror of the entry in fractionsDecimalsAndPercentages.ts.
+      skillId: 'fractions_decimals_and_percentages',
+      thisOne: 'One amount turning into another — a before and an after.',
+      theOther: 'A part of a whole at one moment — 14 of the 40 cars are red.',
+      ask: 'Is this a part of a whole, or something that has changed from one value to another?',
+    },
   ],
 
   examples: [

@@ -5,6 +5,9 @@ import { compoundUnitsBriefing } from './compoundUnits'
 import { percentageChangeBriefing } from './percentageChange'
 import { inverseProportionBriefing } from './inverseProportion'
 import { growthAndDecayBriefing } from './growthAndDecay'
+import { fractionsOfAmountsBriefing } from './fractionsOfAmounts'
+import { fractionsDecimalsAndPercentagesBriefing } from './fractionsDecimalsAndPercentages'
+import { reversePercentageBriefing } from './reversePercentage'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored exam briefings.
@@ -13,12 +16,15 @@ import { growthAndDecayBriefing } from './growthAndDecay'
 // nothing links to one — every entry point checks `hasBriefing` first, and the
 // /skills index lists such skills without making them links.
 //
-// The six written so far are one cluster, not the six heaviest skills. Authoring
+// Written a cluster at a time, not in order of the heaviest skills. Authoring
 // by cluster means the comparison cards resolve to pages that exist: proportion,
 // ratio and compound units all point at each other, and percentage change,
 // inverse proportion and growth and decay close the ring. Picking by marks alone
 // would have left every "don't confuse it with" pointing at a page that isn't
 // there.
+//
+// The second cluster — fractions of amounts, fractions/decimals/percentages and
+// reverse percentage — hangs off the first through ratio and percentage change.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const skillBriefings: Record<string, SkillBriefing> = {
@@ -28,6 +34,9 @@ export const skillBriefings: Record<string, SkillBriefing> = {
   [percentageChangeBriefing.skillId]: percentageChangeBriefing,
   [inverseProportionBriefing.skillId]: inverseProportionBriefing,
   [growthAndDecayBriefing.skillId]: growthAndDecayBriefing,
+  [fractionsOfAmountsBriefing.skillId]: fractionsOfAmountsBriefing,
+  [fractionsDecimalsAndPercentagesBriefing.skillId]: fractionsDecimalsAndPercentagesBriefing,
+  [reversePercentageBriefing.skillId]: reversePercentageBriefing,
 }
 
 export const getBriefing = (skillId: string): SkillBriefing | null => skillBriefings[skillId] ?? null
