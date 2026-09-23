@@ -145,7 +145,7 @@ table got wrong the first time._
 | Supabase | Database and authentication | **London, UK** | `db.<ref>.supabase.co` resolves to `2a05:d01c:…`; matched against AWS's published `ip-ranges.json` as `eu-west-2` |
 | Vercel | Hosting | **London, UK** | `x-vercel-id: lhr1::…` on both a static page and a Node server route |
 | Stripe | Payments — email and payment details only, never practice or results | Irish entities; **transfers to the US** | Stripe privacy centre |
-| Resend | Transactional and opted-in email — email address only | 🔴 **United States** | Resend's own GDPR page |
+| Resend | **Opted-in practice reminders only** — email address | 🔴 **United States** | Resend's own GDPR page |
 | Upstash | Rate limiting — the visitor's IP for ~1 minute | **London, UK** | Console, confirmed by the controller 2026-09-23 |
 | Google sign-in | Only if a pupil chooses it; Google passes us their name and email | **United States** | Live path in `lib/auth.ts` |
 | Google Analytics | Usage analytics, **only** after the visitor accepts cookies | **United States** | — |
@@ -162,6 +162,43 @@ records — and the sending region only controls where mail is dispatched from.
 There is no setting that moves storage to the EU. So children's email addresses
 rest in the US, which is more identifying than the analytics usage data that was
 being treated as the sensitive case.
+
+**But the exposure is narrower than it first looked, established 2026-09-23.**
+Six routes send through Resend and **four of them email the operator**, not a
+pupil: contact, feedback, report-question and the ad digest. Only the
+re-engagement and weekly-nudge crons email a learner, and both are the **opt-in**
+reminder path. A learner who never ticked the reminders box has never had their
+address sent to Resend.
+
+Password resets and sign-up confirmations do **not** go through Resend. They are
+sent by Supabase Auth (`supabase.auth.resetPasswordForEmail`,
+`supabase.auth.signUp`), and custom SMTP is **not configured** — confirmed at the
+console 2026-09-23. The notice claimed otherwise until v1.3 and was corrected.
+
+That reframes the options. Moving the two learner-facing crons to a UK or EU
+sender would remove children's addresses from the United States entirely, and it
+is two files. See `docs/audit/23` for the wider options.
+
+### ⚠ An open question this raised, bigger than the schedule
+
+Supabase's built-in mailer is documented as delivering **only to pre-authorised
+addresses — members of the project's team** — capped at two messages an hour,
+with no delivery SLA, and explicitly not for production use.
+
+If that restriction applies to this project, **password resets and sign-up
+confirmations are not reaching learners at all**, and a learner who forgets their
+password is locked out permanently without anyone hearing about it.
+
+The evidence conflicts and this is **not yet a finding**. On 2026-09-13, 4 of 69
+learners were unconfirmed, which means 65 had confirmed an email that must
+therefore have been delivered. So either the restriction post-dates this project,
+or it does not apply here, or something changed recently. Settle it in the
+Authentication logs, or by triggering a reset to an address outside the team.
+
+Whatever the answer, a second point stands for the schedule: **Supabase sends
+those emails, and where that sending happens is not established.** The project's
+database is London; its transactional mail infrastructure is a separate question
+and is not evidenced anywhere.
 
 ### Two corrections in our favour
 

@@ -114,7 +114,8 @@ export default function PrivacyNoticePage() {
             'Supabase (database and authentication) — servers in London, United Kingdom',
             'Vercel (website hosting) — servers in London, UK (eu-west-2)',
             'Stripe (payment processing) — receives an email address and payment details when an account is paid for, whether by a teacher, a student, or a parent paying on a student’s behalf. It never receives practice or results data.',
-            'Resend (email delivery) — receives an email address when we send a password reset, a confirmation, or a practice reminder you have opted in to. Resend stores its data in the United States, so sending you an email means your address is held there. It never receives your practice or your results.',
+            'Resend (email delivery) — receives an email address when we send you a practice reminder you have opted in to. Resend stores its data in the United States, so that means your address is held there. It never receives your practice or your results. If you have not opted in to reminders, Resend never receives your address at all.',
+            'Password reset and sign-up confirmation emails are sent by Supabase, not by Resend, as part of the authentication service above.',
             'Upstash (rate limiting) — servers in London, United Kingdom. Briefly holds your IP address to stop automated abuse of sign-in and class-join endpoints. It is held for minutes, is never linked to your account, and is not used for anything else.',
             'Google sign-in — only if you choose to sign in with Google. Google then knows you use Mathsense, and passes us your email address and the name on your Google account, which we use to pre-fill your display name. You can sign up with an email address and password instead, and nothing about Mathsense works differently if you do. Google is based in the United States.',
             'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States. This account is linked to our Google Ads account, so that usage data can also be used to measure our adverts. See section 3.',
@@ -213,7 +214,8 @@ export default function PrivacyNoticePage() {
           <SubHeading>What changed in version 1.3 (23 September 2026)</SubHeading>
           <P>We checked where each of the companies in section 6 actually keeps data, rather than relying on what we had written down before. Two things were wrong and one was missing.</P>
           <Ul items={[
-            'Resend, which sends our emails, stores its data in the United States. We had not said so. It means that when we email you, your email address is held in the US. It never receives your practice or your results.',
+            'Resend, which sends our practice reminders, stores its data in the United States. We had not said so. If you have opted in to reminders, it means your email address is held there. It never receives your practice or your results, and if you have not opted in it never receives your address at all.',
+            'We had also said Resend sends your password reset and confirmation emails. It does not — those come from Supabase, as part of the sign-in service.',
             'Supabase, our database, is in London. We had described it as “EU West”, which was vaguer than the truth.',
             'Upstash, which does our rate limiting, is in London. We had not said where it was.',
           ]} />
