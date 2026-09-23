@@ -8,6 +8,9 @@ import { growthAndDecayBriefing } from './growthAndDecay'
 import { fractionsOfAmountsBriefing } from './fractionsOfAmounts'
 import { fractionsDecimalsAndPercentagesBriefing } from './fractionsDecimalsAndPercentages'
 import { reversePercentageBriefing } from './reversePercentage'
+import { solvingLinearEquationsBriefing } from './solvingLinearEquations'
+import { inequalitiesBriefing } from './inequalities'
+import { simultaneousEquationsBriefing } from './simultaneousEquations'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored exam briefings.
@@ -25,6 +28,11 @@ import { reversePercentageBriefing } from './reversePercentage'
 //
 // The second cluster — fractions of amounts, fractions/decimals/percentages and
 // reverse percentage — hangs off the first through ratio and percentage change.
+//
+// The third is algebra: solving linear equations, inequalities and simultaneous
+// equations. It is self-contained (both neighbours have solving as their
+// prerequisite) and reaches the earlier clusters through the ratio comparison
+// that ratio.ts had already written pointing this way.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const skillBriefings: Record<string, SkillBriefing> = {
@@ -37,6 +45,9 @@ export const skillBriefings: Record<string, SkillBriefing> = {
   [fractionsOfAmountsBriefing.skillId]: fractionsOfAmountsBriefing,
   [fractionsDecimalsAndPercentagesBriefing.skillId]: fractionsDecimalsAndPercentagesBriefing,
   [reversePercentageBriefing.skillId]: reversePercentageBriefing,
+  [solvingLinearEquationsBriefing.skillId]: solvingLinearEquationsBriefing,
+  [inequalitiesBriefing.skillId]: inequalitiesBriefing,
+  [simultaneousEquationsBriefing.skillId]: simultaneousEquationsBriefing,
 }
 
 export const getBriefing = (skillId: string): SkillBriefing | null => skillBriefings[skillId] ?? null
