@@ -25,6 +25,10 @@ import { getCalculatorFilter } from '../../../../lib/questions/calculatorPrefere
 import { isCheckpoint, closestToMastery, SESSION_LENGTH } from '../../../../lib/practice/session'
 import { computeWeeklyGoal, questionsToGoal, daysToGoal } from '../../../../lib/skills/weeklyGoal'
 import { pickStepUp, type StepUpCandidate } from '../../../../lib/skills/stepUp'
+import {
+  pickEaseDown, shouldOfferEaseDown, difficultyDelta,
+  type EaseDownCandidate, type SessionAnswer,
+} from '../../../../lib/skills/easeDown'
 import { masteryStatusFor, attemptsToMastery } from '../../../../lib/skills/masteryEngine'
 import type { QuestionPart } from '../../../../lib/questions/parts'
 import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
@@ -68,6 +72,36 @@ const poolCache = new Map<string, string[]>()
 /** Random element of a non-empty array. */
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
+}
+
+// ── The session answer log ───────────────────────────────────────────────────
+// What the ease-down needs and the older session counters cannot give it: the
+// ORDER of this session's answers and how hard each question was. It lives in
+// sessionStorage for the same reason session_total does — the practice flow
+// loads a fresh page per question, so component state does not survive.
+const SESSION_ANSWERS_KEY  = 'session_answers'
+const SESSION_EASEDOWN_KEY = 'session_easedown_offers'
+/** Well above the measured median sitting of 10; caps a pathological session. */
+const ANSWER_LOG_LIMIT = 50
+
+function readAnswerLog(): SessionAnswer[] {
+  try {
+    const raw = JSON.parse(sessionStorage.getItem(SESSION_ANSWERS_KEY) ?? '[]')
+    return Array.isArray(raw) ? raw as SessionAnswer[] : []
+  } catch { return [] }
+}
+
+/** Appends an answer and returns the new log. Storage failures are survivable:
+ *  the log is only ever an input to an optional offer, never to marking. */
+function appendAnswerLog(entry: SessionAnswer): SessionAnswer[] {
+  const log = [...readAnswerLog(), entry].slice(-ANSWER_LOG_LIMIT)
+  try { sessionStorage.setItem(SESSION_ANSWERS_KEY, JSON.stringify(log)) } catch { /* quota */ }
+  return log
+}
+
+function readEaseDownOffers(): number {
+  const n = parseInt(sessionStorage.getItem(SESSION_EASEDOWN_KEY) ?? '0')
+  return Number.isFinite(n) ? n : 0
 }
 
 /** Resolves the active skill pool from the stored tier + any focus override. */
@@ -188,6 +222,12 @@ function QuestionPage() {
   // bank has none for that skill (roughly a third of the time), in which case
   // the celebration renders exactly as it did before.
   const [stepUp, setStepUp] = useState<{ id: string; parts: number } | null>(null)
+  // The mirror of the step up, for a session going the other way. Set to the
+  // session's answer log at the moment a losing streak completes, which is what
+  // the lookup below keys off; the easier question it finds, if the pool has
+  // one, goes in easeDown. Both null the rest of the time.
+  const [easeDownStreak, setEaseDownStreak] = useState<SessionAnswer[] | null>(null)
+  const [easeDown, setEaseDown] = useState<{ id: string; difficulty: number } | null>(null)
   const [dotsPhase, setDotsPhase] = useState<'before' | 'after'>('before')
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 })
   const [sessionSkills, setSessionSkills] = useState<Record<string, {
@@ -307,6 +347,62 @@ function QuestionPage() {
     return () => { cancelled = true }
   }, [newlyMasteredSkill, id])
 
+  // Look for something easier once a losing streak completes. Queried on demand
+  // for the same reason the step up is: the session pool is cached as bare ids,
+  // and widening that cache to carry difficulty, kind and parts would make every
+  // session pay for a moment that happens at most twice in it. The explanation
+  // for the question they just got wrong is already on screen while this runs.
+  useEffect(() => {
+    if (!easeDownStreak || !question) { setEaseDown(null); return }
+    let cancelled = false
+    ;(async () => {
+      const answers = easeDownStreak
+      const delta = difficultyDelta(answers)
+      // The session's own pool, so an active focus mode is honoured — and the
+      // calculator filter with it, or a non-calculator session could be offered
+      // a calculator question as its way back in.
+      const calcValues = calculatorValuesFor(getCalculatorFilter())
+      let query = supabase
+        .from('questions')
+        .select('id, difficulty, skill_ids, kind, parts')
+        .eq('is_published', true)
+        .overlaps('skill_ids', resolveSkillIds())
+        .lt('difficulty', question.difficulty)
+      if (calcValues) query = query.in('calculator', calcValues)
+      const { data } = await query
+      if (cancelled) return
+
+      const candidates: EaseDownCandidate[] = (data ?? []).map(row => ({
+        id: row.id as string,
+        difficulty: row.difficulty as number,
+        skillIds: (row.skill_ids ?? []) as string[],
+        partCount: Array.isArray(row.parts) ? row.parts.length : 0,
+        kind: (row.kind ?? 'mastery') as 'mastery' | 'exam',
+      }))
+      const pick = pickEaseDown(
+        { id: question.id, difficulty: question.difficulty, skillIds: question.skill_ids },
+        candidates,
+        answers,
+        answers.map(a => a.questionId),   // nothing they have already seen today
+      )
+      // Track the OFFER, not just the click, for the reason spelled out on
+      // stepup_offered: uptake is meaningless without its denominator. `found`
+      // separates "students don't want this" from "the bank had nothing", which
+      // for an ease-down is the likelier of the two — 60% of these moments are
+      // on a skill with nothing easier in it.
+      trackEvent('easedown_offered', {
+        skill_id: question.skill_ids[0] ?? null,
+        from_difficulty: question.difficulty,
+        difficulty_delta: delta,
+        answered: answers.length,   // how far into the session the wall came
+        found: !!pick,
+        ...(pick ? { question_id: pick.id, to_difficulty: pick.difficulty } : {}),
+      })
+      if (pick) setEaseDown({ id: pick.id, difficulty: pick.difficulty })
+    })()
+    return () => { cancelled = true }
+  }, [easeDownStreak, id])
+
   // Animate dots from "before" → "after" shortly after feedback appears
   useEffect(() => {
     if (!feedback) { setDotsPhase('before'); return }
@@ -330,6 +426,7 @@ function QuestionPage() {
     setAnswer('')
     setFeedback(null)
     setNewlyMasteredSkill(null)
+    setEaseDownStreak(null)
     setPriorSkillAttempts([])
 
     // Use the prefetched/cached row when available (instant); otherwise fetch it.
@@ -456,6 +553,25 @@ function QuestionPage() {
       }
       sessionStorage.setItem('session_skills', JSON.stringify(skills))
       setSessionSkills(prev => ({ ...prev, [primarySkillId]: skills[primarySkillId] }))
+    }
+
+    // Log the answer itself — order and difficulty, which the counters above
+    // don't keep — and check whether it completes a losing streak. Deliberately
+    // above the anonymous early-return: most first sessions are signed out, and
+    // a first session ending badly is the whole point of this.
+    const answerLog = appendAnswerLog({
+      questionId: question.id,
+      correct,
+      difficulty: question.difficulty,
+      skillId: primarySkillId ?? null,
+    })
+    if (shouldOfferEaseDown(answerLog, readEaseDownOffers())) {
+      // Counted here rather than when a question is found, so the cap holds even
+      // when the pool has nothing to offer — otherwise a student on a skill with
+      // no easier question would be re-checked on every streak for the whole
+      // session, and each check emits an easedown_offered row.
+      sessionStorage.setItem(SESSION_EASEDOWN_KEY, (readEaseDownOffers() + 1).toString())
+      setEaseDownStreak(answerLog)
     }
 
     // Count this answer toward the escalating anonymous sign-up nudge (a single-part
@@ -1192,6 +1308,50 @@ function QuestionPage() {
                   </button>
                 </div>
               )}
+            </div>
+          )}
+
+          {/*
+            The way back in after two wrong in a row. Offered, never forced, and
+            never the primary action — "Try again" and "Next question" both stay
+            exactly where they were, so a student who wants to keep pushing at
+            this one is not talked out of it. It names the streak rather than
+            pretending not to have noticed, because they have noticed.
+
+            Neutral, not a warning colour: the explanation directly above it is
+            already amber and the marking above that is already red, so a third
+            coloured box reads as more alarm about the same wrong answer. This
+            is the calm way out, and should look like one.
+          */}
+          {easeDown && !feedback.correct && (
+            <div style={{
+              margin: '0 0 12px', padding: '12px 14px',
+              background: colors.cardAlt,
+              border: `1px solid ${colors.borderStrong}`,
+              borderRadius: radius.md,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              gap: '10px', flexWrap: 'wrap' as const,
+            }}>
+              <span style={{ fontSize: font.base, color: colors.textPrimary }}>
+                Two tricky ones in a row — that happens to everyone.
+              </span>
+              <button
+                onClick={() => {
+                  trackEvent('easedown_accepted', {
+                    skill_id: question?.skill_ids[0] ?? null,
+                    question_id: easeDown.id,
+                    from_difficulty: question?.difficulty ?? null,
+                    to_difficulty: easeDown.difficulty,
+                  })
+                  router.push(`/practice/question/${easeDown.id}`)
+                }}
+                style={{
+                  ...secondaryButton,
+                  width: 'auto', padding: '8px 16px', fontSize: font.base,
+                }}
+              >
+                Try an easier one →
+              </button>
             </div>
           )}
 
