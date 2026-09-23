@@ -58,6 +58,14 @@ export const foundationSkillIds = [
   // 1F/3F Nov 2023, Edexcel 1F and OCR 02; equations_and_identities on AQA 3F
   // June 2024 and OCR 01, as well as on several Higher papers.
   "properties_of_2d_shapes", "equations_and_identities",
+  // Moved from higherOnlySkillIds 2026-09-22. It was placed as Higher-only, but
+  // the coded audit has it on five Foundation parts across all three boards —
+  // AQA Nov 2023 1F q25, June 2024 2F q20 and Nov 2024 2F q24, Edexcel June 2025
+  // 2F q24, and OCR June 2025 J560/03 q8b — so the rule above places it here.
+  // Always late in the paper, in the stretch section, and below the four-part
+  // evidence bar on any single board, so /skill/reverse-percentage still shows
+  // no audit-derived claim on Foundation.
+  "reverse_percentage",
   // area_and_volume_scale_factors does most of its work on Higher papers, but
   // it appears on Foundation ones too (AQA 3F June 2023 q19, OCR J560/03 q19),
   // and the rule above is "any Foundation paper".
@@ -78,7 +86,7 @@ export const higherOnlySkillIds = [
   "vector_proof", "fractional_enlargements",
   "venn_diagrams", "conditional_probability", "histograms",
   "cumulative_frequency", "box_plots", "interquartile_range",
-  "reverse_percentage", "proportion_with_powers",
+  "proportion_with_powers",
   // Added 2026-08-21 alongside the Foundation additions above. These three
   // appear ONLY on Higher papers across all 30 coded series.
   "perpendicular_gradients", "trig_graphs", "counting_without_listing",

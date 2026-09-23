@@ -9,9 +9,11 @@ import type { SkillBriefing } from './types'
 // same underlying error: losing track of what the percentage is a percentage
 // OF. The method leads on naming the base, and the self-check returns to it.
 //
-// `reverse_percentage` is a Higher-only skill (see courses.ts), so that
-// comparison lives in the higher block — a Foundation student should not be
-// told to distinguish something that is not on their paper.
+// The `reverse_percentage` comparison lives in the higher block. That was
+// originally because the skill was Higher-only; since it moved to Foundation
+// (courses.ts, 2026-09-22) the reason is weaker — reverse percentage is late
+// stretch content on a Foundation paper, so a Foundation student meets it last
+// if at all. Worth revisiting if the Foundation parts become more common.
 //
 // Do not restate any framing percentage here or in `recognise`: the page
 // computes its own headline claim from the audit.
