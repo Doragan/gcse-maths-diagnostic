@@ -179,26 +179,54 @@ That reframes the options. Moving the two learner-facing crons to a UK or EU
 sender would remove children's addresses from the United States entirely, and it
 is two files. See `docs/audit/23` for the wider options.
 
-### ⚠ An open question this raised, bigger than the schedule
+### ✅ Auth email IS being delivered — and the real risk is a burst
 
-Supabase's built-in mailer is documented as delivering **only to pre-authorised
-addresses — members of the project's team** — capped at two messages an hour,
-with no delivery SLA, and explicitly not for production use.
+**Investigated 2026-09-23 against the live auth records**, in aggregate only, no
+address or name read. Supabase's built-in mailer is documented as delivering only
+to pre-authorised team addresses, capped at two messages an hour, with no SLA and
+explicitly not for production. Custom SMTP is **not** configured, so that is what
+sends every confirmation and password reset.
 
-If that restriction applies to this project, **password resets and sign-up
-confirmations are not reaching learners at all**, and a learner who forgets their
-password is locked out permanently without anyone hearing about it.
+**The team-only restriction does not apply here.** `mailer_autoconfirm` is
+`false`, so a confirmation email is genuinely required, and 32 of 38
+email-provider accounts are confirmed, spread across every month from March to
+September, the most recent four days ago. Those emails reached ordinary learners.
+The six unconfirmed are ordinary abandonment: they are spread across five months
+with hours or days between them, showing no rate-limit pattern.
 
-The evidence conflicts and this is **not yet a finding**. On 2026-09-13, 4 of 69
-learners were unconfirmed, which means 65 had confirmed an email that must
-therefore have been delivered. So either the restriction post-dates this project,
-or it does not apply here, or something changed recently. Settle it in the
-Authentication logs, or by triggering a reset to an address outside the team.
+**The cap is the problem, and it is invisible at current volume.**
 
-Whatever the answer, a second point stands for the schedule: **Supabase sends
-those emails, and where that sending happens is not established.** The project's
-database is London; its transactional mail infrastructure is a separate question
-and is not evidenced anywhere.
+| | |
+|---|---|
+| Busiest hour of email signups, ever | **2** |
+| Supabase built-in mailer cap | **2 per hour** |
+
+The ceiling has never been exceeded because there has never been a burst. A
+class of thirty signing up together in a lesson needs **fifteen hours** to get
+through it: two learners receive a confirmation email and twenty-eight do not,
+silently, with no error anyone sees. That is precisely the school scenario this
+whole workstream exists to support, and it is completely untested.
+
+**One mitigation, worth knowing.** Google sign-up needs no confirmation email at
+all, and it is now the majority path — 68 Google accounts against 38 email, and
+in September 37 against 11. A class on school Google accounts would not touch
+the mailer. A class told to use an email address would.
+
+### The fix resolves the schedule question too
+
+**Configuring custom SMTP** removes the cap, and it simultaneously answers the
+data protection question this section started with: with a custom sender, *we*
+choose and document where auth email goes, instead of it being Supabase's
+unevidenced infrastructure.
+
+Point it at a **London** sender and auth email joins the database, the hosting
+and the rate limiter in the UK. Pointing it at Resend would work technically and
+would be the wrong choice: it would hand every learner's address to a US
+processor, where today Resend only ever sees opt-in reminder recipients.
+
+Until then, a point stands for the schedule: **Supabase sends those emails and
+where it sends them from is not established.** The database is London; the mail
+infrastructure is a separate question, evidenced nowhere.
 
 ### Two corrections in our favour
 
