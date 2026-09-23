@@ -58,6 +58,13 @@ export const compoundUnitsBriefing: SkillBriefing = {
       theOther: 'You are asked for more of something you were already given — more grams, more pounds.',
       ask: 'Does the answer need two units joined by "per", or just one?',
     },
+    {
+      // Mirror of the entry in convertingMeasurements.ts.
+      skillId: 'converting_measurements',
+      thisOne: 'Two different quantities joined into a rate — miles per hour, grams per cm³.',
+      theOther: 'One measurement rewritten another way. 1.6 m and 1600 mm are the same length.',
+      ask: 'Is one measurement being rewritten, or are two quantities being combined into a "per"?',
+    },
   ],
 
   examples: [
