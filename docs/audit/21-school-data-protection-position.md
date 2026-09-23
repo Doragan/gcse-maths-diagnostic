@@ -145,8 +145,8 @@ table got wrong the first time._
 | Supabase | Database and authentication | **London, UK** | `db.<ref>.supabase.co` resolves to `2a05:d01c:…`; matched against AWS's published `ip-ranges.json` as `eu-west-2` |
 | Vercel | Hosting | **London, UK** | `x-vercel-id: lhr1::…` on both a static page and a Node server route |
 | Stripe | Payments — email and payment details only, never practice or results | Irish entities; **transfers to the US** | Stripe privacy centre |
-| Resend | Transactional and opted-in email — email address only | 🔴 **United States** | Resend's own GDPR page |
-| Upstash | Rate limiting — the visitor's IP for ~1 minute | ⚠ **Unknown — needs the console** | Resolves to `eu-west-1` via `global-latency.upstash.io`; Global databases replicate to chosen read regions |
+| Resend | **Opted-in practice reminders only** — email address | 🔴 **United States** | Resend's own GDPR page |
+| Upstash | Rate limiting — the visitor's IP for ~1 minute | **London, UK** | Console, confirmed by the controller 2026-09-23 |
 | Google sign-in | Only if a pupil chooses it; Google passes us their name and email | **United States** | Live path in `lib/auth.ts` |
 | Google Analytics | Usage analytics, **only** after the visitor accepts cookies | **United States** | — |
 
@@ -163,6 +163,71 @@ There is no setting that moves storage to the EU. So children's email addresses
 rest in the US, which is more identifying than the analytics usage data that was
 being treated as the sensitive case.
 
+**But the exposure is narrower than it first looked, established 2026-09-23.**
+Six routes send through Resend and **four of them email the operator**, not a
+pupil: contact, feedback, report-question and the ad digest. Only the
+re-engagement and weekly-nudge crons email a learner, and both are the **opt-in**
+reminder path. A learner who never ticked the reminders box has never had their
+address sent to Resend.
+
+Password resets and sign-up confirmations do **not** go through Resend. They are
+sent by Supabase Auth (`supabase.auth.resetPasswordForEmail`,
+`supabase.auth.signUp`), and custom SMTP is **not configured** — confirmed at the
+console 2026-09-23. The notice claimed otherwise until v1.3 and was corrected.
+
+That reframes the options. Moving the two learner-facing crons to a UK or EU
+sender would remove children's addresses from the United States entirely, and it
+is two files. See `docs/audit/23` for the wider options.
+
+### ✅ Auth email IS being delivered — and the real risk is a burst
+
+**Investigated 2026-09-23 against the live auth records**, in aggregate only, no
+address or name read. Supabase's built-in mailer is documented as delivering only
+to pre-authorised team addresses, capped at two messages an hour, with no SLA and
+explicitly not for production. Custom SMTP is **not** configured, so that is what
+sends every confirmation and password reset.
+
+**The team-only restriction does not apply here.** `mailer_autoconfirm` is
+`false`, so a confirmation email is genuinely required, and 32 of 38
+email-provider accounts are confirmed, spread across every month from March to
+September, the most recent four days ago. Those emails reached ordinary learners.
+The six unconfirmed are ordinary abandonment: they are spread across five months
+with hours or days between them, showing no rate-limit pattern.
+
+**The cap is the problem, and it is invisible at current volume.**
+
+| | |
+|---|---|
+| Busiest hour of email signups, ever | **2** |
+| Supabase built-in mailer cap | **2 per hour** |
+
+The ceiling has never been exceeded because there has never been a burst. A
+class of thirty signing up together in a lesson needs **fifteen hours** to get
+through it: two learners receive a confirmation email and twenty-eight do not,
+silently, with no error anyone sees. That is precisely the school scenario this
+whole workstream exists to support, and it is completely untested.
+
+**One mitigation, worth knowing.** Google sign-up needs no confirmation email at
+all, and it is now the majority path — 68 Google accounts against 38 email, and
+in September 37 against 11. A class on school Google accounts would not touch
+the mailer. A class told to use an email address would.
+
+### The fix resolves the schedule question too
+
+**Configuring custom SMTP** removes the cap, and it simultaneously answers the
+data protection question this section started with: with a custom sender, *we*
+choose and document where auth email goes, instead of it being Supabase's
+unevidenced infrastructure.
+
+Point it at a **London** sender and auth email joins the database, the hosting
+and the rate limiter in the UK. Pointing it at Resend would work technically and
+would be the wrong choice: it would hand every learner's address to a US
+processor, where today Resend only ever sees opt-in reminder recipients.
+
+Until then, a point stands for the schedule: **Supabase sends those emails and
+where it sends them from is not established.** The database is London; the mail
+infrastructure is a separate question, evidenced nowhere.
+
 ### Two corrections in our favour
 
 **Supabase is the UK, not "EU West".** `eu-west-2` is London; `eu-west-1` is
@@ -174,21 +239,30 @@ for its own fraud-prevention and compliance purposes, and as a processor when
 facilitating payments at our direction. Listing it as a plain sub-processor
 misdescribes the relationship.
 
-### Upstash is the open item, and probably a settings fix
+### ✅ Upstash: London, confirmed at the console 2026-09-23
 
-The hostname resolves through `global-latency.upstash.io`, so what a probe from
-the UK reaches is the nearest replica, not the only region. Upstash Global
-databases replicate to read regions that may sit outside the EU. Only the console
-can say which are enabled.
+That closes the last open row, and it means **every store of personal data in
+this product is in the United Kingdom**: the database, the hosting, and the rate
+limiter. Only the three US recipients in the table are outside it, and each is
+either optional for the pupil or receives an email address alone.
 
-It is likely cheap to close. The `KV_*` variable names show the database was
-provisioned through the Vercel Marketplace integration, regions can be added and
-removed on a running database, and a single-region database is an option. No code
-changes either way, and `lib/rateLimit.ts` degrades gracefully while it is done.
+⚠ **One residual to settle before the schedule is issued, and it is cheap.** The
+endpoint resolves through `global-latency.upstash.io` and a probe from the UK
+reached `eu-west-1` addresses. That is consistent with London storage behind a
+latency-routed front end, but it is also what a **Global** database looks like,
+and a Global database has read regions that can sit anywhere. The console
+distinguishes them: confirm the database is **Regional**, or that its read-region
+list contains London alone. Recorded rather than assumed, because a location
+nobody checked is what this table got wrong the first time.
 
-What is actually at stake is small but real: an IP address, for about a minute,
-never linked to an account. `app/api/classes/join` is the endpoint children
-themselves use.
+If it does turn out to carry non-EU read regions, it stays cheap. The `KV_*`
+variable names show it was provisioned through the Vercel Marketplace, regions
+can be added and removed on a running database, and `lib/rateLimit.ts` degrades
+gracefully while it is done. No code changes either way.
+
+What is at stake is small but real: an IP address, for about a minute, never
+linked to an account. `app/api/classes/join` is the endpoint children themselves
+use.
 
 ### Transfer mechanisms, which the schedule still lacks
 
