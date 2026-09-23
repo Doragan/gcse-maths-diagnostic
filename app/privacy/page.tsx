@@ -8,7 +8,7 @@ export default function PrivacyNoticePage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Privacy Notice</h1>
           <p style={styles.subtitle}>How Mathsense collects, uses and protects your personal data</p>
-          <p style={styles.meta}>Version 1.2 — Last reviewed: 22 September 2026</p>
+          <p style={styles.meta}>Version 1.3 — Last reviewed: 23 September 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -111,11 +111,11 @@ export default function PrivacyNoticePage() {
         <Section title="6. Who we share your data with">
           <P>We use a small number of trusted third-party services to operate Mathsense:</P>
           <Ul items={[
-            'Supabase (database and authentication) — servers in EU West (eu-west-2)',
+            'Supabase (database and authentication) — servers in London, United Kingdom',
             'Vercel (website hosting) — servers in London, UK (eu-west-2)',
             'Stripe (payment processing) — receives an email address and payment details when an account is paid for, whether by a teacher, a student, or a parent paying on a student’s behalf. It never receives practice or results data.',
-            'Resend (email delivery) — receives an email address when we send a password reset, a confirmation, or a practice reminder you have opted in to.',
-            'Upstash (rate limiting) — briefly holds your IP address to stop automated abuse of sign-in and class-join endpoints. It is held for minutes, is never linked to your account, and is not used for anything else.',
+            'Resend (email delivery) — receives an email address when we send a password reset, a confirmation, or a practice reminder you have opted in to. Resend stores its data in the United States, so sending you an email means your address is held there. It never receives your practice or your results.',
+            'Upstash (rate limiting) — servers in London, United Kingdom. Briefly holds your IP address to stop automated abuse of sign-in and class-join endpoints. It is held for minutes, is never linked to your account, and is not used for anything else.',
             'Google sign-in — only if you choose to sign in with Google. Google then knows you use Mathsense, and passes us your email address and the name on your Google account, which we use to pre-fill your display name. You can sign up with an email address and password instead, and nothing about Mathsense works differently if you do. Google is based in the United States.',
             'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States. This account is linked to our Google Ads account, so that usage data can also be used to measure our adverts. See section 3.',
           ]} />
@@ -210,6 +210,14 @@ export default function PrivacyNoticePage() {
 
         <Section title="11. Changes to this notice">
           <P>We may update this privacy notice from time to time. We will notify registered users of any significant changes by email. The current version will always be available at mathsense.net/privacy.</P>
+          <SubHeading>What changed in version 1.3 (23 September 2026)</SubHeading>
+          <P>We checked where each of the companies in section 6 actually keeps data, rather than relying on what we had written down before. Two things were wrong and one was missing.</P>
+          <Ul items={[
+            'Resend, which sends our emails, stores its data in the United States. We had not said so. It means that when we email you, your email address is held in the US. It never receives your practice or your results.',
+            'Supabase, our database, is in London. We had described it as “EU West”, which was vaguer than the truth.',
+            'Upstash, which does our rate limiting, is in London. We had not said where it was.',
+          ]} />
+          <P>Taken together: everything we store about you is in the United Kingdom, apart from your email address reaching the United States when we send you a message, and the optional analytics described in section 3.</P>
           <SubHeading>What changed in version 1.2 (22 September 2026)</SubHeading>
           <P>Version 1.1 was written in May 2026 and was not revised while the service changed. This version corrects it. We are recording the changes rather than making them quietly, because one of them tells you something about your data that the previous version got wrong.</P>
           <Ul items={[
@@ -223,7 +231,7 @@ export default function PrivacyNoticePage() {
             'You can now turn analytics off again after turning it on, using the switch in section 3. Before this version there was no way to change your mind. Declining is also remembered now, instead of the banner asking again on every visit.',
             'Section 9 described access as being limited to the teacher who created an assessment. That was out of date; access now runs through class membership, and section 9 describes what actually happens.',
           ]} />
-          <P>Last updated: 22 September 2026</P>
+          <P>Last updated: 23 September 2026</P>
         </Section>
 
       </div>

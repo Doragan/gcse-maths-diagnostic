@@ -170,7 +170,7 @@ than leaving it to be discovered.
 | Vercel | Website hosting | London, United Kingdom | — |
 | Stripe | Payment processing — receives an email address and payment details only, never practice or results data | Irish contracting entities; transfers to the United States | Standard Contractual Clauses, the UK Addendum, and the EU-US Data Privacy Framework |
 | Resend | Sending confirmations, password resets, and opted-in reminders — receives an email address only | **United States** | Standard Contractual Clauses in its data processing addendum, and the Data Privacy Framework including the UK Extension |
-| Upstash | Rate limiting — holds the visitor's IP address for approximately one minute to prevent automated abuse | ⚠ TO BE CONFIRMED BEFORE ISSUE | — |
+| Upstash | Rate limiting — holds the visitor's IP address for approximately one minute to prevent automated abuse | London, United Kingdom | — |
 | Google sign-in | Only where a Pupil chooses to sign in with Google, which passes us their name and email address | **United States** | Data Privacy Framework, UK Extension |
 | Google Analytics | Website usage analytics, **only** for visitors who have accepted analytics cookies | **United States** | Data Privacy Framework, UK Extension |
 
@@ -189,11 +189,15 @@ service. No practice data, results data or account data is sent to Google.
 Resend receives an email address in order to send the message. No practice or
 results data is sent to it.
 
-The Pupil database and the website itself are hosted in the United Kingdom.
+**Everything the Provider stores about a Pupil is stored in the United Kingdom.**
+The database, the website and the rate limiter are all hosted here. The three
+recipients above that process in the United States receive either usage data the
+Pupil can switch off, or an email address alone, and never practice or results
+data.
 
-⚠ **Before issue:** confirm the Upstash region in the console and complete the
-row, and re-check that the Data Privacy Framework still stands. See
-`docs/audit/21` §5 for why neither should be copied forward unchecked.
+⚠ **Before issue:** re-check that the Data Privacy Framework still stands. It is
+under appeal and two equivalent arrangements have already collapsed, so the line
+above should not be copied forward unchecked. See `docs/audit/21` §5.
 
 **§7.2** The Provider will give the School reasonable notice of any new
 sub-processor that would process Pupil data, and the School may object.
@@ -285,8 +289,12 @@ _Drafting notes, to be removed before issue:_
    children's email addresses rather than page views. Corrected here and in the
    privacy notice._
 
-   _**Two things still block issue.** The **Upstash region**, which only the
-   console can settle because it is a Global database that replicates to chosen
-   read regions; it is likely a settings fix rather than a migration. And a
-   re-check that the **Data Privacy Framework still stands**, since it is under
-   appeal and two equivalent arrangements have already collapsed._
+   _**The Upstash region was confirmed as London at the console on 2026-09-23**,
+   which completes the table. Every store of Pupil data is now evidenced as being
+   in the UK. One cheap residual is noted in `docs/audit/21` §5: the endpoint is
+   latency-routed, so confirm the database is Regional, or that its read-region
+   list is London alone, before this is issued._
+
+   _**One thing still blocks issue:** a re-check that the **Data Privacy
+   Framework still stands**, since it is under appeal and two equivalent
+   arrangements have already collapsed._

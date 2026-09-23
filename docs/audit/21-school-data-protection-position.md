@@ -146,7 +146,7 @@ table got wrong the first time._
 | Vercel | Hosting | **London, UK** | `x-vercel-id: lhr1::…` on both a static page and a Node server route |
 | Stripe | Payments — email and payment details only, never practice or results | Irish entities; **transfers to the US** | Stripe privacy centre |
 | Resend | Transactional and opted-in email — email address only | 🔴 **United States** | Resend's own GDPR page |
-| Upstash | Rate limiting — the visitor's IP for ~1 minute | ⚠ **Unknown — needs the console** | Resolves to `eu-west-1` via `global-latency.upstash.io`; Global databases replicate to chosen read regions |
+| Upstash | Rate limiting — the visitor's IP for ~1 minute | **London, UK** | Console, confirmed by the controller 2026-09-23 |
 | Google sign-in | Only if a pupil chooses it; Google passes us their name and email | **United States** | Live path in `lib/auth.ts` |
 | Google Analytics | Usage analytics, **only** after the visitor accepts cookies | **United States** | — |
 
@@ -174,21 +174,30 @@ for its own fraud-prevention and compliance purposes, and as a processor when
 facilitating payments at our direction. Listing it as a plain sub-processor
 misdescribes the relationship.
 
-### Upstash is the open item, and probably a settings fix
+### ✅ Upstash: London, confirmed at the console 2026-09-23
 
-The hostname resolves through `global-latency.upstash.io`, so what a probe from
-the UK reaches is the nearest replica, not the only region. Upstash Global
-databases replicate to read regions that may sit outside the EU. Only the console
-can say which are enabled.
+That closes the last open row, and it means **every store of personal data in
+this product is in the United Kingdom**: the database, the hosting, and the rate
+limiter. Only the three US recipients in the table are outside it, and each is
+either optional for the pupil or receives an email address alone.
 
-It is likely cheap to close. The `KV_*` variable names show the database was
-provisioned through the Vercel Marketplace integration, regions can be added and
-removed on a running database, and a single-region database is an option. No code
-changes either way, and `lib/rateLimit.ts` degrades gracefully while it is done.
+⚠ **One residual to settle before the schedule is issued, and it is cheap.** The
+endpoint resolves through `global-latency.upstash.io` and a probe from the UK
+reached `eu-west-1` addresses. That is consistent with London storage behind a
+latency-routed front end, but it is also what a **Global** database looks like,
+and a Global database has read regions that can sit anywhere. The console
+distinguishes them: confirm the database is **Regional**, or that its read-region
+list contains London alone. Recorded rather than assumed, because a location
+nobody checked is what this table got wrong the first time.
 
-What is actually at stake is small but real: an IP address, for about a minute,
-never linked to an account. `app/api/classes/join` is the endpoint children
-themselves use.
+If it does turn out to carry non-EU read regions, it stays cheap. The `KV_*`
+variable names show it was provisioned through the Vercel Marketplace, regions
+can be added and removed on a running database, and `lib/rateLimit.ts` degrades
+gracefully while it is done. No code changes either way.
+
+What is at stake is small but real: an IP address, for about a minute, never
+linked to an account. `app/api/classes/join` is the endpoint children themselves
+use.
 
 ### Transfer mechanisms, which the schedule still lacks
 
