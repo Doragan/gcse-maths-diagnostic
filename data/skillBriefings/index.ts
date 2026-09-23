@@ -11,6 +11,7 @@ import { reversePercentageBriefing } from './reversePercentage'
 import { solvingLinearEquationsBriefing } from './solvingLinearEquations'
 import { inequalitiesBriefing } from './inequalities'
 import { simultaneousEquationsBriefing } from './simultaneousEquations'
+import { convertingMeasurementsBriefing } from './convertingMeasurements'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored exam briefings.
@@ -33,6 +34,10 @@ import { simultaneousEquationsBriefing } from './simultaneousEquations'
 // equations. It is self-contained (both neighbours have solving as their
 // prerequisite) and reaches the earlier clusters through the ratio comparison
 // that ratio.ts had already written pointing this way.
+//
+// Converting measurements is the first written alone rather than as a cluster.
+// It only needs one comparison — with compound units — and that page already
+// existed, so nothing is left pointing at a page that is not there.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const skillBriefings: Record<string, SkillBriefing> = {
@@ -48,6 +53,7 @@ export const skillBriefings: Record<string, SkillBriefing> = {
   [solvingLinearEquationsBriefing.skillId]: solvingLinearEquationsBriefing,
   [inequalitiesBriefing.skillId]: inequalitiesBriefing,
   [simultaneousEquationsBriefing.skillId]: simultaneousEquationsBriefing,
+  [convertingMeasurementsBriefing.skillId]: convertingMeasurementsBriefing,
 }
 
 export const getBriefing = (skillId: string): SkillBriefing | null => skillBriefings[skillId] ?? null
