@@ -136,22 +136,85 @@ rule, but it is not age assurance and should not be presented as though it were.
 
 ## 5. Sub-processors
 
-| Processor | Purpose | Location |
-|---|---|---|
-| Supabase | Database and authentication | EU West (eu-west-2) |
-| Vercel | Hosting | London, UK |
-| Stripe | Payments — email and payment details only, never practice or results | UK/EU, global company |
-| Resend | Transactional and opted-in email — email address only | — |
-| Upstash | Rate limiting — a short-lived request identifier | — |
-| Google Analytics | Usage analytics, **only** after the visitor accepts cookies | **United States** |
+_Verified 2026-09-22, by probe and primary source rather than recollection. The
+method is recorded per row because a location nobody checked is exactly what this
+table got wrong the first time._
 
-**Google is the one a school may refuse**, and refusing is a coherent position
-for them to take. It is the only routine transfer outside the UK and EU, it
-concerns a service used by children, and "we asked for consent" is a weaker
-answer to a school than to an individual. Decision taken 2026-09-17: keep it and
-disclose it honestly. If a school makes removal a condition of signing, that is a
-commercial trade to weigh at the time, and the consent gate means switching it
-off for everyone is a configuration change rather than a rebuild.
+| Processor | Purpose | Location | Evidence |
+|---|---|---|---|
+| Supabase | Database and authentication | **London, UK** | `db.<ref>.supabase.co` resolves to `2a05:d01c:…`; matched against AWS's published `ip-ranges.json` as `eu-west-2` |
+| Vercel | Hosting | **London, UK** | `x-vercel-id: lhr1::…` on both a static page and a Node server route |
+| Stripe | Payments — email and payment details only, never practice or results | Irish entities; **transfers to the US** | Stripe privacy centre |
+| Resend | Transactional and opted-in email — email address only | 🔴 **United States** | Resend's own GDPR page |
+| Upstash | Rate limiting — the visitor's IP for ~1 minute | ⚠ **Unknown — needs the console** | Resolves to `eu-west-1` via `global-latency.upstash.io`; Global databases replicate to chosen read regions |
+| Google sign-in | Only if a pupil chooses it; Google passes us their name and email | **United States** | Live path in `lib/auth.ts` |
+| Google Analytics | Usage analytics, **only** after the visitor accepts cookies | **United States** | — |
+
+### 🔴 "Google is the only routine transfer outside the UK and EU" was wrong
+
+It is wrong three times over: Google Analytics, Google sign-in, and **Resend**.
+That sentence is struck from this document and must come out of
+`docs/legal/dpa-schools.md` §7.1 before it is issued.
+
+**Resend is the one that matters and the one nobody had checked.** It stores all
+customer data in the United States — message content, delivery logs, account
+records — and the sending region only controls where mail is dispatched from.
+There is no setting that moves storage to the EU. So children's email addresses
+rest in the US, which is more identifying than the analytics usage data that was
+being treated as the sensitive case.
+
+### Two corrections in our favour
+
+**Supabase is the UK, not "EU West".** `eu-west-2` is London; `eu-west-1` is
+Ireland. The table was underselling it. Both the database and the hosting are in
+the UK, which is a better answer to a school than the one being given.
+
+**Stripe is not purely our sub-processor.** It acts as an independent controller
+for its own fraud-prevention and compliance purposes, and as a processor when
+facilitating payments at our direction. Listing it as a plain sub-processor
+misdescribes the relationship.
+
+### Upstash is the open item, and probably a settings fix
+
+The hostname resolves through `global-latency.upstash.io`, so what a probe from
+the UK reaches is the nearest replica, not the only region. Upstash Global
+databases replicate to read regions that may sit outside the EU. Only the console
+can say which are enabled.
+
+It is likely cheap to close. The `KV_*` variable names show the database was
+provisioned through the Vercel Marketplace integration, regions can be added and
+removed on a running database, and a single-region database is an option. No code
+changes either way, and `lib/rateLimit.ts` degrades gracefully while it is done.
+
+What is actually at stake is small but real: an IP address, for about a minute,
+never linked to an account. `app/api/classes/join` is the endpoint children
+themselves use.
+
+### Transfer mechanisms, which the schedule still lacks
+
+| Recipient | Mechanism |
+|---|---|
+| Resend | Standard Contractual Clauses in its DPA, plus the Data Privacy Framework including the UK Extension. Article 28 addendum pre-signed at sign-up |
+| Stripe | Standard Contractual Clauses, the UK Addendum, and the Framework |
+| Google | The Framework and its UK Extension |
+
+⚠ **The Framework is the right mechanism to cite today and is not permanent.**
+It survived the General Court in September 2025, but the Latombe appeal is
+pending at the Court of Justice, three of five Privacy and Civil Liberties
+Oversight Board members were removed in January 2025, and a Supreme Court ruling
+on FTC independence has reopened questions about the safeguards the adequacy
+decision rested on. Equivalent arrangements have collapsed twice before. Re-check
+before issuing the schedule, rather than copying this line forward.
+
+### What this changes about the "school may refuse" argument
+
+Still true, and now broader. It is not only Google. A school objecting to US
+transfers is objecting to Resend as well, and Resend holds email addresses rather
+than page views. Switching is optional rather than required, since the transfer
+is lawful and documented, but the options are real: Amazon SES in London fits the
+existing stack, and Brevo or Scaleway would give EU jurisdiction rather than
+merely EU residency, which is the distinction the CLOUD Act makes. Six files
+construct a Resend client and there are six send call sites, so a swap is small.
 
 ---
 

@@ -164,20 +164,36 @@ than leaving it to be discovered.
 
 ## 7. Sub-processors
 
-| Sub-processor | Purpose | Location of processing |
-|---|---|---|
-| Supabase | Database and authentication | EU West (eu-west-2) |
-| Vercel | Website hosting | London, United Kingdom |
-| Stripe | Payment processing — receives an email address and payment details only, never practice or results data | United Kingdom / EU |
-| Resend | Sending confirmations, password resets, and opted-in reminders — receives an email address only | — |
-| Upstash | Rate limiting — holds a short-lived request identifier to prevent automated abuse | — |
-| Google Analytics | Website usage analytics, **only** for visitors who have accepted analytics cookies | **United States** |
+| Sub-processor | Purpose | Location of processing | Transfer mechanism |
+|---|---|---|---|
+| Supabase | Database and authentication | London, United Kingdom | — |
+| Vercel | Website hosting | London, United Kingdom | — |
+| Stripe | Payment processing — receives an email address and payment details only, never practice or results data | Irish contracting entities; transfers to the United States | Standard Contractual Clauses, the UK Addendum, and the EU-US Data Privacy Framework |
+| Resend | Sending confirmations, password resets, and opted-in reminders — receives an email address only | **United States** | Standard Contractual Clauses in its data processing addendum, and the Data Privacy Framework including the UK Extension |
+| Upstash | Rate limiting — holds the visitor's IP address for approximately one minute to prevent automated abuse | ⚠ TO BE CONFIRMED BEFORE ISSUE | — |
+| Google sign-in | Only where a Pupil chooses to sign in with Google, which passes us their name and email address | **United States** | Data Privacy Framework, UK Extension |
+| Google Analytics | Website usage analytics, **only** for visitors who have accepted analytics cookies | **United States** | Data Privacy Framework, UK Extension |
 
-**§7.1 — international transfer.** Google Analytics is the only routine transfer
-outside the UK and EU. It is loaded only after the visitor accepts analytics
-cookies, it is not loaded at all if they decline or ignore the banner, and
-declining restricts nothing in the service. No practice data, results data, or
-account data is sent to Google.
+_Locations verified 2026-09-22 against provider documentation and by resolving
+the live endpoints. Evidence and method are recorded in `docs/audit/21` §5._
+
+**§7.1 — international transfers.** Three of the recipients above process
+personal data in the United States, each under the mechanism named in the table.
+
+Google Analytics and Google sign-in are both optional for the Pupil: analytics
+loads only after the visitor accepts analytics cookies and can be switched off
+again at any time on the privacy page, and Google sign-in is offered alongside
+an ordinary email and password. Declining either restricts nothing in the
+service. No practice data, results data or account data is sent to Google.
+
+Resend receives an email address in order to send the message. No practice or
+results data is sent to it.
+
+The Pupil database and the website itself are hosted in the United Kingdom.
+
+⚠ **Before issue:** confirm the Upstash region in the console and complete the
+row, and re-check that the Data Privacy Framework still stands. See
+`docs/audit/21` §5 for why neither should be copied forward unchecked.
 
 **§7.2** The Provider will give the School reasonable notice of any new
 sub-processor that would process Pupil data, and the School may object.
@@ -262,9 +278,15 @@ _Drafting notes, to be removed before issue:_
    Agreement" now point at it. **Nobody is known to have signed the old page**,
    which invited a school to request a signed copy by email; if anyone did, this
    note is where to start. Found by the red-team pass in `docs/audit/23`._
-5. _§7's sub-processor table is **not yet safe to issue**. Google sign-in is a
-   live pupil path and appears in no list; Resend and Upstash have no location;
-   Stripe is "UK / EU" here and was "US" on the old live page; the Vercel region
-   is not pinned anywhere in the repository. Verify each, and name a transfer
-   mechanism for each, before this goes to a school. This is why the replacement
-   live page carries no table and points at the privacy notice instead._
+5. _§7's sub-processor table was **verified on 2026-09-22**, and every location
+   is now evidenced rather than recalled — the method is recorded per row in
+   `docs/audit/21` §5. The claim that Google was the only transfer outside the UK
+   and EU was **false**: Resend stores in the United States as well, which is
+   children's email addresses rather than page views. Corrected here and in the
+   privacy notice._
+
+   _**Two things still block issue.** The **Upstash region**, which only the
+   console can settle because it is a Global database that replicates to chosen
+   read regions; it is likely a settings fix rather than a migration. And a
+   re-check that the **Data Privacy Framework still stands**, since it is under
+   appeal and two equivalent arrangements have already collapsed._
