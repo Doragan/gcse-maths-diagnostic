@@ -1,6 +1,17 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+// Bundled from the local dependency, NOT fetched from a CDN.
+//
+// This used to be a <link> to cdn.jsdelivr.net in the markup below. That sent
+// every student's IP address to a third party on the practice page, the
+// diagnostic and the exam runner — unconditionally, with no consent gate, no
+// agreement with that CDN, and no mention of it in the privacy notice. KaTeX was
+// already a dependency, so the request bought nothing.
+//
+// It was also pinned to 0.16.9 while the installed library is 0.16.45, so the
+// stylesheet and the renderer have been a version apart in production.
+import 'katex/dist/katex.min.css'
 import { colors, font, radius, inputStyle } from '../../lib/styles'
 import { toLatex } from '../../lib/questions/mathLatex'
 
@@ -98,11 +109,8 @@ export default function MathInput({ value, onChange, onSubmit, placeholder }: Pr
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 
-      {/* KaTeX stylesheet */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
-      />
+      {/* KaTeX stylesheet is imported at the top of this file, from the local
+          dependency. Do not reintroduce a CDN <link> here. */}
 
       {/* Live preview */}
       {value.trim() && previewHtml && (
