@@ -1,4 +1,5 @@
 import type { SkillBriefing } from './types'
+import { numberLine } from '../../lib/skills/briefingFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inequalities — eleventh authored briefing, second of the algebra cluster.
@@ -37,6 +38,13 @@ export const inequalitiesBriefing: SkillBriefing = {
     {
       text: 'A number line to mark, with circles to fill in or leave open.',
       example: 'Show your answer on the number line below.',
+      // The circle is the mark. Shown rather than described, because
+      // open-vs-closed is what the student has to recognise on the page.
+      figure: numberLine({
+        from: -2, to: 4, boundary: 1, closed: false, direction: 'right',
+        alt: 'A number line from −2 to 4 with an open circle at 1 and an arrow running right, '
+          + 'showing x > 1. An open circle means 1 itself is not included.',
+      }),
     },
     {
       text: 'The word "integer". The answer is the whole numbers inside the range, not the range itself.',
@@ -97,7 +105,8 @@ export const inequalitiesBriefing: SkillBriefing = {
         + 'goes negative and the question does not arise.',
     },
     {
-      do: 'On a number line, fill the circle for ≤ or ≥ and leave it open for < or >.',
+      do: 'On a number line, fill the circle for ≤ or ≥ and leave it open for < or >. '
+        + 'The arrow then runs the way the values go.',
       because:
         'The circle is the only thing on the page saying whether the boundary itself counts, and it '
         + 'is usually worth a mark on its own.',
