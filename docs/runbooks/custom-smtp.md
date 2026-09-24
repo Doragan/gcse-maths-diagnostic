@@ -97,9 +97,48 @@ AWS gives an initial response within 24 hours, and longer if they come back for
 more. **You cannot edit the details while it is under review**, which is the
 other reason to verify the domain first.
 
-### If they ask for more detail
+### They will ask for more detail — this is what they ask
 
-They often do. Having this ready saves a round trip of a day or more:
+**They did, on 2026-09-23, within hours of submission.** Treat the follow-up as
+the normal path rather than the exception, and expect these four questions
+verbatim:
+
+1. How often you send email
+2. How you maintain your recipient lists
+3. How you manage bounces, complaints and unsubscribe requests
+4. Examples of the email you plan to send
+
+Answer them **in that order, under headings**, so a reviewer can tick them off.
+Reply on the existing support case; do not open a new one.
+
+What was sent on 2026-09-23, in substance:
+
+- **Identity**: `mathsense.net` already verified in `eu-west-2`, Easy DKIM 2048,
+  all three CNAMEs resolving. Their reply asks about this even when it is
+  already done, so state it.
+- **Volume**: 106 accounts, 38 created with email and password since March,
+  averaging ~5/month, peak 11 in September, busiest single hour ever 2. Under
+  200 messages a month expected.
+- **The burst**: a class signing up together in a lesson, perhaps 30 at once.
+  **Leave this in.** It is the answer to the obvious reviewer question of why a
+  service sending five emails a month needs production access.
+- **Lists**: there are none. Every address is self-entered on our own form and
+  confirmed by click-through. Nothing purchased, rented, imported or scraped.
+- **Bounces and complaints**: account-level suppression on; notifications to a
+  monitored mailbox, actioned by hand; proportionate under 200/month, with
+  automation if volume grows.
+- **Unsubscribes**: every practice reminder carries a one-click unsubscribe
+  (`app/api/email/unsubscribe`, built into both `lib/email/reengagement.ts` and
+  `lib/email/weeklyNudge.ts`), plus a dashboard toggle. Auth mail carries none
+  because it is transactional — say so explicitly rather than leaving a gap.
+
+⚠ **Three things deliberately NOT claimed**, and they should stay unclaimed
+until they are true: automated suppression wired into the app, any list-hygiene
+process beyond confirmation, and open or click tracking. Every factual claim in
+the reply was verified in the code first — the unsubscribe route and both
+builders were checked before being described to AWS.
+
+The original pre-drafted text, kept because it is a usable short form:
 
 > Mathsense is a GCSE maths practice service used by learners aged 13 and over,
 > who create their own accounts on mathsense.net. SES would send only
