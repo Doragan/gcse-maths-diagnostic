@@ -23,6 +23,10 @@ import {
 const QUESTION_COUNT = 10
 const MAX_PER_TOPIC  = 2   // ensures spread across topic areas
 
+// Clock read for the funnel-event timings. A named function, not an inline
+// Date.now(): the react-hooks/purity rule flags the latter inside handlers.
+const nowMs = () => Date.now()
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type Tier = 'foundation' | 'higher'
@@ -181,6 +185,10 @@ export default function StudentDiagnosticPage() {
   // In-flight inserts, awaited before leaving for practice so the practice page
   // reads a map that already includes this sitting.
   const saves = useRef<PromiseLike<unknown>[]>([])
+  // Timing for the funnel events: when Begin was pressed, and when the current
+  // question appeared. Refs, not state — they must not trigger re-renders.
+  const beganAt = useRef(0)
+  const shownAt = useRef(0)
 
 
   useEffect(() => {
@@ -190,6 +198,11 @@ export default function StudentDiagnosticPage() {
       // saved to localStorage at completion, then imported when they sign up.
     })
   }, [])
+
+  // A question is on screen: whenever the test starts running or moves on.
+  useEffect(() => {
+    if (phase === 'running') shownAt.current = nowMs()
+  }, [phase, index])
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -205,6 +218,7 @@ export default function StudentDiagnosticPage() {
 
   async function beginDiagnostic() {
     trackEvent('diagnostic_start', { tier })
+    beganAt.current = nowMs()
     setPhase('loading')
 
     const tierSkillIds  = getTierSkillIds(tier)
@@ -301,6 +315,9 @@ export default function StudentDiagnosticPage() {
     }
 
     setItems(built)
+    // start with no ready = left while the test was building; ready with no
+    // answered = left on question 1.
+    trackEvent('diagnostic_ready', { tier, total: built.length, load_ms: nowMs() - beganAt.current })
     setPhase('running')
   }
 
@@ -329,6 +346,20 @@ export default function StudentDiagnosticPage() {
     })
     setResults(r => [...r, result.correct])
     if (result.correct) setCorrectCount(c => c + 1)
+
+    // Where in the ten questions people stall or leave: the last position with an
+    // answered event is where a non-completer stopped. Ids and skill only, never
+    // the answer text.
+    trackEvent('diagnostic_question_answered', {
+      tier,
+      position: index + 1,
+      total: items.length,
+      question_id: item.question.id,
+      skill_id: item.skillId,
+      difficulty: item.question.difficulty,
+      correct: result.correct,
+      seconds: shownAt.current ? Math.round((nowMs() - shownAt.current) / 1000) : null,
+    })
 
     const at = new Date().toISOString()
     setSitting(s => [...s, { skill_ids: [item.skillId], correct: result.correct, attempted_at: at, kind: 'placement' }])
