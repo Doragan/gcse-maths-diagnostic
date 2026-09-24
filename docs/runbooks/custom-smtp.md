@@ -44,6 +44,15 @@ this if the SES sandbox turns into a fight.
 
 ## 1a. The sandbox request — do this first
 
+> **Status: submitted 2026-09-23, awaiting AWS.** The domain identity
+> `mathsense.net` was created in `eu-west-2` and the three Easy DKIM CNAMEs were
+> published at Namecheap. All three were confirmed resolving to their
+> `.dkim.amazonses.com` targets, with no doubled `mathsense.net.mathsense.net`
+> suffix, before the request went in. SPF and DMARC were checked as untouched.
+>
+> AWS gives an initial response within 24 hours. If it is longer than that, they
+> have probably come back with questions — see the drafted answers below.
+
 **Order matters.** AWS states that verifying your domain *before* requesting
 production access is a best practice that gets requests approved faster. Do not
 submit the request first and verify afterwards.
