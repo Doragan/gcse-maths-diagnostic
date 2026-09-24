@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { numberLine, probabilityTree, type Figure } from './briefingFigures'
+import {
+  numberLine, probabilityTree, anglesAtAPoint, rightTriangle, regularPolygon, type Figure,
+} from './briefingFigures'
 import { skillBriefings } from '../../data/skillBriefings'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -45,6 +47,34 @@ const samples = (): { where: string; figure: Figure }[] => [
       first: [{ label: 'Red', prob: '5/8' }, { label: 'Blue', prob: '3/8' }],
       second: ['4/7', '3/7', '5/7', '2/7'],
       alt: 'Tree with second-stage denominators of 7',
+    }),
+  },
+  {
+    where: 'anglesAtAPoint (line)',
+    figure: anglesAtAPoint({
+      mode: 'line', labels: ['2x', '3x', 'x + 40'],
+      alt: 'Three angles meeting on a straight line, labelled 2x, 3x and x + 40.',
+    }),
+  },
+  {
+    where: 'anglesAtAPoint (point)',
+    figure: anglesAtAPoint({
+      mode: 'point', labels: ['110°', '95°', 'y', '80°'],
+      alt: 'Four angles meeting at a point, three known and one labelled y.',
+    }),
+  },
+  {
+    where: 'rightTriangle',
+    figure: rightTriangle({
+      base: '15 cm', height: 'x', hypotenuse: '17 cm', unknown: 'height',
+      alt: 'A right-angled triangle with base 15 cm, hypotenuse 17 cm and the height labelled x.',
+    }),
+  },
+  {
+    where: 'regularPolygon',
+    figure: regularPolygon({
+      sides: 5, mark: 'both',
+      alt: 'A regular pentagon with the interior angle marked and the exterior angle outside it.',
     }),
   },
   ...authoredFigures(),
@@ -177,5 +207,107 @@ describe('probabilityTree', () => {
     // Once on each first branch, twice more on the second stage.
     expect(f.svg.match(/>Red<\/text>/g)?.length).toBe(3)
     expect(f.svg.match(/>Blue<\/text>/g)?.length).toBe(3)
+  })
+})
+
+/** Every <text> in a figure, with its position — for checking what sits where. */
+const texts = (svg: string) =>
+  [...svg.matchAll(/<text x="([-\d.]+)" y="([-\d.]+)"[^>]*>([^<]*)<\/text>/g)]
+    .map(m => ({ x: Number(m[1]), y: Number(m[2]), text: m[3] }))
+
+describe('anglesAtAPoint', () => {
+  it('splits evenly when the labels are algebraic', () => {
+    // Regression: the sizing code read a digit out of "2x" and "x + 40" and drew
+    // them as a 2-degree and a 40-degree slice. An algebraic label is an
+    // unknown, not a size.
+    const f = anglesAtAPoint({ mode: 'line', labels: ['2x', '3x', 'x + 40'], alt: 'Three angles on a line.' })
+    const ls = texts(f.svg)
+    expect(ls.map(l => l.text)).toEqual(['2x', '3x', 'x + 40'])
+
+    // Equal thirds of a half turn put the outer two labels symmetrically about
+    // the vertex, which a 2:3:40 split could never do.
+    const cx = 160
+    expect(Math.abs((cx - ls[0].x) - (ls[2].x - cx))).toBeLessThan(1)
+  })
+
+  it('sizes the sectors by the numbers when the labels are numbers', () => {
+    // 140 against 40 must not come out as two equal halves: the diagram would
+    // contradict its own labels.
+    const f = anglesAtAPoint({ mode: 'line', labels: ['140°', 'y'], alt: 'A 140 degree angle and y on a line.' })
+    expect(texts(f.svg)[0].text).toBe('140°')
+
+    // The split shows in the DIVIDING RAY, not in where the labels land: an
+    // equal split would stand the ray up vertically at the centre, while 140
+    // against 40 leans it well over to the right.
+    const cx = 160
+    const rays = [...f.svg.matchAll(/<line x1="160" y1="92" x2="([-\d.]+)"/g)].map(m => Number(m[1]))
+    expect(rays.length).toBe(1)
+    expect(rays[0]).toBeGreaterThan(cx + 20)
+  })
+
+  it('reads left to right along a line', () => {
+    const f = anglesAtAPoint({ mode: 'line', labels: ['a', 'b', 'c'], alt: 'Three angles a, b and c on a line.' })
+    const ls = texts(f.svg)
+    expect(ls[0].x).toBeLessThan(ls[1].x)
+    expect(ls[1].x).toBeLessThan(ls[2].x)
+  })
+
+  it('draws the baseline and only the dividing rays on a line', () => {
+    const f = anglesAtAPoint({ mode: 'line', labels: ['a', 'b', 'c'], alt: 'Three angles on a straight line.' })
+    // One baseline plus two dividers for three angles.
+    expect(f.svg.match(/<line /g)?.length).toBe(3)
+  })
+
+  it('draws every ray around a point', () => {
+    const f = anglesAtAPoint({ mode: 'point', labels: ['a', 'b', 'c', 'd'], alt: 'Four angles around a point.' })
+    expect(f.svg.match(/<line /g)?.length).toBe(4)
+  })
+})
+
+describe('rightTriangle', () => {
+  it('marks the right angle and labels all three sides', () => {
+    const f = rightTriangle({
+      base: '15 cm', height: 'x', hypotenuse: '17 cm', unknown: 'height',
+      alt: 'A right-angled triangle with base 15 cm and hypotenuse 17 cm.',
+    })
+    expect(f.svg).toContain('<polygon points=')
+    expect(f.svg).toContain('<polyline points=')   // the right-angle square
+    expect(texts(f.svg).map(t => t.text).sort()).toEqual(['15 cm', '17 cm', 'x'])
+  })
+})
+
+describe('regularPolygon', () => {
+  it('draws the right number of vertices', () => {
+    const f = regularPolygon({ sides: 6, mark: 'interior', alt: 'A regular hexagon with the interior angle marked.' })
+    const points = /<polygon points="([^"]+)"/.exec(f.svg)![1].trim().split(/\s+/)
+    expect(points.length).toBe(6)
+  })
+
+  it('puts the exterior label inside the angle it names', () => {
+    // Regression: the label sat beside the extended side, outside the wedge
+    // between that extension and the next side — naming the wrong region
+    // entirely. It must lie between the two directions that form the angle.
+    const sides = 5
+    const f = regularPolygon({ sides, mark: 'exterior', alt: 'A regular pentagon with the exterior angle marked.' })
+
+    const cx = 112, cy = 100, R = 70
+    const at = (i: number): [number, number] => {
+      const rad = ((360 / sides) * i * Math.PI) / 180
+      return [cx + R * Math.cos(rad), cy - R * Math.sin(rad)]
+    }
+    const unit = ([dx, dy]: [number, number]): [number, number] => {
+      const len = Math.hypot(dx, dy) || 1
+      return [dx / len, dy / len]
+    }
+    const [x0, y0] = at(0), [x1, y1] = at(1), [xl, yl] = at(sides - 1)
+    const ext = unit([x0 - x1, y0 - y1])          // the extension
+    const next = unit([xl - x0, yl - y0])         // the next side
+
+    const label = texts(f.svg).find(t => t.text === 'exterior')!
+    const dir = unit([label.x - x0, label.y - 4 - y0])
+
+    // Inside the wedge means pointing the same general way as both edges of it.
+    expect(dir[0] * ext[0] + dir[1] * ext[1]).toBeGreaterThan(0)
+    expect(dir[0] * next[0] + dir[1] * next[1]).toBeGreaterThan(0)
   })
 })
