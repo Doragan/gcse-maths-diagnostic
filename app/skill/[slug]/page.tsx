@@ -15,6 +15,7 @@ import { getStudentProfile } from '../../../lib/auth'
 import { isPaidStudent } from '../../../lib/entitlements'
 import { trackEvent, getSessionId } from '../../../lib/analytics'
 import { colors, font, radius, primaryButton, secondaryButton, inputStyle } from '../../../lib/styles'
+import type { Figure } from '../../../lib/skills/briefingFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // An exam briefing for one skill — what the exam does with it, how to spot it,
@@ -28,6 +29,29 @@ import { colors, font, radius, primaryButton, secondaryButton, inputStyle } from
 // Reachable from /skills, and from the prompt shown after a wrong answer on a
 // skill that has one.
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * An authored diagram.
+ *
+ * The markup is built by lib/skills/briefingFigures and lives in this repo —
+ * it never comes from the database, a student, or a question. briefingFigures
+ * .test.ts holds every authored figure to shapes and text: no script, no
+ * external reference, no <image>, `currentColor` only. That is what makes
+ * rendering it as raw markup safe, and the test is the thing keeping it true.
+ *
+ * role="img" with the alt text means a screen reader gets the same content the
+ * diagram is carrying, rather than a pile of unlabelled shapes.
+ */
+function BriefingFigure({ figure }: { figure: Figure }) {
+  return (
+    <span
+      style={styles.figure}
+      role="img"
+      aria-label={figure.alt}
+      dangerouslySetInnerHTML={{ __html: figure.svg }}
+    />
+  )
+}
 
 /** Only AQA has coded papers today. Kept explicit so the gap is visible. */
 const DEFAULT_BOARD = 'AQA'
@@ -380,6 +404,7 @@ export default function SkillBriefingPage() {
             <li key={i} style={styles.li}>
               {r.text}
               {r.example && <span style={styles.specimen}>{r.example}</span>}
+              {r.figure && <BriefingFigure figure={r.figure} />}
             </li>
           ))}
         </ul>
@@ -439,6 +464,7 @@ export default function SkillBriefingPage() {
             return (
               <div key={i} style={styles.example}>
                 <p style={styles.exampleStem}>{ex.stem}</p>
+                {ex.figure && <BriefingFigure figure={ex.figure} />}
 
                 {!isOpen ? (
                   <button
@@ -844,6 +870,20 @@ const styles: Record<string, React.CSSProperties> = {
    * the surrounding advice — it is a specimen, not another sentence of guidance,
    * and a student skimming should be able to tell the two apart at a glance.
    */
+  // The figure sits where the specimen fragment would, and scales to the
+  // column: the SVGs carry a viewBox and no width, so this cap is what decides
+  // their size. 320px keeps a number line readable on a phone without the
+  // diagram dominating the cue it belongs to.
+  figure: {
+    display: 'block',
+    maxWidth: '320px',
+    marginTop: '10px',
+    padding: '10px 12px',
+    background: colors.cardAlt,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    color: colors.textPrimary,
+  },
   specimen: {
     display: 'block',
     marginTop: '6px',

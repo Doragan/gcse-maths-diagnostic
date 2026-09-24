@@ -1,4 +1,5 @@
 import type { SkillBriefing } from './types'
+import { probabilityTree } from '../../lib/skills/briefingFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tree diagrams — sixteenth authored briefing, and the one that closes the
@@ -29,6 +30,17 @@ export const treeDiagramsBriefing: SkillBriefing = {
     {
       text: 'The diagram is usually printed for you, with some of the branches left blank.',
       example: 'Complete the tree diagram.',
+      // Every coded Foundation part is bare: this shape, partly filled in, IS
+      // the question. The second stage here is out of 7, which is the tell for
+      // "without replacement" and the skill's most frequent trap.
+      figure: probabilityTree({
+        first: [{ label: 'Red', prob: '5/8' }, { label: 'Blue', prob: '3/8' }],
+        second: ['4/7', '3/7', '5/7', '2/7'],
+        alt: 'A two-stage tree for taking two counters from a bag of 5 red and 3 blue without '
+          + 'replacement. The first branches are 5/8 red and 3/8 blue. Every second-stage branch '
+          + 'is out of 7, not 8, because a counter has been removed: 4/7 and 3/7 after red, '
+          + '5/7 and 2/7 after blue.',
+      }),
     },
     {
       text: 'Two picks, throws or games in a row, rather than a single event.',

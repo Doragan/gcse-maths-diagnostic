@@ -1,4 +1,7 @@
 import type { Tier } from '../../lib/skills/examProfile'
+import type { Figure } from '../../lib/skills/briefingFigures'
+
+export type { Figure }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tier 2 — the decision commentary for a skill.
@@ -31,6 +34,14 @@ import type { Tier } from '../../lib/skills/examProfile'
 export type Cue = {
   text: string
   example?: string
+  /**
+   * A diagram showing the pattern as it appears on the paper.
+   *
+   * For a skill whose questions ARE diagrams — a printed tree, a number line to
+   * mark — a prose description asks the student to recognise something they
+   * cannot see. Built with the helpers in lib/skills/briefingFigures.
+   */
+  figure?: Figure
 }
 
 /**
@@ -77,6 +88,14 @@ export type MethodStep = {
  */
 export type SkillExample = {
   stem: string
+  /**
+   * The diagram the stem refers to.
+   *
+   * A stem that says "from the tree diagram" without one is not judgeable and
+   * not answerable. Either the figure is here, or the stem carries its own
+   * numbers in words.
+   */
+  figure?: Figure
   /** False for a near-miss — a question that resembles this skill but isn't. */
   isThisSkill: boolean
   /** Which recognition cue fires, or which one fails to. */
