@@ -12,6 +12,9 @@ import { solvingLinearEquationsBriefing } from './solvingLinearEquations'
 import { inequalitiesBriefing } from './inequalities'
 import { simultaneousEquationsBriefing } from './simultaneousEquations'
 import { convertingMeasurementsBriefing } from './convertingMeasurements'
+import { meanBriefing } from './mean'
+import { calculatingSimpleProbabilityBriefing } from './calculatingSimpleProbability'
+import { treeDiagramsBriefing } from './treeDiagrams'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored exam briefings.
@@ -38,6 +41,13 @@ import { convertingMeasurementsBriefing } from './convertingMeasurements'
 // Converting measurements is the first written alone rather than as a cluster.
 // It only needs one comparison — with compound units — and that page already
 // existed, so nothing is left pointing at a page that is not there.
+//
+// The fourth cluster opens Probability and Data, which had no briefing at all:
+// mean, calculating simple probability and tree diagrams. Mean also closes the
+// comparison compoundUnits.ts had been making one-directionally since it was
+// written.
+//
+// Shape and Space is now the only topic with no briefing.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const skillBriefings: Record<string, SkillBriefing> = {
@@ -54,6 +64,9 @@ export const skillBriefings: Record<string, SkillBriefing> = {
   [inequalitiesBriefing.skillId]: inequalitiesBriefing,
   [simultaneousEquationsBriefing.skillId]: simultaneousEquationsBriefing,
   [convertingMeasurementsBriefing.skillId]: convertingMeasurementsBriefing,
+  [meanBriefing.skillId]: meanBriefing,
+  [calculatingSimpleProbabilityBriefing.skillId]: calculatingSimpleProbabilityBriefing,
+  [treeDiagramsBriefing.skillId]: treeDiagramsBriefing,
 }
 
 export const getBriefing = (skillId: string): SkillBriefing | null => skillBriefings[skillId] ?? null
