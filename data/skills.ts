@@ -97,7 +97,7 @@ export const skills: Skill[] = [
   },
   {
     "id": "angles_on_lines_and_circles",
-    "name": "Angles on lines and Circles",
+    "name": "Angles on Lines and Circles",
     "topic": "Shape and Space",
     "prerequisites": [
       "simple_arithmetic"
@@ -756,7 +756,7 @@ export const skills: Skill[] = [
   },
   {
     "id": "volume_of_a_prism",
-    "name": "Volume of a prism",
+    "name": "Volume of a Prism",
     "topic": "Shape and Space",
     "prerequisites": [
       "areas_of_squares_and_rectangles",
@@ -923,7 +923,7 @@ export const skills: Skill[] = [
   },
   {
     "id": "trigonometry_missing_sides",
-    "name": "Trigonometry (missing sides)",
+    "name": "Trigonometry (Missing Sides)",
     "topic": "Shape and Space",
     "prerequisites": [
       "lengths_and_perimeters",
@@ -936,7 +936,7 @@ export const skills: Skill[] = [
   },
   {
     "id": "trigonometry_missing_angles",
-    "name": "Trigonometry (missing angles)",
+    "name": "Trigonometry (Missing Angles)",
     "topic": "Shape and Space",
     "prerequisites": [
       "trigonometry_missing_sides"
