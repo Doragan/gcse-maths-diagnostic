@@ -89,8 +89,12 @@ export const treeDiagramsBriefing: SkillBriefing = {
       cue: 'One pick, and nothing follows it. There are no branches to multiply along.',
     },
     {
+      // The task is deliberately answerable from the text. "Complete the
+      // frequency tree", which this used to say, asks for something the page
+      // cannot show — and a stem a student cannot act on teaches nothing, even
+      // when the only job here is to classify it.
       stem: 'Of 80 patients, 50 were given the new drug and 35 of those recovered. '
-        + 'Complete the frequency tree.',
+        + 'Work out how many of the patients given the new drug did not recover.',
       isThisSkill: false,
       actuallySkillId: 'frequency_trees',
       cue: 'The branches carry counts of people. They add back to 80 rather than multiplying towards 1.',

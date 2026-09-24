@@ -161,3 +161,62 @@ describe('skill slugs', () => {
     expect(slugToSkillId('not-a-real-skill')).toBeNull()
   })
 })
+
+describe('stems stand on their own', () => {
+  // Briefings cannot show a table or a part-drawn diagram unless the example
+  // carries a `figure`. A stem that says "complete the tree" or "from the
+  // table" is then asking for something that is not on the page: it shipped
+  // once as a two-way table with no table, and once as a frequency tree with
+  // no tree. Cues are exempt — a cue DESCRIBES what a paper looks like, it
+  // does not ask the student to compute anything.
+  // The optional word before the noun matters: the defect this was written for
+  // said "complete the FREQUENCY tree", and a pattern expecting the noun
+  // straight after "the" sailed past it. A guard that misses the case it was
+  // written for is worse than none, so it is checked against both below.
+  const forbidden =
+    /\b(complete|from|shown in|in|using|read off)\s+the\s+([\w-]+\s+)?(tree|table|diagram|graph|chart|grid)\b/i
+
+  it('never asks a student to work from something the page cannot show', () => {
+    const bad: string[] = []
+    for (const g of Object.values(skillBriefings)) {
+      const examples = [...g.examples, ...(g.higher?.examples ?? [])]
+      for (const e of examples) {
+        if (e.figure) continue          // the diagram is right there
+        if (forbidden.test(e.stem)) bad.push(`${g.skillId}: "${e.stem}"`)
+      }
+    }
+    expect(bad, 'stems referring to a diagram or table that is not shown').toEqual([])
+  })
+})
+
+describe('house style', () => {
+  // Money was written both ways across the pages — £12,000 on one and £12000
+  // on another, for the same amount, and one file used both. Thousands
+  // separators everywhere.
+  it('writes money over £999 with a thousands separator', () => {
+    const bad: string[] = []
+    const walk = (skillId: string, where: string, text?: string) => {
+      if (text && /£\d{4,}/.test(text)) bad.push(`${skillId} ${where}: ${text.match(/£\d{4,}/)![0]}`)
+    }
+    for (const g of Object.values(skillBriefings)) {
+      walk(g.skillId, 'summary', g.summary)
+      for (const c of [...g.recognise, ...(g.higher?.recognise ?? []), ...(g.higher?.note ? [g.higher.note] : [])]) {
+        walk(g.skillId, 'cue', c.text); walk(g.skillId, 'cue example', c.example)
+        walk(g.skillId, 'figure alt', c.figure?.alt)
+      }
+      for (const e of [...g.examples, ...(g.higher?.examples ?? [])]) {
+        walk(g.skillId, 'stem', e.stem); walk(g.skillId, 'cue', e.cue)
+        walk(g.skillId, 'figure alt', e.figure?.alt)
+      }
+      for (const s of [...g.steps, ...(g.higher?.steps ?? [])]) {
+        walk(g.skillId, 'step do', s.do); walk(g.skillId, 'step because', s.because)
+        walk(g.skillId, 'step watch', s.watch)
+      }
+      for (const c of [...g.check, ...(g.higher?.check ?? [])]) walk(g.skillId, 'check', c)
+      for (const c of [...g.confusableWith, ...(g.higher?.confusableWith ?? [])]) {
+        walk(g.skillId, 'confusable', `${c.thisOne} ${c.theOther} ${c.ask}`)
+      }
+    }
+    expect(bad, 'money written without a thousands separator').toEqual([])
+  })
+})

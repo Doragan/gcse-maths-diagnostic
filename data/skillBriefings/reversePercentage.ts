@@ -71,10 +71,10 @@ export const reversePercentageBriefing: SkillBriefing = {
       cue: '£504 already has the VAT in it, so it is 120% of the price you want.',
     },
     {
-      stem: 'A car has lost 35% of its value since it was bought. It is now worth £7800. '
+      stem: 'A car has lost 35% of its value since it was bought. It is now worth £7,800. '
         + 'Work out how much the car was worth when it was bought.',
       isThisSkill: true,
-      cue: '"Now worth" is the after. The car kept 65% of its value, so £7800 is 65% of the original.',
+      cue: '"Now worth" is the after. The car kept 65% of its value, so £7,800 is 65% of the original.',
     },
     {
       stem: 'A jacket usually costs £80. In a sale its price is reduced by 15%. Work out the sale price.',
