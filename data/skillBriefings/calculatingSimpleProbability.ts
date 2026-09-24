@@ -70,10 +70,12 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       cue: '3 blue out of 10 counters altogether. The denominator is everything in the bag, not just the blues.',
     },
     {
-      stem: 'A two-way table shows 40 students by year group and whether they walk to school. '
-        + 'Work out the probability that a student chosen at random walks to school.',
+      stem: '40 students are surveyed: 18 are in Year 10 and 22 are in Year 11. Of the Year 10s, '
+        + '12 walk to school; of the Year 11s, 10 walk. Work out the probability that a student '
+        + 'chosen at random walks to school.',
       isThisSkill: true,
-      cue: 'The totals are not printed — you add them yourself. The denominator is all 40 students, not one row.',
+      cue: 'No total is handed to you: 12 and 10 walk, so 22 of the 40 do. The denominator is all '
+        + '40 students, not one year group.',
     },
     {
       stem: 'The probability that a biased coin lands on heads is 0.3. It is thrown 200 times. '
