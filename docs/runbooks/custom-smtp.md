@@ -40,6 +40,127 @@ first and configure Supabase only once it is granted.
 tier well above this volume, SMTP credentials without a sandbox process. Choose
 this if the SES sandbox turns into a fight.
 
+---
+
+## 1a. The sandbox request — do this first
+
+> **Status: submitted 2026-09-23, awaiting AWS.** The domain identity
+> `mathsense.net` was created in `eu-west-2` and the three Easy DKIM CNAMEs were
+> published at Namecheap. All three were confirmed resolving to their
+> `.dkim.amazonses.com` targets, with no doubled `mathsense.net.mathsense.net`
+> suffix, before the request went in. SPF and DMARC were checked as untouched.
+>
+> AWS gives an initial response within 24 hours. If it is longer than that, they
+> have probably come back with questions — see the drafted answers below.
+
+**Order matters.** AWS states that verifying your domain *before* requesting
+production access is a best practice that gets requests approved faster. Do not
+submit the request first and verify afterwards.
+
+0. **An AWS account**, if there isn't one. Supabase and Vercel run on AWS but
+   they own those accounts, not you.
+1. **SES → the `eu-west-2` (London) region.** Sandbox status, verification and
+   credentials are all per-region, so work in London throughout or you will
+   verify a domain in the wrong place.
+2. **Verify the domain** and publish the three DKIM CNAMEs (§2).
+3. **Then** request production access.
+
+### Before ticking the acknowledgement
+
+The form makes you confirm two things: that you only email people who asked for
+it, and that **you have a process for handling bounces and complaints**. The
+first is true. The second is currently handled by Resend, not by you, so decide
+what your answer is before you tick it rather than after AWS asks.
+
+An honest and adequate answer at this volume:
+
+> SES account-level suppression is enabled, so hard bounces and complaints are
+> suppressed automatically. Bounce and complaint notifications are delivered to a
+> monitored mailbox and actioned by hand. Sending is transactional only and under
+> 200 messages a month, so manual handling is proportionate. Addresses come only
+> from self-service sign-up on our own site, each confirmed by a click-through
+> link before any further mail is sent.
+
+Every clause there is true today. Do not promise automated suppression wired into
+the app, because that is not built.
+
+### Form values
+
+| Field | Value |
+|---|---|
+| Mail type | **Transactional** — sign-up confirmations and password resets, one-to-one and user-triggered |
+| Website URL | `https://mathsense.net` |
+| Additional contacts | a mailbox actually read, not a no-reply |
+| Language | English |
+
+AWS gives an initial response within 24 hours, and longer if they come back for
+more. **You cannot edit the details while it is under review**, which is the
+other reason to verify the domain first.
+
+### They will ask for more detail — this is what they ask
+
+**They did, on 2026-09-23, within hours of submission.** Treat the follow-up as
+the normal path rather than the exception, and expect these four questions
+verbatim:
+
+1. How often you send email
+2. How you maintain your recipient lists
+3. How you manage bounces, complaints and unsubscribe requests
+4. Examples of the email you plan to send
+
+Answer them **in that order, under headings**, so a reviewer can tick them off.
+Reply on the existing support case; do not open a new one.
+
+What was sent on 2026-09-23, in substance:
+
+- **Identity**: `mathsense.net` already verified in `eu-west-2`, Easy DKIM 2048,
+  all three CNAMEs resolving. Their reply asks about this even when it is
+  already done, so state it.
+- **Volume**: 106 accounts, 38 created with email and password since March,
+  averaging ~5/month, peak 11 in September, busiest single hour ever 2. Under
+  200 messages a month expected.
+- **The burst**: a class signing up together in a lesson, perhaps 30 at once.
+  **Leave this in.** It is the answer to the obvious reviewer question of why a
+  service sending five emails a month needs production access.
+- **Lists**: there are none. Every address is self-entered on our own form and
+  confirmed by click-through. Nothing purchased, rented, imported or scraped.
+- **Bounces and complaints**: account-level suppression on; notifications to a
+  monitored mailbox, actioned by hand; proportionate under 200/month, with
+  automation if volume grows.
+- **Unsubscribes**: every practice reminder carries a one-click unsubscribe
+  (`app/api/email/unsubscribe`, built into both `lib/email/reengagement.ts` and
+  `lib/email/weeklyNudge.ts`), plus a dashboard toggle. Auth mail carries none
+  because it is transactional — say so explicitly rather than leaving a gap.
+
+⚠ **Three things deliberately NOT claimed**, and they should stay unclaimed
+until they are true: automated suppression wired into the app, any list-hygiene
+process beyond confirmation, and open or click tracking. Every factual claim in
+the reply was verified in the code first — the unsubscribe route and both
+builders were checked before being described to AWS.
+
+The original pre-drafted text, kept because it is a usable short form:
+
+> Mathsense is a GCSE maths practice service used by learners aged 13 and over,
+> who create their own accounts on mathsense.net. SES would send only
+> transactional mail generated by the platform: sign-up confirmation, password
+> reset, and occasional service notices such as a change to the privacy notice.
+> There is no marketing list and no purchased or imported addresses. Expected
+> volume is well under 200 messages a month, with occasional short bursts when a
+> class signs up together. We currently send through another provider and are
+> moving in order to keep data in the UK.
+
+### What you can do while still in the sandbox
+
+The sandbox is not useless. It allows 200 messages per 24 hours, at one a second,
+**to verified addresses only**. That is enough to verify your own address and
+test the whole path — DNS, credentials, Supabase config, template rendering —
+before production access lands. Do that, so approval is the only thing standing
+between you and a working sender.
+
+⚠ **Do not point Supabase at SES while still sandboxed.** Learners' addresses are
+not verified identities, so their confirmation emails would fail. That is worse
+than the 2/hour cap you are fixing.
+
 **Do not point it at Resend**, even though it would work in five minutes and the
 DKIM record already exists. Resend stores in the United States, and today it only
 ever sees learners who opted in to reminders. Routing auth through it would hand
