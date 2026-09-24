@@ -64,6 +64,15 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       theOther: 'Two letters, and two equations that have to be true at the same time.',
       ask: 'How many different letters am I solving for — one, or two?',
     },
+    {
+      // Mirror of the entry in anglesOnLinesAndCircles.ts. Worth having on this
+      // side too: a third of the coded parts here build their equation from a
+      // diagram, and the student has to notice that is what is happening.
+      skillId: 'angles_on_lines_and_circles',
+      thisOne: 'The equation is printed, or built from a story, and the work is the algebra.',
+      theOther: 'The geometry is the point: which angle fact applies, and what the diagram tells you.',
+      ask: 'Am I solving an equation I already have, or choosing an angle fact first?',
+    },
   ],
 
   examples: [

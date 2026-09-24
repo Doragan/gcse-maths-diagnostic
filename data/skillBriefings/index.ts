@@ -15,6 +15,9 @@ import { convertingMeasurementsBriefing } from './convertingMeasurements'
 import { meanBriefing } from './mean'
 import { calculatingSimpleProbabilityBriefing } from './calculatingSimpleProbability'
 import { treeDiagramsBriefing } from './treeDiagrams'
+import { anglesOnLinesAndCirclesBriefing } from './anglesOnLinesAndCircles'
+import { anglesInPolygonsBriefing } from './anglesInPolygons'
+import { pythagorasTheoremBriefing } from './pythagorasTheorem'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored exam briefings.
@@ -47,7 +50,11 @@ import { treeDiagramsBriefing } from './treeDiagrams'
 // comparison compoundUnits.ts had been making one-directionally since it was
 // written.
 //
-// Shape and Space is now the only topic with no briefing.
+// The fifth opens Shape and Space, the last topic with nothing: angles on lines
+// and circles, angles in polygons, and Pythagoras. These are the first pages
+// whose skills are DIAGRAM skills, so they carry figures (see
+// lib/skills/briefingFigures) rather than describing a picture in prose. Every
+// topic now has at least one briefing.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const skillBriefings: Record<string, SkillBriefing> = {
@@ -67,6 +74,9 @@ export const skillBriefings: Record<string, SkillBriefing> = {
   [meanBriefing.skillId]: meanBriefing,
   [calculatingSimpleProbabilityBriefing.skillId]: calculatingSimpleProbabilityBriefing,
   [treeDiagramsBriefing.skillId]: treeDiagramsBriefing,
+  [anglesOnLinesAndCirclesBriefing.skillId]: anglesOnLinesAndCirclesBriefing,
+  [anglesInPolygonsBriefing.skillId]: anglesInPolygonsBriefing,
+  [pythagorasTheoremBriefing.skillId]: pythagorasTheoremBriefing,
 }
 
 export const getBriefing = (skillId: string): SkillBriefing | null => skillBriefings[skillId] ?? null
