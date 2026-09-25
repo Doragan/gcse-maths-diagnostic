@@ -11,6 +11,9 @@ import {
   sliceProvenance, codedBoards, type Tier,
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
+import {
+  getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD,
+} from '../../../lib/skills/boardPreference'
 import { getStudentProfile } from '../../../lib/auth'
 import { isPaidStudent } from '../../../lib/entitlements'
 import { trackEvent, getSessionId } from '../../../lib/analytics'
@@ -53,9 +56,6 @@ function BriefingFigure({ figure }: { figure: Figure }) {
   )
 }
 
-/** Only AQA has coded papers today. Kept explicit so the gap is visible. */
-const DEFAULT_BOARD = 'AQA'
-
 type Rating = 'useful' | 'not_useful'
 
 /**
@@ -80,7 +80,7 @@ export default function SkillBriefingPage() {
   const briefing = skillId ? getBriefing(skillId) : null
 
   const [tier, setTierState] = useState<Tier>('foundation')
-  const [board] = useState<string>(DEFAULT_BOARD)
+  const [board, setBoardState] = useState<string>(DEFAULT_BOARD)
   const [recent, setRecent] = useState<{ correct: boolean }[] | null>(null)
   const [studentId, setStudentId] = useState<string | null>(null)
   /** Whether this student can drill one chosen skill — a premium focus mode. */
@@ -121,8 +121,13 @@ export default function SkillBriefingPage() {
   const [sending, setSending]     = useState(false)
   const [sent, setSent]           = useState(false)
 
-  // Tier comes from the browser, not the server — see lib/skills/tierPreference.
-  useEffect(() => { setTierState(getTier()) }, [])
+  // Tier and board both come from the browser, not the server — see
+  // lib/skills/tierPreference and lib/skills/boardPreference. Read after mount
+  // so the server-rendered markup and the first client render agree.
+  useEffect(() => {
+    setTierState(getTier())
+    setBoardState(getBoard())
+  }, [])
 
   useEffect(() => {
     if (!skillId || !briefing) return
@@ -158,6 +163,16 @@ export default function SkillBriefingPage() {
     persistTier(next)
     setRevealed([])   // the example set changes with the tier
     trackEvent('skill_briefing_tier_change', { skill: skillId, tier: next })
+  }
+
+  /**
+   * The exam panel is the only thing on the page that changes with the board,
+   * so the examples do not need resetting the way a tier change resets them.
+   */
+  function changeBoard(next: string) {
+    setBoardState(next)
+    persistBoard(next)
+    trackEvent('skill_briefing_board_change', { skill: skillId, tier, board: next })
   }
 
   function reveal(index: number) {
@@ -245,6 +260,35 @@ export default function SkillBriefingPage() {
   // Headings name the skill rather than saying "it". Plural rather than
   // "a/an <skill>", so the phrasing stays grammatical for every skill name.
   const lowerName = skill.name.toLowerCase()
+  /**
+   * Scopes the exam panel, and only the exam panel — the authored material
+   * above it is the same whichever board you sit.
+   *
+   * Rendered in BOTH branches of that panel: a student who switches to a board
+   * with too few coded papers lands on the "not enough papers" message, and
+   * needs the control to still be there to switch back.
+   */
+  const boardSwitch = (
+    <div style={styles.tierSwitch} role="group" aria-label="Which exam board are you sitting?">
+      {codedBoards().map(b => (
+        <button
+          key={b}
+          onClick={() => changeBoard(b)}
+          aria-pressed={board === b}
+          style={{
+            ...styles.tierBtn,
+            background: board === b ? colors.card : 'transparent',
+            color: board === b ? colors.textPrimary : colors.textHint,
+            boxShadow: board === b ? '0 1px 2px rgba(16,24,40,.09)' : 'none',
+            fontWeight: board === b ? '650' : '500',
+          }}
+        >
+          {boardLabel(b)}
+        </button>
+      ))}
+    </div>
+  )
+
   const profile = getExamProfile(skillId, board, tier)
   const showProfile = profile?.sufficient ?? false
   const provenance = sliceProvenance(board, tier)
@@ -540,7 +584,10 @@ export default function SkillBriefingPage() {
       {/* ── Tier 3: derived from the coded papers ────────────────────────── */}
       {stage === 'check' && showProfile && profile && (
         <section style={{ ...styles.card, background: '#f8fafc', borderColor: '#e2e8f0' }}>
-          <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
+          <div style={styles.panelHead}>
+            <p style={{ ...styles.h, margin: 0 }}>How {lowerName} shows up on the exam paper</p>
+            {boardSwitch}
+          </div>
 
           <div style={styles.stats}>
             <Stat n={`${profile.papersSeen}`} sub={`/ ${profile.papersTotal}`} label="papers it appeared in" />
@@ -600,10 +647,18 @@ export default function SkillBriefingPage() {
 
       {stage === 'check' && !showProfile && (
         <section style={{ ...styles.card, background: colors.cardAlt }}>
-          <p style={styles.h}>How {lowerName} shows up on the exam paper</p>
+          <div style={styles.panelHead}>
+            <p style={{ ...styles.h, margin: 0 }}>How {lowerName} shows up on the exam paper</p>
+            {boardSwitch}
+          </div>
+          {/* Built as a string rather than JSX text. Written the JSX way, the
+              spaces around {lowerName} and the line break were being swallowed
+              and it rendered as "…about tree diagramsyet." One string has no
+              whitespace rules to get wrong. */}
           <p style={{ ...styles.muted, margin: 0 }}>
-            We haven&apos;t been through enough {board} {tier === 'higher' ? 'Higher' : 'Foundation'} papers
-            to tell you anything useful about {lowerName} yet. We&apos;d rather leave this out than guess.
+            {`We haven't been through enough ${board} ${tier === 'higher' ? 'Higher' : 'Foundation'} `
+              + `papers to tell you anything useful about ${lowerName} yet. `
+              + `We'd rather leave this out than guess.`}
           </p>
         </section>
       )}
@@ -1008,6 +1063,16 @@ const styles: Record<string, React.CSSProperties> = {
   dots: { display: 'inline-flex', gap: '4px', verticalAlign: 'middle' },
 
   /** Segmented control — a setting, deliberately quieter than the tab strip. */
+  // The panel heading and its board switch. Wraps on a phone, so the switch
+  // drops under the heading rather than squeezing it.
+  panelHead: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '10px',
+    flexWrap: 'wrap',
+    marginBottom: '12px',
+  },
   tierSwitch: {
     flex: 'none',
     display: 'inline-flex',
