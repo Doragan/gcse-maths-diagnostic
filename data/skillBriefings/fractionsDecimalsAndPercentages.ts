@@ -83,11 +83,11 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         + 'total rather than making one.',
     },
     {
-      stem: 'A car cost £12000 when new. Two years later it is worth £9000. '
+      stem: 'A car cost £12,000 when new. Two years later it is worth £9,000. '
         + 'Work out the percentage decrease in its value.',
       isThisSkill: false,
       actuallySkillId: 'percentage_change',
-      cue: 'A before and an after. £9000 is not a part of the £12000 — it is what the £12000 turned '
+      cue: 'A before and an after. £9,000 is not a part of the £12,000 — it is what the £12,000 turned '
         + 'into, and the percentage wanted is the change.',
     },
   ],

@@ -36,7 +36,7 @@ export const growthAndDecayBriefing: SkillBriefing = {
     {
       text: 'The standard settings — compound interest, depreciation, population growth, bacteria, '
         + 'radioactive decay.',
-      example: '£2000 is invested at 3% compound interest.',
+      example: '£2,000 is invested at 3% compound interest.',
     },
     {
       text: 'A number of periods is given, and the question wants the value at the end of them.',
@@ -69,7 +69,7 @@ export const growthAndDecayBriefing: SkillBriefing = {
       cue: '"Each year", for three years. The 15% comes off the new value each time, not the original £12,000.',
     },
     {
-      stem: '£2500 is invested at 2.4% compound interest per year. Work out the value after 5 years.',
+      stem: '£2,500 is invested at 2.4% compound interest per year. Work out the value after 5 years.',
       isThisSkill: true,
       cue: 'Compound interest is the standard case — one multiplier, raised to the number of years.',
     },
@@ -135,7 +135,7 @@ export const growthAndDecayBriefing: SkillBriefing = {
       },
       {
         text: 'The rate or the number of years is what is missing, so the multiplier has to run backwards.',
-        example: 'Find the least number of years for the value to fall below £5000.',
+        example: 'Find the least number of years for the value to fall below £5,000.',
       },
     ],
 
@@ -159,7 +159,7 @@ export const growthAndDecayBriefing: SkillBriefing = {
           + 'raising it to the right power.',
       },
       {
-        stem: 'A machine bought for £18,000 is worth £11,664 after 2 years. '
+        stem: 'A machine bought for £18,000 is worth £11,520 after 2 years. '
           + 'Work out the annual rate of depreciation.',
         isThisSkill: true,
         cue: 'Both ends given and the rate missing — divide, take the square root, then turn the '

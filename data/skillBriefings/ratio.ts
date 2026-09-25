@@ -29,7 +29,7 @@ export const ratioBriefing: SkillBriefing = {
     {
       text: 'The colon form printed in the question is the strongest tell, and unlike most skills '
         + 'it is usually there in plain sight.',
-      example: '… divide £4500 in the ratio 4 : 5 …',
+      example: '… divide £4,500 in the ratio 4 : 5 …',
     },
     {
       text: 'Words that mean splitting one thing up: share, split, divide between, for every.',

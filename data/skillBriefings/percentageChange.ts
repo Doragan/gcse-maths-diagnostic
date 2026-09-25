@@ -84,7 +84,7 @@ export const percentageChangeBriefing: SkillBriefing = {
         + 'so this scales rather than changes.',
     },
     {
-      stem: 'A savings account pays 3% interest each year. £2000 is invested for 4 years. '
+      stem: 'A savings account pays 3% interest each year. £2,000 is invested for 4 years. '
         + 'Work out the value at the end.',
       isThisSkill: false,
       actuallySkillId: 'growth_and_decay',
