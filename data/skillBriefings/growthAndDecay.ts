@@ -159,7 +159,7 @@ export const growthAndDecayBriefing: SkillBriefing = {
           + 'raising it to the right power.',
       },
       {
-        stem: 'A machine bought for £18,000 is worth £11,664 after 2 years. '
+        stem: 'A machine bought for £18,000 is worth £11,520 after 2 years. '
           + 'Work out the annual rate of depreciation.',
         isThisSkill: true,
         cue: 'Both ends given and the rate missing — divide, take the square root, then turn the '

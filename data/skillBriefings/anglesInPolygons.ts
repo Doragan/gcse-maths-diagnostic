@@ -126,8 +126,8 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
 
   check: [
     'Do your interior and exterior angles add to 180°? If not, one of them is wrong.',
-    'Is the interior angle sensible? Every interior angle of a convex polygon is under 180°, and for '
-      + 'anything with more than four sides it should be comfortably over 90°.',
+    'Is the interior angle sensible? Every interior angle of a convex polygon is under 180°, and in a '
+      + 'REGULAR shape with more than four sides it should be comfortably over 90°.',
     'If you found the number of sides, is it a whole number? A fraction means the exterior angle did '
       + 'not divide into 360.',
   ],
