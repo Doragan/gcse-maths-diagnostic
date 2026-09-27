@@ -28,8 +28,18 @@ Evidence and workings: `docs/audit/21` §5.
 
 **Brevo (Paris, France).** A French company storing in the EU. SMTP relay at
 `smtp-relay.brevo.com` port 587. Free tier is 300 messages a day, against our
-five a month and a worst-case class of thirty. No approval process to be
-refused from.
+five a month and a worst-case class of thirty.
+
+⚠ **Brevo also requires manual approval for transactional sending**, checked
+2026-09-27. There is no self-service switch, they will not activate until a
+domain is verified, and it takes one to two business days. An earlier version of
+this runbook said Brevo had "no approval process to be refused from". **That was
+wrong**, and it was the main practical advantage claimed over SES.
+
+It remains the better bet: a support ticket with a stated turnaround, reviewed
+by a company whose business is sending mail for small senders, rather than an
+opaque risk assessment with no criteria and no appeal. But it *can* be refused,
+so do not treat activation as a formality.
 
 **Better than SES would have been, but not for the reason first claimed.** An
 earlier version of this runbook said a French provider "closes" the CLOUD Act
@@ -45,8 +55,31 @@ What is genuinely true is narrower and still worth having:
   governed in the EU rather than by a US entity's terms.
 - Against SES, which would have put data in London under a US company, this is
   a lateral move on jurisdiction and a modest gain on contracting party. The
-  decisive advantages are practical: no sandbox, nobody to persuade, free at
-  this volume.
+  practical advantages are real but smaller than first claimed: free at this
+  volume, and an approval process that states its criteria and its turnaround
+  rather than refusing without either.
+
+### Signing up, in the order that works
+
+Activation depends on the domain, so the sequence is not optional.
+
+1. **Sign up free** at brevo.com.
+2. **Authenticate the domain.** Settings → Senders, Domains & Dedicated IPs →
+   add `mathsense.net`. Publish the records Brevo gives you — same Namecheap
+   host-suffix trap as §2, enter only the prefix.
+3. **Raise a support ticket from inside the account** asking to activate
+   transactional sending. This is the step with no button; it does not happen
+   on its own. **Reuse the AWS reply text in §8** — it already answers what
+   they will ask: what you send, how often, where addresses come from, and how
+   bounces and unsubscribes are handled.
+4. **Wait one to two business days.**
+5. **Generate credentials.** Settings → SMTP & API. The SMTP **login** is a
+   distinct value, not your account email, and the **key** is not your account
+   password.
+
+⚠ **The SMTP key is shown in full exactly once, at creation.** Afterwards Brevo
+displays only the last few characters. Put it straight into Supabase, or into a
+password manager, before leaving the page.
 
 ### ✅ Sub-processors, checked rather than assumed — 2026-09-27
 
@@ -178,8 +211,8 @@ Stopping after step 3 is the most likely way this job goes wrong.
 
 ## 5. Test, and do not skip this
 
-Brevo has no sandbox, so unlike SES this can be tested against a real outside
-address immediately.
+Once activated, Brevo has no per-recipient sandbox, so unlike SES this can be
+tested against a real outside address immediately.
 
 1. Sign up with an address on a domain **you do not control** — a personal
    address on another provider. Confirm the mail arrives and the link works.
