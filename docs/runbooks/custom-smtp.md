@@ -26,25 +26,70 @@ Evidence and workings: `docs/audit/21` §5.
 
 ## 1. The sender: Brevo
 
-**Brevo (Paris, France).** Email and contact data are processed and stored in the
-EU, on a French company's infrastructure. SMTP relay at `smtp-relay.brevo.com`
-port 587. Free tier is 300 messages a day, against our five a month and a
-worst-case class of thirty. No approval process.
+**Brevo (Paris, France).** A French company storing in the EU. SMTP relay at
+`smtp-relay.brevo.com` port 587. Free tier is 300 messages a day, against our
+five a month and a worst-case class of thirty. No approval process to be
+refused from.
 
-**This is a better answer than SES would have been, not a consolation prize.**
-SES in London gives EU *residency* but not EU *jurisdiction*: Amazon is a US
-company, so the CLOUD Act reaches it wherever the servers sit. A French provider
-closes that, and an EU-to-UK transfer needs no Standard Contractual Clauses at
-all because both sides are adequate.
+**Better than SES would have been, but not for the reason first claimed.** An
+earlier version of this runbook said a French provider "closes" the CLOUD Act
+question. **That was wrong**, and reading the sub-processor table below is what
+corrected it: Google Cloud and Cloudflare are American companies in Brevo's core
+path, so the CLOUD Act reaches them too.
 
-⚠ **Verify Brevo's own sub-processor list before putting it in the schedule.** At
-least one vendor-assessment site raises CLOUD Act questions about Brevo, which
-usually means an American sub-processor somewhere in the chain even when primary
-storage is not. "French company" is a claim to check, not a conclusion — this is
-exactly the mistake made with Resend, where the sending region said Ireland and
-the storage was in the United States. See
-`docs/audit/feedback_verify_against_the_thing_itself` reasoning in
-`docs/audit/23`.
+What is genuinely true is narrower and still worth having:
+
+- **Storage is in the EU**, in France and Belgium, rather than the United
+  States. An EU-to-UK transfer needs no Standard Contractual Clauses.
+- **The contracting party is French**, so the controller relationship is
+  governed in the EU rather than by a US entity's terms.
+- Against SES, which would have put data in London under a US company, this is
+  a lateral move on jurisdiction and a modest gain on contracting party. The
+  decisive advantages are practical: no sandbox, nobody to persuade, free at
+  this volume.
+
+### ✅ Sub-processors, checked rather than assumed — 2026-09-27
+
+Read from Annex 2 of Brevo's terms of service, which embeds the DPA. The page is
+~153,000 characters and truncates in most fetchers; it was read in a browser.
+**The CLOUD Act flag was justified, and "French company" was not the whole
+story.**
+
+Infrastructure sub-processors, the ones that carry email:
+
+| Sub-processor | Role | Company | Servers | Safeguard |
+|---|---|---|---|---|
+| OVH | Hosting | France | **France** | None needed |
+| Google Cloud | Hosting | France | **Belgium** | DPF + SCCs |
+| Cloudflare | CDN & WAF | **USA** | USA/EU | DPF + SCCs + Data Localization Suite |
+| Zendesk | Support tickets | **USA** | EU/USA | BCR + SCCs |
+| Omni | Dashboards | **USA** | EU | DPF + SCCs |
+
+**What we can say:** all storage is in the EU, in France and Belgium.
+
+**What we cannot say:** that there is no US involvement. Google Cloud and
+Cloudflare are American companies in the core path. Brevo names them and applies
+the Data Privacy Framework and Standard Contractual Clauses, which is the
+correct handling, but the CLOUD Act reaches those companies.
+
+**Still clearly better than Resend**, which stores everything in the United
+States with no EU option at all. This is a difference in kind, not degree: EU
+storage with US infrastructure providers under safeguards, versus US storage.
+
+**Two things that make the paperwork easier than expected.** The DPA is embedded
+in the terms rather than a separate document to chase, so signing up gets you
+one. And the long tail of US sub-processors — SMS routers, AI providers, the
+landing-page builder — are all marked *optional* and engage only if those
+features are used. SMTP relay touches none of them.
+
+**Schedule row, when we get there:** Brevo, transactional email, servers in
+France and Belgium, noting Google Cloud and Cloudflare as US-domiciled
+infrastructure sub-processors covered by the Framework and Standard Contractual
+Clauses. An EU-to-UK transfer itself needs no mechanism.
+
+_Why this was checked at all: "French company" is a claim, not a conclusion. The
+same assumption about Resend — sending region Ireland, therefore EU — was wrong,
+and its storage was in the United States. See `docs/audit/23`._
 
 ### Why not SES — recorded so nobody retries it by accident
 
@@ -160,8 +205,11 @@ leaving the DNS records in place is harmless.
 ## 7. Afterwards
 
 - Add Brevo to the sub-processor schedule in `docs/legal/dpa-schools.md` §7 and
-  to `docs/audit/21` §5 — **after** checking its sub-processor list (§1). An
-  EU-to-UK transfer needs no mechanism, so if that checks out the row is simple.
+  to `docs/audit/21` §5. The row is drafted in §1 and the checking is done:
+  servers in France and Belgium, no transfer mechanism needed for EU-to-UK, and
+  Google Cloud and Cloudflare named as US-domiciled infrastructure
+  sub-processors under the Framework and Standard Contractual Clauses. Say that
+  last part rather than leaving it to be found.
 - Update the privacy notice §6, which currently says password resets and
   confirmations are sent by Supabase. After this it is Supabase *through* Brevo.
 - Consider moving the two learner-facing crons off Resend to the same sender.
