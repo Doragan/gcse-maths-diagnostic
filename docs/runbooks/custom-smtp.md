@@ -68,11 +68,25 @@ Activation depends on the domain, so the sequence is not optional.
    add `mathsense.net`. Publish the records Brevo gives you — same Namecheap
    host-suffix trap as §2, enter only the prefix.
 3. **Raise a support ticket from inside the account** asking to activate
-   transactional sending. This is the step with no button; it does not happen
-   on its own. **Reuse the AWS reply text in §8** — it already answers what
-   they will ask: what you send, how often, where addresses come from, and how
-   bounces and unsubscribes are handled.
-4. **Wait one to two business days.**
+   transactional sending. **Submitted 2026-09-30.** This is the step with no
+   button, and Brevo's own troubleshooting article confirms it: *"Transactional
+   email sending requires a separate activation step from Brevo. If you've
+   never sent transactional emails from your account, contact our support team
+   by creating a ticket from your account to request activation."* There is no
+   dedicated route on the site; it is a human review, like AWS. Adapt the AWS
+   reply in §8 — it already answers what they ask.
+
+   ⚠ **Ask only for confirmations, password resets and service notices.** An
+   earlier draft of the ticket also mentioned practice reminders. **Cut before
+   sending, and rightly.** By Brevo's own definition a transactional email is
+   *triggered by a user action and needs no prior consent*; the reminders are
+   cron-scheduled and opt-in, which is Brevo's test for a **marketing** email.
+   Including them in a transactional request invites a reviewer to think you
+   intend to push scheduled mail down the transactional route, which providers
+   refuse.
+4. **Wait.** Brevo's documentation states no timeframe. An earlier version of
+   this runbook said one to two business days; that came from a third-party
+   summary and is **not** something Brevo commits to.
 5. **Generate credentials.** Settings → SMTP & API. The SMTP **login** is a
    distinct value, not your account email, and the **key** is not your account
    password.
@@ -271,9 +285,14 @@ leaving the DNS records in place is harmless.
   last part rather than leaving it to be found.
 - Update the privacy notice §6, which currently says password resets and
   confirmations are sent by Supabase. After this it is Supabase *through* Brevo.
-- Consider moving the two learner-facing crons off Resend to the same sender.
-  That would take children's email addresses out of the United States entirely,
-  and it is two files. See `docs/audit/21` §5.
+- Consider moving the two learner-facing crons off Resend, which would take
+  children's email addresses out of the United States entirely. It is two
+  files. ⚠ **But not down the transactional route.** Opt-in scheduled reminders
+  are **marketing** by Brevo's definition, so they need Brevo's marketing
+  sending, not the SMTP relay being activated here. Brevo's article *Separate
+  the routing of your transactional and marketing emails* is the mechanism, and
+  it is also the native answer to the reputation-isolation question that a
+  sending subdomain would otherwise solve. See `docs/audit/21` §5.
 - `RESEND_FROM_EMAIL` is **empty in `.env.local`**, so local sends fall back to
   `onboarding@resend.dev`. Check what production actually has set in Vercel; a
   fallback sender in production would be its own small problem.
