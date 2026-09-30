@@ -159,12 +159,36 @@ Current state, checked 2026-09-23:
 deliverability but cannot get mail rejected outright. It is also why you should
 not tighten DMARC until after this is working.
 
-Add, for Brevo:
+### ✅ Done 2026-09-30. What Brevo actually asked for — four records, no SPF
 
-- the **DKIM record** Brevo generates when you authenticate the domain
-- Brevo's **SPF include**, added to the existing record, keeping Google and
-  keeping `~all` — **one SPF record only, never two**
-- any **domain-verification TXT** record Brevo asks for
+| Record | Type | Host | Value |
+|---|---|---|---|
+| Brevo code | TXT | `@` | `brevo-code:…` |
+| DKIM 1 | CNAME | `brevo1._domainkey` | `b1.mathsense-net.dkim.brevo.com` |
+| DKIM 2 | CNAME | `brevo2._domainkey` | `b2.mathsense-net.dkim.brevo.com` |
+| DMARC | TXT | `_dmarc` | a `p=none` record must exist |
+
+🔴 **DO NOT ADD AN SPF INCLUDE FOR BREVO.** An earlier version of this runbook
+told you to merge one into the existing record. **That was wrong**: Brevo's
+wizard asks for four records and SPF is not among them. Brevo sends with its own
+return-path domain, so SPF is evaluated against *their* domain and DMARC aligns
+on DKIM instead. Adding an include would authorise nothing useful and would
+consume one of the ten DNS lookups SPF permits before it fails.
+
+The SPF record is therefore **unchanged** and still reads
+`v=spf1 include:_spf.google.com ~all`.
+
+**The Brevo code is a verification token, not SPF**, so it coexists with the
+others at the apex. `google-site-verification` was already there. Multiple TXT
+records at `@` are normal; the one-record rule applies only to SPF and DMARC.
+
+⚠ **DMARC: edit, never add.** One record per domain — two means receivers treat
+you as having none, which is worse than either. The existing `p=none` record
+already satisfied Brevo, so changing it was optional. It was changed anyway on
+2026-09-30 and now reports to `rua@dmarc.brevo.com` **instead of**
+`dmarc@mathsense.net`. That is valid and gives parsed reports in Brevo's
+Deliverability Center, at the cost of losing our own feed. Appending both,
+comma-separated, keeps both. Worth reinstating if Brevo is ever dropped.
 
 ⚠ **Namecheap appends the domain to the Host field.** Your DNS is Namecheap
 BasicDNS (`dns1/dns2.registrar-servers.com`). If Brevo gives a record name of
@@ -174,7 +198,9 @@ nothing and leaves verification stuck on Pending with no error shown. This is
 AWS's own documented gotcha for non-Route53 providers and it applies identically
 here.
 
-Wait for Brevo to report the domain authenticated before continuing.
+**Domain authenticated 2026-09-30.** Next step is the activation ticket in §1,
+not the Supabase configuration below — transactional sending is still off until
+Brevo approves it.
 
 ---
 
