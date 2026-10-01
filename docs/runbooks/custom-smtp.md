@@ -220,13 +220,15 @@ Brevo approves it.
 
 ## 3. Configure Supabase
 
-> **Status: configured 2026-10-01. Brevo activated the account the same day.**
+> **Status: configured and WORKING, 2026-10-01.** Brevo activated the account
+> the same day.
 > Supabase hands messages to Brevo successfully — all three test sends appear in
-> Brevo's transactional log. **But none has been delivered**, and that is open
-> with Brevo support. See §5.
+> Brevo's transactional log, and delivery is confirmed with SPF, DKIM and DMARC
+> all passing. The only caveat is a 24-minute first-send delay. See §5.
 >
-> ⚠ **§4 is still outstanding.** Raising the rate limit is independent of the
-> delivery problem and should not wait for it.
+> ⚠ **§4 is still outstanding.** Raising the rate limit was deferred until after
+> testing, and testing was derailed by the delay above. It is the change that
+> actually fixes the original 2/hour cap, so do not let it stay forgotten.
 
 Dashboard → **Authentication → SMTP Settings**
 (`https://supabase.com/dashboard/project/_/auth/smtp`)
@@ -259,18 +261,37 @@ Stopping after step 3 is the most likely way this job goes wrong.
 
 ## 5. Test, and do not skip this
 
-> ### ⚠ OPEN WITH BREVO SUPPORT — 2026-10-01
+> ### ✅ RESOLVED 2026-10-01 — it was Gmail greylisting a new sender
 >
-> Three sign-up confirmations at 21:29, 21:31 and 21:37 all show a single
-> **Sent** event in Brevo's transactional log and **no Delivered event**. None
-> arrived at the Gmail test address. Not in inbox or spam, and category tabs are
-> disabled on that account so there is no Updates folder to hide in.
+> **It arrived. Delivered after 1441 seconds — twenty-four minutes.** Gmail
+> deferred the first attempt from a sender it had never seen, then accepted on
+> retry. Nothing was misconfigured; the diagnosis is now confirmed by the
+> headers rather than assumed.
 >
-> **The handoff works.** Supabase → Brevo is fine; the messages are in Brevo's
-> log with the correct sender and recipient. The failure is between Brevo and
-> the receiving server, which only Brevo can see.
+> **Authentication is perfect**, which is the part worth keeping:
 >
-> **Everything externally checkable was verified and is correct:**
+> ```
+> SPF:   PASS with IP 77.32.148.26
+> DKIM:  PASS with domain mathsense.net
+> DMARC: PASS
+> ```
+>
+> DKIM passing *and aligning on mathsense.net* is what makes DMARC pass and what
+> will make reputation build quickly. SPF passes too, on Brevo's own return-path
+> domain — which is why §2 is right that no SPF include was needed.
+>
+> ⚠ **Twenty-four minutes is fine for a confirmation and NOT fine for a password
+> reset.** A locked-out learner gives up long before that. Greylisting applies to
+> unfamiliar sender/recipient pairs and should fall to seconds once Gmail has
+> accepted a few messages. **If it is still minutes rather than seconds a week
+> on, raise it** rather than accepting it as normal.
+>
+> #### What the panic was, and what it cost
+>
+> The symptom — accepted by Brevo, logged as Sent, never Delivered, absent from
+> inbox and spam — is indistinguishable from a broken configuration. Everything
+> below was checked before concluding it was delivery, and all of it was correct.
+> Worth keeping so the same ground is not re-walked:
 >
 > | Check | Result |
 > |---|---|
@@ -280,19 +301,22 @@ Stopping after step 3 is the most likely way this job goes wrong.
 > | DMARC policy | `p=none` — nothing rejected on policy |
 > | Recipient address in Brevo's log | Correct, not a typo |
 >
-> Message ID for the 21:37 send:
-> `<202610012037.62758139955@smtp-relay.sendinblue.com>`
+> #### If this happens again — the diagnostic order that worked
 >
-> **Leading hypothesis:** a newly activated account on a shared IP with no
-> sender reputation, being deferred or silently dropped by Gmail. The support
-> message asks them to confirm whether a warm-up restriction applies.
+> 1. **Was the account created?** Query `auth.users`. If yes, signup is fine and
+>    the failure is purely sending. This split the problem in half immediately.
+> 2. **Did it reach the provider?** Their transactional log is the only place
+>    that answers it. Present means delivery; absent means the handoff.
+> 3. **Is the recipient right?** A typo at signup looks identical to a delivery
+>    failure. Brevo's log hides the To column behind a horizontal scroll.
+> 4. **Does the DKIM chain actually resolve?** A CNAME to a missing key looks
+>    healthy in DNS and breaks signing.
+> 5. **Send to a non-Gmail address.** Splits "Gmail is deferring" from "the
+>    provider is broken" in one move. Not needed here, but it was next.
 >
-> **Next diagnostic if support is slow:** send to a non-Gmail address. If it
-> arrives, the problem is Gmail-specific and reputational. If it fails
-> everywhere, it is Brevo's to fix. That one test splits the problem.
->
-> ⚠ **Change nothing while this is open.** The configuration is correct, and
-> altering it now would make it impossible to tell what fixed it.
+> ⚠ **Resist changing configuration while diagnosing.** Everything was already
+> correct, and an edit at any point would have made it impossible to tell what
+> fixed it — and would have invited a second, real fault on top of a phantom.
 
 Once activated, Brevo has no per-recipient sandbox, so unlike SES this can be
 tested against a real outside address immediately.
