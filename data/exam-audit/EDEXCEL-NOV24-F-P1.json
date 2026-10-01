@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Non-calculator)",
+    "series": "November 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-1f-nov24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/1F",
+    "paper_subtitle": "Foundation Tier Paper 1 Non-calculator — November 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/1F, Wednesday 6 November 2024, P75157A). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "First Edexcel November series in the audit. Coded WITH mark_split, unlike the six June 2025 Edexcel papers, so it contributes to lib/exam/markEvidence.data.ts. Every (Total for Question N) line was recovered except q1–q5, q12 and q24, whose markers pdftotext dropped; all seven are single-mark items and the paper sums to the printed 80."
+  },
+  "coding_notes": [
+    "q7b (what type of angle is x) tagged angles_on_lines_and_circles, the documented handling for 'classify an angle by type' — measuring_lines_and_angles is about protractor use and is what q7a and q7c are.",
+    "q11a (complete a two-way table) tagged gathering_and_organising_data, following the AQA and Edexcel precedent for two-way tables.",
+    "q14b (total surface area of a cuboid) tagged areas_of_squares_and_rectangles: the documented taxonomy gap is real — spheres, cones and cylinders each have a surface-area node and cuboids do not — but the mark scheme rewards finding rectangle areas and adding them, which is inside that node's territory rather than outside the taxonomy.",
+    "q19a tagged expected_outcomes first and mutually_exclusive_events second: the answer is an expected count, but the first process mark is for making the six probabilities sum to 1. Both sit under Probability and Data so the topic column is unaffected either way.",
+    "q22a tagged estimating before compound_units, matching the established handling of 'estimate by rounding first' items (JUN23-F-P3 24a, JUN25-F-P1 14a, OCR-JUN25-F-P2 10). The first process mark is for the rounding, not for the speed formula.",
+    "q24 (what the gradient of a volume-time graph represents) tagged kinematic_graphs. A rate-time graph whose gradient is a rate is structurally a distance-time graph; precedent is the hand-authored AQA 2F Nov 2024 q15b bath graph.",
+    "q9d ('write 5:4 in the form n:1') tagged simplifying_ratio, following OCR-JUN25-F-P1 q19."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "percentage to decimal conversion" },
+    { "q": "2", "part": null, "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "continue a simple arithmetic sequence to a stated term" },
+    { "q": "3", "part": null, "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "metric length conversion" },
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a multiple of a given number inside a stated range" },
+    { "q": "5", "part": null, "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "bare three-digit addition" },
+
+    { "q": "6", "part": null, "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "money problem: a daily rate, a fixed charge and change from a payment" },
+
+    { "q": "7", "part": "a", "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "measure a length on an accurately drawn triangle" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "name an angle by type" },
+    { "q": "7", "part": "c", "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "measure an angle with a protractor" },
+
+    { "q": "8", "part": "a", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "B1", "app_gap_note": "read coordinates off a grid" },
+    { "q": "8", "part": "b", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "plot a point with a negative coordinate" },
+    { "q": "8", "part": "c", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "B1", "app_gap_note": "midpoint of two plotted points" },
+
+    { "q": "9", "part": "a", "marks": 3, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 M1dep C1", "app_gap_note": "complete a bar chart, with the missing bar derived from a stated overall total" },
+    { "q": "9", "part": "b", "marks": 2, "skill_ids": ["simplifying_fractions", "simple_charts"], "kind": "exam", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "form a fraction from a bar read off a chart and simplify it" },
+    { "q": "9", "part": "c", "marks": 1, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "fraction of the whole from a two-part ratio" },
+    { "q": "9", "part": "d", "marks": 1, "skill_ids": ["simplifying_ratio"], "kind": "mastery", "answer_form": "ratio", "mark_split": "B1", "app_gap_note": "express a two-part ratio in the form n : 1" },
+
+    { "q": "10", "part": "a", "marks": 2, "skill_ids": ["reflections"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "reflect a shape in a given horizontal mirror line" },
+    { "q": "10", "part": "b", "marks": 1, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "B1", "app_gap_note": "equation of a horizontal mirror line" },
+
+    { "q": "11", "part": "a", "marks": 3, "skill_ids": ["gathering_and_organising_data"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "C3", "app_gap_note": "complete a two-way table from partial row, column and overall totals" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "probability of a single cell of a completed two-way table" },
+
+    { "q": "12", "part": null, "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "explain an order-of-operations error in someone else's method" },
+
+    { "q": "13", "part": "a", "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "output of a two-step function machine" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 A1", "app_gap_note": "find the missing operation in a function machine from its input and output" },
+
+    { "q": "14", "part": "a", "marks": 2, "skill_ids": ["volume_of_a_prism"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 A1", "app_gap_note": "missing height of a cuboid from its volume and two dimensions" },
+    { "q": "14", "part": "b", "marks": 3, "skill_ids": ["areas_of_squares_and_rectangles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "total surface area of a cuboid from its three dimensions" },
+
+    { "q": "15", "part": "a", "marks": 1, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "factorise a two-term linear expression" },
+    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["solving_linear_equations", "expanding_brackets"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "solve a linear equation with a bracket" },
+
+    { "q": "16", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "two unknown unit prices from two combined totals, then the cost of a third combination" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 C1", "app_gap_note": "test whether three given stock amounts are enough for a three-part ratio mix of a stated total" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1 A1ft", "app_gap_note": "non-calculator division of one decimal by another" },
+
+    { "q": "19", "part": "a", "marks": 3, "skill_ids": ["expected_outcomes", "mutually_exclusive_events"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "expected frequency where the missing probability must first be recovered from the total of 1 and split equally" },
+    { "q": "19", "part": "b", "marks": 1, "skill_ids": ["expected_outcomes"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "state the direction an expected frequency moves when an assumption is relaxed" },
+
+    { "q": "20", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "subtract two mixed numbers, answer as a mixed number" },
+    { "q": "20", "part": "b", "marks": 3, "skill_ids": ["dividing_fractions", "irregular_and_improper_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1dep C1", "app_gap_note": "show a division of two mixed numbers reaches a stated result, with every stage evidenced" },
+
+    { "q": "21", "part": null, "marks": 3, "skill_ids": ["alternate_and_corresponding_angles", "forming_expressions_and_formulae"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 A1 C1", "app_gap_note": "expression for an angle in a parallelogram in terms of a letter, with a parallel-line reason required" },
+
+    { "q": "22", "part": "a", "marks": 3, "skill_ids": ["estimating", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1dep A1", "app_gap_note": "estimate a journey time in minutes from a distance and a speed, by rounding both first" },
+    { "q": "22", "part": "b", "marks": 1, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "decide whether an estimate is an under- or overestimate, with a reason" },
+
+    { "q": "23", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "pentagon angle from an angle sum where four of the five angles are multiples of one unknown" },
+
+    { "q": "24", "part": null, "marks": 1, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "interpret what the gradient of a volume-time graph represents" },
+
+    { "q": "25", "part": null, "marks": 2, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 A1", "app_gap_note": "change the subject of a two-step linear formula" },
+
+    { "q": "26", "part": null, "marks": 3, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "solve a monic quadratic with a negative constant term" }
+  ]
+}

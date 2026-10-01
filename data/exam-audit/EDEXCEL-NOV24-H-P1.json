@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 1 (Non-calculator)",
+    "series": "November 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-1h-nov24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/1H",
+    "paper_subtitle": "Higher Tier Paper 1 Non-calculator — November 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/1H, Wednesday 6 November 2024, P75158A). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as EDEXCEL-NOV24-F-P1 so the crossover block carries identical tags. The shared block is 1F q18–q24 = 1H q1–q7, contiguous on both papers, and the marks match item for item (3, 4, 5, 3, 4, 4, 1). Coded WITH mark_split. Only q7's (Total for Question) line was lost in extraction; it is a single mark and the paper sums to the printed 80."
+  },
+  "coding_notes": [
+    "q1–q7 are 1F q18–q24 and carry byte-identical skill tags, kinds and mark splits to that file, by design.",
+    "q9b tagged cumulative_frequency first and fractions_of_amounts second: the mark scheme's two routes both pair a read off the cumulative frequency graph with a percentage of 60, and the graph read is what the question is about.",
+    "q13 tagged expanding_double_brackets FIRST, ahead of volume_of_a_prism, even though the first process mark is for setting up the volume equation. Four of the five marks are expansion, rearrangement and solving a quadratic; filing all five under Shape and Space would misreport the paper. This is the documented topic-straddle problem, not a tagging error.",
+    "q15 tagged vector_proof rather than vectors: the answer is a ratio of two vectors and the mark scheme awards nothing for a correct answer without working, which is the proof node's demand rather than the arithmetic one's.",
+    "q17 tagged circle_theorem_alternate_segment first and circle_theorem_tangent second. The mark scheme's route also passes through the angle at the centre, and it accepts any one of three named theorems for the communication mark; the two tagged are the ones the marks are actually built on.",
+    "q12 tagged area_and_volume_scale_factors: the question moves from two volumes to a length ratio, halves one length, and returns a surface-area ratio — three scale-factor conversions and nothing else."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 3, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1 A1ft", "app_gap_note": "non-calculator division of one decimal by another" },
+
+    { "q": "2", "part": "a", "marks": 3, "skill_ids": ["expected_outcomes", "mutually_exclusive_events"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "expected frequency where the missing probability must first be recovered from the total of 1 and split equally" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["expected_outcomes"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "state the direction an expected frequency moves when an assumption is relaxed" },
+
+    { "q": "3", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "subtract two mixed numbers, answer as a mixed number" },
+    { "q": "3", "part": "b", "marks": 3, "skill_ids": ["dividing_fractions", "irregular_and_improper_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1dep C1", "app_gap_note": "show a division of two mixed numbers reaches a stated result, with every stage evidenced" },
+
+    { "q": "4", "part": null, "marks": 3, "skill_ids": ["alternate_and_corresponding_angles", "forming_expressions_and_formulae"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 A1 C1", "app_gap_note": "expression for an angle in a parallelogram in terms of a letter, with a parallel-line reason required" },
+
+    { "q": "5", "part": "a", "marks": 3, "skill_ids": ["estimating", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1dep A1", "app_gap_note": "estimate a journey time in minutes from a distance and a speed, by rounding both first" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "decide whether an estimate is an under- or overestimate, with a reason" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "pentagon angle from an angle sum where four of the five angles are multiples of one unknown" },
+
+    { "q": "7", "part": null, "marks": 1, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "interpret what the gradient of a volume-time graph represents" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "length of a prism's base from a pressure and a force, with the formula given" },
+
+    { "q": "9", "part": "a", "marks": 3, "skill_ids": ["box_plots", "cumulative_frequency"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a box plot whose quartiles must first be read off a cumulative frequency graph" },
+    { "q": "9", "part": "b", "marks": 3, "skill_ids": ["cumulative_frequency", "fractions_of_amounts"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1 C1", "app_gap_note": "test a claim about the percentage of a population above a threshold, from a cumulative frequency graph" },
+
+    { "q": "10", "part": "a", "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "product of a square root and a cube root written as fractional powers" },
+    { "q": "10", "part": "b", "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "evaluate a unit fraction raised to a negative fractional power" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["factorising_quadratics"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "explain that a stated rule has the sum and the product of the factor pair the wrong way round" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["difference_of_two_squares", "factorising"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "factorise fully where a common factor must be taken out before a difference of two squares appears" },
+    { "q": "11", "part": "c", "marks": 2, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "factorise a four-term expression by grouping" },
+
+    { "q": "12", "part": null, "marks": 4, "skill_ids": ["area_and_volume_scale_factors"], "kind": "mastery", "answer_form": "ratio", "mark_split": "P1 P1 P1 A1", "app_gap_note": "surface-area ratio of two spheres from two volumes and a halved radius" },
+
+    { "q": "13", "part": null, "marks": 5, "skill_ids": ["expanding_double_brackets", "volume_of_a_prism", "solving_quadratic_equations_factorising"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1dep A1", "app_gap_note": "value of a letter from a stated difference between two algebraic cuboid volumes" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["sine_rule", "exact_trig_values"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "sine rule on a triangle whose given side is a surd and whose angles have exact sine values" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["vector_proof"], "kind": "mastery", "answer_form": "ratio", "mark_split": "P1 P1 P1 A1", "app_gap_note": "ratio of two vectors in a parallelogram, from two internal division ratios" },
+
+    { "q": "16", "part": "a", "marks": 2, "skill_ids": ["surds_expanding_and_rationalising"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "rationalise a single-surd denominator and simplify" },
+    { "q": "16", "part": "b", "marks": 4, "skill_ids": ["surds_expanding_and_rationalising", "surds_simplifying"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1indep M1 M1dep A1", "app_gap_note": "rationalise a two-term surd denominator, having first simplified a surd in the numerator" },
+
+    { "q": "17", "part": null, "marks": 4, "skill_ids": ["circle_theorem_alternate_segment", "circle_theorem_tangent"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 M1 C1", "app_gap_note": "angle between a tangent and a chord, from a tangent-chord angle and a stated ratio between two radii-triangle angles, theorems to be named" },
+
+    { "q": "18", "part": "a", "marks": 2, "skill_ids": ["inverse_functions"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "inverse of a two-step linear function" },
+    { "q": "18", "part": "b", "marks": 2, "skill_ids": ["composite_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "value of a composite of a linear and a squared function" },
+
+    { "q": "19", "part": null, "marks": 4, "skill_ids": ["combined_events"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "probability of winning a two-round knockout, summed over which of two opponents is met in the final" },
+
+    { "q": "20", "part": null, "marks": 4, "skill_ids": ["equation_of_a_circle", "perpendicular_gradients"], "kind": "exam", "answer_form": "equation", "mark_split": "P1 P1 P1dep A1", "app_gap_note": "equation of the tangent to a circle at a point whose first coordinate must be found from the circle's equation" }
+  ]
+}

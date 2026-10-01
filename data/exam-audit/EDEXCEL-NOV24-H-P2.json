@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 2 (Calculator)",
+    "series": "November 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-2h-nov24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/2H",
+    "paper_subtitle": "Higher Tier Paper 2 Calculator — November 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/2H, Friday 8 November 2024, P75160A). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as EDEXCEL-NOV24-F-P2. The crossover block is 2F q20–q27 = 2H q1–q8, contiguous, and the marks match item for item (2, 3, 3, 2, 4, 4, 5, 2). Coded WITH mark_split. All 22 (Total for Question) lines were recovered and the paper sums to the printed 80."
+  },
+  "coding_notes": [
+    "q1–q8 are 2F q20–q27 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q11 tagged fractional_enlargements rather than enlargements: the scale factor is 2/3. The Foundation partner's transformation question (2F q18) is a whole-number enlargement and stays on enlargements — the two are not the same item.",
+    "q9 tagged angles_in_polygons then properties_of_2d_shapes: the two method marks are a regular nonagon's interior angle and the angle between two of them, and the accuracy mark is refuted against what a square's angle must be.",
+    "q15b (a recurrence u(n+1) = k·u(n) + k with two terms given) tagged sequences then solving_linear_equations. The iteration node is about numerically solving an equation and does not fit; finding k from the first two terms is a linear equation.",
+    "q18 tagged congruence_and_similarity: both routes in the mark scheme are congruent-triangle proofs, one SSS and one RHS via the angle in a semicircle. No circle-theorem node is the load-bearing one.",
+    "q20 tagged trigonometry_3d: the mark scheme's route is a tangent in one plane and then a sine in the base plane, which is what that node is."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "evaluate a fraction with a two-term numerator and a product denominator on a calculator, all digits given" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "name the type of correlation on a scatter graph" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "C1", "app_gap_note": "draw a line of best fit" },
+    { "q": "2", "part": "c", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "C1", "app_gap_note": "estimate a value from a line of best fit" },
+
+    { "q": "3", "part": null, "marks": 3, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 C1", "app_gap_note": "better value for money across two currencies and two pack sizes, with an exchange rate given" },
+
+    { "q": "4", "part": null, "marks": 2, "skill_ids": ["venn_diagrams"], "kind": "mastery", "answer_form": "text", "mark_split": "C1 C1", "app_gap_note": "identify two faults in someone else's Venn diagram — a duplicated element and a missing element of the universal set" },
+
+    { "q": "5", "part": "a", "marks": 2, "skill_ids": ["quadratic_functions", "substitution"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "5", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "plot a quadratic curve from a table of values" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 P1 C1", "app_gap_note": "test a claim comparing two percentage increases by a stated multiple" },
+
+    { "q": "7", "part": null, "marks": 5, "skill_ids": ["areas_of_triangles", "solving_linear_equations", "pythagoras_theorem"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1dep P1 P1 A1", "app_gap_note": "area of an isosceles triangle whose three algebraic side lengths are fixed by a stated perimeter" },
+
+    { "q": "8", "part": null, "marks": 2, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "divide two standard-form values with negative indices, answer in standard form" },
+
+    { "q": "9", "part": null, "marks": 3, "skill_ids": ["angles_in_polygons", "properties_of_2d_shapes"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1 A1", "app_gap_note": "show a quadrilateral formed between two congruent regular nonagons cannot be a square" },
+
+    { "q": "10", "part": null, "marks": 4, "skill_ids": ["simultaneous_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1 M1dep A1", "app_gap_note": "solve simultaneous linear equations algebraically, both solutions negative and one non-integer" },
+
+    { "q": "11", "part": null, "marks": 2, "skill_ids": ["fractional_enlargements"], "kind": "mastery", "answer_form": "text", "mark_split": "C2", "app_gap_note": "describe fully a single enlargement with a fractional scale factor, scale factor and centre" },
+
+    { "q": "12", "part": null, "marks": 5, "skill_ids": ["compound_units", "volume_of_a_prism"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "side length of a cube of equal mass to a cylinder, from the two densities" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["direct_proportion"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "reject a claim that a constant first difference means direct proportion" },
+    { "q": "13", "part": "bi", "marks": 3, "skill_ids": ["proportion_with_powers"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "value of a variable proportional to a square root, from one given pair" },
+    { "q": "13", "part": "bii", "marks": 1, "skill_ids": ["proportion_with_powers", "sketching_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "C1", "app_gap_note": "sketch the shape of a square-root proportional relationship" },
+
+    { "q": "14", "part": null, "marks": 2, "skill_ids": ["counting_without_listing"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "total fixtures where ten teams each play every other team a fixed number of times" },
+
+    { "q": "15", "part": "a", "marks": 3, "skill_ids": ["nth_term_quadratic_sequences"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 M1 A1", "app_gap_note": "nth term of a quadratic sequence with a non-unit leading coefficient" },
+    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["sequences", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "fourth term of a recurrence whose constant must first be found from the first two terms" },
+
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["histograms"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 M1 M1ft C1", "app_gap_note": "complete a histogram where two missing frequencies are equal and the overall total is given" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["algebraic_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 C1", "app_gap_note": "show a sum and difference of three algebraic fractions simplifies to a single term" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 C1", "app_gap_note": "prove a radius bisects the angle between two equal chords, by congruent triangles with reasons" },
+
+    { "q": "19", "part": null, "marks": 5, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M1 M1 A1 C1", "app_gap_note": "value of a three-variable expression to a justified degree of accuracy, by comparing its bounds" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["trigonometry_3d"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "base edge of a pyramid on an equilateral triangle, from the apex height above an internally divided median and one angle" },
+
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["perpendicular_gradients", "solving_quadratic_equations_factorising"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1dep A1", "app_gap_note": "both positions of a third point making a right angle with two fixed points, its coordinates given in terms of one letter" },
+
+    { "q": "22", "part": null, "marks": 5, "skill_ids": ["conditional_probability", "solving_quadratic_equations_factorising"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "population size from a without-replacement same-colour probability and a known fraction of one colour" }
+  ]
+}

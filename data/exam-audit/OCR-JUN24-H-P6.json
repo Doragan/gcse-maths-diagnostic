@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 6 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-06-jun24",
+    "paper_title": "OCR GCSE Mathematics J560/06",
+    "paper_subtitle": "Higher Tier Paper 6 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (J560/06, Monday 10 June 2024). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "June 2024 series, despite the download folder's Nov 24 label. Coded in the same sitting as OCR-JUN24-F-P3. Interleaved crossover: J560/03 q19, q20, q21, q22 and q23 reappear here as q2, q3, q4, q5 and q6, with marks matching item for item (2, 3, 7, 9, 4 — 25 of the 100). No per-question total is printed, so the whole-paper sum against the published 100 is the only check, and this file passes it."
+  },
+  "coding_notes": [
+    "q2, q3, q4, q5 and q6 are J560/03 q19, q20, q21, q22 and q23 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "mark_split is derived from OCR's part totals and partial-credit routes rather than quoted; see OCR-JUN24-F-P1 for the reasoning.",
+    "q1 (match three described relationships to six sketched graphs) tagged sketching_functions alone, following the OCR-JUN25-F-P1 q15 ruling. The three relationships are a linear conversion, an inverse proportion and a direct proportion, so direct_proportion and inverse_proportion could each be added; the demand is recognising standard shapes, and sketching_functions credits fewer skills.",
+    "q8a and q8b are a CUBIC, not a quadratic — tagged sketching_functions (with substitution for the table), since quadratic_functions would be a false claim.",
+    "q10a tagged simple_arithmetic and q10b algebraic_proof: (a) is a one-mark numerical demonstration on a specific set of eight numbers and (b) is the general proof. Tagging (a) as algebraic_proof would credit a proof the student has not done.",
+    "q11a tagged relative_frequency then frequency_trees — the phrase 'relative frequency' is the question's own, and the counts come off the tree.",
+    "q18 tagged sine_rule then cosine_rule: the mark scheme's route is a sine rule in the first triangle for the shared side, then a cosine rule in the second."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 3, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1 B1", "app_gap_note": "match three described real-world relationships to three of six sketched graph shapes" },
+
+    { "q": "2", "part": null, "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "give two distinct reasons a graph is misleading, from an uneven horizontal scale and a truncated or missing vertical scale" },
+
+    { "q": "3", "part": null, "marks": 3, "skill_ids": ["expected_outcomes", "calculating_simple_probability"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "expected count of one letter over 99 draws with replacement from the letters of a word" },
+
+    { "q": "4", "part": "ai", "marks": 4, "skill_ids": ["ratio", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M2 A1", "app_gap_note": "days needed for a walk, from a measured map distance, a map scale, a speed and hours walked per day" },
+    { "q": "4", "part": "aii", "marks": 1, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why a straight-line map distance makes the answer an underestimate" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["simplifying_ratio", "converting_measurements"], "kind": "mastery", "answer_form": "ratio", "mark_split": "B1 B1", "app_gap_note": "explain why a scale stated in two different units is not the ratio given, and write it correctly as 1 : n" },
+
+    { "q": "5", "part": "a", "marks": 6, "skill_ids": ["areas_of_triangles", "trigonometry_missing_sides"], "kind": "exam", "answer_form": "show_that", "mark_split": "B1 M2 M2dep A1", "app_gap_note": "show a regular pentagon's area to 2 decimal places, built from ten congruent right-angled triangles" },
+    { "q": "5", "part": "b", "marks": 3, "skill_ids": ["volume_of_a_pyramid_and_cone"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "perpendicular height of a pyramid from its volume and the base area just derived" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["lowest_common_multiple"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "lowest common multiple of two numbers given as products of prime factors" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "the unknown prime in one factorisation, deduced from a stated highest common factor" },
+
+    { "q": "7", "part": "a", "marks": 3, "skill_ids": ["ratio", "fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 B1 B1dep", "app_gap_note": "decide whether a claim about two bags is certain, possible or impossible, when one is described by a ratio and the other by a fraction and neither total is given" },
+    { "q": "7", "part": "b", "marks": 3, "skill_ids": ["ratio", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 B2", "app_gap_note": "size of the unchanged part, from a ratio before and after a stated number is added to the other part" },
+
+    { "q": "8", "part": "a", "marks": 2, "skill_ids": ["substitution", "sketching_functions"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B1 B1", "app_gap_note": "complete a table of values for a cubic" },
+    { "q": "8", "part": "b", "marks": 3, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a cubic curve with a maximum and a minimum from a table of values" },
+    { "q": "8", "part": "c", "marks": 1, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft", "app_gap_note": "solve a cubic equal to a constant by reading off the drawn curve, to 1 decimal place" },
+
+    { "q": "9", "part": "a", "marks": 3, "skill_ids": ["sector_calculations"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M2 A1", "app_gap_note": "show a sector's area to 3 significant figures from its radius and angle" },
+    { "q": "9", "part": "b", "marks": 4, "skill_ids": ["area_of_parallelograms", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "percentage of a parallelogram left unshaded once a sector is removed, the parallelogram's base and perpendicular height given among three lengths" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1", "app_gap_note": "show a stated difference between two halves of a filled number grid" },
+    { "q": "10", "part": "b", "marks": 5, "skill_ids": ["algebraic_proof"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B2 M2 A1dep", "app_gap_note": "prove algebraically that the difference between the two halves of the grid is the same for any eight consecutive numbers" },
+
+    { "q": "11", "part": "a", "marks": 2, "skill_ids": ["relative_frequency", "frequency_trees"], "kind": "exam", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "relative frequency of one second-stage outcome across a whole frequency tree" },
+    { "q": "11", "part": "b", "marks": 3, "skill_ids": ["relative_frequency", "frequency_trees"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1 A1", "app_gap_note": "test a claim by comparing two conditional relative frequencies from a frequency tree, converted to a common form" },
+
+    { "q": "12", "part": null, "marks": 3, "skill_ids": ["inequalities", "understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B2", "app_gap_note": "complete one inequality's direction and write down the third, for a region shaded on a grid" },
+
+    { "q": "13", "part": "a", "marks": 4, "skill_ids": ["histograms"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M2 A1", "app_gap_note": "cumulative count below a value on an unlabelled-axis histogram, the scale fixed by one stated frequency" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["histograms"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "add a bar to that histogram for a stated frequency over an unequal class width" },
+
+    { "q": "14", "part": null, "marks": 5, "skill_ids": ["pythagoras_theorem", "coordinates"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 B1 M1 A1", "app_gap_note": "both possible second coordinates of a point a stated distance from a point on the y-axis" },
+
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["proportion_with_powers", "inverse_proportion"], "kind": "exam", "answer_form": "equation", "mark_split": "M1 B1 A1", "app_gap_note": "formula for a variable inversely proportional to a cube, from one given pair" },
+
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["fractional_and_negative_indices", "simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 B3", "app_gap_note": "simplify a quotient of index terms including a square root, answer in the form kx to a fractional power" },
+
+    { "q": "17", "part": "a", "marks": 3, "skill_ids": ["recurring_decimals_to_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 A1", "app_gap_note": "show a two-digit recurring decimal equals a given fraction, every step shown, without a calculator" },
+    { "q": "17", "part": "b", "marks": 2, "skill_ids": ["recurring_decimals_to_fractions"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1dep", "app_gap_note": "use the fraction just proved to write a related fraction as a recurring decimal, explaining the step" },
+
+    { "q": "18", "part": null, "marks": 6, "skill_ids": ["sine_rule", "cosine_rule"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1 M2 A1", "app_gap_note": "a length in the second of two joined triangles, the shared side found first by the sine rule" },
+
+    { "q": "19", "part": null, "marks": 5, "skill_ids": ["equation_of_a_circle", "perpendicular_gradients"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M2 A1", "app_gap_note": "exact x-intercept of the tangent to a circle at a given point on it" },
+
+    { "q": "20", "part": null, "marks": 5, "skill_ids": ["algebraic_fractions", "difference_of_two_squares"], "kind": "exam", "answer_form": "expression", "mark_split": "M2 M2 A1", "app_gap_note": "add two algebraic fractions as a single fraction in lowest terms, one numerator a difference of two squares sharing a factor with the denominator" }
+  ]
+}

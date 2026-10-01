@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 3 (Calculator)",
+    "series": "November 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-3f-nov24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/3F",
+    "paper_subtitle": "Foundation Tier Paper 3 Calculator — November 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/3F, Monday 11 November 2024, P75161A). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded WITH mark_split. Every (Total for Question) line was recovered except q1–q5, each of which is a single mark; the paper sums to the printed 80."
+  },
+  "coding_notes": [
+    "q1 (value of a digit in a whole number) tagged decimals, the documented handling for place value — and the same node EDEXCEL-JUN25-F-P3 q1 uses for a digit after the decimal point.",
+    "q5 (square root of a terminating decimal) tagged indices, the documented handling for roots.",
+    "q11a and q11b tagged converting_measurements. There is no node for reading a conversion graph and no precedent row in the audit; the graph is the given conversion factor and the question is a unit conversion, so this is 'inside an existing skill's territory' rather than a taxonomy gap.",
+    "q14 tagged simple_arithmetic alone. An hourly rate with a 1½-times weekend multiplier could carry proportion as well, but every mark in the scheme is a multiplication or an addition of money and adding a Ratio-topic skill would move four marks out of Number for no gain in what the row claims.",
+    "q21 (percentage profit on a ratio-split stock) tagged ratio BEFORE percentage_change. Two of the five marks are the ratio split and only the last is the percentage, and the mark scheme's first process mark is 240 ÷ (3 + 5) — the same 'lead with the skill the first mark rewards' reasoning used for q11 and for EDEXCEL-NOV24-F-P1 q22a. It also matters here: this paper is the audit's worst case for Number over-representation (see the note on the topic column below) and percentage_change is filed under Number.",
+    "THIS PAPER IS 50% NUMBER, against Edexcel's published 22-28% Foundation weighting — the most extreme instance in the audit of the documented topic-straddle and classification problem, worse than the 1F June 2025 case the coding doc describes at 38%. Four causes, none of them a tagging error: time_calculations (5 marks of timetables) and converting_measurements (4 marks of a conversion graph) are filed under Number; the index skills (3 marks) are too; and fractions_of_amounts leads q9, a 5-mark question that is really about percentages of two subgroups. Do not read this paper's topic percentages. The fix the coding doc names — splitting an item's marks across its skills' topics — would help here more than anywhere else in the corpus.",
+    "q22 (compare two distributions from a stem and leaf diagram against a stated median and range) tagged median then range — the two statistics the four marks are split between, two for identifying School A's and two for the comparisons.",
+    "q25b ((m²)⁻³) tagged simplifying_indices rather than fractional_and_negative_indices: the operation is a power of a power, and simplifying_indices is the lower node that honestly covers it."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "place value of a digit in a four-digit whole number" },
+    { "q": "2", "part": null, "marks": 1, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "unit fraction of a whole number" },
+    { "q": "3", "part": null, "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "two factors of a given number" },
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "order five directed numbers" },
+    { "q": "5", "part": null, "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "square root of a terminating decimal" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "solve an equation whose left side is a repeated addition of the unknown" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "solve a one-step additive equation" },
+    { "q": "6", "part": "c", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "solve a one-step equation with the unknown divided" },
+
+    { "q": "7", "part": "a", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name a quadrilateral from its diagram" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1", "app_gap_note": "draw a right-angled triangle on a grid" },
+
+    { "q": "8", "part": "a", "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B1 B1 B1ft", "app_gap_note": "complete a bill: one line total, one missing quantity, and the overall total" },
+    { "q": "8", "part": "b", "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "closing balance from three money movements, one of them a subtraction" },
+
+    { "q": "9", "part": null, "marks": 5, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "size of the complement of two overlapping percentage subgroups, split first by a fraction of the whole" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "journey duration in minutes from a timetable column" },
+    { "q": "10", "part": "bi", "marks": 3, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "latest departure time from a timetable, working back through two walking times and a deadline" },
+    { "q": "10", "part": "bii", "marks": 1, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "state the effect on a back-calculated departure time when the deadline moves" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "read a conversion off a straight-line conversion graph" },
+    { "q": "11", "part": "b", "marks": 3, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1ft A1", "app_gap_note": "total of two distances given in different units, converted using a conversion graph" },
+
+    { "q": "12", "part": null, "marks": 2, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "expression in two letters for a total made of two fixed pack sizes" },
+
+    { "q": "13", "part": null, "marks": 4, "skill_ids": ["volume_of_a_prism", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1indep P1 P1dep A1", "app_gap_note": "how many small boxes fill a crate, with the two sets of dimensions given in different units" },
+
+    { "q": "14", "part": null, "marks": 4, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "weekly pay from a table of daily hours, with a higher multiplier at the weekend" },
+
+    { "q": "15", "part": "a", "marks": 3, "skill_ids": ["mean"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1dep A1", "app_gap_note": "mean from an ungrouped frequency table, to 1 decimal place" },
+    { "q": "15", "part": "b", "marks": 1, "skill_ids": ["mode"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "reject an answer that reports the highest frequency instead of the modal value" },
+
+    { "q": "16", "part": "a", "marks": 2, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "write a three-digit number as a product of primes" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "highest common factor of two three-digit numbers" },
+
+    { "q": "17", "part": null, "marks": 2, "skill_ids": ["frequency_diagrams", "grouped_frequency_tables"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "draw a frequency polygon from a grouped frequency table, plotting at midpoints" },
+
+    { "q": "18", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "standard form to an ordinary number" },
+    { "q": "18", "part": "b", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a number below 1 written in standard form" },
+
+    { "q": "19", "part": null, "marks": 2, "skill_ids": ["constructions"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "construct an angle bisector with ruler and compasses, arcs shown" },
+
+    { "q": "20", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "complete a two-stage probability tree from one given probability" },
+    { "q": "20", "part": "b", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "probability of the same outcome twice from a completed tree" },
+
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["ratio", "percentage_change"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "percentage profit on a mixed stock split by ratio, with a buy and a sell price for each kind" },
+
+    { "q": "22", "part": null, "marks": 4, "skill_ids": ["median", "range"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 C1 B1 C1", "app_gap_note": "compare a stem and leaf distribution with a second one described only by its median and range" },
+
+    { "q": "23", "part": null, "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "two-blank error interval for a truncated calculator display" },
+
+    { "q": "24", "part": null, "marks": 2, "skill_ids": ["trigonometry_missing_sides"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "missing side of a right-angled triangle from one angle and the adjacent side" },
+
+    { "q": "25", "part": "a", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B2", "app_gap_note": "multiply two terms in two letters with numerical coefficients" },
+    { "q": "25", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "raise a power to a negative power" },
+
+    { "q": "26", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "total interest only, after three years of compound interest" },
+
+    { "q": "27", "part": null, "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 M1 A1", "app_gap_note": "equation of a line drawn on a grid, negative gradient" }
+  ]
+}

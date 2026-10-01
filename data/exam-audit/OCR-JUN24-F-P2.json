@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Non-calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-02-jun24",
+    "paper_title": "OCR GCSE Mathematics J560/02",
+    "paper_subtitle": "Foundation Tier Paper 2 Non-calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (J560/02, Monday 3 June 2024). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "June 2024 series, despite the download folder's Nov 24 label — this paper is dated Monday 3 June 2024. J560/02 is one of OCR's two NON-calculator papers (the other is /05); OCR's paper 1 is a calculator paper, unlike both other boards. No per-question total is printed, so the whole-paper sum against the published 100 is the only check, and this file passes it."
+  },
+  "coding_notes": [
+    "mark_split is derived from OCR's part totals and partial-credit routes rather than quoted; see OCR-JUN24-F-P1 for the reasoning. q26 is the ONE row left without a mark_split: the printed routes in the extracted mark scheme account for four of that part's five marks and the fifth could not be attributed, and a guessed split is worse than none.",
+    "q22b (circle the point most likely to be the pupil who left early) is an outlier-identification item, which a 2026-09-04 user ruling left untagged when the alternatives were range and mean. Here it is tagged scatter_graphs, because reading an anomalous point off a scatter diagram is inside that node's own territory rather than outside the taxonomy. Flagged in case that ruling should extend to this case too.",
+    "q5b (mark the complement on a probability scale) tagged mutually_exclusive_events, not calculating_simple_probability — the demand is that the two probabilities sum to 1.",
+    "q15b/c tagged converting_measurements first: the marks turn on litres-to-millilitres, and the division that follows is the arithmetic on top of it.",
+    "q21b (an assumption behind a journey-time answer) tagged compound_units, the skill the assumption is about — that the driver holds the speed limit throughout.",
+    "q27bii (the longer side, from the roots) tagged substitution: one follow-through mark for putting the positive root back into an expression."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "add two one-decimal-place values crossing a whole number" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "subtract a money amount in pence from one in pounds" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "subtract from a negative number" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "divide a negative number by a positive one" },
+    { "q": "2", "part": "c", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "square a bracketed negative number" },
+
+    { "q": "3", "part": "a", "marks": 2, "skill_ids": ["reflections"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "reflect a triangle in a given vertical mirror line" },
+    { "q": "3", "part": "b", "marks": 2, "skill_ids": ["rotations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "rotate a triangle a quarter turn anticlockwise about a marked point" },
+
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "diameter from a radius" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "read a probability off a marked probability scale, as a fraction" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["mutually_exclusive_events"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "mark the complementary probability on the same scale" },
+
+    { "q": "6", "part": null, "marks": 2, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "volume used from a flow rate and a duration" },
+
+    { "q": "7", "part": "a", "marks": 2, "skill_ids": ["converting_decimals_to_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "a one-decimal-place value written as a fraction in its simplest form" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["irregular_and_improper_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "improper fraction to a mixed number" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1 B1", "app_gap_note": "compare three pairs of measurements given in different metric units, one pair involving a mixed number of kilometres" },
+
+    { "q": "9", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "subtract two fractions with one denominator a multiple of the other, answer simplified" },
+    { "q": "9", "part": "b", "marks": 3, "skill_ids": ["dividing_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 B2", "app_gap_note": "divide two fractions, answer simplified" },
+
+    { "q": "10", "part": "a", "marks": 2, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 A1", "app_gap_note": "collect like terms in two letters, one pair with mixed signs" },
+    { "q": "10", "part": "b", "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "multiply two terms with numerical coefficients and different letters" },
+
+    { "q": "11", "part": null, "marks": 3, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1 B1", "app_gap_note": "name three solids, each from its plan view and its front elevation" },
+
+    { "q": "12", "part": "a", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "missing index when two powers of the same base are multiplied" },
+    { "q": "12", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "missing index for a power raised to a power" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "next term of the triangular numbers" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "the missing first and fifth terms of an add-the-previous-two sequence, the first requiring a subtraction" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "substitute into a formula whose subject is squared, then take the root" },
+
+    { "q": "15", "part": "a", "marks": 2, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "what is left after a repeated decimal amount is taken from a total" },
+    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["converting_measurements", "simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "how many small containers a remaining volume fills, the two volumes given in different units and the count rounding down" },
+    { "q": "15", "part": "c", "marks": 2, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "volume left over in millilitres after that whole number of containers" },
+
+    { "q": "16", "part": "a", "marks": 5, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 M1 M1 A2", "app_gap_note": "estimate a week's pay by rounding two hourly rates and two mixed-number hour counts, to test a stated floor" },
+    { "q": "16", "part": "b", "marks": 1, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "text", "mark_split": "A1dep", "app_gap_note": "say why the estimate makes the conclusion certain rather than likely" },
+
+    { "q": "17", "part": null, "marks": 2, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "non-calculator division by a two-decimal-place number" },
+
+    { "q": "18", "part": "a", "marks": 2, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "complete a difference table for two cards drawn without replacement" },
+    { "q": "18", "part": "b", "marks": 2, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "probability of a union of two overlapping conditions read off a difference table" },
+
+    { "q": "19", "part": null, "marks": 2, "skill_ids": ["constructions"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "construct a perpendicular bisector with ruler and compasses, arcs left visible" },
+
+    { "q": "20", "part": "a", "marks": 2, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "write a vector drawn on a grid as a column vector, one component negative" },
+    { "q": "20", "part": "b", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "express a second drawn vector as a multiple of the first" },
+
+    { "q": "21", "part": "a", "marks": 6, "skill_ids": ["compound_units", "time_calculations", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M2 M1dep A1", "app_gap_note": "arrival time for a journey split into three stages, two of them a fraction and a percentage of the distance at stated speeds and the third given as a duration" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state an assumption behind treating a speed limit as the speed travelled" },
+
+    { "q": "22", "part": "a", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "describe the type of correlation on a scatter diagram" },
+    { "q": "22", "part": "b", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "circle the point that does not follow the trend, given a reason it would not" },
+    { "q": "22", "part": "c", "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 A1", "app_gap_note": "draw a line of best fit and read an estimate off it" },
+    { "q": "22", "part": "d", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why an estimate beyond the range of the data is unreliable" },
+    { "q": "22", "part": "e", "marks": 3, "skill_ids": ["scatter_graphs", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "percentage of plotted points meeting a condition on both axes" },
+
+    { "q": "23", "part": null, "marks": 4, "skill_ids": ["lengths_and_perimeters", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M1 A1", "app_gap_note": "letter value from equating a rectangle's algebraic perimeter with an equilateral triangle's numerical one" },
+
+    { "q": "24", "part": null, "marks": 4, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 B1 M1ft A1", "app_gap_note": "show two years of compound interest totals a stated amount, without a calculator" },
+
+    { "q": "25", "part": null, "marks": 1, "skill_ids": ["sampling"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "say why scaling a proportion from a sample of ten to a population of two thousand may be unreliable" },
+
+    { "q": "26", "part": null, "marks": 5, "skill_ids": ["venn_diagrams", "ratio"], "kind": "exam", "answer_form": "fraction", "app_gap_note": "probability from a part-filled two-set Venn diagram, the two single-set regions fixed by a ratio" },
+
+    { "q": "27", "part": "a", "marks": 4, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 M2 A1", "app_gap_note": "show an area condition on two algebraic side lengths rearranges to a given quadratic" },
+    { "q": "27", "part": "bi", "marks": 3, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 B1ft", "app_gap_note": "solve a monic quadratic by factorising, one root negative" },
+    { "q": "27", "part": "bii", "marks": 1, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft", "app_gap_note": "a side length from the root that makes physical sense" }
+  ]
+}

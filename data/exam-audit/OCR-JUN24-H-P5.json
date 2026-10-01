@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 5 (Non-calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-05-jun24",
+    "paper_title": "OCR GCSE Mathematics J560/05",
+    "paper_subtitle": "Higher Tier Paper 5 Non-calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (J560/05, Monday 3 June 2024). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "June 2024 series, despite the download folder's Nov 24 label. Coded in the same sitting as OCR-JUN24-F-P2, its non-calculator Foundation partner. Interleaved crossover: J560/02 q17, q18, q21, q22 and q23 reappear here as q1, q2, q3, q4 and q10, with marks matching item for item (2, 4, 7, 8, 4 — 25 of the 100). J560/02 q20 and this paper's q11 are BOTH vector questions on the same grid but they are NOT the same item: /02 q20 is worth 3 marks and asks for a column vector and a multiple, while q11 here is worth 6 and adds an equal-length vector and a resultant to draw. No per-question total is printed, so the whole-paper sum against the published 100 is the only check, and this file passes it."
+  },
+  "coding_notes": [
+    "q1, q2, q3, q4 and q10 are J560/02 q17, q18, q21, q22 and q23 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "mark_split is derived from OCR's part totals and partial-credit routes rather than quoted; see OCR-JUN24-F-P1 for the reasoning.",
+    "q4b is the outlier-identification item flagged in OCR-JUN24-F-P2's notes — tagged scatter_graphs there and here, against the 2026-09-04 ruling that left a range/mean outlier item untagged. Both copies move together if that ruling is extended.",
+    "q6 tagged estimating before compound_units, matching the handling of every other 'round first, then calculate' item in the audit. OCR-JUN25-H-P5 q11 put compound_units first on a similar density item; that row is the outlier, not this one.",
+    "q9 tagged substitution alone, although the route runs through two of the three given kinematics formulas in turn. The demand is substituting into formulas that are printed for the student, not knowing the relationships.",
+    "q12b tagged growth_and_decay then exponential_graphs: the multiplier b comes from two values one year apart, and the graph is how they are given.",
+    "q17 tagged recurring_decimals_to_fractions first — the mark scheme's main route works in recurring decimals and its alternative converts the recurring decimal to a fraction, and either way that conversion is the step the item exists for.",
+    "q20 tagged sector_calculations then exact_trig_values then surds_simplifying: the answer's a√b + kπ form needs the exact cosine of 30° and a simplified surd, and the mark scheme awards a B1 specifically for that trig value."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "non-calculator division by a two-decimal-place number" },
+
+    { "q": "2", "part": "a", "marks": 2, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "complete a difference table for two cards drawn without replacement" },
+    { "q": "2", "part": "b", "marks": 2, "skill_ids": ["probability_spaces"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "probability of a union of two overlapping conditions read off a difference table" },
+
+    { "q": "3", "part": "a", "marks": 6, "skill_ids": ["compound_units", "time_calculations", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M2 M1dep A1", "app_gap_note": "arrival time for a journey split into three stages, two of them a fraction and a percentage of the distance at stated speeds and the third given as a duration" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state an assumption behind treating a speed limit as the speed travelled" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "describe the type of correlation on a scatter diagram" },
+    { "q": "4", "part": "b", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "circle the point that does not follow the trend, given a reason it would not" },
+    { "q": "4", "part": "c", "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 A1", "app_gap_note": "draw a line of best fit and read an estimate off it" },
+    { "q": "4", "part": "d", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why an estimate beyond the range of the data is unreliable" },
+    { "q": "4", "part": "e", "marks": 3, "skill_ids": ["scatter_graphs", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "percentage of plotted points meeting a condition on both axes" },
+
+    { "q": "5", "part": null, "marks": 3, "skill_ids": ["loci", "constructions"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "M2 B1dep", "app_gap_note": "construct an angle bisector and shade the region nearer one arm than the other" },
+
+    { "q": "6", "part": null, "marks": 3, "skill_ids": ["estimating", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "estimate a mass from a volume and a density, both rounded to 1 significant figure first" },
+
+    { "q": "7", "part": null, "marks": 6, "skill_ids": ["dividing_fractions", "ratio"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M4 A1", "app_gap_note": "how many fixed-fraction cups a mixed-number volume fills once diluted in a stated ratio" },
+
+    { "q": "8", "part": "a", "marks": 1, "skill_ids": ["direct_proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "percentage change in a directly proportional variable when its partner doubles" },
+    { "q": "8", "part": "b", "marks": 1, "skill_ids": ["inverse_proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "percentage change in an inversely proportional variable when its partner doubles" },
+
+    { "q": "9", "part": null, "marks": 4, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M2 A1", "app_gap_note": "distance travelled under uniform acceleration, using two of three printed kinematics formulas in turn" },
+
+    { "q": "10", "part": null, "marks": 4, "skill_ids": ["lengths_and_perimeters", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M1 A1", "app_gap_note": "letter value from equating a rectangle's algebraic perimeter with an equilateral triangle's numerical one" },
+
+    { "q": "11", "part": "a", "marks": 2, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "write a vector drawn on a grid as a column vector, one component negative" },
+    { "q": "11", "part": "b", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft", "app_gap_note": "a column vector of the same length as a given one but a different direction" },
+    { "q": "11", "part": "c", "marks": 3, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2 A1", "app_gap_note": "draw a difference of two vectors on a grid, with a direction arrow, where only twice the second is given" },
+
+    { "q": "12", "part": "a", "marks": 1, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "reject a claim that treats compound interest as the same cash amount each year" },
+    { "q": "12", "part": "b", "marks": 4, "skill_ids": ["growth_and_decay", "exponential_graphs"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M2 A1", "app_gap_note": "both constants of an exponential depreciation formula, from its intercept and its value after one year" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["quadratic_inequalities"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 B2", "app_gap_note": "solve a quadratic inequality whose solution is two separate regions" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["finding_the_nth_term", "algebraic_fractions"], "kind": "exam", "answer_form": "expression", "mark_split": "B1 B2", "app_gap_note": "nth term of a sequence of fractions, numerator and denominator each linear in n" },
+
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 B2", "app_gap_note": "expand and simplify a product of three linear brackets, one non-monic" },
+
+    { "q": "16", "part": null, "marks": 3, "skill_ids": ["area_and_volume_scale_factors"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "height of a similar prism from a volume ratio and the other's height" },
+
+    { "q": "17", "part": null, "marks": 5, "skill_ids": ["recurring_decimals_to_fractions", "adding_and_subtracting_fractions"], "kind": "exam", "answer_form": "fraction", "mark_split": "M2 M2 A1", "app_gap_note": "the far end of a number line from a recurring-decimal start, a mixed-number midpoint, answer as a simplified mixed number" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["volume_of_a_sphere", "volume_of_a_pyramid_and_cone"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 M2 A1", "app_gap_note": "a cone's radius in terms of a sphere's, their volumes equal and the cone's height twice its radius" },
+
+    { "q": "19", "part": "a", "marks": 2, "skill_ids": ["rotations"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "the single rotation equivalent to two rotations about the origin in opposite senses" },
+    { "q": "19", "part": "b", "marks": 1, "skill_ids": ["reflections"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "B1", "app_gap_note": "which vertices of a rectangle are invariant under reflection in a line through one of its sides" },
+
+    { "q": "20", "part": null, "marks": 7, "skill_ids": ["sector_calculations", "exact_trig_values", "surds_simplifying"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 M1 A1 B1 M2 A1", "app_gap_note": "perimeter of a major sector plus its chord, in exact a√b + kπ form, from a radius and the angle between chord and radius" },
+
+    { "q": "21", "part": null, "marks": 6, "skill_ids": ["simultaneous_equations_quadratic", "solving_quadratic_equations_factorising"], "kind": "exam", "answer_form": "coordinate", "mark_split": "M2 M2 A1dep A1", "app_gap_note": "both intersection points of a line and a quadratic through the origin, one coordinate pair fractional" },
+
+    { "q": "22", "part": "a", "marks": 2, "skill_ids": ["exponential_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "sketch an exponential curve, its y-intercept indicated" },
+    { "q": "22", "part": "b", "marks": 2, "skill_ids": ["trig_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "sketch the cosine curve over one period, its x-intercepts indicated" },
+
+    { "q": "23", "part": "a", "marks": 2, "skill_ids": ["conditional_probability", "venn_diagrams"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1 A1", "app_gap_note": "conditional probability from a three-set Venn diagram, conditioned on one set" },
+    { "q": "23", "part": "b", "marks": 3, "skill_ids": ["conditional_probability", "venn_diagrams"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M2", "app_gap_note": "show a without-replacement probability of two specified single-set regions equals a stated fraction, both orders counted" }
+  ]
+}

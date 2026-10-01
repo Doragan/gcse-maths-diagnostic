@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Calculator)",
+    "series": "November 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-2f-nov24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/2F",
+    "paper_subtitle": "Foundation Tier Paper 2 Calculator — November 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/2F, Friday 8 November 2024, P75159A). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded WITH mark_split. Every (Total for Question) line was recovered except q1–q5, each of which is a single mark; the paper sums to the printed 80."
+  },
+  "coding_notes": [
+    "q4 (name a polygon) tagged properties_of_2d_shapes, the node added 2026-09-04 precisely for this and for the two AQA rows that had been sitting on angles_in_polygons.",
+    "q13 (show a triangle is isosceles from a reflex angle and a straight line) tagged angles_on_lines_and_circles alone. The mark scheme's reasons are angles at a point, angles on a line and the triangle sum — all inside that one node — and the isosceles conclusion is stated, not derived from shape properties.",
+    "q15 (map scale to a real length in km) tagged ratio then converting_measurements, which is the ordering the coding doc names for map-scale items and files it under Ratio and Proportion.",
+    "q22 (better value across two currencies) tagged proportion, the documented handling for currency conversion. The mark scheme accepts routes through unit price, unit mass or quantity-per-unit-cost, all of which are that node.",
+    "q26 tagged areas_of_triangles FIRST although two of the five marks are forming and solving a linear equation and a third is Pythagoras. The question asks for an area and the accuracy mark is the area; the ordering is the documented forced choice, not a judgement about where the work is.",
+    "q28 tagged compound_units before volume_of_a_prism: the answer is a density, and the volume is the input to it.",
+    "q17b tagged reverse_percentage rather than percentage_change — a bonus of a known cash value is 5% of the unknown total, which is the reverse direction."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "percentage to fraction conversion" },
+    { "q": "2", "part": null, "marks": 1, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "minutes written as hours and minutes" },
+    { "q": "3", "part": null, "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "order four decimals of differing lengths" },
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name a polygon from its diagram" },
+    { "q": "5", "part": null, "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "the number halfway between a negative and a positive value" },
+
+    { "q": "6", "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "how many items can be made from two stocks used in a fixed combination, limited by the scarcer one" },
+
+    { "q": "7", "part": "a", "marks": 2, "skill_ids": ["mean"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "mean of a list of eight values" },
+    { "q": "7", "part": "b", "marks": 2, "skill_ids": ["range"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "range of a list of eight values" },
+    { "q": "7", "part": "c", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "mark a probability from a list of data on a 0-to-1 probability scale" },
+
+    { "q": "8", "part": "a", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "reject a claim that confuses squaring with doubling" },
+    { "q": "8", "part": "b", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "C1", "app_gap_note": "give a counterexample to a claim about dividing even numbers" },
+
+    { "q": "9", "part": null, "marks": 2, "skill_ids": ["simplifying_ratio"], "kind": "mastery", "answer_form": "ratio", "mark_split": "M1 A1", "app_gap_note": "write a two-part count as a ratio in its simplest form" },
+
+    { "q": "10", "part": null, "marks": 3, "skill_ids": ["lengths_and_perimeters"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "perimeter of a shape built from five squares, given only one square's perimeter" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "multiply two single-letter terms" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "collect like terms in two letters, one pair with mixed signs" },
+
+    { "q": "12", "part": null, "marks": 4, "skill_ids": ["fractions_of_amounts", "simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "unit price of the remaining group, from a percentage split, one known unit price and an overall total" },
+
+    { "q": "13", "part": null, "marks": 4, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 C2", "app_gap_note": "show a triangle is isosceles from a reflex angle and an exterior angle, with a reason at every stage" },
+
+    { "q": "14", "part": "a", "marks": 1, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "distance remaining, read off a distance-time graph with a stationary section" },
+    { "q": "14", "part": "b", "marks": 2, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "complete a distance-time graph with a stated wait and a stated return duration" },
+
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["ratio", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "real length in kilometres from a map scale and a length in centimetres" },
+
+    { "q": "16", "part": null, "marks": 3, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1dep C1", "app_gap_note": "decide which of two differently sized collections gives the greater probability, with comparable figures shown" },
+
+    { "q": "17", "part": "a", "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "percentage decrease of a money amount" },
+    { "q": "17", "part": "b", "marks": 3, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "total value from a pay packet made of a fixed sum plus a percentage commission" },
+
+    { "q": "18", "part": null, "marks": 2, "skill_ids": ["enlargements"], "kind": "mastery", "answer_form": "text", "mark_split": "B2", "app_gap_note": "describe fully a single enlargement mapping one triangle onto another, scale factor and centre" },
+
+    { "q": "19", "part": "a", "marks": 2, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "B2", "app_gap_note": "factorise fully where the common factor is a number and a letter" },
+    { "q": "19", "part": "b", "marks": 2, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "show a double inequality on a number line, one end strict and one inclusive" },
+
+    { "q": "20", "part": null, "marks": 2, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "evaluate a fraction with a two-term numerator and a product denominator on a calculator, all digits given" },
+
+    { "q": "21", "part": "a", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "name the type of correlation on a scatter graph" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "C1", "app_gap_note": "draw a line of best fit" },
+    { "q": "21", "part": "c", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "C1", "app_gap_note": "estimate a value from a line of best fit" },
+
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 C1", "app_gap_note": "better value for money across two currencies and two pack sizes, with an exchange rate given" },
+
+    { "q": "23", "part": null, "marks": 2, "skill_ids": ["venn_diagrams"], "kind": "mastery", "answer_form": "text", "mark_split": "C1 C1", "app_gap_note": "identify two faults in someone else's Venn diagram — a duplicated element and a missing element of the universal set" },
+
+    { "q": "24", "part": "a", "marks": 2, "skill_ids": ["quadratic_functions", "substitution"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "24", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "plot a quadratic curve from a table of values" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 P1 C1", "app_gap_note": "test a claim comparing two percentage increases by a stated multiple" },
+
+    { "q": "26", "part": null, "marks": 5, "skill_ids": ["areas_of_triangles", "solving_linear_equations", "pythagoras_theorem"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1dep P1 P1 A1", "app_gap_note": "area of an isosceles triangle whose three algebraic side lengths are fixed by a stated perimeter" },
+
+    { "q": "27", "part": null, "marks": 2, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "divide two standard-form values with negative indices, answer in standard form" },
+
+    { "q": "28", "part": null, "marks": 3, "skill_ids": ["compound_units", "volume_of_a_prism"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "density of a cylinder from its mass and its dimensions, to 3 significant figures" }
+  ]
+}
