@@ -220,6 +220,14 @@ Brevo approves it.
 
 ## 3. Configure Supabase
 
+> **Status: configured 2026-10-01. Brevo activated the account the same day.**
+> Supabase hands messages to Brevo successfully — all three test sends appear in
+> Brevo's transactional log. **But none has been delivered**, and that is open
+> with Brevo support. See §5.
+>
+> ⚠ **§4 is still outstanding.** Raising the rate limit is independent of the
+> delivery problem and should not wait for it.
+
 Dashboard → **Authentication → SMTP Settings**
 (`https://supabase.com/dashboard/project/_/auth/smtp`)
 
@@ -250,6 +258,41 @@ Stopping after step 3 is the most likely way this job goes wrong.
 ---
 
 ## 5. Test, and do not skip this
+
+> ### ⚠ OPEN WITH BREVO SUPPORT — 2026-10-01
+>
+> Three sign-up confirmations at 21:29, 21:31 and 21:37 all show a single
+> **Sent** event in Brevo's transactional log and **no Delivered event**. None
+> arrived at the Gmail test address. Not in inbox or spam, and category tabs are
+> disabled on that account so there is no Updates folder to hide in.
+>
+> **The handoff works.** Supabase → Brevo is fine; the messages are in Brevo's
+> log with the correct sender and recipient. The failure is between Brevo and
+> the receiving server, which only Brevo can see.
+>
+> **Everything externally checkable was verified and is correct:**
+>
+> | Check | Result |
+> |---|---|
+> | DKIM chain `brevo1/2._domainkey` → `b1/b2.mathsense-net.dkim.brevo.com` | Resolves to valid RSA keys |
+> | Reverse DNS on sending IP `77.32.148.26` | `gz.d.sender-sib.com` |
+> | That IP on Spamhaus / SpamCop / Barracuda / SORBS | Not listed |
+> | DMARC policy | `p=none` — nothing rejected on policy |
+> | Recipient address in Brevo's log | Correct, not a typo |
+>
+> Message ID for the 21:37 send:
+> `<202610012037.62758139955@smtp-relay.sendinblue.com>`
+>
+> **Leading hypothesis:** a newly activated account on a shared IP with no
+> sender reputation, being deferred or silently dropped by Gmail. The support
+> message asks them to confirm whether a warm-up restriction applies.
+>
+> **Next diagnostic if support is slow:** send to a non-Gmail address. If it
+> arrives, the problem is Gmail-specific and reputational. If it fails
+> everywhere, it is Brevo's to fix. That one test splits the problem.
+>
+> ⚠ **Change nothing while this is open.** The configuration is correct, and
+> altering it now would make it impossible to tell what fixed it.
 
 Once activated, Brevo has no per-recipient sandbox, so unlike SES this can be
 tested against a real outside address immediately.
