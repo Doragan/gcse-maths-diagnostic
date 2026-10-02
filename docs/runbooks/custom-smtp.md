@@ -226,9 +226,10 @@ Brevo approves it.
 > Brevo's transactional log, and delivery is confirmed with SPF, DKIM and DMARC
 > all passing. The only caveat is a 24-minute first-send delay. See §5.
 >
-> ⚠ **§4 is still outstanding.** Raising the rate limit was deferred until after
-> testing, and testing was derailed by the delay above. It is the change that
-> actually fixes the original 2/hour cap, so do not let it stay forgotten.
+> ✅ **§4 done 2026-10-02 — the rate limit is raised to 100/hour.** That was the
+> last step, so **the job this runbook exists for is complete**: auth email no
+> longer runs through a 2/hour mailer that would have dropped 28 of a class of
+> 30. Remaining: the burst test in §5, which is now possible for the first time.
 
 Dashboard → **Authentication → SMTP Settings**
 (`https://supabase.com/dashboard/project/_/auth/smtp`)
@@ -244,6 +245,25 @@ Dashboard → **Authentication → SMTP Settings**
 ---
 
 ## 4. ⚠ Raise the rate limit — the step that gets missed
+
+> **Set to 100/hour on 2026-10-02.** It slipped twice before being done, which
+> is the whole reason this section carries a warning in its heading.
+>
+> **Why 100 and not more.** A class of thirty is the floor, so thirty is useless
+> as a setting; 100 clears a full class three times over, covering a teacher
+> running two groups back to back with password resets landing alongside.
+>
+> **Why not higher.** This is effectively the *only* abuse protection on the
+> signup path. Anyone can trigger a confirmation email by submitting the form
+> with any address, and that goes straight to Supabase rather than through
+> `lib/rateLimit.ts`, which only covers contact, feedback, report-question and
+> class lookup. Without this ceiling the signup form is a spam relay.
+>
+> ⚠ **Brevo's free tier caps at 300/day, and that is the real ceiling**, not the
+> hourly figure. At 100/hour, sustained abuse exhausts the day's quota in three
+> hours and all auth email stops — recoverable and noticeable. A single school
+> rolling out 150 learners in a day fits; two schools in one day does not.
+> **Revisit the Brevo plan before a school rollout, not during one.**
 
 Configuring SMTP does **not** lift the cap to unlimited. It moves it from 2 per
 hour to **30 per hour**, and the real ceiling lives on a different page:
