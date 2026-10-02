@@ -169,7 +169,8 @@ than leaving it to be discovered.
 | Supabase | Database and authentication | London, United Kingdom | — |
 | Vercel | Website hosting | London, United Kingdom | — |
 | Stripe | Payment processing — receives an email address and payment details only, never practice or results data | Irish contracting entities; transfers to the United States | Standard Contractual Clauses, the UK Addendum, and the EU-US Data Privacy Framework |
-| Resend | Sending confirmations, password resets, and opted-in reminders — receives an email address only | **United States** | Standard Contractual Clauses in its data processing addendum, and the Data Privacy Framework including the UK Extension |
+| Brevo | Sending password resets and sign-up confirmations — receives an email address only | European Union (France) | None required for an EU-to-UK transfer. Brevo runs on infrastructure including Google Cloud and Cloudflare, US companies, under Standard Contractual Clauses |
+| Resend | Sending **opted-in practice reminders only** — receives an email address only | **United States** | Standard Contractual Clauses in its data processing addendum, and the Data Privacy Framework including the UK Extension |
 | Upstash | Rate limiting — holds the visitor's IP address for approximately one minute to prevent automated abuse | London, United Kingdom | — |
 | Google sign-in | Only where a Pupil chooses to sign in with Google, which passes us their name and email address | **United States** | Data Privacy Framework, UK Extension |
 | Google Analytics | Website usage analytics, **only** for visitors who have accepted analytics cookies | **United States** | Data Privacy Framework, UK Extension |
