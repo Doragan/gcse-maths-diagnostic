@@ -8,7 +8,7 @@ export default function PrivacyNoticePage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Privacy Notice</h1>
           <p style={styles.subtitle}>How Mathsense collects, uses and protects your personal data</p>
-          <p style={styles.meta}>Version 1.3 — Last reviewed: 23 September 2026</p>
+          <p style={styles.meta}>Version 1.4 — Last reviewed: 2 October 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -115,7 +115,7 @@ export default function PrivacyNoticePage() {
             'Vercel (website hosting) — servers in London, UK (eu-west-2)',
             'Stripe (payment processing) — receives an email address and payment details when an account is paid for, whether by a teacher, a student, or a parent paying on a student’s behalf. It never receives practice or results data.',
             'Resend (email delivery) — receives an email address when we send you a practice reminder you have opted in to. Resend stores its data in the United States, so that means your address is held there. It never receives your practice or your results. If you have not opted in to reminders, Resend never receives your address at all.',
-            'Password reset and sign-up confirmation emails are sent by Supabase, not by Resend, as part of the authentication service above.',
+            'Brevo (email delivery) — servers in the European Union. Receives your email address when we send you a password reset or a sign-up confirmation. It never receives your practice or your results. Brevo is a French company; the infrastructure it runs on includes Google Cloud and Cloudflare, which are United States companies, covered by standard contractual clauses.',
             'Upstash (rate limiting) — servers in London, United Kingdom. Briefly holds your IP address to stop automated abuse of sign-in and class-join endpoints. It is held for minutes, is never linked to your account, and is not used for anything else.',
             'Google sign-in — only if you choose to sign in with Google. Google then knows you use Mathsense, and passes us your email address and the name on your Google account, which we use to pre-fill your display name. You can sign up with an email address and password instead, and nothing about Mathsense works differently if you do. Google is based in the United States.',
             'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States. This account is linked to our Google Ads account, so that usage data can also be used to measure our adverts. See section 3.',
@@ -211,6 +211,14 @@ export default function PrivacyNoticePage() {
 
         <Section title="11. Changes to this notice">
           <P>We may update this privacy notice from time to time. We will notify registered users of any significant changes by email. The current version will always be available at mathsense.net/privacy.</P>
+          <SubHeading>What changed in version 1.4 (2 October 2026)</SubHeading>
+          <P>We changed how our password reset and sign-up confirmation emails are sent.</P>
+          <Ul items={[
+            'These emails now go through Brevo, a French company with servers in the European Union. Before this, they were sent by Supabase and we could not tell you where from.',
+            'Brevo receives your email address in order to send you the message. It never receives your practice or your results.',
+            'Brevo runs on infrastructure that includes Google Cloud and Cloudflare, which are United States companies. Your data is stored in the EU, and those transfers are covered by standard contractual clauses. We would rather tell you that than leave it out.',
+            'Practice reminders are unchanged and still go through Resend, in the United States, and only if you opted in to them.',
+          ]} />
           <SubHeading>What changed in version 1.3 (23 September 2026)</SubHeading>
           <P>We checked where each of the companies in section 6 actually keeps data, rather than relying on what we had written down before. Two things were wrong and one was missing.</P>
           <Ul items={[
@@ -233,7 +241,7 @@ export default function PrivacyNoticePage() {
             'You can now turn analytics off again after turning it on, using the switch in section 3. Before this version there was no way to change your mind. Declining is also remembered now, instead of the banner asking again on every visit.',
             'Section 9 described access as being limited to the teacher who created an assessment. That was out of date; access now runs through class membership, and section 9 describes what actually happens.',
           ]} />
-          <P>Last updated: 23 September 2026</P>
+          <P>Last updated: 2 October 2026</P>
         </Section>
 
       </div>

@@ -145,6 +145,7 @@ table got wrong the first time._
 | Supabase | Database and authentication | **London, UK** | `db.<ref>.supabase.co` resolves to `2a05:d01c:…`; matched against AWS's published `ip-ranges.json` as `eu-west-2` |
 | Vercel | Hosting | **London, UK** | `x-vercel-id: lhr1::…` on both a static page and a Node server route |
 | Stripe | Payments — email and payment details only, never practice or results | Irish entities; **transfers to the US** | Stripe privacy centre |
+| Brevo | **Password resets and confirmations** — email address | European Union (France) | Brevo Annex 2, read 2026-09-27. Configured 2026-10-01 |
 | Resend | **Opted-in practice reminders only** — email address | 🔴 **United States** | Resend's own GDPR page |
 | Upstash | Rate limiting — the visitor's IP for ~1 minute | **London, UK** | Console, confirmed by the controller 2026-09-23 |
 | Google sign-in | Only if a pupil chooses it; Google passes us their name and email | **United States** | Live path in `lib/auth.ts` |
