@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 4 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-04-jun23",
+    "paper_title": "OCR GCSE Mathematics J560/04",
+    "paper_subtitle": "Higher Tier Paper 4 Calculator — June 2023",
+    "source": "Coded from the published QP and mark scheme (J560/04, Friday 19 May 2023), downloaded from www.ocr.org.uk. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as OCR-JUN23-F-P1 so the crossover items carry identical tags. OCR interleaves its crossover: J560/01 q19, q20, q23, q25, q26 and q27 reappear here as q1, q2, q3, q6, q7 and q8, marks matching item for item (2, 3, 2+3, 4, 3+1, 6 — 21 of the 100). 36 markers summing to exactly the printed 100, the only check OCR allows."
+  },
+  "coding_notes": [
+    "q1, q2, q3, q6, q7 and q8 are J560/01 q19, q20, q23, q25, q26 and q27 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q13b IS UNTAGGED AND CARRIES A TOPIC INSTEAD. The published mark scheme states: 'This question was discounted and all candidates were awarded 1 mark.' The mark is unconditional, so nobody demonstrated anything by earning it; tagging it would credit a skill on no evidence, which is exactly what the untagged-beats-mis-tagged rule exists to prevent. Its topic is set to algebra so the mark still lands in the right column. It also has no mark_split, since there is no mark scheme to split. This is the first discounted item in the audit.",
+    "q4a and q4b tagged percentage_change, not growth_and_decay — this is SIMPLE interest, and the mark scheme treats compound working as a misread.",
+    "q15 ('y is inversely proportional to the square root of x') tagged proportion_with_powers then inverse_proportion, matching EDEXCEL-JUN24-H-P2 q12: neither node alone states an inverse relationship to a power.",
+    "q18a and q18b tagged iteration — a sign change across an interval and then a trial-and-improvement search to 1 decimal place is that node, not substitution.",
+    "q17 is tagged across three circle-theorem nodes by part: alternate segment for (a)(i), tangent-radius for (a)(ii), angle at centre for (b)(i) and cyclic quadrilateral for (b)(ii), which is what each part's required reason names.",
+    "q11 tagged rotations then translations — the single equivalent transformation is a rotation, and the mark scheme also accepts describing it as an enlargement of scale factor -1 about the same centre."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "evaluate an expression with a square and a negative product on a calculator, to 3 significant figures" },
+
+    { "q": "2", "part": null, "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "percentage decrease between two money amounts" },
+
+    { "q": "3", "part": "a", "marks": 2, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "one share of a three-part ratio from another share's value" },
+    { "q": "3", "part": "b", "marks": 3, "skill_ids": ["ratio", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "the unknown term of a three-part ratio, given that its share is a stated fraction of the total" },
+
+    { "q": "4", "part": "a", "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "value after four years of simple interest" },
+    { "q": "4", "part": "b", "marks": 3, "skill_ids": ["percentage_change", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "the first whole year a simple-interest investment passes a stated value" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a small decimal written in standard form" },
+    { "q": "5", "part": "b", "marks": 2, "skill_ids": ["standard_form", "compound_units", "time_calculations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "distance travelled in a day at a speed given in standard form per second" },
+    { "q": "5", "part": "c", "marks": 3, "skill_ids": ["standard_form", "indices", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "smallest integer satisfying a cubed-multiple speed condition over a standard-form distance and time" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["mean", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M2 A1", "app_gap_note": "two unknowns in a frequency table — a missing frequency and a missing score — fixed by the total and the mean" },
+
+    { "q": "7", "part": "a", "marks": 3, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a two-branch curve from a table of values, the curve not touching the y-axis" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft", "app_gap_note": "read the positive root off the drawn curve, to 1 decimal place" },
+
+    { "q": "8", "part": null, "marks": 6, "skill_ids": ["area_of_a_circle", "areas_of_squares_and_rectangles", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "M5 A1", "app_gap_note": "percentage of a square left shaded by a quarter-circle inscribed in it" },
+
+    { "q": "9", "part": "a", "marks": 5, "skill_ids": ["lengths_and_perimeters", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "all three sides of a triangle whose algebraic perimeter is given" },
+    { "q": "9", "part": "b", "marks": 3, "skill_ids": ["pythagoras_theorem"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M2 A1", "app_gap_note": "decide whether the triangle just found is right-angled, by calculation" },
+
+    { "q": "10", "part": "a", "marks": 3, "skill_ids": ["venn_diagrams"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B3", "app_gap_note": "complete a two-set Venn diagram from two set totals, an overall total and a count outside both" },
+    { "q": "10", "part": "bi", "marks": 2, "skill_ids": ["venn_diagrams", "calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "probability of being in exactly one of two sets" },
+    { "q": "10", "part": "bii", "marks": 2, "skill_ids": ["conditional_probability", "venn_diagrams"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1 A1", "app_gap_note": "conditional probability read off a completed Venn diagram" },
+
+    { "q": "11", "part": null, "marks": 3, "skill_ids": ["rotations", "translations"], "kind": "exam", "answer_form": "text", "mark_split": "B1 B1 B1", "app_gap_note": "the single transformation equivalent to a half-turn rotation followed by a translation" },
+
+    { "q": "12", "part": "a", "marks": 1, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "algebraic output of a two-step function machine" },
+    { "q": "12", "part": "b", "marks": 5, "skill_ids": ["composite_functions", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 B1dep M1 M1 A1", "app_gap_note": "the input making a composite of two machines equal a given algebraic output" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["algebraic_fractions"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "identify the error in the numerators when two algebraic fractions are combined" },
+    { "q": "13", "part": "b", "marks": 1, "skill_ids": [], "topic": "algebra", "kind": "mastery", "answer_form": "text", "app_gap_note": "DISCOUNTED by OCR — all candidates awarded the mark; the item was a 'spot the error' on a quadratic formula substitution" },
+
+    { "q": "14", "part": null, "marks": 5, "skill_ids": ["counting_without_listing", "calculating_simple_probability"], "kind": "exam", "answer_form": "fraction", "mark_split": "M4 A1", "app_gap_note": "proportion of all combinations across three option blocks that include at least one of a flagged subset" },
+
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["proportion_with_powers", "inverse_proportion"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "value of a variable inversely proportional to a square root, from one given pair" },
+
+    { "q": "16", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "complete a two-stage tree where the second stage's probabilities depend on the first outcome" },
+    { "q": "16", "part": "b", "marks": 3, "skill_ids": ["tree_diagrams", "combined_events"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "probability of an outcome two stages on, summed over both intermediate branches" },
+
+    { "q": "17", "part": "ai", "marks": 2, "skill_ids": ["circle_theorem_alternate_segment"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "angle between a tangent and a chord, with the theorem named" },
+    { "q": "17", "part": "aii", "marks": 2, "skill_ids": ["circle_theorem_tangent"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft B1", "app_gap_note": "the remaining angle at the point of contact, from the tangent-radius right angle, with the reason named" },
+    { "q": "17", "part": "bi", "marks": 3, "skill_ids": ["circle_theorem_angle_at_centre"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 B1ft B1dep", "app_gap_note": "obtuse and reflex angles at the centre and the opposite circumference angle, all in terms of one letter" },
+    { "q": "17", "part": "bii", "marks": 1, "skill_ids": ["circle_theorem_cyclic_quadrilateral"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state which circle theorem the preceding algebra has just proved" },
+
+    { "q": "18", "part": "a", "marks": 3, "skill_ids": ["iteration"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 A1", "app_gap_note": "show a cubic has a root in a stated interval, by a sign change" },
+    { "q": "18", "part": "b", "marks": 4, "skill_ids": ["iteration"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "find that root to 1 decimal place, with supporting trials" },
+
+    { "q": "19", "part": null, "marks": 5, "skill_ids": ["kinematic_graphs", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M4 A1", "app_gap_note": "the plateau velocity of a trapezium-shaped velocity-time graph, from a stated average velocity" },
+
+    { "q": "20", "part": "a", "marks": 3, "skill_ids": ["cosine_rule"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M2 A1", "app_gap_note": "show an angle of a triangle given all three sides, to 1 decimal place" },
+    { "q": "20", "part": "b", "marks": 2, "skill_ids": ["area_of_triangle_sine"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "area of that triangle from two sides and the included angle" }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-01-jun23",
+    "paper_title": "OCR GCSE Mathematics J560/01",
+    "paper_subtitle": "Foundation Tier Paper 1 Calculator — June 2023",
+    "source": "Coded from the published QP and mark scheme (J560/01, Friday 19 May 2023), downloaded from www.ocr.org.uk. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Third OCR series. As always with OCR there is no per-question total printed, only a bare [N] against each part, so the whole-paper sum is the only check available: 49 markers summing to exactly the printed 100. Coded WITH mark_split, derived from OCR's part totals and partial-credit routes rather than quoted."
+  },
+  "coding_notes": [
+    "mark_split for OCR is DERIVED, not transcribed — see OCR-JUN24-F-P1 for the reasoning. q21 is recorded as B4 because every route OCR prints for it (listing tram times, listing multiples, stating the LCM) is B-coded; there is a single M1 alternative for prime factorisation, so that row slightly understates method marks.",
+    "q12 (surface area of a cuboid) tagged areas_of_squares_and_rectangles, the documented handling for that taxonomy gap — spheres, cones and cylinders each have a surface-area node and cuboids do not, and the mark scheme rewards finding rectangle areas and doubling.",
+    "q2 tagged range, median and factors_and_multiples together: the mark scheme awards B3/B2/B1 purely by how many of the three stated conditions the four numbers satisfy, so all three are genuinely exercised by one answer.",
+    "q26 is y = 6/x - 2x, a two-branch curve, not a quadratic — tagged sketching_functions. The table in the paper confirms it (x = -4 gives 6.5, x = 4 gives -6.5).",
+    "q10a and q10b are both 'spot the error' items but on different nodes: (a) is an incorrect inverse operation when solving, (b) is substituting the final velocity where the initial one belongs. Tagged solving_linear_equations and substitution respectively.",
+    "q22a and q22b tagged direct_proportion: the first asks what about a straight line through the origin shows proportionality, and the second adds a parallel line with a positive intercept, which is the contrast."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "pick an even number from a list" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "pick a square number from a list" },
+    { "q": "1", "part": "c", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "pick a factor of a given number from a list" },
+
+    { "q": "2", "part": null, "marks": 3, "skill_ids": ["range", "median", "factors_and_multiples"], "kind": "exam", "answer_form": "numeric", "mark_split": "B3", "app_gap_note": "four numbers satisfying a stated range, median, primeness and lowest value at once" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "next term of an arithmetic sequence" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state the rule, with quantity and direction" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "pick the arrow on a probability scale for a single outcome of a fair dice" },
+    { "q": "4", "part": "b", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "pick the arrow for an impossible outcome" },
+    { "q": "4", "part": "c", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "pick the arrow for a compound outcome" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["converting_decimals_to_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "a two-decimal-place value written as a fraction" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "decimal to percentage conversion, below 1 per cent of a whole" },
+    { "q": "5", "part": "c", "marks": 1, "skill_ids": ["converting_fractions_to_decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "an eighths fraction written as a terminating decimal" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "input of a two-step function machine from its output" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["function_machines", "forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 A1", "app_gap_note": "write the function machine as an equation in two letters" },
+
+    { "q": "7", "part": "ai", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "evaluate a power of 3" },
+    { "q": "7", "part": "aii", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "cube root of a four-digit number" },
+    { "q": "7", "part": "b", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "the index making a product of a number and a power equal a given value" },
+    { "q": "7", "part": "c", "marks": 1, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "a negative index written as a fraction" },
+
+    { "q": "8", "part": null, "marks": 2, "skill_ids": ["proportion", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "cost of a kilogram from the cost of a mass given in grams" },
+
+    { "q": "9", "part": null, "marks": 4, "skill_ids": ["areas_of_squares_and_rectangles", "converting_measurements", "proportion"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 M1 A1", "app_gap_note": "stocking limit for a field, from its dimensions, a rate per hectare and the hectare definition" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "identify that a term was added instead of subtracted when solving" },
+    { "q": "10", "part": "b", "marks": 1, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "identify that the final velocity was substituted where the initial one belongs" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "double a recipe quantity" },
+    { "q": "11", "part": "b", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "scale a recipe quantity down by a factor of four" },
+    { "q": "11", "part": "c", "marks": 3, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M2 A1", "app_gap_note": "decide whether a stock of one ingredient reaches a stated batch size, with working" },
+    { "q": "11", "part": "d", "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "takings from a count divided into fixed-size packets at a fixed price" },
+
+    { "q": "12", "part": null, "marks": 3, "skill_ids": ["areas_of_squares_and_rectangles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "total surface area of a cuboid from its three dimensions" },
+
+    { "q": "13", "part": "a", "marks": 2, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "average speed in metres per minute from a distance and a time" },
+    { "q": "13", "part": "b", "marks": 1, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state an assumption behind scaling that speed to a longer time" },
+
+    { "q": "14", "part": null, "marks": 2, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "show a strict one-sided inequality on a number line, open circle and arrow" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["fractions_of_amounts", "adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 B1 B1 B1", "app_gap_note": "show the fraction left after a percentage and a fraction of the same total are given away" },
+
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["lengths_and_perimeters", "simplifying_expressions"], "kind": "exam", "answer_form": "expression", "mark_split": "M2 M1 A1", "app_gap_note": "side of an equilateral triangle whose perimeter equals a quadrilateral's, all sides algebraic" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "expression", "mark_split": "M2 A1", "app_gap_note": "expand and simplify a product of two brackets in two letters" },
+
+    { "q": "18", "part": "a", "marks": 2, "skill_ids": ["translations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "draw the pre-image of a translation given by a column vector" },
+    { "q": "18", "part": "b", "marks": 2, "skill_ids": ["rotations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "rotate a triangle a quarter turn anticlockwise about the origin" },
+    { "q": "18", "part": "c", "marks": 2, "skill_ids": ["reflections"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "reflect a triangle in a horizontal line below the axis" },
+
+    { "q": "19", "part": null, "marks": 2, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "evaluate an expression with a square and a negative product on a calculator, to 3 significant figures" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "percentage decrease between two money amounts" },
+
+    { "q": "21", "part": null, "marks": 4, "skill_ids": ["lowest_common_multiple", "time_calculations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B4", "app_gap_note": "next time two repeating timetables coincide, from a shared start time and two intervals" },
+
+    { "q": "22", "part": "a", "marks": 2, "skill_ids": ["direct_proportion"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "say what about a graph shows direct proportion — straight line and through the origin" },
+    { "q": "22", "part": "b", "marks": 2, "skill_ids": ["direct_proportion", "understanding_straight_line_graphs"], "kind": "exam", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "draw a parallel line with a positive intercept, for the same rate plus a fixed charge" },
+
+    { "q": "23", "part": "a", "marks": 2, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "one share of a three-part ratio from another share's value" },
+    { "q": "23", "part": "b", "marks": 3, "skill_ids": ["ratio", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "the unknown term of a three-part ratio, given that its share is a stated fraction of the total" },
+
+    { "q": "24", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "complete a two-stage probability tree with different probabilities at each stage" },
+    { "q": "24", "part": "b", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "probability of one outcome then its complement, from a completed tree" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["mean", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M2 A1", "app_gap_note": "two unknowns in a frequency table — a missing frequency and a missing score — fixed by the total and the mean" },
+
+    { "q": "26", "part": "a", "marks": 3, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a two-branch curve from a table of values, the curve not touching the y-axis" },
+    { "q": "26", "part": "b", "marks": 1, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft", "app_gap_note": "read the positive root off the drawn curve, to 1 decimal place" },
+
+    { "q": "27", "part": null, "marks": 6, "skill_ids": ["area_of_a_circle", "areas_of_squares_and_rectangles", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "M5 A1", "app_gap_note": "percentage of a square left shaded by a quarter-circle inscribed in it" }
+  ]
+}
