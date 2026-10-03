@@ -122,6 +122,11 @@ export const misconceptions: Misconception[] = [
     seededFrom: 'square_vs_double',
   },
   {
+    id: 'rooted_instead_of_squared',
+    name: 'Rooted where it should have squared',
+    description: 'Applied the inverse of the operation the method needs — answered √9 where the radius 9 had to be squared, or squared where a power of ½ called for a root. Both directions are one entry because they are a single confusion about which way the square-and-root pair runs, not two separate errors. Distinct from leaving the final root off, where the student stopped short rather than actively doing the opposite.',
+  },
+  {
     id: 'wrong_shape_formula',
     name: 'Used the formula for a different shape',
     description: 'Applied the wrong area or volume formula — treated a triangular cross-section as a rectangle, or a hemisphere as a whole sphere.',
