@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 4 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-04-jun24",
+    "paper_title": "OCR GCSE Mathematics J560/04",
+    "paper_subtitle": "Higher Tier Paper 4 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (J560/04, Thursday 16 May 2024). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "June 2024 series, despite the download folder's Nov 24 label. Coded in the same sitting as OCR-JUN24-F-P1 so the crossover items carry identical tags. OCR INTERLEAVES its shared questions rather than blocking them: J560/01 q19, q20, q21, q22 and q27 reappear here as q1, q2, q4, q5 and q7, with brand-new questions between them. Marks match item for item (3, 3, 9, 3, 3 — 21 of the 100). No per-question total is printed, so the whole-paper sum against the published 100 is the only check, and this file passes it."
+  },
+  "coding_notes": [
+    "q1, q2, q4, q5 and q7 are J560/01 q19, q20, q21, q22 and q27 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "mark_split is derived from OCR's part totals and partial-credit routes rather than quoted; see OCR-JUN24-F-P1 for the reasoning.",
+    "q3 tagged simultaneous_equations first, then mean and range: the two equations come from a mean and a range, but four of the five marks are forming and eliminating, and filing the item under Probability and Data would be wrong.",
+    "q10 coded as ONE 3-mark row, as the paper prints it — no (a)/(b) is printed even though the mark scheme splits 1 for naming the error and 2 for the correct solution.",
+    "q13a tagged inverse_functions rather than function_machines. The machine is the presentation, but the mark is for an algebraic expression for the inverse, which is what separates this Higher item from the Foundation 'find the input' items that sit on function_machines (e.g. OCR-JUN25-F-P3 q10aii).",
+    "q18bii and q18biii tagged gradient_of_a_curve, the node added 2026-09-04: a tangent drawn to a distance-time curve to read a speed, and then a statement justified by the gradient steepening. q18a and q18bi stay on kinematic_graphs — an area under a speed-time graph and a chord-average speed read straight off two points.",
+    "q17c tagged conditional_probability then box_plots: the answer is a conditional probability whose two quartile counts come off the box plot.",
+    "q6 tagged exterior_angles, the node whose own territory the interior/exterior relation is, with solving_linear_equations for the equation the mark scheme forms."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 3, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "evaluate a rooted expression over a decimal divisor on a calculator, to 4 significant figures" },
+
+    { "q": "2", "part": null, "marks": 3, "skill_ids": ["areas_of_triangles", "area_of_a_trapezium"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1 A1dep", "app_gap_note": "show a triangle and a trapezium have equal areas, both areas to be worked out" },
+
+    { "q": "3", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations", "mean", "range"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "two letters from four ordered algebraic values with a stated mean and a stated range" },
+
+    { "q": "4", "part": "ai", "marks": 2, "skill_ids": ["pie_charts", "ratio"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1", "app_gap_note": "show one pie-chart sector angle follows from a given sector and two doubling relations" },
+    { "q": "4", "part": "aii", "marks": 3, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "complete and label a pie chart from three derived sector angles" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "total population from one sector's angle and its frequency" },
+    { "q": "4", "part": "ci", "marks": 1, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "an advantage of a pie chart over a bar chart for the same data" },
+    { "q": "4", "part": "cii", "marks": 1, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "a disadvantage of a pie chart over a bar chart for the same data" },
+
+    { "q": "5", "part": null, "marks": 3, "skill_ids": ["proportion", "converting_measurements"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 B2", "app_gap_note": "best value among three pack sizes, two priced per kilogram and one per gram" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["exterior_angles", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M1 M1 A1", "app_gap_note": "number of sides of a regular polygon whose interior angle is a stated multiple of its exterior angle" },
+
+    { "q": "7", "part": null, "marks": 3, "skill_ids": ["fractional_and_negative_indices", "standard_form"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 B1", "app_gap_note": "order a decimal, a negative power of two and a standard-form value, with the comparison shown" },
+
+    { "q": "8", "part": null, "marks": 5, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M4 A1", "app_gap_note": "the percentage decrease that turns a stated increase into a stated smaller overall increase" },
+
+    { "q": "9", "part": null, "marks": 5, "skill_ids": ["ratio", "fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M4 A1", "app_gap_note": "test a claim about the combined share of one part, from two collections each split by a three-part ratio" },
+
+    { "q": "10", "part": null, "marks": 3, "skill_ids": ["direct_proportion"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 M1 A1", "app_gap_note": "identify that a proportionality has been treated as an additive relation, and give the correct formula" },
+
+    { "q": "11", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "complete a two-stage probability tree where the second stage's probabilities are algebraic" },
+    { "q": "11", "part": "b", "marks": 1, "skill_ids": ["combined_events"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name the independence assumption behind multiplying along the branches" },
+    { "q": "11", "part": "c", "marks": 4, "skill_ids": ["tree_diagrams", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M1 A1", "app_gap_note": "the unknown branch probability, from the probability of exactly one success" },
+
+    { "q": "12", "part": "a", "marks": 3, "skill_ids": ["circle_theorem_angle_at_centre", "circle_theorem_cyclic_quadrilateral"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1 B1", "app_gap_note": "angle at the centre, reached through a cyclic quadrilateral and an angle in the same segment" },
+    { "q": "12", "part": "b", "marks": 3, "skill_ids": ["circle_theorem_alternate_segment", "alternate_and_corresponding_angles"], "kind": "exam", "answer_form": "text", "mark_split": "B1 B1 B1dep", "app_gap_note": "prove a triangle in a circle is isosceles, using a tangent parallel to one side, with a reason per statement" },
+
+    { "q": "13", "part": "a", "marks": 2, "skill_ids": ["inverse_functions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 A1", "app_gap_note": "algebraic expression for the inverse of a two-step function machine, in terms of its output" },
+    { "q": "13", "part": "b", "marks": 4, "skill_ids": ["composite_functions"], "kind": "mastery", "answer_form": "expression", "mark_split": "M2 B2", "app_gap_note": "express the composite of two two-step machines as a single two-operation machine" },
+
+    { "q": "14", "part": null, "marks": 6, "skill_ids": ["sector_calculations", "area_of_triangle_sine"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 M2 M1 A1", "app_gap_note": "area of a circular segment, the central angle recovered from the perpendicular distance between a chord and a parallel tangent" },
+
+    { "q": "15", "part": "a", "marks": 3, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 B1ft", "app_gap_note": "solve a non-monic quadratic by factorising" },
+    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["completing_the_square"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 B2", "app_gap_note": "complete the square on a monic quadratic with an even linear coefficient" },
+    { "q": "15", "part": "ci", "marks": 2, "skill_ids": ["completing_the_square"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "B1 B1", "app_gap_note": "turning point read off a completed-square form" },
+    { "q": "15", "part": "cii", "marks": 2, "skill_ids": ["graph_transformations"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "describe the single translation mapping the basic quadratic onto a completed-square form" },
+
+    { "q": "16", "part": "a", "marks": 4, "skill_ids": ["upper_and_lower_bounds", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 B2 A1", "app_gap_note": "shortest possible journey time, choosing the right bound of a distance and of a maximum speed" },
+    { "q": "16", "part": "b", "marks": 1, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why a bound-based minimum time is not physically achievable" },
+
+    { "q": "17", "part": "a", "marks": 1, "skill_ids": ["box_plots"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "median read off a box plot" },
+    { "q": "17", "part": "b", "marks": 1, "skill_ids": ["box_plots"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "percentage below the lower quartile of a box plot" },
+    { "q": "17", "part": "c", "marks": 1, "skill_ids": ["conditional_probability", "box_plots"], "kind": "exam", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "conditional probability of exceeding the upper quartile given a value above the lower quartile" },
+
+    { "q": "18", "part": "a", "marks": 3, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "distance travelled as the area under a piecewise speed-time graph" },
+    { "q": "18", "part": "bi", "marks": 2, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "average speed between two times on a distance-time curve" },
+    { "q": "18", "part": "bii", "marks": 3, "skill_ids": ["gradient_of_a_curve"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B2dep", "app_gap_note": "instantaneous speed at a stated time, by drawing a tangent to a distance-time curve" },
+    { "q": "18", "part": "biii", "marks": 1, "skill_ids": ["gradient_of_a_curve"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "say what happens to the speed across the interval and justify it from the gradient" },
+
+    { "q": "19", "part": null, "marks": 5, "skill_ids": ["surds_expanding_and_rationalising", "surds_simplifying"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 M1 M1dep A1", "app_gap_note": "rationalise a two-term surd denominator and simplify to a stated form, every step shown" }
+  ]
+}

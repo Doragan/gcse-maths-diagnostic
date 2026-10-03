@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 3 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-03-jun24",
+    "paper_title": "OCR GCSE Mathematics J560/03",
+    "paper_subtitle": "Foundation Tier Paper 3 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (J560/03, Monday 10 June 2024). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "June 2024 series, despite the download folder's Nov 24 label — this paper is dated Monday 10 June 2024. No per-question total is printed, so the whole-paper sum against the published 100 is the only check, and this file passes it. Coded WITH mark_split, derived from OCR's part totals and partial-credit routes rather than quoted."
+  },
+  "coding_notes": [
+    "q17 (simple interest, then the total value) tagged percentage_change and NOT growth_and_decay, following the documented ruling on OCR-JUN25-F-P1 q22: growth_and_decay is compound, and simple interest demonstrates nothing about a repeated multiplier.",
+    "q19 (two reasons a graph is misleading) tagged simple_charts, the documented handling for misleading graphs, rather than time_series — the faults the mark scheme wants are an uneven horizontal scale, a missing vertical scale and a vertical scale not starting at zero, which are chart-reading points, not trend points.",
+    "q13b (smallest possible number of newspapers) tagged lowest_common_multiple first: the answer is 200 because it must satisfy both a percentage and an eighths fraction as whole numbers, which is an LCM of 25 and 8.",
+    "q22a tagged areas_of_triangles before trigonometry_missing_sides even though three of the six marks are the central angle and the trig for the apothem. The target is the area, and both skills are Shape and Space so the topic column is unaffected.",
+    "q11a and q11b tagged equations_and_identities, the node added 2026-09-04 that closed exactly this gap.",
+    "q4 (currency conversion) tagged proportion, the documented handling.",
+    "q5b ('write 400 m as a fraction of 2 km') tagged simplifying_fractions then converting_measurements: two of the three marks are the simplified fraction, one the unit conversion. Forming a fraction from a context remains a documented gap and simplifying is the nearest honest node."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name a solid from a given list" },
+    { "q": "1", "part": "bi", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "number of edges of a cuboid" },
+    { "q": "1", "part": "bii", "marks": 2, "skill_ids": ["volume_of_a_prism"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "volume of a cuboid from its three dimensions" },
+
+    { "q": "2", "part": null, "marks": 2, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B1 B1", "app_gap_note": "scale up two ingredient weights of a recipe from one total to another" },
+
+    { "q": "3", "part": "ai", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a fourth power on a calculator" },
+    { "q": "3", "part": "aii", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a square root on a calculator" },
+    { "q": "3", "part": "b", "marks": 2, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "the number whose cube root is given, answer as an ordinary number" },
+
+    { "q": "4", "part": null, "marks": 2, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "currency conversion from pounds using a rate quoted per unit of the other currency" },
+
+    { "q": "5", "part": "a", "marks": 3, "skill_ids": ["fractions_of_amounts", "rounding"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 B2", "app_gap_note": "a non-unit fraction of a whole number, answer to 1 decimal place" },
+    { "q": "5", "part": "b", "marks": 3, "skill_ids": ["simplifying_fractions", "converting_measurements"], "kind": "exam", "answer_form": "fraction", "mark_split": "B1 B2", "app_gap_note": "one length as a fraction of another given in a different metric unit, simplified" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "pick which of four calculations gives one share of a two-part ratio" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1", "app_gap_note": "the other share of a two-part ratio of a money amount" },
+
+    { "q": "7", "part": null, "marks": 2, "skill_ids": ["area_of_a_circle"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "area of a circle from its radius" },
+
+    { "q": "8", "part": null, "marks": 4, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 B1 A1", "app_gap_note": "change in pence after buying as many items as a fixed sum allows, the count rounding down" },
+
+    { "q": "9", "part": "a", "marks": 2, "skill_ids": ["compound_units", "time_calculations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "arrival time when the speed is doubled and only the slower journey's duration is given" },
+    { "q": "9", "part": "b", "marks": 3, "skill_ids": ["compound_units", "time_calculations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 B1 A1", "app_gap_note": "total time for a journey done half at one speed and half at double it" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "a repeated product of one letter written as a power" },
+    { "q": "10", "part": "b", "marks": 2, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1 A1", "app_gap_note": "factorise fully where the common factor is a number and a letter" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["equations_and_identities"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "classify an algebraic statement as an expression" },
+    { "q": "11", "part": "b", "marks": 1, "skill_ids": ["equations_and_identities"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "classify an algebraic statement as an identity" },
+
+    { "q": "12", "part": "a", "marks": 3, "skill_ids": ["frequency_trees"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "complete a three-stage frequency tree with several blank branches" },
+    { "q": "12", "part": "b", "marks": 3, "skill_ids": ["frequency_trees"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M2 A1", "app_gap_note": "which final-stage outcome is most popular, by totalling three branches of a frequency tree" },
+    { "q": "12", "part": "c", "marks": 2, "skill_ids": ["frequency_trees", "calculating_simple_probability"], "kind": "exam", "answer_form": "fraction", "mark_split": "B1 A1", "app_gap_note": "probability of a middle-stage outcome from a completed frequency tree" },
+    { "q": "12", "part": "d", "marks": 1, "skill_ids": ["sampling"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name the assumption in treating one morning's visitors as representative" },
+
+    { "q": "13", "part": "a", "marks": 3, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B2 A1", "app_gap_note": "decide which of a percentage and a fraction is the greater proportion, converting to a common form" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["lowest_common_multiple", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "smallest total for which both a percentage and an eighths fraction of it are whole numbers" },
+
+    { "q": "14", "part": null, "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "error interval for a value truncated to 1 decimal place, one blank a number and one a symbol" },
+
+    { "q": "15", "part": "a", "marks": 1, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state in words the relationship between two algebraic side lengths" },
+    { "q": "15", "part": "b", "marks": 2, "skill_ids": ["areas_of_squares_and_rectangles", "simplifying_expressions"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "area of a rectangle with a square corner removed, in two letters, simplified" },
+    { "q": "15", "part": "ci", "marks": 3, "skill_ids": ["lengths_and_perimeters", "simplifying_expressions"], "kind": "exam", "answer_form": "expression", "mark_split": "M2 A1", "app_gap_note": "perimeter of that same shape, where the removed square's sides cancel out of the expression" },
+    { "q": "15", "part": "cii", "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "letter value from setting the derived perimeter expression equal to a decimal" },
+
+    { "q": "16", "part": "a", "marks": 3, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a quadratic curve from a completed table of values" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "read both solutions of a quadratic equal to a constant off the drawn curve" },
+
+    { "q": "17", "part": null, "marks": 5, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 M1dep A1", "app_gap_note": "total value after five years of simple interest, given only the total interest earned" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["congruence_and_similarity", "alternate_and_corresponding_angles"], "kind": "exam", "answer_form": "text", "mark_split": "B2 B1 B1dep", "app_gap_note": "complete a similarity argument for two triangles in a crossed figure, naming each angle pair and its reason" },
+
+    { "q": "19", "part": null, "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "give two distinct reasons a graph is misleading, from an uneven horizontal scale and a truncated or missing vertical scale" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["expected_outcomes", "calculating_simple_probability"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "expected count of one letter over 99 draws with replacement from the letters of a word" },
+
+    { "q": "21", "part": "ai", "marks": 4, "skill_ids": ["ratio", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M2 A1", "app_gap_note": "days needed for a walk, from a measured map distance, a map scale, a speed and hours walked per day" },
+    { "q": "21", "part": "aii", "marks": 1, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why a straight-line map distance makes the answer an underestimate" },
+    { "q": "21", "part": "b", "marks": 2, "skill_ids": ["simplifying_ratio", "converting_measurements"], "kind": "mastery", "answer_form": "ratio", "mark_split": "B1 B1", "app_gap_note": "explain why a scale stated in two different units is not the ratio given, and write it correctly as 1 : n" },
+
+    { "q": "22", "part": "a", "marks": 6, "skill_ids": ["areas_of_triangles", "trigonometry_missing_sides"], "kind": "exam", "answer_form": "show_that", "mark_split": "B1 M2 M2dep A1", "app_gap_note": "show a regular pentagon's area to 2 decimal places, built from ten congruent right-angled triangles" },
+    { "q": "22", "part": "b", "marks": 3, "skill_ids": ["volume_of_a_pyramid_and_cone"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "perpendicular height of a pyramid from its volume and the base area just derived" },
+
+    { "q": "23", "part": "a", "marks": 2, "skill_ids": ["lowest_common_multiple"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "lowest common multiple of two numbers given as products of prime factors" },
+    { "q": "23", "part": "b", "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "the unknown prime in one factorisation, deduced from a stated highest common factor" }
+  ]
+}

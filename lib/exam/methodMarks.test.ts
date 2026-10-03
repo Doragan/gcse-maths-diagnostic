@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { buildItem, gradeUnits, type QuestionRow } from './examPaper'
 import { methodMarkShare } from './markEvidence'
+import { METHOD_SHARE_BY_MARKS } from './markEvidence.data'
 
 /**
  * Three-state marks: a wrong final answer is not automatically worth zero.
  *
- * Across the 30 coded papers 601 of 2400 marks (25%) are METHOD marks, awarded
+ * Across the 42 papers coded with a mark_split, 925 of 3475 marks (27%) are
+ * METHOD marks, awarded
  * for a sound approach behind a wrong answer. Auto-grading cannot read working,
  * so those marks are split three ways: confirmed (a trap proves the method),
  * unknown (we cannot tell), or lost.
@@ -63,7 +65,13 @@ describe('methodMarkShare', () => {
   })
 
   it('holds the top rate rather than extrapolating past the coded range', () => {
-    expect(methodMarkShare(9)).toBe(methodMarkShare(5))
+    // Asserted against the table's own largest key rather than a literal. The
+    // corpus does contain parts worth 6 and 7 marks (OCR June 2024), but
+    // METHOD_SHARE_BY_MARKS admits a size only once 12 parts stand behind it, so
+    // the top key is still 5 — and a size that thin must never become the rate
+    // every large part is held at.
+    const top = Math.max(...Object.keys(METHOD_SHARE_BY_MARKS).map(Number))
+    expect(methodMarkShare(top + 4)).toBe(methodMarkShare(top))
   })
 })
 

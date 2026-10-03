@@ -118,8 +118,19 @@ function main() {
     b.parts++
     b.method += methodMarksOf(r)
   }
+  // A SIZE NEEDS A REAL SAMPLE TO EARN A ROW. methodMarkShare() holds the table's
+  // top rate for every part larger than its largest key, so the biggest size in
+  // here sets the ceiling for all big parts — and a size with two or three parts
+  // behind it would set that ceiling from noise. The June 2024 OCR papers made
+  // this concrete: they introduced 6-mark parts (8 of them) and a single 7-mark
+  // part, and that one part would otherwise have dictated the rate for every
+  // part of 7 marks or more. 12 is the floor the extrapolation comment in
+  // lib/exam/markEvidence.ts already treats as too thin to reason from.
+  const MIN_PARTS_PER_SIZE = 12
+  const thin = Object.entries(bySize).filter(([, b]) => b.parts < MIN_PARTS_PER_SIZE)
   const methodShare = Object.fromEntries(
     Object.entries(bySize)
+      .filter(([, b]) => b.parts >= MIN_PARTS_PER_SIZE)
       .sort((a, b) => Number(a[0]) - Number(b[0]))
       .map(([size, b]) => [size, Math.round((b.method / b.parts) * 100) / 100]),
   )
@@ -146,6 +157,10 @@ export const OVERALL: MarkStats = ${JSON.stringify(overall, null, 1)}
  * Method marks are what a real scheme awards for a sound approach behind a wrong
  * answer — the credit auto-grading is blind to. Note the 1-mark row: a one-mark
  * part never carries method marks, which is what makes the blind spot bounded.
+ *
+ * Only part sizes with at least ${MIN_PARTS_PER_SIZE} coded parts appear. Sizes above the
+ * largest key are held at its rate by methodMarkShare(), so a thinly-sampled
+ * large size would set that ceiling from noise.
  */
 export const METHOD_SHARE_BY_MARKS: Record<number, number> = ${JSON.stringify(methodShare, null, 1)}
 `
@@ -156,6 +171,12 @@ export const METHOD_SHARE_BY_MARKS: Record<number, number> = ${JSON.stringify(me
   for (const [k, v] of Object.entries(kindOut)) console.log(`  ${k}: n=${(v as { n: number }).n} mean=${(v as { mean: number }).mean}`)
   const ns = Object.values(skillKindOut).map(v => (v as { n: number }).n)
   console.log(`skill+kind buckets: ${ns.length} (n>=4: ${ns.filter(n => n >= 4).length}, n>=2: ${ns.filter(n => n >= 2).length})`)
+  console.log(`method-share sizes: ${Object.keys(methodShare).join(', ')}`)
+  if (thin.length)
+    console.log(
+      `  held back below the ${MIN_PARTS_PER_SIZE}-part floor: ` +
+        thin.map(([size, b]) => `${size}m (n=${b.parts})`).join(', '),
+    )
 }
 
 main()

@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 3 (Calculator)",
+    "series": "November 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-3h-nov24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/3H",
+    "paper_subtitle": "Higher Tier Paper 3 Calculator — November 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/3H, Monday 11 November 2024, P75162A). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as EDEXCEL-NOV24-F-P3. The crossover block is 3F q17–q25 = 3H q1–q9, contiguous, and the marks match item for item (2, 2, 2, 4, 5, 4, 2, 2, 3). Coded WITH mark_split. All 23 (Total for Question) lines were recovered and the paper sums to the printed 80."
+  },
+  "coding_notes": [
+    "q1–q9 are 3F q17–q25 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q5 (percentage profit on a ratio-split stock) tagged ratio BEFORE percentage_change, matching its Foundation twin — see EDEXCEL-NOV24-F-P3's note for the reasoning and for why the topic column on that paper made it matter.",
+    "q13 tagged congruence_and_similarity before area_of_a_trapezium: two of the three marks are length scale factors on the nested triangles, and the trapezium area is the last step.",
+    "q12b (depreciation over two years, find the rate) tagged growth_and_decay, not reverse_percentage — the mark scheme's route is a two-year multiplier, which is that node. q10 IS a reverse_percentage.",
+    "q18a (capture-recapture) tagged proportion then sampling. The mark scheme's marks are both for equating two ratios, so proportion leads; sampling is what q18b's assumption is about and is the reason the item belongs to Probability and Data at all. Note that every Probability-and-Data path already bottoms out in sampling, so this tag is cheap.",
+    "q11 tagged sector_calculations: the perimeter includes two radii, so the arc length must be recovered before the angle, and the answer is the reflex angle.",
+    "q23 tagged completing_the_square first, then sketching_functions: three of the five marks are the completed square and the turning point in terms of the parameter, and only the last is the sketch itself."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["frequency_diagrams", "grouped_frequency_tables"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "draw a frequency polygon from a grouped frequency table, plotting at midpoints" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "standard form to an ordinary number" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a number below 1 written in standard form" },
+
+    { "q": "3", "part": null, "marks": 2, "skill_ids": ["constructions"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "construct an angle bisector with ruler and compasses, arcs shown" },
+
+    { "q": "4", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "complete a two-stage probability tree from one given probability" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "probability of the same outcome twice from a completed tree" },
+
+    { "q": "5", "part": null, "marks": 5, "skill_ids": ["ratio", "percentage_change"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "percentage profit on a mixed stock split by ratio, with a buy and a sell price for each kind" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["median", "range"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 C1 B1 C1", "app_gap_note": "compare a stem and leaf distribution with a second one described only by its median and range" },
+
+    { "q": "7", "part": null, "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "two-blank error interval for a truncated calculator display" },
+
+    { "q": "8", "part": null, "marks": 2, "skill_ids": ["trigonometry_missing_sides"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "missing side of a right-angled triangle from one angle and the adjacent side" },
+
+    { "q": "9", "part": "a", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B2", "app_gap_note": "multiply two terms in two letters with numerical coefficients" },
+    { "q": "9", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "raise a power to a negative power" },
+
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "original price from a sale price and the percentage reduction" },
+
+    { "q": "11", "part": null, "marks": 3, "skill_ids": ["sector_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "reflex angle of a sector from its radius and its whole perimeter, arc length not given" },
+
+    { "q": "12", "part": "a", "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "value after three years where the first year's interest rate differs from the later ones" },
+    { "q": "12", "part": "b", "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "annual depreciation rate from a start value, an end value and two years" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["congruence_and_similarity", "area_of_a_trapezium"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "area of the trapezium between two similar triangles, from the two parallel sides and one whole length" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["recurring_decimals_to_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1dep C1", "app_gap_note": "prove algebraically that a decimal with a non-recurring leading digit equals a given fraction" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["rearranging_formulae", "factorising"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 M1dep M1dep A1", "app_gap_note": "change the subject where the new subject appears on both sides and must be factorised out" },
+
+    { "q": "16", "part": null, "marks": 5, "skill_ids": ["perpendicular_gradients", "coordinates"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "P1 P1 P1 P1dep A1", "app_gap_note": "fourth vertex of a rectangle from two given points, one of them outside it on an extended side" },
+
+    { "q": "17", "part": null, "marks": 4, "skill_ids": ["cosine_rule", "area_of_triangle_sine"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "area of a triangle given all three sides, to 3 significant figures" },
+
+    { "q": "18", "part": "a", "marks": 3, "skill_ids": ["proportion", "sampling"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "population estimate by capture-recapture" },
+    { "q": "18", "part": "b", "marks": 1, "skill_ids": ["sampling"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "state an assumption behind a capture-recapture estimate" },
+
+    { "q": "19", "part": null, "marks": 4, "skill_ids": ["surface_area_of_a_cone", "pythagoras_theorem"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1dep P1 A1", "app_gap_note": "height of a cone from its total surface area, with the radius given as a fraction of the height" },
+
+    { "q": "20", "part": null, "marks": 4, "skill_ids": ["simultaneous_equations_quadratic", "solving_quadratic_equations_quadratic_equation"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 M1 A1", "app_gap_note": "simultaneous linear and quadratic equations with irrational solutions, to 3 significant figures" },
+
+    { "q": "21", "part": "a", "marks": 1, "skill_ids": ["graph_transformations"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "draw the reflection of an unnamed curve in the x-axis" },
+    { "q": "21", "part": "b", "marks": 3, "skill_ids": ["graph_transformations", "trig_graphs"], "kind": "exam", "answer_form": "coordinate", "mark_split": "M1 M1 A1", "app_gap_note": "image of a turning point of the sine curve under a combined horizontal and vertical translation" },
+
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "estimate the area under a velocity-time curve using a stated number of equal strips" },
+
+    { "q": "23", "part": null, "marks": 5, "skill_ids": ["completing_the_square", "sketching_functions"], "kind": "exam", "answer_form": "draw_plot", "mark_split": "B1 M1 M1dep B1 C1", "app_gap_note": "sketch a quadratic with a letter coefficient, turning point and intercept both in terms of that letter" }
+  ]
+}

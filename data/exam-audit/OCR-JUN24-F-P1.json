@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-01-jun24",
+    "paper_title": "OCR GCSE Mathematics J560/01",
+    "paper_subtitle": "Foundation Tier Paper 1 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (J560/01, Thursday 16 May 2024). Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "The download folder these came from was labelled Nov 24, but the papers are the SUMMER 2024 series: J560/01 is dated Thursday 16 May 2024, /02 Monday 3 June 2024 and /03 Monday 10 June 2024. Filed as JUN24 on the papers' own printed dates. As with the June 2025 OCR papers there is no per-question total printed — only a bare [N] against each part — so the whole-paper sum against the published 100 is the only check available, and this file passes it. Coded WITH mark_split, unlike the six OCR June 2025 papers; see coding_notes for what OCR's notation does and does not give."
+  },
+  "coding_notes": [
+    "mark_split for OCR is DERIVED, not transcribed. OCR prints a single part total and then the partial-credit routes ('3' with 'M2 for … or M1 for …'), so the split recorded here is the method/accuracy structure those routes imply — for that example, 'M2 A1'. It is reliable for sizing method marks against answer marks, which is what lib/exam/markEvidence.data.ts uses it for, but it is not a quotation of an Edexcel-style code string.",
+    "q1d (a prime number less than 10) tagged factors_and_multiples rather than prime_factor_decomposition — recognising a prime is not decomposing a number into primes.",
+    "q3b (explain from three angles that a triangle is isosceles) tagged properties_of_2d_shapes. The mark scheme explicitly refuses answers that argue from sides, so the claim being tested is knowing which property defines the shape.",
+    "q5 (subtract then divide, given the result) tagged solving_linear_equations, not function_machines: no machine is drawn, and the item is worded as a number the student must recover.",
+    "q6b (the fraction of a list of combinations that include one item) tagged systematic_listing. Forming a fraction from a context is a documented taxonomy gap — every fraction node covers operating on a fraction, not writing one down — and the mark scheme follows through from the candidate's own list, so the list is what is being credited.",
+    "q14 (production rate over 7 hours) tagged proportion then time_calculations: the scaling is a unit rate and one mark's worth of the work is the hours-to-minutes conversion.",
+    "q17 tagged fractional_enlargements — the scale factor is ½.",
+    "q23 tagged upper_and_lower_bounds, matching OCR-JUN25-F-P3 q24b, which is the same 'show it may not fit' comparison of two error intervals."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "give an example of an even number" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "give an example of a multiple of a given number" },
+    { "q": "1", "part": "c", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a cube number inside a stated range" },
+    { "q": "1", "part": "d", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a prime number below a stated value" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["median"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "median of an unordered list of five values" },
+    { "q": "2", "part": "b", "marks": 2, "skill_ids": ["range"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "a possible extra value that would give a list a stated range — two valid answers" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "measure an angle with a protractor" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "justify that a triangle is isosceles from its three angles, arguing about angles not sides" },
+    { "q": "3", "part": "ci", "marks": 2, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1 B1dep", "app_gap_note": "complete a parallelogram on a grid and add notation showing it is one" },
+    { "q": "3", "part": "cii", "marks": 2, "skill_ids": ["area_of_parallelograms"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "area of a parallelogram drawn on a grid, where the slant side is not the height" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1", "app_gap_note": "draw the next pattern in a growing dot sequence" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "the tenth term of a pattern sequence without drawing it, with the method explained" },
+
+    { "q": "5", "part": null, "marks": 2, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "recover a starting number from two operations and the result" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["systematic_listing"], "kind": "mastery", "answer_form": "text", "mark_split": "M1 A1", "app_gap_note": "list every pair of two different items from four, no repeats" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["systematic_listing"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1ft", "app_gap_note": "the fraction of a listed set of pairs that include one named item" },
+
+    { "q": "7", "part": "ai", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "B1", "app_gap_note": "read coordinates in the third quadrant off a grid" },
+    { "q": "7", "part": "aii", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "plot a point with a negative coordinate" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "B1", "app_gap_note": "equation of a vertical line through a plotted point" },
+
+    { "q": "8", "part": "a", "marks": 1, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "substitute three values into a formula with a bracket" },
+    { "q": "8", "part": "b", "marks": 3, "skill_ids": ["substitution", "solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1ft A1", "app_gap_note": "find a letter inside the bracket of a formula from the subject and the other two letters" },
+
+    { "q": "9", "part": null, "marks": 3, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B1 M1 A1", "app_gap_note": "complete a table with the complementary fraction and the other group's count, given one fraction and one count" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["simplifying_ratio"], "kind": "mastery", "answer_form": "ratio", "mark_split": "B1", "app_gap_note": "write a two-part ratio in its simplest form" },
+    { "q": "10", "part": "b", "marks": 3, "skill_ids": ["ratio", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "map distance in centimetres from a real distance in kilometres and a map scale" },
+
+    { "q": "11", "part": null, "marks": 5, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M4 A1", "app_gap_note": "how many smaller packs are needed for a week, where the daily amount is a percentage of a larger pack and the count must round up" },
+
+    { "q": "12", "part": null, "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "percentage increase of a money amount" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["mean"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "mean from an ungrouped frequency table" },
+
+    { "q": "14", "part": null, "marks": 4, "skill_ids": ["proportion", "time_calculations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "output over seven hours from a rate given per twelve minutes" },
+
+    { "q": "15", "part": null, "marks": 2, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "population density from a population and an area" },
+
+    { "q": "16", "part": null, "marks": 5, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M2 M1 A1", "app_gap_note": "percentage of a total taken by one part, where a fraction is removed first and the remainder split in a ratio" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["fractional_enlargements"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B3", "app_gap_note": "enlarge a triangle by a fractional scale factor about the origin" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2 B2ft", "app_gap_note": "solve a two-step inequality and show the solution set on a number line" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "evaluate a rooted expression over a decimal divisor on a calculator, to 4 significant figures" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["areas_of_triangles", "area_of_a_trapezium"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1 A1dep", "app_gap_note": "show a triangle and a trapezium have equal areas, both areas to be worked out" },
+
+    { "q": "21", "part": "ai", "marks": 2, "skill_ids": ["pie_charts", "ratio"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1", "app_gap_note": "show one pie-chart sector angle follows from a given sector and two doubling relations" },
+    { "q": "21", "part": "aii", "marks": 3, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "complete and label a pie chart from three derived sector angles" },
+    { "q": "21", "part": "b", "marks": 2, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "total population from one sector's angle and its frequency" },
+    { "q": "21", "part": "ci", "marks": 1, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "an advantage of a pie chart over a bar chart for the same data" },
+    { "q": "21", "part": "cii", "marks": 1, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "a disadvantage of a pie chart over a bar chart for the same data" },
+
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["proportion", "converting_measurements"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 B2", "app_gap_note": "best value among three pack sizes, two priced per kilogram and one per gram" },
+
+    { "q": "23", "part": null, "marks": 3, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 B1 A1", "app_gap_note": "show one object may not fit inside another, by comparing two error intervals" },
+
+    { "q": "24", "part": null, "marks": 5, "skill_ids": ["alternate_and_corresponding_angles", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1 M1 A1", "app_gap_note": "angle on a transversal of two parallel lines, where two angles are algebraic and sum to a straight line" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["pythagoras_theorem"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M2 A1", "app_gap_note": "slant side of a trapezium, its horizontal projection recovered from the two parallel sides first" },
+
+    { "q": "26", "part": null, "marks": 3, "skill_ids": ["simultaneous_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1 A1", "app_gap_note": "solve simultaneous linear equations with integer solutions" },
+
+    { "q": "27", "part": null, "marks": 3, "skill_ids": ["fractional_and_negative_indices", "standard_form"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 B1", "app_gap_note": "order a decimal, a negative power of two and a standard-form value, with the comparison shown" }
+  ]
+}
