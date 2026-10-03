@@ -7,17 +7,20 @@ import { BY_SKILL_KIND, BY_KIND, OVERALL } from './markEvidence.data'
 
 describe('generated evidence data', () => {
   it('carries the coded series', () => {
-    // 42 of the 54 coded papers, 1539 parts, 3475 marks. The twelve June 2025
+    // 48 of the 60 coded papers, 1793 parts, 4074 marks. The twelve June 2025
     // Edexcel and OCR papers contribute nothing here because they were coded
     // without mark_split; the builder skips such parts rather than counting them
     // as zero method marks.
     //
-    // max is 7 because the June 2024 OCR papers brought the first parts worth
-    // more than 5 marks into the corpus. That one 7-mark part does NOT set the
-    // method-share ceiling — METHOD_SHARE_BY_MARKS only admits a part size with
-    // at least 12 parts behind it, so 6m (n=8) and 7m (n=1) are held back.
-    expect(OVERALL.n).toBe(1539)
-    expect(OVERALL.mean).toBeCloseTo(2.26, 2)
+    // max is 7 because the OCR papers bring the only parts worth more than 5
+    // marks. That single 7-mark part does NOT set the method-share ceiling —
+    // METHOD_SHARE_BY_MARKS admits a part size only once 12 parts stand behind
+    // it, so 7m (n=1) is still held back. 6-mark parts HAVE now crossed that
+    // floor and do have a row, which is the floor working as intended: a size
+    // earns its place when the evidence arrives, rather than on the first
+    // example.
+    expect(OVERALL.n).toBe(1793)
+    expect(OVERALL.mean).toBeCloseTo(2.27, 2)
     expect(OVERALL.min).toBe(1)
     expect(OVERALL.max).toBe(7)
   })
@@ -33,11 +36,11 @@ describe('generated evidence data', () => {
     // match; the Edexcel November 2024 and OCR June 2024 papers were held to the
     // rule as they were coded.)
     //
-    // The stricter rule leaves far fewer exam parts (221 of 1539) but separates
+    // The stricter rule leaves far fewer exam parts (277 of 1793) but separates
     // the two kinds more sharply, which is the whole point of conditioning on
-    // it: 3.58 against 2.04 is a real difference in what a part is worth.
-    expect(BY_KIND.mastery.mean).toBeCloseTo(2.04, 2)
-    expect(BY_KIND.exam.mean).toBeCloseTo(3.58, 2)
+    // it: 3.61 against 2.03 is a real difference in what a part is worth.
+    expect(BY_KIND.mastery.mean).toBeCloseTo(2.03, 2)
+    expect(BY_KIND.exam.mean).toBeCloseTo(3.61, 2)
     expect(BY_KIND.exam.mean).toBeGreaterThan(BY_KIND.mastery.mean * 1.5)
   })
 
