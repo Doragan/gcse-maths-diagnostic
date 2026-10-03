@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 3 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-03-jun23",
+    "paper_title": "OCR GCSE Mathematics J560/03",
+    "paper_subtitle": "Foundation Tier Paper 3 Calculator — June 2023",
+    "source": "Coded from the published QP and mark scheme (J560/03, Wednesday 14 June 2023), downloaded from www.ocr.org.uk. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "52 markers summing to exactly the printed 100, the only check OCR allows. Coded WITH mark_split, derived from OCR's part totals and partial-credit routes."
+  },
+  "coding_notes": [
+    "q1a tagged properties_of_3d_solids and q1b/q1c properties_of_2d_shapes — (a) picks the non-prism from four solids, (b) names a triangle by two properties at once, and (c) draws a quadrilateral meeting a symmetry condition and an angle condition.",
+    "q10c (more machines, fewer days) tagged inverse_proportion: the mark scheme's route is 3 × 25 ÷ 15, which only works because the relationship is inverse.",
+    "q13a and q13b are about the square root symbol returning only the positive root — tagged indices, the documented handling for roots. (b) asks what changes if the letter need not be positive, and the mark scheme's answer is that nothing does.",
+    "q15 (criticise a bar chart whose age groups overlap) tagged grouped_frequency_tables rather than simple_charts: the fault is in the class intervals, not the drawing.",
+    "q17b tagged upper_and_lower_bounds — two error intervals from different roundings, compared to show an overlap.",
+    "q19a and q19b tagged relative_frequency: both scale a sample proportion, and (c) is the sample-size argument for why the larger one is better.",
+    "q22 tagged constructions then loci: two of the five marks are the perpendicular bisector's arcs, two the angle bisector's, and the last is the point where the loci meet."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "pick the solid that is not a prism from four" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "pick the right-angled isosceles triangle from four" },
+    { "q": "1", "part": "c", "marks": 2, "skill_ids": ["properties_of_2d_shapes", "symmetry"], "kind": "exam", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "draw a quadrilateral with exactly one line of symmetry and no right angle, about a given mirror line" },
+
+    { "q": "2", "part": "ai", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "compare how many factors two numbers have" },
+    { "q": "2", "part": "aii", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "compare the lowest factor of two numbers" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "highest common factor of two single-digit numbers" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "complete a part-finished prime factorisation" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "the number whose cube root is given" },
+    { "q": "3", "part": "c", "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a hundredths fraction written as a percentage" },
+
+    { "q": "4", "part": "a", "marks": 2, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "reverse a stated multiplier rule to recover the count" },
+    { "q": "4", "part": "b", "marks": 3, "skill_ids": ["simple_arithmetic", "compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "annual saving from two costs per mile and a stated mileage" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "plot a point in the second quadrant" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "length of a horizontal line between two plotted points" },
+    { "q": "5", "part": "c", "marks": 1, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "draw a vertical line from its equation" },
+    { "q": "5", "part": "d", "marks": 2, "skill_ids": ["coordinates", "properties_of_2d_shapes"], "kind": "exam", "answer_form": "coordinate", "mark_split": "B2", "app_gap_note": "the fourth vertex of a square from two vertices and a constraint on the third" },
+
+    { "q": "6", "part": "ai", "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "multiply a term by a number" },
+    { "q": "6", "part": "aii", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "a repeated product of one letter written as a power" },
+    { "q": "6", "part": "aiii", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "multiply two powers of the same letter" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "factorise a two-term expression with a numerical common factor" },
+
+    { "q": "7", "part": null, "marks": 3, "skill_ids": ["mean", "fractions_of_amounts"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "the second test mark needed for a stated mean percentage across two equally weighted tests" },
+
+    { "q": "8", "part": "a", "marks": 2, "skill_ids": ["area_of_a_trapezium"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "area of a trapezium from its two parallel sides and height, with a distractor length given" },
+    { "q": "8", "part": "b", "marks": 2, "skill_ids": ["circumfrence_of_a_circle"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "radius from a circumference given in terms of pi" },
+
+    { "q": "9", "part": "a", "marks": 2, "skill_ids": ["venn_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "place every element of a universal set into a two-set Venn diagram" },
+    { "q": "9", "part": "b", "marks": 1, "skill_ids": ["venn_diagrams", "calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1ft", "app_gap_note": "probability of being in the intersection of two sets" },
+    { "q": "9", "part": "c", "marks": 2, "skill_ids": ["venn_diagrams", "mutually_exclusive_events"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "explain that adding two set probabilities double-counts the intersection, and give the correct value" },
+
+    { "q": "10", "part": "a", "marks": 2, "skill_ids": ["simplifying_ratio"], "kind": "mastery", "answer_form": "ratio", "mark_split": "B1 A1", "app_gap_note": "write a two-part ratio in its simplest form" },
+    { "q": "10", "part": "b", "marks": 2, "skill_ids": ["simplifying_ratio", "ratio"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "express a part-to-part ratio in the form 1 : n, given one part as a fraction of the whole" },
+    { "q": "10", "part": "c", "marks": 3, "skill_ids": ["inverse_proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "how many machines finish a job in fewer days, an inverse relationship" },
+
+    { "q": "11", "part": null, "marks": 2, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "decide for each of four pairs of triangles whether they are mathematically similar" },
+
+    { "q": "12", "part": "a", "marks": 3, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "frequency for one sector of a pie chart from its angle and the overall total" },
+    { "q": "12", "part": "b", "marks": 3, "skill_ids": ["pie_charts", "ratio"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "the sector angle for one of two categories whose counts are in a stated ratio, from the remaining angle" },
+
+    { "q": "13", "part": "a", "marks": 2, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "the positive integer whose square root falls in a stated range" },
+    { "q": "13", "part": "b", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "say whether allowing negative values changes that answer, given the root symbol takes the positive root" },
+
+    { "q": "14", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 A1", "app_gap_note": "decide whether three stated fractions of an amount can all be given away" },
+    { "q": "14", "part": "b", "marks": 2, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "one person's share, from another's share and both fractions of the same total" },
+
+    { "q": "15", "part": null, "marks": 1, "skill_ids": ["grouped_frequency_tables"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "criticise a bar chart whose class intervals overlap" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "order four standard-form values across positive and negative indices" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "add two standard-form values with different indices, answer in standard form" },
+
+    { "q": "17", "part": "a", "marks": 1, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "the lower bound of a value rounded to the nearest thousand" },
+    { "q": "17", "part": "b", "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "show_that", "mark_split": "B1 A1", "app_gap_note": "show two quantities rounded to different accuracies can be the other way round, by comparing their intervals" },
+
+    { "q": "18", "part": null, "marks": 2, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 A1", "app_gap_note": "change the subject of a formula with the new subject inside a root" },
+
+    { "q": "19", "part": "a", "marks": 3, "skill_ids": ["relative_frequency", "expected_outcomes"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "expected count in a population, from a small sample's relative frequency" },
+    { "q": "19", "part": "b", "marks": 2, "skill_ids": ["relative_frequency"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1 A1", "app_gap_note": "estimate a probability from a larger sample, as a simplified fraction" },
+    { "q": "19", "part": "c", "marks": 1, "skill_ids": ["relative_frequency", "sampling"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why the larger sample gives the better estimate" },
+
+    { "q": "20", "part": null, "marks": 4, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M3 A1", "app_gap_note": "show two successive percentage decreases do not equal their sum" },
+
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["solving_linear_equations", "fractions_decimals_and_percentages"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "one category's percentage, from three algebraic percentages that must total 100" },
+
+    { "q": "22", "part": null, "marks": 5, "skill_ids": ["constructions", "loci"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1 A1 B1 A1 B1dep", "app_gap_note": "construct a perpendicular bisector and an angle bisector and mark where the two loci meet" },
+
+    { "q": "23", "part": "a", "marks": 1, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why reducing by a percentage does not undo an increase by that percentage" },
+    { "q": "23", "part": "b", "marks": 4, "skill_ids": ["reverse_percentage", "percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "a middle year's value, from a later year's value and both years' percentage increases over a common base" },
+
+    { "q": "24", "part": "a", "marks": 2, "skill_ids": ["quadratic_functions", "substitution"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 A1", "app_gap_note": "show the coefficient of a drawn quadratic, by substituting a point read off the curve" },
+    { "q": "24", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "read both solutions of that quadratic equal to a constant off the curve, to 1 decimal place" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["symmetry", "trigonometry_missing_sides"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M2 A1", "app_gap_note": "height of one isosceles triangle in a design whose rotational symmetry order fixes its apex angle" }
+  ]
+}

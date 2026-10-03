@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Non-calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-02-jun23",
+    "paper_title": "OCR GCSE Mathematics J560/02",
+    "paper_subtitle": "Foundation Tier Paper 2 Non-calculator — June 2023",
+    "source": "Coded from the published QP and mark scheme (J560/02, Wednesday 7 June 2023), downloaded from www.ocr.org.uk. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "J560/02 is one of OCR's two NON-calculator papers (the other is /05). 47 markers summing to exactly the printed 100, the only check OCR allows. Coded WITH mark_split, derived from OCR's part totals and partial-credit routes."
+  },
+  "coding_notes": [
+    "q7a and q7b tagged percentage_change, not growth_and_decay — the question states simple interest and the mark scheme's route for (b) is 700 + 3 × 14, a repeated addition rather than a multiplier.",
+    "q13a and q13bii are triangular-number pattern items. (a) is tagged sequences — the mark scheme's route is extending the term list and totalling. (bii) is tagged sequences too, with its distinctive step being recognising that consecutive triangular numbers sum to a square.",
+    "q18 tagged alternate_and_corresponding_angles then ratio: the parallel lines give x + y, and the 3 : 2 split turns that into x.",
+    "q20 tagged volume_of_a_prism then areas_of_triangles — the student's stated error is omitting the ½ from the triangular cross-section, which is what both marks turn on.",
+    "q21c (circle the child taller than expected) is the outlier-identification pattern flagged in OCR-JUN24-F-P2; tagged scatter_graphs here too, and the two move together if that 2026-09-04 ruling is ever extended.",
+    "q12a tagged systematic_listing: the mark scheme counts how many of the six orders are listed without repeats, which is the listing skill rather than a probability one. q12b is the probability read off that list."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "percentage of a circle shaded, read off a diagram" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1", "app_gap_note": "shade a given fraction of a divided rectangle" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "order of operations with a division" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "insert one pair of brackets to make a stated result true" },
+
+    { "q": "3", "part": "a", "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "sample size by totalling three bars of a bar chart" },
+    { "q": "3", "part": "b", "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "complete a pictogram row and choose its key, from bar chart data" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["irregular_and_improper_fractions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "the missing numerator converting an improper fraction to a mixed number" },
+    { "q": "4", "part": "b", "marks": 1, "skill_ids": ["irregular_and_improper_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "mixed number to improper fraction" },
+    { "q": "4", "part": "c", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "subtract two fractions where one denominator is a multiple of the other" },
+    { "q": "4", "part": "d", "marks": 2, "skill_ids": ["multiplying_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "multiply two fractions, answer in its simplest form" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "solve a one-step equation with the unknown divided" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "solve a one-step equation with a negative solution" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "difference between two heights given in different metric units" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 A1", "app_gap_note": "order four capacities spanning millilitres, litres and a fraction of a litre" },
+
+    { "q": "7", "part": "a", "marks": 2, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "one year's simple interest" },
+    { "q": "7", "part": "b", "marks": 2, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "value after three years of simple interest" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "percentage increase of a whole number" },
+
+    { "q": "9", "part": "a", "marks": 2, "skill_ids": ["ratio", "measuring_lines_and_angles"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "real distance from a measured scale-drawing length and a stated scale" },
+    { "q": "9", "part": "b", "marks": 2, "skill_ids": ["bearings", "ratio"], "kind": "exam", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "plot a point at a stated real distance and bearing on a scale drawing" },
+
+    { "q": "10", "part": null, "marks": 4, "skill_ids": ["simple_arithmetic", "solving_linear_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 M1 A1", "app_gap_note": "hours worked by one person, from two hourly rates and a stated difference in weekly pay" },
+
+    { "q": "11", "part": null, "marks": 3, "skill_ids": ["indices", "fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1 A1", "app_gap_note": "product of a cube root and a squared fraction" },
+
+    { "q": "12", "part": "a", "marks": 2, "skill_ids": ["systematic_listing"], "kind": "mastery", "answer_form": "text", "mark_split": "B2", "app_gap_note": "list every order of four digits with the first one fixed" },
+    { "q": "12", "part": "b", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1ft", "app_gap_note": "probability that one position holds a given digit, from that list" },
+
+    { "q": "13", "part": "a", "marks": 4, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M3 A1", "app_gap_note": "decide whether a stock of counters covers the next two terms of a triangular-number pattern" },
+    { "q": "13", "part": "bi", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B1", "app_gap_note": "complete a row totalling two consecutive terms" },
+    { "q": "13", "part": "bii", "marks": 2, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "which pair of consecutive triangular numbers sums to a given square" },
+
+    { "q": "14", "part": "a", "marks": 5, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 M1 A1", "app_gap_note": "how many of a third item a remaining budget buys, after two fixed purchases" },
+    { "q": "14", "part": "b", "marks": 2, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "money left over after that purchase" },
+
+    { "q": "15", "part": null, "marks": 5, "skill_ids": ["adding_and_subtracting_fractions", "time_calculations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 A1 M2 A1", "app_gap_note": "total duration in hours and minutes, from two fractions of it and the remaining minutes" },
+
+    { "q": "16", "part": null, "marks": 2, "skill_ids": ["equations_and_identities", "expanding_brackets"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "two missing numbers making a bracketed statement an identity" },
+
+    { "q": "17", "part": "a", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "draw a column vector on a grid with a direction arrow" },
+    { "q": "17", "part": "b", "marks": 2, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "draw the sum of two column vectors" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["alternate_and_corresponding_angles", "ratio"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M2 A1", "app_gap_note": "one of two angles in a crossed parallel-line figure, given their sum via the triangle and their ratio" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["volume_of_a_sphere"], "kind": "mastery", "answer_form": "exact_surd", "mark_split": "M1 M1dep A1", "app_gap_note": "volume of a sphere in terms of pi, in its simplest form" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["volume_of_a_prism", "areas_of_triangles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "identify that a triangular cross-section's half was omitted, and give the correct base length" },
+
+    { "q": "21", "part": "a", "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "add four points to a part-complete scatter diagram" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "describe the type of correlation" },
+    { "q": "21", "part": "c", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1ft", "app_gap_note": "circle the point lying above the trend" },
+    { "q": "21", "part": "di", "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 A1", "app_gap_note": "draw a line of best fit and read an estimate off it" },
+    { "q": "21", "part": "dii", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state the assumption behind reading an estimate off a line of best fit" },
+    { "q": "21", "part": "e", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why an estimate beyond the range of the data is unreliable" },
+
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["trigonometry_missing_sides", "exact_trig_values"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "missing side of a right-angled triangle without a calculator, using the exact sine of 30 degrees" },
+
+    { "q": "23", "part": "a", "marks": 2, "skill_ids": ["factorising_quadratics"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "factorise a monic quadratic with a positive constant" },
+    { "q": "23", "part": "b", "marks": 1, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1ft", "app_gap_note": "write down the roots from the factorised form" },
+
+    { "q": "24", "part": "a", "marks": 4, "skill_ids": ["proportion", "time_calculations"], "kind": "exam", "answer_form": "show_that", "mark_split": "M2 A2", "app_gap_note": "show a packing rate meets a target within a stated time, rate given per a non-unit count" },
+    { "q": "24", "part": "b", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state the constant-rate assumption behind that conclusion" },
+
+    { "q": "25", "part": null, "marks": 6, "skill_ids": ["exterior_angles", "simultaneous_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 B1 M2 M1 A1", "app_gap_note": "number of sides of two regular polygons, their exterior angles given only by a sum and a difference" }
+  ]
+}

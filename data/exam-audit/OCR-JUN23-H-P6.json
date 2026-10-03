@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 6 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-06-jun23",
+    "paper_title": "OCR GCSE Mathematics J560/06",
+    "paper_subtitle": "Higher Tier Paper 6 Calculator — June 2023",
+    "source": "Coded from the published QP and mark scheme (J560/06, Wednesday 14 June 2023), downloaded from www.ocr.org.uk. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as OCR-JUN23-F-P3. Interleaved crossover: J560/03 q15, q19, q22, q23, q24 and q25 reappear here as q1, q3, q5, q6, q7 and q8, marks matching item for item (1, 6, 5, 5, 4, 4 — 25 of the 100). 36 markers summing to exactly the printed 100."
+  },
+  "coding_notes": [
+    "q1, q3, q5, q6, q7 and q8 are J560/03 q15, q19, q22, q23, q24 and q25 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q4a ('time halves as speed doubles') tagged inverse_proportion then sketching_functions: the mark scheme's whole requirement is a curve approaching but never touching either axis, which is the shape of an inverse proportion.",
+    "q16a and q16b are a compound-growth formula given in the question. (a) reads the annual rate straight off the multiplier, so it is tagged growth_and_decay; (b) substitutes a large index and is tagged substitution alongside it. This follows the OCR-JUN25-H-P4 q16 ruling that reading a percentage off a growth formula stays on growth_and_decay rather than exponential_graphs.",
+    "q17 tagged simplifying_indices then solving_quadratic_equations_factorising — the route is r^6 = 3r^2 reduced to r^4 = 3, which is index manipulation before any root is taken.",
+    "q12b tagged upper_and_lower_bounds: three quantities each rounded to a different accuracy, and the mark scheme's marks are for selecting the right bound of each.",
+    "q13b tagged box_plots, median and interquartile_range — the comparison must cite an average and a measure of spread, and the mark scheme awards a mark for each with a context statement.",
+    "q19a and q19b tagged surds_simplifying and surds_expanding_and_rationalising: (a) is a one-mark simplification used as the lemma for (b)'s rationalisation of a two-term denominator."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["grouped_frequency_tables"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "criticise a bar chart whose class intervals overlap" },
+
+    { "q": "2", "part": "a", "marks": 2, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 A1", "app_gap_note": "change the subject of a formula where the new subject is squared" },
+    { "q": "2", "part": "b", "marks": 3, "skill_ids": ["substitution", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "initial velocity from the rearranged formula, with one value given in kilometres and the rest in metres" },
+
+    { "q": "3", "part": "a", "marks": 3, "skill_ids": ["relative_frequency", "expected_outcomes"], "kind": "exam", "answer_form": "numeric", "mark_split": "M2 A1", "app_gap_note": "expected count in a population, from a small sample's relative frequency" },
+    { "q": "3", "part": "b", "marks": 2, "skill_ids": ["relative_frequency"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1 A1", "app_gap_note": "estimate a probability from a larger sample, as a simplified fraction" },
+    { "q": "3", "part": "c", "marks": 1, "skill_ids": ["relative_frequency", "sampling"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why the larger sample gives the better estimate" },
+
+    { "q": "4", "part": "a", "marks": 2, "skill_ids": ["inverse_proportion", "sketching_functions"], "kind": "exam", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "sketch an inverse proportion, the curve approaching but not touching either axis" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["inverse_proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "time taken with fewer identical sources, an inverse relationship" },
+
+    { "q": "5", "part": null, "marks": 5, "skill_ids": ["constructions", "loci"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1 A1 B1 A1 B1dep", "app_gap_note": "construct a perpendicular bisector and an angle bisector and mark where the two loci meet" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why reducing by a percentage does not undo an increase by that percentage" },
+    { "q": "6", "part": "b", "marks": 4, "skill_ids": ["reverse_percentage", "percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "a middle year's value, from a later year's value and both years' percentage increases over a common base" },
+
+    { "q": "7", "part": "a", "marks": 2, "skill_ids": ["quadratic_functions", "substitution"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 A1", "app_gap_note": "show the coefficient of a drawn quadratic, by substituting a point read off the curve" },
+    { "q": "7", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "read both solutions of that quadratic equal to a constant off the curve, to 1 decimal place" },
+
+    { "q": "8", "part": null, "marks": 4, "skill_ids": ["symmetry", "trigonometry_missing_sides"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M2 A1", "app_gap_note": "height of one isosceles triangle in a design whose rotational symmetry order fixes its apex angle" },
+
+    { "q": "9", "part": null, "marks": 4, "skill_ids": ["ratio", "simultaneous_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "total after a change, from a ratio before and a different ratio after a stated number is removed from one part" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "show a two-digit number is not prime by giving a factor pair" },
+    { "q": "10", "part": "bi", "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "highest common factor of two numbers given as products of prime factors" },
+    { "q": "10", "part": "bii", "marks": 2, "skill_ids": ["prime_factor_decomposition", "standard_form"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "write a standard-form value as a product of its prime factors" },
+
+    { "q": "11", "part": null, "marks": 5, "skill_ids": ["area_of_a_trapezium", "rearranging_formulae"], "kind": "exam", "answer_form": "expression", "mark_split": "M3 M1 A1", "app_gap_note": "one parallel side of a trapezium in terms of its area, the other side given only relative to it" },
+
+    { "q": "12", "part": "a", "marks": 2, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "two-blank error interval for a count rounded to the nearest ten" },
+    { "q": "12", "part": "b", "marks": 3, "skill_ids": ["upper_and_lower_bounds", "volume_of_a_prism"], "kind": "exam", "answer_form": "show_that", "mark_split": "B1 B1 M1", "app_gap_note": "show the smallest possible height of a cuboid, choosing the right bound of a volume and two base dimensions" },
+
+    { "q": "13", "part": "ai", "marks": 3, "skill_ids": ["histograms"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "count above a value on an unlabelled-axis histogram, the scale fixed by one stated frequency" },
+    { "q": "13", "part": "aii", "marks": 1, "skill_ids": ["histograms", "range"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why taking the full span of the classes overestimates the range of grouped data" },
+    { "q": "13", "part": "b", "marks": 4, "skill_ids": ["box_plots", "median", "interquartile_range"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1dep B1 B1dep", "app_gap_note": "two comparisons between a box plot and a distribution given only by its median and IQR, values cited and in context" },
+
+    { "q": "14", "part": "a", "marks": 2, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "draw the plan view of a square-based pyramid to a stated scale" },
+    { "q": "14", "part": "b", "marks": 5, "skill_ids": ["volume_of_a_pyramid_and_cone", "trigonometry_3d"], "kind": "exam", "answer_form": "numeric", "mark_split": "M3 M1 A1", "app_gap_note": "volume of a square-based pyramid whose perpendicular height must first come from a sloping edge and the base diagonal" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["area_and_volume_scale_factors"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "height of a similar bottle from two capacities and the other's height" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "read the percentage increase straight off a given compound-growth multiplier" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["growth_and_decay", "substitution"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 A1", "app_gap_note": "show a value from that formula at a large index stays below a stated bound" },
+
+    { "q": "17", "part": null, "marks": 4, "skill_ids": ["simplifying_indices", "fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "the common ratio of a sequence whose sixth term is a stated multiple of its second, to 3 decimal places" },
+
+    { "q": "18", "part": "a", "marks": 3, "skill_ids": ["equation_of_a_circle"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1 B1", "app_gap_note": "describe a circle fully from its equation — shape, centre and radius" },
+    { "q": "18", "part": "b", "marks": 6, "skill_ids": ["simultaneous_equations_quadratic", "equation_of_a_circle"], "kind": "exam", "answer_form": "coordinate", "mark_split": "M1 M1 M1 M1 A1 A1", "app_gap_note": "both intersection points of a line and a circle centred on the origin, by substitution" },
+
+    { "q": "19", "part": "a", "marks": 1, "skill_ids": ["surds_simplifying"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1", "app_gap_note": "show a product of two surds simplifies to a multiple of one of them" },
+    { "q": "19", "part": "b", "marks": 4, "skill_ids": ["surds_expanding_and_rationalising", "surds_simplifying"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 M1 A1dep", "app_gap_note": "rationalise a two-term surd denominator to a stated form, using the simplification just shown" },
+
+    { "q": "20", "part": "a", "marks": 5, "skill_ids": ["completing_the_square", "expanding_double_brackets"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 M1 B3", "app_gap_note": "complete the square on a non-monic quadratic given as a product of two brackets" },
+    { "q": "20", "part": "b", "marks": 2, "skill_ids": ["sketching_functions", "quadratic_functions"], "kind": "exam", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "choose the accurate sketch of that quadratic from three, naming the properties used" }
+  ]
+}

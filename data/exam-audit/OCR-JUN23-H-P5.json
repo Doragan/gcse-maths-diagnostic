@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "board": "OCR",
+    "qualification": "GCSE (9-1) Mathematics (J560)",
+    "tier": "Higher",
+    "paper": "Paper 5 (Non-calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+    "paper_slug": "ocr-j560-05-jun23",
+    "paper_title": "OCR GCSE Mathematics J560/05",
+    "paper_subtitle": "Higher Tier Paper 5 Non-calculator — June 2023",
+    "source": "Coded from the published QP and mark scheme (J560/05, Wednesday 7 June 2023), downloaded from www.ocr.org.uk. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as OCR-JUN23-F-P2, its non-calculator Foundation partner. Interleaved crossover: J560/02 q20, q21, q24 and q25 reappear here as q4, q5, q7 and q10, marks matching item for item (3, 8, 5, 6 — 22 of the 100). 35 markers summing to exactly the printed 100."
+  },
+  "coding_notes": [
+    "q4, q5, q7 and q10 are J560/02 q20, q21, q24 and q25 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q5c is the outlier-identification pattern flagged across this audit; tagged scatter_graphs, consistent with its Foundation twin and with OCR-JUN24-F-P2 q22b.",
+    "q11 ('y is directly proportional to the square of x; find the percentage decrease in y') tagged proportion_with_powers then percentage_change. The mark scheme's whole route is squaring a multiplier, so direct_proportion alone would understate it.",
+    "q13b tagged exact_trig_values before pythagoras_theorem: the mark scheme awards a B1 purely for the exact value of sin 45, and the answer is required in exact simplified surd form.",
+    "q18 tagged fractional_and_negative_indices — the whole item is interpreting a fractional index, and the answer IS the index.",
+    "q20b tagged vector_proof rather than vectors: the required conclusion is that one vector is a multiple of another, so the points are collinear, and the accuracy mark depends on stating that."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 3, "skill_ids": ["dividing_fractions", "irregular_and_improper_fractions"], "kind": "exam", "answer_form": "fraction", "mark_split": "B1 M1 A1", "app_gap_note": "divide two mixed numbers, answer as a fraction in its simplest form" },
+
+    { "q": "2", "part": "a", "marks": 2, "skill_ids": ["alternate_and_corresponding_angles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 B1", "app_gap_note": "an angle on a transversal of parallel lines, with the reason named" },
+    { "q": "2", "part": "b", "marks": 3, "skill_ids": ["alternate_and_corresponding_angles", "angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "a second angle in the same figure, via a straight line and the triangle sum" },
+
+    { "q": "3", "part": null, "marks": 2, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "non-calculator division by a two-decimal-place number" },
+
+    { "q": "4", "part": null, "marks": 3, "skill_ids": ["volume_of_a_prism", "areas_of_triangles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "identify that a triangular cross-section's half was omitted, and give the correct base length" },
+
+    { "q": "5", "part": "a", "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "add four points to a part-complete scatter diagram" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "describe the type of correlation" },
+    { "q": "5", "part": "c", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1ft", "app_gap_note": "circle the point lying above the trend" },
+    { "q": "5", "part": "di", "marks": 2, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 A1", "app_gap_note": "draw a line of best fit and read an estimate off it" },
+    { "q": "5", "part": "dii", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state the assumption behind reading an estimate off a line of best fit" },
+    { "q": "5", "part": "e", "marks": 1, "skill_ids": ["scatter_graphs"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "explain why an estimate beyond the range of the data is unreliable" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "full capacity from the volume left after a stated number of equal doses out of a known total" },
+
+    { "q": "7", "part": "a", "marks": 4, "skill_ids": ["proportion", "time_calculations"], "kind": "exam", "answer_form": "show_that", "mark_split": "M2 A2", "app_gap_note": "show a packing rate meets a target within a stated time, rate given per a non-unit count" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "state the constant-rate assumption behind that conclusion" },
+
+    { "q": "8", "part": null, "marks": 5, "skill_ids": ["estimating", "compound_units", "volume_of_a_prism"], "kind": "exam", "answer_form": "show_that", "mark_split": "M2 M1dep M1 A1", "app_gap_note": "test a stated mass by estimating a cuboid's volume and applying a density, all values rounded first" },
+
+    { "q": "9", "part": "a", "marks": 2, "skill_ids": ["ratio", "fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "one part of a ratio as a percentage of another" },
+    { "q": "9", "part": "b", "marks": 4, "skill_ids": ["ratio"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "a shared quantity, from two ratios chained through it and a stated difference between the outer two" },
+
+    { "q": "10", "part": null, "marks": 6, "skill_ids": ["exterior_angles", "simultaneous_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 B1 M2 M1 A1", "app_gap_note": "number of sides of two regular polygons, their exterior angles given only by a sum and a difference" },
+
+    { "q": "11", "part": null, "marks": 4, "skill_ids": ["proportion_with_powers", "percentage_change"], "kind": "exam", "answer_form": "numeric", "mark_split": "M3 A1", "app_gap_note": "percentage decrease in a variable proportional to a square, when its partner falls by a stated percentage" },
+
+    { "q": "12", "part": "a", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "next term of a sequence of fractions" },
+    { "q": "12", "part": "b", "marks": 3, "skill_ids": ["finding_the_nth_term", "nth_term_quadratic_sequences"], "kind": "mastery", "answer_form": "expression", "mark_split": "M2 A1", "app_gap_note": "nth term of a sequence of fractions, numerator linear and denominator quadratic" },
+
+    { "q": "13", "part": "a", "marks": 3, "skill_ids": ["trigonometry_missing_sides", "exact_trig_values"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "perpendicular height of a triangle without a calculator, using the exact sine of 30 degrees" },
+    { "q": "13", "part": "b", "marks": 3, "skill_ids": ["exact_trig_values", "surds_simplifying"], "kind": "exam", "answer_form": "exact_surd", "mark_split": "B1 M1 A1", "app_gap_note": "exact length of a second side, using the exact sine of 45 degrees, simplified" },
+
+    { "q": "14", "part": null, "marks": 5, "skill_ids": ["inequalities", "understanding_straight_line_graphs"], "kind": "exam", "answer_form": "draw_plot", "mark_split": "B2 B1ft B1 B1", "app_gap_note": "draw the one missing boundary and shade the region satisfying three inequalities, one with a strict boundary" },
+
+    { "q": "15", "part": "a", "marks": 2, "skill_ids": ["difference_of_two_squares"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "factorise a difference of two squares with a non-unit leading coefficient" },
+    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M2 B1", "app_gap_note": "solve a non-monic quadratic by factorising, one root fractional" },
+    { "q": "15", "part": "c", "marks": 4, "skill_ids": ["algebraic_fractions", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 M1 A1", "app_gap_note": "solve an equation where the unknown appears in both the numerator and the denominator" },
+
+    { "q": "16", "part": "a", "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "evaluate a number raised to a fractional power greater than one" },
+    { "q": "16", "part": "b", "marks": 4, "skill_ids": ["recurring_decimals_to_fractions", "adding_and_subtracting_fractions"], "kind": "exam", "answer_form": "fraction", "mark_split": "B3 A1", "app_gap_note": "numerator and denominator of a fraction left when a recurring decimal is subtracted from a given fraction" },
+
+    { "q": "17", "part": null, "marks": 4, "skill_ids": ["perpendicular_gradients", "understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "B2 M1 A1", "app_gap_note": "equation of the second diagonal of a rhombus, from the first diagonal's equation and one point" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["fractional_and_negative_indices", "simplifying_indices"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M2 A1", "app_gap_note": "show an index equals a stated fraction, from two equations relating two positive quantities" },
+
+    { "q": "19", "part": null, "marks": 5, "skill_ids": ["conditional_probability", "ratio"], "kind": "exam", "answer_form": "fraction", "mark_split": "M1 M3 A1", "app_gap_note": "probability two without-replacement picks differ in colour, the counts given only by a ratio of a known total" },
+
+    { "q": "20", "part": "ai", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "a diagonal of a parallelogram in terms of its two side vectors" },
+    { "q": "20", "part": "aii", "marks": 2, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "a vector to a point dividing one side in a given ratio" },
+    { "q": "20", "part": "b", "marks": 4, "skill_ids": ["vector_proof"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 M1 B1 A1dep", "app_gap_note": "show three points are collinear, by expressing one vector as a multiple of another" }
+  ]
+}
