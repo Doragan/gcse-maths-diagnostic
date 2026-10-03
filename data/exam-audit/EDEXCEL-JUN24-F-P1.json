@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Non-calculator)",
+    "series": "June 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-1f-jun24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/1F",
+    "paper_subtitle": "Foundation Tier Paper 1 Non-calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/1F, Thursday 16 May 2024, P76922A), downloaded from qualifications.pearson.com. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Third Edexcel series in the audit. Extraction was clean: all 28 (Total for Question) lines recovered and summing to the printed 80, so no part total had to be inferred. Coded WITH mark_split."
+  },
+  "coding_notes": [
+    "q3 (name the type of angle marked y) tagged angles_on_lines_and_circles, the documented handling for classifying an angle — there is no node of its own and measuring_lines_and_angles is about protractor use.",
+    "q5 and q11b (a square root and a power of 2) tagged indices, the documented handling for roots as well as powers. q18 is the same node: the answer is 1, from a zero index.",
+    "q13b tagged calculating_simple_probability then ratio: the answer is a probability, but the mark scheme's process mark is for establishing the 2 : 1 split of coin counts from an equal split of value.",
+    "q21b tagged irregular_and_improper_fractions first. The question is set as a division, but the mistake the mark scheme wants identified is purely in converting 35/24 to a mixed number — it explicitly refuses 'he should have done keep, flip, change'.",
+    "q22b tagged proportion alone, not areas_of_compound_shapes: the area is settled by part (a) and the only thing (b) tests is what a larger coverage rate does to the conclusion.",
+    "q26 tagged ratio before fractions_of_amounts — four of the five marks chain two ratios together, and the fraction of the total is one step of the four."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["rounding"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "round a five-digit number to the nearest thousand" },
+    { "q": "2", "part": null, "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "decimal to percentage conversion" },
+    { "q": "3", "part": null, "marks": 1, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name an angle by type, where the answer is reflex" },
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "order five decimals of differing lengths" },
+    { "q": "5", "part": null, "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "square root of a two-digit square number" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "unit price of one of two identical items, from a total payment, the change and another item's price" },
+
+    { "q": "7", "part": null, "marks": 4, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 M1 M1 C1", "app_gap_note": "choose and draw a suitable chart for two people's data across four days, including scale, labels and a key" },
+
+    { "q": "8", "part": "i", "marks": 2, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "missing angle at a point, from two given angles" },
+    { "q": "8", "part": "ii", "marks": 1, "skill_ids": ["angles_on_lines_and_circles"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "give the angle reason for that calculation" },
+
+    { "q": "9", "part": "a", "marks": 1, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "output of a two-step function machine" },
+    { "q": "9", "part": "b", "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "input of a two-step function machine from its output" },
+    { "q": "9", "part": "c", "marks": 2, "skill_ids": ["function_machines", "solving_linear_equations"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 C1", "app_gap_note": "show a machine has a fixed point, by trial or by forming an equation" },
+
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["simplifying_ratio"], "kind": "mastery", "answer_form": "ratio", "mark_split": "M1 A1", "app_gap_note": "write two counts as a ratio in its simplest form" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "divide one negative number by another" },
+    { "q": "11", "part": "b", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "evaluate a small power of 2" },
+    { "q": "11", "part": "c", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "insert one pair of brackets to make a stated order-of-operations result true" },
+
+    { "q": "12", "part": null, "marks": 4, "skill_ids": ["lengths_and_perimeters"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "a rectangle's missing length, its perimeter given as a fraction of a triangle's" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "probability of a certain event" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["calculating_simple_probability", "ratio"], "kind": "exam", "answer_form": "fraction", "mark_split": "P1 A1", "app_gap_note": "probability of picking one coin type, where the two denominations hold equal total value" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1dep A1", "app_gap_note": "non-calculator long multiplication of a three-digit by a two-digit number" },
+
+    { "q": "15", "part": "a", "marks": 1, "skill_ids": ["median"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "median from a stem and leaf diagram" },
+    { "q": "15", "part": "b", "marks": 2, "skill_ids": ["range"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "range from a stem and leaf diagram" },
+    { "q": "15", "part": "c", "marks": 1, "skill_ids": ["median"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "compare two distributions on the median alone, the second given only by its median" },
+
+    { "q": "16", "part": null, "marks": 3, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 A1", "app_gap_note": "best value among three pack sizes, all three needing comparable figures" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["solving_linear_equations", "expanding_brackets"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "solve a linear equation with a bracket, non-integer solution" },
+
+    { "q": "18", "part": null, "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "value of a number raised to the power zero" },
+
+    { "q": "19", "part": null, "marks": 2, "skill_ids": ["translations"], "kind": "mastery", "answer_form": "text", "mark_split": "B1 B1", "app_gap_note": "describe fully a single translation, naming it and giving the column vector" },
+
+    { "q": "20", "part": null, "marks": 2, "skill_ids": ["finding_the_nth_term"], "kind": "mastery", "answer_form": "expression", "mark_split": "B2", "app_gap_note": "nth term of an arithmetic sequence" },
+
+    { "q": "21", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "subtract two mixed numbers with unrelated denominators" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["irregular_and_improper_fractions", "dividing_fractions"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "identify that a correct improper-fraction result was converted to a mixed number wrongly" },
+
+    { "q": "22", "part": "a", "marks": 4, "skill_ids": ["areas_of_compound_shapes", "proportion"], "kind": "exam", "answer_form": "show_that", "mark_split": "P1 P1 P1 A1", "app_gap_note": "decide whether a stated quantity of paint covers an L-shaped floor, at a stated coverage rate" },
+    { "q": "22", "part": "b", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "say whether a larger coverage rate changes that conclusion, with a reason" },
+
+    { "q": "23", "part": "a", "marks": 1, "skill_ids": ["venn_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "list the members of one set from a completed Venn diagram" },
+    { "q": "23", "part": "b", "marks": 2, "skill_ids": ["venn_diagrams", "calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "probability of a set operation read off a Venn diagram" },
+
+    { "q": "24", "part": "a", "marks": 3, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "estimate a total cost from a distance and a rate per fixed distance, by rounding first" },
+    { "q": "24", "part": "b", "marks": 1, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "decide whether that estimate is an under- or overestimate, with a reason" },
+
+    { "q": "25", "part": "a", "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 M1 A1", "app_gap_note": "equation of a line drawn on a grid, fractional gradient" },
+    { "q": "25", "part": "b", "marks": 1, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "B1", "app_gap_note": "any line parallel to a given one" },
+
+    { "q": "26", "part": null, "marks": 5, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "percentage of a whole taken by one part, from a fraction of the total then two chained ratios sharing a term" },
+
+    { "q": "27", "part": null, "marks": 2, "skill_ids": ["reverse_percentage"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "original price from a sale price and the percentage reduction" },
+
+    { "q": "28", "part": null, "marks": 3, "skill_ids": ["inequalities"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "solve a linear inequality with the unknown on both sides and a fractional coefficient" }
+  ]
+}

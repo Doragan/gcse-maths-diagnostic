@@ -21,6 +21,12 @@ import { EDEXCEL_1MA1_3F_NOV24 } from './edexcel-1ma1-3f-nov24'
 import { EDEXCEL_1MA1_1H_NOV24 } from './edexcel-1ma1-1h-nov24'
 import { EDEXCEL_1MA1_2H_NOV24 } from './edexcel-1ma1-2h-nov24'
 import { EDEXCEL_1MA1_3H_NOV24 } from './edexcel-1ma1-3h-nov24'
+import { EDEXCEL_1MA1_1F_JUN24 } from './edexcel-1ma1-1f-jun24'
+import { EDEXCEL_1MA1_2F_JUN24 } from './edexcel-1ma1-2f-jun24'
+import { EDEXCEL_1MA1_3F_JUN24 } from './edexcel-1ma1-3f-jun24'
+import { EDEXCEL_1MA1_1H_JUN24 } from './edexcel-1ma1-1h-jun24'
+import { EDEXCEL_1MA1_2H_JUN24 } from './edexcel-1ma1-2h-jun24'
+import { EDEXCEL_1MA1_3H_JUN24 } from './edexcel-1ma1-3h-jun24'
 
 // OCR — same route. NOTE the identity: OCR's non-calculator papers are 02 and
 // 05, not 01, and every J560 paper is 100 marks rather than 80.
@@ -141,6 +147,12 @@ export const PAPERS: Record<string, PaperConfig> = {
   [AQA_8300_3H_NOV24.id]: AQA_8300_3H_NOV24,
 
   // June 2024
+  [EDEXCEL_1MA1_1F_JUN24.id]: EDEXCEL_1MA1_1F_JUN24,
+  [EDEXCEL_1MA1_2F_JUN24.id]: EDEXCEL_1MA1_2F_JUN24,
+  [EDEXCEL_1MA1_3F_JUN24.id]: EDEXCEL_1MA1_3F_JUN24,
+  [EDEXCEL_1MA1_1H_JUN24.id]: EDEXCEL_1MA1_1H_JUN24,
+  [EDEXCEL_1MA1_2H_JUN24.id]: EDEXCEL_1MA1_2H_JUN24,
+  [EDEXCEL_1MA1_3H_JUN24.id]: EDEXCEL_1MA1_3H_JUN24,
   [OCR_J560_01_JUN24.id]: OCR_J560_01_JUN24,
   [OCR_J560_02_JUN24.id]: OCR_J560_02_JUN24,
   [OCR_J560_03_JUN24.id]: OCR_J560_03_JUN24,
