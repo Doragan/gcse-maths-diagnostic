@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-2h-jun24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/2H",
+    "paper_subtitle": "Higher Tier Paper 2 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/2H, Monday 3 June 2024, P76925A), downloaded from qualifications.pearson.com. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as EDEXCEL-JUN24-F-P2. The crossover block is 2F q20–q26 = 2H q1–q7, contiguous, and the marks match item for item (2, 3, 2, 4, 6, 4, 4). All 22 (Total for Question) lines recovered and summing to the printed 80. Coded WITH mark_split."
+  },
+  "coding_notes": [
+    "q1–q7 are 2F q20–q26 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q14a tagged gradient_of_a_curve, not kinematic_graphs: the mark scheme scores zero without a drawn tangent, which is exactly what that node was added for. q14b stays on kinematic_graphs — an area under a velocity-time curve by strips.",
+    "q8 tagged area_and_volume_scale_factors before areas_of_triangles — the first process mark is converting a drawing area to a real area through the SQUARE of the scale, which is the whole point of the item.",
+    "q17 tagged area_and_volume_scale_factors alone: both ratios in the mark scheme are scale-factor conversions, one from masses (a volume ratio) and one from surface areas.",
+    "q19b tagged vectors rather than vector_proof — it is a one-mark follow-through reading of whether the part (a) expression is a multiple of b, not a proof.",
+    "q22 tagged circle_theorem_tangent then congruence_and_similarity: the first communication mark is the tangent-radius right angle and the last is the RHS congruence that follows.",
+    "q12a and q12b tagged inverse_proportion and proportion_with_powers together — the relationship is inverse AND to a power, and neither node alone states it."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["pythagoras_theorem"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "shorter side of a right-angled triangle from the hypotenuse and the other side, to 3 significant figures" },
+
+    { "q": "2", "part": "a", "marks": 2, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "write a two-digit number as a product of primes" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["lowest_common_multiple"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "lowest common multiple of two numbers given as products of prime factors" },
+
+    { "q": "3", "part": null, "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "difference between two values of a formula, at two values of its variable" },
+
+    { "q": "4", "part": null, "marks": 4, "skill_ids": ["ratio", "calculating_simple_probability"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "count of one colour, from a third colour's count and probability and a ratio between the other two" },
+
+    { "q": "5", "part": "a", "marks": 2, "skill_ids": ["quadratic_functions", "substitution"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "5", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "plot a quadratic curve from a table of values" },
+    { "q": "5", "part": "c", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "read both solutions of a quadratic equal to a constant off the drawn curve" },
+
+    { "q": "6", "part": null, "marks": 4, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 P1 C1", "app_gap_note": "test a claim that two transfers out of one share of a three-part ratio leave all three equal" },
+
+    { "q": "7", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "solving_linear_equations", "alternate_and_corresponding_angles"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1dep A1 C1", "app_gap_note": "show a quadrilateral with four algebraic angles has one pair of parallel sides" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["area_and_volume_scale_factors", "areas_of_triangles"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "a real length of a right-angled triangle, from its area on a scale drawing and one real side" },
+
+    { "q": "9", "part": "a", "marks": 1, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "least possible value of a number rounded to 2 significant figures" },
+    { "q": "9", "part": "b", "marks": 1, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "reject a claim that the upper bound is the largest value with a terminating decimal" },
+
+    { "q": "10", "part": null, "marks": 3, "skill_ids": ["trigonometry_missing_sides", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 P1 A1", "app_gap_note": "value of a letter from equating a sine in one right-angled triangle with a tangent in another, both sides algebraic" },
+
+    { "q": "11", "part": "a", "marks": 1, "skill_ids": ["cumulative_frequency"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B1", "app_gap_note": "complete a cumulative frequency table from a grouped frequency table" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["cumulative_frequency"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "draw a cumulative frequency graph, plotting at interval end points" },
+    { "q": "11", "part": "c", "marks": 2, "skill_ids": ["interquartile_range", "cumulative_frequency"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "interquartile range read off a cumulative frequency graph" },
+    { "q": "11", "part": "d", "marks": 2, "skill_ids": ["cumulative_frequency"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "how many lie above a stated value, from a cumulative frequency graph" },
+
+    { "q": "12", "part": "a", "marks": 2, "skill_ids": ["inverse_proportion", "proportion_with_powers"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 A1", "app_gap_note": "equation for a variable inversely proportional to a square, from one given pair" },
+    { "q": "12", "part": "b", "marks": 2, "skill_ids": ["proportion_with_powers"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "the positive variable value giving a stated output, to 3 significant figures" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["inequalities", "understanding_straight_line_graphs"], "kind": "exam", "answer_form": "draw_plot", "mark_split": "M1 M1 C1", "app_gap_note": "shade and label the region satisfying four inequalities, two of them sloping lines" },
+
+    { "q": "14", "part": "a", "marks": 3, "skill_ids": ["gradient_of_a_curve"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 M1dep A1", "app_gap_note": "acceleration at a stated time, by drawing a tangent to a velocity-time curve — the gradient is negative" },
+    { "q": "14", "part": "b", "marks": 3, "skill_ids": ["kinematic_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "estimate the area under a velocity-time curve using a stated number of equal strips" },
+
+    { "q": "15", "part": null, "marks": 2, "skill_ids": ["surds_expanding_and_rationalising"], "kind": "mastery", "answer_form": "exact_surd", "mark_split": "M1 A1", "app_gap_note": "rationalise a two-term denominator where the surd is of an unspecified letter" },
+
+    { "q": "16", "part": null, "marks": 2, "skill_ids": ["quadratic_inequalities"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "solve a factorised quadratic inequality, solution a single interval" },
+
+    { "q": "17", "part": null, "marks": 4, "skill_ids": ["area_and_volume_scale_factors"], "kind": "mastery", "answer_form": "ratio", "mark_split": "P1 P1 P1dep A1", "app_gap_note": "three-part ratio of heights of similar cylinders, from two masses and two surface areas" },
+
+    { "q": "18", "part": null, "marks": 5, "skill_ids": ["conditional_probability", "systematic_listing"], "kind": "exam", "answer_form": "fraction", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "probability that a without-replacement draw of three leaves one colour outnumbering another, summed over every qualifying selection" },
+
+    { "q": "19", "part": "a", "marks": 4, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "expression", "mark_split": "P1 P1 P1 A1", "app_gap_note": "a vector across a quadrilateral in terms of two base vectors and a letter multiple, via a midpoint and an internal division ratio" },
+    { "q": "19", "part": "b", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "decide whether that expression is parallel to one base vector, with a reason" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["completing_the_square"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "P1 P1 A1", "app_gap_note": "turning point of a quadratic with a non-unit leading coefficient" },
+
+    { "q": "21", "part": null, "marks": 2, "skill_ids": ["graph_transformations"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "C2", "app_gap_note": "draw a combined reflection in the y-axis and vertical translation of an unnamed curve" },
+
+    { "q": "22", "part": null, "marks": 4, "skill_ids": ["circle_theorem_tangent", "congruence_and_similarity"], "kind": "exam", "answer_form": "show_that", "mark_split": "C1 C1 C1 C1dep", "app_gap_note": "prove the two tangents from an external point are equal, with a reason at every stage" }
+  ]
+}

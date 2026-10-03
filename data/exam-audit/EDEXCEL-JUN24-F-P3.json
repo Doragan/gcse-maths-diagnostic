@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 3 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-3f-jun24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/3F",
+    "paper_subtitle": "Foundation Tier Paper 3 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/3F, Monday 10 June 2024, P76926A), downloaded from qualifications.pearson.com. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "All 29 (Total for Question) lines recovered and summing to the printed 80. Coded WITH mark_split."
+  },
+  "coding_notes": [
+    "q3 (value of a digit in a whole number) tagged decimals, the documented handling for place value.",
+    "q6a and q6b (map scale both ways) tagged ratio then converting_measurements, the ordering the coding doc names for map-scale items. q6b additionally has to choose its own units, which is why it carries a second process mark.",
+    "q8 (will there be an election in a stated year) tagged factors_and_multiples: every mark-scheme route is building or testing a multiple sequence from a start year.",
+    "q25 tagged growth_and_decay — this one IS compound, unlike 2F q15's simple interest, and the mark scheme's middle process mark is explicitly for a compound step.",
+    "q26 tagged compound_units: both tins are found through density, and the volume of the second is the difference the middle mark rewards.",
+    "q20 tagged angles_on_lines_and_circles then simplifying_ratio. Three of the five marks are angle chains through two isosceles triangles; the ratio in the form 1 : n is the last step.",
+    "q24a and q24b tagged plans_and_elevations, including the explanation of why a side elevation using the slant height is wrong."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "percentage to fraction conversion" },
+    { "q": "2", "part": null, "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "metric length conversion" },
+    { "q": "3", "part": null, "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "place value of a digit in a five-digit whole number" },
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "collect three like terms, one pair cancelling" },
+    { "q": "5", "part": null, "marks": 1, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "B1", "app_gap_note": "order three fractions with unrelated denominators" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["ratio", "converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 A1", "app_gap_note": "real distance from a map distance and a stated scale" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["ratio", "converting_measurements"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 A1", "app_gap_note": "map distance from a real distance, with the units to be chosen and stated" },
+
+    { "q": "7", "part": "a", "marks": 1, "skill_ids": ["mode", "simple_charts"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "the modal category of a bar chart" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "difference between two bars on a bar chart" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 A1", "app_gap_note": "decide whether a stated year falls in a five-yearly sequence anchored to a derived start year" },
+
+    { "q": "9", "part": null, "marks": 3, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 C1", "app_gap_note": "show a budget covers three charges, each a daily or hourly rate times a quantity" },
+
+    { "q": "10", "part": "a", "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1", "app_gap_note": "draw a radius on a circle" },
+    { "q": "10", "part": "b", "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "name a chord" },
+
+    { "q": "11", "part": null, "marks": 2, "skill_ids": ["time_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "total duration in hours, from a count and a length in minutes" },
+
+    { "q": "12", "part": null, "marks": 2, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "three primes inside a stated range" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["gathering_and_organising_data"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B3", "app_gap_note": "complete a two-way table from partial row, column and overall totals" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["pie_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1 A1", "app_gap_note": "draw and label an accurate pie chart from three frequencies" },
+
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 C1", "app_gap_note": "decide which of two percentages of two different amounts is greater" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "a repeated product of one letter written as a power" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "expression in two letters for a total built from two per-item scores" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "scale three recipe quantities from one batch size to another" },
+
+    { "q": "18", "part": "a", "marks": 2, "skill_ids": ["rotations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "rotate a shape a half turn about the origin" },
+    { "q": "18", "part": "b", "marks": 1, "skill_ids": ["reflections"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "explain that a reflection was done in a horizontal line rather than the stated vertical one" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["plotting_straight_line_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a straight line from its equation over a stated domain" },
+
+    { "q": "20", "part": null, "marks": 5, "skill_ids": ["angles_on_lines_and_circles", "simplifying_ratio"], "kind": "exam", "answer_form": "ratio", "mark_split": "M1 M1 M1 M1dep A1dep", "app_gap_note": "ratio of two angles in the form 1 : n, chained through two isosceles triangles sharing a side" },
+
+    { "q": "21", "part": "a", "marks": 1, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "factorise a two-term linear expression with a numerical common factor" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["factorising"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "factorise a two-term quadratic with a letter common factor" },
+
+    { "q": "22", "part": null, "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "highest common factor of two two- and three-digit numbers" },
+
+    { "q": "23", "part": "ai", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "standard form to an ordinary number, positive index" },
+    { "q": "23", "part": "aii", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "standard form to an ordinary number, negative index" },
+    { "q": "23", "part": "b", "marks": 2, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "add two standard-form values with different indices, answer in standard form" },
+
+    { "q": "24", "part": "a", "marks": 1, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "explain why a side elevation drawn with the slant height rather than the perpendicular height is wrong" },
+    { "q": "24", "part": "b", "marks": 2, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "M1 A1", "app_gap_note": "draw the plan of a triangular prism on a centimetre grid" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "population after three years of a stated compound percentage increase" },
+
+    { "q": "26", "part": null, "marks": 4, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "density of a second substance, its volume found from an identical tin's capacity less an unfilled space" },
+
+    { "q": "27", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "complete a two-stage probability tree for two differently biased coins" },
+    { "q": "27", "part": "b", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "probability of both events from a completed tree" },
+
+    { "q": "28", "part": null, "marks": 4, "skill_ids": ["volume_of_a_prism", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "minutes to fill a cylinder at a stated volume rate, to the nearest minute" },
+
+    { "q": "29", "part": "a", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "substitute a negative value into a formula with a squared term" },
+    { "q": "29", "part": "b", "marks": 2, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 A1", "app_gap_note": "change the subject where the new subject is inside a fraction" }
+  ]
+}

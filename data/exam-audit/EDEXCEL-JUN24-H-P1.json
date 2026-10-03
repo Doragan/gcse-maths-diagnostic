@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 1 (Non-calculator)",
+    "series": "June 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-1h-jun24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/1H",
+    "paper_subtitle": "Higher Tier Paper 1 Non-calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/1H, Thursday 16 May 2024, P76923A), downloaded from qualifications.pearson.com. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as EDEXCEL-JUN24-F-P1 so the crossover block carries identical tags. The shared block is 1F q20–q26 = 1H q1–q7, contiguous on both papers, and the marks match item for item (2, 3, 5, 3, 4, 4, 5). All 23 (Total for Question) lines recovered and summing to the printed 80. Coded WITH mark_split."
+  },
+  "coding_notes": [
+    "q1–q7 are 1F q20–q26 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q11 (a translation followed by a rotation, described as one transformation) tagged rotations then translations: the single equivalent transformation is a rotation, and the translation is the step that fixes its centre.",
+    "q12 coded as three separate 1-mark rows, as the paper prints them. Each is tagged sketching_functions, following the OCR-JUN25-F-P1 q15 ruling that matching standard graph shapes to equations is that node rather than quadratic_functions — which would be a false claim for the cubic and the reciprocal anyway.",
+    "q21 (height of a cuboid from its volume and total surface area) tags areas_of_squares_and_rectangles for the surface area, the documented handling for the cuboid-surface-area gap, alongside volume_of_a_prism and the quadratic the elimination produces.",
+    "q16 tagged conditional_probability alone. The answer is an algebraic identity, but what it tests is that the second draw's denominator has fallen by one; algebraic_proof would credit a proof technique the item does not exercise.",
+    "q19 tagged congruence_and_similarity: both mark-scheme routes are a scale factor between the two similar triangles, one of them via a perpendicular height."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["finding_the_nth_term"], "kind": "mastery", "answer_form": "expression", "mark_split": "B2", "app_gap_note": "nth term of an arithmetic sequence" },
+
+    { "q": "2", "part": "a", "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "subtract two mixed numbers with unrelated denominators" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["irregular_and_improper_fractions", "dividing_fractions"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "identify that a correct improper-fraction result was converted to a mixed number wrongly" },
+
+    { "q": "3", "part": "a", "marks": 4, "skill_ids": ["areas_of_compound_shapes", "proportion"], "kind": "exam", "answer_form": "show_that", "mark_split": "P1 P1 P1 A1", "app_gap_note": "decide whether a stated quantity of paint covers an L-shaped floor, at a stated coverage rate" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "say whether a larger coverage rate changes that conclusion, with a reason" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["venn_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "list the members of one set from a completed Venn diagram" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["venn_diagrams", "calculating_simple_probability"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "probability of a set operation read off a Venn diagram" },
+
+    { "q": "5", "part": "a", "marks": 3, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "estimate a total cost from a distance and a rate per fixed distance, by rounding first" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["estimating"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "decide whether that estimate is an under- or overestimate, with a reason" },
+
+    { "q": "6", "part": "a", "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "M1 M1 A1", "app_gap_note": "equation of a line drawn on a grid, fractional gradient" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "answer_form": "equation", "mark_split": "B1", "app_gap_note": "any line parallel to a given one" },
+
+    { "q": "7", "part": null, "marks": 5, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "percentage of a whole taken by one part, from a fraction of the total then two chained ratios sharing a term" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["mean"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "mean of the remaining items, from the mean of the whole set and the mean of a subset" },
+
+    { "q": "9", "part": null, "marks": 1, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "percentage reduction behind a stated decimal multiplier" },
+
+    { "q": "10", "part": null, "marks": 4, "skill_ids": ["simultaneous_equations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1 M1dep A1", "app_gap_note": "solve simultaneous linear equations algebraically, one solution negative" },
+
+    { "q": "11", "part": null, "marks": 3, "skill_ids": ["rotations", "translations"], "kind": "exam", "answer_form": "text", "mark_split": "M1 A2", "app_gap_note": "the single transformation equivalent to a translation followed by a rotation about a given point" },
+
+    { "q": "12", "part": "i", "marks": 1, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "match a translated quadratic to its sketched graph" },
+    { "q": "12", "part": "ii", "marks": 1, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "match a negated cubic to its sketched graph" },
+    { "q": "12", "part": "iii", "marks": 1, "skill_ids": ["sketching_functions"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "match a negative reciprocal to its sketched graph" },
+
+    { "q": "13", "part": "a", "marks": 3, "skill_ids": ["histograms", "grouped_frequency_tables"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B3", "app_gap_note": "draw a histogram from a grouped frequency table with five unequal class widths" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["histograms"], "kind": "mastery", "answer_form": "fraction", "mark_split": "M1 A1", "app_gap_note": "estimate the fraction of a population inside an interval that cuts across two class boundaries" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 M1 A1", "app_gap_note": "expand and simplify a product of three linear brackets, one non-monic" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["sector_calculations"], "kind": "mastery", "answer_form": "exact_surd", "mark_split": "P2 P1dep A1", "app_gap_note": "area of a sector in terms of pi, its angle recovered from the arc length and radius" },
+
+    { "q": "16", "part": null, "marks": 2, "skill_ids": ["conditional_probability"], "kind": "mastery", "answer_form": "show_that", "mark_split": "M1 A1dep", "app_gap_note": "show an algebraic without-replacement probability simplifies to a given expression" },
+
+    { "q": "17", "part": "a", "marks": 1, "skill_ids": ["surds_expanding_and_rationalising"], "kind": "mastery", "answer_form": "exact_surd", "mark_split": "B1", "app_gap_note": "rationalise a single-surd denominator" },
+    { "q": "17", "part": "b", "marks": 2, "skill_ids": ["surds_simplifying"], "kind": "mastery", "answer_form": "exact_surd", "mark_split": "M1 A1", "app_gap_note": "divide two surds and simplify the result" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["recurring_decimals_to_fractions", "adding_and_subtracting_fractions"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1 C1", "app_gap_note": "show the sum of two recurring decimals, with different recurring blocks, has a stated denominator" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "ratio", "mark_split": "P1 P1 A1", "app_gap_note": "ratio of two sides across a pair of similar isosceles triangles, from a ratio of two others" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["simplifying_indices"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "an index from a product of powers equated to a quotient, given only the sum of two other indices" },
+
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["volume_of_a_prism", "areas_of_squares_and_rectangles", "solving_quadratic_equations_factorising"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "height of a cuboid from its volume, its total surface area and its length, with the width constrained to be the larger" },
+
+    { "q": "22", "part": "a", "marks": 2, "skill_ids": ["trig_graphs"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 A1", "app_gap_note": "sketch the sine curve over one period, with its maximum and minimum labelled" },
+    { "q": "22", "part": "b", "marks": 2, "skill_ids": ["trig_graphs"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "both solutions of a scaled sine equation in a stated range" },
+
+    { "q": "23", "part": null, "marks": 5, "skill_ids": ["equation_of_a_circle", "understanding_straight_line_graphs"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1dep A1", "app_gap_note": "y-intercept of a chord of a circle centred on the origin, from one endpoint and the other's x coordinate" }
+  ]
+}

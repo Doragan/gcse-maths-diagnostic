@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-2f-jun24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/2F",
+    "paper_subtitle": "Foundation Tier Paper 2 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/2F, Monday 3 June 2024, P76924A), downloaded from qualifications.pearson.com. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "All 28 (Total for Question) lines recovered and summing to the printed 80. Coded WITH mark_split."
+  },
+  "coding_notes": [
+    "q15 (simple interest over six years) tagged percentage_change, NOT growth_and_decay — the documented ruling, since simple interest demonstrates nothing about a repeated multiplier. The mark scheme confirms it by also accepting 0.025 × 6 as a single step.",
+    "q16a and q16b (ounces and grams off a conversion graph) tagged converting_measurements, the handling established on EDEXCEL-NOV24-F-P3 q11 — the graph is the conversion factor and the question is a unit conversion.",
+    "q22 tagged substitution alone. The formula H = 72/n is an inverse proportion, but nothing in the item tests that relationship — both marks are for substituting two values and subtracting.",
+    "q17 tagged loci then constructions: two of the three communication marks are the arc and the perpendicular bisector, and the third is the region they bound.",
+    "q26 ('show ABCD is a trapezium' from four algebraic angles) tagged angles_in_polygons then solving_linear_equations, with alternate_and_corresponding_angles third — the conclusion the final mark wants is a co-interior/allied angle statement about parallel sides."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "order five directed numbers" },
+    { "q": "2", "part": null, "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "metric capacity conversion" },
+    { "q": "3", "part": null, "marks": 1, "skill_ids": ["converting_fractions_to_decimals"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a hundredths fraction written as a decimal" },
+    { "q": "4", "part": null, "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "a multiple of a given number inside a stated range" },
+    { "q": "5", "part": null, "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "complete an identity between a repeated term and its collected form" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "read a whole-symbol value off a pictogram" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1", "app_gap_note": "add a value to a pictogram needing part symbols" },
+    { "q": "6", "part": "c", "marks": 3, "skill_ids": ["simple_charts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "the missing month's value, from a pictogram of three months, one added month and an overall total" },
+
+    { "q": "7", "part": "a", "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "measure a line in centimetres" },
+    { "q": "7", "part": "b", "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "measure an angle with a protractor" },
+    { "q": "7", "part": "c", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B1", "app_gap_note": "draw a hexagon" },
+
+    { "q": "8", "part": "a", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "B1", "app_gap_note": "read coordinates off a grid" },
+    { "q": "8", "part": "b", "marks": 2, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "coordinate", "mark_split": "M1 A1", "app_gap_note": "midpoint of two plotted points across two quadrants" },
+    { "q": "8", "part": "c", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "C1", "app_gap_note": "plot and label a point with a negative coordinate" },
+
+    { "q": "9", "part": null, "marks": 4, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 B1indep A1", "app_gap_note": "total pay from two odometer readings, a rate in pence per mile and a fixed expense in pounds" },
+
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["systematic_listing"], "kind": "mastery", "answer_form": "text", "mark_split": "M1 A1", "app_gap_note": "list all eight outcomes of three successive two-way events" },
+
+    { "q": "11", "part": null, "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "reject a claim that three unequal sectors give equally likely outcomes" },
+
+    { "q": "12", "part": null, "marks": 3, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "total weight of the complementary group, from a fraction of a count and a unit weight" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "multiply two terms with numerical coefficients and different letters" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "substitute a positive and a negative value into a two-term formula" },
+
+    { "q": "14", "part": "a", "marks": 2, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "average speed from a distance and a time" },
+    { "q": "14", "part": "b", "marks": 3, "skill_ids": ["compound_units", "time_calculations"], "kind": "exam", "answer_form": "show_that", "mark_split": "P1 P1 C1", "app_gap_note": "test a claim about a two-day total time, the second day's time found from a distance and a speed" },
+
+    { "q": "15", "part": null, "marks": 2, "skill_ids": ["percentage_change"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "total simple interest over six years" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "read a conversion off a straight-line conversion graph" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["converting_measurements"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "convert a value beyond the graph's range, by scaling a reading taken from it" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["loci", "constructions"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "C1 C1 C1", "app_gap_note": "shade the region inside a triangle satisfying a distance condition and a nearer-to condition" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["fractions_of_amounts"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "each person's share of the part of a total not met by a percentage contribution" },
+
+    { "q": "19", "part": "a", "marks": 2, "skill_ids": ["exact_calculations"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "evaluate a quotient of two two-term expressions on a calculator, all digits given" },
+    { "q": "19", "part": "b", "marks": 1, "skill_ids": ["significant_figures"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "round that result to 2 significant figures" },
+
+    { "q": "20", "part": null, "marks": 2, "skill_ids": ["pythagoras_theorem"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "shorter side of a right-angled triangle from the hypotenuse and the other side, to 3 significant figures" },
+
+    { "q": "21", "part": "a", "marks": 2, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "write a two-digit number as a product of primes" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["lowest_common_multiple"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "lowest common multiple of two numbers given as products of prime factors" },
+
+    { "q": "22", "part": null, "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "difference between two values of a formula, at two values of its variable" },
+
+    { "q": "23", "part": null, "marks": 4, "skill_ids": ["ratio", "calculating_simple_probability"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "count of one colour, from a third colour's count and probability and a ratio between the other two" },
+
+    { "q": "24", "part": "a", "marks": 2, "skill_ids": ["quadratic_functions", "substitution"], "kind": "mastery", "answer_form": "table_complete", "mark_split": "B2", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "24", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B2", "app_gap_note": "plot a quadratic curve from a table of values" },
+    { "q": "24", "part": "c", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "read both solutions of a quadratic equal to a constant off the drawn curve" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["ratio", "fractions_of_amounts"], "kind": "mastery", "answer_form": "show_that", "mark_split": "P1 P1 P1 C1", "app_gap_note": "test a claim that two transfers out of one share of a three-part ratio leave all three equal" },
+
+    { "q": "26", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "solving_linear_equations", "alternate_and_corresponding_angles"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1dep A1 C1", "app_gap_note": "show a quadrilateral with four algebraic angles has one pair of parallel sides" },
+
+    { "q": "27", "part": null, "marks": 2, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "a side of the smaller of two similar isosceles triangles, from the two bases and one equal side" },
+
+    { "q": "28", "part": "a", "marks": 1, "skill_ids": ["median", "grouped_frequency_tables"], "kind": "mastery", "answer_form": "text", "mark_split": "B1", "app_gap_note": "the class interval containing the median of a grouped distribution" },
+    { "q": "28", "part": "b", "marks": 3, "skill_ids": ["mean", "grouped_frequency_tables"], "kind": "exam", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "estimated mean of a grouped frequency table, to 3 significant figures" }
+  ]
+}
