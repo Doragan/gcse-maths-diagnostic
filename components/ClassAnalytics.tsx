@@ -7,7 +7,9 @@ import {
 } from '../lib/teacherAnalytics'
 import { getClassReadiness, type ClassReadiness } from '../lib/exam/classReadiness'
 import ClassMasteryTrend from './ClassMasteryTrend'
+import ClassEffortTrend from './ClassEffortTrend'
 import StudentDetailModal from './StudentDetailModal'
+import { ago } from '../lib/relativeTime'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 
 const TOPIC_COLOUR: Record<Topic, string> = {
@@ -23,6 +25,21 @@ const bCol = (p: number) => (p >= 70 ? colors.success : p >= 40 ? colors.warning
 const bBg  = (p: number) => (p >= 70 ? colors.successLight : p >= 40 ? colors.warningLight : colors.dangerLight)
 const bTxt = (p: number) => (p >= 70 ? colors.successText : p >= 40 ? colors.warningText : colors.dangerText)
 
+/**
+ * Two views over the same roster. Mastery is the slow, cumulative picture;
+ * Activity is what the class has actually been doing, which moves daily.
+ * They are a toggle rather than extra columns because the table is
+ * `tableLayout: fixed` and already tight on a phone (docs/audit/24 §1, A2).
+ */
+type View = 'mastery' | 'activity'
+type SortKey = 'name' | 'mastery' | 'exam' | 'week' | 'total' | 'recent'
+type SortState = { key: SortKey; dir: 'asc' | 'desc' }
+
+const DEFAULT_SORT: Record<View, SortState> = {
+  mastery:  { key: 'mastery', dir: 'desc' },
+  activity: { key: 'recent',  dir: 'desc' },
+}
+
 export default function ClassAnalytics({ classId }: { classId: string }) {
   const [data, setData] = useState<ClassAnalytics | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -30,6 +47,10 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
   // Exam readiness is fetched separately and degrades to empty, so the mastery
   // dashboard renders normally before the migration is applied.
   const [readiness, setReadiness] = useState<ClassReadiness | null>(null)
+  // null → use the default for the data (see `view` below).
+  const [viewOverride, setViewOverride] = useState<View | null>(null)
+  // Kept per view: an 'exam' sort means nothing in the Activity columns.
+  const [sorts, setSorts] = useState<Partial<Record<View, SortState>>>({})
 
   useEffect(() => {
     let live = true
@@ -58,103 +79,225 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
   }
   if (!data) return null
 
+  // Default to Activity when there is no mastery yet: a class that has only sat
+  // the placement test has real effort and zero mastery, and the mastery view
+  // would be a wall of dashes.
+  const view: View = viewOverride ?? (data.studentsWithData === 0 ? 'activity' : 'mastery')
+  const sort = sorts[view] ?? DEFAULT_SORT[view]
+
   // topics that at least one student has data in (drives table columns)
   const liveTopics = TOPICS.filter(t => data.students.some(s => s.topicMastery[t] !== undefined))
-  const ranked = [...data.students].sort((a, b) => (b.overallMastery ?? -1) - (a.overallMastery ?? -1))
+
+  const sortValue = (s: StudentAnalytics, key: SortKey): number | string => {
+    switch (key) {
+      case 'name':    return s.displayName.toLowerCase()
+      case 'mastery': return s.overallMastery ?? -1
+      case 'exam':    return readiness?.byStudent[s.studentId]?.latest ?? -1
+      case 'week':    return s.questionsThisWeek
+      case 'total':   return s.totalQuestions
+      case 'recent':  return s.lastActive ? new Date(s.lastActive).getTime() : -1
+    }
+  }
+  const ranked = [...data.students].sort((a, b) => {
+    const av = sortValue(a, sort.key), bv = sortValue(b, sort.key)
+    const cmp = typeof av === 'string'
+      ? av.localeCompare(bv as string)
+      : (av as number) - (bv as number)
+    return sort.dir === 'asc' ? cmp : -cmp
+  })
+
+  function toggleSort(key: SortKey) {
+    const dir: 'asc' | 'desc' = sort.key === key
+      ? (sort.dir === 'desc' ? 'asc' : 'desc')
+      : (key === 'name' ? 'asc' : 'desc')
+    setSorts(prev => ({ ...prev, [view]: { key, dir } }))
+  }
+
+  // A sortable header cell. The arrow marks the active column only.
+  const sortTh = (label: string, key: SortKey, extra: React.CSSProperties = {}) => (
+    <th
+      key={key}
+      style={{ ...th, ...extra, cursor: 'pointer', userSelect: 'none' }}
+      onClick={() => toggleSort(key)}
+      aria-sort={sort.key === key ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+    >
+      {label}{sort.key === key && (sort.dir === 'asc' ? ' ↑' : ' ↓')}
+    </th>
+  )
 
   return (
     <div style={card}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
-        <h2 style={sectionTitle}>Class mastery</h2>
+        <h2 style={sectionTitle}>{view === 'activity' ? 'Class activity' : 'Class mastery'}</h2>
+        {/* "active" is an effort figure, deliberately — see teacherAnalytics. */}
         <span style={{ fontSize: font.sm, color: colors.textHint }}>
-          {data.studentsWithData} of {data.studentCount} active{data.questionsThisWeek > 0 && ` · ${data.questionsThisWeek} answered this week`}
+          {data.activeThisWeek} of {data.studentCount} active this week
+          {data.questionsThisWeek > 0 && ` · ${data.questionsThisWeek} answered`}
         </span>
       </div>
 
-      {data.studentsWithData === 0 ? (
+      {data.everActive === 0 ? (
         <p style={hint}>
-          No mastery data yet. Once students practise or complete assignments, their skill mastery will roll up here.
+          Nothing answered yet. Once students practise, sit the placement test or complete assignments, their activity and skill mastery will roll up here.
         </p>
       ) : (
         <>
-          {/* ── Summary: average + per-topic bars ── */}
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', margin: '14px 0 4px' }}>
-            <div style={{
-              textAlign: 'center', padding: '8px 16px', borderRadius: radius.md,
-              background: data.avgMastery !== null ? bBg(data.avgMastery) : colors.cardAlt,
-              border: `1px solid ${colors.border}`, minWidth: 92,
-            }}>
-              <div style={{ fontSize: font['2xl'], fontWeight: 700, color: data.avgMastery !== null ? bTxt(data.avgMastery) : colors.textHint }}>
-                {data.avgMastery !== null ? `${data.avgMastery}%` : '—'}
-              </div>
-              <div style={{ fontSize: '11px', color: colors.textSecondary }}>avg mastery</div>
-            </div>
-            <div style={{ flex: 1, minWidth: 240, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
-              {TOPICS.map(t => {
-                const p = data.topicAvgs[t]
-                return (
-                  <div key={t} style={{ padding: '6px 8px', borderRadius: radius.sm, border: `1px solid ${colors.border}` }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                      <span style={{ fontSize: '11px', fontWeight: 600, color: TOPIC_COLOUR[t] }}>{t}</span>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: p !== undefined ? bTxt(p) : colors.textHint }}>
-                        {p !== undefined ? `${p}%` : '—'}
-                      </span>
-                    </div>
-                    <div style={{ height: 4, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', borderRadius: radius.full, width: `${p ?? 0}%`, background: TOPIC_COLOUR[t] }} />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+          {/* ── View toggle ── */}
+          <div style={{ display: 'inline-flex', gap: 0, margin: '14px 0 2px', border: `1px solid ${colors.border}`, borderRadius: radius.md, overflow: 'hidden' }}>
+            {(['mastery', 'activity'] as View[]).map(v => (
+              <button
+                key={v}
+                onClick={() => setViewOverride(v)}
+                style={{
+                  padding: '6px 16px', fontSize: font.sm, fontWeight: 600, cursor: 'pointer', border: 'none',
+                  background: view === v ? colors.primary : 'transparent',
+                  color: view === v ? '#ffffff' : colors.textSecondary,
+                }}
+              >
+                {v === 'mastery' ? 'Mastery' : 'Activity'}
+              </button>
+            ))}
           </div>
 
-          {/* ── Mastery over time ── */}
-          <ClassMasteryTrend points={data.timeline} />
-
-          {/* ── Common gaps ── */}
-          {data.gaps.length > 0 && (
-            <div style={{ marginTop: 18 }}>
-              <h3 style={{ fontSize: font.md, fontWeight: 700, margin: '0 0 2px', color: colors.textPrimary }}>Common gaps</h3>
-              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 8px' }}>
-                Skills where several students need practice — worth revisiting in class.
+          {view === 'mastery' ? (
+            data.studentsWithData === 0 ? (
+              <p style={hint}>
+                No practice yet. Placement answers set each student&apos;s starting point but don&apos;t count towards mastery — see <strong>Activity</strong> for what the class has answered.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {data.gaps.map(g => (
-                  <div key={g.skillId} style={{
-                    display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', borderRadius: radius.md,
-                    border: `1px solid ${g.priority === 'high' ? colors.dangerBorder : colors.warningBorder}`,
-                    background: g.priority === 'high' ? colors.dangerLight : colors.warningLight,
+            ) : (
+              <>
+                {/* ── Summary: average + per-topic bars ── */}
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', margin: '14px 0 4px' }}>
+                  <div style={{
+                    textAlign: 'center', padding: '8px 16px', borderRadius: radius.md,
+                    background: data.avgMastery !== null ? bBg(data.avgMastery) : colors.cardAlt,
+                    border: `1px solid ${colors.border}`, minWidth: 92,
                   }}>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: font.base, fontWeight: 600, color: colors.textPrimary }}>{g.skillName}</span>
-                      {g.topic && <span style={{ fontSize: font.sm, color: TOPIC_COLOUR[g.topic], fontWeight: 600 }}> · {g.topic}</span>}
+                    <div style={{ fontSize: font['2xl'], fontWeight: 700, color: data.avgMastery !== null ? bTxt(data.avgMastery) : colors.textHint }}>
+                      {data.avgMastery !== null ? `${data.avgMastery}%` : '—'}
                     </div>
-                    <span style={{ fontSize: font.sm, fontWeight: 600, color: g.priority === 'high' ? colors.dangerText : colors.warningText }}>
-                      {g.studentsWeak}/{g.studentsWithData} need practice
-                    </span>
+                    <div style={{ fontSize: '11px', color: colors.textSecondary }}>avg mastery</div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 240, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
+                    {TOPICS.map(t => {
+                      const p = data.topicAvgs[t]
+                      return (
+                        <div key={t} style={{ padding: '6px 8px', borderRadius: radius.sm, border: `1px solid ${colors.border}` }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: TOPIC_COLOUR[t] }}>{t}</span>
+                            <span style={{ fontSize: '11px', fontWeight: 700, color: p !== undefined ? bTxt(p) : colors.textHint }}>
+                              {p !== undefined ? `${p}%` : '—'}
+                            </span>
+                          </div>
+                          <div style={{ height: 4, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', borderRadius: radius.full, width: `${p ?? 0}%`, background: TOPIC_COLOUR[t] }} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Mastery over time ── */}
+                <ClassMasteryTrend points={data.timeline} />
+
+                {/* ── Common gaps ── */}
+                {data.gaps.length > 0 && (
+                  <div style={{ marginTop: 18 }}>
+                    <h3 style={{ fontSize: font.md, fontWeight: 700, margin: '0 0 2px', color: colors.textPrimary }}>Common gaps</h3>
+                    <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 8px' }}>
+                      Skills where several students need practice — worth revisiting in class.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {data.gaps.map(g => (
+                        <div key={g.skillId} style={{
+                          display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', borderRadius: radius.md,
+                          border: `1px solid ${g.priority === 'high' ? colors.dangerBorder : colors.warningBorder}`,
+                          background: g.priority === 'high' ? colors.dangerLight : colors.warningLight,
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: font.base, fontWeight: 600, color: colors.textPrimary }}>{g.skillName}</span>
+                            {g.topic && <span style={{ fontSize: font.sm, color: TOPIC_COLOUR[g.topic], fontWeight: 600 }}> · {g.topic}</span>}
+                          </div>
+                          <span style={{ fontSize: font.sm, fontWeight: 600, color: g.priority === 'high' ? colors.dangerText : colors.warningText }}>
+                            {g.studentsWeak}/{g.studentsWithData} need practice
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )
+          ) : (
+            <>
+              {/* ── Effort summary. Neutral tiles, no traffic lights: these are
+                  counts, and a count must not be scored (docs/audit/12 §2). ── */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '14px 0 4px' }}>
+                {[
+                  { v: String(data.questionsThisWeek), label: 'answered this week' },
+                  { v: String(data.questionsTotal), label: 'answered in total' },
+                  { v: `${data.activeThisWeek}/${data.studentCount}`, label: 'active this week' },
+                ].map(t => (
+                  <div key={t.label} style={{
+                    textAlign: 'center', padding: '8px 16px', borderRadius: radius.md,
+                    // 86 keeps all three on one row at 375px rather than
+                    // wrapping the last one onto a line of its own.
+                    background: colors.cardAlt, border: `1px solid ${colors.border}`, minWidth: 86, flex: 1,
+                  }}>
+                    <div style={{ fontSize: font['2xl'], fontWeight: 700, color: colors.textPrimary }}>{t.v}</div>
+                    <div style={{ fontSize: '11px', color: colors.textSecondary }}>{t.label}</div>
                   </div>
                 ))}
               </div>
-            </div>
+
+              {/* ── Questions per week ── */}
+              <ClassEffortTrend points={data.timeline} />
+            </>
           )}
 
-          {/* ── Per-student table (rows expand to a drill-down) ── */}
+          {/* ── Per-student table (rows open a drill-down) ── */}
           <div style={{ marginTop: 18, overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm, tableLayout: 'fixed', minWidth: 380 }}>
-              {/* fixed layout → even, predictable columns (the numeric cols share equally) */}
+              {/* fixed layout → even, predictable columns */}
               <colgroup>
-                <col style={{ width: '30%' }} />
-                <col />
-                {liveTopics.map(t => <col key={t} />)}
+                {view === 'mastery' ? (
+                  <>
+                    <col style={{ width: '30%' }} />
+                    <col />
+                    <col />
+                    {liveTopics.map(t => <col key={t} />)}
+                  </>
+                ) : (
+                  // Only the two text columns are pinned; the numeric pair is
+                  // left auto so it absorbs the remainder. Pinning all four as
+                  // well as the 34px chevron pushes the total past 100% and
+                  // clips "Last active" inside the table.
+                  <>
+                    <col style={{ width: '30%' }} />
+                    <col />
+                    <col />
+                    <col style={{ width: '27%' }} />
+                  </>
+                )}
                 <col style={{ width: '34px' }} />
               </colgroup>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                  <th style={{ ...th, textAlign: 'left' }}>Student</th>
-                  <th style={th}>Mastery</th>
-                  <th style={th}>Exam</th>
-                  {liveTopics.map(t => <th key={t} style={{ ...th, color: TOPIC_COLOUR[t] }}>{t.split(' ')[0]}</th>)}
+                  {sortTh('Student', 'name', { textAlign: 'left' })}
+                  {view === 'mastery' ? (
+                    <>
+                      {sortTh('Mastery', 'mastery')}
+                      {sortTh('Exam', 'exam')}
+                      {liveTopics.map(t => <th key={t} style={{ ...th, color: TOPIC_COLOUR[t] }}>{t.split(' ')[0]}</th>)}
+                    </>
+                  ) : (
+                    <>
+                      {sortTh('This week', 'week')}
+                      {sortTh('Total', 'total')}
+                      {sortTh('Last active', 'recent')}
+                    </>
+                  )}
                   <th style={th} aria-label="expand" />
                 </tr>
               </thead>
@@ -168,28 +311,46 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
                     <td style={{ ...td, textAlign: 'left', fontWeight: 500, color: colors.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {s.displayName}{s.yearGroup && <span style={{ color: colors.textHint, fontWeight: 400 }}> · {s.yearGroup}</span>}
                     </td>
-                    <td style={{ ...td, fontWeight: 700, color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint }}>
-                      {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
-                    </td>
-                    {(() => {
-                      const r = readiness?.byStudent[s.studentId]
-                      // Latest paper only. No descriptor, by the same rule the
-                      // mastery column follows: a number a teacher can read,
-                      // never a label that brands a student.
-                      return (
-                        <td style={{ ...td, fontWeight: 700, color: r?.latest != null ? bCol(r.latest) : colors.textHint }}>
-                          {r?.latest != null ? `${r.latest}%` : '—'}
+                    {view === 'mastery' ? (
+                      <>
+                        <td style={{ ...td, fontWeight: 700, color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint }}>
+                          {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
                         </td>
-                      )
-                    })()}
-                    {liveTopics.map(t => {
-                      const m = s.topicMastery[t]
-                      return (
-                        <td key={t} style={{ ...td, fontWeight: 600, color: m !== undefined ? bCol(m) : colors.textHint }}>
-                          {m !== undefined ? `${m}%` : '—'}
+                        {(() => {
+                          const r = readiness?.byStudent[s.studentId]
+                          // Latest paper only. No descriptor, by the same rule the
+                          // mastery column follows: a number a teacher can read,
+                          // never a label that brands a student.
+                          return (
+                            <td style={{ ...td, fontWeight: 700, color: r?.latest != null ? bCol(r.latest) : colors.textHint }}>
+                              {r?.latest != null ? `${r.latest}%` : '—'}
+                            </td>
+                          )
+                        })()}
+                        {liveTopics.map(t => {
+                          const m = s.topicMastery[t]
+                          return (
+                            <td key={t} style={{ ...td, fontWeight: 600, color: m !== undefined ? bCol(m) : colors.textHint }}>
+                              {m !== undefined ? `${m}%` : '—'}
+                            </td>
+                          )
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        {/* A zero is grey, never red. A quiet week is not a fault
+                            — see docs/audit/12 decision 2. */}
+                        <td style={{ ...td, fontWeight: 700, color: s.questionsThisWeek > 0 ? colors.textPrimary : colors.textHint }}>
+                          {s.questionsThisWeek}
                         </td>
-                      )
-                    })}
+                        <td style={{ ...td, fontWeight: 600, color: s.totalQuestions > 0 ? colors.textPrimary : colors.textHint }}>
+                          {s.totalQuestions}
+                        </td>
+                        <td style={{ ...td, color: s.lastActive ? colors.textSecondary : colors.textHint, whiteSpace: 'nowrap' }}>
+                          {ago(s.lastActive)}
+                        </td>
+                      </>
+                    )}
                     <td style={{ ...td, color: colors.textHint, fontSize: font.lg }}>›</td>
                   </tr>
                 ))}
@@ -198,7 +359,9 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
           </div>
 
           <p style={{ fontSize: '11px', color: colors.textHint, margin: '12px 0 0', lineHeight: 1.5 }}>
-            {data.scoped ? (
+            {view === 'activity' ? (
+              <>Counts every question answered — private practice, assignments and the placement test. Mastery is measured separately and ignores placement answers, so a student can be busy here and still show low mastery. Tap a student to open their breakdown.</>
+            ) : data.scoped ? (
               <>Mastery = % of the {data.coveredCount} skill{data.coveredCount === 1 ? '' : 's'} you&apos;ve marked as covered that are mastered (4+ correct in the last 5 attempts), across practice and assignments. Adjust what counts in <strong>Topics covered</strong> above. Tap a student to open their breakdown.</>
             ) : (
               <>Mastery = % of all skills in the topic / course mastered (4+ correct in the last 5 attempts), across practice and assignments. Low early in the course is expected — it climbs as topics are covered. Mark what you&apos;ve taught in <strong>Topics covered</strong> above to measure against that instead. Tap a student to open their breakdown.</>

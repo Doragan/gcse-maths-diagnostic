@@ -5,6 +5,7 @@ import type { StudentReadiness } from '../lib/exam/classReadiness'
 import ClassMasteryTrend from './ClassMasteryTrend'
 import ScoreTrend from './exam/ScoreTrend'
 import { colors, font, radius } from '../lib/styles'
+import { ago } from '../lib/relativeTime'
 
 const TOPIC_COLOUR: Record<Topic, string> = {
   'Number': '#7c3aed',
@@ -21,16 +22,6 @@ const STATUS_META: Record<SkillStatus, { bg: string; colour: string }> = {
   mastered:       { bg: colors.successLight, colour: colors.successText },
   needs_practice: { bg: colors.warningLight, colour: colors.warningText },
   in_progress:    { bg: colors.cardAlt,      colour: colors.textSecondary },
-}
-
-function ago(iso: string | null): string {
-  if (!iso) return '—'
-  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
-  if (days <= 0) return 'today'
-  if (days === 1) return 'yesterday'
-  if (days < 7) return `${days} days ago`
-  const w = Math.floor(days / 7)
-  return w === 1 ? 'last week' : `${w} weeks ago`
 }
 
 /** A teacher-facing version of the student dashboard, in a modal. */
