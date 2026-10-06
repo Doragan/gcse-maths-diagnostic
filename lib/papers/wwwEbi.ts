@@ -391,10 +391,14 @@ export function toWwwEbiSheets(all: StudentEvidence[]): WwwEbiSheet[] {
 /**
  * Gather the dropped parts into whole questions, worst question first.
  *
- * `evidence.practice` arrives sorted by marks lost, so the first part of a
- * question to appear fixes that question's place in the order — which makes
- * the ranking "the question that cost the most on any one part", and that is
- * the right reading: it is the question a teacher would set again.
+ * WORST means the most marks dropped ACROSS THE WHOLE QUESTION, not on any
+ * one part of it. `evidence.practice` arrives sorted per part, so simply
+ * taking that order ranked a question by its costliest SINGLE part: on a real
+ * sheet that put a 6-mark question (two 3-mark parts) behind two 4-mark ones,
+ * and the cap then dropped the question the student had lost most on.
+ *
+ * Ties keep the order they arrived in, so the costliest single part still
+ * breaks them and the ranking stays deterministic for the same marks.
  *
  * Within a question the parts stay in PAPER order, because (a) before (b) is
  * how the student met them and often how they build.
@@ -406,7 +410,14 @@ function groupPractice(evidence: StudentEvidence): PracticeGroup[] {
     if (!byQuestion.has(p.questionNumber)) { byQuestion.set(p.questionNumber, []); order.push(p.questionNumber) }
     byQuestion.get(p.questionNumber)!.push(p)
   }
-  return order.slice(0, MAX_PRACTICE).map(label => {
+  const lost = (label: string) =>
+    byQuestion.get(label)!.reduce((n, p) => n + p.marksLost, 0)
+  const ranked = order
+    .map((label, i) => ({ label, i }))
+    .sort((a, b) => lost(b.label) - lost(a.label) || a.i - b.i)
+    .map(r => r.label)
+
+  return ranked.slice(0, MAX_PRACTICE).map(label => {
     const parts = byQuestion.get(label)!.slice().sort((a, b) => a.itemId.localeCompare(b.itemId))
     const stem = sharedStem(parts.map(p => p.question))
     return {

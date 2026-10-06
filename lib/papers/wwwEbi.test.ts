@@ -248,6 +248,21 @@ describe('practice and challenge', () => {
     expect(s.practice[0].parts[0].skill).toBe('Equations')
   })
 
+  // The real sheet this came from. Ama dropped 7(a) and 7(b) — 3 marks each —
+  // plus single parts of 11 and 26 worth 4 apiece. Ranked by the costliest
+  // single part, question 7 placed third, and capping the list then dropped
+  // the question she had lost the most marks on.
+  it('ranks a question by the total dropped across its parts, not its worst part', () => {
+    const nov24 = PAPERS['aqa-8300-1f-nov24']
+    const dropped = ['7a', '7b', '11', '26']
+    const marks = Object.fromEntries(
+      nov24.questions.map(q => [q.id, dropped.includes(q.id) ? 0 : q.marks]),
+    )
+    const sheet = toWwwEbi(buildStudentEvidence(nov24, marks, 'Ama'))
+    expect(sheet.practice[0].label).toBe('7')
+    expect(sheet.practice[0].parts.map(p => p.label)).toEqual(['7(a)', '7(b)'])
+  })
+
   it('offers a challenge to a student doing well overall, on their strongest topic', () => {
     const s = sheetFor({ '1': 5, '2': 7, '3': 4, '4': 3 })
     expect(s.challenge.map(c => c.skill)).toEqual(['Standard Form'])
