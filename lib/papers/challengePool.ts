@@ -37,6 +37,26 @@ import { stableHash } from './stableHash'
 //
 // TIER is the paper's, not the student's. A Foundation pool stretches toward
 // the top of Foundation; a Higher pool sits at the top end of Higher.
+//
+// HOW THESE ARE PITCHED, since "a hard question" is easy to get wrong here.
+// The first version of this pool was one substitution into a named method —
+// "angle A = 40°, angle B = 65°, a = 9 cm, work out b" — with the skill
+// printed beside it, so even the choice of method was made for the student.
+// A student offered a challenge is one who is ALREADY strong in that topic;
+// those questions were routine for them. Two framings fix it without needing
+// a diagram:
+//
+//   • REVERSE the question. Give the output and ask for an input: the area
+//     and two sides, find the included angle; the value after three years,
+//     find the rate.
+//   • Make the answer need TWO independent steps, neither of them stated —
+//     the sine rule to find a side and then the area of a triangle; a surface
+//     area scale factor to a length one and then to a volume.
+//
+// What does NOT work is hiding data or padding with arithmetic. If telling
+// the student the intermediate value leaves a complete single-skill question,
+// nothing has been added. See docs/writing-retry-questions.md, which argues
+// the same case for retries.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Tier = 'F' | 'H'
@@ -61,92 +81,92 @@ export function tierOf(paper: PaperConfig): Tier {
 const POOL: Record<string, PoolEntry[]> = {
   // ── Number ────────────────────────────────────────────────────────────────
   'number|F': [
-    { skill: 'Reverse Percentages', question: 'A coat costs £68 in a sale after 20% off. Work out the price before the sale.', answer: '£85', working: '£68 is 80% of the original, so 1% is £0.85 and 100% is £85.' },
-    { skill: 'Standard Form', question: 'Write 0.000521 in standard form.', answer: '5.21 × 10⁻⁴' },
+    { skill: 'Reverse Percentages', question: 'A coat costs £68 in a sale after 20% off. A second sale then takes 15% off the sale price. Work out the total percentage reduction from the original price.', answer: '32%', working: 'The original price is £68 ÷ 0.8 = £85, and the second sale leaves £57.80.' },
+    { skill: 'Standard Form', question: 'Write these four numbers in order, smallest first: 3.1 × 10⁻³, 0.0029, 2.9 × 10⁻², 0.00031.', answer: '0.00031, 0.0029, 3.1 × 10⁻³, 2.9 × 10⁻²', working: 'As ordinary numbers: 0.0031, 0.0029, 0.029, 0.00031.' },
     { skill: 'Lowest Common Multiple', question: 'Two lighthouses flash every 24 seconds and every 36 seconds. They flash together at 9:00 pm. At what time do they next flash together?', answer: '9:01:12 pm (72 seconds later)', working: '24 = 2³ × 3 and 36 = 2² × 3², so the LCM is 2³ × 3² = 72 seconds.' },
-    { skill: 'Prime Factorisation', question: 'Write 360 as a product of its prime factors, using index form.', answer: '2³ × 3² × 5', working: '360 = 36 × 10 = (4 × 9) × (2 × 5).' },
-    { skill: 'Error Intervals', question: 'A length is 4.6 m, correct to 1 decimal place. Write down the error interval for the length.', answer: '4.55 ≤ length < 4.65', working: 'Half of 0.1 either side; the upper bound is strict.' },
-    { skill: 'Compound Interest', question: '£2000 is invested at 3% compound interest per year. Work out the value after 3 years, to the nearest penny.', answer: '£2185.45', working: '2000 × 1.03³ = 2000 × 1.092727.' },
+    { skill: 'Prime Factorisation', question: 'A number has prime factorisation 2² × 3ⁿ × 5, and it is a multiple of 45. Work out the smallest possible value of n, and the number itself.', answer: 'n = 2, and the number is 180', working: '45 = 3² × 5, so the number needs 3² in it.' },
+    { skill: 'Error Intervals', question: 'A rectangle measures 8 cm by 5 cm, each correct to the nearest centimetre. Work out the largest possible perimeter.', answer: '28 cm', working: 'Upper bounds of 8.5 cm and 5.5 cm.' },
+    { skill: 'Compound Interest', question: '£2000 is invested at compound interest. After 3 years it is worth £2185.45. Work out the annual rate of interest.', answer: '3%', working: '2185.45 ÷ 2000 = 1.092727, whose cube root is 1.03.' },
   ],
   'number|H': [
-    { skill: 'Recurring Decimals', question: 'Write 0.272727… as a fraction in its simplest form.', answer: '3/11', working: 'Two repeating digits, so the fraction is 27/99, which cancels by 9.' },
-    { skill: 'Surds', question: 'Simplify fully √75 + √12.', answer: '7√3', working: '√75 = 5√3 and √12 = 2√3.' },
-    { skill: 'Rationalising Denominators', question: 'Rationalise the denominator of 6/√3, simplifying your answer fully.', answer: '2√3', working: 'Multiply top and bottom by √3 to get 6√3/3.' },
-    { skill: 'Bounds', question: 'a = 8.4 and b = 2.5, each correct to 1 decimal place. Work out the upper bound of a ÷ b, to 3 decimal places.', answer: '3.449', working: 'Largest a over smallest b: 8.45 ÷ 2.45.' },
-    { skill: 'Standard Form', question: 'Work out (3 × 10⁵) × (8 × 10⁻²). Give your answer in standard form.', answer: '2.4 × 10⁴', working: '24 × 10³ is not in standard form; adjust to 2.4 × 10⁴.' },
-    { skill: 'Fractional Indices', question: 'Work out the value of 16^(3/4).', answer: '8', working: 'The fourth root of 16 is 2, and 2³ = 8.' },
+    { skill: 'Recurring Decimals', question: 'x = 0.272727… Work out the reciprocal of x as a fraction in its simplest form.', answer: '11/3', working: 'x = 27/99 = 3/11.' },
+    { skill: 'Surds', question: 'A square has an area of 48 cm². Work out its perimeter, giving your answer as a simplified surd.', answer: '16√3 cm', working: 'The side is √48 = 4√3.' },
+    { skill: 'Rationalising Denominators', question: 'A rectangle has an area of 12 cm² and a width of √6 cm. Work out its length, rationalising the denominator.', answer: '2√6 cm', working: '12/√6 = 12√6/6.' },
+    { skill: 'Bounds', question: 'A car travels 148 m, to the nearest metre, in 7.3 seconds, to the nearest 0.1 second. Work out the upper bound for its average speed, to 3 significant figures.', answer: '20.5 m/s', working: 'Greatest distance over least time: 148.5 ÷ 7.25 = 20.4827…' },
+    { skill: 'Standard Form', question: '(4 × 10⁵) × (n × 10⁻³) = 1.2 × 10⁴. Work out n, giving your answer in standard form.', answer: '3 × 10¹', working: '1.2 × 10⁴ ÷ (4 × 10²) = 30.' },
+    { skill: 'Fractional Indices', question: '16ˣ = 8. Work out the value of x.', answer: 'x = 3/4', working: 'Both sides as powers of 2: 2⁴ˣ = 2³.' },
   ],
 
   // ── Algebra ───────────────────────────────────────────────────────────────
   'algebra|F': [
-    { skill: 'Simultaneous Equations', question: '2x + 3y = 16 and 4x − 3y = 14. Find the values of x and y.', answer: 'x = 5, y = 2', working: 'Adding the equations eliminates y: 6x = 30.' },
-    { skill: 'Factorising Quadratics', question: 'Factorise x² + 2x − 15.', answer: '(x + 5)(x − 3)', working: 'Two numbers multiplying to −15 and adding to 2.' },
-    { skill: 'Expanding Double Brackets', question: 'Expand and simplify (x + 4)(x − 7).', answer: 'x² − 3x − 28' },
-    { skill: 'Nth Term of a Sequence', question: 'A sequence begins 5, 9, 13, 17. Find an expression for the nth term, and use it to find the 50th term.', answer: '4n + 1, and the 50th term is 201', working: 'The common difference is 4, and 5 − 4 = 1.' },
-    { skill: 'Rearranging Formulae', question: 'Make x the subject of y = 4x + 9.', answer: 'x = (y − 9)/4' },
-    { skill: 'Equations with the Unknown on Both Sides', question: 'Solve 5(x − 2) = 3x + 8.', answer: 'x = 9', working: 'Expanding gives 5x − 10 = 3x + 8, so 2x = 18.' },
+    { skill: 'Simultaneous Equations', question: 'Three coffees and two teas cost £9.60. Two coffees and two teas cost £7.40. Work out the cost of one coffee and the cost of one tea.', answer: 'A coffee is £2.20 and a tea is £1.50', working: 'Subtracting the second from the first leaves one coffee.' },
+    { skill: 'Factorising Quadratics', question: 'A rectangle has an area of x² + 2x − 15 and a width of x − 3. Work out an expression for its perimeter, simplified as far as possible.', answer: '4x + 4', working: 'The length is x + 5, so the perimeter is 2(x + 5 + x − 3).' },
+    { skill: 'Expanding Double Brackets', question: 'Expand and simplify (x + 4)(x − 7) − (x − 2)².', answer: 'x − 32', working: 'x² − 3x − 28 minus x² − 4x + 4.' },
+    { skill: 'Nth Term of a Sequence', question: 'The 5th term of an arithmetic sequence is 21 and the 9th term is 37. Find an expression for the nth term.', answer: '4n + 1', working: 'Four common differences make 16, so d = 4 and the first term is 5.' },
+    { skill: 'Rearranging Formulae', question: 'Make r the subject of A = πr².', answer: 'r = √(A/π)', working: 'Divide by π, then take the positive square root.' },
+    { skill: 'Equations with the Unknown on Both Sides', question: 'A rectangle has a length of (3x − 4) cm and a width of x cm. Its perimeter is 32 cm. Work out the area of the rectangle.', answer: '55 cm²', working: '8x − 8 = 32 gives x = 5, so the sides are 11 cm and 5 cm.' },
   ],
   'algebra|H': [
-    { skill: 'The Quadratic Formula', question: 'Solve 2x² + 5x − 4 = 0. Give your solutions to 2 decimal places.', answer: 'x = 0.64 or x = −3.14', working: 'x = (−5 ± √57)/4, and √57 ≈ 7.5498.' },
-    { skill: 'Completing the Square', question: 'Write x² − 6x + 11 in the form (x − a)² + b.', answer: '(x − 3)² + 2', working: '(x − 3)² = x² − 6x + 9, and 11 − 9 = 2.' },
-    { skill: 'Simplifying Algebraic Fractions', question: 'Simplify fully (x² − 9)/(x² + 7x + 12).', answer: '(x − 3)/(x + 4)', working: 'Factorise both: (x − 3)(x + 3) over (x + 3)(x + 4).' },
-    { skill: 'Composite Functions', question: 'f(x) = 3x − 2 and g(x) = x². Work out fg(4).', answer: '46', working: 'g first: g(4) = 16, then f(16) = 46.' },
-    { skill: 'Inverse Functions', question: 'f(x) = (x + 5)/3. Find f⁻¹(x).', answer: 'f⁻¹(x) = 3x − 5', working: 'Set y = (x + 5)/3 and rearrange for x.' },
+    { skill: 'The Quadratic Formula', question: 'A rectangle has a length of (x + 3) cm and a width of x cm, and an area of 20 cm². Work out the value of x, to 2 decimal places.', answer: 'x = 3.22', working: 'x² + 3x − 20 = 0, so x = (−3 + √89)/2; the negative root is rejected.' },
+    { skill: 'Completing the Square', question: 'The curve y = x² − 6x + 11 has a minimum point. Write down its coordinates.', answer: '(3, 2)', working: 'x² − 6x + 11 = (x − 3)² + 2.' },
+    { skill: 'Simplifying Algebraic Fractions', question: 'Solve (x² − 9)/(x² + 7x + 12) = 1/2.', answer: 'x = 10', working: 'The fraction simplifies to (x − 3)/(x + 4), so 2x − 6 = x + 4.' },
+    { skill: 'Composite Functions', question: 'f(x) = 3x − 2 and g(x) = x². Work out the value of x for which fg(x) = gf(x).', answer: 'x = 1', working: '3x² − 2 = 9x² − 12x + 4 reduces to (x − 1)² = 0.' },
+    { skill: 'Inverse Functions', question: 'f(x) = (x + 5)/3. Work out the value of x for which f(x) = f⁻¹(x).', answer: 'x = 2.5', working: 'f⁻¹(x) = 3x − 5, so x + 5 = 9x − 15.' },
     { skill: 'Quadratic Sequences', question: 'Find the nth term of the sequence 3, 8, 15, 24, 35.', answer: 'n² + 2n', working: 'Second difference 2 gives n²; subtracting n² leaves 2, 4, 6, 8 = 2n.' },
   ],
 
   // ── Ratio and Proportion ──────────────────────────────────────────────────
   'ratio|F': [
-    { skill: 'Compound Units', question: 'A runner covers 21 km in 1 hour 45 minutes. Work out the average speed in km/h.', answer: '12 km/h', working: '1 hour 45 minutes is 1.75 hours, and 21 ÷ 1.75 = 12.' },
-    { skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 8, y = 20. Find y when x = 14.', answer: 'y = 35', working: 'y = 2.5x.' },
-    { skill: 'Sharing in a Ratio', question: '£350 is shared between Ana and Bo in the ratio 4 : 3. How much more does Ana get than Bo?', answer: '£50', working: 'Seven parts of £50; Ana has one part more than Bo.' },
-    { skill: 'Best Buy', question: 'A 750 g box of cereal costs £2.10. A 1.2 kg box costs £3.48. Which is better value? Show your working.', answer: 'The 750 g box', working: '0.28p per gram against 0.29p per gram.' },
-    { skill: 'Inverse Proportion', question: '8 workers build a wall in 6 days. How long would 12 workers take, working at the same rate?', answer: '4 days', working: 'The job is 48 worker-days, so 48 ÷ 12 = 4.' },
+    { skill: 'Compound Units', question: 'A runner covers 21 km in 1 hour 45 minutes. Work out the average speed in metres per second, to 1 decimal place.', answer: '3.3 m/s', working: '21 000 m in 6300 s.' },
+    { skill: 'Direct Proportion', question: 'y is directly proportional to x. When x = 8, y = 20. Work out x when y = 45.', answer: 'x = 18', working: 'y = 2.5x.' },
+    { skill: 'Sharing in a Ratio', question: 'Money is shared between Ana and Bo in the ratio 4 : 3. Ana gets £50 more than Bo. Work out how much was shared.', answer: '£350', working: 'The difference is one part, so a part is £50 and there are seven of them.' },
+    { skill: 'Best Buy', question: 'A 750 g box of cereal costs £2.10 and a 1.2 kg box costs £3.48. Work out how much is saved by buying 6 kg of cereal in the better-value boxes.', answer: '60p', working: 'The 750 g box is better value, and eight of them cost £16.80 against £17.40.' },
+    { skill: 'Inverse Proportion', question: '8 workers build a wall in 6 days. How many workers would be needed to build it in 4 days, working at the same rate?', answer: '12 workers', working: 'The job is 48 worker-days.' },
     { skill: 'Combining Ratios', question: 'The ratio a : b is 2 : 5 and the ratio b : c is 3 : 4. Work out a : c in its simplest form.', answer: '3 : 10', working: 'Scale to a common b of 15: a : b : c = 6 : 15 : 20.' },
   ],
   'ratio|H': [
-    { skill: 'Inverse Proportion', question: 'y is inversely proportional to the square of x. When x = 2, y = 9. Find y when x = 3.', answer: 'y = 4', working: 'y = 36/x².' },
-    { skill: 'Depreciation', question: 'A car worth £18 000 depreciates by 15% each year. Work out its value after 3 years, to the nearest pound.', answer: '£11 054', working: '18 000 × 0.85³ = 18 000 × 0.614125.' },
-    { skill: 'Density', question: 'A piece of copper has density 8.96 g/cm³ and volume 250 cm³. Work out its mass in kilograms.', answer: '2.24 kg', working: 'Mass = 8.96 × 250 = 2240 g.' },
+    { skill: 'Inverse Proportion', question: 'y is inversely proportional to the square of x. When x = 2, y = 9. Work out the positive value of x when y = 4.', answer: 'x = 3', working: 'y = 36/x².' },
+    { skill: 'Depreciation', question: 'A car was worth £18 000 when new and £11 054 three years later, having depreciated by the same percentage each year. Work out the annual rate of depreciation.', answer: '15%', working: 'The cube root of 11 054 ÷ 18 000 is 0.85.' },
+    { skill: 'Density', question: 'A solid copper cube has sides of 5 cm. Copper has a density of 8.96 g/cm³. Work out the mass of the cube in kilograms.', answer: '1.12 kg', working: 'Volume 125 cm³, so 1120 g.' },
     { skill: 'Ratio Problems', question: 'The ratio of red to blue counters is 3 : 5. After 12 more red counters are added, the ratio is 9 : 10. How many blue counters are there?', answer: '40', working: 'With red 3k and blue 5k, 10(3k + 12) = 9 × 5k gives k = 8.' },
-    { skill: 'Compound Units', question: 'A car travels 45 km in 30 minutes. Work out its speed in metres per second.', answer: '25 m/s', working: '45 000 m in 1800 s.' },
-    { skill: 'Reverse Percentages', question: 'The price of a phone increased by 8% to £486. Work out the price before the increase.', answer: '£450', working: '486 ÷ 1.08.' },
+    { skill: 'Compound Units', question: 'A car travels at a steady 25 m/s. Work out how long it takes to cover 45 km, in minutes.', answer: '30 minutes', working: '45 000 ÷ 25 = 1800 seconds.' },
+    { skill: 'Reverse Percentages', question: 'The price of a phone rose by 8% to £486, and later fell by 8% in a sale. Work out the sale price, and how much lower it is than the price before the rise.', answer: '£447.12, which is £2.88 lower', working: 'The price before the rise was 486 ÷ 1.08 = £450.' },
   ],
 
   // ── Shape and Space ───────────────────────────────────────────────────────
   'shape|F': [
-    { skill: 'Pythagoras', question: 'A right-angled triangle has shorter sides of 7 cm and 9 cm. Work out the length of the hypotenuse, to 1 decimal place.', answer: '11.4 cm', working: '√(49 + 81) = √130 = 11.40…' },
-    { skill: 'Area of a Circle', question: 'A circle has a radius of 6 cm. Work out its area to 1 decimal place. Use the π key on your calculator.', answer: '113.1 cm²', working: 'π × 6² = 36π = 113.09…' },
-    { skill: 'Angles in Polygons', question: 'Work out the size of each interior angle of a regular decagon.', answer: '144°', working: 'Each exterior angle is 360 ÷ 10 = 36°.' },
-    { skill: 'Volume of a Prism', question: 'A triangular prism has a cross-section that is a right-angled triangle with shorter sides 5 cm and 12 cm. The prism is 20 cm long. Work out its volume.', answer: '600 cm³', working: 'Cross-section area 30 cm², times the length.' },
-    { skill: 'Surface Area', question: 'A cuboid measures 4 cm by 5 cm by 9 cm. Work out its total surface area.', answer: '202 cm²', working: '2 × (20 + 45 + 36).' },
-    { skill: 'Compound Area', question: 'A rectangular lawn measures 12 m by 8 m. A square flower bed of side 3 m is cut out of one corner. Work out the area of the remaining lawn.', answer: '87 m²', working: '96 − 9.' },
+    { skill: 'Pythagoras', question: 'The diagonal of a rectangle is 13 cm and its width is 5 cm. Work out the area of the rectangle.', answer: '60 cm²', working: 'The other side is √(169 − 25) = 12 cm.' },
+    { skill: 'Area of a Circle', question: 'A circle has an area of 113.1 cm². Work out its circumference, to 1 decimal place. Use the π key on your calculator.', answer: '37.7 cm', working: 'r = √(113.1 ÷ π) = 6.00 cm, and the circumference is 2πr.' },
+    { skill: 'Angles in Polygons', question: 'Each interior angle of a regular polygon is 144°. Work out how many sides it has.', answer: '10 sides', working: 'Each exterior angle is 36°, and 360 ÷ 36 = 10.' },
+    { skill: 'Volume of a Prism', question: 'A triangular prism has a volume of 600 cm³. Its cross-section is a right-angled triangle with shorter sides of 5 cm and 12 cm. Work out the length of the prism.', answer: '20 cm', working: 'The cross-section has area 30 cm².' },
+    { skill: 'Surface Area', question: 'A cube has a total surface area of 150 cm². Work out its volume.', answer: '125 cm³', working: 'Each face is 25 cm², so the side is 5 cm.' },
+    { skill: 'Compound Area', question: 'A rectangular lawn measures 12 m by 8 m. A path 1 m wide runs all the way round inside its edge. Work out the area of lawn left inside the path.', answer: '60 m²', working: 'The inner rectangle is 10 m by 6 m.' },
   ],
   'shape|H': [
-    { skill: 'Trigonometry', question: 'In a right-angled triangle the hypotenuse is 12 cm and one of the acute angles is 35°. Work out the length of the side opposite that angle, to 1 decimal place.', answer: '6.9 cm', working: '12 × sin 35° = 6.88…' },
-    { skill: 'The Sine Rule', question: 'In triangle ABC, angle A = 40°, angle B = 65° and side a = 9 cm. Work out the length of side b, to 1 decimal place.', answer: '12.7 cm', working: 'b = 9 × sin 65° ÷ sin 40°.' },
-    { skill: 'The Cosine Rule', question: 'In triangle PQR, PQ = 7 cm, QR = 9 cm and angle Q = 110°. Work out the length of PR, to 1 decimal place.', answer: '13.2 cm', working: 'PR² = 49 + 81 − 2 × 7 × 9 × cos 110° = 173.09…' },
-    { skill: 'Circle Theorems', question: 'A and B are points on a circle with centre O, and angle AOB = 84°. Work out the angle subtended by the arc AB at a point on the major arc.', answer: '42°', working: 'The angle at the centre is twice the angle at the circumference.' },
-    { skill: 'Similar Solids', question: 'Two similar cones have heights 4 cm and 10 cm. The smaller has a volume of 32 cm³. Work out the volume of the larger cone.', answer: '500 cm³', working: 'Length scale factor 2.5, so volume scale factor 2.5³ = 15.625.' },
-    { skill: 'Area of a Triangle', question: 'A triangle has sides of 8 cm and 11 cm with an included angle of 52°. Work out its area, to 1 decimal place.', answer: '34.7 cm²', working: '½ × 8 × 11 × sin 52°.' },
+    { skill: 'Trigonometry', question: 'A ladder 4.5 m long leans against a vertical wall and reaches 3.8 m up it. Work out the angle the ladder makes with the ground, to 1 decimal place.', answer: '57.6°', working: 'sin⁻¹(3.8 ÷ 4.5) = 57.62…' },
+    { skill: 'The Sine Rule', question: 'In triangle ABC, angle A = 40°, angle B = 65° and side a = 9 cm. Work out the area of the triangle, to 1 decimal place.', answer: '55.2 cm²', working: 'b = 9 sin 65° ÷ sin 40° = 12.69 cm, and angle C = 75°.' },
+    { skill: 'The Cosine Rule', question: 'In triangle PQR, PQ = 7 cm, QR = 9 cm and PR = 13 cm. Work out angle Q, to the nearest degree.', answer: '108°', working: 'cos Q = (49 + 81 − 169) ÷ 126 = −0.3095.' },
+    { skill: 'Circle Theorems', question: 'A, B and C are points on a circle with centre O and radius 5 cm, where C lies on the major arc. Angle ACB = 42°. Work out the area of the minor sector AOB, to 1 decimal place. Use the π key on your calculator.', answer: '18.3 cm²', working: 'Angle AOB = 84°, and 84/360 of π × 5².' },
+    { skill: 'Similar Solids', question: 'Two similar cones have surface areas of 48 cm² and 300 cm². The smaller cone has a volume of 32 cm³. Work out the volume of the larger cone.', answer: '500 cm³', working: 'Area scale factor 6.25, so length 2.5 and volume 15.625.' },
+    { skill: 'Area of a Triangle', question: 'A triangle has sides of 8 cm and 11 cm, and an area of 34.7 cm². Work out the size of the acute included angle, to the nearest degree.', answer: '52°', working: 'sin C = 69.4 ÷ 88 = 0.7886.' },
   ],
 
   // ── Probability and Data ──────────────────────────────────────────────────
   'probdata|F': [
-    { skill: 'Calculating Simple Probability', question: 'A bag holds 5 red, 3 blue and 2 green counters. One counter is taken at random. Work out the probability that it is not blue.', answer: '7/10' },
+    { skill: 'Calculating Simple Probability', question: 'A bag holds red, blue and green counters only. The probability of taking a blue counter is 0.3, and of taking a green counter is 0.2. There are 15 red counters. Work out how many counters are in the bag.', answer: '30', working: 'P(red) = 0.5, and 15 is half the bag.' },
     { skill: 'Working Backwards from the Mean', question: 'The mean of five numbers is 12. Four of them are 8, 15, 9 and 14. Work out the fifth number.', answer: '14', working: 'The total must be 60, and the four given add to 46.' },
-    { skill: 'Relative Frequency', question: 'A biased dice is rolled 200 times and lands on six 46 times. Estimate the probability of rolling a six. Give your answer as a decimal.', answer: '0.23' },
+    { skill: 'Relative Frequency', question: 'A biased dice is rolled 200 times and lands on six 46 times. The dice is then rolled 500 times. Estimate the number of sixes.', answer: '115', working: 'The relative frequency is 0.23.' },
     { skill: 'Sets and Overlap', question: 'In a group of 40 students, 22 study French, 18 study German and 7 study both. How many study neither?', answer: '7', working: '22 + 18 − 7 = 33 study at least one.' },
-    { skill: 'Expected Frequency', question: 'The probability that a spinner lands on red is 0.35. The spinner is spun 240 times. Estimate the number of times it lands on red.', answer: '84' },
-    { skill: 'Working Backwards from the Mean', question: 'The mean of 8 numbers is 6.5. A ninth number is added and the mean becomes 7. Work out the ninth number.', answer: '11', working: 'The total rises from 52 to 63.' },
+    { skill: 'Expected Frequency', question: 'A spinner is spun 240 times and lands on red 84 times. Estimate the number of times it would land on red in 400 spins.', answer: '140', working: 'P(red) is about 0.35.' },
+    { skill: 'Working Backwards from the Mean', question: 'The mean of 8 numbers is 6.5. Two more numbers are added and the mean becomes 7. Work out the mean of the two new numbers.', answer: '9', working: 'The total rises from 52 to 70.' },
   ],
   'probdata|H': [
-    { skill: 'Probability Without Replacement', question: 'A bag holds 5 red, 2 blue and 3 green counters. Two are taken at random without replacement. Work out the probability that both are green.', answer: '1/15', working: '3/10 × 2/9 = 6/90.' },
-    { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3. If it rains, the probability a train is late is 0.4; if it does not, the probability is 0.1. Work out the probability that the train is late.', answer: '0.19', working: '0.3 × 0.4 + 0.7 × 0.1.' },
+    { skill: 'Probability Without Replacement', question: 'A bag holds 10 counters, of which n are green. Two are taken at random without replacement. The probability that both are green is 1/15. Work out n.', answer: 'n = 3', working: 'n(n − 1)/90 = 1/15, so n(n − 1) = 6.' },
+    { skill: 'Tree Diagrams', question: 'The probability that it rains is 0.3. If it rains, the probability a train is late is 0.4. The probability that the train is late is 0.19. Work out the probability that the train is late when it does not rain.', answer: '0.1', working: '0.19 − 0.12 = 0.07, over a probability of 0.7.' },
     { skill: 'Capture and Recapture', question: '45 fish are caught, marked and returned to a lake. Later 60 fish are caught and 9 of them are marked. Estimate the number of fish in the lake.', answer: '300', working: '9/60 of the lake is marked, and 45 fish were marked.' },
-    { skill: 'Probability with Algebra', question: 'A bag contains n counters, 4 of which are red. One counter is taken at random and the probability that it is red is 1/6. Work out n.', answer: 'n = 24' },
-    { skill: 'Sets and Overlap', question: 'In a class of 30 students, 18 play football, 14 play tennis and 5 play neither. How many play both?', answer: '7', working: '25 play at least one, and 18 + 14 = 32.' },
-    { skill: 'Counting Without Listing', question: 'A password is made from 2 letters (A–Z) followed by 3 digits (0–9). Letters and digits may repeat. How many different passwords are possible?', answer: '676 000', working: '26² × 10³.' },
+    { skill: 'Probability with Algebra', question: 'A bag contains n counters, 4 of which are red. One more red counter is added, and the probability of taking a red counter at random becomes 1/4. Work out n.', answer: 'n = 19', working: '5/(n + 1) = 1/4.' },
+    { skill: 'Sets and Overlap', question: 'In a class of 30 students, 18 play football and 14 play tennis, and every student plays at least one of them. One student is chosen at random. Work out the probability that they play both.', answer: '1/15', working: '18 + 14 − 30 = 2 play both.' },
+    { skill: 'Counting Without Listing', question: 'A password is made from 2 different letters (A–Z) followed by 3 different digits (0–9). Work out how many different passwords are possible.', answer: '468 000', working: '26 × 25 × 10 × 9 × 8.' },
   ],
 }
 
