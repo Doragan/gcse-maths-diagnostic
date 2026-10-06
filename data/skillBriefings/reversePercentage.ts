@@ -68,12 +68,20 @@ export const reversePercentageBriefing: SkillBriefing = {
     {
       stem: 'A TV costs £504 including VAT at 20%. Work out the cost of the TV before VAT was added.',
       isThisSkill: true,
+      worked: [
+        'With 20% VAT added, £504 is 120% of the price before',
+        '£504 ÷ 1.2 = £420',
+      ],
       cue: '£504 already has the VAT in it, so it is 120% of the price you want.',
     },
     {
       stem: 'A car has lost 35% of its value since it was bought. It is now worth £7,800. '
         + 'Work out how much the car was worth when it was bought.',
       isThisSkill: true,
+      worked: [
+        'It kept 65%, so £7,800 is 65% of the original',
+        '£7,800 ÷ 0.65 = £12,000',
+      ],
       cue: '"Now worth" is the after. The car kept 65% of its value, so £7,800 is 65% of the original.',
     },
     {
@@ -148,6 +156,10 @@ export const reversePercentageBriefing: SkillBriefing = {
         stem: 'The price of a bike is increased by 25%. Later, the new price is reduced by 20%. '
           + 'The bike now costs £300. Work out the original price of the bike.',
         isThisSkill: true,
+      worked: [
+        'Combine the multipliers: 1.25 × 0.8 = 1',
+        'Dividing £300 by 1 leaves £300 — the two changes cancel out exactly',
+      ],
         cue: 'Only the final price is given, after two changes. Combine the multipliers first: '
           + '1.25 × 0.8 = 1, so the price has not moved at all.',
       },

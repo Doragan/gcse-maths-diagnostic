@@ -73,12 +73,22 @@ export const treeDiagramsBriefing: SkillBriefing = {
       stem: 'A bag contains 5 red and 3 blue counters. Two counters are taken without replacement. '
         + 'Work out the probability that both are red.',
       isThisSkill: true,
+      worked: [
+        'First pick: 5 red out of 8, so 5/8',
+        'One red has gone, so the second is 4 red out of 7',
+        'Multiply ALONG the path: 5/8 × 4/7 = 20/56 = 5/14',
+      ],
       cue: 'Two picks in a row, and the bag changes between them: 5/8 and then 4/7.',
     },
     {
       stem: 'The probability that it rains on any day is 0.3. Work out the probability that it rains '
         + 'on exactly one of the next two days.',
       isThisSkill: true,
+      worked: [
+        'Two routes give exactly one rainy day: rain then dry, and dry then rain',
+        'Each route: 0.3 × 0.7 = 0.21',
+        'Add BETWEEN routes: 0.21 + 0.21 = 0.42',
+      ],
       cue: 'Two routes through the tree — rain then dry, or dry then rain — so multiply along each and add them.',
     },
     {
@@ -164,6 +174,11 @@ export const treeDiagramsBriefing: SkillBriefing = {
         stem: 'A machine fails on any day with probability 0.05, independently of other days. '
           + 'Work out the probability that it fails on at least one of three days.',
         isThisSkill: true,
+      worked: [
+        'At least one is quicker through the opposite: it never fails',
+        'It survives a day with probability 0.95, so three days is 0.95³ = 0.857375',
+        '1 − 0.857375 = 0.142625, or 0.143 to 3 decimal places',
+      ],
         cue: '"At least one" over three days is 1 minus the probability it never fails: 1 − 0.95³.',
       },
     ],

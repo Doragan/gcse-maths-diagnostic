@@ -74,6 +74,11 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
       stem: 'A right-angled triangle has a base of 15 cm and a hypotenuse of 17 cm. '
         + 'Work out the height of the triangle.',
       isThisSkill: true,
+      worked: [
+        'The missing side is NOT the hypotenuse, so subtract',
+        '17² − 15² = 289 − 225 = 64',
+        'Square root: x = 8 cm',
+      ],
       cue: 'Two sides and a right angle, and the missing one is NOT the hypotenuse — so subtract: '
         + '17² − 15².',
       figure: rightTriangle({
@@ -85,6 +90,11 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
     {
       stem: 'A rectangle is 8 cm long and 6 cm wide. Work out the length of its diagonal.',
       isThisSkill: true,
+      worked: [
+        'The diagonal is the hypotenuse of a right-angled triangle, so add',
+        '8² + 6² = 64 + 36 = 100',
+        'Square root: the diagonal is 10 cm',
+      ],
       cue: 'The diagonal cuts the rectangle into two right-angled triangles, and it is the longest '
         + 'side of each — so add: 8² + 6².',
     },
@@ -179,6 +189,11 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         stem: 'A cuboid measures 6 cm by 8 cm by 24 cm. Work out the length of the longest diagonal '
           + 'inside it.',
         isThisSkill: true,
+      worked: [
+        'Base diagonal first: 6² + 8² = 100, so it is 10 cm',
+        'Now the upright triangle, using that 10 cm exactly',
+        '10² + 24² = 100 + 576 = 676, and √676 = 26 cm',
+      ],
         cue: 'Two stages: the base diagonal first, 6² + 8² giving 10, then 10² + 24² giving 26 cm.',
       },
     ],

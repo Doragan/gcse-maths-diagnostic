@@ -73,11 +73,19 @@ export const proportionBriefing: SkillBriefing = {
     {
       stem: '8 identical pens cost £3.60. Work out the cost of 14 pens.',
       isThisSkill: true,
+      worked: [
+        'One pen costs £3.60 ÷ 8 = £0.45',
+        '14 pens cost 14 × £0.45 = £6.30',
+      ],
       cue: 'Two quantities scaling together, three of the four numbers given, and a unit on the answer line (£).',
     },
     {
       stem: 'A recipe for 6 flapjacks uses 180 g of oats. How many grams of oats are needed for 15 flapjacks?',
       isThisSkill: true,
+      worked: [
+        'One flapjack takes 180 g ÷ 6 = 30 g of oats',
+        '15 flapjacks take 15 × 30 g = 450 g',
+      ],
       cue: '"Recipe" is the giveaway word, and flapjacks and oats scale together.',
     },
     {
@@ -166,6 +174,11 @@ export const proportionBriefing: SkillBriefing = {
       {
         stem: 'y is proportional to the square of x. When x = 3, y = 45. Work out y when x = 5.',
         isThisSkill: true,
+      worked: [
+        'Write the relationship as y = kx²',
+        'x = 3, y = 45 gives 45 = k × 9, so k = 5',
+        'When x = 5: y = 5 × 25 = 125',
+      ],
         cue: 'Stated outright with "is proportional to" — and the power sits on x, so doubling x would multiply y by four.',
       },
       {

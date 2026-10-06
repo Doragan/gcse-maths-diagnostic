@@ -534,6 +534,18 @@ export default function SkillBriefingPage() {
                         : `No — this is ${(other?.name ?? ex.actuallySkillId ?? 'something else').toLowerCase()}`}
                     </p>
                     <p style={styles.exampleCue}>{ex.cue}</p>
+
+                    {/* The working, for a stem that IS the skill. It sits
+                        behind the same reveal as the verdict: showing it up
+                        front would answer the question the student is being
+                        asked to judge. */}
+                    {ex.worked && ex.worked.length > 0 && (
+                      <ol style={styles.worked}>
+                        {ex.worked.map((line, j) => (
+                          <li key={j} style={styles.workedLine}>{line}</li>
+                        ))}
+                      </ol>
+                    )}
                   </div>
                 )}
               </div>
@@ -1026,6 +1038,25 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     lineHeight: 1.55,
   },
+
+  // The working. Numbered, because the lines are a sequence rather than a list
+  // of facts, and set on the card background so it reads as a worked answer
+  // rather than more commentary.
+  worked: {
+    margin: '10px 0 0',
+    // listStyleType is set explicitly: a reset in globals.css turns markers off
+    // for every list, and these lines are a sequence — the numbers are the
+    // point. Inherited defaults rendered them as four unnumbered sentences.
+    listStyleType: 'decimal',
+    padding: '10px 12px 10px 30px',
+    background: colors.card,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    fontSize: font.base,
+    color: colors.textPrimary,
+    lineHeight: 1.6,
+  },
+  workedLine: { paddingLeft: '2px', marginBottom: '2px' },
 
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
   stepN: {

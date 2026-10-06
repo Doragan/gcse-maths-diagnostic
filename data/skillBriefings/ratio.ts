@@ -65,11 +65,20 @@ export const ratioBriefing: SkillBriefing = {
     {
       stem: 'Amara and Ben share £60 in the ratio 2 : 3. Work out how much Ben receives.',
       isThisSkill: true,
+      worked: [
+        '2 + 3 = 5 shares altogether',
+        'One share is £60 ÷ 5 = £12',
+        'Ben has 3 shares: 3 × £12 = £36',
+      ],
       cue: 'One total (£60) split between two people, and the shares add back up to it.',
     },
     {
       stem: 'A mortar mix uses cement and sand in the ratio 1 : 4. Work out how much sand is needed for 8 kg of cement.',
       isThisSkill: true,
+      worked: [
+        'Cement is 1 part, so one part is 8 kg',
+        'Sand is 4 parts: 4 × 8 kg = 32 kg',
+      ],
       cue: 'The colon form is printed, and the two amounts are parts of one mix.',
     },
     {
@@ -158,6 +167,12 @@ export const ratioBriefing: SkillBriefing = {
         stem: 'A bag holds red and blue counters in the ratio 5 : 3. After 4 red counters are removed, '
           + 'the ratio becomes 3 : 2. Work out how many blue counters are in the bag.',
         isThisSkill: true,
+      worked: [
+        'Write the amounts as 5n red and 3n blue',
+        'After 4 red go: (5n − 4) : 3n = 3 : 2, so 2(5n − 4) = 9n',
+        '10n − 8 = 9n, giving n = 8',
+        'Blue = 3n = 24 counters',
+      ],
         cue: 'A ratio before and a ratio after. Writing the amounts as 5n and 3n is what makes the '
           + 'second condition solvable.',
       },

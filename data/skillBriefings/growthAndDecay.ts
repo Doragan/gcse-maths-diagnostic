@@ -66,11 +66,21 @@ export const growthAndDecayBriefing: SkillBriefing = {
       // Deliberately the same stem that appears as a NO on the proportion page.
       stem: 'A car is worth £12,000. Its value falls by 15% each year. Work out its value after 3 years.',
       isThisSkill: true,
+      worked: [
+        '15% off each year is a multiplier of 0.85',
+        'Three years: £12,000 × 0.85³',
+        '= £7,369.50',
+      ],
       cue: '"Each year", for three years. The 15% comes off the new value each time, not the original £12,000.',
     },
     {
       stem: '£2,500 is invested at 2.4% compound interest per year. Work out the value after 5 years.',
       isThisSkill: true,
+      worked: [
+        '2.4% growth is a multiplier of 1.024',
+        'Five years: £2,500 × 1.024⁵',
+        '= £2,814.75',
+      ],
       cue: 'Compound interest is the standard case — one multiplier, raised to the number of years.',
     },
     {
@@ -155,6 +165,11 @@ export const growthAndDecayBriefing: SkillBriefing = {
         stem: 'The value £V of a machine after t years is given by V = 18000 × 0.82ᵗ. '
           + 'Work out its value after 3 years.',
         isThisSkill: true,
+      worked: [
+        'The model is handed to you, so put t = 3 in',
+        '18000 × 0.82³ = 18000 × 0.551368',
+        '= £9,924.62',
+      ],
         cue: 'The model is handed to you — 18000 is the start, 0.82 the multiplier. The only work is '
           + 'raising it to the right power.',
       },
@@ -162,6 +177,11 @@ export const growthAndDecayBriefing: SkillBriefing = {
         stem: 'A machine bought for £18,000 is worth £11,520 after 2 years. '
           + 'Work out the annual rate of depreciation.',
         isThisSkill: true,
+      worked: [
+        'Divide to find the two-year multiplier: 11520 ÷ 18000 = 0.64',
+        'One year is the square root: √0.64 = 0.8',
+        'A multiplier of 0.8 is a fall of 20% a year',
+      ],
         cue: 'Both ends given and the rate missing — divide, take the square root, then turn the '
           + 'multiplier back into a percentage.',
       },

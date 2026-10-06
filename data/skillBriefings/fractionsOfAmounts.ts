@@ -65,6 +65,10 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       stem: 'A school has 420 students. 3/7 of them walk to school. '
         + 'Work out how many students do not walk to school.',
       isThisSkill: true,
+      worked: [
+        'The question wants the other group, so take 4/7',
+        '420 ÷ 7 = 60, and 4 × 60 = 240 students',
+      ],
       cue: 'A fraction of a known total. The question asks about the OTHER group, so the '
         + 'share you want is 4/7, not 3/7.',
     },
@@ -72,6 +76,11 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       stem: 'Priya has £60. She spends 1/4 of it on a book and 2/5 of what is left on a ticket. '
         + 'How much money does she have left?',
       isThisSkill: true,
+      worked: [
+        'The book: 1/4 of £60 = £15, leaving £45',
+        'The ticket is 2/5 of what is LEFT: 2/5 of £45 = £18',
+        'She has £45 − £18 = £27 left',
+      ],
       cue: 'Two fractions, and the second is of what is LEFT. The book leaves £45, and the 2/5 is of that.',
     },
     {
@@ -150,6 +159,11 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
         stem: 'Kai spends 1/3 of his money on a jacket and 1/4 of his money on shoes. He has £75 left. '
           + 'How much money did he have to start with?',
         isThisSkill: true,
+      worked: [
+        'Both fractions are of the original: 1/3 + 1/4 = 7/12 spent',
+        'So £75 is the other 5/12 of it',
+        '1/12 is £75 ÷ 5 = £15, so he started with 12 × £15 = £180',
+      ],
         cue: 'The whole is missing. Both fractions are of his money, so together he spent 7/12 — '
           + 'and £75 is the other 5/12.',
       },

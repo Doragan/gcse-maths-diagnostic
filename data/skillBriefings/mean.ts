@@ -63,12 +63,22 @@ export const meanBriefing: SkillBriefing = {
       stem: 'The mean of 5 numbers is 12. Four of the numbers are 8, 11, 14 and 9. '
         + 'Work out the fifth number.',
       isThisSkill: true,
+      worked: [
+        'Mean × count = total: 5 × 12 = 60',
+        'The four given come to 8 + 11 + 14 + 9 = 42',
+        'The fifth is 60 − 42 = 18',
+      ],
       cue: 'The mean is given and a value is missing. Turn the mean into a total first: 5 × 12 = 60.',
     },
     {
       stem: 'Ten students scored a mean of 6 marks. Five other students scored a mean of 9 marks. '
         + 'Work out the mean mark of all 15 students.',
       isThisSkill: true,
+      worked: [
+        'Totals first: 10 × 6 = 60 and 5 × 9 = 45',
+        'All 15 scored 60 + 45 = 105 between them',
+        '105 ÷ 15 = 7 marks, not the 7.5 of averaging 6 and 9',
+      ],
       cue: 'Two groups of different sizes, so totals first — 60 and 45. Averaging 6 and 9 would be wrong.',
     },
     {
@@ -142,6 +152,11 @@ export const meanBriefing: SkillBriefing = {
         stem: 'A grouped frequency table gives times in the classes 0 < t ≤ 10, 10 < t ≤ 20 and '
           + '20 < t ≤ 30, with frequencies 4, 10 and 6. Work out an estimate of the mean.',
         isThisSkill: true,
+      worked: [
+        'Midpoints of the classes: 5, 15 and 25',
+        'Midpoint × frequency: 20, 150 and 150, totalling 320',
+        'Divide by the total frequency, 20: an estimated mean of 16',
+      ],
         cue: 'Classes, not values. Use the midpoints — 5, 15 and 25 — each weighted by its frequency.',
       },
     ],

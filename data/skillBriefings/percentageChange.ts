@@ -69,11 +69,20 @@ export const percentageChangeBriefing: SkillBriefing = {
       // Deliberately the same stem that appears as a NO on the proportion page.
       stem: 'A coat costs £45. In a sale its price is reduced by 20%. Work out the sale price.',
       isThisSkill: true,
+      worked: [
+        '20% off means paying 80%, so the multiplier is 0.8',
+        '£45 × 0.8 = £36',
+      ],
       cue: 'Pounds before, pounds after — the same kind of thing, changed once.',
     },
     {
       stem: 'A tree was 1.8 m tall. It is now 2.07 m tall. Work out the percentage increase.',
       isThisSkill: true,
+      worked: [
+        'Change = 2.07 − 1.8 = 0.27 m',
+        'Over the ORIGINAL height: 0.27 ÷ 1.8 = 0.15',
+        '× 100 = a 15% increase',
+      ],
       cue: 'Two heights and a percentage for an answer. The original height is what the percentage is of.',
     },
     {
@@ -162,6 +171,10 @@ export const percentageChangeBriefing: SkillBriefing = {
         stem: 'The price of a phone is reduced by 18% in a sale. It now costs £287. '
           + 'Work out the price before the sale.',
         isThisSkill: true,
+      worked: [
+        'After an 18% cut, £287 is 82% of the original',
+        'Original = £287 ÷ 0.82 = £350',
+      ],
         cue: '£287 is the amount after the change, so it is 82% of the original — divide, do not add 18% back on.',
       },
     ],

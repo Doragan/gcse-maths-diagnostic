@@ -67,6 +67,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       stem: 'A bag contains 5 red, 3 blue and 2 green counters. One counter is taken at random. '
         + 'Work out the probability that it is blue.',
       isThisSkill: true,
+      worked: [
+        'Outcomes that work: 3 blue',
+        'All outcomes: 5 + 3 + 2 = 10 counters',
+        'P(blue) = 3/10',
+      ],
       cue: '3 blue out of 10 counters altogether. The denominator is everything in the bag, not just the blues.',
     },
     {
@@ -74,6 +79,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         + '12 walk to school; of the Year 11s, 10 walk. Work out the probability that a student '
         + 'chosen at random walks to school.',
       isThisSkill: true,
+      worked: [
+        'Walkers: 12 + 10 = 22',
+        'The whole group is all 40 students, not one year',
+        'P(walks) = 22/40 = 11/20',
+      ],
       cue: 'No total is handed to you: 12 and 10 walk, so 22 of the 40 do. The denominator is all '
         + '40 students, not one year group.',
     },
@@ -163,6 +173,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         stem: '60 students are asked about languages. 35 study French, 30 study German and 12 study '
           + 'both. One student is chosen at random. Work out the probability they study French only.',
         isThisSkill: true,
+      worked: [
+        'The 12 are in the overlap, so French only is 35 − 12 = 23',
+        'The whole group is 60, including the 7 who study neither',
+        'P(French only) = 23/60',
+      ],
         cue: 'The 12 sit in the overlap, so French only is 35 − 12. The denominator is all 60 — '
           + 'including the 7 who study neither.',
       },
