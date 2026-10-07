@@ -60,12 +60,20 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
       thisOne: 'Two SIDES are known, and no angle appears anywhere in the question.',
       theOther: 'One side and one angle are known, so you need sin, cos or tan.',
       ask: 'Do I have two sides, or a side and an angle?',
+      pair: {
+        thisOne: 'A right-angled triangle has shorter sides of 5 cm and 12 cm. Work out the hypotenuse.',
+        theOther: 'A right-angled triangle has a hypotenuse of 13 cm and an angle of 23°. Work out the opposite side.',
+      },
     },
     {
       skillId: 'areas_of_squares_and_rectangles',
       thisOne: 'The missing length is the answer, worked out from the other two sides.',
       theOther: 'The lengths are given and the answer is an area — length times width.',
       ask: 'Am I finding a length, or filling a shape?',
+      pair: {
+        thisOne: 'A rectangle is 9 cm by 12 cm. Work out the length of its diagonal.',
+        theOther: 'A rectangle is 9 cm by 12 cm. Work out its area.',
+      },
     },
   ],
 
@@ -181,6 +189,10 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         thisOne: 'There IS a right angle in the triangle.',
         theOther: 'No right angle, so Pythagoras does not apply — it is the cosine rule instead.',
         ask: 'Is there a right angle in this triangle, or am I assuming one?',
+      pair: {
+        thisOne: 'A triangle has a right angle, with sides of 7 cm and 24 cm around it. Work out the third side.',
+        theOther: 'A triangle has sides of 7 cm and 24 cm with an angle of 70° between them. Work out the third side.',
+      },
       },
     ],
 

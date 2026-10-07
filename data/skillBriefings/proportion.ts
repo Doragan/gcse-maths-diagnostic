@@ -42,18 +42,30 @@ export const proportionBriefing: SkillBriefing = {
       thisOne: 'Two quantities that move together. Scale one up and the other scales with it.',
       theOther: 'One total, shared out into parts that add back up to that total.',
       ask: 'Is there a total being shared out, or two things moving together?',
+      pair: {
+        thisOne: '3 sweets cost 24p. Work out the cost of 5 sweets.',
+        theOther: '24 sweets are shared between Ava and Ben in the ratio 3 : 5. How many does Ben get?',
+      },
     },
     {
       skillId: 'percentage_change',
       thisOne: 'The two quantities are different kinds of thing — pounds and kilograms, miles and minutes.',
       theOther: 'Both quantities are the same kind of thing — pounds to pounds, kilograms to kilograms.',
       ask: 'Are the two numbers the same kind of thing, or different kinds?',
+      pair: {
+        thisOne: '40 kg of rice feeds 15 people. How much rice feeds 24 people?',
+        theOther: 'A 40 kg sack of rice is reduced by 15%. Work out the new weight.',
+      },
     },
     {
       skillId: 'inverse_proportion',
       thisOne: 'One goes up, and the other goes up with it. Twice the flapjacks, twice the oats.',
       theOther: 'One goes up, and the other goes down. Twice the workers, half the time.',
       ask: 'If I double the first quantity, does the second one double too, or halve?',
+      pair: {
+        thisOne: '4 taps deliver 30 litres a minute. How many litres do 6 taps deliver a minute?',
+        theOther: '4 taps fill a tank in 30 minutes. How long would 6 taps take?',
+      },
     },
     {
       // Deliberately framed on the ANSWER's units rather than the inputs', so it
@@ -63,6 +75,10 @@ export const proportionBriefing: SkillBriefing = {
       thisOne: 'You are asked for more of something you were already given — more grams, more pounds.',
       theOther: 'You are asked for a rate that joins both quantities — grams per cm³, miles per hour.',
       ask: 'Does the answer need two units joined by "per", or just one?',
+      pair: {
+        thisOne: 'A car travels 180 miles on 3 gallons. How far can it travel on 5 gallons?',
+        theOther: 'A car travels 180 miles on 3 gallons. Work out its fuel economy in miles per gallon.',
+      },
     },
   ],
 
@@ -161,12 +177,20 @@ export const proportionBriefing: SkillBriefing = {
         thisOne: 'y ∝ x. Double x and y doubles with it.',
         theOther: 'y ∝ x². Double x and y goes up four times, not twice.',
         ask: 'Is there a power on the x in the relationship — squared, cubed, or a square root?',
+      pair: {
+        thisOne: 'y is proportional to x. When x = 4, y = 20. Work out y when x = 10.',
+        theOther: 'y is proportional to x². When x = 4, y = 20. Work out y when x = 10.',
+      },
       },
       {
         skillId: 'growth_and_decay',
         thisOne: 'One scale factor, applied once.',
         theOther: 'A factor applied over and over, once per period — each year, each hour.',
         ask: 'Does the change happen once, or repeatedly over time?',
+      pair: {
+        thisOne: '£5,000 buys 4 shares. How many shares does £7,500 buy?',
+        theOther: '£5,000 is invested and grows by 4% each year. Work out its value after 3 years.',
+      },
       },
     ],
 

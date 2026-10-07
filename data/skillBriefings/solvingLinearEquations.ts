@@ -49,6 +49,10 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       thisOne: 'The letter is unknown, and the equals sign is what pins it down.',
       theOther: 'The letter\'s value is GIVEN. You put it in and work the answer out.',
       ask: 'Have I been told what the letter is, or am I being asked to find it?',
+      pair: {
+        thisOne: 'Solve 3x + 7 = 22.',
+        theOther: 'Work out the value of 3x + 7 when x = 5.',
+      },
     },
     {
       // Mirror of the entry in inequalities.ts — same distinction, other side.
@@ -56,6 +60,10 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       thisOne: 'An equals sign: one value makes it true.',
       theOther: 'An inequality sign: a whole range of values makes it true.',
       ask: 'Is the sign in the middle =, or is it <, >, ≤ or ≥?',
+      pair: {
+        thisOne: 'Solve 4x − 3 = 17.',
+        theOther: 'Solve 4x − 3 ≤ 17.',
+      },
     },
     {
       // Mirror of the entry in simultaneousEquations.ts.
@@ -63,6 +71,10 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       thisOne: 'One letter to find, and one equation to find it from.',
       theOther: 'Two letters, and two equations that have to be true at the same time.',
       ask: 'How many different letters am I solving for — one, or two?',
+      pair: {
+        thisOne: 'Solve 2x + 1 = x + 11.',
+        theOther: 'Solve 2x + y = 11 and x − y = 1.',
+      },
     },
     {
       // Mirror of the entry in anglesOnLinesAndCircles.ts. Worth having on this
@@ -72,6 +84,10 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       thisOne: 'The equation is printed, or built from a story, and the work is the algebra.',
       theOther: 'The geometry is the point: which angle fact applies, and what the diagram tells you.',
       ask: 'Am I solving an equation I already have, or choosing an angle fact first?',
+      pair: {
+        thisOne: 'Solve 3x = 2x + 30.',
+        theOther: 'The angles on a straight line are 3x and 2x + 30. Work out x.',
+      },
     },
   ],
 

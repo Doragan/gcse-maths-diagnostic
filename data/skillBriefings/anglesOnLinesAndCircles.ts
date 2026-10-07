@@ -63,12 +63,20 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       thisOne: 'The geometry is the point: which fact applies, and what the diagram is telling you.',
       theOther: 'The equation is printed, or built from a story, and the work is the algebra.',
       ask: 'Am I choosing an angle fact, or solving an equation I have already got?',
+      pair: {
+        thisOne: 'The angles on a straight line are 3x and 2x + 30. Work out x.',
+        theOther: 'Solve 3x = 2x + 30.',
+      },
     },
     {
       skillId: 'angles_in_polygons',
       thisOne: 'Angles at ONE point, or inside a single triangle.',
       theOther: 'A shape with many sides, where the angle sum depends on how many sides it has.',
       ask: 'Is this one point or one triangle, or a polygon whose sides I need to count?',
+      pair: {
+        thisOne: 'Two angles on a straight line are 108° and x. Work out x.',
+        theOther: 'Work out the size of an interior angle of a regular pentagon.',
+      },
     },
   ],
 

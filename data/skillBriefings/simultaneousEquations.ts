@@ -45,6 +45,10 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       thisOne: 'Two genuinely independent unknowns, needing two equations to pin both down.',
       theOther: 'One unknown carries the ratio: the parts are 2n and 3n, and one equation finds n.',
       ask: 'Can I write both quantities using the same single letter, or do I need two?',
+      pair: {
+        thisOne: 'There are 32 counters, and 8 more red than blue. How many are red?',
+        theOther: 'Red and blue counters are in the ratio 5 : 3, and there are 32 altogether. How many are red?',
+      },
     },
     {
       // Mirror of the entry in solvingLinearEquations.ts.
@@ -52,6 +56,10 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       thisOne: 'Two letters, and two equations that have to be true at the same time.',
       theOther: 'One letter to find, and one equation to find it from.',
       ask: 'How many different letters am I solving for — one, or two?',
+      pair: {
+        thisOne: 'Solve 2x + y = 11 and x − y = 1.',
+        theOther: 'Solve 2x + 1 = x + 11.',
+      },
     },
   ],
 

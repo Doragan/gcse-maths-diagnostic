@@ -51,12 +51,20 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       thisOne: 'The number is a share of the WHOLE already. 3/8 means 3 out of every 8.',
       theOther: 'The numbers compare the parts to EACH OTHER. In 3 : 5 there are 8 shares altogether.',
       ask: 'Is this number telling me a share of the total, or comparing two parts?',
+      pair: {
+        thisOne: '3/5 of the 40 counters are red. How many are red?',
+        theOther: 'Red and blue counters are in the ratio 3 : 5. There are 40 counters. How many are red?',
+      },
     },
     {
       skillId: 'fractions_decimals_and_percentages',
       thisOne: 'You are given the fraction, and the answer is an amount — pounds, people, sweets.',
       theOther: 'You are given the amounts, and the answer is the fraction or percentage itself.',
       ask: 'Is the fraction something I have been given, or the thing I am being asked to find?',
+      pair: {
+        thisOne: 'In a class of 30, 3/5 walk to school. How many walk?',
+        theOther: 'In a class of 30, 18 walk to school. What fraction of the class walk?',
+      },
     },
   ],
 

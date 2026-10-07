@@ -482,6 +482,20 @@ export default function SkillBriefingPage() {
                   <span style={styles.contrastText}>{c.theOther}</span>
                 </div>
 
+                {/* The minimal pair, in the same two-column grid as the
+                    descriptions above it, so each question sits under the
+                    skill it belongs to. Set apart as specimens because they
+                    are questions off a paper, not commentary about them. */}
+                {c.pair && (
+                  <div style={{ ...styles.contrast, ...styles.pairGrid }}>
+                    <span style={{ ...styles.contrastLabel, color: colors.primary }}>{skill.name}</span>
+                    <span style={styles.pairText}>{c.pair.thisOne}</span>
+
+                    <span style={{ ...styles.contrastLabel, color: colors.warningText }}>{otherName}</span>
+                    <span style={styles.pairText}>{c.pair.theOther}</span>
+                  </div>
+                )}
+
                 <p style={styles.ask}>
                   <span style={styles.askLabel}>Ask yourself</span>
                   {c.ask}
@@ -988,6 +1002,22 @@ const styles: Record<string, React.CSSProperties> = {
   contrastText: {
     fontSize: font.base,
     color: colors.textSecondary,
+    lineHeight: 1.5,
+  },
+
+  // The minimal pair, below the descriptions and separated from them: same
+  // grid, so the two questions line up under the same two labels.
+  pairGrid: {
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: `1px dashed ${colors.border}`,
+  },
+  // Italic, like the specimen fragments beside the recognition cues — these
+  // are questions as a paper would print them, not our words about them.
+  pairText: {
+    fontSize: font.base,
+    color: colors.textPrimary,
+    fontStyle: 'italic',
     lineHeight: 1.5,
   },
   ask: {

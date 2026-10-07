@@ -286,3 +286,72 @@ describe('cue fragments are not the judged questions', () => {
     expect(clashes, 'cue fragments repeated as judged stems').toEqual([])
   })
 })
+
+describe('comparison pairs', () => {
+  const cards = () =>
+    Object.values(skillBriefings).flatMap(g =>
+      [...g.confusableWith, ...(g.higher?.confusableWith ?? [])].map(c => ({ from: g.skillId, c })))
+
+  it('gives every comparison a worked pair of questions', () => {
+    const bare = cards().filter(({ c }) => !c.pair).map(({ from, c }) => `${from} → ${c.skillId}`)
+    expect(bare, 'comparisons with no example pair').toEqual([])
+  })
+
+  it('makes the two sides different questions', () => {
+    for (const { from, c } of cards()) {
+      expect(c.pair!.thisOne.trim(), `${from} → ${c.skillId}: empty side`).toBeTruthy()
+      expect(c.pair!.theOther.trim(), `${from} → ${c.skillId}: empty side`).toBeTruthy()
+      expect(c.pair!.thisOne, `${from} → ${c.skillId}: both sides identical`).not.toBe(c.pair!.theOther)
+    }
+  })
+
+  it('keeps each side short enough to compare at a glance', () => {
+    // The point is that the two sit side by side and differ in one visible way.
+    // A paragraph on each side defeats that.
+    for (const { from, c } of cards()) {
+      for (const side of [c.pair!.thisOne, c.pair!.theOther]) {
+        expect(side.length, `${from} → ${c.skillId}: "${side.slice(0, 40)}…" is too long to scan`)
+          .toBeLessThanOrEqual(150)
+      }
+    }
+  })
+
+  it('shows the same pair from both sides of a mutual comparison', () => {
+    // Where both skills have a page, the student meeting the pairing from
+    // either direction should see the SAME two questions, swapped round. Two
+    // different pairs for one distinction is how the pages drift apart.
+    const wrong: string[] = []
+    for (const { from, c } of cards()) {
+      const other = skillBriefings[c.skillId]
+      if (!other) continue
+      const back = [...other.confusableWith, ...(other.higher?.confusableWith ?? [])]
+        .find(x => x.skillId === from)
+      if (!back?.pair) continue
+      if (back.pair.thisOne !== c.pair!.theOther || back.pair.theOther !== c.pair!.thisOne) {
+        wrong.push(`${from} ↔ ${c.skillId} show different pairs`)
+      }
+    }
+    expect([...new Set(wrong)], 'mutual comparisons with mismatched pairs').toEqual([])
+  })
+
+  it('never reuses a question the same page asks the student to judge', () => {
+    // The comparison cards render above the judging drill on the same stage.
+    // A question that appears in both is answered before it is asked — the
+    // same fault the cue fragments had.
+    const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase().replace(/[.?]$/, '')
+    const clashes: string[] = []
+    for (const g of Object.values(skillBriefings)) {
+      const stems = [...g.examples, ...(g.higher?.examples ?? [])].map(e => norm(e.stem))
+      for (const c of [...g.confusableWith, ...(g.higher?.confusableWith ?? [])]) {
+        if (!c.pair) continue
+        for (const side of [c.pair.thisOne, c.pair.theOther]) {
+          const s = norm(side)
+          if (stems.some(st => st === s || st.startsWith(s) || s.startsWith(st))) {
+            clashes.push(`${g.skillId}: "${side.slice(0, 50)}…" is also a judged stem`)
+          }
+        }
+      }
+    }
+    expect(clashes, 'comparison questions repeated in the judging drill').toEqual([])
+  })
+})

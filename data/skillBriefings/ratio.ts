@@ -48,6 +48,10 @@ export const ratioBriefing: SkillBriefing = {
       thisOne: 'One total, shared out into parts that add back up to that total.',
       theOther: 'Two quantities that move together. Scale one up and the other scales with it.',
       ask: 'Is there a total being shared out, or two things moving together?',
+      pair: {
+        thisOne: '24 sweets are shared between Ava and Ben in the ratio 3 : 5. How many does Ben get?',
+        theOther: '3 sweets cost 24p. Work out the cost of 5 sweets.',
+      },
     },
     {
       // Directly targets the most frequent coded trap on this skill.
@@ -55,6 +59,10 @@ export const ratioBriefing: SkillBriefing = {
       thisOne: 'The numbers compare the parts to EACH OTHER. In 3 : 5 there are 8 shares altogether.',
       theOther: 'The number is a share of the WHOLE already. 3/8 means 3 out of every 8.',
       ask: 'Is this number comparing two parts, or telling me a share of the total?',
+      pair: {
+        thisOne: 'Red and blue counters are in the ratio 3 : 5. There are 40 counters. How many are red?',
+        theOther: '3/5 of the 40 counters are red. How many are red?',
+      },
     },
   ],
 
@@ -159,6 +167,10 @@ export const ratioBriefing: SkillBriefing = {
         thisOne: 'One unknown carries the ratio: the parts are 2n and 3n, and one equation finds n.',
         theOther: 'Two genuinely independent unknowns, needing two equations to pin both down.',
         ask: 'Can I write both quantities using the same single letter, or do I need two?',
+      pair: {
+        thisOne: 'Red and blue counters are in the ratio 5 : 3, and there are 32 altogether. How many are red?',
+        theOther: 'There are 32 counters, and 8 more red than blue. How many are red?',
+      },
       },
     ],
 

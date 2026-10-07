@@ -51,12 +51,20 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
       thisOne: 'You are given the amounts, and the answer is the fraction or percentage itself.',
       theOther: 'You are given the fraction, and the answer is an amount — pounds, people, sweets.',
       ask: 'Is the fraction something I have been given, or the thing I am being asked to find?',
+      pair: {
+        thisOne: 'In a class of 30, 18 walk to school. What fraction of the class walk?',
+        theOther: 'In a class of 30, 3/5 walk to school. How many walk?',
+      },
     },
     {
       skillId: 'percentage_change',
       thisOne: 'A part of a whole at one moment — 14 of the 40 cars are red.',
       theOther: 'One amount turning into another — a before and an after.',
       ask: 'Is this a part of a whole, or something that has changed from one value to another?',
+      pair: {
+        thisOne: 'Of the 80 seats, 60 are taken. What percentage of the seats are taken?',
+        theOther: 'A theatre had 80 seats and now has 60. Work out the percentage decrease.',
+      },
     },
   ],
 
@@ -157,6 +165,10 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         thisOne: 'You know the part AND the whole, and the percentage is what you are finding.',
         theOther: 'You know the percentage and the part, and the whole is what is missing.',
         ask: 'Of the part, the whole and the percentage, which one have I not been given?',
+      pair: {
+        thisOne: '42 of the 120 members are juniors. What percentage are juniors?',
+        theOther: '35% of the members are juniors, and there are 42 juniors. How many members are there?',
+      },
       },
     ],
 

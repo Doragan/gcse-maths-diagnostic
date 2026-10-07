@@ -57,6 +57,10 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
       thisOne: 'A shape with many sides, where the angle sum depends on how many sides it has.',
       theOther: 'Angles at ONE point, or inside a single triangle.',
       ask: 'Is this one point or one triangle, or a polygon whose sides I need to count?',
+      pair: {
+        thisOne: 'Work out the size of an interior angle of a regular pentagon.',
+        theOther: 'Two angles on a straight line are 108° and x. Work out x.',
+      },
     },
   ],
 
