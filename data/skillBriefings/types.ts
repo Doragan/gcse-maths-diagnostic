@@ -62,6 +62,28 @@ export type ConfusableWith = {
   theOther: string
   /** The question to ask yourself to decide between them. */
   ask: string
+  /**
+   * A MINIMAL PAIR: two questions that look almost the same and differ only in
+   * the thing that decides which skill they are.
+   *
+   * The labelled rows describe the distinction; this shows it. Two questions
+   * about the same counters, the same 24, where one compares the parts and the
+   * other names a share of the whole, settle the difference in a way no
+   * sentence does — and they are what a student actually confuses.
+   *
+   * Keep both sides in the SAME context, so the only visible difference is the
+   * one that matters. A pair set in two unrelated contexts teaches nothing: the
+   * student sorts them by the story, not by the structure.
+   *
+   * Mirrored across a pairing — where both skills have a page, both show the
+   * same two questions, swapped round to sit against their own skill.
+   */
+  pair?: {
+    /** The one that IS this skill. Rendered against this skill's name. */
+    thisOne: string
+    /** The one that is the OTHER skill. Rendered against the other's name. */
+    theOther: string
+  }
 }
 
 export type MethodStep = {

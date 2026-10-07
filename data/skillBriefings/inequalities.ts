@@ -59,6 +59,10 @@ export const inequalitiesBriefing: SkillBriefing = {
       thisOne: 'An inequality sign: a whole range of values makes it true.',
       theOther: 'An equals sign: one value makes it true.',
       ask: 'Is the sign in the middle <, >, ≤ or ≥, or is it =?',
+      pair: {
+        thisOne: 'Solve 4x − 3 ≤ 17.',
+        theOther: 'Solve 4x − 3 = 17.',
+      },
     },
   ],
 
@@ -169,6 +173,10 @@ export const inequalitiesBriefing: SkillBriefing = {
         thisOne: 'One x term, so one boundary and one range.',
         theOther: 'An x² term, so two boundaries — and the answer may be the middle or the two outside pieces.',
         ask: 'Is there an x² in it?',
+      pair: {
+        thisOne: 'Solve 2x + 1 > 7.',
+        theOther: 'Solve x² − 2x > 8.',
+      },
       },
     ],
 

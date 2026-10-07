@@ -53,12 +53,20 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       thisOne: 'One event. The probability is a count over a count.',
       theOther: 'Two or more events in a row, where you multiply along the branches.',
       ask: 'Does something happen once, or one thing after another?',
+      pair: {
+        thisOne: 'A bag holds 4 red and 6 blue counters. One is taken. Work out P(red).',
+        theOther: 'A bag holds 4 red and 6 blue counters. Two are taken. Work out P(both red).',
+      },
     },
     {
       skillId: 'expected_outcomes',
       thisOne: 'The answer is a probability — a fraction, decimal or percentage from 0 to 1.',
       theOther: 'The answer is a NUMBER of times: the probability multiplied by the number of trials.',
       ask: 'Am I being asked how likely it is, or how many times it happens?',
+      pair: {
+        thisOne: 'A spinner has 5 equal sections, 2 of them red. Work out the probability of red.',
+        theOther: 'A spinner has 5 equal sections, 2 of them red. It is spun 60 times. How many reds are expected?',
+      },
     },
   ],
 
@@ -165,6 +173,10 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         thisOne: 'Everything is out of the whole group.',
         theOther: 'You are told something has already happened, so the total shrinks to just that group.',
         ask: 'Does the question say "given that"? Has the pool already been narrowed?',
+      pair: {
+        thisOne: 'Of 50 students, 30 study French. One is chosen at random. Work out P(French).',
+        theOther: 'Of 50 students, 30 study French and 12 of those also study German. A French student is chosen. Work out P(German).',
+      },
       },
     ],
 

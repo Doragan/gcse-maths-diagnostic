@@ -52,6 +52,10 @@ export const reversePercentageBriefing: SkillBriefing = {
       thisOne: 'You have the amount AFTER the change and work backwards to what it started as.',
       theOther: 'You have the amount BEFORE the change and work forwards to what it becomes.',
       ask: 'Is the number I have been given the original, or the one that has already changed?',
+      pair: {
+        thisOne: 'A coat costs £60 in a sale, after a 20% reduction. Work out the original price.',
+        theOther: 'A coat costs £60 and is reduced by 20%. Work out the sale price.',
+      },
     },
     {
       // Mirror of the Higher entry in fractionsDecimalsAndPercentages.ts.
@@ -59,6 +63,10 @@ export const reversePercentageBriefing: SkillBriefing = {
       thisOne: 'You know the percentage and the part, and the whole is what is missing.',
       theOther: 'You know the part AND the whole, and the percentage is what you are finding.',
       ask: 'Of the part, the whole and the percentage, which one have I not been given?',
+      pair: {
+        thisOne: '35% of the members are juniors, and there are 42 juniors. How many members are there?',
+        theOther: '42 of the 120 members are juniors. What percentage are juniors?',
+      },
     },
   ],
 

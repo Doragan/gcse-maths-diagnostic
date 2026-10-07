@@ -59,12 +59,20 @@ export const treeDiagramsBriefing: SkillBriefing = {
       thisOne: 'Two or more events in a row, where you multiply along the branches.',
       theOther: 'One event. The probability is a count over a count.',
       ask: 'Does something happen once, or one thing after another?',
+      pair: {
+        thisOne: 'A bag holds 4 red and 6 blue counters. Two are taken. Work out P(both red).',
+        theOther: 'A bag holds 4 red and 6 blue counters. One is taken. Work out P(red).',
+      },
     },
     {
       skillId: 'frequency_trees',
       thisOne: 'The branches carry probabilities — fractions or decimals, which multiply.',
       theOther: 'The branches carry NUMBERS of people or things, which add back to the total.',
       ask: 'Are the numbers on the branches probabilities, or counts?',
+      pair: {
+        thisOne: 'A train is late with probability 0.2 each day. Work out P(late on both of two days).',
+        theOther: 'Of 200 trains, 40 were late and 15 of those were full. How many were late but not full?',
+      },
     },
   ],
 

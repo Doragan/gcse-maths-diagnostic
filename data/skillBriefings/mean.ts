@@ -49,12 +49,20 @@ export const meanBriefing: SkillBriefing = {
       thisOne: 'Add the values and divide by how many there are. Every value counts equally.',
       theOther: 'One overall rate, worked out from the totals — all the distance over all the time.',
       ask: 'Am I averaging a list of numbers, or working out one rate from two totals?',
+      pair: {
+        thisOne: 'A cyclist rides 18 km, 24 km and 18 km on three days. Work out the mean distance.',
+        theOther: 'A cyclist rides 60 km in 3 hours. Work out the average speed.',
+      },
     },
     {
       skillId: 'median',
       thisOne: 'Everything is shared out evenly, so one extreme value pulls the answer towards it.',
       theOther: 'The middle value once they are in order. An extreme value barely moves it.',
       ask: 'Does the question want the total shared out evenly, or the middle of the list?',
+      pair: {
+        thisOne: 'Five salaries are £18k, £20k, £21k, £22k and £95k. Work out the mean.',
+        theOther: 'Five salaries are £18k, £20k, £21k, £22k and £95k. Work out the median.',
+      },
     },
   ],
 

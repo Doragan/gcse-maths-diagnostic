@@ -55,6 +55,10 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
       thisOne: 'One measurement rewritten another way. 1.6 m and 1600 mm are the same length.',
       theOther: 'Two different quantities joined into a rate — miles per hour, grams per cm³.',
       ask: 'Is one measurement being rewritten, or are two quantities being combined into a "per"?',
+      pair: {
+        thisOne: 'A tap delivers 18 litres. Write this amount in millilitres.',
+        theOther: 'A tap fills 18 litres in 3 minutes. Work out the rate in litres per minute.',
+      },
     },
   ],
 

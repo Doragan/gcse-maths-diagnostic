@@ -51,6 +51,10 @@ export const growthAndDecayBriefing: SkillBriefing = {
       thisOne: 'Interest or loss that builds on the new amount each time — compound.',
       theOther: 'A single change, applied to the original amount.',
       ask: 'Is the percentage applied once, or again and again once per year?',
+      pair: {
+        thisOne: 'A £200 phone loses 10% of its value each year. What is it worth after 3 years?',
+        theOther: 'A £200 phone is reduced by 10% in a sale. Work out the new price.',
+      },
     },
     {
       // Mirror of the entry in the Higher block of proportion.ts.
@@ -58,6 +62,10 @@ export const growthAndDecayBriefing: SkillBriefing = {
       thisOne: 'A factor applied over and over, once per period — each year, each hour.',
       theOther: 'One scale factor, applied once.',
       ask: 'Does the change happen once, or repeatedly over time?',
+      pair: {
+        thisOne: '£5,000 is invested and grows by 4% each year. Work out its value after 3 years.',
+        theOther: '£5,000 buys 4 shares. How many shares does £7,500 buy?',
+      },
     },
   ],
 
@@ -157,6 +165,10 @@ export const growthAndDecayBriefing: SkillBriefing = {
         theOther: 'Each step depends on the last in a way a power cannot skip — a repayment, or a formula '
           + 'fed its own output.',
         ask: 'Can I get to year 5 in one calculation, or do I have to walk through every year?',
+      pair: {
+        thisOne: 'A balance of £500 grows by 6% a year. Work out the balance after 4 years.',
+        theOther: 'A sequence starts at 500, with each term given by xₙ₊₁ = 1.06xₙ − 20. Work out x₄.',
+      },
       },
     ],
 

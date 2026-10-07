@@ -48,12 +48,20 @@ export const percentageChangeBriefing: SkillBriefing = {
       thisOne: 'Both quantities are the same kind of thing — pounds to pounds, kilograms to kilograms.',
       theOther: 'The two quantities are different kinds of thing — pounds and kilograms, miles and minutes.',
       ask: 'Are the two numbers the same kind of thing, or different kinds?',
+      pair: {
+        thisOne: 'A 40 kg sack of rice is reduced by 15%. Work out the new weight.',
+        theOther: '40 kg of rice feeds 15 people. How much rice feeds 24 people?',
+      },
     },
     {
       skillId: 'growth_and_decay',
       thisOne: 'A single change, applied to the original amount.',
       theOther: 'Interest or loss that builds on the new amount each time — compound.',
       ask: 'Is the percentage applied once, or again and again once per year?',
+      pair: {
+        thisOne: 'A £200 phone is reduced by 10% in a sale. Work out the new price.',
+        theOther: 'A £200 phone loses 10% of its value each year. What is it worth after 3 years?',
+      },
     },
     {
       // Mirror of the entry in fractionsDecimalsAndPercentages.ts.
@@ -61,6 +69,10 @@ export const percentageChangeBriefing: SkillBriefing = {
       thisOne: 'One amount turning into another — a before and an after.',
       theOther: 'A part of a whole at one moment — 14 of the 40 cars are red.',
       ask: 'Is this a part of a whole, or something that has changed from one value to another?',
+      pair: {
+        thisOne: 'A theatre had 80 seats and now has 60. Work out the percentage decrease.',
+        theOther: 'Of the 80 seats, 60 are taken. What percentage of the seats are taken?',
+      },
     },
   ],
 
@@ -163,6 +175,10 @@ export const percentageChangeBriefing: SkillBriefing = {
         thisOne: 'You have the amount BEFORE the change and work forwards to what it becomes.',
         theOther: 'You have the amount AFTER the change and work backwards to what it started as.',
         ask: 'Is the number I have been given the original, or the one that has already changed?',
+      pair: {
+        thisOne: 'A coat costs £60 and is reduced by 20%. Work out the sale price.',
+        theOther: 'A coat costs £60 in a sale, after a 20% reduction. Work out the original price.',
+      },
       },
     ],
 
