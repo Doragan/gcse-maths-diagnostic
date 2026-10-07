@@ -35,11 +35,11 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
     },
     {
       text: 'The letter on BOTH sides, so the first job is getting it onto one of them.',
-      example: 'Solve 5x + 3 = 2x + 18',
+      example: 'Solve 7y − 5 = 3y + 11',
     },
     {
       text: 'No equation printed at all. A shape, an angle fact or a story hands you one.',
-      example: 'The angles on a straight line are 2x, 3x and x + 40.',
+      example: 'The angles on a straight line are 2x, 3x and x + 30.',
     },
   ],
 
@@ -79,12 +79,22 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
     {
       stem: 'Solve 5x + 3 = 2x + 18',
       isThisSkill: true,
+      worked: [
+        'Take the smaller x term off both sides: 3x + 3 = 18',
+        'Subtract 3: 3x = 15',
+        'Divide by 3: x = 5',
+      ],
       cue: 'An equals sign and one letter, on both sides. Collecting the x terms on one side is the first move.',
     },
     {
       stem: 'The angles in a triangle are x, 2x and 3x − 30. '
         + 'Work out the size of the largest angle.',
       isThisSkill: true,
+      worked: [
+        'Angles in a triangle add to 180: x + 2x + 3x − 30 = 180',
+        '6x − 30 = 180, so 6x = 210 and x = 35',
+        'The angles are 35°, 70° and 75°, so the largest is 75°',
+      ],
       cue: 'No equation is printed. "Angles in a triangle add to 180" is the equation — and the '
         + 'answer line wants an angle, not x.',
     },
@@ -151,7 +161,7 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
     note: {
       text: 'On Higher the equation usually arrives buried in fractions or brackets, so there is a '
         + 'tidying step before the solving starts.',
-      example: 'Solve (x + 5)/4 + (x − 1)/2 = 6',
+      example: 'Solve (2x − 1)/5 = (x + 4)/3',
     },
 
     recognise: [
@@ -165,6 +175,11 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       {
         stem: 'Solve (x + 5)/4 + (x − 1)/2 = 6',
         isThisSkill: true,
+      worked: [
+        'Multiply EVERY term by 4: (x + 5) + 2(x − 1) = 24',
+        '3x + 3 = 24, so 3x = 21',
+        'x = 7',
+      ],
         cue: 'Fractions with x on top. Multiplying every term by 4 clears both denominators at once.',
       },
     ],

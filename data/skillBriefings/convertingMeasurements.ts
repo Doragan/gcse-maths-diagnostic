@@ -40,7 +40,7 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
     },
     {
       text: 'You are asked to compare, add or subtract amounts that are not in the same unit.',
-      example: 'Which is heavier, 0.45 kg or 480 g?',
+      example: 'Which is longer, 1.2 m or 125 cm?',
     },
     {
       text: 'The answer line names a unit that the question never used.',
@@ -63,11 +63,21 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
       stem: 'A piece of ribbon is 2 m long. Nadia cuts off 3 pieces, each 45 cm long. '
         + 'How much ribbon is left, in cm?',
       isThisSkill: true,
+      worked: [
+        'The answer line says cm, so convert first: 2 m = 200 cm',
+        'Cut off 3 × 45 cm = 135 cm',
+        '200 − 135 = 65 cm left',
+      ],
       cue: 'Metres and centimetres in the same question, and the answer line says cm. Convert before subtracting.',
     },
     {
       stem: 'Which is heavier, 0.45 kg or 480 g? You must show your working.',
       isThisSkill: true,
+      worked: [
+        'Put both in the same unit: 0.45 kg = 0.45 × 1000 = 450 g',
+        '480 g is more than 450 g',
+        'The 480 g is heavier',
+      ],
       cue: 'Two masses in different units. Rewriting one of them as the other IS the question.',
     },
     {
@@ -137,6 +147,10 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
       {
         stem: 'A rectangle measures 1.5 m by 80 cm. Work out its area in cm².',
         isThisSkill: true,
+      worked: [
+        'Convert the length FIRST: 1.5 m = 150 cm',
+        'Area = 150 × 80 = 12000 cm²',
+      ],
         cue: 'Convert the metres to centimetres FIRST, then multiply. Converting the area afterwards '
           + 'is where the factor goes wrong.',
       },

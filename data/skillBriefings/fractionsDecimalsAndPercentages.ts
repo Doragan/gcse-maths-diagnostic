@@ -66,12 +66,21 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
     {
       stem: 'Write these numbers in order, starting with the smallest: 0.6, 5/8, 58%, 2/3',
       isThisSkill: true,
+      worked: [
+        'One form first: 0.6, 5/8 = 0.625, 58% = 0.58, 2/3 = 0.667',
+        'In order: 0.58, 0.6, 0.625, 0.667',
+        'Answer with the ORIGINAL numbers: 58%, 0.6, 5/8, 2/3',
+      ],
       cue: 'Four numbers in three different forms, to be compared. Put them all in one form first.',
     },
     {
       stem: 'There are 40 cars in a car park. 14 of the cars are red. '
         + 'What percentage of the cars are red?',
       isThisSkill: true,
+      worked: [
+        'The whole is all 40 cars: 14/40',
+        '14 ÷ 40 = 0.35, and × 100 = 35%',
+      ],
       cue: 'Both amounts are given, and the answer is the share: 14 out of 40, as a percentage.',
     },
     {
@@ -156,6 +165,11 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         stem: '60% of the members of a club are adults. 45% of the adults are women. '
           + 'What percentage of the members of the club are adult women?',
         isThisSkill: true,
+      worked: [
+        'The 45% is of the adults, not of the club',
+        'Multiply the decimals: 0.45 × 0.6 = 0.27',
+        '= 27% of the club',
+      ],
         cue: 'A percentage of a percentage. The 45% is of the adults, not of the whole club.',
       },
     ],

@@ -71,12 +71,21 @@ export const compoundUnitsBriefing: SkillBriefing = {
     {
       stem: 'A train travels 150 km in 2 hours 30 minutes. Work out its average speed in km/h.',
       isThisSkill: true,
+      worked: [
+        '2 hours 30 minutes is 2.5 hours, not 2.3',
+        'Speed = 150 ÷ 2.5 = 60 km/h',
+      ],
       cue: 'A distance and a time, and the answer line asks for km/h — a rate.',
     },
     {
       stem: 'Priya drives 30 miles at 60 mph, then a further 30 miles at 20 mph. '
         + 'Work out her average speed for the whole journey.',
       isThisSkill: true,
+      worked: [
+        'Fast half: 30 ÷ 60 = 0.5 hours. Slow half: 30 ÷ 20 = 1.5 hours',
+        'Totals: 60 miles in 2 hours',
+        'Average = 60 ÷ 2 = 30 mph, not the 40 mph you get by averaging the two speeds',
+      ],
       cue: 'Still a rate, and the one most often got wrong. The answer is not 40 mph — '
         + 'she spends far longer on the slow half, so the totals have to be worked out first.',
     },
@@ -157,6 +166,11 @@ export const compoundUnitsBriefing: SkillBriefing = {
         stem: 'A solid metal hemisphere has radius 3 cm. The metal has density 8.9 g/cm³. '
           + 'Work out the mass of the hemisphere.',
         isThisSkill: true,
+      worked: [
+        'Half a sphere: V = ⅔ × π × 3³ = 18π cm³',
+        'Mass = density × volume = 8.9 × 18π',
+        '= 503.3 g to 1 decimal place',
+      ],
         cue: 'Density is a rate, but the volume has to come first — and it is a hemisphere, not a sphere.',
       },
     ],

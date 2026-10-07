@@ -98,6 +98,20 @@ export type SkillExample = {
   figure?: Figure
   /** False for a near-miss — a question that resembles this skill but isn't. */
   isThisSkill: boolean
+  /**
+   * How the question is actually answered, one line per step of working,
+   * ending on the answer.
+   *
+   * Required on every stem that IS the skill. Without it the page shows a
+   * student four questions, tells them which ones count, and never once shows
+   * the work — the method steps say what to do in the abstract and nothing
+   * demonstrates it. A near-miss carries none: it belongs to another skill, and
+   * `cue` already says what it is instead.
+   *
+   * Written against the method THIS page teaches, so the lines read as that
+   * method running rather than as a different route to the same number.
+   */
+  worked?: string[]
   /** Which recognition cue fires, or which one fails to. */
   cue: string
   /** For a near-miss: the skill it actually is, so the tell has somewhere to land. */

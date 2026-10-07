@@ -33,7 +33,7 @@ export const inequalitiesBriefing: SkillBriefing = {
   recognise: [
     {
       text: 'A <, >, ≤ or ≥ sitting where an equals sign would be.',
-      example: 'Solve 5c − 4 < 21',
+      example: 'Solve 3n + 7 ≥ 19',
     },
     {
       text: 'A number line to mark, with circles to fill in or leave open.',
@@ -48,7 +48,7 @@ export const inequalitiesBriefing: SkillBriefing = {
     },
     {
       text: 'The word "integer". The answer is the whole numbers inside the range, not the range itself.',
-      example: 'Write down all the integer values of n that satisfy −3 < n ≤ 2.',
+      example: 'Write down the integer values of x where 1 ≤ x < 5.',
     },
   ],
 
@@ -66,17 +66,32 @@ export const inequalitiesBriefing: SkillBriefing = {
     {
       stem: 'Solve 5c − 4 < 21',
       isThisSkill: true,
+      worked: [
+        'Add 4 to both sides, carrying the sign down: 5c < 25',
+        'Divide by 5: c < 5',
+        'Leave it as an inequality — c = 5 would lose the mark',
+      ],
       cue: 'A < where the equals sign would be, so the answer is every value below a boundary.',
     },
     {
       stem: 'Write down all the integer values of n that satisfy −3 < n ≤ 2.',
       isThisSkill: true,
+      worked: [
+        'The range is given, so list the whole numbers inside it',
+        '−3 is NOT included (<) but 2 IS (≤)',
+        'n = −2, −1, 0, 1, 2',
+      ],
       cue: 'The range is handed to you. The work is listing the whole numbers inside it — and the '
         + 'two ends are not treated the same.',
     },
     {
       stem: 'n is an integer and 2n + 1 > 9. Write down the smallest possible value of n.',
       isThisSkill: true,
+      worked: [
+        'Solve it as normal: 2n > 8, so n > 4',
+        'n > 4 does not include 4 itself',
+        'The smallest integer that works is n = 5',
+      ],
       cue: 'Solve as normal, then think about whole numbers: n > 4 makes the smallest integer 5, not 4.',
     },
     {
@@ -134,13 +149,13 @@ export const inequalitiesBriefing: SkillBriefing = {
     note: {
       text: 'On Higher the inequality is often two-sided, with the letter in the middle, or it is '
         + 'drawn as a shaded region on a grid.',
-      example: 'Solve −4 ≤ 3x + 2 < 11',
+      example: 'Solve −1 ≤ 2x + 5 < 9',
     },
 
     recognise: [
       {
         text: 'Two inequality signs at once, with the letter between them.',
-        example: 'Solve −4 ≤ 3x + 2 < 11',
+        example: 'Solve −9 < 2x + 1 ≤ 7',
       },
       {
         text: 'A grid with lines to draw and a region to shade.',
@@ -161,6 +176,10 @@ export const inequalitiesBriefing: SkillBriefing = {
       {
         stem: 'Solve −4 ≤ 3x + 2 < 11',
         isThisSkill: true,
+      worked: [
+        'Subtract 2 from all THREE parts: −6 ≤ 3x < 9',
+        'Divide all three by 3: −2 ≤ x < 3',
+      ],
         cue: 'Two signs at once. Every step has to be done to all three parts together.',
       },
     ],

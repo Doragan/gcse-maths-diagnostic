@@ -31,7 +31,7 @@ export const inverseProportionBriefing: SkillBriefing = {
     },
     {
       text: 'The words "inversely proportional", which on these questions are usually stated outright.',
-      example: 'y is inversely proportional to x.',
+      example: 'The time taken is inversely proportional to the number of workers.',
     },
     {
       text: 'A table where one row rises as the other falls — and the pairs multiply to the same number.',
@@ -59,11 +59,20 @@ export const inverseProportionBriefing: SkillBriefing = {
     {
       stem: 'It takes 4 painters 9 hours to paint a hall. Work out how long it would take 6 painters.',
       isThisSkill: true,
+      worked: [
+        'The job is fixed: 4 × 9 = 36 painter-hours',
+        'With 6 painters: 36 ÷ 6 = 6 hours',
+      ],
       cue: 'More painters, fewer hours. The job is fixed at 36 painter-hours however many people turn up.',
     },
     {
       stem: 'y is inversely proportional to x. When x = 5, y = 12. Work out y when x = 4.',
       isThisSkill: true,
+      worked: [
+        'Write it as xy = k',
+        'x = 5, y = 12 gives k = 60',
+        'When x = 4: y = 60 ÷ 4 = 15',
+      ],
       cue: 'Stated outright, and xy = 60 holds for every pair.',
     },
     {
@@ -133,6 +142,11 @@ export const inverseProportionBriefing: SkillBriefing = {
       {
         stem: 'F is inversely proportional to the square of d. When d = 3, F = 20. Work out F when d = 6.',
         isThisSkill: true,
+      worked: [
+        'Write it as F = k ÷ d²',
+        'd = 3, F = 20 gives k = 20 × 9 = 180',
+        'When d = 6: F = 180 ÷ 36 = 5',
+      ],
         cue: 'The power is on d, and d doubles — so F falls to a quarter, not a half.',
       },
     ],
