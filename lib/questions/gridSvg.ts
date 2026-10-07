@@ -404,5 +404,14 @@ export function buildGridSvg(
     : ''
   // Labels last: a vertex name belongs over its shape, not under it.
   const labels = buildLabelsLayer(grid, geo)
-  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${solution}${canonical}${student}${labels}</svg>`
+  // FONT-FAMILY ON THE ROOT, inherited by every <text> below.
+  //
+  // svg2pdf maps a text node's font-family onto one of jsPDF's standard
+  // fonts, and falls back to Times when there is none. Nothing here set one,
+  // so a printed feedback sheet had serif labels on its diagrams against
+  // helvetica body text — see setFont in lib/papers/feedbackPdf.ts. Helvetica
+  // is named first because that is the one svg2pdf can actually resolve; the
+  // rest of the stack is for the browser, where this same SVG is the student's
+  // canvas.
+  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" xmlns="http://www.w3.org/2000/svg" width="${geo.W}" height="${geo.H}" font-family="Helvetica, Arial, sans-serif"><rect width="${geo.W}" height="${geo.H}" fill="#ffffff"/>${frame}${solution}${canonical}${student}${labels}</svg>`
 }
