@@ -1657,6 +1657,36 @@ export const skills: Skill[] = [
     "exampleAnswer": "0.3"
   },
   {
+    // iGCSE only. Edexcel International GCSE 4MA1 examines set language that UK
+    // GCSE never does — spec 1.5, filed under "Numbers and the number system",
+    // which is why the topic is Number and not Probability and Data.
+    //
+    // Deliberately NOT prerequisite on venn_diagrams: that node costs 4 and all
+    // four are probability skills, and the strongest evidence for this one
+    // (June 2024 1F q22, 5 marks) has no Venn diagram and no probability in it
+    // at all. See docs/audit/25-igcse-4ma1-delta.md §2.2.
+    "id": "set_notation",
+    "name": "Set Notation",
+    "topic": "Number",
+    "prerequisites": [],
+    "exampleQuestion": "ℰ = {1, 2, 3, 4, 5, 6}, A = {even numbers}, B = {1, 2, 3}. List the members of A ∩ B.",
+    "exampleAnswer": "2"
+  },
+  {
+    // iGCSE only, Higher. The line between this and set_notation is MEMBERSHIP
+    // vs CARDINALITY, and the papers draw it sharply: n( ) appears on none of
+    // the six coded 4MA1 Foundation papers and on several Higher ones.
+    // Foundation asks you to list the members; Higher asks how many.
+    "id": "counting_elements_in_sets",
+    "name": "Counting Elements in Sets",
+    "topic": "Number",
+    "prerequisites": [
+      "set_notation"
+    ],
+    "exampleQuestion": "ℰ = {1, 2, 3, 4, 5, 6, 7, 8}, P = {2, 4, 6, 8}, Q = {1, 2, 3, 4}. Find n(P ∩ Q′).",
+    "exampleAnswer": "2"
+  },
+  {
     "id": "trig_graphs",
     "name": "Trigonometric Graphs",
     "topic": "Algebra",
