@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Calculator)",
+    "series": "June 2025",
+    "total_marks": 100,
+
+    "paper_slug": "edexcel-4ma1-1f-jun25",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/1F",
+    "paper_subtitle": "Foundation Tier Paper 1 — June 2025",
+
+    "source": "Coded from the published QP and mark scheme (4MA1_1F_2506, sat 15 May 2025). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "FIRST iGCSE (4MA1) paper in the audit. 4MA1 is NOT 1MA1 — 100 marks over 2 papers of 2 hours, both with a calculator. See docs/audit/25-igcse-4ma1-delta.md.",
+    "q16 tagged venn_diagrams, which data/courses.ts lists as HIGHER-ONLY. On 4MA1 Venn diagrams are Foundation content (spec 6.3 D) and this is a Foundation paper. The tag is correct for the question; the tier list is what disagrees, and it is a GCSE tier list. Do not 'fix' this by retagging.",
+    "q19(b),(c) tagged upper_and_lower_bounds, also HIGHER-ONLY in data/courses.ts, and also Foundation on 4MA1 (spec 1.8 C, 'identify upper and lower bounds'). Same situation as q16.",
+    "q23(b) tagged factorising_quadratics / solving_quadratic_equations_factorising. Quadratics ARE Foundation on 4MA1, limited by spec 2.7 A to x^2 + bx + c = 0 by factorisation. This question is what corrected an earlier claim in the delta doc that quadratics were Higher-only.",
+    "q1(c) tagged simple_arithmetic: forming the smallest/largest number from four digit cards is place value, which has no node of its own. Precedent in docs/coding-a-paper.md is to tag place value as decimals, but these are integers, so the lowest honestly-covering node is simple_arithmetic.",
+    "q10 tagged volume_of_a_prism: the mark scheme accepts either comparing volumes or dividing dimension by dimension. The volume route is the one the tag claims; the packing route is closer to spatial reasoning and has no node.",
+    "q12(b) tagged fractions_decimals_and_percentages rather than percentage_change: expressing one quantity as a percentage of another is not an increase or decrease.",
+    "q6(c) tagged sequences rather than finding_the_nth_term: the 12th term of 7, 11, 15, 19 is reachable by continuing the sequence, and sequences is the lower node."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "missing addend in a sum" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "missing factor in a product" },
+    { "q": "1", "part": "ci", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "smallest number from four digit cards" },
+    { "q": "1", "part": "cii", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "largest even number from four digit cards" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read one value off a pictogram" },
+    { "q": "2", "part": "b", "marks": 2, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "total four categories from a pictogram" },
+    { "q": "2", "part": "c", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "add a row to a pictogram using the key" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "count faces of a prism" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["properties_of_3d_solids"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "count vertices of a prism" },
+    { "q": "3", "part": "c", "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "name a chord" },
+    { "q": "3", "part": "d", "marks": 1, "skill_ids": ["parts_of_a_circle"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "name a diameter" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["simplifying_expressions"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "multiply a term by a constant" },
+    { "q": "4", "part": "b", "marks": 1, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "one-step linear equation" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "decimal to percentage" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "hundredths fraction to decimal" },
+    { "q": "5", "part": "c", "marks": 2, "skill_ids": ["simplifying_fractions"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "fraction of a shape shaded, in simplest form" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "next term of a linear sequence" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "state the term-to-term rule" },
+    { "q": "6", "part": "c", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "12th term of a linear sequence" },
+
+    { "q": "7", "part": null, "marks": 4, "skill_ids": ["fractions_of_amounts", "simple_arithmetic"], "kind": "mastery", "mark_split": "M1 M1 M1 A1", "app_gap_note": "fractional discount, two items, change from a note" },
+
+    { "q": "8", "part": "a", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "complete a table of values for a linear function" },
+    { "q": "8", "part": "b", "marks": 2, "skill_ids": ["plotting_straight_line_graphs"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "draw_plot", "app_gap_note": "draw a straight line from a table of values" },
+
+    { "q": "9", "part": "a", "marks": 3, "skill_ids": ["pie_charts"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "complete a frequency and angle table from a pie chart" },
+    { "q": "9", "part": "b", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "probability from a pie chart sector" },
+
+    { "q": "10", "part": null, "marks": 3, "skill_ids": ["volume_of_a_prism"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "greatest number of cuboid boxes fitting in a cuboid crate" },
+
+    { "q": "11", "part": null, "marks": 2, "skill_ids": ["proportion"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "unitary method, cost of 5 from cost of 12" },
+
+    { "q": "12", "part": "a", "marks": 2, "skill_ids": ["time_calculations"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "elapsed time across the 24-hour clock" },
+    { "q": "12", "part": "b", "marks": 2, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "one quantity as a percentage of another" },
+
+    { "q": "13", "part": null, "marks": 2, "skill_ids": ["adding_and_subtracting_fractions"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "show-that, adding fractions with unlike denominators" },
+
+    { "q": "14", "part": "a", "marks": 1, "skill_ids": ["expanding_brackets"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "expand a single bracket with a variable multiplier" },
+    { "q": "14", "part": "b", "marks": 1, "skill_ids": ["factorising"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "factorise a two-term linear expression" },
+    { "q": "14", "part": "c", "marks": 3, "skill_ids": ["solving_linear_equations", "substitution"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "substitute two values into a formula and solve for the third" },
+
+    { "q": "15", "part": null, "marks": 4, "skill_ids": ["ratio", "simple_arithmetic"], "kind": "mastery", "mark_split": "M1 M1 M1 A1", "app_gap_note": "ratio to find the second quantity, then total two unit prices" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["venn_diagrams"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read the symmetric-difference regions of a two-set Venn diagram" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["venn_diagrams", "calculating_simple_probability"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "probability of the intersection from a Venn diagram" },
+
+    { "q": "17", "part": null, "marks": 4, "skill_ids": ["areas_of_compound_shapes"], "kind": "mastery", "mark_split": "M1 M1 M1 A1", "app_gap_note": "rectangle plus triangle, then round up to whole tins of varnish" },
+
+    { "q": "18", "part": "a", "marks": 1, "skill_ids": ["grouped_frequency_tables"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "modal class of a grouped frequency table" },
+    { "q": "18", "part": "b", "marks": 4, "skill_ids": ["grouped_frequency_tables", "mean"], "kind": "exam", "mark_split": "M2 M1 A1", "app_gap_note": "estimated mean from a grouped frequency table" },
+
+    { "q": "19", "part": "a", "marks": 4, "skill_ids": ["percentage_change"], "kind": "mastery", "mark_split": "M1 M1 M1 A1", "app_gap_note": "percentage profit from unit cost and total revenue" },
+    { "q": "19", "part": "b", "marks": 1, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "lower bound of a length given to the nearest cm" },
+    { "q": "19", "part": "c", "marks": 1, "skill_ids": ["upper_and_lower_bounds"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "upper bound of a weight given to the nearest 10 g" },
+
+    { "q": "20", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "exterior_angles"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "number of sides of a regular polygon from two given angles" },
+
+    { "q": "21", "part": "a", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "index law for multiplication" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "index law for division" },
+    { "q": "21", "part": "c", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "raise a three-factor product to a power" },
+
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["reverse_percentage"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "original price from a sale price after a 28% reduction" },
+
+    { "q": "23", "part": "a", "marks": 3, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "linear equation with a fractional term and the unknown on both sides" },
+    { "q": "23", "part": "bi", "marks": 2, "skill_ids": ["factorising_quadratics"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "factorise a monic quadratic with two negative roots" },
+    { "q": "23", "part": "bii", "marks": 1, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "hence-solve from the student's own factors" },
+
+    { "q": "24", "part": null, "marks": 3, "skill_ids": ["volume_of_a_prism"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "height of a cylinder from its volume and radius" },
+
+    { "q": "25", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "write a large number in standard form" },
+    { "q": "25", "part": "b", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "write a negative-index standard form number as an ordinary number" },
+    { "q": "25", "part": "c", "marks": 2, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "multiply two standard form numbers, answer in standard form" },
+
+    { "q": "26", "part": null, "marks": 5, "skill_ids": ["area_of_a_trapezium", "trigonometry_missing_sides"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "area of a symmetric trapezium needing the height by trigonometry" }
+  ]
+}

@@ -1,0 +1,448 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Higher",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2025",
+    "total_marks": 100,
+    "paper_slug": "edexcel-4ma1-2h-jun25",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/2H",
+    "paper_subtitle": "Higher Tier Paper 2 — June 2025",
+    "source": "Coded from the published QP and mark scheme (4MA1_2H_2506, sat 5 June 2025). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "CROSSOVER BLOCK CONFIRMED: 2F q18-q28 = 2H q1-q11, a contiguous block of eleven questions worth 40 marks — the same 40-mark overlap as Paper 1. Coded in the same sitting as IGCSE-JUN25-F-P2; the shared rows carry identical tags by construction.",
+    "GAP-CANDIDATE differentiation — q17(a), 2 marks, 'find dy/dx' for a cubic. UNTAGGED: unlike the arithmetic series, calculus has NO node in data/skills.ts that covers any part of this, so there is nothing to tag honestly. topic set to algebra so the marks still land in the right column. See docs/audit/25-igcse-4ma1-delta.md section 2.1.",
+    "GAP-CANDIDATE stationary_points — q17(b), 4 marks, coordinates of the turning points. Tagged solving_quadratic_equations_factorising as an INTERIM measure: the mark scheme spends most of its marks solving the 3-term quadratic that dy/dx = 0 produces, and a correct answer does demonstrate that. The uncovered part is knowing to differentiate and set to zero.",
+    "GAP-CANDIDATE counting_elements_in_sets — q20(b) ONLY, 1 mark, evaluating n(T' intersect C). The CARDINALITY form of set work (spec Higher 1.5 C), which the coded papers show is Higher-only: n() appears on none of the four coded Foundation papers. Tagged venn_diagrams as an INTERIM measure, which over-credits here — venn_diagrams costs 4 and all four are probability skills, and this part involves no probability at all. q20(a) and q20(c) stay genuinely venn_diagrams: completing the diagram and reading a conditional probability off it. One question, three parts, three different tags — which is what makes the split operable.",
+    "q21 uses the surface area of a CUBOID, which docs/coding-a-paper.md already records as a standing taxonomy gap (spheres, cones and cylinders each have a node; cuboids do not). Tagged volume_of_a_prism, which covers the volume half the question also needs. Not counted as a new iGCSE gap candidate — it is a pre-existing GCSE one.",
+    "q13 is cumulative frequency across four parts: table, graph, median, and a reading above a value. Only (b) is flagged visual — (c) and (d) are read off the student's own graph but restate fine in words.",
+    "q22 tagged upper_and_lower_bounds: this is the HIGHER form of the skill, 'solve problems using bounds' (spec 1.8 A), against the Foundation 'identify bounds' form seen on 1F q19."
+  ],
+  "rows": [
+    {
+      "q": "1",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "median",
+        "range",
+        "mode"
+      ],
+      "kind": "exam",
+      "mark_split": "B3",
+      "app_gap_note": "reconstruct missing data values from range, median and mode"
+    },
+    {
+      "q": "2",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "enlargements"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "draw_shape",
+      "app_gap_note": "enlarge a shape by a positive scale factor about a given centre"
+    },
+    {
+      "q": "2",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "rotations"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "app_gap_note": "describe a rotation fully: angle, direction and centre"
+    },
+    {
+      "q": "3",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "adding_and_subtracting_fractions",
+        "irregular_and_improper_fractions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "show-that, subtracting mixed numbers with unlike denominators"
+    },
+    {
+      "q": "4",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "constructions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "draw_shape",
+      "app_gap_note": "perpendicular bisector with ruler and compasses, arcs shown"
+    },
+    {
+      "q": "5",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "congruence_and_similarity"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "missing side of a similar quadrilateral, scale factor up"
+    },
+    {
+      "q": "5",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "congruence_and_similarity"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "missing side of a similar quadrilateral, scale factor down"
+    },
+    {
+      "q": "6",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "ratio",
+        "simplifying_ratio"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "share in a three-part ratio, transfer amounts, then re-express in simplest form"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "compound increase over three years"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "simultaneous_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "two linear simultaneous equations, one with a decimal constant"
+    },
+    {
+      "q": "9",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "inequalities"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "solve a linear inequality with the unknown on both sides"
+    },
+    {
+      "q": "9",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "inequalities"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "app_gap_note": "write three inequalities defining a shaded region"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "pythagoras_theorem"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "Pythagoras twice across two right-angled triangles sharing a side"
+    },
+    {
+      "q": "11",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "calculating_simple_probability"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "recover a missing category count from a given probability"
+    },
+    {
+      "q": "12",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "expanding_brackets",
+        "simplifying_expressions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "expand two brackets with variable multipliers and collect terms"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "complete a cumulative frequency table"
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw a cumulative frequency graph"
+    },
+    {
+      "q": "13",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "cumulative_frequency",
+        "median"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "estimate the median from a cumulative frequency graph"
+    },
+    {
+      "q": "13",
+      "part": "d",
+      "marks": 2,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "estimate a count above a value from a cumulative frequency graph"
+    },
+    {
+      "q": "14",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "sketching_functions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "match a negative quadratic to its sketch"
+    },
+    {
+      "q": "14",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "sketching_functions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "match a cubic to its sketch"
+    },
+    {
+      "q": "15",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "fractional_and_negative_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "answer_form": "expression",
+      "app_gap_note": "simplify an algebraic fraction raised to a negative power"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "rearranging_formulae"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "change the subject where the subject appears twice and is squared"
+    },
+    {
+      "q": "17",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [],
+      "topic": "algebra",
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "differentiate a cubic"
+    },
+    {
+      "q": "17",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "solving_quadratic_equations_factorising"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "turning points of a cubic by setting the derivative to zero"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "recurring_decimals_to_fractions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "show-that, recurring decimal to a fraction by algebra"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "quadratic_inequalities"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "solve a non-monic quadratic inequality"
+    },
+    {
+      "q": "20",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "venn_diagrams"
+      ],
+      "kind": "exam",
+      "mark_split": "B3",
+      "answer_form": "draw_plot",
+      "app_gap_note": "complete a three-set Venn diagram from overlapping totals and an equality condition"
+    },
+    {
+      "q": "20",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "counting_elements_in_sets"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "evaluate a set expression using complement and intersection notation"
+    },
+    {
+      "q": "20",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "conditional_probability",
+        "venn_diagrams"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "conditional probability from a completed Venn diagram"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "volume_of_a_prism"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "show-that, cuboid surface area as an algebraic expression using its given volume"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "kind": "exam",
+      "mark_split": "B1 M1 M1 A1",
+      "app_gap_note": "shaded area between a rectangle and a square from bounds, to a suitable accuracy"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "algebraic_fractions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "divide two algebraic fractions and compare with a given quadratic form"
+    },
+    {
+      "q": "24",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "trigonometry_3d"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "edge-to-base ratio of a square-based pyramid from an angle in a vertical plane"
+    },
+    {
+      "q": "25",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "completing_the_square"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "complete the square on a negative non-monic quadratic"
+    },
+    {
+      "q": "25",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "quadratic_functions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "answer_form": "draw_plot",
+      "app_gap_note": "sketch a negative quadratic showing turning point and y-intercept"
+    },
+    {
+      "q": "26",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "area_and_volume_scale_factors"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "volume of one similar solid from a height ratio and a volume difference"
+    }
+  ]
+}

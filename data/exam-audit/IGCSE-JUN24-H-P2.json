@@ -1,0 +1,454 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Higher",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "edexcel-4ma1-2h-jun24",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/2H",
+    "paper_subtitle": "Higher Tier Paper 2 — June 2024",
+    "source": "Coded from the published QP and mark scheme (4MA1_2H_2406). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "CROSSOVER BLOCK CONFIRMED: 2F q17-q28 = 2H q1-q12, twelve questions worth 40 marks. Predicted from the matching mark sequence, confirmed by reading. Coded in the same sitting as IGCSE-JUN24-F-P2; shared rows carry identical tags by construction.",
+    "GAP-CANDIDATE counting_elements_in_sets — q16(c) and q16(d), TWO parts, 2 marks, both asking for n() of a set expression: n(P intersect K complement), and n([P union E] intersect K). Tagged venn_diagrams as an INTERIM measure. This takes the candidate to FOUR parts on the Higher slice, which is the minParts bar. Note how the question separates the two skills cleanly: (a) completing the Venn is venn_diagrams, (b) is conditional probability, and only (c) and (d) are cardinality — the same three-way split seen on Jun25 2H q20, which is what makes the membership/cardinality line operable rather than theoretical.",
+    "q25 tagged trig_graphs: reading the maximum and an intercept off a sketched transformed sine curve. graph_transformations was considered but the marks are for reading coordinates off the given sketch, not for describing the transformation.",
+    "q13(c) tagged interquartile_range alongside cumulative_frequency — the IQR is the thing being estimated, the graph is how.",
+    "No arithmetic series and no calculus on this paper; both of this series' sightings of each were on Paper 1."
+  ],
+  "rows": [
+    {
+      "q": "1",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "median",
+        "mode",
+        "range"
+      ],
+      "kind": "exam",
+      "mark_split": "B3",
+      "app_gap_note": "recover three unknown data values from median, mode and range"
+    },
+    {
+      "q": "2",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "plotting_straight_line_graphs"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw three lines including a vertical, a horizontal and a sloping one"
+    },
+    {
+      "q": "2",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "inequalities"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "draw_plot",
+      "app_gap_note": "shade the region satisfying three inequalities"
+    },
+    {
+      "q": "3",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "compound_units",
+        "time_calculations"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "distance from an average speed and a time given in hours and minutes"
+    },
+    {
+      "q": "4",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "multiplying_fractions",
+        "irregular_and_improper_fractions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "show-that, multiplying two mixed numbers"
+    },
+    {
+      "q": "5",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "trigonometry_missing_sides"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "missing side of a right-angled triangle from an angle and one side"
+    },
+    {
+      "q": "6",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "compound_units",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "convert metres per second to kilometres per hour, answer in terms of a variable"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "area_of_a_trapezium"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "perpendicular height of a symmetric six-sided shape from its given area"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "ratio",
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "three-part ratio split, then a percentage, a fraction and a whole of each part"
+    },
+    {
+      "q": "9",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "compound interest over four years"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "simultaneous_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "two linear simultaneous equations needing one to be scaled"
+    },
+    {
+      "q": "11",
+      "part": "i",
+      "marks": 2,
+      "skill_ids": [
+        "factorising_quadratics"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "factorise a monic quadratic with roots of opposite sign"
+    },
+    {
+      "q": "11",
+      "part": "ii",
+      "marks": 1,
+      "skill_ids": [
+        "solving_quadratic_equations_factorising"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "hence-solve from the student's own factors"
+    },
+    {
+      "q": "12",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "mean"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "combined mean of two groups of different sizes"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "complete a cumulative frequency table"
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw a cumulative frequency graph"
+    },
+    {
+      "q": "13",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "interquartile_range",
+        "cumulative_frequency"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "estimate the interquartile range from a cumulative frequency graph"
+    },
+    {
+      "q": "13",
+      "part": "d",
+      "marks": 2,
+      "skill_ids": [
+        "cumulative_frequency"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "estimate a count above a value from a cumulative frequency graph"
+    },
+    {
+      "q": "14",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "expanding_double_brackets"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "show-that, expanding a product of three factors into a cubic"
+    },
+    {
+      "q": "14",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "solving_linear_equations",
+        "algebraic_fractions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "linear equation with two fractional terms equal to a fraction"
+    },
+    {
+      "q": "15",
+      "part": "a",
+      "marks": 4,
+      "skill_ids": [
+        "rearranging_formulae"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "change the subject where the subject appears twice"
+    },
+    {
+      "q": "15",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "quadratic_inequalities"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "solve a non-monic quadratic inequality"
+    },
+    {
+      "q": "16",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "venn_diagrams"
+      ],
+      "kind": "exam",
+      "mark_split": "B3",
+      "answer_form": "draw_plot",
+      "app_gap_note": "complete a three-set Venn diagram from overlapping totals"
+    },
+    {
+      "q": "16",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "conditional_probability",
+        "venn_diagrams"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "conditional probability from a completed Venn diagram"
+    },
+    {
+      "q": "16",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "counting_elements_in_sets"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "evaluate a set expression using intersection and complement"
+    },
+    {
+      "q": "16",
+      "part": "d",
+      "marks": 1,
+      "skill_ids": [
+        "counting_elements_in_sets"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "evaluate a set expression using union and intersection"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "proportion_with_powers"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "formula for direct proportion to a square root"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "perpendicular_gradients"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "gradient perpendicular to a line given in implicit form"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "lower bound of a compound expression from three differently-rounded values"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "algebraic_fractions",
+        "substitution"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "substitute one defined variable into another and express in a required form"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "areas_of_compound_shapes",
+        "area_of_a_circle",
+        "pythagoras_theorem"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "diagonal of a square from the shaded area between it and its inscribed circle"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "simultaneous_equations_quadratic"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "intersection of a line and an ellipse-form curve"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "fractional_and_negative_indices"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "simplify a product and quotient of powers to a single power with an algebraic index"
+    },
+    {
+      "q": "24",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "express a side of a quadrilateral in terms of two given vectors"
+    },
+    {
+      "q": "24",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "vector_proof"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "vector method on two intersecting straight lines with a given ratio"
+    },
+    {
+      "q": "25",
+      "part": "i",
+      "marks": 1,
+      "skill_ids": [
+        "trig_graphs"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "coordinates of the maximum of a transformed sine curve"
+    },
+    {
+      "q": "25",
+      "part": "ii",
+      "marks": 1,
+      "skill_ids": [
+        "trig_graphs"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "coordinates of an intercept of a transformed sine curve"
+    }
+  ]
+}

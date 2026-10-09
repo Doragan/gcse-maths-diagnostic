@@ -1,0 +1,460 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Higher",
+    "paper": "Paper 1 (Calculator)",
+    "series": "November 2024",
+    "total_marks": 100,
+    "paper_slug": "edexcel-4ma1-1h-nov24",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/1H",
+    "paper_subtitle": "Higher Tier Paper 1 — November 2024",
+    "source": "Coded from the published QP and mark scheme (4MA1_1H_2411). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "CROSSOVER BLOCK CONFIRMED: 1F q18-q27 = 1H q1-q10, ten questions worth 40 marks. The per-question mark sequence matched before the papers were read, and reading confirmed it question by question. Coded in the same sitting as IGCSE-NOV24-F-P1; shared rows carry identical tags by construction.",
+    "GAP-CANDIDATE arithmetic_series_sum — q19, 5 marks. Sum of the first 30 terms and the sum of the 10th and 20th terms are given; the sum of the first 45 is wanted. Tagged simultaneous_equations as an INTERIM measure, the same handling as Jun25 1H q24. SECOND sighting.",
+    "GAP-CANDIDATE differentiation — q20, 4 marks, the equation of the tangent to a quartic at its minimum point. UNTAGGED: differentiating to locate the minimum is the whole question and no node covers any part of it. The final step (a tangent at a minimum is horizontal, so y = k) sits in understanding_straight_line_graphs territory, but tagging that for one mark of a calculus question would claim the wrong thing. topic set to algebra. SECOND sighting.",
+    "GAP-CANDIDATE set_notation — q4(a),(b),(c), 3 parts, shared from the Foundation paper via the crossover block (= NOV24 1F q21). Listing the members of sets given in notation, with no n(). Counted on the HIGHER slice here and on the Foundation slice there: profiles are sliced by board AND tier, so the same crossover question legitimately evidences the skill on both, which is how every other crossover item is already handled. Tagged venn_diagrams as an INTERIM measure — see the Foundation paper's note for why that tag mis-claims rather than under-claims.",
+    "q16 needs the area-of-a-triangle sine rule to recover the radius before the sector formula can be used; tagged sector_calculations first because the sector area is what is asked for.",
+    "q23 tagged solving_quadratic_equations_quadratic_equation first: the route is to set the curve equal to k and use the sum and difference of the two roots.",
+    "q11(b) tagged sketching_functions rather than plotting_straight_line_graphs — the curve has a reciprocal term and is not a straight line."
+  ],
+  "rows": [
+    {
+      "q": "1",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "grouped_frequency_tables"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "modal class of a grouped frequency table"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 4,
+      "skill_ids": [
+        "grouped_frequency_tables",
+        "mean"
+      ],
+      "kind": "exam",
+      "mark_split": "M2 M1 A1",
+      "app_gap_note": "estimated mean from a grouped frequency table"
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "constructions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "draw_shape",
+      "app_gap_note": "angle bisector with ruler and compasses, arcs shown"
+    },
+    {
+      "q": "3",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "raise a power to a power"
+    },
+    {
+      "q": "3",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "expanding_brackets",
+        "simplifying_expressions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "expand two brackets with variable multipliers and collect terms"
+    },
+    {
+      "q": "3",
+      "part": "c",
+      "marks": 3,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "linear equation with a fractional term and the unknown on both sides"
+    },
+    {
+      "q": "4",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of a complement set"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of an intersection"
+    },
+    {
+      "q": "4",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of a set given in notation"
+    },
+    {
+      "q": "5",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "volume_of_a_prism",
+        "converting_measurements"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1 M1 A1",
+      "app_gap_note": "cylinder volume, answer converted to litres"
+    },
+    {
+      "q": "6",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "highest_common_factor"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "app_gap_note": "HCF of three numbers given as products of prime powers"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "percentage_change",
+        "reverse_percentage"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "compare money off two offers, one given as a sale price"
+    },
+    {
+      "q": "8",
+      "part": "ai",
+      "marks": 2,
+      "skill_ids": [
+        "factorising_quadratics"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "factorise a monic quadratic with roots of opposite sign"
+    },
+    {
+      "q": "8",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "solving_quadratic_equations_factorising"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "hence-solve from the student's own factors"
+    },
+    {
+      "q": "8",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "inequalities"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "solve a linear inequality with the unknown on both sides"
+    },
+    {
+      "q": "9",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "standard form to an ordinary number"
+    },
+    {
+      "q": "9",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "divide two standard form numbers, answer in standard form"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "congruence_and_similarity"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "missing side of a similar triangle pair in a non-obvious orientation"
+    },
+    {
+      "q": "11",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "substitution"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "app_gap_note": "complete a table of values for a function with a reciprocal term"
+    },
+    {
+      "q": "11",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "sketching_functions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw a curve with a reciprocal term from a table of values"
+    },
+    {
+      "q": "12",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "trigonometry_missing_sides"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "two right-angled triangles sharing a side, find a segment of the base"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "app_gap_note": "complete a two-stage tree with conditional second-stage probabilities"
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams",
+        "conditional_probability"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "probability of both stages succeeding when the second depends on the first"
+    },
+    {
+      "q": "14",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "proportion_with_powers"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "find the formula for inverse proportion to a square"
+    },
+    {
+      "q": "15",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "expanding_double_brackets"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "expand a product of three factors into a cubic"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "sector_calculations",
+        "area_of_triangle_sine"
+      ],
+      "kind": "exam",
+      "mark_split": "B1 M1 M1 A1",
+      "app_gap_note": "sector area where the radius must first be recovered from a triangle area"
+    },
+    {
+      "q": "17",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "surds_simplifying"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "express a surd as an integer multiple of another surd"
+    },
+    {
+      "q": "17",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "surds_expanding_and_rationalising"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "rationalise a denominator of the form root b minus a"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "histograms"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "fraction of the total between two values from a frequency density histogram"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "simultaneous_equations"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "arithmetic series: two given sums solved simultaneously, then a third sum evaluated"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [],
+      "topic": "algebra",
+      "kind": "exam",
+      "mark_split": "B1 M1 M1 A1",
+      "app_gap_note": "equation of the tangent to a quartic at its minimum point"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "upper bound of a compound expression from three differently-rounded values"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "volume_of_a_sphere"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "volume of metal between two concentric hemispheres"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "solving_quadratic_equations_quadratic_equation",
+        "quadratic_functions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "find the horizontal line cutting a parabola at two roots a given distance apart"
+    },
+    {
+      "q": "24",
+      "part": "i",
+      "marks": 1,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "express a side of a triangle in terms of two given vectors"
+    },
+    {
+      "q": "24",
+      "part": "ii",
+      "marks": 1,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "express a scaled segment in terms of two given vectors"
+    },
+    {
+      "q": "24",
+      "part": "iii",
+      "marks": 4,
+      "skill_ids": [
+        "vector_proof"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "vector expression on two intersecting straight lines with given ratios"
+    },
+    {
+      "q": "25",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "inverse_functions",
+        "completing_the_square"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "inverse of a restricted-domain quadratic function"
+    }
+  ]
+}

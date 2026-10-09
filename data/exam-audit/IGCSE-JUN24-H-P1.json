@@ -1,0 +1,449 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Higher",
+    "paper": "Paper 1 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "edexcel-4ma1-1h-jun24",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/1H",
+    "paper_subtitle": "Higher Tier Paper 1 — June 2024",
+    "source": "Coded from the published QP and mark scheme (4MA1_1H_2406). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "CROSSOVER BLOCK CONFIRMED: 1F q16-q26 = 1H q1-q11, eleven questions worth 40 marks. Predicted from the matching mark sequence, confirmed by reading. Coded in the same sitting as IGCSE-JUN24-F-P1; shared rows carry identical tags by construction.",
+    "GAP-CANDIDATE set_notation — q7(a)(i),(a)(ii),(b),(c), four parts, 5 marks, ALL UNTAGGED. Shared from the Foundation paper via the crossover, so this is the Higher slice's copy of the same evidence. See IGCSE-JUN24-F-P1 q22 for the full reasoning, including why venn_diagrams was rejected rather than used as an interim tag. Takes set_notation to seven parts on each slice.",
+    "GAP-CANDIDATE differentiation — q18, 5 marks, the coordinates of both points on a cubic where the gradient takes a given value. Tagged solving_quadratic_equations_factorising as an INTERIM measure, consistent with Jun25 2H q17(b): once differentiated the work is solving x squared = 16 and substituting back, which a correct answer does demonstrate. THIRD sighting.",
+    "GAP-CANDIDATE arithmetic_series_sum — q24, 6 marks. The interior angles of an n-sided polygon form an arithmetic sequence; the sum of those angles is wanted. Tagged angles_in_polygons as an INTERIM measure, which is honest and unusually good for a gap candidate — the whole method turns on equating the series sum against (n-2) x 180, so the polygon angle sum is genuinely demonstrated. THIRD sighting, and the first that is a true synthesis of the missing skill with an existing one.",
+    "GAP-CANDIDATE domain_and_range — q15(a), 1 mark, stating the value of x that cannot be in any domain of a given function. FIRST sighting of this candidate, which had zero across the first eight papers. Tagged functions_notation as an INTERIM measure: it under-claims rather than mis-claims, since the question is about the structure of a named function f, which is that skill's territory. The uncovered part is the idea of a domain and its exclusions (spec Higher 3.2 C).",
+    "q23 tagged across three volume and surface-area nodes: the route is cone volume minus hemisphere volume to find x, then the hemisphere's total surface area. The answer is a surface area but the work is mostly volume, so the volume node leads."
+  ],
+  "rows": [
+    {
+      "q": "1",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "finding_the_nth_term"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "nth term of a linear sequence"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "substitution"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "evaluate a given nth-term rule at a stated n"
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "mutually_exclusive_events",
+        "expected_outcomes"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "probabilities in terms of x summing to one, then an expected frequency"
+    },
+    {
+      "q": "3",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "highest_common_factor"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "HCF of two numbers with working shown"
+    },
+    {
+      "q": "4",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "reverse_percentage"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "original value from a figure that is a stated percentage more"
+    },
+    {
+      "q": "5",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "angles_in_polygons"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "obtuse angle outside a regular pentagon from a given adjacent angle"
+    },
+    {
+      "q": "6",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "expanding_double_brackets"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "expand two linear brackets with opposite signs"
+    },
+    {
+      "q": "6",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "linear equation with a fractional term and the unknown on both sides"
+    },
+    {
+      "q": "7",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of a union of two sets given by rule"
+    },
+    {
+      "q": "7",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of a complement intersected with a set"
+    },
+    {
+      "q": "7",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "decide whether an intersection is the empty set, with a reason"
+    },
+    {
+      "q": "7",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "exam",
+      "mark_split": "B2",
+      "app_gap_note": "list a set of given size whose intersection with a union is empty"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "compound_units",
+        "volume_of_a_prism"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "pressure from a force and a base area recovered from a cylinder's volume"
+    },
+    {
+      "q": "9",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "standard form to an ordinary number"
+    },
+    {
+      "q": "9",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "add an ordinary number to a standard form value, answer in standard form"
+    },
+    {
+      "q": "10",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "zero index"
+    },
+    {
+      "q": "10",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "index law for division with a negative index"
+    },
+    {
+      "q": "10",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "expression",
+      "app_gap_note": "raise a three-factor product to a power"
+    },
+    {
+      "q": "11",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "pythagoras_theorem"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "total length of four members of an isosceles frame, rounded up and priced per metre"
+    },
+    {
+      "q": "12",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "factorising_quadratics"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "factorise a non-monic quadratic fully"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "algebraic_fractions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "combine two algebraic fractions over a common denominator"
+    },
+    {
+      "q": "13",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "app_gap_note": "complete a two-bag probability tree"
+    },
+    {
+      "q": "13",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "tree_diagrams",
+        "combined_events"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "probability of a matching pair across two independent draws"
+    },
+    {
+      "q": "14",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "percentage_change",
+        "ratio"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "split a combined total by a percentage relation, then apply a fractional ratio"
+    },
+    {
+      "q": "15",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "functions_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "value excluded from the domain of a rational function"
+    },
+    {
+      "q": "15",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "inverse_functions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "inverse of a rational function"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "conditional_probability",
+        "combined_events"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "probability of at least one of each colour in three draws without replacement"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "surds_expanding_and_rationalising"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "show-that, rationalising to the form a plus b root c"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "solving_quadratic_equations_factorising"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "both points on a cubic at which the gradient takes a given value"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "cosine_rule",
+        "sine_rule"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "angle in a quadrilateral split into two triangles sharing a diagonal"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "sector_calculations",
+        "area_of_triangle_sine"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "perimeter of a segment whose area is given, radius recovered first"
+    },
+    {
+      "q": "21",
+      "part": "i",
+      "marks": 1,
+      "skill_ids": [
+        "graph_transformations"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "image of a minimum point under a horizontal translation"
+    },
+    {
+      "q": "21",
+      "part": "ii",
+      "marks": 1,
+      "skill_ids": [
+        "graph_transformations"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "image of a minimum point under a vertical translation"
+    },
+    {
+      "q": "22",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "histograms"
+      ],
+      "kind": "exam",
+      "mark_split": "B3",
+      "answer_form": "draw_plot",
+      "app_gap_note": "complete a histogram from a total and one known class frequency"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "volume_of_a_pyramid_and_cone",
+        "volume_of_a_sphere",
+        "surface_area_of_a_sphere"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "scale factor from a composite volume, then the surface area of the removed hemisphere"
+    },
+    {
+      "q": "24",
+      "part": null,
+      "marks": 6,
+      "skill_ids": [
+        "angles_in_polygons"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 M1 A1",
+      "app_gap_note": "interior angles forming an arithmetic sequence, summed against the polygon angle sum"
+    },
+    {
+      "q": "25",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "completing_the_square"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "complete the square on a negative non-monic quadratic"
+    }
+  ]
+}
