@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Higher",
+    "paper": "Paper 1 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+
+    "paper_slug": "edexcel-4ma1-1h-jun23",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/1H",
+    "paper_subtitle": "Higher Tier Paper 1 — June 2023",
+
+    "source": "Coded from the published QP and mark scheme (4MA1_1H_2306). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "CROSSOVER BLOCK: 1F q16-q24 = 1H q1-q9, nine questions worth 41 MARKS — the first series where the block is not exactly 40. Six consecutive pairs came to 40, which made it look like a rule; it is an observation. Verified by reading q16 against q1 rather than trusting the arithmetic.",
+    "GAP-CANDIDATE differentiation — q11(a), 2 marks, 'find dy/dx' for a cubic. UNTAGGED: nothing in data/skills.ts covers any part of differentiating. FIFTH sighting. q11(b), the x coordinates where the gradient takes a given value, is tagged solving_quadratic_equations_factorising as an interim measure, consistent with Jun24 1H q18 and Nov23 1H q16.",
+    "GAP-CANDIDATE arithmetic_series_sum — q20, 6 marks: two facts about an arithmetic series are given and the number of terms summing to a third value is wanted. Tagged simultaneous_equations as an interim measure. FIFTH sighting.",
+    "GAP-CANDIDATE domain_and_range — q17(a), 1 mark. Tagged functions_notation as an interim measure. THIRD sighting.",
+    "q23 is a FRUSTUM of a square-based pyramid — the second sighting after Nov23 2H q23, and now tagged on the frustum node directly rather than worked around, since restoring it to the iGCSE courses was the right call.",
+    "q16 tagged counting_elements_in_sets across all three parts: a three-set Venn where the given condition is n(A union B) = 42 and two of the three answers are themselves n() of a set expression. Takes that skill to seven parts on the Higher slice.",
+    "q14 is the FIRST sighting of difference_of_two_squares — 50g squared minus 18 factorises as 2(5g-3)(5g+3). It had read as unexamined across fifteen papers, which was Bucket C: earlier DOTS work sat inside questions tagged on algebraic_fractions or factorising_quadratics."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "three-part ratio where the difference between two shares is given" },
+
+    { "q": "2", "part": null, "marks": 3, "skill_ids": ["grouped_frequency_tables"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "estimated total from a grouped frequency table" },
+
+    { "q": "3", "part": null, "marks": 4, "skill_ids": ["percentage_change"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "percentage profit where stock sells at two different prices" },
+
+    { "q": "4", "part": "a", "marks": 3, "skill_ids": ["translations"], "kind": "exam", "mark_split": "B3", "app_gap_note": "missing coordinates of a translated triangle" },
+    { "q": "4", "part": "b", "marks": 3, "skill_ids": ["enlargements"], "kind": "mastery", "mark_split": "B3", "app_gap_note": "describe an enlargement fully: scale factor and centre" },
+    { "q": "4", "part": "c", "marks": 2, "skill_ids": ["rotations"], "kind": "mastery", "mark_split": "B2", "answer_form": "draw_shape", "app_gap_note": "rotate a shape 90 degrees clockwise about a given centre" },
+
+    { "q": "5", "part": null, "marks": 4, "skill_ids": ["lengths_and_perimeters", "pythagoras_theorem"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "perimeter of a rectangle with a right-angled triangle removed" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "raise a three-factor product to a power" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "zero index with a coefficient" },
+    { "q": "6", "part": "c", "marks": 2, "skill_ids": ["factorising"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "factorise fully with common numeric and two variable factors" },
+    { "q": "6", "part": "di", "marks": 2, "skill_ids": ["factorising_quadratics"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "factorise a monic quadratic with roots of opposite sign" },
+    { "q": "6", "part": "dii", "marks": 1, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "hence-solve from the student's own factors" },
+
+    { "q": "7", "part": null, "marks": 4, "skill_ids": ["inequalities"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "write the inequalities defining a shaded region" },
+
+    { "q": "8", "part": "a", "marks": 2, "skill_ids": ["prime_factor_decomposition"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "write a three-digit number as a product of prime factors" },
+    { "q": "8", "part": "b", "marks": 2, "skill_ids": ["lowest_common_multiple"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "LCM of two multiples of numbers given in prime factor form" },
+
+    { "q": "9", "part": null, "marks": 3, "skill_ids": ["simultaneous_equations"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "two linear simultaneous equations with a decimal constant" },
+
+    { "q": "10", "part": null, "marks": 2, "skill_ids": ["interquartile_range"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "interquartile range of an ordered list of fifteen values" },
+
+    { "q": "11", "part": "a", "marks": 2, "skill_ids": [], "topic": "algebra", "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "differentiate a cubic" },
+    { "q": "11", "part": "b", "marks": 4, "skill_ids": ["solving_quadratic_equations_factorising"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "x coordinates on a cubic where the gradient takes a given value" },
+
+    { "q": "12", "part": "a", "marks": 1, "skill_ids": ["cumulative_frequency", "median"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "estimate the median from a cumulative frequency graph" },
+    { "q": "12", "part": "b", "marks": 1, "skill_ids": ["cumulative_frequency"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "frequency of one class from a cumulative frequency graph" },
+    { "q": "12", "part": "c", "marks": 2, "skill_ids": ["cumulative_frequency"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "estimate a count above a value from a cumulative frequency graph" },
+
+    { "q": "13", "part": null, "marks": 3, "skill_ids": ["understanding_straight_line_graphs"], "kind": "exam", "mark_split": "M1 M1 A1", "answer_form": "expression", "app_gap_note": "equation of a line through two widely separated points" },
+
+    { "q": "14", "part": null, "marks": 3, "skill_ids": ["difference_of_two_squares", "factorising"], "kind": "exam", "mark_split": "B3", "answer_form": "expression", "app_gap_note": "factorise fully, taking out a common factor to reveal a difference of two squares" },
+
+    { "q": "15", "part": "a", "marks": 3, "skill_ids": ["fractional_and_negative_indices", "simplifying_indices"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "equate indices of a common base across roots and powers" },
+    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["standard_form", "fractions_decimals_and_percentages"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "percentage of a standard form value, answer in standard form" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["counting_elements_in_sets"], "kind": "exam", "mark_split": "B1", "app_gap_note": "unknown region count from a given n() of a union" },
+    { "q": "16", "part": "b", "marks": 1, "skill_ids": ["counting_elements_in_sets"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "number of elements in a set from a three-set Venn diagram" },
+    { "q": "16", "part": "c", "marks": 1, "skill_ids": ["counting_elements_in_sets"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "number of elements in an intersection with a complement" },
+
+    { "q": "17", "part": "a", "marks": 1, "skill_ids": ["functions_notation"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "value excluded from the domain of a rational function" },
+    { "q": "17", "part": "b", "marks": 3, "skill_ids": ["composite_functions", "solving_quadratic_equations_factorising"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "solve a composite function equation giving a quadratic" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["histograms", "grouped_frequency_tables"], "kind": "exam", "mark_split": "M1 M1 A1 A1", "answer_form": "draw_plot", "app_gap_note": "complete both a frequency table and its histogram from a known total" },
+
+    { "q": "19", "part": "a", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "express a segment in terms of two given vectors" },
+    { "q": "19", "part": "b", "marks": 4, "skill_ids": ["vector_proof"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "ratio in which two lines cut each other, by a vector method" },
+
+    { "q": "20", "part": null, "marks": 6, "skill_ids": ["simultaneous_equations"], "kind": "exam", "mark_split": "M1 M1 M1 M1 M1 A1", "app_gap_note": "number of terms of an arithmetic series reaching a given sum, from two other facts about it" },
+
+    { "q": "21", "part": "a", "marks": 1, "skill_ids": ["graph_transformations"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "image of a turning point under a horizontal translation" },
+    { "q": "21", "part": "b", "marks": 1, "skill_ids": ["graph_transformations"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "image of a turning point under a horizontal stretch" },
+
+    { "q": "22", "part": null, "marks": 6, "skill_ids": ["area_of_a_circle", "area_of_triangle_sine", "angles_in_polygons"], "kind": "exam", "mark_split": "M1 M1 M1 M1 M1 A1", "app_gap_note": "radius of an inner circle set by equating shaded and unshaded areas around a regular pentagon" },
+
+    { "q": "23", "part": null, "marks": 5, "skill_ids": ["frustum", "area_and_volume_scale_factors", "pythagoras_theorem"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "total surface area of a frustum of a square-based pyramid" }
+  ]
+}

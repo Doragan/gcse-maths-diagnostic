@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+
+    "paper_slug": "edexcel-4ma1-2f-jun23",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/2F",
+    "paper_subtitle": "Foundation Tier Paper 2 — June 2023",
+
+    "source": "Coded from the published QP and mark scheme (4MA1_2F_2306). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "TIER RE-PLACEMENT CANDIDATE: q23 tagged circle_theorem_tangent, which data/courses.ts lists as HIGHER-ONLY. It is on a FOUNDATION paper, and the specification backs the paper: Foundation 4.6 B is 'understand chord and tangent properties of circles', with the notes spelling out that tangents are perpendicular to the radius at the point of contact and that two tangents from a point are equal in length. The Higher listing adds the angle properties (4.6 C) and intersecting chords (4.6 A), not the tangent. Only one sighting so far, so this is recorded rather than acted on — see the final tally in docs/audit/25-igcse-4ma1-delta.md.",
+    "q9 tagged constructions: an accurate scale drawing of a triangle from two sides and the included angle, using ruler and protractor. The grid-based 'drawing' nodes do not cover a construction to given measurements.",
+    "q6(b) tagged measuring_lines_and_angles — FIRST sighting. The skill had read as unexamined across sixteen papers only because every earlier angle question sat on the lower node; here measuring a line with a ruler IS the mark.",
+    "q4 tagged sequences throughout: a stick-pattern sequence, drawn, tabulated, extended and then argued about. finding_the_nth_term would over-claim — the mark scheme accepts continuing the pattern.",
+    "q15(a),(b) tagged indices: both are about order of operations around a power, which has no node of its own and sits inside that skill's territory.",
+    "q14 and q16 tagged proportion for currency conversion and for a scale drawing, following the precedents in docs/coding-a-paper.md."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "write a number given in words as figures" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["rounding"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "round a five-digit integer to the nearest hundred" },
+    { "q": "1", "part": "c", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "place value of a named digit" },
+    { "q": "1", "part": "d", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "missing multiplier scaling to a power of ten" },
+    { "q": "1", "part": "e", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "missing divisor scaling a decimal down by a power of ten" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "identify the even number from a list" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "identify the square number from a list" },
+    { "q": "2", "part": "c", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "identify a multiple of a given number from a list" },
+    { "q": "2", "part": "d", "marks": 1, "skill_ids": ["factors_and_multiples"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "identify a factor of a given number from a list" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read one row off a pictogram" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "add a row to a pictogram using the key" },
+    { "q": "3", "part": "c", "marks": 2, "skill_ids": ["simple_charts", "simple_arithmetic"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "total across a pictogram then scale by a rate per item" },
+
+    { "q": "4", "part": "a", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_shape", "app_gap_note": "draw the next pattern in a stick sequence" },
+    { "q": "4", "part": "b", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "complete a table of pattern numbers and counts" },
+    { "q": "4", "part": "c", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "a later term of a linear pattern sequence" },
+    { "q": "4", "part": "d", "marks": 1, "skill_ids": ["sequences"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "explain why a value cannot be a term of the sequence" },
+
+    { "q": "5", "part": "a", "marks": 1, "skill_ids": ["coordinates"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read coordinates of a plotted point" },
+    { "q": "5", "part": "b", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "place the fourth vertex to complete a rectangle" },
+    { "q": "5", "part": "c", "marks": 2, "skill_ids": ["coordinates"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "midpoint of a line segment from a grid" },
+    { "q": "5", "part": "d", "marks": 1, "skill_ids": ["plotting_straight_line_graphs"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "draw a horizontal line of given equation" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "name a polygon by its number of sides" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["measuring_lines_and_angles"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "measure a line in centimetres" },
+    { "q": "6", "part": "c", "marks": 1, "skill_ids": ["congruence_and_similarity"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "identify the congruent pair from six grid triangles" },
+
+    { "q": "7", "part": "i", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "describe a likelihood in words" },
+    { "q": "7", "part": "ii", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "describe the likelihood of the most common outcome" },
+    { "q": "7", "part": "iii", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "describe the likelihood of an impossible outcome" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["fractions_of_amounts", "simple_arithmetic"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "rows times seats, a fraction of them sold, at a unit price" },
+
+    { "q": "9", "part": null, "marks": 2, "skill_ids": ["constructions"], "kind": "mastery", "mark_split": "B2", "answer_form": "draw_shape", "app_gap_note": "accurate drawing of a triangle from two sides and the included angle" },
+
+    { "q": "10", "part": "a", "marks": 2, "skill_ids": ["decimals"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "change from a note after buying several items at a decimal price" },
+    { "q": "10", "part": "b", "marks": 2, "skill_ids": ["decimals"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "greatest whole number of items affordable at a decimal price" },
+
+    { "q": "11", "part": "a", "marks": 2, "skill_ids": ["pie_charts"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "sector angle from a frequency and a total" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["pie_charts"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "frequency of one sector given the frequency of another" },
+
+    { "q": "12", "part": null, "marks": 2, "skill_ids": ["circumfrence_of_a_circle"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "circumference from radius, to 3 significant figures" },
+
+    { "q": "13", "part": "a", "marks": 1, "skill_ids": ["expanding_brackets"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "expand a single bracket with a variable multiplier" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["factorising"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "factorise fully a two-term expression in two variables" },
+    { "q": "13", "part": "c", "marks": 3, "skill_ids": ["forming_expressions_and_formulae"], "kind": "mastery", "mark_split": "B3", "answer_form": "expression", "app_gap_note": "write a formula in two variables from a context" },
+
+    { "q": "14", "part": "a", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "currency conversion at a given rate" },
+    { "q": "14", "part": "b", "marks": 2, "skill_ids": ["proportion"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "convert between two currencies via a common third" },
+
+    { "q": "15", "part": "a", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "explain an order-of-operations error around a power" },
+    { "q": "15", "part": "b", "marks": 1, "skill_ids": ["indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "insert brackets to make a calculation correct" },
+    { "q": "15", "part": "c", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "substitute a negative and a positive value into an expression with a square" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["bearings"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "measure a three-figure bearing off a scale drawing" },
+    { "q": "16", "part": "b", "marks": 3, "skill_ids": ["proportion", "compound_units"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "real distance from a scale drawing, then average speed" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["multiplying_fractions", "irregular_and_improper_fractions"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "show-that, multiplying two mixed numbers" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["mutually_exclusive_events", "expected_outcomes"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "missing probability from a table, then an expected frequency" },
+
+    { "q": "19", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "largest angle of a trapezium whose angles are given algebraically" },
+
+    { "q": "20", "part": "a", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "20", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "draw_plot", "app_gap_note": "draw a parabola from a table of values" },
+
+    { "q": "21", "part": null, "marks": 4, "skill_ids": ["ratio", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "counts of two coin denominations from a total value and their ratio" },
+
+    { "q": "22", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "write a large number in standard form" },
+    { "q": "22", "part": "b", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "negative-index standard form to an ordinary number" },
+
+    { "q": "23", "part": null, "marks": 3, "skill_ids": ["circle_theorem_tangent"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "reflex angle at the centre from the angle between two tangents" },
+
+    { "q": "24", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "compound increase over three years" },
+
+    { "q": "25", "part": null, "marks": 3, "skill_ids": ["compound_units", "converting_measurements"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "convert kilometres per hour to metres per second" },
+
+    { "q": "26", "part": null, "marks": 4, "skill_ids": ["mean"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "compare two teams' scores in one further round from their changed means" },
+
+    { "q": "27", "part": null, "marks": 3, "skill_ids": ["angles_in_polygons"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "angle outside a regular nine-sided polygon where two produced sides meet" },
+
+    { "q": "28", "part": null, "marks": 4, "skill_ids": ["trigonometry_missing_sides", "pythagoras_theorem"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "segment of the base of a right-angled triangle split by a given angle" }
+  ]
+}

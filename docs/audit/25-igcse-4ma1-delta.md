@@ -611,3 +611,86 @@ Bucket B or C rather than genuine absences: `trigonometry_missing_angles`
 the mark scheme's primary route drops a perpendicular and uses right-angled
 trigonometry twice), `alternate_and_corresponding_angles` (Nov23 2F q8) and
 `dividing_fractions` (Nov23 2F q22).
+
+---
+
+## 10. Corpus complete — June 2023 coded, 20 of 20
+
+All twenty 4MA1 papers are now coded: June 2023, November 2023, June 2024,
+November 2024 and June 2025, both tiers, both papers. Four warnings across the
+set, every one a deliberately untagged calculus row.
+
+**The 40-mark crossover was an observation, not a rule.** Six consecutive tier
+pairs came to exactly 40 marks, which started to look like a property of the
+qualification. June 2023 Paper 1 is **41** (1F q16–q24 = 1H q1–q9), verified by
+reading q16 against q1 rather than trusting the arithmetic. Paper 2 that series
+is 40 again. Treat the mark sequence as a strong hint for locating the block,
+never as a check that it is right.
+
+### Gap candidates — final
+
+| Candidate | Papers | Verdict |
+|---|---|---|
+| `differentiation` | 5 | **clears** — build it |
+| `arithmetic_series_sum` | 5 | **clears** — build it |
+| `domain_and_range` | 3 | below the bar, but close and consistent |
+| `stationary_points` | 1 | fold into `differentiation` rather than build separately |
+| `calculus_kinematics` | 1 | the spec's own worked example for 3.4 E, but one sighting |
+
+`set_notation` (4 papers) and `counting_elements_in_sets` (3) are already built.
+
+The calculus picture is now clear enough to act on: five papers carry a
+differentiation item, and the three sub-skills originally proposed in §2.1 do
+not separate in practice — `stationary_points` and `calculus_kinematics` each
+appeared once, always alongside differentiating. One `differentiation` node
+with turning points and kinematics as its contexts fits the evidence better
+than three.
+
+### Exclusions re-tested against all twenty papers
+
+**All fifteen hold.** No excluded skill is tagged anywhere in the completed
+corpus, and the four flagged as at-risk after the `function_machines` and
+`frustum` corrections — `relative_frequency`, `equations_and_identities`,
+`exact_trig_values`, `frequency_diagrams` — have zero hits in the June 2023
+papers on any wording searched. The two that were wrong were caught; the rest
+survived the full corpus.
+
+### One tier conflict left, and it is real
+
+`circle_theorem_tangent` is **Higher-only** in `data/courses.ts` but appears on
+**Jun23 2F q23**, a Foundation paper — the angle between two tangents. The
+specification backs the paper: Foundation 4.6 B is "understand chord and
+tangent properties of circles", with the notes spelling out that tangents are
+perpendicular to the radius at the point of contact and that two tangents from
+a point are equal in length. The Higher listing adds the *angle* properties
+(4.6 C) and intersecting chords (4.6 A) — not the tangent.
+
+One Foundation part, so it does not clear `minParts: 4`. **Recorded, not
+acted on.** It is the same shape as the `venn_diagrams` and
+`upper_and_lower_bounds` moves, which had 6 and 4 Foundation parts behind them.
+
+### Zero-evidence skills remaining
+
+11 of 146 in the iGCSE pool, down from 40 at twelve papers: `algebraic_proof`,
+`area_of_parallelograms`, `circle_theorem_alternate_segment`,
+`counting_without_listing`, `fractional_enlargements`, `gradient_of_a_curve`,
+`inverse_proportion`, `kinematic_graphs`, `reciprocals`,
+`surface_area_of_a_cone`, `surface_area_of_a_cylinder`.
+
+These are Bucket B — in the specification, not seen in twenty papers. **Do not
+exclude them**; that was the error corrected on 2026-10-09, and twenty papers
+is still a sample. Several resolved themselves as the corpus grew:
+`significant_figures`, `prime_factor_decomposition`, `difference_of_two_squares`,
+`translations`, `trigonometry_missing_angles`,
+`alternate_and_corresponding_angles`, `measuring_lines_and_angles`,
+`dividing_fractions`, `circle_theorem_same_segment` and `circle_theorem_tangent`
+all got their first sighting in the last eight papers.
+
+**`direct_proportion` settled the one question §3 left open.** It and
+`inverse_proportion` had appeared on no coded paper at either tier, so the
+spec's split — algebraic proportion at Higher, ratio word problems at
+Foundation — could not be acted on. Jun23 2H q16 is the first sighting: a
+HIGHER paper, proportion given as a graph and wanted as a formula, which is
+spec 2.5's "relate algebraic solutions to graphical representation" exactly.
+One part, so still below the bar, but the direction now matches the spec.
+`inverse_proportion` remains unseen across all twenty.
