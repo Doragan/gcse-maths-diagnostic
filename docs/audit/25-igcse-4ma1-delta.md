@@ -558,3 +558,56 @@ The real costs are that `in_progress` also unlocks downstream skills via
 Scoping contains this per course; it does not fix the edges. **User ruling
 2026-10-09: leave them** — unlike everything else here, they are shipped
 behaviour for real students.
+
+### November 2023 coded, and two exclusions overturned — 2026-10-09
+
+16 of 20 papers. Both crossover blocks confirmed at 40 marks (1F q15–q24 =
+1H q1–q10; 2F q17–q26 = 2H q1–q10).
+
+**Two of the §4 exclusions applied the day before were wrong**, and the way they
+were wrong matters more than the two skills:
+
+- `function_machines` — Nov23 2F q10 is a two-step number machine. The spec
+  never writes the phrase, but it uses the format as the vehicle for 2.2's
+  "derive a formula or expression".
+- `frustum` — Nov23 2H q23 opens "Here is a frustum of a cone". The spec never
+  writes the word, but 4.10 gives the right circular cone and a frustum is one
+  cone removed from another.
+
+Thirteen papers of silence, then the fourteenth examines both. The test was
+"absent from the specification text AND absent from the coded papers", and it
+was too literal: **absence of a WORD is weak evidence**, weakest for question
+FORMATS and for COMPOSITES of listed content. Both restored; iGCSE is now
+110 Foundation / 146 Higher.
+
+Four remaining exclusions carry the same risk and should be re-tested at 20
+papers rather than trusted: `relative_frequency` (examinable as "estimate the
+probability from these results"), `equations_and_identities` (a concept, not a
+named topic), `exact_trig_values`, `frequency_diagrams`. The safer entries are
+those the spec rules out by POSITIVE STATEMENT rather than silence —
+`nth_term_quadratic_sequences` (3.1 is arithmetic sequences only),
+`scatter_graphs` and `time_series` (Foundation data capped by the spec's own
+note at pictograms, bar charts, pie charts and two-way tables).
+
+**Gap candidates after 16 papers** (parts, Higher slice unless stated):
+
+| Candidate | Parts | Status |
+|---|---|---|
+| `differentiation` | **4** | clears the bar — Nov23 1H q16 |
+| `arithmetic_series_sum` | **4** | clears the bar — Nov23 1H q19 |
+| `domain_and_range` | 2 | Jun24 1H q15(a), Nov23 2H q19(a) |
+| `calculus_kinematics` | 1 | **first sighting** — Nov23 2H q18 |
+| `stationary_points` | 1 | |
+
+`calculus_kinematics` had been zero across thirteen papers. Nov23 2H q18 gives
+displacement as a cubic in t and asks for the time at a stated ACCELERATION —
+two differentiations, and spec 3.4 E is the one calculus item the specification
+gives its own worked example. Left untagged: `kinematic_graphs` would be a
+false claim, since there is no graph and nothing is being read off one.
+
+Three skills that had read as unexamined got first sightings, all of them
+Bucket B or C rather than genuine absences: `trigonometry_missing_angles`
+(Nov23 1F q24 — it looks like a sine-rule question on a Foundation paper, but
+the mark scheme's primary route drops a perpendicular and uses right-angled
+trigonometry twice), `alternate_and_corresponding_angles` (Nov23 2F q8) and
+`dividing_fractions` (Nov23 2F q22).

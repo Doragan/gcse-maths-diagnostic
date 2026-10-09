@@ -168,8 +168,28 @@ const igcseMovedToFoundation = ["venn_diagrams", "upper_and_lower_bounds"]
  *   equation_of_a_circle — the spec's one `x² + y² =` is an EXAMPLE of a
  *                          simultaneous pair, not a circle topic
  *   exponential_graphs   — absent; 3.3 lists cubic, reciprocal and trig curves
- *   frustum              — absent; 4.10 is the sphere and the right circular cone
  *   equations_and_identities — "identities" appears only in a section heading
+ *
+ * CORRECTION 2026-10-09, after coding the November 2023 series: `frustum` and
+ * `function_machines` were both on this list and are both WRONG. Nov23 2H q23
+ * opens "Here is a frustum of a cone"; Nov23 2F q10 is a two-step number
+ * machine. Thirteen papers of silence, then the fourteenth examines them.
+ *
+ * The method was too literal, and in a way the remaining entries may share. A
+ * spec that never writes "frustum" still examines one, because 4.10 gives the
+ * cone and a frustum is two cones; a spec that never writes "function machine"
+ * still uses one as the vehicle for 2.2's "derive a formula or expression".
+ * **Absence of a WORD from the specification is weak evidence** — weakest for
+ * question FORMATS and for COMPOSITES of listed content.
+ *
+ * Entries below carrying the same risk, to re-test once all twenty papers are
+ * coded rather than trust now: `relative_frequency` (examinable as "estimate
+ * the probability from these results"), `equations_and_identities` (a concept,
+ * not a named topic), `exact_trig_values` and `frequency_diagrams`. The safer
+ * entries are the ones the spec excludes by positive statement rather than by
+ * silence — `nth_term_quadratic_sequences` (3.1 is arithmetic only),
+ * `scatter_graphs` and `time_series` (Foundation data is capped by its own
+ * note at pictograms, bar charts, pie charts and two-way tables).
  */
 const igcseExcluded = [
   "loci",
@@ -181,7 +201,6 @@ const igcseExcluded = [
   "nth_term_quadratic_sequences",
   "equation_of_a_circle",
   "exponential_graphs",
-  "frustum",
   "equations_and_identities",
 ]
 
@@ -209,7 +228,6 @@ const igcseExcluded = [
  */
 const igcseAbsentAndGating = [
   "sampling",
-  "function_machines",
   "frequency_diagrams",
   "frequency_trees",
   "box_plots",
