@@ -81,6 +81,12 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/student\/upgrade$/, 'Upgrade'],
   [/^\/student$/, 'Student sign in'],
 
+  // Where an emailed class invitation lands. Outside /student because the
+  // visitor usually has no account yet — that is the point of inviting.
+  // The title must not name the class: it is read before anyone is signed in,
+  // and a browser history entry is not the place to put a class name.
+  [/^\/invite\/[^/]+$/, 'Class invitation', '/invite/[token]'],
+
   // Teacher dashboard (named routes before the /dashboard/[id] catch-all)
   // More specific first: the bare-id rule below would otherwise swallow this.
   [/^\/dashboard\/classes\/[^/]+\/papers$/, 'Record a marked paper', '/dashboard/classes/[id]/papers'],
