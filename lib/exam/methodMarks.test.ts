@@ -6,7 +6,7 @@ import { METHOD_SHARE_BY_MARKS } from './markEvidence.data'
 /**
  * Three-state marks: a wrong final answer is not automatically worth zero.
  *
- * Across the 48 papers coded with a mark_split, 1025 of 3955 marks (26%) are
+ * Across the 54 papers coded with a mark_split, 1268 of 4554 marks (28%) are
  * METHOD marks, awarded
  * for a sound approach behind a wrong answer. Auto-grading cannot read working,
  * so those marks are split three ways: confirmed (a trap proves the method),

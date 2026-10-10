@@ -42,6 +42,12 @@ import { OCR_J560_03_JUN24 } from './ocr-j560-03-jun24'
 import { OCR_J560_04_JUN24 } from './ocr-j560-04-jun24'
 import { OCR_J560_05_JUN24 } from './ocr-j560-05-jun24'
 import { OCR_J560_06_JUN24 } from './ocr-j560-06-jun24'
+import { OCR_J560_01_JUN23 } from './ocr-j560-01-jun23'
+import { OCR_J560_02_JUN23 } from './ocr-j560-02-jun23'
+import { OCR_J560_03_JUN23 } from './ocr-j560-03-jun23'
+import { OCR_J560_04_JUN23 } from './ocr-j560-04-jun23'
+import { OCR_J560_05_JUN23 } from './ocr-j560-05-jun23'
+import { OCR_J560_06_JUN23 } from './ocr-j560-06-jun23'
 
 // AQA Foundation.
 import { AQA_8300_1F_JUN25 } from './aqa-8300-1f-jun25'
@@ -175,6 +181,12 @@ export const PAPERS: Record<string, PaperConfig> = {
   [AQA_8300_3H_NOV23.id]: AQA_8300_3H_NOV23,
 
   // June 2023
+  [OCR_J560_01_JUN23.id]: OCR_J560_01_JUN23,
+  [OCR_J560_02_JUN23.id]: OCR_J560_02_JUN23,
+  [OCR_J560_03_JUN23.id]: OCR_J560_03_JUN23,
+  [OCR_J560_04_JUN23.id]: OCR_J560_04_JUN23,
+  [OCR_J560_05_JUN23.id]: OCR_J560_05_JUN23,
+  [OCR_J560_06_JUN23.id]: OCR_J560_06_JUN23,
   [AQA_8300_1F_JUN23.id]: AQA_8300_1F_JUN23,
   [AQA_8300_2F_JUN23.id]: AQA_8300_2F_JUN23,
   [AQA_8300_3F_JUN23.id]: AQA_8300_3F_JUN23,
