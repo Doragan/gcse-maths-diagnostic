@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import CookieBanner from "../components/CookieBanner";
 import Analytics from "../components/Analytics";
 import DevModeToggle from "../components/DevModeToggle";
 
@@ -47,18 +46,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 
-        {/* Google Analytics 4 is loaded by CookieBanner AFTER consent — the
-            single GA loader. Page views + events go through lib/analytics. */}
-
         {children}
 
-        {/* Tracks a page_view event on every route change */}
+        {/* Tracks a page_view event on every route change. First-party only:
+            the event goes to our own analytics_events table and nowhere else.
+            Google Analytics was removed on 2026-10-10, and with it the consent
+            banner, which existed solely to gate it. */}
         <Analytics />
 
         {/* Dev mode badge + Ctrl+Alt+D shortcut */}
         <DevModeToggle />
-
-        <CookieBanner />
       </body>
     </html>
   );

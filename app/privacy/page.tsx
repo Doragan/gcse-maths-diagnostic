@@ -1,4 +1,3 @@
-import CookieSettings from '../../components/CookieSettings'
 
 export default function PrivacyNoticePage() {
   return (
@@ -8,7 +7,7 @@ export default function PrivacyNoticePage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Privacy Notice</h1>
           <p style={styles.subtitle}>How Mathsense collects, uses and protects your personal data</p>
-          <p style={styles.meta}>Version 1.4 — Last reviewed: 2 October 2026</p>
+          <p style={styles.meta}>Version 1.5 — Last reviewed: 10 October 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -51,35 +50,27 @@ export default function PrivacyNoticePage() {
           <Ul items={[
             'Basic usage logs (collected by Supabase and Vercel for security and performance purposes)',
             'Product analytics we store ourselves: pages viewed and actions taken, recorded against a per-tab session identifier rather than your account',
-            'Google Analytics — only if you accept analytics cookies. See below.',
           ]} />
           <P>
-            We use Google Analytics to understand how people find and use Mathsense.
-            It is loaded <strong>only after you accept analytics cookies</strong>, and not
-            at all if you decline or ignore the banner. Declining does not limit anything
-            you can do on Mathsense. Google is based in the United States, so accepting
-            means some usage data is transferred there.
+            <strong>We no longer use Google Analytics.</strong> It was removed in
+            October 2026, along with the cookie banner that asked you about it. There is
+            now no third-party analytics on Mathsense, no advertising measurement, and
+            no usage data sent to Google or anyone else.
           </P>
           <P>
-            <strong>Advertising.</strong> We advertise Mathsense on Google, and our
-            Google Analytics account is linked to our Google Ads account. That means
-            the usage data described above can be used by Google to measure and improve
-            those adverts. There is no advertising tag on Mathsense, we never send
-            Google your practice, your results or your account details, and we do not
-            sell your personal data to anyone.
+            The product analytics listed above are our own. They record which pages were
+            opened and which actions were taken, against a short identifier that lives
+            only in the current browser tab and disappears when you close it. That
+            identifier is never linked to your account, and the data never leaves our
+            database in the United Kingdom. We use it to see which parts of Mathsense
+            are used and which are not.
           </P>
           <P>
-            All of this depends on accepting analytics cookies. If you decline, or
-            ignore the banner, nothing is sent to Google at all, and nothing about
-            Mathsense works differently for you.
+            If you have used Mathsense before, your browser may still hold cookies that
+            Google set while analytics were switched on. Nothing is being sent to them
+            any more. You can clear them through your browser&apos;s settings for this
+            site if you would like them gone.
           </P>
-          <SubHeading>Change your choice</SubHeading>
-          <P>
-            You can turn analytics on or off here at any time, whether or not you have
-            an account. Turning it off stops anything further being sent, and deletes
-            the cookies Google has already set.
-          </P>
-          <CookieSettings />
         </Section>
 
         <Section title="4. Why we collect your data and our legal basis">
@@ -92,7 +83,7 @@ export default function PrivacyNoticePage() {
             'Legitimate interests — to let a teacher whose class you have chosen to join see your results, and to maintain the integrity of assessments',
             'Consent — to send you optional practice-reminder emails, only if you opt in. You can withdraw this consent at any time, either from your dashboard settings or via the unsubscribe link in any reminder email.',
           ]} />
-          <P>Your practice, your results and your progress are never used for advertising, and we never sell your personal data or share it for marketing. There is one thing to be aware of alongside that: if you accept analytics cookies, website usage data goes to Google and can be used to measure our adverts, as described in section 3. That is usage data only and never your work. The only non-essential emails we send are practice reminders, and only to students who have actively opted in.</P>
+          <P>Your practice, your results and your progress are never used for advertising, and we never sell your personal data or share it for marketing. Since October 2026 no website usage data goes to Google either: we removed Google Analytics, and with it the link to our advertising account. Nothing about how you use Mathsense is now shared with anyone for any advertising purpose. The only non-essential emails we send are practice reminders, and only to students who have actively opted in.</P>
         </Section>
 
         <Section title="5. How we use your data">
@@ -118,7 +109,6 @@ export default function PrivacyNoticePage() {
             'Brevo (email delivery) — servers in the European Union. Receives your email address when we send you a password reset or a sign-up confirmation. It never receives your practice or your results. Brevo is a French company; the infrastructure it runs on includes Google Cloud and Cloudflare, which are United States companies, covered by standard contractual clauses.',
             'Upstash (rate limiting) — servers in London, United Kingdom. Briefly holds your IP address to stop automated abuse of sign-in and class-join endpoints. It is held for minutes, is never linked to your account, and is not used for anything else.',
             'Google sign-in — only if you choose to sign in with Google. Google then knows you use Mathsense, and passes us your email address and the name on your Google account, which we use to pre-fill your display name. You can sign up with an email address and password instead, and nothing about Mathsense works differently if you do. Google is based in the United States.',
-            'Google Analytics — only for visitors who accept analytics cookies, and only usage data. Google processes this in the United States. This account is linked to our Google Ads account, so that usage data can also be used to measure our adverts. See section 3.',
           ]} />
           <P>Each of these providers acts as a data processor under a formal data processing agreement. We do not share your data with any other third parties without your consent, unless required by law.</P>
           <P>
@@ -211,6 +201,16 @@ export default function PrivacyNoticePage() {
 
         <Section title="11. Changes to this notice">
           <P>We may update this privacy notice from time to time. We will notify registered users of any significant changes by email. The current version will always be available at mathsense.net/privacy.</P>
+          <SubHeading>What changed in version 1.5 (10 October 2026)</SubHeading>
+          <P>We removed Google Analytics. This is a change in your favour, so it is worth being specific about what has gone.</P>
+          <Ul items={[
+            'No website usage data is sent to Google any more, and none is sent to any other analytics company. Google Analytics was the only third party that received anything about how you use Mathsense.',
+            'The link between our analytics and our Google Ads account is gone with it, so your use of Mathsense is no longer measured against our advertising.',
+            'The cookie banner has gone too. It existed only to ask about Google Analytics, and with nothing to ask about there is no reason to keep interrupting you. There is now no third-party cookie on Mathsense at all.',
+            'We still keep our own product analytics — which pages were opened and which actions were taken — against an identifier that lives only in the current browser tab. That stays in our database in the United Kingdom, is never linked to your account, and never goes to anyone else. Section 3 describes it.',
+            'If your browser still holds cookies Google set while analytics were on, nothing is being sent to them any more. You can clear them in your browser settings for this site.',
+          ]} />
+          <P>Taken together with version 1.3: everything we store about you is now in the United Kingdom, apart from your email address reaching the United States when we send you a practice reminder you asked for.</P>
           <SubHeading>What changed in version 1.4 (2 October 2026)</SubHeading>
           <P>We changed how our password reset and sign-up confirmation emails are sent.</P>
           <Ul items={[
@@ -241,7 +241,7 @@ export default function PrivacyNoticePage() {
             'You can now turn analytics off again after turning it on, using the switch in section 3. Before this version there was no way to change your mind. Declining is also remembered now, instead of the banner asking again on every visit.',
             'Section 9 described access as being limited to the teacher who created an assessment. That was out of date; access now runs through class membership, and section 9 describes what actually happens.',
           ]} />
-          <P>Last updated: 2 October 2026</P>
+          <P>Last updated: 10 October 2026</P>
         </Section>
 
       </div>

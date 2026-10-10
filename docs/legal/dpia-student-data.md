@@ -53,8 +53,9 @@ gives them. Doing so allows that teacher to see the learner's record. The learne
 may leave at any time.
 
 Data flows: learner's browser → our application (Vercel, London) → database
-(Supabase, EU West). Email is sent via Resend. Payments go to Stripe. Consented
-website analytics go to Google in the United States.
+(Supabase, London). Email is sent via Brevo, with opted-in practice reminders via
+Resend. Payments go to Stripe. **No analytics data leaves our own database**:
+Google Analytics was removed on 2026-10-10 and nothing replaced it.
 
 ### Scope
 
@@ -283,15 +284,25 @@ prediction carries more weight than a practice chart. Revisit then.
 | Measures | Categories are per skill and transient, recomputed from attempts rather than stored as a verdict, and always improvable by practice. Learner-facing language is about what to practise next rather than what they are. No decision with legal or similarly significant effect is made, so Article 22 is not engaged. No profiling for advertising. |
 | Residual | **Low.** Worth revisiting if attainment prediction is ever surfaced to a learner as a grade. |
 
-### R7 — Website analytics transferred to the United States
+### R7 — Website analytics transferred to the United States — ✅ CLOSED 2026-10-10
+
+_Closed by removal rather than by mitigation, which is the better way to close a
+risk. Kept in the register rather than deleted, because a closed risk and a risk
+that was never identified look identical once the entry is gone._
 
 | | |
 |---|---|
 | Harm | Usage data about a child's browsing transferred outside the UK |
-| Likelihood | Medium — only for visitors who accept |
-| Severity | Low. No account, practice or results data is sent. |
-| Measures | Loads only after explicit consent; not loaded at all on decline or if the banner is ignored; declining restricts nothing. Disclosed in the notice and the school agreement. |
-| Residual | **Low.** A school may still object on principle, and removing it is a configuration change rather than a rebuild. |
+| Likelihood | **Nil.** Google Analytics was removed when the ad campaign it measured ended. |
+| Severity | Low while it applied. No account, practice or results data was ever sent. |
+| Measures | Removal. Verified in the browser: no request to any Google host, no `gtag`, no GA cookie. The consent banner went with it, having existed solely to gate this. |
+| Residual | **None.** No usage data about a learner now leaves the United Kingdom. |
+
+**What the banner's removal assumed**, recorded because reinstating it is cheap
+and reinstating it late is not: first-party, per-tab, UK-only analytics that never
+leave our infrastructure sit in the ICO's low-risk category, where a third-party
+US transfer did not. **Any future change that sends usage data to a third party
+re-opens this risk and needs the consent mechanism rebuilt before it ships.**
 
 ### R8 — A single person holds every key
 
@@ -307,7 +318,9 @@ prediction carries more weight than a practice chart. Revisit then.
 
 ## Step 7 — Outcome
 
-**Risks accepted as low after mitigation:** R3 (revised), R5, R6, R7, and R1 and
+**Risks CLOSED outright:** R7, by removing Google Analytics (2026-10-10).
+
+**Risks accepted as low after mitigation:** R3 (revised), R5, R6, and R1 and
 R4 at the lower end of their ranges.
 
 **Outstanding actions**
@@ -343,11 +356,13 @@ approval is a reasonable decision.
 _A DPIA is a living document. It should be revisited when: **the first paper
 sitting is recorded** (R3); the first school contract is signed; the teacher paid
 tier launches; exam readiness or a predicted grade is surfaced to a school (R3);
-or any new category of personal data is collected._
+any new category of personal data is collected; **or any third-party analytics or tracking is introduced, which re-opens R7 and requires the consent mechanism to be rebuilt first**._
 
 _Revision history: v0.1 2026-09-17 first draft. v0.2 2026-09-18 R3 downgraded
 from medium-high to low and the recommended action withdrawn, on the controller's
 challenge; outcome changed from withheld to ready for sign-off. v0.3 2026-09-18
 corrected the scope table and the minimisation claim: mini-exam papers are held
 in full and are readable by a teacher, which v0.1 and v0.2 both denied. R1 amended
-with the reason the error survived three documents._
+with the reason the error survived three documents. v0.4 2026-10-10 R7 CLOSED:
+Google Analytics removed with the ad campaign it measured, and the consent banner
+with it; the assumption that removal rests on is recorded in R7._
