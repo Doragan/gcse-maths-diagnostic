@@ -6,7 +6,7 @@ import { supabase } from '../../lib/supabase'
 import { courses } from '../../data/courses'
 import { getStudentProfile, primeStudentIdCache } from '../../lib/auth'
 import { studentMastery, placementGapIds, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
-import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
+import { getPrerequisiteTree, prerequisiteTreeWithin } from '../../lib/skills/skillGraph'
 import { isPaidStudent } from '../../lib/entitlements'
 import { skills } from '../../data/skills'
 import { usePublishedSkillIds, isPractisable } from '../../lib/skills/publishedSkills'
@@ -217,7 +217,14 @@ export default function PracticePage() {
       // Filter to skills where the full prerequisite chain is either mastered or
       // in_progress. This prevents students being shown questions well above their
       // current level (e.g. quadratic equations before basic algebra).
-      const accessible = getAccessibleSkillIds(mastery, allSkillIds, getPrerequisiteTree)
+      //
+      // Scoped to the pool the student is actually working from: a prerequisite
+      // outside their course is not a prerequisite of their course, and
+      // blocking on one would gate a skill behind a topic they are never
+      // taught. Inert for the GCSE courses, which are closed under their own
+      // prerequisites — see prerequisiteTreeWithin.
+      const prereqsInPool = prerequisiteTreeWithin(allSkillIds)
+      const accessible = getAccessibleSkillIds(mastery, allSkillIds, prereqsInPool)
 
       // Safety fallback: if all skills have unmet prerequisites (shouldn't happen
       // with a well-formed curriculum that has root skills), use the full tier pool.

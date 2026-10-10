@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 2 (Calculator)",
+    "series": "November 2023",
+    "total_marks": 100,
+
+    "paper_slug": "edexcel-4ma1-2f-nov23",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/2F",
+    "paper_subtitle": "Foundation Tier Paper 2 — November 2023",
+
+    "source": "Coded from the published QP and mark scheme (4MA1_2F_2311). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "q10 is a two-step NUMBER MACHINE, and it overturned an exclusion. function_machines had been removed from the iGCSE courses on 2026-10-08 as absent from both the specification text and the first twelve coded papers. The spec never writes the phrase, but it uses the format as the vehicle for 2.2's 'derive a formula or expression'. Now restored to igcse_foundation. See data/courses.ts — absence of a WORD from a specification is weak evidence, weakest for question formats and for composites of listed content.",
+    "q19(b) is an ENLARGEMENT per the mark scheme.",
+    "q8 tagged alternate_and_corresponding_angles rather than angles_on_lines_and_circles: two named parallel lines cut by two transversals is squarely that skill, and the reason mark is for naming the angle fact. This is the skill's first sighting in the corpus — it had read as unexamined only because earlier angle questions genuinely sat on the lower node.",
+    "q11 tagged proportion for a currency conversion graph, following the precedent in docs/coding-a-paper.md; (a) reads values off the line, (b) scales beyond its range.",
+    "q14 tagged exact_calculations — calculator evaluation with all display figures written down.",
+    "q16 tagged volume_of_a_prism: the route is how many 20 cm cubes fit across each inside dimension, then the least height. The packing reasoning has no node of its own."
+  ],
+  "rows": [
+    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "write a five-digit integer in words" },
+    { "q": "1", "part": "b", "marks": 1, "skill_ids": ["simple_arithmetic"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "greatest of five integers of differing length" },
+    { "q": "1", "part": "c", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "place value of a named digit" },
+    { "q": "1", "part": "d", "marks": 1, "skill_ids": ["rounding"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "round an integer to the nearest thousand" },
+
+    { "q": "2", "part": "a", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read one row off a pictogram" },
+    { "q": "2", "part": "b", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "add a row to a pictogram using the key" },
+    { "q": "2", "part": "c", "marks": 1, "skill_ids": ["simple_charts"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "difference between two pictogram rows" },
+    { "q": "2", "part": "d", "marks": 2, "skill_ids": ["simplifying_ratio"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "ratio of two pictogram rows, in simplest form" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["converting_decimals_to_fractions"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "terminating decimal to a fraction" },
+    { "q": "3", "part": "b", "marks": 1, "skill_ids": ["fractions_decimals_and_percentages"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "decimal to percentage" },
+    { "q": "3", "part": "c", "marks": 1, "skill_ids": ["decimals"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "order decimals of differing lengths" },
+    { "q": "3", "part": "d", "marks": 1, "skill_ids": ["converting_fractions_to_decimals"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "add a decimal and a tenths fraction, answer as a decimal" },
+
+    { "q": "4", "part": null, "marks": 3, "skill_ids": ["converting_measurements", "simple_arithmetic"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "missing distance from a total, with mixed metres and kilometres" },
+
+    { "q": "5", "part": "i", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "mark a probability on a probability scale" },
+    { "q": "5", "part": "ii", "marks": 1, "skill_ids": ["calculating_simple_probability"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_plot", "app_gap_note": "mark the probability of an impossible event" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["properties_of_2d_shapes"], "kind": "mastery", "mark_split": "B1", "answer_form": "draw_shape", "app_gap_note": "draw a right-angled triangle on a grid" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["areas_of_squares_and_rectangles"], "kind": "mastery", "mark_split": "B2", "answer_form": "draw_shape", "app_gap_note": "draw a rectangle of a stated area on a grid" },
+
+    { "q": "7", "part": "a", "marks": 1, "skill_ids": ["time_calculations"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "12-hour time to the 24-hour clock" },
+    { "q": "7", "part": "b", "marks": 3, "skill_ids": ["time_calculations"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "compare two intervals from a timetable" },
+
+    { "q": "8", "part": "a", "marks": 1, "skill_ids": ["alternate_and_corresponding_angles"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "angle between two parallel lines and a transversal" },
+    { "q": "8", "part": "bi", "marks": 2, "skill_ids": ["alternate_and_corresponding_angles"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "angle on a second transversal across the same parallel pair" },
+    { "q": "8", "part": "bii", "marks": 1, "skill_ids": ["alternate_and_corresponding_angles"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "name the angle fact used" },
+
+    { "q": "9", "part": null, "marks": 4, "skill_ids": ["proportion"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "unit price of one item from a combined total and the other item's unit price" },
+
+    { "q": "10", "part": "a", "marks": 2, "skill_ids": ["function_machines"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "find a multiplier in a two-step number machine from its output" },
+    { "q": "10", "part": "b", "marks": 2, "skill_ids": ["function_machines", "forming_expressions_and_formulae"], "kind": "exam", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "write the output of a two-step number machine as an expression" },
+
+    { "q": "11", "part": "ai", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read a conversion off a currency graph" },
+    { "q": "11", "part": "aii", "marks": 1, "skill_ids": ["proportion"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "read the reverse conversion off a currency graph" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["proportion"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "scale a conversion beyond the range of the graph" },
+
+    { "q": "12", "part": "a", "marks": 1, "skill_ids": ["expanding_brackets"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "expand a single bracket with a variable multiplier" },
+    { "q": "12", "part": "b", "marks": 1, "skill_ids": ["factorising"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "factorise a two-term linear expression" },
+    { "q": "12", "part": "c", "marks": 2, "skill_ids": ["rearranging_formulae"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "change the subject where the subject appears once" },
+    { "q": "12", "part": "d", "marks": 2, "skill_ids": ["inequalities", "systematic_listing"], "kind": "exam", "mark_split": "B2", "app_gap_note": "list the integers satisfying a double-ended inequality" },
+
+    { "q": "13", "part": null, "marks": 4, "skill_ids": ["percentage_change", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "unit selling price from a stock cost, a percentage given away and a target profit" },
+
+    { "q": "14", "part": null, "marks": 2, "skill_ids": ["exact_calculations"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "calculator evaluation, all display figures written down" },
+
+    { "q": "15", "part": null, "marks": 3, "skill_ids": ["compound_units"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "better value for money between two pack sizes" },
+
+    { "q": "16", "part": null, "marks": 4, "skill_ids": ["volume_of_a_prism"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "least inside height of a crate holding a stated number of cubes" },
+
+    { "q": "17", "part": "a", "marks": 1, "skill_ids": ["grouped_frequency_tables"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "modal class of a grouped frequency table" },
+    { "q": "17", "part": "b", "marks": 3, "skill_ids": ["grouped_frequency_tables"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "estimated total from a grouped frequency table" },
+
+    { "q": "18", "part": null, "marks": 4, "skill_ids": ["congruence_and_similarity"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "missing side of a similar triangle pair sharing a vertex" },
+
+    { "q": "19", "part": "a", "marks": 2, "skill_ids": ["reflections"], "kind": "mastery", "mark_split": "B2", "answer_form": "draw_shape", "app_gap_note": "reflect a shape in the line y = x" },
+    { "q": "19", "part": "b", "marks": 3, "skill_ids": ["enlargements"], "kind": "mastery", "mark_split": "B3", "app_gap_note": "describe an enlargement fully: scale factor and centre" },
+
+    { "q": "20", "part": "a", "marks": 3, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "linear equation with a fractional term and the unknown on both sides" },
+    { "q": "20", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "index law for division" },
+    { "q": "20", "part": "c", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "raise a three-factor product to a power" },
+    { "q": "20", "part": "d", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "solve for an unknown index across a product and a quotient" },
+
+    { "q": "21", "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "chain two ratios sharing a middle term, then scale from a known quantity" },
+
+    { "q": "22", "part": null, "marks": 3, "skill_ids": ["dividing_fractions", "irregular_and_improper_fractions"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "show-that, dividing two mixed numbers" },
+
+    { "q": "23", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "compound depreciation over three years" },
+
+    { "q": "24", "part": null, "marks": 3, "skill_ids": ["mean"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "value of two added scores from a change in the mean" },
+
+    { "q": "25", "part": null, "marks": 2, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "equation of a line through two given points" },
+
+    { "q": "26", "part": null, "marks": 5, "skill_ids": ["areas_of_compound_shapes", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "unknown length in a six-sided shape from its given total area" }
+  ]
+}

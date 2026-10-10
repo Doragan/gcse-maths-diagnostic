@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Higher",
+    "paper": "Paper 2 (Calculator)",
+    "series": "June 2023",
+    "total_marks": 100,
+
+    "paper_slug": "edexcel-4ma1-2h-jun23",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/2H",
+    "paper_subtitle": "Higher Tier Paper 2 — June 2023",
+
+    "source": "Coded from the published QP and mark scheme (4MA1_2H_2306). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "CROSSOVER BLOCK CONFIRMED: 2F q17-q28 = 2H q1-q12, twelve questions worth 40 marks. Coded in the same sitting as IGCSE-JUN23-F-P2.",
+    "q16 is the FIRST sighting of direct_proportion in the whole corpus, and it settles the one tier question left open in docs/audit/25-igcse-4ma1-delta.md section 3. direct_proportion and inverse_proportion had appeared on no coded paper at either tier, so the spec's split (algebraic proportion at Higher, ratio word problems at Foundation) could not be acted on. Here it is, on a HIGHER paper, given as a graph and wanted as a formula — exactly spec 2.5's 'relate algebraic solutions to graphical representation'. Both skills are currently Foundation in data/courses.ts, inherited from the GCSE list.",
+    "q14(b) is the FIRST sighting of circle_theorem_same_segment. q14(a) is the angle in a semicircle, tagged circle_theorem_angle_at_centre — the app has no separate node for it and spec 4.6 C(ii) files it with the angle-at-centre family.",
+    "q18 tagged sketching_functions with trig_graphs: three equations matched to sketches, one of them y = sin x.",
+    "q24 tagged perpendicular_gradients and understanding_straight_line_graphs: the kite's diagonal is its line of symmetry, so the fourth vertex is found by dropping a perpendicular from B onto AC and continuing an equal distance. reflections is the geometric description but costs 7, including Function Machines.",
+    "q22 needs the triangle's third angle before any elevation can be found, hence cosine_rule leading trigonometry_missing_angles."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 3, "skill_ids": ["multiplying_fractions", "irregular_and_improper_fractions"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "show-that, multiplying two mixed numbers" },
+
+    { "q": "2", "part": null, "marks": 3, "skill_ids": ["mutually_exclusive_events", "expected_outcomes"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "missing probability from a table, then an expected frequency" },
+
+    { "q": "3", "part": null, "marks": 4, "skill_ids": ["angles_in_polygons", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "largest angle of a trapezium whose angles are given algebraically" },
+
+    { "q": "4", "part": "a", "marks": 2, "skill_ids": ["substitution"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "complete a table of values for a quadratic" },
+    { "q": "4", "part": "b", "marks": 2, "skill_ids": ["quadratic_functions"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "draw_plot", "app_gap_note": "draw a parabola from a table of values" },
+
+    { "q": "5", "part": null, "marks": 4, "skill_ids": ["ratio", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "counts of two coin denominations from a total value and their ratio" },
+
+    { "q": "6", "part": "a", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "write a large number in standard form" },
+    { "q": "6", "part": "b", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "negative-index standard form to an ordinary number" },
+
+    { "q": "7", "part": null, "marks": 3, "skill_ids": ["circle_theorem_tangent"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "reflex angle at the centre from the angle between two tangents" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "compound increase over three years" },
+
+    { "q": "9", "part": null, "marks": 3, "skill_ids": ["compound_units", "converting_measurements"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "convert kilometres per hour to metres per second" },
+
+    { "q": "10", "part": null, "marks": 4, "skill_ids": ["mean"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "compare two teams' scores in one further round from their changed means" },
+
+    { "q": "11", "part": null, "marks": 3, "skill_ids": ["angles_in_polygons"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "angle outside a regular nine-sided polygon where two produced sides meet" },
+
+    { "q": "12", "part": null, "marks": 4, "skill_ids": ["trigonometry_missing_sides", "pythagoras_theorem"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "segment of the base of a right-angled triangle split by a given angle" },
+
+    { "q": "13", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "complete a two-dice probability tree" },
+    { "q": "13", "part": "b", "marks": 2, "skill_ids": ["tree_diagrams", "combined_events"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "probability of a matching pair across two independent throws" },
+
+    { "q": "14", "part": "ai", "marks": 1, "skill_ids": ["circle_theorem_angle_at_centre"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "angle in a semicircle" },
+    { "q": "14", "part": "aii", "marks": 1, "skill_ids": ["circle_theorem_angle_at_centre"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "name the circle theorem used" },
+    { "q": "14", "part": "bi", "marks": 1, "skill_ids": ["circle_theorem_same_segment"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "angle in the same segment" },
+    { "q": "14", "part": "bii", "marks": 1, "skill_ids": ["circle_theorem_same_segment"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "name the circle theorem used" },
+
+    { "q": "15", "part": "a", "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "raise a product to a fractional power" },
+    { "q": "15", "part": "b", "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "express a negative power of a fraction in the form p x to the n" },
+    { "q": "15", "part": "c", "marks": 3, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "linear equation with two fractional terms and the unknown on both sides" },
+
+    { "q": "16", "part": "a", "marks": 3, "skill_ids": ["direct_proportion"], "kind": "exam", "mark_split": "M1 M1 A1", "answer_form": "expression", "app_gap_note": "formula for direct proportion read off a graph" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["direct_proportion", "percentage_change"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "percentage change in one variable from a percentage change in the other" },
+
+    { "q": "17", "part": "a", "marks": 3, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "mark_split": "M1 M1 A1", "answer_form": "expression", "app_gap_note": "expand a product of three linear brackets, two identical" },
+    { "q": "17", "part": "b", "marks": 4, "skill_ids": ["rearranging_formulae"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "answer_form": "expression", "app_gap_note": "change the subject where the subject appears twice" },
+
+    { "q": "18", "part": null, "marks": 3, "skill_ids": ["sketching_functions", "trig_graphs"], "kind": "exam", "mark_split": "B3", "app_gap_note": "match a sine curve, a reciprocal and a cubic to their sketches" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["completing_the_square"], "kind": "mastery", "mark_split": "M1 M1 A1", "answer_form": "expression", "app_gap_note": "complete the square on a non-monic quadratic" },
+
+    { "q": "20", "part": null, "marks": 3, "skill_ids": ["conditional_probability", "combined_events"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "probability that at least one of a category remains after three draws without replacement" },
+
+    { "q": "21", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations_quadratic"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "one linear and one quadratic simultaneous equation in two squares" },
+
+    { "q": "22", "part": null, "marks": 5, "skill_ids": ["cosine_rule", "trigonometry_missing_angles"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "angle of elevation from the foot of a perpendicular inside a scalene triangle" },
+
+    { "q": "23", "part": null, "marks": 4, "skill_ids": ["surds_expanding_and_rationalising", "volume_of_a_prism"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "side of a square cross-section from a cuboid volume given in surd form" },
+
+    { "q": "24", "part": null, "marks": 6, "skill_ids": ["perpendicular_gradients", "understanding_straight_line_graphs"], "kind": "exam", "mark_split": "M1 M1 M1 M1 M1 A1", "app_gap_note": "fourth vertex of a kite from the other three, using its diagonal as the line of symmetry" },
+
+    { "q": "25", "part": null, "marks": 4, "skill_ids": ["upper_and_lower_bounds", "volume_of_a_sphere"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "upper bound for density from a bounded mass and a bounded sphere radius" }
+  ]
+}

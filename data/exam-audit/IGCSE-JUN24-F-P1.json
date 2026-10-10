@@ -1,0 +1,656 @@
+{
+  "meta": {
+    "board": "Edexcel International",
+    "qualification": "International GCSE Mathematics A (4MA1)",
+    "tier": "Foundation",
+    "paper": "Paper 1 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 100,
+    "paper_slug": "edexcel-4ma1-1f-jun24",
+    "paper_title": "Edexcel International GCSE Mathematics 4MA1/1F",
+    "paper_subtitle": "Foundation Tier Paper 1 — June 2024",
+    "source": "Coded from the published QP and mark scheme (4MA1_1F_2406). Derived metadata only. No exam question text transcribed."
+  },
+  "coding_notes": [
+    "GAP-CANDIDATE set_notation — q22(a)(i),(a)(ii),(b),(c): FOUR parts, 5 marks, ALL UNTAGGED. This is the strongest evidence in the corpus and it breaks the three-untagged-items allowance on purpose. The question gives a universal set and three sets by rule, then asks for the members of a union, the members of a complement-intersection, whether an intersection equals the empty set with a reason, and the members of a fourth set defined by an empty intersection. There is NO VENN DIAGRAM and no probability anywhere in it. venn_diagrams was rejected as an interim tag here: its topic is Probability and Data, its prerequisites are mutually_exclusive_events and combined_events, and its own example is a counting-from-a-Venn question — tagging it would credit four probability skills for a question containing none. Nothing else in data/skills.ts covers set operations, so untagged beats mis-tagged. topic set to number, matching spec 1.5's placement under Numbers and the number system. This takes set_notation to SEVEN parts on the Foundation slice, well past minParts=4.",
+    "NOTE ON THE UNTAGGED COUNT: this paper has 4 untagged items against the registry's allowance of 3, so it cannot be registered until set_notation exists or the rows are retagged. That is the intended consequence rather than a coding slip — the allowance exists to catch sloppy tagging, and here it is correctly reporting a taxonomy gap big enough to need closing.",
+    "CORRECTION made while coding: q22(c) was first read from the extracted text as a SUBSET condition, which would have put it in the Higher half of the set split. The mark scheme shows it is D intersect (A union C) = empty set, with answer 23, 25, 29, 31. No subset notation appears. The Foundation/Higher split in docs/audit/25-igcse-4ma1-delta.md section 2.2 (membership vs cardinality) is unaffected — there is still no n() on any coded Foundation paper.",
+    "mark_split values are read off the mark scheme's code sequence where the extraction is unambiguous, and otherwise follow the standard Edexcel shape for that mark count (B1 for a one-mark recall, M1 A1 for two, M1 M1 A1 for three, and so on). q22's are verified directly against the mark scheme.",
+    "q5(a)(ii) tagged lowest_common_multiple: 'a multiple of both 4 and 6' is the LCM idea even though the word is not used.",
+    "q4(c) tagged time_calculations for reading an analogue clock face, and q4(d) converting_measurements for choosing a sensible metric unit."
+  ],
+  "rows": [
+    {
+      "q": "1",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "longest of seven four- and five-digit integers"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "write a four-digit integer in words"
+    },
+    {
+      "q": "1",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "difference between two four-digit integers"
+    },
+    {
+      "q": "1",
+      "part": "d",
+      "marks": 1,
+      "skill_ids": [
+        "decimals"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "place value of a named digit"
+    },
+    {
+      "q": "1",
+      "part": "e",
+      "marks": 1,
+      "skill_ids": [
+        "rounding"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "identify which values round to a given thousand"
+    },
+    {
+      "q": "2",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_expressions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "collect like terms with mixed signs"
+    },
+    {
+      "q": "2",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_expressions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "product of a constant and a term"
+    },
+    {
+      "q": "2",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "one-step equation giving a non-integer answer"
+    },
+    {
+      "q": "3",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "calculating_simple_probability"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "draw_plot",
+      "app_gap_note": "mark a probability on a probability scale"
+    },
+    {
+      "q": "3",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "calculating_simple_probability"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "draw_plot",
+      "app_gap_note": "mark the probability of an impossible event"
+    },
+    {
+      "q": "3",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "calculating_simple_probability"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "explain why a stated probability is impossible"
+    },
+    {
+      "q": "4",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "properties_of_2d_shapes"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "name a polygon by its number of sides"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "decimals"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "read a value off a number line"
+    },
+    {
+      "q": "4",
+      "part": "c",
+      "marks": 1,
+      "skill_ids": [
+        "time_calculations"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "read a time from an analogue clock face"
+    },
+    {
+      "q": "4",
+      "part": "d",
+      "marks": 1,
+      "skill_ids": [
+        "converting_measurements"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "choose a sensible metric unit for a given length"
+    },
+    {
+      "q": "5",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "factors_and_multiples"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "identify an odd number from a list"
+    },
+    {
+      "q": "5",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "lowest_common_multiple"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "identify a common multiple of two numbers from a list"
+    },
+    {
+      "q": "5",
+      "part": "aiii",
+      "marks": 1,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "identify a cube number from a list"
+    },
+    {
+      "q": "5",
+      "part": "aiv",
+      "marks": 1,
+      "skill_ids": [
+        "factors_and_multiples"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "identify a prime from a list"
+    },
+    {
+      "q": "5",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "evaluate an expression with two powers and an order-of-operations step"
+    },
+    {
+      "q": "6",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "angles_on_lines_and_circles"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "angle at a point from a reflex angle"
+    },
+    {
+      "q": "6",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "angles_on_lines_and_circles"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "name the angle fact used"
+    },
+    {
+      "q": "6",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "angles_in_polygons",
+        "angles_on_lines_and_circles"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "quadrilateral angle sum with an isosceles triangle on a straight line"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "simple_arithmetic"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "hours of overtime from total pay and two hourly rates"
+    },
+    {
+      "q": "8",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_expressions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "expression",
+      "app_gap_note": "collect two families of like terms with mixed signs"
+    },
+    {
+      "q": "8",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "substitution"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "substitute two values into a two-term formula"
+    },
+    {
+      "q": "8",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "two-step linear equation"
+    },
+    {
+      "q": "9",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "constructions"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "draw_shape",
+      "app_gap_note": "construct an equilateral triangle on a given base with compasses"
+    },
+    {
+      "q": "10",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "calculating_simple_probability"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "probability from stated counts"
+    },
+    {
+      "q": "10",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "mutually_exclusive_events",
+        "calculating_simple_probability"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "probability of the remaining category from a given one"
+    },
+    {
+      "q": "11",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "proportion"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "maximum batches from three limiting ingredient stocks"
+    },
+    {
+      "q": "12",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "mean"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "mean from an ungrouped frequency table"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "mutually_exclusive_events"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "probability of the complement of a stated event"
+    },
+    {
+      "q": "13",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "plotting_straight_line_graphs"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "answer_form": "draw_plot",
+      "app_gap_note": "draw a straight line over a given domain"
+    },
+    {
+      "q": "14",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "fractions_decimals_and_percentages"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "one quantity as a percentage of another, to one decimal place"
+    },
+    {
+      "q": "14",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "percentage_change"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "weight after a percentage loss"
+    },
+    {
+      "q": "15",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "areas_of_compound_shapes",
+        "areas_of_triangles"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "area of a triangle plus a square, with the third side recovered from the perimeter"
+    },
+    {
+      "q": "16",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "finding_the_nth_term"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "nth term of a linear sequence"
+    },
+    {
+      "q": "16",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "substitution"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "evaluate a given nth-term rule at a stated n"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "mutually_exclusive_events",
+        "expected_outcomes"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "probabilities in terms of x summing to one, then an expected frequency"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "highest_common_factor"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "HCF of two numbers with working shown"
+    },
+    {
+      "q": "19",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "reverse_percentage"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "original value from a figure that is a stated percentage more"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "angles_in_polygons"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "obtuse angle outside a regular pentagon from a given adjacent angle"
+    },
+    {
+      "q": "21",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "expanding_double_brackets"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "expand two linear brackets with opposite signs"
+    },
+    {
+      "q": "21",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "linear equation with a fractional term and the unknown on both sides"
+    },
+    {
+      "q": "22",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of a union of two sets given by rule"
+    },
+    {
+      "q": "22",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "list the members of a complement intersected with a set"
+    },
+    {
+      "q": "22",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "decide whether an intersection is the empty set, with a reason"
+    },
+    {
+      "q": "22",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "set_notation"
+      ],
+      "kind": "exam",
+      "mark_split": "B2",
+      "app_gap_note": "list a set of given size whose intersection with a union is empty"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "compound_units",
+        "volume_of_a_prism"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "pressure from a force and a base area recovered from a cylinder's volume"
+    },
+    {
+      "q": "24",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "standard form to an ordinary number"
+    },
+    {
+      "q": "24",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "standard_form"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "add an ordinary number to a standard form value, answer in standard form"
+    },
+    {
+      "q": "25",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "zero index"
+    },
+    {
+      "q": "25",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "index law for division with a negative index"
+    },
+    {
+      "q": "25",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "expression",
+      "app_gap_note": "raise a three-factor product to a power"
+    },
+    {
+      "q": "26",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "pythagoras_theorem"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "total length of four members of an isosceles frame, rounded up and priced per metre"
+    }
+  ]
+}
