@@ -368,8 +368,10 @@
       "q": "20",
       "part": null,
       "marks": 4,
-      "skill_ids": [],
-      "topic": "algebra",
+      "skill_ids": [
+        "stationary_points",
+        "understanding_straight_line_graphs"
+      ],
       "kind": "exam",
       "mark_split": "B1 M1 M1 A1",
       "app_gap_note": "equation of the tangent to a quartic at its minimum point"

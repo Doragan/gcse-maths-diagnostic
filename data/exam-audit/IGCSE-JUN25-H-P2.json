@@ -290,8 +290,9 @@
       "q": "17",
       "part": "a",
       "marks": 2,
-      "skill_ids": [],
-      "topic": "algebra",
+      "skill_ids": [
+        "differentiation"
+      ],
       "kind": "mastery",
       "mark_split": "M1 A1",
       "answer_form": "expression",
@@ -302,6 +303,7 @@
       "part": "b",
       "marks": 4,
       "skill_ids": [
+        "stationary_points",
         "solving_quadratic_equations_factorising"
       ],
       "kind": "exam",
