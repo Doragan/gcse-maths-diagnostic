@@ -8,6 +8,7 @@ import {
   primaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
 import { signIn, signUpStudent, signOut, getStudentProfile, migratePendingPractice } from '../../lib/auth'
+import { safeNext } from '../../lib/invitations'
 import { supabase } from '../../lib/supabase'
 import { trackEvent } from '../../lib/analytics'
 import { GoogleButton } from '../../components/GoogleButton'
@@ -17,6 +18,7 @@ type Mode = 'login' | 'signup'
 function StudentAuthPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const next = safeNext(searchParams.get('next'))
   // A CTA that says "sign up" has to land on a SIGNUP form. Both the practice
   // nudge and the homepage demo prompt linked to a bare /student, which renders
   // the login form with the signup toggle below it — under the submit button and
@@ -54,7 +56,9 @@ function StudentAuthPage() {
     getStudentProfile().then(async profile => {
       if (profile) {
         await migratePendingPractice(profile.id)
-        router.push('/student/dashboard')
+        // An invitation link that bounced through here is the destination; it is
+        // why they came, and the dashboard would lose it.
+        router.push(next ?? '/student/dashboard')
       }
     })
     // If the student came here after completing an anonymous diagnostic,
@@ -104,7 +108,7 @@ function StudentAuthPage() {
           if (placement > 0) {
             trackEvent('login_success', { had_pending_diagnostic: true })
             // Go straight to dashboard — they just did the placement test
-            router.push('/student/dashboard')
+            router.push(next ?? '/student/dashboard')
           } else {
             // Send first-time users to the diagnostic so their profile is built immediately
             const { data: attempts } = await supabase
@@ -114,7 +118,7 @@ function StudentAuthPage() {
               .limit(1)
             const isNewUser = !attempts || attempts.length === 0
             trackEvent('login_success', { new_user: isNewUser })
-            router.push(isNewUser ? '/student/diagnostic' : '/student/dashboard')
+            router.push(next ?? (isNewUser ? '/student/diagnostic' : '/student/dashboard'))
           }
         } else {
           // Signed in but no student account — likely a teacher using the wrong login
