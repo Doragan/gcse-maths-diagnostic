@@ -52,6 +52,10 @@ export const reversePercentageBriefing: SkillBriefing = {
       thisOne: 'You have the amount AFTER the change and work backwards to what it started as.',
       theOther: 'You have the amount BEFORE the change and work forwards to what it becomes.',
       ask: 'Is the number I have been given the original, or the one that has already changed?',
+      pair: {
+        thisOne: 'A coat costs £60 in a sale, after a 20% reduction. Work out the original price.',
+        theOther: 'A coat costs £60 and is reduced by 20%. Work out the sale price.',
+      },
     },
     {
       // Mirror of the Higher entry in fractionsDecimalsAndPercentages.ts.
@@ -59,6 +63,10 @@ export const reversePercentageBriefing: SkillBriefing = {
       thisOne: 'You know the percentage and the part, and the whole is what is missing.',
       theOther: 'You know the part AND the whole, and the percentage is what you are finding.',
       ask: 'Of the part, the whole and the percentage, which one have I not been given?',
+      pair: {
+        thisOne: '35% of the members are juniors, and there are 42 juniors. How many members are there?',
+        theOther: '42 of the 120 members are juniors. What percentage are juniors?',
+      },
     },
   ],
 
@@ -68,12 +76,20 @@ export const reversePercentageBriefing: SkillBriefing = {
     {
       stem: 'A TV costs £504 including VAT at 20%. Work out the cost of the TV before VAT was added.',
       isThisSkill: true,
+      worked: [
+        'With 20% VAT added, £504 is 120% of the price before',
+        '£504 ÷ 1.2 = £420',
+      ],
       cue: '£504 already has the VAT in it, so it is 120% of the price you want.',
     },
     {
       stem: 'A car has lost 35% of its value since it was bought. It is now worth £7,800. '
         + 'Work out how much the car was worth when it was bought.',
       isThisSkill: true,
+      worked: [
+        'It kept 65%, so £7,800 is 65% of the original',
+        '£7,800 ÷ 0.65 = £12,000',
+      ],
       cue: '"Now worth" is the after. The car kept 65% of its value, so £7,800 is 65% of the original.',
     },
     {
@@ -148,6 +164,10 @@ export const reversePercentageBriefing: SkillBriefing = {
         stem: 'The price of a bike is increased by 25%. Later, the new price is reduced by 20%. '
           + 'The bike now costs £300. Work out the original price of the bike.',
         isThisSkill: true,
+      worked: [
+        'Combine the multipliers: 1.25 × 0.8 = 1',
+        'Dividing £300 by 1 leaves £300 — the two changes cancel out exactly',
+      ],
         cue: 'Only the final price is given, after two changes. Combine the multipliers first: '
           + '1.25 × 0.8 = 1, so the price has not moved at all.',
       },

@@ -42,7 +42,7 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
     {
       text: 'The words interior or exterior. They are different angles at the same corner, and they '
         + 'add to 180°.',
-      example: 'The exterior angle of a regular polygon is 24°.',
+      example: 'Each exterior angle of a regular polygon is 30°.',
     },
     {
       text: 'A statement about polygons to judge, rather than an angle to find.',
@@ -57,6 +57,10 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
       thisOne: 'A shape with many sides, where the angle sum depends on how many sides it has.',
       theOther: 'Angles at ONE point, or inside a single triangle.',
       ask: 'Is this one point or one triangle, or a polygon whose sides I need to count?',
+      pair: {
+        thisOne: 'Work out the size of an interior angle of a regular pentagon.',
+        theOther: 'Two angles on a straight line are 108° and x. Work out x.',
+      },
     },
   ],
 
@@ -64,11 +68,21 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
     {
       stem: 'Work out the size of each interior angle of a regular octagon.',
       isThisSkill: true,
+      worked: [
+        'Exterior angle first: 360 ÷ 8 = 45°',
+        'Interior and exterior sit on a straight line',
+        '180 − 45 = 135°',
+      ],
       cue: 'Regular and eight-sided. The exterior angle is 360 ÷ 8 = 45°, so each interior angle is 135°.',
     },
     {
       stem: 'The exterior angle of a regular polygon is 24°. Work out how many sides it has.',
       isThisSkill: true,
+      worked: [
+        'The exterior angles always total 360°',
+        '360 ÷ 24 = 15, so there are 15 of them',
+        'The polygon has 15 sides',
+      ],
       cue: 'Run it backwards: the exterior angles always total 360°, so there are 360 ÷ 24 = 15 of them.',
     },
     {
@@ -81,6 +95,11 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
     {
       stem: 'A regular polygon has 12 sides. Work out the total of all its interior angles.',
       isThisSkill: true,
+      worked: [
+        'The SUM this time, so use (n − 2) × 180',
+        '(12 − 2) × 180 = 10 × 180',
+        '= 1800°',
+      ],
       cue: 'The SUM this time, not one angle: (12 − 2) × 180 = 1800°.',
     },
   ],
@@ -151,6 +170,11 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
         stem: 'Two regular hexagons and one regular polygon of n sides meet exactly at a point. '
           + 'Work out the number of sides of the third polygon.',
         isThisSkill: true,
+      worked: [
+        'A hexagon interior angle: 360 ÷ 6 = 60° exterior, so 120° interior',
+        'Angles at a point total 360: two hexagons use 240°, leaving 120°',
+        '120° interior means a 60° exterior, and 360 ÷ 60 = 6 sides',
+      ],
         cue: 'Angles at a point total 360°. Two hexagons bring 120° each, leaving 120° — so the third '
           + 'shape is a hexagon too.',
       },

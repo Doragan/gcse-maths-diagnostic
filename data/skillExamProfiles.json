@@ -114,14 +114,18 @@
         null,
         null,
         null,
+        null,
+        null,
+        null,
         null
       ],
       "series": [
+        "June 2024",
         "June 2025",
         "November 2024"
       ],
-      "skillsPresent": 87,
-      "skillsSufficient": 27
+      "skillsPresent": 94,
+      "skillsSufficient": 42
     },
     {
       "board": "Pearson Edexcel",
@@ -132,25 +136,54 @@
         null,
         null,
         null,
+        null,
+        null,
+        null,
         null
       ],
       "series": [
+        "June 2024",
         "June 2025",
         "November 2024"
       ],
-      "skillsPresent": 114,
-      "skillsSufficient": 15
+      "skillsPresent": 122,
+      "skillsSufficient": 40
     }
   ],
   "profiles": {
-    "Pearson Edexcel|Foundation|simplifying_expressions": {
-      "skillId": "simplifying_expressions",
+    "Pearson Edexcel|Foundation|rounding": {
+      "skillId": "rounding",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 4,
-      "marks": 5,
+      "parts": 2,
+      "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|fractions_decimals_and_percentages": {
+      "skillId": "fractions_decimals_and_percentages",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 8,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
       "markRange": [
         1,
         2
@@ -159,84 +192,7 @@
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "B1",
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|converting_fractions_to_decimals": {
-      "skillId": "converting_fractions_to_decimals",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 1,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|converting_measurements": {
-      "skillId": "converting_measurements",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 11,
-      "marks": 24,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 11
-      },
-      "markSplits": [
-        "B1indep P1 P1dep A1",
-        "B1",
-        "M1 M1 A1",
-        "M1 M1ft A1"
-      ],
-      "chainedPct": 9,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|factors_and_multiples": {
-      "skillId": "factors_and_multiples",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 4,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
+        "undefined": 8
       },
       "markSplits": [
         "B1"
@@ -249,13 +205,41 @@
       "skillId": "angles_on_lines_and_circles",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 7,
-      "marks": 17,
+      "parts": 11,
+      "marks": 26,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
-        4
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 11
+      },
+      "markSplits": [
+        "M1 M1 M1 M1dep A1dep",
+        "B1",
+        "M1 A1",
+        "C1"
+      ],
+      "chainedPct": 9,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|decimals": {
+      "skillId": "decimals",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 7,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
       ],
       "framing": {},
       "barePct": 0,
@@ -264,8 +248,34 @@
         "undefined": 7
       },
       "markSplits": [
-        "C1",
-        "M1 M1 C2"
+        "B1",
+        "M1 A1 A1ft"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|indices": {
+      "skillId": "indices",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 8,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 8
+      },
+      "markSplits": [
+        "B1",
+        "C1"
       ],
       "chainedPct": 0,
       "traps": [],
@@ -275,10 +285,10 @@
       "skillId": "simple_arithmetic",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 16,
-      "marks": 36,
+      "parts": 23,
+      "marks": 53,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         4
@@ -287,15 +297,15 @@
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 16
+        "undefined": 23
       },
       "markSplits": [
-        "B1",
-        "P1 P1 A1",
-        "C1",
-        "P1 P1 P1 A1"
+        "M1 M1dep A1",
+        "P1 P1 B1indep A1",
+        "P1 P1 P1 A1",
+        "B1"
       ],
-      "chainedPct": 0,
+      "chainedPct": 9,
       "traps": [],
       "sufficient": true
     },
@@ -303,97 +313,53 @@
       "skillId": "simple_charts",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 4,
-      "marks": 10,
+      "parts": 10,
+      "marks": 21,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
-        2,
-        3
+        1,
+        4
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 4
+        "undefined": 10
       },
       "markSplits": [
         "M1 M1dep C1",
-        "M1 A1"
+        "M1 M1 M1 C1",
+        "B1",
+        "P1 P1 A1"
       ],
-      "chainedPct": 25,
+      "chainedPct": 10,
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Foundation|properties_of_2d_shapes": {
-      "skillId": "properties_of_2d_shapes",
+    "Pearson Edexcel|Foundation|function_machines": {
+      "skillId": "function_machines",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 4,
-      "marks": 4,
+      "parts": 7,
+      "marks": 12,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
-        1
+        2
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 4
+        "undefined": 7
       },
       "markSplits": [
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|properties_of_3d_solids": {
-      "skillId": "properties_of_3d_solids",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 1,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|forming_expressions_and_formulae": {
-      "skillId": "forming_expressions_and_formulae",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 4,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "M1 A1 C1",
-        "M1 A1"
+        "B1",
+        "M1 A1",
+        "M1 C1",
+        "P1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
@@ -403,10 +369,10 @@
       "skillId": "solving_linear_equations",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 10,
-      "marks": 23,
+      "parts": 13,
+      "marks": 32,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         5
@@ -415,49 +381,216 @@
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 10
+        "undefined": 13
       },
       "markSplits": [
+        "M1 M1dep A1 C1",
         "P1 P1dep P1 P1 A1",
-        "M1 M1 A1",
-        "P1 P1 P1 A1",
-        "B1"
+        "M1 C1",
+        "M1 M1 A1"
       ],
-      "chainedPct": 10,
+      "chainedPct": 15,
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Foundation|rounding": {
-      "skillId": "rounding",
+    "Pearson Edexcel|Foundation|simplifying_ratio": {
+      "skillId": "simplifying_ratio",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 1,
-      "marks": 1,
+      "parts": 5,
+      "marks": 12,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
-        1
+        5
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 1
+        "undefined": 5
       },
-      "markSplits": [],
+      "markSplits": [
+        "M1 M1 M1 M1dep A1dep",
+        "M1 A1",
+        "B1"
+      ],
+      "chainedPct": 20,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|lengths_and_perimeters": {
+      "skillId": "lengths_and_perimeters",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "P1 P1 P1 A1",
+        "P1 P1 A1"
+      ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|estimating": {
-      "skillId": "estimating",
+    "Pearson Edexcel|Foundation|calculating_simple_probability": {
+      "skillId": "calculating_simple_probability",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 13,
+      "marks": 26,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 13
+      },
+      "markSplits": [
+        "P1 P1dep C1",
+        "B1",
+        "P1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 8,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|ratio": {
+      "skillId": "ratio",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 17,
+      "marks": 53,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 17
+      },
+      "markSplits": [
+        "P1 A1",
+        "P1 P1 P1 P1 A1",
+        "P1 P1 P1 A1",
+        "P1 P1 P1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|median": {
+      "skillId": "median",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1",
+        "C1",
+        "B1 C1 B1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|range": {
+      "skillId": "range",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 A1",
+        "B1 C1 B1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|proportion": {
+      "skillId": "proportion",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 6,
+      "marks": 17,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "P1 P1 A1",
+        "P1 P1 P1 A1",
+        "C1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|expanding_brackets": {
+      "skillId": "expanding_brackets",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
       "parts": 3,
-      "marks": 6,
+      "marks": 7,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -469,21 +602,20 @@
         "undefined": 3
       },
       "markSplits": [
-        "P1 P1dep A1",
-        "C1"
+        "M1 M1 A1"
       ],
-      "chainedPct": 33,
+      "chainedPct": 0,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|adding_and_subtracting_fractions": {
-      "skillId": "adding_and_subtracting_fractions",
+    "Pearson Edexcel|Foundation|translations": {
+      "skillId": "translations",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 2,
-      "marks": 4,
+      "parts": 1,
+      "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -492,77 +624,48 @@
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 2
+        "undefined": 1
       },
       "markSplits": [
-        "M1 A1"
+        "B1 B1"
       ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|fractions_of_amounts": {
-      "skillId": "fractions_of_amounts",
+    "Pearson Edexcel|Foundation|finding_the_nth_term": {
+      "skillId": "finding_the_nth_term",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 7,
-      "marks": 21,
+      "parts": 1,
+      "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
-        1,
-        5
+        2,
+        2
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 7
+        "undefined": 1
       },
       "markSplits": [
-        "P1 P1 P1 A1",
-        "B1",
-        "P1 P1 P1 P1 A1"
+        "B2"
       ],
       "chainedPct": 0,
       "traps": [],
-      "sufficient": true
+      "sufficient": false
     },
-    "Pearson Edexcel|Foundation|time_calculations": {
-      "skillId": "time_calculations",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 9,
-      "marks": 17,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 9
-      },
-      "markSplits": [
-        "B1",
-        "P1 P1 A1",
-        "C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|function_machines": {
-      "skillId": "function_machines",
+    "Pearson Edexcel|Foundation|adding_and_subtracting_fractions": {
+      "skillId": "adding_and_subtracting_fractions",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
       "parts": 4,
       "marks": 7,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         2
@@ -575,48 +678,124 @@
       },
       "markSplits": [
         "M1 A1",
-        "P1 A1"
+        "B1"
       ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Foundation|ratio": {
-      "skillId": "ratio",
+    "Pearson Edexcel|Foundation|irregular_and_improper_fractions": {
+      "skillId": "irregular_and_improper_fractions",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 11,
-      "marks": 34,
+      "parts": 2,
+      "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
-        5
+        3
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 11
+        "undefined": 2
       },
       "markSplits": [
-        "B1",
-        "P1 P1 C1",
-        "P1 P1 A1",
-        "M1 M1 A1"
+        "M1 M1dep C1",
+        "C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|dividing_fractions": {
+      "skillId": "dividing_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1dep C1",
+        "C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|areas_of_compound_shapes": {
+      "skillId": "areas_of_compound_shapes",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1 P1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
-      "sufficient": true
+      "sufficient": false
     },
-    "Pearson Edexcel|Foundation|decimals": {
-      "skillId": "decimals",
+    "Pearson Edexcel|Foundation|venn_diagrams": {
+      "skillId": "venn_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1",
+        "C1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|estimating": {
+      "skillId": "estimating",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
       "parts": 5,
-      "marks": 9,
+      "marks": 10,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -628,73 +807,78 @@
         "undefined": 5
       },
       "markSplits": [
-        "M1 A1 A1ft",
-        "B1"
+        "P1 P1dep A1",
+        "P1 P1 A1",
+        "C1"
       ],
-      "chainedPct": 0,
+      "chainedPct": 20,
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Foundation|alternate_and_corresponding_angles": {
-      "skillId": "alternate_and_corresponding_angles",
+    "Pearson Edexcel|Foundation|understanding_straight_line_graphs": {
+      "skillId": "understanding_straight_line_graphs",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
-      "parts": 2,
-      "marks": 7,
+      "parts": 5,
+      "marks": 11,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
-        3,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 A1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|proportion": {
-      "skillId": "proportion",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 6,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
+        1,
         3
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 2
+        "undefined": 5
       },
       "markSplits": [
+        "M1 M1 A1",
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|fractions_of_amounts": {
+      "skillId": "fractions_of_amounts",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 12,
+      "marks": 39,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 12
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1",
+        "P1 P1 A1",
+        "P1 P1 P1 C1",
         "P1 P1 C1"
       ],
       "chainedPct": 0,
       "traps": [],
-      "sufficient": false
+      "sufficient": true
     },
-    "Pearson Edexcel|Foundation|gathering_and_organising_data": {
-      "skillId": "gathering_and_organising_data",
+    "Pearson Edexcel|Foundation|reverse_percentage": {
+      "skillId": "reverse_percentage",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
       "parts": 3,
-      "marks": 9,
+      "marks": 8,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
-        3,
+        2,
         3
       ],
       "framing": {},
@@ -704,20 +888,230 @@
         "undefined": 3
       },
       "markSplits": [
-        "C3"
+        "M1 A1",
+        "P1 P1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|highest_common_factor": {
-      "skillId": "highest_common_factor",
+    "Pearson Edexcel|Foundation|inequalities": {
+      "skillId": "inequalities",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 M1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|converting_measurements": {
+      "skillId": "converting_measurements",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 17,
+      "marks": 33,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 17
+      },
+      "markSplits": [
+        "B1indep P1 P1dep A1",
+        "B1",
+        "M1 A1",
+        "P1 A1"
+      ],
+      "chainedPct": 6,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|converting_fractions_to_decimals": {
+      "skillId": "converting_fractions_to_decimals",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|factors_and_multiples": {
+      "skillId": "factors_and_multiples",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 7,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "B1",
+        "P1 P1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|simplifying_expressions": {
+      "skillId": "simplifying_expressions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 7,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|measuring_lines_and_angles": {
+      "skillId": "measuring_lines_and_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|properties_of_2d_shapes": {
+      "skillId": "properties_of_2d_shapes",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|coordinates": {
+      "skillId": "coordinates",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 10,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 10
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1",
+        "C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|systematic_listing": {
+      "skillId": "systematic_listing",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -735,6 +1129,912 @@
       "traps": [],
       "sufficient": false
     },
+    "Pearson Edexcel|Foundation|substitution": {
+      "skillId": "substitution",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 7,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "M1 A1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|compound_units": {
+      "skillId": "compound_units",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 11,
+      "marks": 33,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 11
+      },
+      "markSplits": [
+        "P1 P1dep A1",
+        "M1 A1",
+        "P1 P1 C1",
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 9,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|time_calculations": {
+      "skillId": "time_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 11,
+      "marks": 22,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 11
+      },
+      "markSplits": [
+        "P1 P1 C1",
+        "M1 A1",
+        "B1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|percentage_change": {
+      "skillId": "percentage_change",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 7,
+      "marks": 23,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "M1 A1",
+        "M1 M1 A1",
+        "P1 P1 P1 C1",
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|loci": {
+      "skillId": "loci",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "C1 C1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|constructions": {
+      "skillId": "constructions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "C1 C1 C1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|exact_calculations": {
+      "skillId": "exact_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|significant_figures": {
+      "skillId": "significant_figures",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|pythagoras_theorem": {
+      "skillId": "pythagoras_theorem",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1dep P1 P1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 33,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|lowest_common_multiple": {
+      "skillId": "lowest_common_multiple",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|quadratic_functions": {
+      "skillId": "quadratic_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 8,
+      "marks": 15,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 8
+      },
+      "markSplits": [
+        "B2",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|angles_in_polygons": {
+      "skillId": "angles_in_polygons",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 M1dep A1 C1",
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 25,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|alternate_and_corresponding_angles": {
+      "skillId": "alternate_and_corresponding_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 M1dep A1 C1",
+        "M1 A1 C1"
+      ],
+      "chainedPct": 33,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|congruence_and_similarity": {
+      "skillId": "congruence_and_similarity",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|grouped_frequency_tables": {
+      "skillId": "grouped_frequency_tables",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "B1",
+        "M1 M1 A1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|mean": {
+      "skillId": "mean",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "M1 M1dep A1",
+        "M1 M1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 20,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|mode": {
+      "skillId": "mode",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "B1",
+        "C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|parts_of_a_circle": {
+      "skillId": "parts_of_a_circle",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|gathering_and_organising_data": {
+      "skillId": "gathering_and_organising_data",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "B3",
+        "C3"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|pie_charts": {
+      "skillId": "pie_charts",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|simplifying_indices": {
+      "skillId": "simplifying_indices",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|forming_expressions_and_formulae": {
+      "skillId": "forming_expressions_and_formulae",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "M1 A1",
+        "M1 A1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|rotations": {
+      "skillId": "rotations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 2,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|reflections": {
+      "skillId": "reflections",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "C1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|plotting_straight_line_graphs": {
+      "skillId": "plotting_straight_line_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [
+        "B3"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|factorising": {
+      "skillId": "factorising",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|highest_common_factor": {
+      "skillId": "highest_common_factor",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|standard_form": {
+      "skillId": "standard_form",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 7,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|plans_and_elevations": {
+      "skillId": "plans_and_elevations",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "C1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|growth_and_decay": {
+      "skillId": "growth_and_decay",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "P1 P1 P1 A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|tree_diagrams": {
+      "skillId": "tree_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "B1 B1",
+        "M1 A1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|volume_of_a_prism": {
+      "skillId": "volume_of_a_prism",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 5,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1indep P1 P1dep A1",
+        "P1 P1 P1 A1",
+        "P1 A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 20,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Foundation|rearranging_formulae": {
+      "skillId": "rearranging_formulae",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 3,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Foundation|properties_of_3d_solids": {
+      "skillId": "properties_of_3d_solids",
+      "board": "Pearson Edexcel",
+      "tier": "Foundation",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
     "Pearson Edexcel|Foundation|mutually_exclusive_events": {
       "skillId": "mutually_exclusive_events",
       "board": "Pearson Edexcel",
@@ -742,7 +2042,7 @@
       "parts": 2,
       "marks": 6,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -760,33 +2060,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|calculating_simple_probability": {
-      "skillId": "calculating_simple_probability",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 8,
-      "marks": 16,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 8
-      },
-      "markSplits": [
-        "P1 P1dep C1",
-        "M1 A1",
-        "B1"
-      ],
-      "chainedPct": 13,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Foundation|expected_outcomes": {
       "skillId": "expected_outcomes",
       "board": "Pearson Edexcel",
@@ -794,7 +2067,7 @@
       "parts": 3,
       "marks": 6,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -813,107 +2086,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|substitution": {
-      "skillId": "substitution",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|quadratic_functions": {
-      "skillId": "quadratic_functions",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 5,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 5
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|standard_form": {
-      "skillId": "standard_form",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 4,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "M1 A1",
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|angles_in_polygons": {
-      "skillId": "angles_in_polygons",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 12,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|exterior_angles": {
       "skillId": "exterior_angles",
       "board": "Pearson Edexcel",
@@ -921,7 +2093,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -933,32 +2105,6 @@
         "undefined": 1
       },
       "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|understanding_straight_line_graphs": {
-      "skillId": "understanding_straight_line_graphs",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B1",
-        "M1 M1 A1"
-      ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
@@ -970,7 +2116,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -980,183 +2126,6 @@
       "bareBand": "never",
       "calc": {
         "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|fractions_decimals_and_percentages": {
-      "skillId": "fractions_decimals_and_percentages",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 6,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 6
-      },
-      "markSplits": [
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|mode": {
-      "skillId": "mode",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|range": {
-      "skillId": "range",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 8,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "M1 A1",
-        "B1 C1 B1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|simplifying_ratio": {
-      "skillId": "simplifying_ratio",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B1",
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|compound_units": {
-      "skillId": "compound_units",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 7,
-      "marks": 20,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 7
-      },
-      "markSplits": [
-        "P1 P1dep A1",
-        "M1 M1 A1"
-      ],
-      "chainedPct": 14,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|indices": {
-      "skillId": "indices",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 5,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 5
-      },
-      "markSplits": [
-        "C1",
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|pie_charts": {
-      "skillId": "pie_charts",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
       },
       "markSplits": [],
       "chainedPct": 0,
@@ -1170,7 +2139,7 @@
       "parts": 5,
       "marks": 7,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         2
@@ -1190,60 +2159,6 @@
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Foundation|percentage_change": {
-      "skillId": "percentage_change",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 6,
-      "marks": 21,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 6
-      },
-      "markSplits": [
-        "M1 M1 A1",
-        "P1 P1 P1 C1",
-        "P1 P1 P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|volume_of_a_prism": {
-      "skillId": "volume_of_a_prism",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 4,
-      "marks": 12,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "B1indep P1 P1dep A1",
-        "P1 A1",
-        "M1 M1 A1"
-      ],
-      "chainedPct": 25,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Foundation|areas_of_squares_and_rectangles": {
       "skillId": "areas_of_squares_and_rectangles",
       "board": "Pearson Edexcel",
@@ -1251,7 +2166,7 @@
       "parts": 2,
       "marks": 6,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -1269,102 +2184,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|inequalities": {
-      "skillId": "inequalities",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|prime_factor_decomposition": {
-      "skillId": "prime_factor_decomposition",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|lowest_common_multiple": {
-      "skillId": "lowest_common_multiple",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|areas_of_compound_shapes": {
-      "skillId": "areas_of_compound_shapes",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|area_of_a_circle": {
       "skillId": "area_of_a_circle",
       "board": "Pearson Edexcel",
@@ -1372,7 +2191,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -1395,7 +2214,7 @@
       "parts": 2,
       "marks": 9,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         5
@@ -1413,80 +2232,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|loci": {
-      "skillId": "loci",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 1,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|reverse_percentage": {
-      "skillId": "reverse_percentage",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 6,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|mean": {
-      "skillId": "mean",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 4,
-      "marks": 13,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "M1 M1dep A1",
-        "M1 A1"
-      ],
-      "chainedPct": 25,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Foundation|trigonometry_missing_angles": {
       "skillId": "trigonometry_missing_angles",
       "board": "Pearson Edexcel",
@@ -1494,7 +2239,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -1517,7 +2262,7 @@
       "parts": 4,
       "marks": 7,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -1542,7 +2287,7 @@
       "parts": 2,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         2
@@ -1560,54 +2305,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|systematic_listing": {
-      "skillId": "systematic_listing",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|coordinates": {
-      "skillId": "coordinates",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 7,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 7
-      },
-      "markSplits": [
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Foundation|bearings": {
       "skillId": "bearings",
       "board": "Pearson Edexcel",
@@ -1615,7 +2312,7 @@
       "parts": 1,
       "marks": 1,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         1
@@ -1631,31 +2328,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|measuring_lines_and_angles": {
-      "skillId": "measuring_lines_and_angles",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|frequency_trees": {
       "skillId": "frequency_trees",
       "board": "Pearson Edexcel",
@@ -1663,7 +2335,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -1679,130 +2351,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|median": {
-      "skillId": "median",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B1 C1 B1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|exact_calculations": {
-      "skillId": "exact_calculations",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|significant_figures": {
-      "skillId": "significant_figures",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 1,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|simplifying_indices": {
-      "skillId": "simplifying_indices",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 4,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "B2",
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Foundation|expanding_brackets": {
-      "skillId": "expanding_brackets",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|expanding_double_brackets": {
       "skillId": "expanding_double_brackets",
       "board": "Pearson Edexcel",
@@ -1810,7 +2358,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -1833,7 +2381,7 @@
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -1845,82 +2393,6 @@
         "undefined": 2
       },
       "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|grouped_frequency_tables": {
-      "skillId": "grouped_frequency_tables",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|rearranging_formulae": {
-      "skillId": "rearranging_formulae",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|factorising": {
-      "skillId": "factorising",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 3,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B1",
         "B2"
       ],
       "chainedPct": 0,
@@ -1934,7 +2406,7 @@
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -1959,7 +2431,7 @@
       "parts": 1,
       "marks": 5,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         5,
         5
@@ -1975,31 +2447,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|pythagoras_theorem": {
-      "skillId": "pythagoras_theorem",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 2,
-      "marks": 10,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        5,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1dep P1 P1 A1"
-      ],
-      "chainedPct": 50,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|simultaneous_equations": {
       "skillId": "simultaneous_equations",
       "board": "Pearson Edexcel",
@@ -2007,7 +2454,7 @@
       "parts": 2,
       "marks": 8,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         5
@@ -2025,81 +2472,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|reflections": {
-      "skillId": "reflections",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|dividing_fractions": {
-      "skillId": "dividing_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1dep C1"
-      ],
-      "chainedPct": 100,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Foundation|irregular_and_improper_fractions": {
-      "skillId": "irregular_and_improper_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1dep C1"
-      ],
-      "chainedPct": 100,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|solving_quadratic_equations_factorising": {
       "skillId": "solving_quadratic_equations_factorising",
       "board": "Pearson Edexcel",
@@ -2107,7 +2479,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -2125,31 +2497,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|lengths_and_perimeters": {
-      "skillId": "lengths_and_perimeters",
-      "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Foundation|enlargements": {
       "skillId": "enlargements",
       "board": "Pearson Edexcel",
@@ -2157,7 +2504,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -2182,7 +2529,7 @@
       "parts": 3,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         1
@@ -2200,14 +2547,14 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|venn_diagrams": {
-      "skillId": "venn_diagrams",
+    "Pearson Edexcel|Foundation|trigonometry_missing_sides": {
+      "skillId": "trigonometry_missing_sides",
       "board": "Pearson Edexcel",
       "tier": "Foundation",
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -2219,20 +2566,20 @@
         "undefined": 1
       },
       "markSplits": [
-        "C1 C1"
+        "M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|constructions": {
-      "skillId": "constructions",
+    "Pearson Edexcel|Higher|finding_the_nth_term": {
+      "skillId": "finding_the_nth_term",
       "board": "Pearson Edexcel",
-      "tier": "Foundation",
+      "tier": "Higher",
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -2250,14 +2597,884 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|tree_diagrams": {
-      "skillId": "tree_diagrams",
+    "Pearson Edexcel|Higher|adding_and_subtracting_fractions": {
+      "skillId": "adding_and_subtracting_fractions",
       "board": "Pearson Edexcel",
-      "tier": "Foundation",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|irregular_and_improper_fractions": {
+      "skillId": "irregular_and_improper_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1dep C1",
+        "C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|dividing_fractions": {
+      "skillId": "dividing_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1dep C1",
+        "C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|areas_of_compound_shapes": {
+      "skillId": "areas_of_compound_shapes",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|proportion": {
+      "skillId": "proportion",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1 P1 A1",
+        "C1",
+        "P1 P1 C1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|venn_diagrams": {
+      "skillId": "venn_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1",
+        "C1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|calculating_simple_probability": {
+      "skillId": "calculating_simple_probability",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 A1",
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|estimating": {
+      "skillId": "estimating",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1dep A1",
+        "P1 P1 A1",
+        "C1"
+      ],
+      "chainedPct": 25,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|understanding_straight_line_graphs": {
+      "skillId": "understanding_straight_line_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 17,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "P1 P1 P1 P1dep A1",
+        "M1 M1 A1",
+        "B1",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 20,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|ratio": {
+      "skillId": "ratio",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 10,
+      "marks": 40,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 10
+      },
+      "markSplits": [
+        "M1 M1dep C1",
+        "P1 P1 P1 P1 A1",
+        "P1 P1 P1 A1",
+        "P1 P1 P1 C1"
+      ],
+      "chainedPct": 10,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|fractions_of_amounts": {
+      "skillId": "fractions_of_amounts",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 17,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1",
+        "P1 P1 P1 C1",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|mean": {
+      "skillId": "mean",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|percentage_change": {
+      "skillId": "percentage_change",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "B1",
+        "P1 P1 P1 C1",
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|simultaneous_equations": {
+      "skillId": "simultaneous_equations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A1 M1dep A1"
+      ],
+      "chainedPct": 100,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|rotations": {
+      "skillId": "rotations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|translations": {
+      "skillId": "translations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|sketching_functions": {
+      "skillId": "sketching_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 6,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "B1 M1 M1dep B1 C1",
+        "B1",
+        "C1"
+      ],
+      "chainedPct": 17,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|histograms": {
+      "skillId": "histograms",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "B3",
+        "M1 A1",
+        "M1 M1 M1ft C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|grouped_frequency_tables": {
+      "skillId": "grouped_frequency_tables",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "B3",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|expanding_double_brackets": {
+      "skillId": "expanding_double_brackets",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1 P1 P1dep A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 25,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|sector_calculations": {
+      "skillId": "sector_calculations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "P2 P1dep A1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|conditional_probability": {
+      "skillId": "conditional_probability",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 14,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 A1dep",
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 25,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|surds_expanding_and_rationalising": {
+      "skillId": "surds_expanding_and_rationalising",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 6,
+      "marks": 15,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "M1indep M1 M1dep A1",
+        "B1",
+        "M1 A1"
+      ],
+      "chainedPct": 17,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|surds_simplifying": {
+      "skillId": "surds_simplifying",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 10,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1indep M1 M1dep A1",
+        "M1 A1"
+      ],
+      "chainedPct": 33,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|recurring_decimals_to_fractions": {
+      "skillId": "recurring_decimals_to_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 M1dep C1",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 33,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|congruence_and_similarity": {
+      "skillId": "congruence_and_similarity",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 6,
+      "marks": 18,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "C1 C1 C1 C1dep",
+        "P1 P1 A1",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 17,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|simplifying_indices": {
+      "skillId": "simplifying_indices",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1 A1",
+        "B2",
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|volume_of_a_prism": {
+      "skillId": "volume_of_a_prism",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 6,
+      "marks": 26,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "P1 P1 P1 P1dep A1",
+        "P1 P1 P1 P1 A1",
+        "P1 P1 P1 A1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 17,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|areas_of_squares_and_rectangles": {
+      "skillId": "areas_of_squares_and_rectangles",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|solving_quadratic_equations_factorising": {
+      "skillId": "solving_quadratic_equations_factorising",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 20,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        5,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1 P1 P1dep A1",
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|trig_graphs": {
+      "skillId": "trig_graphs",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|equation_of_a_circle": {
+      "skillId": "equation_of_a_circle",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1 P1 P1dep A1",
+        "P1 P1 P1dep A1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|pythagoras_theorem": {
+      "skillId": "pythagoras_theorem",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "P1 P1dep P1 P1 A1",
+        "P1 P1dep P1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|prime_factor_decomposition": {
+      "skillId": "prime_factor_decomposition",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -2269,21 +3486,45 @@
         "undefined": 2
       },
       "markSplits": [
-        "B2",
         "M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|trigonometry_missing_sides": {
-      "skillId": "trigonometry_missing_sides",
+    "Pearson Edexcel|Higher|lowest_common_multiple": {
+      "skillId": "lowest_common_multiple",
       "board": "Pearson Edexcel",
-      "tier": "Foundation",
-      "parts": 1,
-      "marks": 2,
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|substitution": {
+      "skillId": "substitution",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -2292,7 +3533,301 @@
       "barePct": 0,
       "bareBand": "never",
       "calc": {
-        "undefined": 1
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 A1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|quadratic_functions": {
+      "skillId": "quadratic_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 7,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "B2",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|angles_in_polygons": {
+      "skillId": "angles_in_polygons",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 15,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 M1dep A1 C1",
+        "P1 P1 P1 A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 25,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|solving_linear_equations": {
+      "skillId": "solving_linear_equations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 9,
+      "marks": 30,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 9
+      },
+      "markSplits": [
+        "M1 M1dep A1 C1",
+        "P1 P1dep P1 P1 A1",
+        "B1 P1 A1",
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 22,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|alternate_and_corresponding_angles": {
+      "skillId": "alternate_and_corresponding_angles",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1dep A1 C1",
+        "M1 A1 C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|area_and_volume_scale_factors": {
+      "skillId": "area_and_volume_scale_factors",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "P1 P1 P1dep A1",
+        "P1 P1 A1",
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 20,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|areas_of_triangles": {
+      "skillId": "areas_of_triangles",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1dep P1 P1 A1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 33,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|upper_and_lower_bounds": {
+      "skillId": "upper_and_lower_bounds",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 7,
+      "marks": 17,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 7
+      },
+      "markSplits": [
+        "B1",
+        "C1",
+        "B1 M1 A1",
+        "B1 M1 M1 A1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|trigonometry_missing_sides": {
+      "skillId": "trigonometry_missing_sides",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1 P1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|cumulative_frequency": {
+      "skillId": "cumulative_frequency",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 6,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1",
+        "B3",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|interquartile_range": {
+      "skillId": "interquartile_range",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|inverse_proportion": {
+      "skillId": "inverse_proportion",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
       },
       "markSplits": [
         "M1 A1"
@@ -2301,14 +3836,66 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Foundation|growth_and_decay": {
-      "skillId": "growth_and_decay",
+    "Pearson Edexcel|Higher|proportion_with_powers": {
+      "skillId": "proportion_with_powers",
       "board": "Pearson Edexcel",
-      "tier": "Foundation",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "M1 A1",
+        "M1 M1 A1",
+        "C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|inequalities": {
+      "skillId": "inequalities",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "M1 M1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|gradient_of_a_curve": {
+      "skillId": "gradient_of_a_curve",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -2320,20 +3907,46 @@
         "undefined": 1
       },
       "markSplits": [
-        "M1 M1 A1"
+        "M1 M1dep A1"
       ],
-      "chainedPct": 0,
+      "chainedPct": 100,
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|highest_common_factor": {
-      "skillId": "highest_common_factor",
+    "Pearson Edexcel|Higher|kinematic_graphs": {
+      "skillId": "kinematic_graphs",
       "board": "Pearson Edexcel",
       "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
+      "parts": 6,
+      "marks": 14,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "M1 M1 A1",
+        "C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|quadratic_inequalities": {
+      "skillId": "quadratic_inequalities",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -2342,9 +3955,766 @@
       "barePct": 0,
       "bareBand": "never",
       "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|systematic_listing": {
+      "skillId": "systematic_listing",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|vectors": {
+      "skillId": "vectors",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1 P1 A1",
+        "C1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|completing_the_square": {
+      "skillId": "completing_the_square",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "B1 M1 M1dep B1 C1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|graph_transformations": {
+      "skillId": "graph_transformations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "C2",
+        "B1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|circle_theorem_tangent": {
+      "skillId": "circle_theorem_tangent",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 8,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "C1 C1 C1 C1dep",
+        "M1 M1 M1 C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|highest_common_factor": {
+      "skillId": "highest_common_factor",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|standard_form": {
+      "skillId": "standard_form",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 10,
+      "marks": 16,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 10
+      },
+      "markSplits": [
+        "B1",
+        "M1 A1",
+        "B1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|plans_and_elevations": {
+      "skillId": "plans_and_elevations",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "C1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|growth_and_decay": {
+      "skillId": "growth_and_decay",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 17,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "P1 P1 P1 A1",
+        "M1 M1 A1",
+        "P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|compound_units": {
+      "skillId": "compound_units",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 8,
+      "marks": 29,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 8
+      },
+      "markSplits": [
+        "P1 P1dep A1",
+        "P1 P1 P1 A1",
+        "P1 P1 A1",
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 13,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|tree_diagrams": {
+      "skillId": "tree_diagrams",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 6,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 6
+      },
+      "markSplits": [
+        "B1 B1",
+        "M1 A1",
+        "B2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|volume_of_a_pyramid_and_cone": {
+      "skillId": "volume_of_a_pyramid_and_cone",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|algebraic_proof": {
+      "skillId": "algebraic_proof",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1dep C1"
+      ],
+      "chainedPct": 50,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|box_plots": {
+      "skillId": "box_plots",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 12,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "M1 M1 A1",
+        "C1 C1",
+        "B3"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|median": {
+      "skillId": "median",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "C1 C1",
+        "B1 C1 B1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|fractional_enlargements": {
+      "skillId": "fractional_enlargements",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 6,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "B2",
+        "C2"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|counting_without_listing": {
+      "skillId": "counting_without_listing",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|algebraic_fractions": {
+      "skillId": "algebraic_fractions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 5,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 5
+      },
+      "markSplits": [
+        "B1",
+        "M1 M1 A1",
+        "M1 M1 C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|factorising_quadratics": {
+      "skillId": "factorising_quadratics",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 3,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A1",
+        "C1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|difference_of_two_squares": {
+      "skillId": "difference_of_two_squares",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 5,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        3
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 M1 A1",
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|functions_notation": {
+      "skillId": "functions_notation",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 1,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        1,
+        1
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
         "undefined": 1
       },
-      "markSplits": [],
+      "markSplits": [
+        "B1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|composite_functions": {
+      "skillId": "composite_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 9,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|inverse_functions": {
+      "skillId": "inverse_functions",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        2
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|sequences": {
+      "skillId": "sequences",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 4
+      },
+      "markSplits": [
+        "M1 M1 A1",
+        "P1 A1",
+        "P1 P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": true
+    },
+    "Pearson Edexcel|Higher|area_of_triangle_sine": {
+      "skillId": "area_of_triangle_sine",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 11,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        2,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1",
+        "P1 P1 P1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|sine_rule": {
+      "skillId": "sine_rule",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 13,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|simultaneous_equations_quadratic": {
+      "skillId": "simultaneous_equations_quadratic",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 3,
+      "marks": 14,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 3
+      },
+      "markSplits": [
+        "P1 P1 P1 P1 A1",
+        "M1 M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|exact_trig_values": {
+      "skillId": "exact_trig_values",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 2,
+      "marks": 7,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        3,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 2
+      },
+      "markSplits": [
+        "P1 P1 P1 C1",
+        "M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "sufficient": false
+    },
+    "Pearson Edexcel|Higher|circumfrence_of_a_circle": {
+      "skillId": "circumfrence_of_a_circle",
+      "board": "Pearson Edexcel",
+      "tier": "Higher",
+      "parts": 1,
+      "marks": 4,
+      "papersSeen": 1,
+      "papersTotal": 9,
+      "markRange": [
+        4,
+        4
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {
+        "undefined": 1
+      },
+      "markSplits": [
+        "P1 P1 P1 C1"
+      ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
@@ -2356,7 +4726,7 @@
       "parts": 3,
       "marks": 11,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         5
@@ -2374,29 +4744,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|calculating_simple_probability": {
-      "skillId": "calculating_simple_probability",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|expected_outcomes": {
       "skillId": "expected_outcomes",
       "board": "Pearson Edexcel",
@@ -2404,7 +4751,7 @@
       "parts": 3,
       "marks": 6,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -2423,158 +4770,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|substitution": {
-      "skillId": "substitution",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|quadratic_functions": {
-      "skillId": "quadratic_functions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|ratio": {
-      "skillId": "ratio",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 6,
-      "marks": 24,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 6
-      },
-      "markSplits": [
-        "P1 P1 P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|fractions_of_amounts": {
-      "skillId": "fractions_of_amounts",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 8,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 M1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|standard_form": {
-      "skillId": "standard_form",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 6,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 6
-      },
-      "markSplits": [
-        "M1 A1",
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|angles_in_polygons": {
-      "skillId": "angles_in_polygons",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 11,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 A1",
-        "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|exterior_angles": {
       "skillId": "exterior_angles",
       "board": "Pearson Edexcel",
@@ -2582,7 +4777,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -2598,226 +4793,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|algebraic_fractions": {
-      "skillId": "algebraic_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "M1 M1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|inequalities": {
-      "skillId": "inequalities",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 10,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|congruence_and_similarity": {
-      "skillId": "congruence_and_similarity",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 11,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "M1 M1 C1",
-        "P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|rotations": {
-      "skillId": "rotations",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|fractional_enlargements": {
-      "skillId": "fractional_enlargements",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "C2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|algebraic_proof": {
-      "skillId": "algebraic_proof",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|inverse_proportion": {
-      "skillId": "inverse_proportion",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        5,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|proportion_with_powers": {
-      "skillId": "proportion_with_powers",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "M1 M1 A1",
-        "C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|kinematic_graphs": {
-      "skillId": "kinematic_graphs",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 5,
-      "marks": 11,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 5
-      },
-      "markSplits": [
-        "C1",
-        "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Higher|area_of_a_trapezium": {
       "skillId": "area_of_a_trapezium",
       "board": "Pearson Edexcel",
@@ -2825,7 +4800,7 @@
       "parts": 3,
       "marks": 11,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         5
@@ -2840,31 +4815,6 @@
         "P1 P1 A1"
       ],
       "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|recurring_decimals_to_fractions": {
-      "skillId": "recurring_decimals_to_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 8,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 M1dep C1"
-      ],
-      "chainedPct": 50,
       "traps": [],
       "sufficient": false
     },
@@ -2875,7 +4825,7 @@
       "parts": 1,
       "marks": 5,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         5,
         5
@@ -2898,7 +4848,7 @@
       "parts": 3,
       "marks": 13,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         5
@@ -2916,201 +4866,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|histograms": {
-      "skillId": "histograms",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 8,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 M1 M1ft C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|surds_expanding_and_rationalising": {
-      "skillId": "surds_expanding_and_rationalising",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 12,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "M1indep M1 M1dep A1",
-        "M1 A1"
-      ],
-      "chainedPct": 25,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|surds_simplifying": {
-      "skillId": "surds_simplifying",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 8,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1indep M1 M1dep A1"
-      ],
-      "chainedPct": 50,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|composite_functions": {
-      "skillId": "composite_functions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|expanding_double_brackets": {
-      "skillId": "expanding_double_brackets",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 13,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 P1dep A1"
-      ],
-      "chainedPct": 33,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|prime_factor_decomposition": {
-      "skillId": "prime_factor_decomposition",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|lowest_common_multiple": {
-      "skillId": "lowest_common_multiple",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|areas_of_compound_shapes": {
-      "skillId": "areas_of_compound_shapes",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|area_of_a_circle": {
       "skillId": "area_of_a_circle",
       "board": "Pearson Edexcel",
@@ -3118,7 +4873,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -3131,31 +4886,6 @@
       },
       "markSplits": [],
       "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|areas_of_triangles": {
-      "skillId": "areas_of_triangles",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1dep P1 P1 A1"
-      ],
-      "chainedPct": 50,
       "traps": [],
       "sufficient": false
     },
@@ -3166,7 +4896,7 @@
       "parts": 1,
       "marks": 1,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         1
@@ -3189,7 +4919,7 @@
       "parts": 4,
       "marks": 9,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -3207,29 +4937,6 @@
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Higher|mean": {
-      "skillId": "mean",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        5,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|trigonometry_missing_angles": {
       "skillId": "trigonometry_missing_angles",
       "board": "Pearson Edexcel",
@@ -3237,7 +4944,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -3253,33 +4960,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|compound_units": {
-      "skillId": "compound_units",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 6,
-      "marks": 21,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 6
-      },
-      "markSplits": [
-        "P1 P1dep A1",
-        "P1 P1 A1",
-        "P1 P1 P1 P1 A1"
-      ],
-      "chainedPct": 17,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Higher|fractional_and_negative_indices": {
       "skillId": "fractional_and_negative_indices",
       "board": "Pearson Edexcel",
@@ -3287,7 +4967,7 @@
       "parts": 4,
       "marks": 8,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -3312,7 +4992,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -3324,134 +5004,6 @@
         "undefined": 1
       },
       "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|solving_linear_equations": {
-      "skillId": "solving_linear_equations",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 5,
-      "marks": 17,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 5
-      },
-      "markSplits": [
-        "P1 P1dep P1 P1 A1",
-        "P1 P1 P1 A1",
-        "M1 M1 A1"
-      ],
-      "chainedPct": 20,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|tree_diagrams": {
-      "skillId": "tree_diagrams",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "B2",
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
-    "Pearson Edexcel|Higher|box_plots": {
-      "skillId": "box_plots",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B3"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|median": {
-      "skillId": "median",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B1 C1 B1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|counting_without_listing": {
-      "skillId": "counting_without_listing",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
@@ -3463,7 +5015,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -3475,31 +5027,6 @@
         "undefined": 1
       },
       "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|area_and_volume_scale_factors": {
-      "skillId": "area_and_volume_scale_factors",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 A1"
-      ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
@@ -3511,7 +5038,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -3527,32 +5054,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|growth_and_decay": {
-      "skillId": "growth_and_decay",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "M1 M1 A1",
-        "P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|trigonometry_3d": {
       "skillId": "trigonometry_3d",
       "board": "Pearson Edexcel",
@@ -3560,7 +5061,7 @@
       "parts": 2,
       "marks": 7,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         4
@@ -3578,100 +5079,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|understanding_straight_line_graphs": {
-      "skillId": "understanding_straight_line_graphs",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        5,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|quadratic_inequalities": {
-      "skillId": "quadratic_inequalities",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|equation_of_a_circle": {
-      "skillId": "equation_of_a_circle",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 11,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1dep A1"
-      ],
-      "chainedPct": 33,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|translations": {
-      "skillId": "translations",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|cosine_rule": {
       "skillId": "cosine_rule",
       "board": "Pearson Edexcel",
@@ -3679,7 +5086,7 @@
       "parts": 2,
       "marks": 9,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         5
@@ -3692,31 +5099,6 @@
       },
       "markSplits": [
         "P1 P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|sine_rule": {
-      "skillId": "sine_rule",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 8,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
@@ -3729,32 +5111,7 @@
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B2"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|grouped_frequency_tables": {
-      "skillId": "grouped_frequency_tables",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -3779,7 +5136,7 @@
       "parts": 2,
       "marks": 5,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         4
@@ -3804,7 +5161,7 @@
       "parts": 4,
       "marks": 10,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         4
@@ -3823,32 +5180,6 @@
       "traps": [],
       "sufficient": true
     },
-    "Pearson Edexcel|Higher|percentage_change": {
-      "skillId": "percentage_change",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 12,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 C1",
-        "P1 P1 P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|converting_measurements": {
       "skillId": "converting_measurements",
       "board": "Pearson Edexcel",
@@ -3856,7 +5187,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -3872,32 +5203,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|upper_and_lower_bounds": {
-      "skillId": "upper_and_lower_bounds",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 4,
-      "marks": 12,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 4
-      },
-      "markSplits": [
-        "B1 M1 M1 A1 C1",
-        "B1 B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": true
-    },
     "Pearson Edexcel|Higher|time_calculations": {
       "skillId": "time_calculations",
       "board": "Pearson Edexcel",
@@ -3905,7 +5210,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -3928,7 +5233,7 @@
       "parts": 2,
       "marks": 8,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         5
@@ -3946,32 +5251,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|pythagoras_theorem": {
-      "skillId": "pythagoras_theorem",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 14,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1dep P1 P1 A1",
-        "P1 P1dep P1 A1"
-      ],
-      "chainedPct": 67,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|exact_calculations": {
       "skillId": "exact_calculations",
       "board": "Pearson Edexcel",
@@ -3979,7 +5258,7 @@
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -4004,7 +5283,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -4016,205 +5295,6 @@
         "undefined": 1
       },
       "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|simplifying_indices": {
-      "skillId": "simplifying_indices",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B2",
-        "B1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|sketching_functions": {
-      "skillId": "sketching_functions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "B1 M1 M1dep B1 C1",
-        "C1"
-      ],
-      "chainedPct": 33,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|area_of_triangle_sine": {
-      "skillId": "area_of_triangle_sine",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 6,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|systematic_listing": {
-      "skillId": "systematic_listing",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|volume_of_a_pyramid_and_cone": {
-      "skillId": "volume_of_a_pyramid_and_cone",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|volume_of_a_prism": {
-      "skillId": "volume_of_a_prism",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 14,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 P1dep A1",
-        "P1 P1 P1 P1 A1"
-      ],
-      "chainedPct": 33,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|venn_diagrams": {
-      "skillId": "venn_diagrams",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 6,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "C1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|conditional_probability": {
-      "skillId": "conditional_probability",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 7,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1 P1 P1 A1"
-      ],
       "chainedPct": 0,
       "traps": [],
       "sufficient": false
@@ -4226,7 +5306,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -4249,7 +5329,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -4265,31 +5345,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|simultaneous_equations_quadratic": {
-      "skillId": "simultaneous_equations_quadratic",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 9,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "M1 M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|perpendicular_gradients": {
       "skillId": "perpendicular_gradients",
       "board": "Pearson Edexcel",
@@ -4297,7 +5352,7 @@
       "parts": 4,
       "marks": 18,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         5
@@ -4323,7 +5378,7 @@
       "parts": 2,
       "marks": 9,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         5
@@ -4348,7 +5403,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -4366,106 +5421,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|adding_and_subtracting_fractions": {
-      "skillId": "adding_and_subtracting_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|dividing_fractions": {
-      "skillId": "dividing_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1dep C1"
-      ],
-      "chainedPct": 100,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|irregular_and_improper_fractions": {
-      "skillId": "irregular_and_improper_fractions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1dep C1"
-      ],
-      "chainedPct": 100,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|alternate_and_corresponding_angles": {
-      "skillId": "alternate_and_corresponding_angles",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 A1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|forming_expressions_and_formulae": {
       "skillId": "forming_expressions_and_formulae",
       "board": "Pearson Edexcel",
@@ -4473,7 +5428,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -4486,159 +5441,6 @@
       },
       "markSplits": [
         "M1 A1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|estimating": {
-      "skillId": "estimating",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1dep A1",
-        "C1"
-      ],
-      "chainedPct": 50,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|cumulative_frequency": {
-      "skillId": "cumulative_frequency",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 6,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B3",
-        "M1 M1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|factorising_quadratics": {
-      "skillId": "factorising_quadratics",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 1,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        1
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|difference_of_two_squares": {
-      "skillId": "difference_of_two_squares",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|solving_quadratic_equations_factorising": {
-      "skillId": "solving_quadratic_equations_factorising",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 3,
-      "marks": 15,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        5,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 3
-      },
-      "markSplits": [
-        "P1 P1 P1 P1dep A1",
-        "P1 P1 P1 P1 A1"
-      ],
-      "chainedPct": 67,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|exact_trig_values": {
-      "skillId": "exact_trig_values",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
@@ -4651,7 +5453,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -4664,56 +5466,6 @@
       },
       "markSplits": [
         "M1 M1 M1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|circle_theorem_tangent": {
-      "skillId": "circle_theorem_tangent",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1 M1 C1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|inverse_functions": {
-      "skillId": "inverse_functions",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
@@ -4726,7 +5478,7 @@
       "parts": 3,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         1
@@ -4744,32 +5496,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|proportion": {
-      "skillId": "proportion",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 6,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "P1 P1 C1",
-        "P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|properties_of_2d_shapes": {
       "skillId": "properties_of_2d_shapes",
       "board": "Pearson Edexcel",
@@ -4777,7 +5503,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -4795,31 +5521,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|simultaneous_equations": {
-      "skillId": "simultaneous_equations",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 A1 M1dep A1"
-      ],
-      "chainedPct": 100,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|direct_proportion": {
       "skillId": "direct_proportion",
       "board": "Pearson Edexcel",
@@ -4827,7 +5528,7 @@
       "parts": 1,
       "marks": 1,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         1
@@ -4852,32 +5553,7 @@
       "parts": 1,
       "marks": 3,
       "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|sequences": {
-      "skillId": "sequences",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         3,
         3
@@ -4902,7 +5578,7 @@
       "parts": 1,
       "marks": 2,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         2,
         2
@@ -4927,7 +5603,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -4945,56 +5621,6 @@
       "traps": [],
       "sufficient": false
     },
-    "Pearson Edexcel|Higher|trigonometry_missing_sides": {
-      "skillId": "trigonometry_missing_sides",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 2,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        2,
-        2
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|sector_calculations": {
-      "skillId": "sector_calculations",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "P1 P1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
     "Pearson Edexcel|Higher|sampling": {
       "skillId": "sampling",
       "board": "Pearson Edexcel",
@@ -5002,7 +5628,7 @@
       "parts": 2,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         1,
         3
@@ -5028,7 +5654,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -5053,7 +5679,7 @@
       "parts": 1,
       "marks": 4,
       "papersSeen": 1,
-      "papersTotal": 6,
+      "papersTotal": 9,
       "markRange": [
         4,
         4
@@ -5068,82 +5694,6 @@
         "M1 M1 M1 A1"
       ],
       "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|graph_transformations": {
-      "skillId": "graph_transformations",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 2,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        1,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 2
-      },
-      "markSplits": [
-        "B1",
-        "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|trig_graphs": {
-      "skillId": "trig_graphs",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 3,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        3,
-        3
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "sufficient": false
-    },
-    "Pearson Edexcel|Higher|completing_the_square": {
-      "skillId": "completing_the_square",
-      "board": "Pearson Edexcel",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 5,
-      "papersSeen": 1,
-      "papersTotal": 6,
-      "markRange": [
-        5,
-        5
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {
-        "undefined": 1
-      },
-      "markSplits": [
-        "B1 M1 M1dep B1 C1"
-      ],
-      "chainedPct": 100,
       "traps": [],
       "sufficient": false
     },

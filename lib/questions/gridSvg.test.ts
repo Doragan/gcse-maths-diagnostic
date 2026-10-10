@@ -78,6 +78,14 @@ describe('buildGridSvg', () => {
     expect(svg).toContain('>12<') // a y tick numeral
   })
 
+  // Measured on a real sheet: without this attribute svg2pdf fell back to
+  // Times and drew the six diagram labels in serif against helvetica body
+  // text. Set on the ROOT so every <text> inherits it — the tests below
+  // anchor on '<text x=' and must keep matching.
+  it('names a sans font the PDF renderer can resolve', () => {
+    expect(buildGridSvg(grid)).toContain('font-family="Helvetica, Arial, sans-serif"')
+  })
+
   it('draws the canonical ghost only when asked', () => {
     expect(buildGridSvg(grid)).not.toContain('circle')
     const withGhost = buildGridSvg(grid, { showCanonical: true })

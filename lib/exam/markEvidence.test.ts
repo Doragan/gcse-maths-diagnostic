@@ -7,7 +7,7 @@ import { BY_SKILL_KIND, BY_KIND, OVERALL } from './markEvidence.data'
 
 describe('generated evidence data', () => {
   it('carries the coded series', () => {
-    // 48 of the 60 coded papers, 1793 parts, 4074 marks. The twelve June 2025
+    // 54 of the 66 coded papers, 2012 parts, 4554 marks. The twelve June 2025
     // Edexcel and OCR papers contribute nothing here because they were coded
     // without mark_split; the builder skips such parts rather than counting them
     // as zero method marks.
@@ -19,8 +19,8 @@ describe('generated evidence data', () => {
     // floor and do have a row, which is the floor working as intended: a size
     // earns its place when the evidence arrives, rather than on the first
     // example.
-    expect(OVERALL.n).toBe(1793)
-    expect(OVERALL.mean).toBeCloseTo(2.27, 2)
+    expect(OVERALL.n).toBe(2012)
+    expect(OVERALL.mean).toBeCloseTo(2.26, 2)
     expect(OVERALL.min).toBe(1)
     expect(OVERALL.max).toBe(7)
   })
@@ -36,10 +36,10 @@ describe('generated evidence data', () => {
     // match; the Edexcel November 2024 and OCR June 2024 papers were held to the
     // rule as they were coded.)
     //
-    // The stricter rule leaves far fewer exam parts (277 of 1793) but separates
+    // The stricter rule leaves far fewer exam parts (306 of 2012) but separates
     // the two kinds more sharply, which is the whole point of conditioning on
-    // it: 3.61 against 2.03 is a real difference in what a part is worth.
-    expect(BY_KIND.mastery.mean).toBeCloseTo(2.03, 2)
+    // it: 3.61 against 2.02 is a real difference in what a part is worth.
+    expect(BY_KIND.mastery.mean).toBeCloseTo(2.02, 2)
     expect(BY_KIND.exam.mean).toBeCloseTo(3.61, 2)
     expect(BY_KIND.exam.mean).toBeGreaterThan(BY_KIND.mastery.mean * 1.5)
   })

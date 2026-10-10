@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "board": "Pearson Edexcel",
+    "qualification": "GCSE Mathematics (1MA1)",
+    "tier": "Higher",
+    "paper": "Paper 3 (Calculator)",
+    "series": "June 2024",
+    "total_marks": 80,
+    "paper_slug": "edexcel-1ma1-3h-jun24",
+    "paper_title": "Edexcel GCSE Mathematics 1MA1/3H",
+    "paper_subtitle": "Higher Tier Paper 3 Calculator — June 2024",
+    "source": "Coded from the published QP and mark scheme (1MA1/3H, Monday 10 June 2024, P76927A), downloaded from qualifications.pearson.com. Derived metadata only — question numbers, marks, mark-scheme codes and skill tags. No exam question text transcribed.",
+    "note": "Coded in the same sitting as EDEXCEL-JUN24-F-P3. The crossover block is 3F q22–q28 = 3H q1–q7, contiguous, and the marks match item for item (2, 4, 3, 4, 4, 4, 4). Note 3F q29 is NOT shared — the block stops at q28. All 21 (Total for Question) lines recovered and summing to the printed 80. Coded WITH mark_split."
+  },
+  "coding_notes": [
+    "q1–q7 are 3F q22–q28 and carry identical skill tags, kinds and mark splits to that file, by design.",
+    "q12 tagged fractional_enlargements — the scale factor is negative, which is what that node covers alongside fractional ones. 3F q18a's half-turn rotation is a different item on a different node.",
+    "q13 tagged counting_without_listing: the mark scheme's routes are 30 × 29 ÷ 2 and the sum of the integers to 29, neither of which lists the pairs.",
+    "q17 tagged sequences, not growth_and_decay. The recurrence is given as h(n+1) = 0.55 h(n) and every mark is for iterating it; the item never asks for a rate or a multiplier to be identified.",
+    "q20b tagged simultaneous_equations_quadratic alongside sequences — the geometric condition produces a quadratic in y that the last two process marks form and simplify.",
+    "q21 tagged exact_trig_values then circumfrence_of_a_circle: both perimeters come from half-side lengths found with exact sine and tangent of 30 degrees, and the circle's circumference is what they are compared against.",
+    "q10 tagged algebraic_proof then ratio — the answer is a shown result in terms of x, and the ratio is the structure it is built on."
+  ],
+  "rows": [
+    { "q": "1", "part": null, "marks": 2, "skill_ids": ["highest_common_factor"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "highest common factor of two two- and three-digit numbers" },
+
+    { "q": "2", "part": "ai", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "standard form to an ordinary number, positive index" },
+    { "q": "2", "part": "aii", "marks": 1, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "standard form to an ordinary number, negative index" },
+    { "q": "2", "part": "b", "marks": 2, "skill_ids": ["standard_form"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "add two standard-form values with different indices, answer in standard form" },
+
+    { "q": "3", "part": "a", "marks": 1, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "text", "mark_split": "C1", "app_gap_note": "explain why a side elevation drawn with the slant height rather than the perpendicular height is wrong" },
+    { "q": "3", "part": "b", "marks": 2, "skill_ids": ["plans_and_elevations"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "M1 A1", "app_gap_note": "draw the plan of a triangular prism on a centimetre grid" },
+
+    { "q": "4", "part": null, "marks": 4, "skill_ids": ["growth_and_decay"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "population after three years of a stated compound percentage increase" },
+
+    { "q": "5", "part": null, "marks": 4, "skill_ids": ["compound_units"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "density of a second substance, its volume found from an identical tin's capacity less an unfilled space" },
+
+    { "q": "6", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "B1 B1", "app_gap_note": "complete a two-stage probability tree for two differently biased coins" },
+    { "q": "6", "part": "b", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "probability of both events from a completed tree" },
+
+    { "q": "7", "part": null, "marks": 4, "skill_ids": ["volume_of_a_prism", "compound_units"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "minutes to fill a cylinder at a stated volume rate, to the nearest minute" },
+
+    { "q": "8", "part": null, "marks": 3, "skill_ids": ["vectors"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 M1 A1", "app_gap_note": "draw and label a linear combination of two given column vectors, direction arrow required" },
+
+    { "q": "9", "part": null, "marks": 3, "skill_ids": ["volume_of_a_pyramid_and_cone", "volume_of_a_prism"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 A1", "app_gap_note": "perpendicular height of a square-based pyramid whose volume equals that of a given cube" },
+
+    { "q": "10", "part": null, "marks": 3, "skill_ids": ["algebraic_proof", "ratio"], "kind": "exam", "answer_form": "show_that", "mark_split": "M1 M1dep C1", "app_gap_note": "show algebraically that two bags total a stated multiple of one part, one bag split by ratio and the other half its size" },
+
+    { "q": "11", "part": "a", "marks": 3, "skill_ids": ["box_plots", "interquartile_range"], "kind": "mastery", "answer_form": "draw_plot", "mark_split": "M1 M1 A1", "app_gap_note": "draw a box plot where the upper quartile and greatest value must first be derived from an IQR and a range" },
+    { "q": "11", "part": "b", "marks": 2, "skill_ids": ["box_plots", "median"], "kind": "mastery", "answer_form": "text", "mark_split": "C1 C1", "app_gap_note": "compare two box plots on an average and on spread, at least one comparison in context" },
+
+    { "q": "12", "part": null, "marks": 2, "skill_ids": ["fractional_enlargements"], "kind": "mastery", "answer_form": "draw_shape", "mark_split": "B2", "app_gap_note": "enlarge a triangle by a negative scale factor about the origin" },
+
+    { "q": "13", "part": null, "marks": 2, "skill_ids": ["counting_without_listing"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "number of unordered pairs that can be chosen from a group" },
+
+    { "q": "14", "part": null, "marks": 4, "skill_ids": ["growth_and_decay", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 A1", "app_gap_note": "the original investment, worked back through two years of compound interest each followed by a withdrawal" },
+
+    { "q": "15", "part": "a", "marks": 1, "skill_ids": ["algebraic_fractions"], "kind": "mastery", "answer_form": "expression", "mark_split": "B1", "app_gap_note": "cancel a repeated bracket in an algebraic fraction" },
+    { "q": "15", "part": "b", "marks": 2, "skill_ids": ["factorising_quadratics"], "kind": "mastery", "answer_form": "expression", "mark_split": "M1 A1", "app_gap_note": "factorise a non-monic quadratic with a negative constant" },
+    { "q": "15", "part": "c", "marks": 3, "skill_ids": ["algebraic_fractions", "difference_of_two_squares"], "kind": "exam", "answer_form": "expression", "mark_split": "M1 M1 A1", "app_gap_note": "divide two algebraic fractions, one numerator a difference of two squares" },
+
+    { "q": "16", "part": "a", "marks": 1, "skill_ids": ["functions_notation"], "kind": "mastery", "answer_form": "numeric", "mark_split": "B1", "app_gap_note": "evaluate a reciprocal function at a negative value" },
+    { "q": "16", "part": "b", "marks": 2, "skill_ids": ["composite_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "value of a composite of a linear and a reciprocal function" },
+    { "q": "16", "part": "c", "marks": 2, "skill_ids": ["inverse_functions"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 A1", "app_gap_note": "value of an inverse function at a point" },
+
+    { "q": "17", "part": null, "marks": 3, "skill_ids": ["sequences"], "kind": "mastery", "answer_form": "numeric", "mark_split": "M1 M1 A1", "app_gap_note": "a later term of a geometric recurrence given its rule and one term" },
+
+    { "q": "18", "part": null, "marks": 5, "skill_ids": ["area_of_triangle_sine", "sine_rule"], "kind": "mastery", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "area of the second triangle in a quadrilateral, the shared diagonal recovered from the first triangle's area" },
+
+    { "q": "19", "part": null, "marks": 3, "skill_ids": ["upper_and_lower_bounds", "standard_form"], "kind": "exam", "answer_form": "numeric", "mark_split": "B1 M1 A1", "app_gap_note": "lower bound of a quotient of two standard-form values given to different accuracies" },
+
+    { "q": "20", "part": "a", "marks": 2, "skill_ids": ["sequences", "solving_linear_equations"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 A1", "app_gap_note": "the letter making three algebraic expressions consecutive terms of an arithmetic sequence" },
+    { "q": "20", "part": "b", "marks": 5, "skill_ids": ["sequences", "simultaneous_equations_quadratic"], "kind": "exam", "answer_form": "numeric", "mark_split": "P1 P1 P1 P1 A1", "app_gap_note": "both letters making the same three expressions consecutive terms of a geometric sequence" },
+
+    { "q": "21", "part": null, "marks": 4, "skill_ids": ["exact_trig_values", "circumfrence_of_a_circle"], "kind": "exam", "answer_form": "show_that", "mark_split": "P1 P1 P1 C1", "app_gap_note": "bound pi between two exact surds, by comparing a circle's circumference with the perimeters of an inscribed and a circumscribed hexagon" }
+  ]
+}

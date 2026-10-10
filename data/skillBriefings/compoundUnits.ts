@@ -50,6 +50,10 @@ export const compoundUnitsBriefing: SkillBriefing = {
       thisOne: 'One overall rate, worked out from the totals — all the distance over all the time.',
       theOther: 'A mean adds the values up and divides by how many there are, weighting each equally.',
       ask: 'Am I averaging a list of numbers, or working out one rate from two totals?',
+      pair: {
+        thisOne: 'A cyclist rides 60 km in 3 hours. Work out the average speed.',
+        theOther: 'A cyclist rides 18 km, 24 km and 18 km on three days. Work out the mean distance.',
+      },
     },
     {
       // Mirror of the entry in proportion.ts — same distinction, other side.
@@ -57,6 +61,10 @@ export const compoundUnitsBriefing: SkillBriefing = {
       thisOne: 'You are asked for a rate that joins both quantities — grams per cm³, miles per hour.',
       theOther: 'You are asked for more of something you were already given — more grams, more pounds.',
       ask: 'Does the answer need two units joined by "per", or just one?',
+      pair: {
+        thisOne: 'A car travels 180 miles on 3 gallons. Work out its fuel economy in miles per gallon.',
+        theOther: 'A car travels 180 miles on 3 gallons. How far can it travel on 5 gallons?',
+      },
     },
     {
       // Mirror of the entry in convertingMeasurements.ts.
@@ -64,6 +72,10 @@ export const compoundUnitsBriefing: SkillBriefing = {
       thisOne: 'Two different quantities joined into a rate — miles per hour, grams per cm³.',
       theOther: 'One measurement rewritten another way. 1.6 m and 1600 mm are the same length.',
       ask: 'Is one measurement being rewritten, or are two quantities being combined into a "per"?',
+      pair: {
+        thisOne: 'A tap fills 18 litres in 3 minutes. Work out the rate in litres per minute.',
+        theOther: 'A tap delivers 18 litres. Write this amount in millilitres.',
+      },
     },
   ],
 
@@ -71,12 +83,21 @@ export const compoundUnitsBriefing: SkillBriefing = {
     {
       stem: 'A train travels 150 km in 2 hours 30 minutes. Work out its average speed in km/h.',
       isThisSkill: true,
+      worked: [
+        '2 hours 30 minutes is 2.5 hours, not 2.3',
+        'Speed = 150 ÷ 2.5 = 60 km/h',
+      ],
       cue: 'A distance and a time, and the answer line asks for km/h — a rate.',
     },
     {
       stem: 'Priya drives 30 miles at 60 mph, then a further 30 miles at 20 mph. '
         + 'Work out her average speed for the whole journey.',
       isThisSkill: true,
+      worked: [
+        'Fast half: 30 ÷ 60 = 0.5 hours. Slow half: 30 ÷ 20 = 1.5 hours',
+        'Totals: 60 miles in 2 hours',
+        'Average = 60 ÷ 2 = 30 mph, not the 40 mph you get by averaging the two speeds',
+      ],
       cue: 'Still a rate, and the one most often got wrong. The answer is not 40 mph — '
         + 'she spends far longer on the slow half, so the totals have to be worked out first.',
     },
@@ -149,6 +170,10 @@ export const compoundUnitsBriefing: SkillBriefing = {
         thisOne: 'The rate is the number you want, and the graph is just where it is stored.',
         theOther: 'The shape of the graph is the answer — describing the motion, or the area beneath it.',
         ask: 'Am I being asked for a value, or for what the graph is telling me?',
+      pair: {
+        thisOne: 'A distance–time graph is a straight line from 2 s to 5 s. Work out the speed over that section.',
+        theOther: 'A distance–time graph is a straight line from 2 s to 5 s. Describe the motion over that section.',
+      },
       },
     ],
 
@@ -157,6 +182,11 @@ export const compoundUnitsBriefing: SkillBriefing = {
         stem: 'A solid metal hemisphere has radius 3 cm. The metal has density 8.9 g/cm³. '
           + 'Work out the mass of the hemisphere.',
         isThisSkill: true,
+      worked: [
+        'Half a sphere: V = ⅔ × π × 3³ = 18π cm³',
+        'Mass = density × volume = 8.9 × 18π',
+        '= 503.3 g to 1 decimal place',
+      ],
         cue: 'Density is a rate, but the volume has to come first — and it is a hemisphere, not a sphere.',
       },
     ],

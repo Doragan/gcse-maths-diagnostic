@@ -482,6 +482,20 @@ export default function SkillBriefingPage() {
                   <span style={styles.contrastText}>{c.theOther}</span>
                 </div>
 
+                {/* The minimal pair, in the same two-column grid as the
+                    descriptions above it, so each question sits under the
+                    skill it belongs to. Set apart as specimens because they
+                    are questions off a paper, not commentary about them. */}
+                {c.pair && (
+                  <div style={{ ...styles.contrast, ...styles.pairGrid }}>
+                    <span style={{ ...styles.contrastLabel, color: colors.primary }}>{skill.name}</span>
+                    <span style={styles.pairText}>{c.pair.thisOne}</span>
+
+                    <span style={{ ...styles.contrastLabel, color: colors.warningText }}>{otherName}</span>
+                    <span style={styles.pairText}>{c.pair.theOther}</span>
+                  </div>
+                )}
+
                 <p style={styles.ask}>
                   <span style={styles.askLabel}>Ask yourself</span>
                   {c.ask}
@@ -534,6 +548,18 @@ export default function SkillBriefingPage() {
                         : `No — this is ${(other?.name ?? ex.actuallySkillId ?? 'something else').toLowerCase()}`}
                     </p>
                     <p style={styles.exampleCue}>{ex.cue}</p>
+
+                    {/* The working, for a stem that IS the skill. It sits
+                        behind the same reveal as the verdict: showing it up
+                        front would answer the question the student is being
+                        asked to judge. */}
+                    {ex.worked && ex.worked.length > 0 && (
+                      <ol style={styles.worked}>
+                        {ex.worked.map((line, j) => (
+                          <li key={j} style={styles.workedLine}>{line}</li>
+                        ))}
+                      </ol>
+                    )}
                   </div>
                 )}
               </div>
@@ -978,6 +1004,22 @@ const styles: Record<string, React.CSSProperties> = {
     color: colors.textSecondary,
     lineHeight: 1.5,
   },
+
+  // The minimal pair, below the descriptions and separated from them: same
+  // grid, so the two questions line up under the same two labels.
+  pairGrid: {
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: `1px dashed ${colors.border}`,
+  },
+  // Italic, like the specimen fragments beside the recognition cues — these
+  // are questions as a paper would print them, not our words about them.
+  pairText: {
+    fontSize: font.base,
+    color: colors.textPrimary,
+    fontStyle: 'italic',
+    lineHeight: 1.5,
+  },
   ask: {
     fontSize: font.base,
     color: colors.textPrimary,
@@ -1026,6 +1068,25 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     lineHeight: 1.55,
   },
+
+  // The working. Numbered, because the lines are a sequence rather than a list
+  // of facts, and set on the card background so it reads as a worked answer
+  // rather than more commentary.
+  worked: {
+    margin: '10px 0 0',
+    // listStyleType is set explicitly: a reset in globals.css turns markers off
+    // for every list, and these lines are a sequence — the numbers are the
+    // point. Inherited defaults rendered them as four unnumbered sentences.
+    listStyleType: 'decimal',
+    padding: '10px 12px 10px 30px',
+    background: colors.card,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    fontSize: font.base,
+    color: colors.textPrimary,
+    lineHeight: 1.6,
+  },
+  workedLine: { paddingLeft: '2px', marginBottom: '2px' },
 
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
   stepN: {

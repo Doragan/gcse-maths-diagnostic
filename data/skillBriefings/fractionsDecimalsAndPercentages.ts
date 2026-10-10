@@ -51,12 +51,20 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
       thisOne: 'You are given the amounts, and the answer is the fraction or percentage itself.',
       theOther: 'You are given the fraction, and the answer is an amount — pounds, people, sweets.',
       ask: 'Is the fraction something I have been given, or the thing I am being asked to find?',
+      pair: {
+        thisOne: 'In a class of 30, 18 walk to school. What fraction of the class walk?',
+        theOther: 'In a class of 30, 3/5 walk to school. How many walk?',
+      },
     },
     {
       skillId: 'percentage_change',
       thisOne: 'A part of a whole at one moment — 14 of the 40 cars are red.',
       theOther: 'One amount turning into another — a before and an after.',
       ask: 'Is this a part of a whole, or something that has changed from one value to another?',
+      pair: {
+        thisOne: 'Of the 80 seats, 60 are taken. What percentage of the seats are taken?',
+        theOther: 'A theatre had 80 seats and now has 60. Work out the percentage decrease.',
+      },
     },
   ],
 
@@ -66,12 +74,21 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
     {
       stem: 'Write these numbers in order, starting with the smallest: 0.6, 5/8, 58%, 2/3',
       isThisSkill: true,
+      worked: [
+        'One form first: 0.6, 5/8 = 0.625, 58% = 0.58, 2/3 = 0.667',
+        'In order: 0.58, 0.6, 0.625, 0.667',
+        'Answer with the ORIGINAL numbers: 58%, 0.6, 5/8, 2/3',
+      ],
       cue: 'Four numbers in three different forms, to be compared. Put them all in one form first.',
     },
     {
       stem: 'There are 40 cars in a car park. 14 of the cars are red. '
         + 'What percentage of the cars are red?',
       isThisSkill: true,
+      worked: [
+        'The whole is all 40 cars: 14/40',
+        '14 ÷ 40 = 0.35, and × 100 = 35%',
+      ],
       cue: 'Both amounts are given, and the answer is the share: 14 out of 40, as a percentage.',
     },
     {
@@ -148,6 +165,10 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         thisOne: 'You know the part AND the whole, and the percentage is what you are finding.',
         theOther: 'You know the percentage and the part, and the whole is what is missing.',
         ask: 'Of the part, the whole and the percentage, which one have I not been given?',
+      pair: {
+        thisOne: '42 of the 120 members are juniors. What percentage are juniors?',
+        theOther: '35% of the members are juniors, and there are 42 juniors. How many members are there?',
+      },
       },
     ],
 
@@ -156,6 +177,11 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         stem: '60% of the members of a club are adults. 45% of the adults are women. '
           + 'What percentage of the members of the club are adult women?',
         isThisSkill: true,
+      worked: [
+        'The 45% is of the adults, not of the club',
+        'Multiply the decimals: 0.45 × 0.6 = 0.27',
+        '= 27% of the club',
+      ],
         cue: 'A percentage of a percentage. The 45% is of the adults, not of the whole club.',
       },
     ],

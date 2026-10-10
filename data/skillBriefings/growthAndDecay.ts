@@ -51,6 +51,10 @@ export const growthAndDecayBriefing: SkillBriefing = {
       thisOne: 'Interest or loss that builds on the new amount each time — compound.',
       theOther: 'A single change, applied to the original amount.',
       ask: 'Is the percentage applied once, or again and again once per year?',
+      pair: {
+        thisOne: 'A £200 phone loses 10% of its value each year. What is it worth after 3 years?',
+        theOther: 'A £200 phone is reduced by 10% in a sale. Work out the new price.',
+      },
     },
     {
       // Mirror of the entry in the Higher block of proportion.ts.
@@ -58,6 +62,10 @@ export const growthAndDecayBriefing: SkillBriefing = {
       thisOne: 'A factor applied over and over, once per period — each year, each hour.',
       theOther: 'One scale factor, applied once.',
       ask: 'Does the change happen once, or repeatedly over time?',
+      pair: {
+        thisOne: '£5,000 is invested and grows by 4% each year. Work out its value after 3 years.',
+        theOther: '£5,000 buys 4 shares. How many shares does £7,500 buy?',
+      },
     },
   ],
 
@@ -66,11 +74,21 @@ export const growthAndDecayBriefing: SkillBriefing = {
       // Deliberately the same stem that appears as a NO on the proportion page.
       stem: 'A car is worth £12,000. Its value falls by 15% each year. Work out its value after 3 years.',
       isThisSkill: true,
+      worked: [
+        '15% off each year is a multiplier of 0.85',
+        'Three years: £12,000 × 0.85³',
+        '= £7,369.50',
+      ],
       cue: '"Each year", for three years. The 15% comes off the new value each time, not the original £12,000.',
     },
     {
       stem: '£2,500 is invested at 2.4% compound interest per year. Work out the value after 5 years.',
       isThisSkill: true,
+      worked: [
+        '2.4% growth is a multiplier of 1.024',
+        'Five years: £2,500 × 1.024⁵',
+        '= £2,814.75',
+      ],
       cue: 'Compound interest is the standard case — one multiplier, raised to the number of years.',
     },
     {
@@ -147,6 +165,10 @@ export const growthAndDecayBriefing: SkillBriefing = {
         theOther: 'Each step depends on the last in a way a power cannot skip — a repayment, or a formula '
           + 'fed its own output.',
         ask: 'Can I get to year 5 in one calculation, or do I have to walk through every year?',
+      pair: {
+        thisOne: 'A balance of £500 grows by 6% a year. Work out the balance after 4 years.',
+        theOther: 'A sequence starts at 500, with each term given by xₙ₊₁ = 1.06xₙ − 20. Work out x₄.',
+      },
       },
     ],
 
@@ -155,6 +177,11 @@ export const growthAndDecayBriefing: SkillBriefing = {
         stem: 'The value £V of a machine after t years is given by V = 18000 × 0.82ᵗ. '
           + 'Work out its value after 3 years.',
         isThisSkill: true,
+      worked: [
+        'The model is handed to you, so put t = 3 in',
+        '18000 × 0.82³ = 18000 × 0.551368',
+        '= £9,924.62',
+      ],
         cue: 'The model is handed to you — 18000 is the start, 0.82 the multiplier. The only work is '
           + 'raising it to the right power.',
       },
@@ -162,6 +189,11 @@ export const growthAndDecayBriefing: SkillBriefing = {
         stem: 'A machine bought for £18,000 is worth £11,520 after 2 years. '
           + 'Work out the annual rate of depreciation.',
         isThisSkill: true,
+      worked: [
+        'Divide to find the two-year multiplier: 11520 ÷ 18000 = 0.64',
+        'One year is the square root: √0.64 = 0.8',
+        'A multiplier of 0.8 is a fall of 20% a year',
+      ],
         cue: 'Both ends given and the rate missing — divide, take the square root, then turn the '
           + 'multiplier back into a percentage.',
       },

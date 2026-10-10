@@ -48,6 +48,10 @@ export const ratioBriefing: SkillBriefing = {
       thisOne: 'One total, shared out into parts that add back up to that total.',
       theOther: 'Two quantities that move together. Scale one up and the other scales with it.',
       ask: 'Is there a total being shared out, or two things moving together?',
+      pair: {
+        thisOne: '24 sweets are shared between Ava and Ben in the ratio 3 : 5. How many does Ben get?',
+        theOther: '3 sweets cost 24p. Work out the cost of 5 sweets.',
+      },
     },
     {
       // Directly targets the most frequent coded trap on this skill.
@@ -55,6 +59,10 @@ export const ratioBriefing: SkillBriefing = {
       thisOne: 'The numbers compare the parts to EACH OTHER. In 3 : 5 there are 8 shares altogether.',
       theOther: 'The number is a share of the WHOLE already. 3/8 means 3 out of every 8.',
       ask: 'Is this number comparing two parts, or telling me a share of the total?',
+      pair: {
+        thisOne: 'Red and blue counters are in the ratio 3 : 5. There are 40 counters. How many are red?',
+        theOther: '3/5 of the 40 counters are red. How many are red?',
+      },
     },
   ],
 
@@ -65,11 +73,20 @@ export const ratioBriefing: SkillBriefing = {
     {
       stem: 'Amara and Ben share £60 in the ratio 2 : 3. Work out how much Ben receives.',
       isThisSkill: true,
+      worked: [
+        '2 + 3 = 5 shares altogether',
+        'One share is £60 ÷ 5 = £12',
+        'Ben has 3 shares: 3 × £12 = £36',
+      ],
       cue: 'One total (£60) split between two people, and the shares add back up to it.',
     },
     {
       stem: 'A mortar mix uses cement and sand in the ratio 1 : 4. Work out how much sand is needed for 8 kg of cement.',
       isThisSkill: true,
+      worked: [
+        'Cement is 1 part, so one part is 8 kg',
+        'Sand is 4 parts: 4 × 8 kg = 32 kg',
+      ],
       cue: 'The colon form is printed, and the two amounts are parts of one mix.',
     },
     {
@@ -150,6 +167,10 @@ export const ratioBriefing: SkillBriefing = {
         thisOne: 'One unknown carries the ratio: the parts are 2n and 3n, and one equation finds n.',
         theOther: 'Two genuinely independent unknowns, needing two equations to pin both down.',
         ask: 'Can I write both quantities using the same single letter, or do I need two?',
+      pair: {
+        thisOne: 'Red and blue counters are in the ratio 5 : 3, and there are 32 altogether. How many are red?',
+        theOther: 'There are 32 counters, and 8 more red than blue. How many are red?',
+      },
       },
     ],
 
@@ -158,6 +179,12 @@ export const ratioBriefing: SkillBriefing = {
         stem: 'A bag holds red and blue counters in the ratio 5 : 3. After 4 red counters are removed, '
           + 'the ratio becomes 3 : 2. Work out how many blue counters are in the bag.',
         isThisSkill: true,
+      worked: [
+        'Write the amounts as 5n red and 3n blue',
+        'After 4 red go: (5n − 4) : 3n = 3 : 2, so 2(5n − 4) = 9n',
+        '10n − 8 = 9n, giving n = 8',
+        'Blue = 3n = 24 counters',
+      ],
         cue: 'A ratio before and a ratio after. Writing the amounts as 5n and 3n is what makes the '
           + 'second condition solvable.',
       },

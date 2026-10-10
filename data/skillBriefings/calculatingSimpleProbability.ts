@@ -53,12 +53,20 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       thisOne: 'One event. The probability is a count over a count.',
       theOther: 'Two or more events in a row, where you multiply along the branches.',
       ask: 'Does something happen once, or one thing after another?',
+      pair: {
+        thisOne: 'A bag holds 4 red and 6 blue counters. One is taken. Work out P(red).',
+        theOther: 'A bag holds 4 red and 6 blue counters. Two are taken. Work out P(both red).',
+      },
     },
     {
       skillId: 'expected_outcomes',
       thisOne: 'The answer is a probability — a fraction, decimal or percentage from 0 to 1.',
       theOther: 'The answer is a NUMBER of times: the probability multiplied by the number of trials.',
       ask: 'Am I being asked how likely it is, or how many times it happens?',
+      pair: {
+        thisOne: 'A spinner has 5 equal sections, 2 of them red. Work out the probability of red.',
+        theOther: 'A spinner has 5 equal sections, 2 of them red. It is spun 60 times. How many reds are expected?',
+      },
     },
   ],
 
@@ -67,6 +75,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       stem: 'A bag contains 5 red, 3 blue and 2 green counters. One counter is taken at random. '
         + 'Work out the probability that it is blue.',
       isThisSkill: true,
+      worked: [
+        'Outcomes that work: 3 blue',
+        'All outcomes: 5 + 3 + 2 = 10 counters',
+        'P(blue) = 3/10',
+      ],
       cue: '3 blue out of 10 counters altogether. The denominator is everything in the bag, not just the blues.',
     },
     {
@@ -74,6 +87,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         + '12 walk to school; of the Year 11s, 10 walk. Work out the probability that a student '
         + 'chosen at random walks to school.',
       isThisSkill: true,
+      worked: [
+        'Walkers: 12 + 10 = 22',
+        'The whole group is all 40 students, not one year',
+        'P(walks) = 22/40 = 11/20',
+      ],
       cue: 'No total is handed to you: 12 and 10 walk, so 22 of the 40 do. The denominator is all '
         + '40 students, not one year group.',
     },
@@ -155,6 +173,10 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         thisOne: 'Everything is out of the whole group.',
         theOther: 'You are told something has already happened, so the total shrinks to just that group.',
         ask: 'Does the question say "given that"? Has the pool already been narrowed?',
+      pair: {
+        thisOne: 'Of 50 students, 30 study French. One is chosen at random. Work out P(French).',
+        theOther: 'Of 50 students, 30 study French and 12 of those also study German. A French student is chosen. Work out P(German).',
+      },
       },
     ],
 
@@ -163,6 +185,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         stem: '60 students are asked about languages. 35 study French, 30 study German and 12 study '
           + 'both. One student is chosen at random. Work out the probability they study French only.',
         isThisSkill: true,
+      worked: [
+        'The 12 are in the overlap, so French only is 35 − 12 = 23',
+        'The whole group is 60, including the 7 who study neither',
+        'P(French only) = 23/60',
+      ],
         cue: 'The 12 sit in the overlap, so French only is 35 − 12. The denominator is all 60 — '
           + 'including the 7 who study neither.',
       },

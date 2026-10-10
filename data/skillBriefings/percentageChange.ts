@@ -48,12 +48,20 @@ export const percentageChangeBriefing: SkillBriefing = {
       thisOne: 'Both quantities are the same kind of thing — pounds to pounds, kilograms to kilograms.',
       theOther: 'The two quantities are different kinds of thing — pounds and kilograms, miles and minutes.',
       ask: 'Are the two numbers the same kind of thing, or different kinds?',
+      pair: {
+        thisOne: 'A 40 kg sack of rice is reduced by 15%. Work out the new weight.',
+        theOther: '40 kg of rice feeds 15 people. How much rice feeds 24 people?',
+      },
     },
     {
       skillId: 'growth_and_decay',
       thisOne: 'A single change, applied to the original amount.',
       theOther: 'Interest or loss that builds on the new amount each time — compound.',
       ask: 'Is the percentage applied once, or again and again once per year?',
+      pair: {
+        thisOne: 'A £200 phone is reduced by 10% in a sale. Work out the new price.',
+        theOther: 'A £200 phone loses 10% of its value each year. What is it worth after 3 years?',
+      },
     },
     {
       // Mirror of the entry in fractionsDecimalsAndPercentages.ts.
@@ -61,6 +69,10 @@ export const percentageChangeBriefing: SkillBriefing = {
       thisOne: 'One amount turning into another — a before and an after.',
       theOther: 'A part of a whole at one moment — 14 of the 40 cars are red.',
       ask: 'Is this a part of a whole, or something that has changed from one value to another?',
+      pair: {
+        thisOne: 'A theatre had 80 seats and now has 60. Work out the percentage decrease.',
+        theOther: 'Of the 80 seats, 60 are taken. What percentage of the seats are taken?',
+      },
     },
   ],
 
@@ -69,11 +81,20 @@ export const percentageChangeBriefing: SkillBriefing = {
       // Deliberately the same stem that appears as a NO on the proportion page.
       stem: 'A coat costs £45. In a sale its price is reduced by 20%. Work out the sale price.',
       isThisSkill: true,
+      worked: [
+        '20% off means paying 80%, so the multiplier is 0.8',
+        '£45 × 0.8 = £36',
+      ],
       cue: 'Pounds before, pounds after — the same kind of thing, changed once.',
     },
     {
       stem: 'A tree was 1.8 m tall. It is now 2.07 m tall. Work out the percentage increase.',
       isThisSkill: true,
+      worked: [
+        'Change = 2.07 − 1.8 = 0.27 m',
+        'Over the ORIGINAL height: 0.27 ÷ 1.8 = 0.15',
+        '× 100 = a 15% increase',
+      ],
       cue: 'Two heights and a percentage for an answer. The original height is what the percentage is of.',
     },
     {
@@ -154,6 +175,10 @@ export const percentageChangeBriefing: SkillBriefing = {
         thisOne: 'You have the amount BEFORE the change and work forwards to what it becomes.',
         theOther: 'You have the amount AFTER the change and work backwards to what it started as.',
         ask: 'Is the number I have been given the original, or the one that has already changed?',
+      pair: {
+        thisOne: 'A coat costs £60 and is reduced by 20%. Work out the sale price.',
+        theOther: 'A coat costs £60 in a sale, after a 20% reduction. Work out the original price.',
+      },
       },
     ],
 
@@ -162,6 +187,10 @@ export const percentageChangeBriefing: SkillBriefing = {
         stem: 'The price of a phone is reduced by 18% in a sale. It now costs £287. '
           + 'Work out the price before the sale.',
         isThisSkill: true,
+      worked: [
+        'After an 18% cut, £287 is 82% of the original',
+        'Original = £287 ÷ 0.82 = £350',
+      ],
         cue: '£287 is the amount after the change, so it is 82% of the original — divide, do not add 18% back on.',
       },
     ],

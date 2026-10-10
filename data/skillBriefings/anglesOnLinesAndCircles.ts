@@ -63,12 +63,20 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       thisOne: 'The geometry is the point: which fact applies, and what the diagram is telling you.',
       theOther: 'The equation is printed, or built from a story, and the work is the algebra.',
       ask: 'Am I choosing an angle fact, or solving an equation I have already got?',
+      pair: {
+        thisOne: 'The angles on a straight line are 3x and 2x + 30. Work out x.',
+        theOther: 'Solve 3x = 2x + 30.',
+      },
     },
     {
       skillId: 'angles_in_polygons',
       thisOne: 'Angles at ONE point, or inside a single triangle.',
       theOther: 'A shape with many sides, where the angle sum depends on how many sides it has.',
       ask: 'Is this one point or one triangle, or a polygon whose sides I need to count?',
+      pair: {
+        thisOne: 'Two angles on a straight line are 108° and x. Work out x.',
+        theOther: 'Work out the size of an interior angle of a regular pentagon.',
+      },
     },
   ],
 
@@ -77,6 +85,11 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       stem: 'Three angles meet at a point on a straight line. They are 2x, 3x and x + 30. '
         + 'Work out the size of the largest angle.',
       isThisSkill: true,
+      worked: [
+        'They sit on a line, so they add to 180: 2x + 3x + x + 30 = 180',
+        '6x + 30 = 180, so 6x = 150 and x = 25',
+        'The angles are 50°, 75° and 55°, so the largest is 75°',
+      ],
       cue: 'On a line, so they add to 180 — and the answer wanted is an angle, not x.',
       figure: anglesAtAPoint({
         mode: 'line', labels: ['2x', '3x', 'x + 30'],
@@ -86,6 +99,11 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
     {
       stem: 'Triangle PQR has PQ = PR. Angle QPR is 40°. Work out the size of angle PQR.',
       isThisSkill: true,
+      worked: [
+        'Two equal sides means the other two angles are equal',
+        'They share 180 − 40 = 140° between them',
+        'Each is 140 ÷ 2 = 70°',
+      ],
       cue: 'Two equal sides means two equal angles. The other two share 140°, so they are 70° each.',
     },
     {
@@ -170,6 +188,11 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
         stem: 'A, B and C are points on a circle, and AB is a diameter. Angle BAC is 34°. '
           + 'Work out the size of angle ABC.',
         isThisSkill: true,
+      worked: [
+        'AB is a diameter, so the angle at C is 90°',
+        'The three angles make 180°: 34 + 90 = 124',
+        'Angle ABC = 180 − 124 = 56°',
+      ],
         cue: 'The angle at C is 90° because AB is a diameter. The three angles then make 180°, '
           + 'so ABC is 56°.',
       },

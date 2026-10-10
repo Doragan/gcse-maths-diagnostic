@@ -43,7 +43,23 @@ describe('misconception registry', () => {
     // rather than dodged it: it applies to every circle-derived skill in the
     // bank — area, circumference, arc and sector, sphere, cone, cylinder,
     // frustum — which is wider recurrence than most entries already here.
-    expect(misconceptions.length).toBeLessThanOrEqual(41)
+    //
+    // Raised from 41 to 42 for `rooted_instead_of_squared`, whose evidence is
+    // thinner and is recorded here rather than rounded up. A sweep of all 765
+    // traps in the bank found it in TWO skills, not the five first claimed:
+    // equation_of_a_circle (√r offered where k = r² was wanted) and
+    // fractional_and_negative_indices (a⁴ offered for (a²)^½). Pythagoras and
+    // area of a circle were read trap by trap and have no instance at all —
+    // their square-root traps are omissions, already and correctly tagged
+    // `omitted_a_final_step` — and the scale-factor case is spoken for by
+    // `scale_factor_wrong_power`.
+    //
+    // It earns the slot on a different kind of recurrence: both DIRECTIONS are
+    // attested in the bank, one skill rooting where the method squares and the
+    // other squaring where it roots. A one-off dressed up as a taxonomy entry
+    // cannot do that. Two skills is the floor, not the bar — if the next
+    // entry's case is weaker than this one, the answer is no.
+    expect(misconceptions.length).toBeLessThanOrEqual(42)
   })
 
   it('resolves ids and tolerates an untagged trap', () => {

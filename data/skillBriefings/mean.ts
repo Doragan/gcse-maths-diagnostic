@@ -49,12 +49,20 @@ export const meanBriefing: SkillBriefing = {
       thisOne: 'Add the values and divide by how many there are. Every value counts equally.',
       theOther: 'One overall rate, worked out from the totals — all the distance over all the time.',
       ask: 'Am I averaging a list of numbers, or working out one rate from two totals?',
+      pair: {
+        thisOne: 'A cyclist rides 18 km, 24 km and 18 km on three days. Work out the mean distance.',
+        theOther: 'A cyclist rides 60 km in 3 hours. Work out the average speed.',
+      },
     },
     {
       skillId: 'median',
       thisOne: 'Everything is shared out evenly, so one extreme value pulls the answer towards it.',
       theOther: 'The middle value once they are in order. An extreme value barely moves it.',
       ask: 'Does the question want the total shared out evenly, or the middle of the list?',
+      pair: {
+        thisOne: 'Five salaries are £18k, £20k, £21k, £22k and £95k. Work out the mean.',
+        theOther: 'Five salaries are £18k, £20k, £21k, £22k and £95k. Work out the median.',
+      },
     },
   ],
 
@@ -63,12 +71,22 @@ export const meanBriefing: SkillBriefing = {
       stem: 'The mean of 5 numbers is 12. Four of the numbers are 8, 11, 14 and 9. '
         + 'Work out the fifth number.',
       isThisSkill: true,
+      worked: [
+        'Mean × count = total: 5 × 12 = 60',
+        'The four given come to 8 + 11 + 14 + 9 = 42',
+        'The fifth is 60 − 42 = 18',
+      ],
       cue: 'The mean is given and a value is missing. Turn the mean into a total first: 5 × 12 = 60.',
     },
     {
       stem: 'Ten students scored a mean of 6 marks. Five other students scored a mean of 9 marks. '
         + 'Work out the mean mark of all 15 students.',
       isThisSkill: true,
+      worked: [
+        'Totals first: 10 × 6 = 60 and 5 × 9 = 45',
+        'All 15 scored 60 + 45 = 105 between them',
+        '105 ÷ 15 = 7 marks, not the 7.5 of averaging 6 and 9',
+      ],
       cue: 'Two groups of different sizes, so totals first — 60 and 45. Averaging 6 and 9 would be wrong.',
     },
     {
@@ -142,6 +160,11 @@ export const meanBriefing: SkillBriefing = {
         stem: 'A grouped frequency table gives times in the classes 0 < t ≤ 10, 10 < t ≤ 20 and '
           + '20 < t ≤ 30, with frequencies 4, 10 and 6. Work out an estimate of the mean.',
         isThisSkill: true,
+      worked: [
+        'Midpoints of the classes: 5, 15 and 25',
+        'Midpoint × frequency: 20, 150 and 150, totalling 320',
+        'Divide by the total frequency, 20: an estimated mean of 16',
+      ],
         cue: 'Classes, not values. Use the midpoints — 5, 15 and 25 — each weighted by its frequency.',
       },
     ],

@@ -31,7 +31,7 @@ export const inverseProportionBriefing: SkillBriefing = {
     },
     {
       text: 'The words "inversely proportional", which on these questions are usually stated outright.',
-      example: 'y is inversely proportional to x.',
+      example: 'The time taken is inversely proportional to the number of workers.',
     },
     {
       text: 'A table where one row rises as the other falls — and the pairs multiply to the same number.',
@@ -46,12 +46,20 @@ export const inverseProportionBriefing: SkillBriefing = {
       thisOne: 'One goes up, and the other goes down. Twice the workers, half the time.',
       theOther: 'One goes up, and the other goes up with it. Twice the flapjacks, twice the oats.',
       ask: 'If I double the first quantity, does the second one double too, or halve?',
+      pair: {
+        thisOne: '4 taps fill a tank in 30 minutes. How long would 6 taps take?',
+        theOther: '4 taps deliver 30 litres a minute. How many litres do 6 taps deliver a minute?',
+      },
     },
     {
       skillId: 'direct_proportion',
       thisOne: 'Multiply the pair together and you get the same number every time. xy = k.',
       theOther: 'Divide one by the other and you get the same number every time. y ÷ x = k.',
       ask: 'Do the pairs multiply to a constant, or divide to one?',
+      pair: {
+        thisOne: '6 machines fill an order in 10 hours. How long would 15 machines take?',
+        theOther: '6 machines fill 10 crates an hour. How many crates do 15 machines fill an hour?',
+      },
     },
   ],
 
@@ -59,11 +67,20 @@ export const inverseProportionBriefing: SkillBriefing = {
     {
       stem: 'It takes 4 painters 9 hours to paint a hall. Work out how long it would take 6 painters.',
       isThisSkill: true,
+      worked: [
+        'The job is fixed: 4 × 9 = 36 painter-hours',
+        'With 6 painters: 36 ÷ 6 = 6 hours',
+      ],
       cue: 'More painters, fewer hours. The job is fixed at 36 painter-hours however many people turn up.',
     },
     {
       stem: 'y is inversely proportional to x. When x = 5, y = 12. Work out y when x = 4.',
       isThisSkill: true,
+      worked: [
+        'Write it as xy = k',
+        'x = 5, y = 12 gives k = 60',
+        'When x = 4: y = 60 ÷ 4 = 15',
+      ],
       cue: 'Stated outright, and xy = 60 holds for every pair.',
     },
     {
@@ -126,6 +143,10 @@ export const inverseProportionBriefing: SkillBriefing = {
         thisOne: 'y = k ÷ x². Double x and y drops to a quarter.',
         theOther: 'y = kx². Double x and y goes up four times.',
         ask: 'Is the x underneath the fraction, or multiplied?',
+      pair: {
+        thisOne: 'y is inversely proportional to x. When x = 2, y = 18. Work out y when x = 6.',
+        theOther: 'y is inversely proportional to x². When x = 2, y = 18. Work out y when x = 6.',
+      },
       },
     ],
 
@@ -133,6 +154,11 @@ export const inverseProportionBriefing: SkillBriefing = {
       {
         stem: 'F is inversely proportional to the square of d. When d = 3, F = 20. Work out F when d = 6.',
         isThisSkill: true,
+      worked: [
+        'Write it as F = k ÷ d²',
+        'd = 3, F = 20 gives k = 20 × 9 = 180',
+        'When d = 6: F = 180 ÷ 36 = 5',
+      ],
         cue: 'The power is on d, and d doubles — so F falls to a quarter, not a half.',
       },
     ],

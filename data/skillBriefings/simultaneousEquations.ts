@@ -26,11 +26,11 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
   recognise: [
     {
       text: 'Two equations printed together, with the same two letters in both.',
-      example: 'Solve 3x + y = 21 and 4x − 2y = 8',
+      example: 'Solve 2a + 3b = 16 and 5a − 3b = 19',
     },
     {
       text: 'Two baskets and two totals. The letters are prices or weights you are never told.',
-      example: '3 coffees and 2 teas cost £9.60. 1 coffee and 4 teas cost £8.20.',
+      example: '4 pens and 3 pencils cost £5.10, and 2 pens and 5 pencils cost £4.30.',
     },
     {
       text: 'Two conditions given in words, with no equations printed at all.',
@@ -45,6 +45,10 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       thisOne: 'Two genuinely independent unknowns, needing two equations to pin both down.',
       theOther: 'One unknown carries the ratio: the parts are 2n and 3n, and one equation finds n.',
       ask: 'Can I write both quantities using the same single letter, or do I need two?',
+      pair: {
+        thisOne: 'There are 32 counters, and 8 more red than blue. How many are red?',
+        theOther: 'Red and blue counters are in the ratio 5 : 3, and there are 32 altogether. How many are red?',
+      },
     },
     {
       // Mirror of the entry in solvingLinearEquations.ts.
@@ -52,6 +56,10 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       thisOne: 'Two letters, and two equations that have to be true at the same time.',
       theOther: 'One letter to find, and one equation to find it from.',
       ask: 'How many different letters am I solving for — one, or two?',
+      pair: {
+        thisOne: 'Solve 2x + y = 11 and x − y = 1.',
+        theOther: 'Solve 2x + 1 = x + 11.',
+      },
     },
   ],
 
@@ -59,12 +67,24 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
     {
       stem: 'Solve 3x + y = 21 and 4x − 2y = 8',
       isThisSkill: true,
+      worked: [
+        'Double the first equation so the y terms match: 6x + 2y = 42',
+        'Signs differ (+2y and −2y), so ADD: 10x = 50, giving x = 5',
+        'Put x = 5 in the first: 15 + y = 21, so y = 6',
+        'x = 5, y = 6',
+      ],
       cue: 'The same two letters in both equations, and both have to hold at once.',
     },
     {
       stem: '3 coffees and 2 teas cost £9.60. 1 coffee and 4 teas cost £8.20. '
         + 'Work out the cost of one tea.',
       isThisSkill: true,
+      worked: [
+        'Write the baskets as 3c + 2t = 9.60 and c + 4t = 8.20',
+        'Treble the second: 3c + 12t = 24.60',
+        'Signs match, so subtract: 10t = 15.00',
+        'One tea costs £1.50',
+      ],
       cue: 'Two baskets, two totals, two prices you are never told. Each basket becomes an equation.',
     },
     {
@@ -130,13 +150,13 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
     note: {
       text: 'On Higher the numbers in front rarely match, so BOTH equations usually have to be '
         + 'scaled before anything cancels.',
-      example: 'Solve 3x + 4y = 5 and 5x + 6y = 8',
+      example: 'Solve 4x + 3y = 11 and 3x + 2y = 8',
     },
 
     recognise: [
       {
         text: 'Neither letter has matching numbers in front of it in the two equations.',
-        example: 'Solve 3x + 4y = 5 and 5x + 6y = 8',
+        example: 'Solve 7x + 2y = 24 and 5x + 3y = 25',
       },
     ],
 
@@ -144,6 +164,12 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       {
         stem: 'Solve 3x + 4y = 5 and 5x + 6y = 8',
         isThisSkill: true,
+      worked: [
+        'Nothing matches, so scale both: × 3 gives 9x + 12y = 15, × 2 gives 10x + 12y = 16',
+        'Signs match, so subtract: x = 1',
+        'Put x = 1 in the first: 3 + 4y = 5, so y = 0.5',
+        'x = 1, y = 0.5',
+      ],
         cue: 'Nothing matches as it stands. Scaling by 3 and by 2 gives 12y in both, and then they subtract.',
       },
     ],
