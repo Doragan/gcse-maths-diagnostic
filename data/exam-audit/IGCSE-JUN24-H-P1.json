@@ -345,6 +345,7 @@
       "part": null,
       "marks": 5,
       "skill_ids": [
+        "differentiation",
         "solving_quadratic_equations_factorising"
       ],
       "kind": "exam",

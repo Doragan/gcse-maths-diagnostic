@@ -694,3 +694,75 @@ HIGHER paper, proportion given as a graph and wanted as a formula, which is
 spec 2.5's "relate algebraic solutions to graphical representation" exactly.
 One part, so still below the bar, but the direction now matches the spec.
 `inverse_proportion` remains unseen across all twenty.
+
+---
+
+## 11. Calculus built — three nodes, 2026-10-10
+
+`differentiation`, `stationary_points` and `calculus_kinematics` are in
+`data/skills.ts`, all `topic: "Algebra"`, all placed in `igcse_higher`
+(spec 3.4 is flagged "Higher Tier only", and all eight coded calculus parts are
+on Higher papers). iGCSE is now 110 Foundation / 149 Higher.
+
+### Why three and not one — I argued for one and was wrong
+
+§10 recommended a single node on the grounds that `stationary_points` and
+`calculus_kinematics` have one sighting each and "do not separate in practice".
+Both halves of that were bad reasoning:
+
+- **`minParts: 4` is not a taxonomy bar.** It gates whether the app makes an
+  EXAM CLAIM about a skill on a board×tier slice. Only **13% of skills clear it
+  on the Edexcel Higher slice and 18% on OCR Higher** — those are all real
+  skills students practise and have mastery tracked on. One sighting is a weak
+  reason not to publish a claim; it was never a reason not to have a node.
+- **"They always co-occur" is what a prerequisite looks like**, not evidence of
+  one skill. A turning-point question necessarily differentiates first. By the
+  same argument `substitution` and `solving_linear_equations` would merge.
+
+The deciding argument is diagnostic. A student who differentiates
+`4x³ + x² − 20x` correctly and then does not know to set the derivative to zero
+has a specific, nameable gap. Merged into one node that failure is
+indistinguishable from not differentiating at all — and distinguishing exactly
+that is what the mastery map is for.
+
+### Prerequisites kept deliberately lean
+
+```
+differentiation      ← simplifying_indices            costs 3
+stationary_points    ← differentiation                costs 4
+calculus_kinematics  ← differentiation                costs 4
+```
+
+`quadratic_functions` (costs 9) and `solving_quadratic_equations_factorising`
+(costs 8) were both considered as prerequisites of `stationary_points` and
+rejected — they would treble its cost for no diagnostic gain, and the audit rows
+that genuinely need the solving are tagged with it **directly**, so the
+prerequisite does not need to duplicate it. `compound_units` was considered for
+`calculus_kinematics` on the grounds that velocity and acceleration are rates,
+and rejected for the same reason.
+
+### Corpus retagged, and now fully tagged
+
+Eight rows across five papers:
+
+| Row | Now tagged |
+|---|---|
+| Jun23 1H q11(a), Jun25 2H q17(a) | `differentiation` |
+| Jun23 1H q11(b), Jun24 1H q18, Nov23 1H q16 | `differentiation` + `solving_quadratic_equations_factorising` |
+| Jun25 2H q17(b) | `stationary_points` + `solving_quadratic_equations_factorising` |
+| Nov24 1H q20 | `stationary_points` + `understanding_straight_line_graphs` |
+| Nov23 2H q18 | `calculus_kinematics` |
+
+**All twenty papers are now at 0 warnings** — the first time the corpus has had
+no untagged rows. All ten crossover pairs still match item for item, with
+Jun23 Paper 1 still the lone 41-mark block.
+
+Final parts: `differentiation` 5 (clears the bar), `stationary_points` 2,
+`calculus_kinematics` 1 — all Higher, none at Foundation, exactly as the spec
+places them.
+
+### What is still missing
+
+No briefings and no questions, so `isPractisable` hides all three from the
+practice pool and the skills page. Author `differentiation` first: the other two
+are unreachable until it has been attempted.

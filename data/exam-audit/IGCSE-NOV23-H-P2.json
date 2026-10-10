@@ -6,11 +6,9 @@
     "paper": "Paper 2 (Calculator)",
     "series": "November 2023",
     "total_marks": 100,
-
     "paper_slug": "edexcel-4ma1-2h-nov23",
     "paper_title": "Edexcel International GCSE Mathematics 4MA1/2H",
     "paper_subtitle": "Higher Tier Paper 2 — November 2023",
-
     "source": "Coded from the published QP and mark scheme (4MA1_2H_2311). Derived metadata only. No exam question text transcribed."
   },
   "coding_notes": [
@@ -22,64 +20,418 @@
     "q14 tagged simultaneous_equations: the method is to draw the second line and read the intersection, which is the graphical route the spec names rather than algebraic elimination."
   ],
   "rows": [
-    { "q": "1", "part": "a", "marks": 1, "skill_ids": ["grouped_frequency_tables"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "modal class of a grouped frequency table" },
-    { "q": "1", "part": "b", "marks": 3, "skill_ids": ["grouped_frequency_tables"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "estimated total from a grouped frequency table" },
-
-    { "q": "2", "part": null, "marks": 4, "skill_ids": ["congruence_and_similarity"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "missing side of a similar triangle pair sharing a vertex" },
-
-    { "q": "3", "part": "a", "marks": 2, "skill_ids": ["reflections"], "kind": "mastery", "mark_split": "B2", "answer_form": "draw_shape", "app_gap_note": "reflect a shape in the line y = x" },
-    { "q": "3", "part": "b", "marks": 3, "skill_ids": ["enlargements"], "kind": "mastery", "mark_split": "B3", "app_gap_note": "describe an enlargement fully: scale factor and centre" },
-
-    { "q": "4", "part": "a", "marks": 3, "skill_ids": ["solving_linear_equations"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "linear equation with a fractional term and the unknown on both sides" },
-    { "q": "4", "part": "b", "marks": 1, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "index law for division" },
-    { "q": "4", "part": "c", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "raise a three-factor product to a power" },
-    { "q": "4", "part": "d", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "solve for an unknown index across a product and a quotient" },
-
-    { "q": "5", "part": null, "marks": 3, "skill_ids": ["ratio"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "chain two ratios sharing a middle term, then scale from a known quantity" },
-
-    { "q": "6", "part": null, "marks": 3, "skill_ids": ["dividing_fractions", "irregular_and_improper_fractions"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "show-that, dividing two mixed numbers" },
-
-    { "q": "7", "part": null, "marks": 3, "skill_ids": ["growth_and_decay"], "kind": "mastery", "mark_split": "M1 M1 A1", "app_gap_note": "compound depreciation over three years" },
-
-    { "q": "8", "part": null, "marks": 3, "skill_ids": ["mean"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "value of two added scores from a change in the mean" },
-
-    { "q": "9", "part": null, "marks": 2, "skill_ids": ["understanding_straight_line_graphs"], "kind": "mastery", "mark_split": "M1 A1", "answer_form": "expression", "app_gap_note": "equation of a line through two given points" },
-
-    { "q": "10", "part": null, "marks": 5, "skill_ids": ["areas_of_compound_shapes", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "unknown length in a six-sided shape from its given total area" },
-
-    { "q": "11", "part": "a", "marks": 2, "skill_ids": ["tree_diagrams"], "kind": "mastery", "mark_split": "B2", "app_gap_note": "complete a two-box probability tree" },
-    { "q": "11", "part": "b", "marks": 3, "skill_ids": ["tree_diagrams", "combined_events"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "probability of a matching pair across two independent draws" },
-
-    { "q": "12", "part": "a", "marks": 2, "skill_ids": ["simplifying_indices"], "kind": "exam", "mark_split": "M1 A1", "app_gap_note": "equate indices of a common base across a product" },
-    { "q": "12", "part": "b", "marks": 2, "skill_ids": ["fractional_and_negative_indices"], "kind": "mastery", "mark_split": "B2", "answer_form": "expression", "app_gap_note": "raise a three-factor product to a fractional power" },
-
-    { "q": "13", "part": null, "marks": 2, "skill_ids": ["interquartile_range"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "interquartile range of an ordered list" },
-
-    { "q": "14", "part": null, "marks": 3, "skill_ids": ["simultaneous_equations", "plotting_straight_line_graphs"], "kind": "exam", "mark_split": "M1 M1 A1", "answer_form": "draw_plot", "app_gap_note": "solve simultaneous equations by drawing the second line on a given graph" },
-
-    { "q": "15", "part": "a", "marks": 2, "skill_ids": ["recurring_decimals_to_fractions"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "show-that, recurring decimal to a fraction by algebra" },
-    { "q": "15", "part": "b", "marks": 3, "skill_ids": ["surds_simplifying"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "add two surds and express as a single root" },
-
-    { "q": "16", "part": null, "marks": 3, "skill_ids": ["expanding_double_brackets"], "kind": "mastery", "mark_split": "M1 M1 A1", "answer_form": "expression", "app_gap_note": "expand a product of three linear brackets" },
-
-    { "q": "17", "part": null, "marks": 3, "skill_ids": ["upper_and_lower_bounds"], "kind": "exam", "mark_split": "B1 M1 A1", "app_gap_note": "upper bound of a product from three differently-rounded values" },
-
-    { "q": "18", "part": null, "marks": 4, "skill_ids": [], "topic": "algebra", "kind": "exam", "mark_split": "M1 M1 M1 A1", "app_gap_note": "time at a stated acceleration from a cubic displacement function" },
-
-    { "q": "19", "part": "a", "marks": 1, "skill_ids": ["functions_notation"], "kind": "mastery", "mark_split": "B1", "app_gap_note": "value excluded from the domain of a rational function" },
-    { "q": "19", "part": "b", "marks": 2, "skill_ids": ["composite_functions"], "kind": "mastery", "mark_split": "M1 A1", "app_gap_note": "evaluate a composite function at a value" },
-    { "q": "19", "part": "c", "marks": 4, "skill_ids": ["inverse_functions", "completing_the_square"], "kind": "exam", "mark_split": "M1 M1 M1 A1", "answer_form": "expression", "app_gap_note": "inverse of a restricted-domain quadratic function" },
-
-    { "q": "20", "part": null, "marks": 4, "skill_ids": ["areas_of_compound_shapes", "area_of_a_circle"], "kind": "exam", "mark_split": "M1 M1 A1 A1", "app_gap_note": "shaded area between an equilateral triangle and its inscribed circle" },
-
-    { "q": "21", "part": null, "marks": 5, "skill_ids": ["simultaneous_equations_quadratic"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "intersection of a line and an ellipse-form curve" },
-
-    { "q": "22", "part": "ai", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "express a side of a quadrilateral in terms of two given vectors" },
-    { "q": "22", "part": "aii", "marks": 1, "skill_ids": ["vectors"], "kind": "mastery", "mark_split": "B1", "answer_form": "expression", "app_gap_note": "express a diagonal in terms of two given vectors" },
-    { "q": "22", "part": "b", "marks": 3, "skill_ids": ["vector_proof"], "kind": "exam", "mark_split": "M1 M1 A1", "app_gap_note": "ratio in which two lines cut each other, by a vector method" },
-
-    { "q": "23", "part": null, "marks": 5, "skill_ids": ["volume_of_a_pyramid_and_cone", "area_and_volume_scale_factors"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "base radius of the removed cone from the volume of a frustum" },
-
-    { "q": "24", "part": null, "marks": 5, "skill_ids": ["algebraic_fractions", "solving_linear_equations"], "kind": "exam", "mark_split": "M1 M1 M1 M1 A1", "app_gap_note": "solve an equation built from a quotient of algebraic fractions" }
+    {
+      "q": "1",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "grouped_frequency_tables"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "modal class of a grouped frequency table"
+    },
+    {
+      "q": "1",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "grouped_frequency_tables"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "estimated total from a grouped frequency table"
+    },
+    {
+      "q": "2",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "congruence_and_similarity"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "missing side of a similar triangle pair sharing a vertex"
+    },
+    {
+      "q": "3",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "reflections"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "draw_shape",
+      "app_gap_note": "reflect a shape in the line y = x"
+    },
+    {
+      "q": "3",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "enlargements"
+      ],
+      "kind": "mastery",
+      "mark_split": "B3",
+      "app_gap_note": "describe an enlargement fully: scale factor and centre"
+    },
+    {
+      "q": "4",
+      "part": "a",
+      "marks": 3,
+      "skill_ids": [
+        "solving_linear_equations"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "linear equation with a fractional term and the unknown on both sides"
+    },
+    {
+      "q": "4",
+      "part": "b",
+      "marks": 1,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "index law for division"
+    },
+    {
+      "q": "4",
+      "part": "c",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "expression",
+      "app_gap_note": "raise a three-factor product to a power"
+    },
+    {
+      "q": "4",
+      "part": "d",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "solve for an unknown index across a product and a quotient"
+    },
+    {
+      "q": "5",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "ratio"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "chain two ratios sharing a middle term, then scale from a known quantity"
+    },
+    {
+      "q": "6",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "dividing_fractions",
+        "irregular_and_improper_fractions"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "show-that, dividing two mixed numbers"
+    },
+    {
+      "q": "7",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "growth_and_decay"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "compound depreciation over three years"
+    },
+    {
+      "q": "8",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "mean"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "value of two added scores from a change in the mean"
+    },
+    {
+      "q": "9",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "understanding_straight_line_graphs"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "equation of a line through two given points"
+    },
+    {
+      "q": "10",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "areas_of_compound_shapes",
+        "solving_linear_equations"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "unknown length in a six-sided shape from its given total area"
+    },
+    {
+      "q": "11",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "tree_diagrams"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "app_gap_note": "complete a two-box probability tree"
+    },
+    {
+      "q": "11",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "tree_diagrams",
+        "combined_events"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "probability of a matching pair across two independent draws"
+    },
+    {
+      "q": "12",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "simplifying_indices"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 A1",
+      "app_gap_note": "equate indices of a common base across a product"
+    },
+    {
+      "q": "12",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "fractional_and_negative_indices"
+      ],
+      "kind": "mastery",
+      "mark_split": "B2",
+      "answer_form": "expression",
+      "app_gap_note": "raise a three-factor product to a fractional power"
+    },
+    {
+      "q": "13",
+      "part": null,
+      "marks": 2,
+      "skill_ids": [
+        "interquartile_range"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "interquartile range of an ordered list"
+    },
+    {
+      "q": "14",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "simultaneous_equations",
+        "plotting_straight_line_graphs"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "draw_plot",
+      "app_gap_note": "solve simultaneous equations by drawing the second line on a given graph"
+    },
+    {
+      "q": "15",
+      "part": "a",
+      "marks": 2,
+      "skill_ids": [
+        "recurring_decimals_to_fractions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "show-that, recurring decimal to a fraction by algebra"
+    },
+    {
+      "q": "15",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "surds_simplifying"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "add two surds and express as a single root"
+    },
+    {
+      "q": "16",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "expanding_double_brackets"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "expand a product of three linear brackets"
+    },
+    {
+      "q": "17",
+      "part": null,
+      "marks": 3,
+      "skill_ids": [
+        "upper_and_lower_bounds"
+      ],
+      "kind": "exam",
+      "mark_split": "B1 M1 A1",
+      "app_gap_note": "upper bound of a product from three differently-rounded values"
+    },
+    {
+      "q": "18",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "calculus_kinematics"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "app_gap_note": "time at a stated acceleration from a cubic displacement function"
+    },
+    {
+      "q": "19",
+      "part": "a",
+      "marks": 1,
+      "skill_ids": [
+        "functions_notation"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "app_gap_note": "value excluded from the domain of a rational function"
+    },
+    {
+      "q": "19",
+      "part": "b",
+      "marks": 2,
+      "skill_ids": [
+        "composite_functions"
+      ],
+      "kind": "mastery",
+      "mark_split": "M1 A1",
+      "app_gap_note": "evaluate a composite function at a value"
+    },
+    {
+      "q": "19",
+      "part": "c",
+      "marks": 4,
+      "skill_ids": [
+        "inverse_functions",
+        "completing_the_square"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 A1",
+      "answer_form": "expression",
+      "app_gap_note": "inverse of a restricted-domain quadratic function"
+    },
+    {
+      "q": "20",
+      "part": null,
+      "marks": 4,
+      "skill_ids": [
+        "areas_of_compound_shapes",
+        "area_of_a_circle"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1 A1",
+      "app_gap_note": "shaded area between an equilateral triangle and its inscribed circle"
+    },
+    {
+      "q": "21",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "simultaneous_equations_quadratic"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "intersection of a line and an ellipse-form curve"
+    },
+    {
+      "q": "22",
+      "part": "ai",
+      "marks": 1,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "express a side of a quadrilateral in terms of two given vectors"
+    },
+    {
+      "q": "22",
+      "part": "aii",
+      "marks": 1,
+      "skill_ids": [
+        "vectors"
+      ],
+      "kind": "mastery",
+      "mark_split": "B1",
+      "answer_form": "expression",
+      "app_gap_note": "express a diagonal in terms of two given vectors"
+    },
+    {
+      "q": "22",
+      "part": "b",
+      "marks": 3,
+      "skill_ids": [
+        "vector_proof"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 A1",
+      "app_gap_note": "ratio in which two lines cut each other, by a vector method"
+    },
+    {
+      "q": "23",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "volume_of_a_pyramid_and_cone",
+        "area_and_volume_scale_factors"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "base radius of the removed cone from the volume of a frustum"
+    },
+    {
+      "q": "24",
+      "part": null,
+      "marks": 5,
+      "skill_ids": [
+        "algebraic_fractions",
+        "solving_linear_equations"
+      ],
+      "kind": "exam",
+      "mark_split": "M1 M1 M1 M1 A1",
+      "app_gap_note": "solve an equation built from a quotient of algebraic fractions"
+    }
   ]
 }

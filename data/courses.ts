@@ -252,6 +252,17 @@ export const igcseHigherOnlySkillIds = [
   ),
   ...igcseMovedToHigher,
   "counting_elements_in_sets",
+  // Calculus, spec 3.4, flagged "Higher Tier only" in the Foundation listing
+  // and confirmed by the papers — all eight coded calculus parts are on Higher
+  // papers, none on a Foundation one. `differentiation` clears the four-part
+  // evidence bar with five; `stationary_points` (2) and `calculus_kinematics`
+  // (1) do not, and are built anyway: minParts gates whether the app makes an
+  // EXAM CLAIM about a skill, not whether the skill exists. Only 13-18% of
+  // skills clear it on the OCR and Edexcel slices, and those are all real
+  // skills students practise.
+  "differentiation",
+  "stationary_points",
+  "calculus_kinematics",
 ]
 
 export const courses: Course[] = [

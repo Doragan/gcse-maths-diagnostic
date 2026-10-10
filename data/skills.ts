@@ -1715,6 +1715,66 @@ export const skills: Skill[] = [
     "exampleAnswer": "Draw a tangent at x = 2 and find its gradient. That is the rate of change AT that point. The average rate of change between x = 1 and x = 3 is the gradient of the straight line joining those two points on the curve, which is generally different."
   },
   {
+    // ── Calculus: iGCSE (4MA1) only, Higher. Spec 3.4. ──────────────────────
+    // Three nodes rather than one. They always CO-OCCUR on a paper — a
+    // turning-point question necessarily differentiates first — but that is
+    // what a prerequisite looks like, not evidence they are one skill. A
+    // student who differentiates correctly and then does not know to set the
+    // derivative to zero has a specific, nameable gap, and collapsing these
+    // would make that failure indistinguishable from not differentiating at
+    // all.
+    //
+    // Prerequisites deliberately LEAN. `simplifying_indices` costs 2, so
+    // differentiation costs 3. Everything downstream of quadratics in this
+    // graph costs 8-9 (`quadratic_functions` 9, and
+    // `solving_quadratic_equations_factorising` 8), and hanging the derived
+    // nodes off those would treble their cost for no diagnostic gain — the
+    // audit rows that need the solving are tagged with it directly, so the
+    // prerequisite does not need to duplicate it.
+    "id": "differentiation",
+    "name": "Differentiation",
+    "topic": "Algebra",
+    "prerequisites": [
+      "simplifying_indices"
+    ],
+    "exampleQuestion": "y = 4x³ + 5x² − 2x. Find dy/dx.",
+    "exampleAnswer": "12x² + 10x − 2"
+  },
+  {
+    // Setting the derivative to zero. Distinct from `differentiation`: the
+    // skill is knowing that stationary points are where the gradient is zero,
+    // and telling a maximum from a minimum (spec 3.4 C and D — the spec says
+    // "by considering the general shape of the graph only", so no second
+    // derivative test is required).
+    "id": "stationary_points",
+    "name": "Stationary and Turning Points",
+    "topic": "Algebra",
+    "prerequisites": [
+      "differentiation"
+    ],
+    "exampleQuestion": "Find the coordinates of the turning points on the curve y = x³ − 3x.",
+    "exampleAnswer": "(1, −2) and (−1, 2). Setting dy/dx = 3x² − 3 = 0 gives x = ±1.",
+    "image": false
+  },
+  {
+    // Spec 3.4 E, the one calculus item the specification gives its own worked
+    // example. Displacement differentiates to velocity and again to
+    // acceleration — the SECOND derivative is what separates this from
+    // `differentiation`, and the app has no other node for it.
+    //
+    // `compound_units` was considered as a second prerequisite, since velocity
+    // and acceleration are rates, and rejected: it costs 3 more and drags
+    // Function Machines into the tree for no diagnostic gain.
+    "id": "calculus_kinematics",
+    "name": "Calculus and Kinematics",
+    "topic": "Algebra",
+    "prerequisites": [
+      "differentiation"
+    ],
+    "exampleQuestion": "A particle's displacement from O is s = 2t³ + 5t² − 6t + 5 metres after t seconds. Find an expression for its acceleration.",
+    "exampleAnswer": "v = ds/dt = 6t² + 10t − 6, so a = dv/dt = 12t + 10 m/s²"
+  },
+  {
     "id": "area_and_volume_scale_factors",
     "name": "Area and Volume Scale Factors",
     "topic": "Shape and Space",

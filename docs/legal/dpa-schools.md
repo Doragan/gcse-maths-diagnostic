@@ -173,28 +173,33 @@ than leaving it to be discovered.
 | Resend | Sending **opted-in practice reminders only** — receives an email address only | **United States** | Standard Contractual Clauses in its data processing addendum, and the Data Privacy Framework including the UK Extension |
 | Upstash | Rate limiting — holds the visitor's IP address for approximately one minute to prevent automated abuse | London, United Kingdom | — |
 | Google sign-in | Only where a Pupil chooses to sign in with Google, which passes us their name and email address | **United States** | Data Privacy Framework, UK Extension |
-| Google Analytics | Website usage analytics, **only** for visitors who have accepted analytics cookies | **United States** | Data Privacy Framework, UK Extension |
 
 _Locations verified 2026-09-22 against provider documentation and by resolving
 the live endpoints. Evidence and method are recorded in `docs/audit/21` §5._
 
-**§7.1 — international transfers.** Three of the recipients above process
-personal data in the United States, each under the mechanism named in the table.
+**Google Analytics was removed on 2026-10-10** and is no longer a sub-processor.
+It was the only recipient of any data about how a Pupil uses the service, and the
+only one carrying an advertising linkage. Nothing replaced it: product analytics
+are now first-party only, stored in the Provider's own database in the United
+Kingdom against a per-tab identifier that is never linked to an account. The
+consent banner went with it, having had no other purpose.
 
-Google Analytics and Google sign-in are both optional for the Pupil: analytics
-loads only after the visitor accepts analytics cookies and can be switched off
-again at any time on the privacy page, and Google sign-in is offered alongside
-an ordinary email and password. Declining either restricts nothing in the
-service. No practice data, results data or account data is sent to Google.
+**§7.1 — international transfers.** Two of the recipients above process personal
+data in the United States, each under the mechanism named in the table.
+
+Google **sign-in** is optional for the Pupil and is offered alongside an ordinary
+email and password; choosing one or the other restricts nothing in the service.
+No practice data, results data or account data is sent to Google by any route.
 
 Resend receives an email address in order to send the message. No practice or
 results data is sent to it.
 
 **Everything the Provider stores about a Pupil is stored in the United Kingdom.**
-The database, the website and the rate limiter are all hosted here. The three
-recipients above that process in the United States receive either usage data the
-Pupil can switch off, or an email address alone, and never practice or results
-data.
+The database, the website, the rate limiter and the product analytics are all
+hosted here. The two recipients above that process in the United States receive
+an email address, and in the case of Google sign-in a name, and never practice or
+results data. Since Google Analytics was removed, **no usage data about a Pupil
+leaves the United Kingdom at all.**
 
 ⚠ **Before issue:** re-check that the Data Privacy Framework still stands. It is
 under appeal and two equivalent arrangements have already collapsed, so the line
