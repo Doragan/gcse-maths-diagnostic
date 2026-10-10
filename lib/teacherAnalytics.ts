@@ -14,10 +14,20 @@ import { skillsById } from './skills/skillGraph'
 // mastery-relevant fields, and we reuse the SAME calculateMastery the students
 // see, so the figures match.
 //
-// One deliberate difference: placement-test answers are dropped. The teacher
-// view shows REAL practice only (docs/audit/17, decision 3) — a student's
-// placement priors are a starting guess for their own map, not evidence to
-// report to a teacher. The roadmap ranks the diagnostic a low-weight input.
+// One deliberate difference: placement-test answers are dropped from MASTERY
+// (docs/audit/17, decision 3) — a student's placement priors are a starting
+// guess for their own map, not evidence of mastery to report to a teacher. The
+// roadmap ranks the diagnostic a low-weight input.
+//
+// They DO count towards the EFFORT figures (totalQuestions, questionsThisWeek,
+// lastActive, and the weekly `attempts` series). Settled 2026-10-04, at the
+// revisit docs/audit/17 decision 3 explicitly asked for: a placement sitting is
+// real work the student did, and dropping it made a brand-new class — the most
+// likely state of any real class — read as "nobody has done anything".
+//
+// The consequence to hold on to: "active" is an EFFORT word, so it is measured
+// by `activeThisWeek` / `everActive`, never by `studentsWithData`, which counts
+// members with MASTERY data and is a different question. See docs/audit/24 §1.
 
 export const TOPICS = ['Number', 'Algebra', 'Shape and Space', 'Ratio and Proportion', 'Probability and Data'] as const
 export type Topic = (typeof TOPICS)[number]
@@ -54,8 +64,10 @@ export type StudentAnalytics = {
   skillDetail: SkillDetail[]
   /** This student's own weekly mastery trend (for the detail view). */
   timeline: TimelinePoint[]
-  // ── engagement (shareable aggregate) ──
-  totalQuestions: number      // total recorded attempts (practice + assignments)
+  // ── effort (shareable aggregate) ──
+  // All three COUNT PLACEMENT, unlike the mastery fields above. Deliberate —
+  // see the module header.
+  totalQuestions: number      // total recorded attempts (practice + assignments + placement)
   questionsThisWeek: number   // attempts in the last 7 days
   lastActive: string | null   // ISO timestamp of most recent attempt
 }
@@ -69,18 +81,39 @@ export type SkillGap = {
   priority: 'high' | 'medium'
 }
 
-/** One weekly checkpoint of the class's average curriculum-mastery %. */
-export type TimelinePoint = { weekEnding: string; masteryPct: number; activeStudents: number }
+/**
+ * One weekly checkpoint. `masteryPct` and `activeStudents` are CUMULATIVE —
+ * the class's average curriculum-mastery as it stood on that date, over members
+ * active by then. `attempts` is the opposite: questions answered DURING that
+ * week only, so the effort series reads as a bar-per-week rather than a total
+ * that can only climb.
+ */
+export type TimelinePoint = {
+  weekEnding: string
+  masteryPct: number
+  activeStudents: number
+  /** Attempts in the 7 days ending at `weekEnding`. Includes placement. */
+  attempts: number
+}
 
 export type ClassAnalytics = {
   studentCount: number       // total active members
-  studentsWithData: number   // members with ≥1 attempt
+  /**
+   * Members with ≥1 attempt that COUNTS TOWARDS MASTERY (i.e. non-placement).
+   * The denominator for avgMastery and the gaps. NOT the definition of
+   * "active" — see `activeThisWeek` / `everActive`.
+   */
+  studentsWithData: number
   avgMastery: number | null  // mean overallMastery across members with data
   topicAvgs: Partial<Record<Topic, number>>
   students: StudentAnalytics[]
   gaps: SkillGap[]
-  timeline: TimelinePoint[]  // weekly class-mastery trend
-  questionsThisWeek: number  // class-wide engagement: attempts in the last 7 days
+  timeline: TimelinePoint[]  // weekly class-mastery + effort trend
+  // ── effort (placement included; see the module header) ──
+  questionsThisWeek: number  // class-wide attempts in the last 7 days
+  questionsTotal: number     // class-wide attempts, all time
+  activeThisWeek: number     // members who answered at least one question in the last 7 days
+  everActive: number         // members who have ever answered a question
   scoped: boolean            // true when % is over teacher-marked coverage, not the whole course
   coveredCount: number       // number of skills marked covered (0 when unscoped)
 }
@@ -130,7 +163,17 @@ function buildCovered(covered?: string[] | Set<string> | null): CoveredCtx | nul
 /** Skills currently mastered, optionally restricted to the covered set. */
 function masteredCount(attempts: MasteryAttemptRow[], ctx: CoveredCtx | null): number {
   const mastery = calculateMastery(
-    attempts.map(a => ({ skill_ids: a.skill_ids, correct: a.correct, attempted_at: a.attempted_at, kind: a.kind === 'exam' ? 'exam' : 'mastery' }))
+    // Pass `placement` THROUGH rather than collapsing every non-exam kind to
+    // 'mastery'. calculateMastery skips placement itself (masteryEngine:107);
+    // collapsing it here meant the mastery TREND counted placement answers as
+    // practice while the headline mastery figure excluded them, so a student
+    // with a placement sitting had a trend line that disagreed with their %.
+    attempts.map(a => ({
+      skill_ids: a.skill_ids,
+      correct: a.correct,
+      attempted_at: a.attempted_at,
+      kind: a.kind === 'exam' ? 'exam' : a.kind === 'placement' ? 'placement' : 'mastery',
+    }))
   )
   let n = 0
   for (const m of Object.values(mastery)) {
@@ -168,9 +211,16 @@ export function computeClassMasteryTimeline(
   const series: TimelinePoint[] = []
   for (let i = weeks - 1; i >= 0; i--) {
     const cutoff = end - i * WEEK_MS
-    let sum = 0, active = 0
+    let sum = 0, active = 0, attempts = 0
     for (const m of members) {
-      const upTo = (byStudent.get(m.student_id) ?? []).filter(a => new Date(a.attempted_at).getTime() <= cutoff)
+      const all = byStudent.get(m.student_id) ?? []
+      const upTo = all.filter(a => new Date(a.attempted_at).getTime() <= cutoff)
+      // Effort is the week's OWN work, not the running total: the half-open
+      // window (cutoff - 7d, cutoff]. Placement counts (module header).
+      attempts += all.filter(a => {
+        const t = new Date(a.attempted_at).getTime()
+        return t > cutoff - WEEK_MS && t <= cutoff
+      }).length
       if (upTo.length === 0) continue // not active by this date
       sum += (masteredCount(upTo, ctx) / total) * 100
       active++
@@ -179,6 +229,7 @@ export function computeClassMasteryTimeline(
       weekEnding: new Date(cutoff).toISOString().slice(0, 10),
       masteryPct: active > 0 ? round(sum / active) : 0,
       activeStudents: active,
+      attempts,
     })
   }
   return series
@@ -319,6 +370,9 @@ export function computeClassAnalytics(
     gaps,
     timeline: computeClassMasteryTimeline(rows, members, 10, now, covered),
     questionsThisWeek: students.reduce((sum, s) => sum + s.questionsThisWeek, 0),
+    questionsTotal: students.reduce((sum, s) => sum + s.totalQuestions, 0),
+    activeThisWeek: students.filter(s => s.questionsThisWeek > 0).length,
+    everActive: students.filter(s => s.totalQuestions > 0).length,
     scoped: ctx !== null,
     coveredCount: ctx?.total ?? 0,
   }

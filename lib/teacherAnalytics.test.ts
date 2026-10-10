@@ -195,3 +195,88 @@ describe('computeClassAnalytics with teacher-marked coverage', () => {
     expect(series[series.length - 1].masteryPct).toBe(50)
   })
 })
+
+// ── Effort figures (docs/audit/24 §1) ────────────────────────────────────────
+// Placement answers count as effort but NOT as mastery. Settled 2026-10-04 at
+// the revisit docs/audit/17 decision 3 asked for.
+
+describe('weekly effort series', () => {
+  const now = new Date('2026-06-15T12:00:00Z')
+
+  // With weeks=8, series[7] covers (08/06 12:00, 15/06 12:00], series[6] the
+  // week before that, and so on.
+  function row(at: string, skill = 'simple_arithmetic', kind = 'mastery'): MasteryAttemptRow {
+    return { student_id: 'a', skill_ids: [skill], correct: true, attempted_at: at, kind }
+  }
+
+  it('counts each week on its own, not cumulatively, and shows a quiet week as 0', () => {
+    const series = computeClassMasteryTimeline(
+      [
+        row('2026-06-10T10:00:00Z'), row('2026-06-11T10:00:00Z'), row('2026-06-12T10:00:00Z'), // series[7]
+        // nothing in series[6]'s window
+        row('2026-05-28T10:00:00Z'), row('2026-05-29T10:00:00Z'),                              // series[5]
+      ],
+      members, 8, now,
+    )
+    expect(series[7].attempts).toBe(3) // this week's own work, not the running total of 5
+    expect(series[6].attempts).toBe(0) // a gap between two active weeks is a 0, not a missing point
+    expect(series[5].attempts).toBe(2)
+    expect(series[0].attempts).toBe(0)
+  })
+
+  it('counts placement attempts as effort but never as mastery', () => {
+    const series = computeClassMasteryTimeline(
+      Array.from({ length: 4 }, () => row('2026-06-10T10:00:00Z', 'simple_arithmetic', 'placement')),
+      members, 4, now,
+    )
+    const last = series[series.length - 1]
+    expect(last.attempts).toBe(4)
+    // The regression this guards: collapsing `placement` to `mastery` before
+    // calculateMastery made the trend line disagree with the headline figure.
+    expect(last.masteryPct).toBe(0)
+    // ...while still counting the student as active, which is the point.
+    expect(last.activeStudents).toBe(1)
+  })
+})
+
+describe('class effort aggregates', () => {
+  const now = new Date('2026-06-15T12:00:00Z')
+
+  it('reports a placement-only class as active with zero mastery', () => {
+    const rows: MasteryAttemptRow[] = Array.from({ length: 4 }, () => ({
+      student_id: 'a', skill_ids: ['simple_arithmetic'], correct: true,
+      attempted_at: '2026-06-14T10:00:00Z', kind: 'placement',
+    }))
+    const res = computeClassAnalytics(rows, members, now)
+    const alice = res.students.find(s => s.studentId === 'a')!
+
+    // Mastery side: nothing happened.
+    expect(alice.overallMastery).toBeNull()
+    expect(res.studentsWithData).toBe(0)
+    expect(res.avgMastery).toBeNull()
+
+    // Effort side: real work, visible.
+    expect(alice.totalQuestions).toBe(4)
+    expect(alice.questionsThisWeek).toBe(4)
+    expect(alice.lastActive).toBe('2026-06-14T10:00:00Z')
+    expect(res.everActive).toBe(1)
+    expect(res.activeThisWeek).toBe(1)
+    expect(res.questionsTotal).toBe(4)
+  })
+
+  it('counts active students by effort, not by mastery data', () => {
+    const rows: MasteryAttemptRow[] = [
+      // Alice: practised this week.
+      ...attempts('a', 'simple_arithmetic', 5, 5).map(r => ({ ...r, attempted_at: '2026-06-14T10:00:00Z' })),
+      // Bob: practised, but weeks ago — still "ever active", not active this week.
+      ...attempts('b', 'simple_arithmetic', 5, 1).map(r => ({ ...r, attempted_at: '2026-05-01T10:00:00Z' })),
+      // Cara: nothing at all.
+    ]
+    const res = computeClassAnalytics(rows, members, now)
+    expect(res.activeThisWeek).toBe(1)
+    expect(res.everActive).toBe(2)
+    expect(res.questionsTotal).toBe(10)
+    expect(res.questionsThisWeek).toBe(5)
+    expect(res.studentCount).toBe(3)
+  })
+})
