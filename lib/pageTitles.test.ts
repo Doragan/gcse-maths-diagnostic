@@ -72,6 +72,18 @@ describe('normalizePath', () => {
     expect(normalizePath('/pay/eyJhbGciOi.SECRET-TOKEN')).toBe('/pay/[token]')
   })
 
+  it('collapses the class-invitation token', () => {
+    // The invitation token is a bearer credential emailed to one address: it
+    // claims a place in a named class. Letting it reach GA4 as a page path
+    // would both leak it to a third country and store it next to a child's
+    // session. Same reasoning as /pay/[token] above.
+    expect(normalizePath('/invite/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6')).toBe('/invite/[token]')
+    expect(titleForPath('/invite/a1b2c3d4e5f6')).toBe('Class invitation — Mathsense')
+    // And the title must not carry the class name either — it is read before
+    // anyone is signed in, and it lands in browser history.
+    expect(titleForPath('/invite/anything')).not.toMatch(/class [0-9]/i)
+  })
+
   it('collapses dynamic id segments', () => {
     expect(normalizePath('/practice/question/abc-123')).toBe('/practice/question/[id]')
     expect(normalizePath('/dashboard/assignments/9f3a')).toBe('/dashboard/assignments/[id]')
