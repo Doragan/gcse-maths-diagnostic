@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { getBoard, setBoard, boardLabel, DEFAULT_BOARD, DEFAULT_QUALIFICATION, } from './boardPreference'
+import { getBoard, setBoard, boardLabel, DEFAULT_BOARD } from './boardPreference'
+import { DEFAULT_QUALIFICATION } from './qualificationPreference'
 import { codedBoards } from './examProfile'
 
 // ─────────────────────────────────────────────────────────────────────────────

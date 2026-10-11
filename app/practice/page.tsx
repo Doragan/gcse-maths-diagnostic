@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
-import { courses } from '../../data/courses'
+import { courseFor, higherOnlySkillsFor } from '../../data/courses'
+import { getQualification } from '../../lib/skills/qualificationPreference'
 import { getStudentProfile, primeStudentIdCache } from '../../lib/auth'
 import { studentMastery, placementGapIds, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree, prerequisiteTreeWithin } from '../../lib/skills/skillGraph'
@@ -178,13 +179,15 @@ export default function PracticePage() {
     setLoading(false)
   }
 
+	// Scoped to the student's qualification, chosen on /skills. 'higher' is the
+	// higher-ONLY pool here, which is what makes a Higher practice session drill
+	// the content a Foundation candidate never sees; the Higher COURSE is the
+	// whole paper and is the 'both' case.
 	function getSkillIds(t: Tier): string[] {
-	  const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
-	  const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
-	  const higherOnly = higher.filter(id => !foundation.includes(id))
-	  if (t === 'foundation') return foundation
-	  if (t === 'higher') return higherOnly
-	  return [...new Set([...foundation, ...higher])]
+	  const q = getQualification()
+	  if (t === 'foundation') return courseFor(q, 'foundation').skills
+	  if (t === 'higher') return higherOnlySkillsFor(q)
+	  return courseFor(q, 'higher').skills
 	}
 
   async function startPractice() {

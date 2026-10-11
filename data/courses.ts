@@ -317,3 +317,44 @@ export const courses: Course[] = [
     skills: [...igcseFoundationSkillIds, ...igcseHigherOnlySkillIds],
   },
 ]
+
+/**
+ * Which tier of a qualification a course is. Not a field on Course because the
+ * pair is what matters: a qualification has exactly one Foundation and one
+ * Higher course, and resolving that pair is the only thing callers ever want.
+ */
+export type CourseTier = 'foundation' | 'higher'
+
+const COURSE_IDS: Record<Qualification, Record<CourseTier, string>> = {
+  gcse:  { foundation: 'gcse_foundation',  higher: 'gcse_higher' },
+  igcse: { foundation: 'igcse_foundation', higher: 'igcse_higher' },
+}
+
+/**
+ * The course a (qualification, tier) names.
+ *
+ * Every student-facing skill pool used to be resolved by looking up the string
+ * "gcse_foundation" inline — in /practice, in the practice question page and in
+ * the diagnostic, each with its own copy of the higher-only filtering below.
+ * That is three places that silently stay GCSE whatever a student picks, so the
+ * lookup lives here once and takes the qualification as an argument.
+ */
+export function courseFor(qualification: Qualification, tier: CourseTier): Course {
+  const id = COURSE_IDS[qualification][tier]
+  const course = courses.find(c => c.id === id)
+  if (!course) throw new Error(`no course ${id} for ${qualification} ${tier}`)
+  return course
+}
+
+/**
+ * The skills a Higher candidate gets that a Foundation one does not.
+ *
+ * Derived by difference rather than read from the *HigherOnlySkillIds arrays,
+ * so it stays right for any qualification whose Higher course is assembled some
+ * other way. Note this is NOT the Higher course: courseFor(q, 'higher').skills
+ * is the whole paper, Foundation content included.
+ */
+export function higherOnlySkillsFor(qualification: Qualification): string[] {
+  const foundation = new Set(courseFor(qualification, 'foundation').skills)
+  return courseFor(qualification, 'higher').skills.filter(id => !foundation.has(id))
+}

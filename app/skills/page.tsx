@@ -4,10 +4,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { skills } from '../../data/skills'
-import { foundationSkillIds, higherOnlySkillIds } from '../../data/courses'
+import { courseFor, type Qualification } from '../../data/courses'
 import { hasBriefing, briefedSkillIds } from '../../data/skillBriefings'
 import { skillPath } from '../../lib/skills/slug'
 import { getTier, setTier as persistTier } from '../../lib/skills/tierPreference'
+import {
+  getQualification, setQualification as persistQualification,
+  qualificationLabel, QUALIFICATIONS, DEFAULT_QUALIFICATION,
+} from '../../lib/skills/qualificationPreference'
 import { usePublishedSkillIds, isPractisable } from '../../lib/skills/publishedSkills'
 import { studentMastery, type MasteryStatus } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
@@ -42,12 +46,13 @@ type Filter = 'all' | 'briefings' | 'weak'
 export default function SkillsIndexPage() {
   const router = useRouter()
   const [tier, setTierState] = useState<Tier>('foundation')
+  const [qualification, setQualificationState] = useState<Qualification>(DEFAULT_QUALIFICATION)
   const [filter, setFilter] = useState<Filter>('all')
   const [mastery, setMastery] = useState<Record<string, MasteryStatus>>({})
   const [signedIn, setSignedIn] = useState(false)
   const published = usePublishedSkillIds()
 
-  useEffect(() => { setTierState(getTier()) }, [])
+  useEffect(() => { setTierState(getTier()); setQualificationState(getQualification()) }, [])
 
   useEffect(() => {
     trackEvent('skills_index_view', { tier })
@@ -76,12 +81,23 @@ export default function SkillsIndexPage() {
     trackEvent('skills_index_tier_change', { tier: next })
   }
 
-  const inTier = useMemo(() => {
-    const ids = tier === 'higher'
-      ? [...foundationSkillIds, ...higherOnlySkillIds]
-      : foundationSkillIds
-    return new Set(ids)
-  }, [tier])
+  /**
+   * Changing qualification changes the whole pool — this map, the practice
+   * sessions and which boards the exam panels offer — so it is the widest
+   * control on the page and sits first.
+   */
+  function changeQualification(next: Qualification) {
+    setQualificationState(next)
+    persistQualification(next)
+    trackEvent('skills_index_qualification_change', { qualification: next })
+  }
+
+  // The COURSE for this (qualification, tier) — the whole paper, so Higher
+  // includes Foundation content. Not the higher-only pool /practice drills.
+  const inTier = useMemo(
+    () => new Set(courseFor(qualification, tier).skills),
+    [qualification, tier],
+  )
 
   const grouped = useMemo(() => {
     const visible = skills
@@ -118,6 +134,27 @@ export default function SkillsIndexPage() {
 
       {/* ── Controls ─────────────────────────────────────────────────────── */}
       <section style={styles.controls}>
+        {QUALIFICATIONS.length > 1 && (
+          <div style={styles.tierSwitch} role="group" aria-label="Which qualification are you sitting?">
+            {QUALIFICATIONS.map(q => (
+              <button
+                key={q}
+                onClick={() => changeQualification(q)}
+                aria-pressed={qualification === q}
+                style={{
+                  ...styles.tierBtn,
+                  background: qualification === q ? colors.card : 'transparent',
+                  color: qualification === q ? colors.textPrimary : colors.textHint,
+                  boxShadow: qualification === q ? '0 1px 2px rgba(16,24,40,.09)' : 'none',
+                  fontWeight: qualification === q ? '650' : '500',
+                }}
+              >
+                {qualificationLabel(q)}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div style={styles.tierSwitch} role="group" aria-label="Which paper are you sitting?">
           {(['foundation', 'higher'] as Tier[]).map(t => (
             <button

@@ -1,5 +1,6 @@
 import { codedBoards } from './examProfile'
 import type { Qualification } from '../../data/courses'
+import { DEFAULT_QUALIFICATION } from './qualificationPreference'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Which exam board the student is sitting.
@@ -29,18 +30,6 @@ const LOCAL_KEY = 'mathsense_board'
  * bar, so it is the default that shows something rather than nothing.
  */
 export const DEFAULT_BOARD = 'AQA'
-
-/**
- * The qualification a student is taken to be sitting until they say otherwise.
- *
- * A signed-out visitor gets the generic GCSE experience; that is a product
- * decision, not an inference about them. This constant is the SEAM: when a
- * qualification setting lands it overrides this per browser, and when a signed-in
- * student has a course on their account that overrides it again. Until then
- * every caller resolves to GCSE through here rather than hard-coding 'gcse' in
- * a dozen places.
- */
-export const DEFAULT_QUALIFICATION: Qualification = 'gcse'
 
 /**
  * Boards we hold coded papers for ON THAT QUALIFICATION. Anything else cannot

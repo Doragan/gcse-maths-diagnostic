@@ -9,7 +9,7 @@ import {
 import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { codedBoards } from './examProfile'
-import { DEFAULT_QUALIFICATION } from './boardPreference'
+import { DEFAULT_QUALIFICATION } from './qualificationPreference'
 import { getAccessibleSkillIds } from './masteryEngine'
 import { prerequisiteTreeWithin } from './skillGraph'
 
