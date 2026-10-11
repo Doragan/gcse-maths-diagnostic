@@ -1,8 +1,45 @@
 import { skills } from "./skills";
 
+/**
+ * Which qualification a course sits under.
+ *
+ * This exists because the coded exam corpus in `data/exam-audit/` holds more
+ * than one qualification, and nothing downstream could tell them apart. Both
+ * derived-data builders read that whole directory, so once the iGCSE 4MA1
+ * papers were coded they silently joined GCSE data: the board switcher offered
+ * "Edexcel International" to every GCSE student, and iGCSE mark statistics were
+ * pooled into the GCSE exam assembler. Neither was caught by a test, because
+ * neither builder had any notion that a qualification existed.
+ */
+export type Qualification = 'gcse' | 'igcse'
+
+/**
+ * Exam boards per qualification, spelled exactly as `meta.board` in the coded
+ * audit files — that string is the join key, so a typo here silently empties a
+ * slice rather than failing.
+ *
+ * THIS IS THE ONE SOURCE OF TRUTH. The builders and the board switcher all read
+ * it; none of them keeps its own list. `courses.test.ts` fails if a board
+ * appears in the audit and is not claimed here, so adding a board is a decision
+ * someone has to make rather than something that happens by itself.
+ */
+export const BOARDS_BY_QUALIFICATION: Record<Qualification, readonly string[]> = {
+  gcse: ['AQA', 'OCR', 'Pearson Edexcel'],
+  igcse: ['Edexcel International'],
+}
+
+/** The qualification a coded board belongs to, or null if it is unclaimed. */
+export function qualificationOfBoard(board: string): Qualification | null {
+  for (const q of Object.keys(BOARDS_BY_QUALIFICATION) as Qualification[]) {
+    if (BOARDS_BY_QUALIFICATION[q].includes(board)) return q
+  }
+  return null
+}
+
 export interface Course {
   id: string
   name: string
+  qualification: Qualification
   skills: string[]
 }
 
@@ -258,21 +295,25 @@ export const courses: Course[] = [
   {
     id: "gcse_foundation",
     name: "GCSE Foundation",
+    qualification: "gcse",
     skills: foundationSkillIds,
   },
   {
     id: "gcse_higher",
     name: "GCSE Higher",
+    qualification: "gcse",
     skills: [...foundationSkillIds, ...higherOnlySkillIds],
   },
   {
     id: "igcse_foundation",
     name: "iGCSE Foundation (4MA1)",
+    qualification: "igcse",
     skills: igcseFoundationSkillIds,
   },
   {
     id: "igcse_higher",
     name: "iGCSE Higher (4MA1)",
+    qualification: "igcse",
     skills: [...igcseFoundationSkillIds, ...igcseHigherOnlySkillIds],
   },
 ]

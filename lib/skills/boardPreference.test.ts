@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { getBoard, setBoard, boardLabel, DEFAULT_BOARD } from './boardPreference'
+import { getBoard, setBoard, boardLabel, DEFAULT_BOARD, DEFAULT_QUALIFICATION, } from './boardPreference'
 import { codedBoards } from './examProfile'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,12 +24,12 @@ afterEach(() => { vi.unstubAllGlobals() })
 
 describe('board preference', () => {
   it('defaults to a board we actually hold papers for', () => {
-    expect(codedBoards()).toContain(DEFAULT_BOARD)
+    expect(codedBoards(DEFAULT_QUALIFICATION)).toContain(DEFAULT_BOARD)
     expect(getBoard()).toBe(DEFAULT_BOARD)
   })
 
   it('round-trips every coded board', () => {
-    for (const b of codedBoards()) {
+    for (const b of codedBoards(DEFAULT_QUALIFICATION)) {
       setBoard(b)
       expect(getBoard()).toBe(b)
     }
@@ -76,7 +76,7 @@ describe('boardLabel', () => {
   it('gives every coded board a label short enough for the switch', () => {
     // Three buttons plus padding have to fit a 375px phone alongside nothing
     // else. Anything much longer than "Edexcel" pushes the switch off the side.
-    for (const b of codedBoards()) {
+    for (const b of codedBoards(DEFAULT_QUALIFICATION)) {
       expect(boardLabel(b).length, `${b} renders as a long label`).toBeLessThanOrEqual(10)
     }
   })

@@ -12,6 +12,7 @@
  */
 import { readFileSync, readdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
+import { qualificationOfBoard, type Qualification } from '../data/courses'
 
 const AUDIT_DIR = join(process.cwd(), 'data', 'exam-audit')
 const OUT = join(process.cwd(), 'lib', 'exam', 'markEvidence.data.ts')
@@ -49,8 +50,39 @@ function stats(b: Bucket) {
   }
 }
 
+/**
+ * The qualification these statistics describe.
+ *
+ * Unlike the profile manifest, this table has NO board or qualification
+ * dimension at all — every paper is pooled into one set of numbers that the
+ * exam assembler reads. That was harmless while the corpus held one
+ * qualification; the moment the iGCSE 4MA1 papers were coded it meant 4MA1
+ * mark schemes were silently shaping GCSE papers (66 papers/2012 parts ->
+ * 86/2904 on a rebuild, with the mastery mean moving from 2.02 to 1.92).
+ *
+ * Scoped rather than split because the assembler only builds GCSE papers
+ * today. When iGCSE reaches students this needs to become a table PER
+ * qualification, not a wider pool — merging them would be the same bug again.
+ */
+const QUALIFICATION: Qualification = 'gcse'
+
 function main() {
-  const files = readdirSync(AUDIT_DIR).filter(f => f.endsWith('.json')).sort()
+  const all = readdirSync(AUDIT_DIR).filter(f => f.endsWith('.json')).sort()
+  const files: string[] = []
+  const otherQualification: string[] = []
+  for (const f of all) {
+    const board = JSON.parse(readFileSync(join(AUDIT_DIR, f), 'utf8'))?.meta?.board
+    const q = qualificationOfBoard(board)
+    if (q === null) {
+      throw new Error(
+        `${f}: board ${JSON.stringify(board)} belongs to no qualification.\n` +
+        `Add it to BOARDS_BY_QUALIFICATION in data/courses.ts — deliberately, ` +
+        `since that decides whose exam papers these statistics describe.`,
+      )
+    }
+    ;(q === QUALIFICATION ? files : otherQualification).push(f)
+  }
+
   const rows: Row[] = []
   const skippedByFile: Record<string, number> = {}
   for (const f of files) {
@@ -166,7 +198,12 @@ export const METHOD_SHARE_BY_MARKS: Record<number, number> = ${JSON.stringify(me
 `
   writeFileSync(OUT, body)
 
-  console.log(`${files.length} papers, ${rows.length} parts → ${OUT}`)
+  console.log(`${files.length} ${QUALIFICATION.toUpperCase()} papers, ${rows.length} parts → ${OUT}`)
+  if (otherQualification.length)
+    console.log(
+      `  excluded ${otherQualification.length} paper(s) on another qualification ` +
+      `(these statistics are ${QUALIFICATION.toUpperCase()}-only)`,
+    )
   console.log(`overall: mean ${overall.mean}, range ${overall.min}-${overall.max}`)
   for (const [k, v] of Object.entries(kindOut)) console.log(`  ${k}: n=${(v as { n: number }).n} mean=${(v as { mean: number }).mean}`)
   const ns = Object.values(skillKindOut).map(v => (v as { n: number }).n)

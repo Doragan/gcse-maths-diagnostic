@@ -12,7 +12,7 @@ import {
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
 import {
-  getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD,
+  getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD, DEFAULT_QUALIFICATION,
 } from '../../../lib/skills/boardPreference'
 import { getStudentProfile } from '../../../lib/auth'
 import { isPaidStudent } from '../../../lib/entitlements'
@@ -267,10 +267,16 @@ export default function SkillBriefingPage() {
    * Rendered in BOTH branches of that panel: a student who switches to a board
    * with too few coded papers lands on the "not enough papers" message, and
    * needs the control to still be there to switch back.
+   *
+   * Scoped to the student's QUALIFICATION, which is the generic GCSE one until
+   * a qualification setting exists (signed out) or a course is on the account
+   * (signed in) — see DEFAULT_QUALIFICATION, which is the single seam both of
+   * those replace. Without the scope this offers every coded board, which once
+   * meant putting iGCSE in front of GCSE students.
    */
   const boardSwitch = (
     <div style={styles.tierSwitch} role="group" aria-label="Which exam board are you sitting?">
-      {codedBoards().map(b => (
+      {codedBoards(DEFAULT_QUALIFICATION).map(b => (
         <button
           key={b}
           onClick={() => changeBoard(b)}
