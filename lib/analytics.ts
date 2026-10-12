@@ -24,6 +24,7 @@
 
 import { supabase } from './supabase'
 import { normalizePath } from './pageTitles'
+import { referrerHost } from './referrer'
 
 const SESSION_KEY = 'mathsense_sid'
 const DEV_KEY     = 'mathsense_dev'
@@ -120,12 +121,20 @@ export function isInternal(): boolean {
 const ATTRIBUTION_FIELDS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'] as const
 
 /**
- * Capture campaign attribution from the landing URL (utm_* / gclid), first-touch:
- * the first hit of the session wins, so a later internal navigation can't
- * overwrite the ad click that brought them in. Stored in sessionStorage and
- * attached to every tracked event (see trackEvent), so a signup can be tied back
- * to its campaign in our own analytics_events — independent of GA, which
- * ad-blockers and consent declines can drop. No-op for organic visits (no params).
+ * Capture attribution from the landing URL (utm_* / gclid) and the referring
+ * host, first-touch: the first hit of the session wins, so a later internal
+ * navigation can't overwrite whatever brought them in. Stored in sessionStorage
+ * and attached to every tracked event (see trackEvent), so a signup can be tied
+ * back to its source in our own analytics_events.
+ *
+ * Since Google Analytics was removed this is the ONLY record of where a visit
+ * came from, which is why the referrer was added here rather than to page_view
+ * alone: first-touch means the arrival is still attached to the signup that
+ * happens four pages later.
+ *
+ * A visit with neither campaign parameters nor a referrer stores nothing, and
+ * reads back as organic-direct — which is the honest answer, since a stripped
+ * referrer and a typed address are indistinguishable.
  */
 export function captureAttribution(): void {
   if (typeof window === 'undefined') return
@@ -136,6 +145,9 @@ export function captureAttribution(): void {
     const v = params.get(f)
     if (v) attr[f] = v
   }
+  const ref = referrerHost(document.referrer, window.location.hostname)
+  if (ref) attr.referrer_host = ref
+
   if (Object.keys(attr).length > 0) {
     attr.landing_page = normalizePath(window.location.pathname)
     sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attr))

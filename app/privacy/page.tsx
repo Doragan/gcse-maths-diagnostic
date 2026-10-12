@@ -50,6 +50,7 @@ export default function PrivacyNoticePage() {
           <Ul items={[
             'Basic usage logs (collected by Supabase and Vercel for security and performance purposes)',
             'Product analytics we store ourselves: pages viewed and actions taken, recorded against a per-tab session identifier rather than your account',
+            'The website you arrived from, if you followed a link — the site’s name only, such as “google.com”. We never record the page you came from or anything you searched for.',
           ]} />
           <P>
             <strong>We no longer use Google Analytics.</strong> It was removed in
@@ -208,6 +209,7 @@ export default function PrivacyNoticePage() {
             'The link between our analytics and our Google Ads account is gone with it, so your use of Mathsense is no longer measured against our advertising.',
             'The cookie banner has gone too. It existed only to ask about Google Analytics, and with nothing to ask about there is no reason to keep interrupting you. There is now no third-party cookie on Mathsense at all.',
             'We still keep our own product analytics — which pages were opened and which actions were taken — against an identifier that lives only in the current browser tab. That stays in our database in the United Kingdom, is never linked to your account, and never goes to anyone else. Section 3 describes it.',
+            'We now also record the name of the website you arrived from, if you followed a link to us — “google.com”, say. Google Analytics used to tell us this and no longer does, and it is how we tell whether people are finding Mathsense by searching or because somebody shared it. It is the site’s name only. We never record which page you came from, and never anything you typed into a search.',
             'If your browser still holds cookies Google set while analytics were on, nothing is being sent to them any more. You can clear them in your browser settings for this site.',
           ]} />
           <P>Taken together with version 1.3: everything we store about you is now in the United Kingdom, apart from your email address reaching the United States when we send you a practice reminder you asked for.</P>
