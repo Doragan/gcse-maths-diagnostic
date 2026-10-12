@@ -5,6 +5,9 @@ import {
 } from './qualificationPreference'
 import { getBoard } from './boardPreference'
 import { codedBoards } from './examProfile'
+import {
+  calculatorFiltersFor, getCalculatorFilter, setCalculatorFilter,
+} from '../questions/calculatorPreference'
 import { courseFor, higherOnlySkillsFor, BOARDS_BY_QUALIFICATION, type Qualification } from '../../data/courses'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,6 +25,11 @@ beforeEach(() => {
   vi.stubGlobal('localStorage', {
     getItem: (k: string) => store.get(k) ?? null,
     setItem: (k: string, v: string) => { store.set(k, v) },
+  })
+  // calculatorPreference bridges a sessionStorage key /practice writes.
+  vi.stubGlobal('sessionStorage', {
+    getItem: (k: string) => store.get('s:' + k) ?? null,
+    setItem: (k: string, v: string) => { store.set('s:' + k, v) },
   })
 })
 
@@ -96,6 +104,38 @@ describe('switching qualification', () => {
     setQualification('igcse')
     setQualification('gcse')
     expect(getBoard('gcse')).toBe(other)
+  })
+})
+
+describe('calculator filters follow the qualification', () => {
+  it('offers all three on GCSE', () => {
+    expect(calculatorFiltersFor('gcse')).toEqual(['mixed', 'non_calc', 'calc'])
+  })
+
+  it('never offers Non-calculator on iGCSE', () => {
+    // 4MA1 has no non-calculator paper at all — every coded 4MA1 paper is a
+    // calculator paper — so this is not a harder setting, it is practice for a
+    // paper the student will not sit.
+    expect(calculatorFiltersFor('igcse')).not.toContain('non_calc')
+    expect(calculatorFiltersFor('igcse').length).toBeGreaterThan(0)
+  })
+
+  it('drops a stored Non-calculator filter after a switch to iGCSE', () => {
+    // The filter outlives the switch in localStorage, and the question page
+    // reads it directly to build its pool — so the coercion has to be in
+    // getCalculatorFilter, not only in the toggle.
+    setQualification('gcse')
+    setCalculatorFilter('non_calc')
+    expect(getCalculatorFilter()).toBe('non_calc')
+
+    setQualification('igcse')
+    expect(getCalculatorFilter()).toBe('mixed')
+  })
+
+  it('leaves a Calculator filter alone on iGCSE', () => {
+    setQualification('igcse')
+    setCalculatorFilter('calc')
+    expect(getCalculatorFilter()).toBe('calc')
   })
 })
 

@@ -134,27 +134,6 @@ export default function SkillsIndexPage() {
 
       {/* ── Controls ─────────────────────────────────────────────────────── */}
       <section style={styles.controls}>
-        {QUALIFICATIONS.length > 1 && (
-          <div style={styles.tierSwitch} role="group" aria-label="Which qualification are you sitting?">
-            {QUALIFICATIONS.map(q => (
-              <button
-                key={q}
-                onClick={() => changeQualification(q)}
-                aria-pressed={qualification === q}
-                style={{
-                  ...styles.tierBtn,
-                  background: qualification === q ? colors.card : 'transparent',
-                  color: qualification === q ? colors.textPrimary : colors.textHint,
-                  boxShadow: qualification === q ? '0 1px 2px rgba(16,24,40,.09)' : 'none',
-                  fontWeight: qualification === q ? '650' : '500',
-                }}
-              >
-                {qualificationLabel(q)}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div style={styles.tierSwitch} role="group" aria-label="Which paper are you sitting?">
           {(['foundation', 'higher'] as Tier[]).map(t => (
             <button
@@ -196,6 +175,40 @@ export default function SkillsIndexPage() {
           ))}
         </div>
       </section>
+
+      {/*
+        Qualification, deliberately quiet.
+
+        Nearly everyone here is sitting a domestic GCSE, and this page is
+        branded as such, so a segmented control giving iGCSE equal billing
+        would put a decision in front of the majority to serve a few. It is a
+        one-line link instead — invisible to anyone it does not apply to, and
+        findable by anyone it does. The courses are near-subsets, so a student
+        who never notices it still gets a mostly-right pool rather than a
+        broken one.
+
+        When a signed-in student carries a course on their account this stops
+        being the place the answer comes from; it stays for signed-out visitors.
+      */}
+      {QUALIFICATIONS.length > 1 && (
+        <p style={styles.qualLine}>
+          {qualification === DEFAULT_QUALIFICATION ? (
+            <button
+              onClick={() => changeQualification(QUALIFICATIONS.find(q => q !== DEFAULT_QUALIFICATION)!)}
+              style={styles.qualLink}
+            >
+              Sitting International GCSE?
+            </button>
+          ) : (
+            <>
+              Showing {qualificationLabel(qualification)}.{' '}
+              <button onClick={() => changeQualification(DEFAULT_QUALIFICATION)} style={styles.qualLink}>
+                Switch to {qualificationLabel(DEFAULT_QUALIFICATION)}
+              </button>
+            </>
+          )}
+        </p>
+      )}
 
       {/* Spells out the colour scheme, so the tint is a shortcut for a reader
           who has learnt it rather than the only way to know. Only shown when
@@ -355,6 +368,21 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: 'nowrap',
   },
   filters: { display: 'flex', gap: '6px', flexWrap: 'wrap' },
+  qualLine: {
+    margin: 0,
+    fontSize: font.sm,
+    color: colors.textHint,
+  },
+  qualLink: {
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    color: colors.primary,
+    fontSize: font.sm,
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+  },
   chip: {
     padding: '5px 12px',
     borderRadius: radius.full,

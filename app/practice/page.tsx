@@ -4,15 +4,16 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { courseFor, higherOnlySkillsFor } from '../../data/courses'
-import { getQualification } from '../../lib/skills/qualificationPreference'
+import { getQualification, DEFAULT_QUALIFICATION } from '../../lib/skills/qualificationPreference'
+import type { Qualification } from '../../data/courses'
 import { getStudentProfile, primeStudentIdCache } from '../../lib/auth'
 import { studentMastery, placementGapIds, getWeightedSkillPool, getAccessibleSkillIds, getNeedsPracticeSkillIds } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree, prerequisiteTreeWithin } from '../../lib/skills/skillGraph'
 import { isPaidStudent } from '../../lib/entitlements'
 import { skills } from '../../data/skills'
 import { usePublishedSkillIds, isPractisable } from '../../lib/skills/publishedSkills'
-import { CALCULATOR_FILTERS, CALCULATOR_FILTER_LABELS, calculatorValuesFor, type CalculatorFilter } from '../../lib/questions/calculator'
-import { getCalculatorFilter, setCalculatorFilter } from '../../lib/questions/calculatorPreference'
+import { CALCULATOR_FILTER_LABELS, calculatorValuesFor, type CalculatorFilter } from '../../lib/questions/calculator'
+import { getCalculatorFilter, setCalculatorFilter, calculatorFiltersFor } from '../../lib/questions/calculatorPreference'
 
 import {
   colors, font, radius,
@@ -52,6 +53,7 @@ export default function PracticePage() {
   // directly in the initializer would mismatch server-rendered HTML during
   // hydration, since the server never sees a stored value.
   const [calcFilter, setCalcFilterState] = useState<CalculatorFilter>('mixed')
+  const [qualification, setQualificationState] = useState<Qualification>(DEFAULT_QUALIFICATION)
   // Whether that correction has happened yet. The count query waits for it:
   // counting under the default Mixed and then again under the stored filter
   // put two queries in flight at once, and the slower one won — which showed
@@ -113,6 +115,9 @@ export default function PracticePage() {
   // Correct the calculator filter from localStorage after mount (see the
   // state declaration above for why this isn't done in the initializer).
   useEffect(() => {
+    setQualificationState(getQualification())
+    // getCalculatorFilter already drops a filter that does not apply to this
+    // student's qualification, so this cannot land on Non-calculator for iGCSE.
     setCalcFilterState(getCalculatorFilter())
     setPrefsReady(true)
   }, [])
@@ -439,7 +444,7 @@ export default function PracticePage() {
           <div style={styles.calcRow}>
             <span style={styles.calcLabel}>Calculator</span>
             <div style={styles.calcGroup}>
-              {CALCULATOR_FILTERS.map(f => {
+              {calculatorFiltersFor(qualification).map(f => {
                 const selected = calcFilter === f
                 return (
                   <button
