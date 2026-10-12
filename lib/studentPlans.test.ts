@@ -64,6 +64,9 @@ describe('wantedFeatureLabel', () => {
   it('covers the other locked focus modes', () => {
     expect(wantedFeatureLabel('topic', null)).toContain('whole topic')
     expect(wantedFeatureLabel('weakspots', null)).toContain('weak spots')
+    // The mini-exam quota wall links here with ?want=exam (docs/audit/24 B2);
+    // without this case it would land on the bare pricing page.
+    expect(wantedFeatureLabel('exam', null)).toContain('mini-exam')
   })
 
   it('shows nothing for an absent or unrecognised want', () => {

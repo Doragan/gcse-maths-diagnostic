@@ -133,6 +133,8 @@ export function wantedFeatureLabel(
       return 'You wanted to drill a whole topic.'
     case 'weakspots':
       return 'You wanted a session built from your weak spots.'
+    case 'exam':
+      return 'You wanted another mini-exam this month.'
     default:
       return null
   }
