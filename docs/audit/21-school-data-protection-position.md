@@ -149,13 +149,31 @@ table got wrong the first time._
 | Resend | **Opted-in practice reminders only** — email address | 🔴 **United States** | Resend's own GDPR page |
 | Upstash | Rate limiting — the visitor's IP for ~1 minute | **London, UK** | Console, confirmed by the controller 2026-09-23 |
 | Google sign-in | Only if a pupil chooses it; Google passes us their name and email | **United States** | Live path in `lib/auth.ts` |
-| Google Analytics | Usage analytics, **only** after the visitor accepts cookies | **United States** | — |
+
+### ✅ Google Analytics removed, 2026-10-10
+
+Removed with the ad campaign it existed to measure. It was the only recipient of
+any data about how a pupil uses the service, and the only one carrying an
+advertising linkage. Verified in the browser: no request to any Google host, no
+`gtag`, no GA cookie, and the consent banner gone — it had no other purpose.
+
+Product analytics are now first-party only: our own table, in the UK, keyed on a
+per-tab identifier that is never joined to an account. **No usage data about a
+pupil now leaves the United Kingdom at all**, which is a materially better
+sentence to put in front of a school than the one it replaces.
+
+The banner's removal rests on a judgement worth recording, because reversing it
+is cheap and reversing it late is not: first-party, per-tab, UK-only analytics
+that never leave our infrastructure sit in the ICO's low-risk category, where a
+third-party transfer to the US did not. Anything that sends usage data to a third
+party again would need the consent mechanism rebuilt before it ships.
 
 ### 🔴 "Google is the only routine transfer outside the UK and EU" was wrong
 
-It is wrong three times over: Google Analytics, Google sign-in, and **Resend**.
+It was wrong three times over: Google Analytics, Google sign-in, and **Resend**.
 That sentence is struck from this document and must come out of
-`docs/legal/dpa-schools.md` §7.1 before it is issued.
+`docs/legal/dpa-schools.md` §7.1 before it is issued. Two of the three remain;
+Google Analytics is gone as of 2026-10-10, which narrows but does not fix it.
 
 **Resend is the one that matters and the one nobody had checked.** It stores all
 customer data in the United States — message content, delivery logs, account
