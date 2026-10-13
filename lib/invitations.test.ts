@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   parseEmailList, invitationState, acceptedElsewhere, invitationEmail, acceptUrl,
-  safeNext, maskEmail, STATE_LABEL, MAX_EMAILS,
+  safeNext, maskEmail, wouldTakeSomeoneElsesPlace, STATE_LABEL, MAX_EMAILS,
 } from './invitations'
 
 describe('safeNext', () => {
@@ -153,6 +153,53 @@ describe('acceptedElsewhere', () => {
     // The expected case, not an anomaly: a school address invited, a personal
     // one used. It is shown so the teacher's roster reconciles.
     expect(acceptedElsewhere('a.pupil@school.uk', 'amara@gmail.com')).toBe(true)
+  })
+})
+
+describe('wouldTakeSomeoneElsesPlace', () => {
+  it('refuses when an existing member accepts an invitation sent to someone else', () => {
+    // The shared-computer case found in testing 2026-10-13: pupil B is signed
+    // in, opens pupil A's link, and accepting burns A's place while changing
+    // nothing for B. One account consumed two invitations exactly this way.
+    expect(wouldTakeSomeoneElsesPlace({
+      isAlreadyMember: true,
+      invitedEmail: 'a.pupil@school.uk',
+      accountEmail: 'b.pupil@school.uk',
+    })).toBe(true)
+  })
+
+  it('allows an existing member to accept their OWN invitation', () => {
+    // Joined by code first, now opening their own link. Marking it accepted is
+    // what stops the teacher chasing a pupil already sitting in the class.
+    expect(wouldTakeSomeoneElsesPlace({
+      isAlreadyMember: true,
+      invitedEmail: 'a.pupil@school.uk',
+      accountEmail: 'A.Pupil@School.UK',
+    })).toBe(false)
+  })
+
+  it('allows a non-member whatever address they signed up with', () => {
+    // THE WHOLE POINT of matching on the token. Blocking this would reinstate
+    // the bug that got the feature reverted, and would make a parent-forwarded
+    // invitation impossible to accept.
+    expect(wouldTakeSomeoneElsesPlace({
+      isAlreadyMember: false,
+      invitedEmail: 'a.pupil@school.uk',
+      accountEmail: 'amara@gmail.com',
+    })).toBe(false)
+    expect(wouldTakeSomeoneElsesPlace({
+      isAlreadyMember: false,
+      invitedEmail: 'parent@gmail.com',
+      accountEmail: 'child@gmail.com',
+    })).toBe(false)
+  })
+
+  it('is unmoved by case and padding, so a stray space cannot burn a place', () => {
+    expect(wouldTakeSomeoneElsesPlace({
+      isAlreadyMember: true,
+      invitedEmail: '  A.Pupil@School.UK  ',
+      accountEmail: 'a.pupil@school.uk',
+    })).toBe(false)
   })
 })
 

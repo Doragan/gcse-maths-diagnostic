@@ -89,6 +89,14 @@ export async function GET(req: Request) {
       found: true,
       // Not the invitation id: acceptance is by token, and handing out a second
       // identifier for the same row only widens what has to be kept straight.
+      //
+      // The CLASS id, though, is needed: the page compares it against the
+      // viewer's own classes so it can say "you are already in this class"
+      // instead of letting them burn a place that is not theirs. Safe to
+      // return — /api/classes/lookup already hands out a class id to anyone
+      // holding a join code, and an id alone grants nothing without a
+      // membership that only RLS can create.
+      class_id: data.class_id,
       class_name: cls?.name ?? 'a class',
       invited_email_masked: maskEmail(data.email),
       // 'joined' here means somebody already accepted this invitation. The page

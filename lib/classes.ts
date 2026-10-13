@@ -278,6 +278,8 @@ export type MyInvitations = {
 export type InvitationLookup =
   | {
       found: true
+      /** Compared against the viewer's own classes, to catch "already a member". */
+      class_id: string
       class_name: string
       /** Masked — enough to recognise, useless for harvesting. */
       invited_email_masked: string

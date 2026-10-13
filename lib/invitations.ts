@@ -181,6 +181,41 @@ export function acceptedElsewhere(invitedEmail: string, acceptedEmail: string | 
 }
 
 /**
+ * Would accepting this invitation burn somebody else's place?
+ *
+ * The case this exists for, found in testing on 2026-10-13: a pupil opens their
+ * emailed link on a shared school or family computer where a DIFFERENT pupil is
+ * still signed in. The signed-in account is already in the class, so joining
+ * changes nothing for them — but the invitation is marked accepted, and the
+ * pupil it was actually sent to then gets "that invitation has already been
+ * used". The teacher's roster shows the row as Joined, so the missing pupil
+ * looks present. One account consumed two invitations exactly this way.
+ *
+ * The rule is narrow on purpose, because the obvious broad version is wrong:
+ *
+ *   ALREADY A MEMBER, DIFFERENT ADDRESS -> refuse. Nothing is gained by
+ *     accepting (the membership exists) and a place is destroyed.
+ *
+ *   ALREADY A MEMBER, SAME ADDRESS -> allow. This is the pupil who joined by
+ *     CODE first and is now opening their own invitation, which the original
+ *     code rightly called "a perfectly normal order". Marking it accepted is
+ *     what stops the teacher seeing a straggler who is already sitting in the
+ *     class.
+ *
+ *   NOT A MEMBER -> allow, whatever the address. This is the whole point of
+ *     matching on the token: a pupil invited at school who signs up with a
+ *     personal address, or a younger pupil whose parent forwarded the link.
+ *     Refusing here would reinstate the bug that got the feature reverted.
+ */
+export function wouldTakeSomeoneElsesPlace(
+  { isAlreadyMember, invitedEmail, accountEmail }:
+  { isAlreadyMember: boolean; invitedEmail: string; accountEmail: string },
+): boolean {
+  if (!isAlreadyMember) return false
+  return acceptedElsewhere(invitedEmail, accountEmail)
+}
+
+/**
  * The invitation email.
  *
  * Plain text, addressed to someone who may be a child and may have no account.
