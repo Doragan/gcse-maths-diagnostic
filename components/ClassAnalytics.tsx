@@ -5,7 +5,9 @@ import {
   getClassAnalytics, TOPICS,
   type ClassAnalytics, type Topic, type StudentAnalytics,
 } from '../lib/teacherAnalytics'
-import { getClassReadiness, type ClassReadiness } from '../lib/exam/classReadiness'
+import {
+  fetchClassExamSessions, computeClassReadiness, type ClassReadiness,
+} from '../lib/exam/classReadiness'
 import ClassMasteryTrend from './ClassMasteryTrend'
 import ClassEffortTrend from './ClassEffortTrend'
 import StudentDetailModal from './StudentDetailModal'
@@ -55,14 +57,26 @@ export default function ClassAnalytics({ classId }: { classId: string }) {
   useEffect(() => {
     let live = true
     setState('loading')
-    getClassAnalytics(classId)
-      .then(async d => {
-        if (!live) return
-        setData(d); setState('ready')
-        const r = await getClassReadiness(classId, d.students.map(x => x.studentId))
-        if (live) setReadiness(r)
-      })
+    // Both requests start NOW, in parallel. The readiness RPC takes only the
+    // class id; the member ids it is combined with are applied locally by
+    // computeClassReadiness afterwards. Awaiting the analytics first, as this
+    // used to, serialised two independent round trips for no reason.
+    //
+    // Analytics settles the card on its own so the table paints as soon as it
+    // can; readiness fills its panel whenever it lands. A readiness failure
+    // yields [] rather than rejecting, so it can never take the card down.
+    const analytics = getClassAnalytics(classId)
+    const sessions = fetchClassExamSessions(classId)
+
+    analytics
+      .then(d => { if (live) { setData(d); setState('ready') } })
       .catch(() => { if (live) setState('error') })
+
+    Promise.all([analytics, sessions])
+      .then(([d, s]) => {
+        if (live) setReadiness(computeClassReadiness(s, d.students.map(x => x.studentId)))
+      })
+      .catch(() => { /* analytics already set the error state */ })
     return () => { live = false }
   }, [classId])
 

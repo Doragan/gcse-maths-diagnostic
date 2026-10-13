@@ -89,14 +89,18 @@ export default function ClassOverviewPage() {
   const notJoined = invitations.filter(i => i.state === 'waiting' || i.state === 'expired').length
   const notSent = invitations.filter(i => i.state === 'not_sent').length
 
-  if (loading) {
-    return (
-      <main style={styles.page}>
-        <p style={{ color: colors.textSecondary }}>Loading...</p>
-      </main>
-    )
-  }
-
+  // ⚠ DELIBERATELY NO WHOLE-PAGE LOADING GATE.
+  //
+  // There used to be an `if (loading) return <p>Loading…</p>` here, and it was
+  // the single biggest cause of this page feeling slow: it stopped
+  // ClassAnalytics and ClassCoverage from MOUNTING, so their requests — the
+  // expensive ones, 300ms to 1.2s for the mastery RPC alone — did not even
+  // start until this page's own three round trips had finished. Two
+  // independent waits, run back to back.
+  //
+  // Now the shell renders immediately and every card fetches concurrently.
+  // Both children already own their loading and error states, so each fills in
+  // when it is ready. If you reinstate a gate here, measure first.
   if (notFound) {
     return (
       <main style={styles.page}>
@@ -116,7 +120,9 @@ export default function ClassOverviewPage() {
   return (
     <main style={styles.page}>
       <div style={styles.header}>
-        <h1 style={styles.h1}>{className}</h1>
+        {/* Non-breaking space, not an empty string: it holds the line's
+            height so the header does not jump when the name lands. */}
+        <h1 style={styles.h1}>{className || ' '}</h1>
         <button
           onClick={() => router.push('/dashboard/classes')}
           style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
@@ -132,6 +138,7 @@ export default function ClassOverviewPage() {
         <div style={{ flex: 1, minWidth: 220 }}>
           <h2 style={sectionTitle}>People</h2>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '6px 0 0', lineHeight: 1.6 }}>
+            {loading ? 'Counting…' : <>
             <strong>{members.length}</strong> {members.length === 1 ? 'student has' : 'students have'} joined
             {notJoined > 0 && (
               <>
@@ -142,6 +149,7 @@ export default function ClassOverviewPage() {
             {invitations.length === 0 && members.length === 0 && (
               <> — share the join code or invite your class by email</>
             )}
+            </>}
           </p>
           {/* Called out separately and in red, because the fix is ours, not the
               pupil's: these addresses were never actually written to. */}
