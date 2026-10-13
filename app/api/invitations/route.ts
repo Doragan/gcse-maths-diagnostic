@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { wouldTakeSomeoneElsesPlace } from '../../../lib/invitations'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Student-side invitations: see who has invited you, and accept.
@@ -192,6 +193,41 @@ export async function POST(req: Request) {
           code: 'invitation_unavailable',
         },
         { status: 404 },
+      )
+    }
+
+    // ── Don't let one account consume another pupil's invitation ────────────
+    //
+    // Found in testing on 2026-10-13: a pupil opens their link on a shared
+    // computer where a DIFFERENT pupil is still signed in. That account is
+    // already in the class, so accepting changes nothing for them — but the
+    // invitation is burned, and the pupil it was sent to gets "already used"
+    // while the teacher's roster shows them as Joined.
+    //
+    // Enforced HERE as well as on the page, because the page's check is a
+    // courtesy and this one is the guarantee. See wouldTakeSomeoneElsesPlace
+    // for why "already a member with the SAME address" is deliberately allowed.
+    const { data: existing } = await ctx.admin
+      .from('class_memberships')
+      .select('status')
+      .eq('class_id', invitation.class_id)
+      .eq('student_id', ctx.user.id)
+      .maybeSingle()
+
+    if (wouldTakeSomeoneElsesPlace({
+      isAlreadyMember: existing?.status === 'active',
+      invitedEmail: invitation.email,
+      accountEmail: ctx.email,
+    })) {
+      // 409, not 403: nothing is wrong with the caller's rights — the request
+      // conflicts with the state of the class. The invitation is left PENDING
+      // so the pupil it belongs to can still use it.
+      return NextResponse.json(
+        {
+          error: 'You are already in this class, and this invitation was sent to someone else',
+          code: 'already_member',
+        },
+        { status: 409 },
       )
     }
 

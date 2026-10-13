@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { getStudentProfile } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import {
-  lookupInvitation, acceptInvitation, type InvitationLookup,
+  lookupInvitation, acceptInvitation, getStudentClasses, type InvitationLookup,
 } from '../../../lib/classes'
 import { PENDING_INVITE_KEY } from '../../../lib/invitations'
 import {
@@ -49,7 +49,13 @@ import {
 type Viewer =
   | { kind: 'loading' }
   | { kind: 'anonymous' }
-  | { kind: 'student'; email: string; confirmed: boolean }
+  | {
+      kind: 'student'
+      email: string
+      confirmed: boolean
+      /** Already an active member of THIS class. See wouldTakeSomeoneElsesPlace. */
+      alreadyMember: boolean
+    }
   | { kind: 'not_student' }
 
 export default function AcceptInvitationPage() {
@@ -108,10 +114,32 @@ export default function AcceptInvitationPage() {
       const profile = await getStudentProfile()
       if (!profile) { setViewer({ kind: 'not_student' }); return }
 
+      // Is this account ALREADY in the class the invitation is for?
+      //
+      // Without this the page happily offers Join to a pupil who is already a
+      // member, and accepting burns the invitation of whoever it was really
+      // sent to — the shared-computer case found in testing. The classes page
+      // has always filtered these out; this surface had not.
+      //
+      // RLS-gated and client-side: a student can only ever read their own
+      // memberships, so this cannot be used to probe anyone else's.
+      let alreadyMember = false
+      if (invitation.found) {
+        try {
+          const mine = await getStudentClasses()
+          alreadyMember = mine.some(c => c.class_id === invitation.class_id)
+        } catch {
+          // Could not read their classes. Fall through as 'not a member' — the
+          // accept route enforces this properly and will refuse with
+          // already_member, which the button handler surfaces.
+        }
+      }
+
       setViewer({
         kind: 'student',
         email: user.email ?? '',
         confirmed: Boolean(user.email_confirmed_at),
+        alreadyMember,
       })
     })()
   }, [token])
@@ -353,6 +381,45 @@ export default function AcceptInvitationPage() {
             <button onClick={() => window.location.reload()} style={{ ...primaryButton, width: 'auto' }}>
               I have confirmed it
             </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Already in this class. ─────────────────────────────────────────────────
+  //
+  // Two quite different people land here, so the copy has to serve both without
+  // accusing either:
+  //
+  //   * The invited pupil, who joined by CODE first and is now opening their
+  //     own link. Nothing is wrong; they are simply already in.
+  //   * Someone else's session on a shared computer. For them, pressing Join
+  //     would destroy the invited pupil's place while changing nothing for
+  //     themselves — so there is no Join button at all, and the way out is to
+  //     sign out and open the link again.
+  //
+  // The accept route refuses the second case regardless (409 already_member);
+  // this is here so nobody reaches a button that cannot work.
+  if (viewer.kind === 'student' && viewer.confirmed && viewer.alreadyMember) {
+    return (
+      <div style={pageContainer}>
+        <div style={{ ...card, border: `1px solid ${colors.successBorder}` }}>
+          <h1 style={heading}>You are already in {class_name}</h1>
+          <p style={prose}>
+            This invitation was sent to <strong>{invited_email_masked}</strong>, and the account
+            you are signed in as — <strong>{viewer.email}</strong> — is already a member of{' '}
+            <strong>{class_name}</strong>. There is nothing you need to do.
+          </p>
+          <p style={prose}>
+            If this invitation was meant for <strong>someone else</strong>, do not accept it on
+            this account: sign out first, then open the link again on theirs. Accepting here
+            would use up their invitation without adding them to the class.
+          </p>
+          <div style={row}>
+            <Link href="/student/classes" style={{ ...primaryButton, width: 'auto', textDecoration: 'none' }}>
+              My classes
+            </Link>
           </div>
         </div>
       </div>
