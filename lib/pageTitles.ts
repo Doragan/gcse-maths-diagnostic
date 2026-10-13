@@ -101,6 +101,13 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/dashboard\/assignments$/, 'Assignments'],
   [/^\/dashboard\/exam$/, 'Mini-exam'],
   [/^\/dashboard\/upgrade$/, 'Upgrade'],
+  // The tutor's cross-class student view (docs/audit/26). BOTH rules must stay
+  // above the bare-id catch-all below: `/dashboard/students` matches
+  // /^\/dashboard\/[^/]+$/ perfectly well, so without this it would be titled
+  // "Student overview" and normalised to `/dashboard/[id]` — wrong in the tab
+  // and silently merged with a different route in GA4.
+  [/^\/dashboard\/students\/[^/]+$/, 'Student', '/dashboard/students/[id]'],
+  [/^\/dashboard\/students$/, 'My students'],
   [/^\/dashboard\/[^/]+$/, 'Student overview', '/dashboard/[id]'],
   [/^\/dashboard$/, 'Teacher dashboard'],
 

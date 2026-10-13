@@ -40,6 +40,21 @@ describe('titleForPath', () => {
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
   })
 
+  it('keeps the tutor student view out of the /dashboard/[id] catch-all', () => {
+    // /dashboard/students matches /^\/dashboard\/[^/]+$/ perfectly well, so
+    // without a rule above it this page would be titled "Student overview" and
+    // reported as /dashboard/[id] — a wrong tab title and two different routes
+    // silently merged into one row in GA4.
+    expect(titleForPath('/dashboard/students')).toBe('My students — Mathsense')
+    expect(normalizePath('/dashboard/students')).toBe('/dashboard/students')
+
+    expect(titleForPath('/dashboard/students/abc-123')).toBe('Student — Mathsense')
+    expect(normalizePath('/dashboard/students/abc-123')).toBe('/dashboard/students/[id]')
+
+    // And the catch-all it sits above still works for what it was meant for.
+    expect(titleForPath('/dashboard/abc-123')).toBe('Student overview — Mathsense')
+  })
+
   it('keeps the skill index distinct from an individual guide', () => {
     // /skills must not be swallowed by the /skill/[slug] pattern, or the index
     // and every guide collapse into one row in the analytics.
