@@ -139,12 +139,37 @@ export function computeClassReadiness(
  * not own the class. An empty readiness panel is a fine outcome; a dashboard
  * that throws is not.
  */
+/**
+ * Just the network half: every exam session in the class.
+ *
+ * Split out from getClassReadiness so a caller can START this request without
+ * knowing the member ids. The RPC only ever took `_class_id` — the ids are used
+ * purely by computeClassReadiness, which is local and pure — so waiting for a
+ * roster before firing it was serialising two independent requests for no
+ * reason. ClassAnalytics was doing exactly that, and on a class page where the
+ * mastery RPC already costs 300ms–1.2s it was the second-largest avoidable
+ * delay.
+ *
+ * Returns [] on error, matching the old behaviour: a missing readiness panel is
+ * not worth failing the whole analytics card for.
+ */
+export async function fetchClassExamSessions(classId: string): Promise<ClassExamSession[]> {
+  const { supabase } = await import('../supabase')
+  const { data, error } = await supabase.rpc('get_class_exam_sessions', { _class_id: classId })
+  if (error) return []
+  return (data ?? []) as ClassExamSession[]
+}
+
+/**
+ * Fetch and compute in one call.
+ *
+ * Kept for callers that have the member ids to hand already and gain nothing
+ * from splitting. Prefer fetchClassExamSessions + computeClassReadiness where
+ * the fetch can be started earlier.
+ */
 export async function getClassReadiness(
   classId: string,
   memberIds: string[],
 ): Promise<ClassReadiness> {
-  const { supabase } = await import('../supabase')
-  const { data, error } = await supabase.rpc('get_class_exam_sessions', { _class_id: classId })
-  if (error) return computeClassReadiness([], memberIds)
-  return computeClassReadiness((data ?? []) as ClassExamSession[], memberIds)
+  return computeClassReadiness(await fetchClassExamSessions(classId), memberIds)
 }
