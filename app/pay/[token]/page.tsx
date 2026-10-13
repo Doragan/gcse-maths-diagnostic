@@ -45,9 +45,18 @@ export default function ParentPayPage() {
       .then(r => r.json())
       .then(data => {
         setFirstName(data.firstName ?? null)
-        setStatus(data.status === 'ok' ? 'ok' : data.status === 'already_paid' ? 'already_paid' : 'invalid')
+        const resolved = data.status === 'ok' ? 'ok' : data.status === 'already_paid' ? 'already_paid' : 'invalid'
+        setStatus(resolved)
+        // The middle of the funnel: without this, "the student made a link" and
+        // "a parent actually opened it" are indistinguishable (docs/audit/24
+        // B3). `status` carries the outcome — an expired link that nobody can
+        // act on looks identical to a live one otherwise. No token, no name.
+        trackEvent('parent_pay_page_viewed', { status: resolved })
       })
-      .catch(() => setStatus('invalid'))
+      .catch(() => {
+        setStatus('invalid')
+        trackEvent('parent_pay_page_viewed', { status: 'error' })
+      })
   }, [token])
 
   async function handlePay() {
