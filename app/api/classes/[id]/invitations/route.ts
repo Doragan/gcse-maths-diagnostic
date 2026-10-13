@@ -234,22 +234,27 @@ async function deliver(
 /**
  * Who the invitation says it is from.
  *
- * Always null — "Your teacher" — and that is a decision, not a gap.
+ * The teacher's own display_name, or null for "Your teacher".
  *
- * `teachers` carries no display_name (checked against the live schema on
- * 2026-10-10: id, email, created_at, paid_until, free_assessments_used,
- * is_admin), so the only name available is the teacher's EMAIL ADDRESS. Putting
- * that in front of a whole class discloses an adult's personal address — which
- * for a sole tutor is very often their own gmail — to thirty children, on their
- * behalf and without being asked. That is not mine to decide, so it is not sent.
+ * ⚠ NEVER THE LOGIN EMAIL. Until 2026-10-13 this returned null unconditionally,
+ * because the only name on the row was the address the teacher signs in with,
+ * and putting that in front of a whole class discloses an adult's personal
+ * address — for a sole tutor, usually their own gmail — to thirty children,
+ * without being asked. display_name exists precisely so there is something to
+ * send that is NOT that. If it is null the fallback stands; do not reach for
+ * `email` as a substitute.
  *
- * The class name does the identifying work instead; the tutor has told the group
- * what the class is called. If a named sender is wanted later, the right fix is
- * a display_name on `teachers` that the teacher fills in themselves, not reusing
- * their login address. `invitationEmail` already takes the name.
+ * Read per invite request rather than cached: one small indexed lookup by
+ * primary key, against a send that is already doing an HTTP round trip per
+ * recipient.
  */
-function inviterName(): string | null {
-  return null
+async function inviterName(ctx: TeacherContext): Promise<string | null> {
+  const { data } = await ctx.admin
+    .from('teachers')
+    .select('display_name')
+    .eq('id', ctx.user.id)
+    .maybeSingle()
+  return data?.display_name ?? null
 }
 
 export async function POST(
@@ -283,7 +288,7 @@ export async function POST(
         )
       }
 
-      const sent = await deliver(ctx, invitation, origin, inviterName())
+      const sent = await deliver(ctx, invitation, origin, await inviterName(ctx))
       return NextResponse.json({ sent: sent ? 1 : 0, failed: sent ? 0 : 1 })
     }
 
@@ -339,7 +344,7 @@ export async function POST(
       .eq('status', 'pending')
       .in('email', valid)
 
-    const teacherName = inviterName()
+    const teacherName = await inviterName(ctx)
 
     // Only mail the ones that have not been mailed already, so re-pasting a
     // list of thirty to add one pupil sends one email, not thirty.

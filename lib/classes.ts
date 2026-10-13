@@ -469,3 +469,48 @@ export async function revokeInvitation(classId: string, id: string): Promise<voi
   })
   if (!res.ok) throw new Error('Could not withdraw the invitation')
 }
+
+// ── The teacher's own display name ───────────────────────────────────────────
+// Goes through a service-role route rather than RLS: `teachers` is closed to
+// client writes on purpose, and the route updates one named column on the
+// caller's own row. See app/api/account/display-name for the reasoning.
+
+/** The signed-in teacher's name, or null if they have not set one. */
+export async function getMyDisplayName(): Promise<string | null> {
+  const session = await getSession()
+  if (!session) return null
+
+  const res = await fetch('/api/account/display-name', {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  // 403 means a student is on /account, which is a supported visitor there —
+  // they simply have no teacher name. Not an error worth surfacing.
+  if (!res.ok) return null
+
+  const json = await res.json().catch(() => null)
+  return (json?.display_name ?? null) as string | null
+}
+
+/**
+ * Set it, or clear it by passing an empty string.
+ *
+ * Returns what was actually stored, which may differ from what was typed —
+ * whitespace is collapsed — so the caller can show the stored value rather
+ * than the draft.
+ */
+export async function setMyDisplayName(name: string): Promise<string | null> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch('/api/account/display-name', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ display_name: name }),
+  })
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(json?.error ?? 'Could not save your name')
+  return (json?.display_name ?? null) as string | null
+}

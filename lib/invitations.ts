@@ -274,3 +274,53 @@ export function invitationEmail(
 export function acceptUrl(origin: string, token: string): string {
   return `${origin.replace(/\/$/, '')}/invite/${encodeURIComponent(token)}`
 }
+
+// ── The teacher's name on an invitation ──────────────────────────────────────
+
+/**
+ * Longest name stored. Generous for "Mrs Abena-Fosu (Maths)", short enough that
+ * nobody pastes an essay into an email subject line.
+ */
+export const MAX_DISPLAY_NAME = 60
+
+export type DisplayNameResult =
+  /** Store this. */
+  | { ok: true; value: string }
+  /** Store NULL — the teacher cleared the field, which is allowed. */
+  | { ok: true; value: null }
+  | { ok: false; error: string }
+
+/**
+ * Clean and check a teacher-supplied display name.
+ *
+ * Free text on purpose: this is what a teacher's pupils actually call them
+ * ("Mr Okafor", "Miss R", "Chris"), and that recognisability is the entire
+ * point — the sender's name is the main thing that makes an email to a child
+ * look legitimate rather than like phishing. So the rules are about safety and
+ * storage, not about format.
+ *
+ * Blank is VALID and means null. Clearing the field is a legitimate choice, and
+ * the email falls back to "Your teacher".
+ */
+export function parseDisplayName(raw: unknown): DisplayNameResult {
+  if (raw === null || raw === undefined) return { ok: true, value: null }
+  if (typeof raw !== 'string') return { ok: false, error: 'Name must be text' }
+
+  // Collapse internal runs of whitespace as well as trimming the ends: a name
+  // pasted out of a spreadsheet often arrives with a tab or a double space in
+  // it, and "Mr  Okafor" should not be a different name from "Mr Okafor".
+  // \s covers the newlines that would otherwise break an email subject header.
+  const value = raw.replace(/\s+/g, ' ').trim()
+
+  if (value === '') return { ok: true, value: null }
+  if (value.length > MAX_DISPLAY_NAME) {
+    return { ok: false, error: `Please keep it to ${MAX_DISPLAY_NAME} characters or fewer` }
+  }
+  // Control characters have no business in a name and would land in an email
+  // header. Rejected rather than stripped, so the teacher sees what happened
+  // instead of silently getting something other than what they typed.
+  if (/[\u0000-\u001f\u007f]/.test(value)) {
+    return { ok: false, error: 'Name contains characters that are not allowed' }
+  }
+  return { ok: true, value }
+}
