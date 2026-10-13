@@ -359,8 +359,9 @@ export default function ClassPeoplePage() {
                       {STATE_LABEL[i.state]}
                       {/* Expected, not an anomaly: a school address invited and
                           a personal one used, or a parent's address passed on to
-                          the child. Shown so the two lists reconcile. */}
-                      {i.joined_as && ` — as ${i.joined_as}`}
+                          the child. Says THAT it differs, not what it is — a
+                          teacher is not shown a pupil's address. */}
+                      {i.accepted_elsewhere && ' — with a different email'}
                     </span>
                   </span>
                   <span style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>

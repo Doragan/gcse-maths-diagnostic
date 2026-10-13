@@ -1,0 +1,92 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Record WHETHER a pupil joined on a different address, not WHICH address.
+--
+-- ADDITIVE ONLY. public.class_invitations already exists; this adds one boolean.
+--
+-- ── What this replaces, and why it is better on both counts ─────────────────
+--
+-- The teacher's roster shows "Joined" against each invited address, and needs to
+-- say when the pupil actually signed up with a DIFFERENT address — a personal
+-- one instead of the school one the teacher typed, or a child accepting a link
+-- forwarded by a parent. Without that, the roster reads as two lists quietly
+-- disagreeing.
+--
+-- It used to do this by looking the address up on every read:
+-- app/api/classes/[id]/invitations called auth.admin.getUserById ONCE PER
+-- ACCEPTED INVITATION, compared the result, masked it, and threw the original
+-- away. Two problems.
+--
+-- 1. IT WAS AN N+1 THAT GREW AS THE FEATURE SUCCEEDED. Only accepted
+--    invitations triggered a lookup, so thirty PENDING ones were free and a
+--    fully-joined class of thirty — the goal state — cost thirty auth-admin
+--    round trips on every single page load, permanently. And in the common case
+--    where everyone used the address they were invited at, all thirty results
+--    were discarded.
+--
+-- 2. IT PUT A PUPIL'S OWN ADDRESS THROUGH A TEACHER-FACING ROUTE.
+--    docs/legal/dpa-schools.md §4 tells schools that a pupil's email address
+--    "is held only by the authentication provider and is not reachable by any
+--    teacher-facing function", and calls that "a property of the system's
+--    design, not an access rule that could be changed by configuration".
+--    Returning even a masked form sat badly against that; STORING one would
+--    have made it plainly false.
+--
+--    ⚠ Storing the masked address was the first plan here and was rejected for
+--    exactly that reason. A mask keeps the domain and the first and last
+--    characters, so it is still derived personal data, retained, outside the
+--    authentication provider. If anyone proposes it again, read §4 first.
+--
+-- A boolean answers the question the roster actually asks. It needs no lookup,
+-- so the N+1 disappears, and it retains nothing about the address at all —
+-- strictly less than before rather than more.
+--
+-- NOTE the invited address in `class_invitations.email` is untouched and is not
+-- in tension with §4: that is the address the TEACHER typed, their own input
+-- about who they expect. §4 concerns the address on the pupil's own account.
+--
+-- ── Nullable, with three meanings ───────────────────────────────────────────
+--   true   accepted, on an address other than the invited one
+--   false  accepted, on the invited address
+--   null   not accepted (yet), so the question has no answer
+--
+-- `status` already distinguishes accepted from pending, so null is never
+-- ambiguous in practice — the roster reads this only for accepted rows.
+--
+-- No backfill. Checked against production on 2026-10-13: ZERO invitations have
+-- ever been accepted (both existing rows are pending), so there is no history to
+-- reconstruct and nothing is lost by the old lookup going away.
+--
+-- Apply via the Supabase SQL Editor. Idempotent. Apply BEFORE deploying.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+begin;
+
+alter table public.class_invitations
+  add column if not exists accepted_elsewhere boolean;
+
+commit;
+
+-- ── Verify after applying ────────────────────────────────────────────────────
+--
+-- 1. The column exists and is nullable. EXPECT one row, is_nullable = YES:
+--
+--      select column_name, data_type, is_nullable
+--      from information_schema.columns
+--      where table_schema = 'public' and table_name = 'class_invitations'
+--        and column_name = 'accepted_elsewhere';
+--
+-- 2. Nothing was invented for existing rows. EXPECT every row null, and — as of
+--    2026-10-13 — accepted = 0, so there is nothing that SHOULD have a value:
+--
+--      select count(*) as total,
+--             count(accepted_elsewhere) as answered,
+--             count(*) filter (where status = 'accepted') as accepted
+--      from public.class_invitations;
+--
+-- 3. ⚠ Still no client access. The SQL Editor is SUPERUSER and bypasses RLS and
+--    grants, so reading the table here proves nothing. EXPECT 0 rows:
+--
+--      select grantee, privilege_type
+--      from information_schema.table_privileges
+--      where table_schema = 'public' and table_name = 'class_invitations'
+--        and grantee in ('anon', 'authenticated');
