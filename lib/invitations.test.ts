@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   parseEmailList, invitationState, acceptedElsewhere, invitationEmail, acceptUrl,
-  safeNext, maskEmail, wouldTakeSomeoneElsesPlace, STATE_LABEL, MAX_EMAILS,
+  safeNext, maskEmail, wouldTakeSomeoneElsesPlace, parseDisplayName,
+  STATE_LABEL, MAX_EMAILS, MAX_DISPLAY_NAME,
 } from './invitations'
 
 describe('safeNext', () => {
@@ -153,6 +154,76 @@ describe('acceptedElsewhere', () => {
     // The expected case, not an anomaly: a school address invited, a personal
     // one used. It is shown so the teacher's roster reconciles.
     expect(acceptedElsewhere('a.pupil@school.uk', 'amara@gmail.com')).toBe(true)
+  })
+})
+
+describe('parseDisplayName', () => {
+  it('keeps a normal name as typed', () => {
+    expect(parseDisplayName('Mr Okafor')).toEqual({ ok: true, value: 'Mr Okafor' })
+    expect(parseDisplayName('Mrs Abena-Fosu (Maths)')).toEqual({ ok: true, value: 'Mrs Abena-Fosu (Maths)' })
+  })
+
+  it('treats blank as "no name" rather than an error', () => {
+    // Clearing the field is a legitimate choice — the email falls back to
+    // "Your teacher" — so this must not be a validation failure.
+    for (const blank of ['', '   ', '\t', '\n', null, undefined]) {
+      expect(parseDisplayName(blank)).toEqual({ ok: true, value: null })
+    }
+  })
+
+  it('collapses internal whitespace, so one name has one representation', () => {
+    // Names pasted out of a spreadsheet arrive with tabs and double spaces.
+    expect(parseDisplayName('  Mr   Okafor  ')).toEqual({ ok: true, value: 'Mr Okafor' })
+    expect(parseDisplayName('Mr\tOkafor')).toEqual({ ok: true, value: 'Mr Okafor' })
+  })
+
+  it('removes newlines, which would otherwise break an email subject header', () => {
+    // The name is interpolated into the Subject line. A raw newline there is a
+    // header-injection shape, so it must not survive.
+    const r = parseDisplayName('Mr Okafor\nBcc: someone@example.com')
+    expect(r).toEqual({ ok: true, value: 'Mr Okafor Bcc: someone@example.com' })
+    expect((r as { value: string }).value).not.toContain('\n')
+  })
+
+  it('rejects control characters rather than silently stripping them', () => {
+    // Rejected so the teacher sees what happened, instead of storing something
+    // other than what they typed.
+    expect(parseDisplayName('Mr\u0000Okafor').ok).toBe(false)
+    expect(parseDisplayName('Mr\u007fOkafor').ok).toBe(false)
+  })
+
+  it('caps the length', () => {
+    expect(parseDisplayName('a'.repeat(MAX_DISPLAY_NAME))).toEqual({
+      ok: true, value: 'a'.repeat(MAX_DISPLAY_NAME),
+    })
+    const tooLong = parseDisplayName('a'.repeat(MAX_DISPLAY_NAME + 1))
+    expect(tooLong.ok).toBe(false)
+    if (!tooLong.ok) expect(tooLong.error).toContain(String(MAX_DISPLAY_NAME))
+  })
+
+  it('refuses a non-string instead of coercing it', () => {
+    // The value arrives from a JSON request body, so it can be anything.
+    for (const junk of [42, true, {}, [], { toString: () => 'x' }]) {
+      expect(parseDisplayName(junk).ok).toBe(false)
+    }
+  })
+
+  it('composes with invitationEmail to name the sender', () => {
+    // The point of the whole column: the parsed name is what reaches the email.
+    const parsed = parseDisplayName('  Mr   Okafor ')
+    const name = parsed.ok ? parsed.value : null
+    const { subject } = invitationEmail({
+      className: '9B Maths', teacherName: name, acceptUrl: 'https://x/invite/t',
+    })
+    expect(subject).toBe('Mr Okafor has invited you to 9B Maths on Mathsense')
+  })
+
+  it('falls back to "Your teacher" when cleared', () => {
+    const parsed = parseDisplayName('')
+    const name = parsed.ok ? parsed.value : null
+    expect(invitationEmail({
+      className: '9B', teacherName: name, acceptUrl: 'https://x/invite/t',
+    }).subject).toContain('Your teacher')
   })
 })
 

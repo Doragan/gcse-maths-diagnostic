@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getUser, updateEmail, updatePassword, deleteAccount, signOut } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
+import { getMyDisplayName, setMyDisplayName } from '../../lib/classes'
 import {
   colors, font, card,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
@@ -32,6 +33,13 @@ export default function AccountPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordSuccess, setPasswordSuccess] = useState(false)
 
+  // Teacher-only. What invitation emails say the sender is called; null until
+  // set. See app/api/account/display-name for why this is not an RLS write.
+  const [displayName, setDisplayName] = useState('')
+  const [nameLoading, setNameLoading] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [nameSaved, setNameSaved] = useState(false)
+
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -53,6 +61,10 @@ export default function AccountPage() {
         .eq('id', user.id)
         .maybeSingle()
       setIsStudent(!!studentRow)
+
+      // Only teachers have one; the route answers 403 for a student and the
+      // helper turns that into null, so this is safe to call either way.
+      if (!studentRow) setDisplayName((await getMyDisplayName()) ?? '')
 
       setLoading(false)
     })
@@ -120,6 +132,22 @@ export default function AccountPage() {
     }
   }
 
+  async function handleNameSave() {
+    setNameError(null)
+    setNameSaved(false)
+    setNameLoading(true)
+    try {
+      // Show what was STORED, not what was typed — the server collapses
+      // whitespace, so echoing the draft back could disagree with the row.
+      setDisplayName((await setMyDisplayName(displayName)) ?? '')
+      setNameSaved(true)
+    } catch (e) {
+      setNameError(e instanceof Error ? e.message : 'Could not save your name')
+    } finally {
+      setNameLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <main style={styles.page}>
@@ -145,6 +173,53 @@ export default function AccountPage() {
       <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
         Logged in as <strong>{email}</strong>
       </p>
+
+      {/* Your name — teachers only. A student has no invitations to send and
+          already sets their own name at signup. */}
+      {!isStudent && (
+        <div style={card}>
+          <h2 style={sectionTitle}>Your name</h2>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+            Shown on class invitation emails, so students recognise who sent them. Use the
+            name your students know you by. Leave it blank and invitations say
+            &ldquo;Your teacher&rdquo;.
+          </p>
+          {/* Said plainly, because a teacher deciding what to type here deserves
+              to know the audience: these emails go to children, and the sender's
+              name is the main thing that makes one look legitimate. */}
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 0', lineHeight: 1.5 }}>
+            Your email address is never shown to students.
+          </p>
+          <div style={styles.field}>
+            <label style={labelStyle}>Name</label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={e => { setDisplayName(e.target.value); setNameSaved(false) }}
+              style={inputStyle}
+              placeholder="Mr Okafor"
+              autoComplete="name"
+              maxLength={60}
+              onKeyDown={e => e.key === 'Enter' && handleNameSave()}
+            />
+          </div>
+          {nameError && <p style={errorBox}>{nameError}</p>}
+          {nameSaved && (
+            <p style={{ fontSize: font.base, color: colors.successText, margin: 0 }}>
+              {displayName
+                ? `Saved. Invitations will say "${displayName} has invited you…"`
+                : 'Cleared. Invitations will say "Your teacher has invited you…"'}
+            </p>
+          )}
+          <button
+            onClick={handleNameSave}
+            disabled={nameLoading}
+            style={{ ...primaryButton, width: 'auto', opacity: nameLoading ? 0.6 : 1 }}
+          >
+            {nameLoading ? 'Saving…' : 'Save name'}
+          </button>
+        </div>
+      )}
 
       {/* Change email */}
       <div style={card}>
