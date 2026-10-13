@@ -142,10 +142,12 @@ export const STATE_LABEL: Record<InvitationState, string> = {
  * confusion the invitation page exists to clear up. A domain is not personal
  * data; the local part is.
  *
- * ⚠ USED ON BOTH SIDES, and for two different reasons. On the invitation page it
- * lets a pupil recognise their own address without handing a harvester a real
- * one. On the teacher's roster it is the whole reason `joined_as` can be shown
- * at all: a teacher may NOT see a pupil's email address, which the privacy
+ * ⚠ Used on the INVITATION PAGE, where it lets a pupil recognise their own
+ * address without handing a harvester a real one.
+ *
+ * It is deliberately NOT used on the teacher's roster any more. A masked
+ * address is still derived personal data, and a teacher may NOT see a pupil's
+ * email address at all, which the privacy
  * notice, `docs/legal/dpa-schools.md` §4 and the DPIA all state plainly, and §4
  * goes as far as calling it a property of the design rather than a setting. A
  * masked address still reconciles the roster — the teacher can see that the

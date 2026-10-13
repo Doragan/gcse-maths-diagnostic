@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import {
-  parseEmailList, invitationState, acceptedElsewhere, invitationEmail, acceptUrl, maskEmail,
+  parseEmailList, invitationState, invitationEmail, acceptUrl,
   MAX_EMAILS,
 } from '../../../../../lib/invitations'
 import { sendTransactionalEmail, isEmailConfigured } from '../../../../../lib/email/brevo'
@@ -94,37 +94,6 @@ function siteOrigin(req: Request): string {
   return new URL(req.url).origin
 }
 
-/**
- * Who accepted each invitation, by email address.
- *
- * Looked up through the auth admin API rather than a join, because the address
- * lives in auth.users and `students` does not carry it. Only fetched for
- * invitations that were actually accepted, so a roster of thirty pending
- * invitations makes no extra calls.
- *
- * Used to show the teacher that a pupil joined on a different address from the
- * one invited — the expected case for a personal address or a parent's.
- *
- * ⚠ THE REAL ADDRESS NEVER LEAVES THIS ROUTE. It is read here so the comparison
- * in `acceptedElsewhere` is made on the truth, and MASKED before it is returned
- * (see the mapping below). A teacher may not see a pupil's email address: the
- * privacy notice tells pupils so, `docs/legal/dpa-schools.md` §4 tells schools
- * so and calls it a property of the design rather than a configurable rule, and
- * the DPIA repeats it. Returning the address here would have made all three
- * false without a line of those documents changing.
- */
-async function acceptedEmails(
-  admin: SupabaseClient,
-  studentIds: string[],
-): Promise<Map<string, string | null>> {
-  const out = new Map<string, string | null>()
-  await Promise.all(studentIds.map(async id => {
-    const { data, error } = await admin.auth.admin.getUserById(id)
-    out.set(id, error ? null : (data.user?.email ?? null))
-  }))
-  return out
-}
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -136,7 +105,7 @@ export async function GET(
 
     const { data, error } = await ctx.admin
       .from('class_invitations')
-      .select('id, email, status, created_at, expires_at, accepted_at, sent_at, accepted_by')
+      .select('id, email, status, created_at, expires_at, accepted_at, sent_at, accepted_elsewhere')
       .eq('class_id', classId)
       .order('email')
     if (error) {
@@ -144,14 +113,13 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to load invitations' }, { status: 500 })
     }
 
-    const rows = data ?? []
-    const acceptedBy = rows
-      .map(r => r.accepted_by)
-      .filter((id): id is string => Boolean(id))
-    const emails = acceptedBy.length ? await acceptedEmails(ctx.admin, acceptedBy) : new Map()
-
-    const invitations = rows.map(r => {
-      const joinedAs = r.accepted_by ? emails.get(r.accepted_by) ?? null : null
+    // No per-row lookup. This used to call auth.admin.getUserById ONCE PER
+    // ACCEPTED INVITATION to work out whether the pupil had used a different
+    // address — an N+1 that got worse as more pupils joined, and which pulled a
+    // pupil's own address through a teacher-facing route. The answer is now
+    // decided at acceptance and stored as a boolean; the address is not stored
+    // and is never read here. See 20261013_invitation_accepted_elsewhere.sql.
+    const invitations = (data ?? []).map(r => {
       return {
         id: r.id,
         email: r.email,
@@ -160,14 +128,11 @@ export async function GET(
         expires_at: r.expires_at,
         accepted_at: r.accepted_at,
         sent_at: r.sent_at,
-        // Shown only when it differs, so the roster reconciles instead of
-        // looking like two disagreeing lists — and MASKED, because the teacher
-        // is not entitled to the address itself. `a•••••l@gmail.com` is enough
-        // to say "they joined on their own address, not the school one you
-        // typed", which is the whole job this field does.
-        joined_as: acceptedElsewhere(r.email, joinedAs) && joinedAs
-          ? maskEmail(joinedAs)
-          : null,
+        // WHETHER, not which. Enough for the teacher to reconcile "I invited
+        // a.pupil@school.uk and someone joined" without being told an address
+        // they are not entitled to — see docs/legal/dpa-schools.md §4.
+        // Coerced because the column is null for rows nobody has accepted.
+        accepted_elsewhere: r.accepted_elsewhere === true,
       }
     })
 

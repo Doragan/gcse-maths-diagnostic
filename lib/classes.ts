@@ -240,14 +240,21 @@ export type TeacherInvitation = {
   accepted_at: string | null
   sent_at: string | null
   /**
-   * The address the pupil actually signed up with, when it differs from the one
-   * invited. Null when it matches, or when nobody has accepted yet.
+   * True when the pupil signed up with a DIFFERENT address from the one
+   * invited. WHETHER, never which.
    *
    * Expected rather than exceptional: a school address invited and a personal
-   * one used, or a younger pupil invited via a parent's address. Shown so the
-   * roster reconciles instead of reading as two lists that disagree.
+   * one used, or a younger pupil invited via a parent's address. The teacher
+   * needs it so the roster reconciles instead of reading as two lists that
+   * disagree — and that is all they need, which is why this is a boolean.
+   *
+   * A teacher may not see a pupil's email address: the privacy notice,
+   * docs/legal/dpa-schools.md §4 and the DPIA all say so, and §4 calls it a
+   * property of the design rather than a setting. This field used to be the
+   * masked address, resolved per row through the auth admin API — an N+1 that
+   * also sat badly against that promise. Do not put an address back here.
    */
-  joined_as: string | null
+  accepted_elsewhere: boolean
 }
 
 export type ClassInvitations = {

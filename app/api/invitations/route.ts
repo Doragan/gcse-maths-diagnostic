@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { wouldTakeSomeoneElsesPlace } from '../../../lib/invitations'
+import { acceptedElsewhere, wouldTakeSomeoneElsesPlace } from '../../../lib/invitations'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Student-side invitations: see who has invited you, and accept.
@@ -259,6 +259,19 @@ export async function POST(req: Request) {
         status: 'accepted',
         accepted_at: new Date().toISOString(),
         accepted_by: ctx.user.id,
+        // Decided HERE, once, where the real address is already in hand — and
+        // only the ANSWER is kept, never the address.
+        //
+        // The roster needs to tell a teacher that a pupil signed up with a
+        // different address from the one they typed. It used to work that out
+        // on every read by calling auth.admin.getUserById per accepted
+        // invitation: an N+1 that grew as more pupils joined, and which put a
+        // pupil's own address through a teacher-facing route.
+        // docs/legal/dpa-schools.md §4 promises schools that address is "not
+        // reachable by any teacher-facing function". A boolean answers the
+        // question and retains nothing. See
+        // 20261013_invitation_accepted_elsewhere.sql.
+        accepted_elsewhere: acceptedElsewhere(invitation.email, ctx.email),
       })
       .eq('id', invitation.id)
     if (markErr) {
