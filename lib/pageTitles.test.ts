@@ -72,6 +72,15 @@ describe('normalizePath', () => {
     expect(normalizePath('/pay/eyJhbGciOi.SECRET-TOKEN')).toBe('/pay/[token]')
   })
 
+  it('maps the class people sub-page without disturbing the bare class route', () => {
+    expect(titleForPath('/dashboard/classes/abc-123/people')).toBe('Class people — Mathsense')
+    expect(normalizePath('/dashboard/classes/abc-123/people')).toBe('/dashboard/classes/[id]/people')
+    // The sibling routes must be unaffected by the new rule sitting above them.
+    expect(titleForPath('/dashboard/classes/abc-123')).toBe('Class — Mathsense')
+    expect(normalizePath('/dashboard/classes/abc-123')).toBe('/dashboard/classes/[id]')
+    expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
+  })
+
   it('collapses the class-invitation token', () => {
     // The invitation token is a bearer credential emailed to one address: it
     // claims a place in a named class. Letting it reach GA4 as a page path
