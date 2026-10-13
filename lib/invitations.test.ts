@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   parseEmailList, invitationState, acceptedElsewhere, invitationEmail, acceptUrl,
-  safeNext, STATE_LABEL, MAX_EMAILS,
+  safeNext, maskEmail, STATE_LABEL, MAX_EMAILS,
 } from './invitations'
 
 describe('safeNext', () => {
@@ -224,5 +224,39 @@ describe('acceptUrl', () => {
 
   it('escapes anything that would break out of the path segment', () => {
     expect(acceptUrl('https://mathsense.net', 'a/b?c=d')).toBe('https://mathsense.net/invite/a%2Fb%3Fc%3Dd')
+  })
+})
+
+describe('maskEmail', () => {
+  // Used on BOTH sides now: the pupil recognising their own address on the
+  // invitation page, and the teacher's roster, where showing the real address
+  // would contradict the privacy notice, dpa-schools §4 and the DPIA.
+  it('keeps the first and last letter of the local part, and the whole domain', () => {
+    expect(maskEmail('a.pupil@school.sch.uk')).toBe('a•••••l@school.sch.uk')
+  })
+
+  it('never reveals the length of a long local part', () => {
+    // Capped at six bullets, so a 40-character address and a 10-character one
+    // look the same. The length is a hint worth withholding.
+    const long = maskEmail('abcdefghijklmnopqrstuvwxyz@example.com')
+    const shorter = maskEmail('abcdefghij@example.com')
+    expect(long).toBe('a••••••z@example.com')
+    expect(shorter).toBe('a••••••j@example.com')
+    expect(long.length).toBe(shorter.length)
+  })
+
+  it('does not expose a two-character local part as itself', () => {
+    expect(maskEmail('ab@example.com')).toBe('a•@example.com')
+  })
+
+  it('gives nothing away when there is no address to mask', () => {
+    expect(maskEmail('')).toBe('•••')
+    expect(maskEmail('not-an-address')).toBe('•••')
+    // No local part at all — must not return the bare domain as if it were masked.
+    expect(maskEmail('@example.com')).toBe('•••')
+  })
+
+  it('masks only the last @, so a quoted local part cannot leak through', () => {
+    expect(maskEmail('a@b@example.com')).toBe('a•b@example.com')
   })
 })

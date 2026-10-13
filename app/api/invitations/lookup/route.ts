@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { invitationState } from '../../../../lib/invitations'
+import { invitationState, maskEmail } from '../../../../lib/invitations'
 import { rateLimitLookup } from '../../../../lib/rateLimit'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,25 +33,6 @@ import { rateLimitLookup } from '../../../../lib/rateLimit'
 // ⚠ It grants NOTHING. Acceptance is POST /api/invitations with a confirmed
 // student session; see that route. This only answers "what is this link?".
 // ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Show enough of an address to be recognised by its owner, no more.
- *
- * a.pupil@school.sch.uk -> a******l@school.sch.uk
- *
- * The domain is left intact deliberately: it is the part that tells a pupil
- * "this went to your school address, not your personal one", which is the whole
- * confusion this page exists to clear up. A domain is not personal data; the
- * local part is.
- */
-function maskEmail(email: string): string {
-  const at = email.lastIndexOf('@')
-  if (at < 1) return '•••'
-  const local = email.slice(0, at)
-  const domain = email.slice(at)
-  if (local.length <= 2) return `${local[0]}•${domain}`
-  return `${local[0]}${'•'.repeat(Math.min(local.length - 2, 6))}${local[local.length - 1]}${domain}`
-}
 
 export async function GET(req: Request) {
   try {

@@ -133,12 +133,47 @@ export const STATE_LABEL: Record<InvitationState, string> = {
 }
 
 /**
+ * Show enough of an address to be recognised by its owner, no more.
+ *
+ * a.pupil@school.sch.uk -> a•••••l@school.sch.uk
+ *
+ * The domain is left intact deliberately: it is the part that tells a pupil
+ * "this went to your school address, not your personal one", which is the whole
+ * confusion the invitation page exists to clear up. A domain is not personal
+ * data; the local part is.
+ *
+ * ⚠ USED ON BOTH SIDES, and for two different reasons. On the invitation page it
+ * lets a pupil recognise their own address without handing a harvester a real
+ * one. On the teacher's roster it is the whole reason `joined_as` can be shown
+ * at all: a teacher may NOT see a pupil's email address, which the privacy
+ * notice, `docs/legal/dpa-schools.md` §4 and the DPIA all state plainly, and §4
+ * goes as far as calling it a property of the design rather than a setting. A
+ * masked address still reconciles the roster — the teacher can see that the
+ * pupil joined on a different address, and usually recognise which — without
+ * disclosing the address itself and falsifying all three documents.
+ */
+export function maskEmail(email: string): string {
+  const at = email.lastIndexOf('@')
+  if (at < 1) return '•••'
+  const local = email.slice(0, at)
+  const domain = email.slice(at)
+  if (local.length <= 2) return `${local[0]}•${domain}`
+  return `${local[0]}${'•'.repeat(Math.min(local.length - 2, 6))}${local[local.length - 1]}${domain}`
+}
+
+/**
  * Why `accepted_by` can differ from the address that was invited, and whether
  * that is worth showing.
  *
  * It is expected, not exceptional: a pupil invited on a school address who signs
  * up with a personal one, or a younger pupil invited via a parent's address who
  * signs up as themselves. The teacher sees both sides so the roster reconciles.
+ *
+ * Compares the REAL addresses — the caller masks only what it returns. Masking
+ * first would make `a•••••l@school.uk` and `a•••••a@school.uk` compare unequal
+ * on their visible characters while genuinely different addresses with the same
+ * first and last letter compared equal, so the decision is made on the truth and
+ * only the disclosure is reduced.
  */
 export function acceptedElsewhere(invitedEmail: string, acceptedEmail: string | null): boolean {
   if (!acceptedEmail) return false

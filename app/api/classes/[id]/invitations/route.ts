@@ -1,7 +1,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import {
-  parseEmailList, invitationState, acceptedElsewhere, invitationEmail, acceptUrl, MAX_EMAILS,
+  parseEmailList, invitationState, acceptedElsewhere, invitationEmail, acceptUrl, maskEmail,
+  MAX_EMAILS,
 } from '../../../../../lib/invitations'
 import { sendTransactionalEmail, isEmailConfigured } from '../../../../../lib/email/brevo'
 import { emailSendBudget } from '../../../../../lib/rateLimit'
@@ -103,6 +104,14 @@ function siteOrigin(req: Request): string {
  *
  * Used to show the teacher that a pupil joined on a different address from the
  * one invited — the expected case for a personal address or a parent's.
+ *
+ * ⚠ THE REAL ADDRESS NEVER LEAVES THIS ROUTE. It is read here so the comparison
+ * in `acceptedElsewhere` is made on the truth, and MASKED before it is returned
+ * (see the mapping below). A teacher may not see a pupil's email address: the
+ * privacy notice tells pupils so, `docs/legal/dpa-schools.md` §4 tells schools
+ * so and calls it a property of the design rather than a configurable rule, and
+ * the DPIA repeats it. Returning the address here would have made all three
+ * false without a line of those documents changing.
  */
 async function acceptedEmails(
   admin: SupabaseClient,
@@ -152,8 +161,13 @@ export async function GET(
         accepted_at: r.accepted_at,
         sent_at: r.sent_at,
         // Shown only when it differs, so the roster reconciles instead of
-        // looking like two disagreeing lists.
-        joined_as: acceptedElsewhere(r.email, joinedAs) ? joinedAs : null,
+        // looking like two disagreeing lists — and MASKED, because the teacher
+        // is not entitled to the address itself. `a•••••l@gmail.com` is enough
+        // to say "they joined on their own address, not the school one you
+        // typed", which is the whole job this field does.
+        joined_as: acceptedElsewhere(r.email, joinedAs) && joinedAs
+          ? maskEmail(joinedAs)
+          : null,
       }
     })
 
