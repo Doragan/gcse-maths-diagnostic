@@ -127,6 +127,7 @@ export const treeDiagramsBriefing: SkillBriefing = {
         + 'the ones you were given.',
       watch:
         'Two branches from one point that do not add to 1 — a sign that something earlier is wrong.',
+          example: 'First fork: 5/8 red, so 3/8 blue',
     },
     {
       do: 'Decide whether the bag changes. Without replacement, the second set of branches has a '
@@ -137,6 +138,7 @@ export const treeDiagramsBriefing: SkillBriefing = {
       watch:
         'Reusing the first probabilities for the second pick — the most common error on the coded '
         + 'papers — or dropping the denominator while forgetting the numerator when the same colour went.',
+          example: 'Without replacement, so the second fork is out of 7, not 8',
     },
     {
       do: 'Multiply ALONG a path, and add BETWEEN paths.',
@@ -145,6 +147,7 @@ export const treeDiagramsBriefing: SkillBriefing = {
       watch:
         'Adding along a path. If the answer is bigger than the branch probabilities that made it, '
         + 'you have added where you should have multiplied.',
+          example: 'Along the path: 5/8 × 4/7 = 5/14',
     },
     {
       do: 'For "at least one", work out the probability of NONE and subtract from 1.',
@@ -153,9 +156,11 @@ export const treeDiagramsBriefing: SkillBriefing = {
         + 'is written around.',
       watch:
         'Forgetting that "at least one" includes both of them, not just exactly one.',
+          example: 'If it asked for at least one red, you would do 1 − P(no red)',
     },
   ],
 
+  methodExample: 'A bag holds 5 red and 3 blue. Two are taken without replacement. Find P(both red).',
   check: [
     'Do the probabilities of all the final outcomes add up to 1?',
     'Is each path\'s answer smaller than the branch probabilities that made it? Multiplying '
@@ -191,6 +196,7 @@ export const treeDiagramsBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'A machine fails with probability 0.05 each day. Find P(fails on at least one of 3 days).',
     steps: [
       {
         do: 'With three or more stages, reach for the complement instead of drawing every branch.',
@@ -198,6 +204,7 @@ export const treeDiagramsBriefing: SkillBriefing = {
           '1 − 0.95³ replaces adding seven separate routes, and there is far less to get wrong.',
         watch:
           'Cubing the wrong probability. It is 0.95 — the chance of NOT failing — that gets cubed, not 0.05.',
+              example: 'Three stages, so use the complement: 1 − 0.95³ = 0.143',
       },
     ],
 

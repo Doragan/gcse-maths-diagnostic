@@ -120,6 +120,7 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       watch:
         'A denominator that is only part of the picture: one row of a table, or one set in a Venn '
         + 'diagram, instead of the whole group.',
+          example: '22 walk, out of all 40: 22/40',
     },
     {
       do: 'If the outcomes are not listed for you, list them systematically before counting.',
@@ -128,6 +129,7 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         + 'total something you can see.',
       watch:
         'Missing outcomes that look alike, or counting the overlap twice where two groups meet.',
+          example: 'The total is not printed — you add it: 12 + 10 = 22',
     },
     {
       do: 'Re-read whether the question wants the thing or the opposite of it.',
@@ -135,6 +137,7 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         'P(not A) is 1 − P(A), and "at least one" is nearly always quicker through the opposite.',
       watch:
         'Answering the complement by accident — giving "not red" when the question asked for red.',
+          example: 'It asks who walks, not who does not',
     },
     {
       do: 'For "is it fair" or "which estimate is better", give a reason as well as a number.',
@@ -143,9 +146,11 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       watch:
         'The gambler\'s fallacy. A run of reds does not make blue more likely next time — each pick '
         + 'starts fresh unless something has been removed.',
+          example: 'If it asked which estimate to trust, the one from more trials',
     },
   ],
 
+  methodExample: '40 students: 18 in Year 10 and 22 in Year 11. 12 and 10 of them walk. Find P(walks).',
   check: [
     'Is the answer between 0 and 1? Anything above 1 means the denominator was too small.',
     'Do the probabilities of everything that could happen add up to 1?',
@@ -195,6 +200,7 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: '60 students: 35 study French, 30 German, 12 both. Find P(French only).',
     steps: [
       {
         do: 'Fill the overlap FIRST, then work outwards, then check every region adds to the total.',
@@ -204,6 +210,7 @@ export const calculatingSimpleProbabilityBriefing: SkillBriefing = {
         watch:
           'Double counting the overlap — adding 35 and 30 counts those 12 twice — and forgetting '
           + 'anyone who is in neither set.',
+              example: 'Overlap first: French only is 35 − 12 = 23, out of all 60 — including the 7 doing neither',
       },
     ],
 

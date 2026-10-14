@@ -136,6 +136,7 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
         + 'costs the most marks.',
       watch:
         'Subtracting the wrong way round and ending up with −3x where you wanted 3x.',
+          example: 'Take the smaller term, 2x, off both sides: 3x + 3 = 18',
     },
     {
       do: 'Undo what has been done to the letter in reverse order: add or subtract first, then multiply or divide.',
@@ -145,6 +146,7 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       watch:
         'Dividing only part of a side. Halving 4y − 2 = 18 is not 2y − 2 = 9 — every term on both '
         + 'sides has to be halved.',
+          example: 'Subtract the 3 first, then divide — not the other way round',
     },
     {
       do: 'Do the same thing to both sides every time, and write each new equation on its own line.',
@@ -154,6 +156,7 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       watch:
         'Sign errors as a term crosses the equals sign. A + 7 on the left becomes − 7 on the right, '
         + 'never + 7.',
+          example: '3x = 15, then x = 5',
     },
     {
       do: 'Read the answer line again. It often wants a length, an angle or a perimeter — not x.',
@@ -163,9 +166,11 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       watch:
         'Stopping at x = 35 when the question asked for the largest angle, or answering for the '
         + 'wrong person in a story.',
+          example: 'It asks for x, so x = 5 is the answer',
     },
   ],
 
+  methodExample: 'Solve 5x + 3 = 2x + 18',
   check: [
     'Put your value back into the ORIGINAL equation and check both sides come to the same number.',
     'If the answer is an angle or a length, is it possible? A negative length, or angles in a '
@@ -200,6 +205,7 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Solve (x + 5)/4 + (x − 1)/2 = 6',
     steps: [
       {
         do: 'Multiply EVERY term on both sides by the lowest common denominator.',
@@ -209,6 +215,7 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
         watch:
           'Forgetting the whole number on the right, or dropping the brackets: (x − 1)/2 multiplied '
           + 'by 4 is 2(x − 1), not 2x − 1.',
+              example: '× 4 throughout: (x + 5) + 2(x − 1) = 24 → 3x + 3 = 24, so x = 7',
       },
     ],
 

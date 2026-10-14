@@ -89,6 +89,20 @@ export type ConfusableWith = {
 export type MethodStep = {
   /** What to write down. */
   do: string
+  /**
+   * This step carried out on the page’s running question — the right-hand
+   * column beside the method.
+   *
+   * The steps describe the method in the abstract, which is what makes a
+   * briefing read as something to agree with rather than something to do.
+   * One question worked down the side turns it into a demonstration.
+   *
+   * All of a tier’s steps carry one or none: a column with gaps in it reads
+   * as missing content. Where a step is an alternative route rather than the
+   * next move — "if it asked for the percentage instead" — the line says so,
+   * using the same numbers.
+   */
+  example?: string
   /** Why this step and not another — the metacognitive content. */
   because: string
   /** Where it goes wrong. */
@@ -149,6 +163,11 @@ export type SkillBriefing = {
   /** Stems to judge against the cues above, including at least one near-miss. */
   examples: SkillExample[]
   steps: MethodStep[]
+  /**
+   * The question the step examples are worked on, stated once above them.
+   * Required when any step carries an example, so the column has a subject.
+   */
+  methodExample?: string
   /** Questions to ask before writing the answer down. The 'evaluate' phase. */
   check: string[]
   /**
@@ -162,6 +181,8 @@ export type SkillBriefing = {
     confusableWith?: ConfusableWith[]
     examples?: SkillExample[]
     steps?: MethodStep[]
+    /** The question the Higher step examples are worked on. */
+    methodExample?: string
     check?: string[]
   }
 }
@@ -178,6 +199,10 @@ export type ResolvedBriefing = {
   higherNote: Cue | null
   /** How many of the steps came from the Higher block, for labelling. */
   higherStepCount: number
+  /** The question the shared step examples are worked on. */
+  methodExample: string | null
+  /** The question the Higher step examples are worked on. */
+  higherMethodExample: string | null
 }
 
 export function resolveBriefing(guide: SkillBriefing, tier: Tier): ResolvedBriefing {
@@ -193,5 +218,7 @@ export function resolveBriefing(guide: SkillBriefing, tier: Tier): ResolvedBrief
     check: [...guide.check, ...(h?.check ?? [])],
     higherNote: h?.note ?? null,
     higherStepCount: h?.steps?.length ?? 0,
+    methodExample: guide.methodExample ?? null,
+    higherMethodExample: h?.methodExample ?? null,
   }
 }

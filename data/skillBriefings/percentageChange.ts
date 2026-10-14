@@ -122,6 +122,7 @@ export const percentageChangeBriefing: SkillBriefing = {
       watch:
         'Using the new amount as the base. A rise from £40 to £46 is 15% of 40, not of 46 — this is '
         + 'the single most common way these questions are lost.',
+          example: 'The base is £45, the price before the sale',
     },
     {
       do: 'For a percentage change, write the change over the base, then multiply by 100.',
@@ -130,6 +131,7 @@ export const percentageChangeBriefing: SkillBriefing = {
       watch:
         'Giving the new amount when the question asked for the percentage, or the other way round. '
         + 'Read the answer line before you start.',
+          example: 'If it wanted the percentage: change ÷ 45, then × 100',
     },
     {
       do: 'To apply a change, use one multiplier: 20% off is × 0.8, a 15% rise is × 1.15.',
@@ -139,9 +141,11 @@ export const percentageChangeBriefing: SkillBriefing = {
       watch:
         'Adding percentages together. A 10% rise followed by a 10% fall is not back where you started: '
         + 'it is × 1.1 × 0.9, which is 0.99 of the original.',
+          example: 'It wants the new price: £45 × 0.8 = £36',
     },
   ],
 
+  methodExample: 'A coat costs £45. In a sale its price is reduced by 20%. Work out the sale price.',
   check: [
     'Is the answer on the right side? An increase has to be bigger than what you started with, '
       + 'a decrease smaller. Getting this backwards usually means the multiplier was wrong.',
@@ -195,6 +199,7 @@ export const percentageChangeBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'The price of a phone is reduced by 18% in a sale. It now costs £287. Find the price before.',
     steps: [
       {
         do: 'Write the change as a single multiplier, then divide by it to go backwards.',
@@ -204,6 +209,7 @@ export const percentageChangeBriefing: SkillBriefing = {
         watch:
           'Adding the percentage back on. Increasing £39.60 by 12% does not return the original — the '
           + '12% was of a bigger number.',
+              example: '£287 is 82% of the original, so £287 ÷ 0.82 = £350',
       },
     ],
 

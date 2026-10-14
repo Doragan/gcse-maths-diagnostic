@@ -131,6 +131,7 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
       watch:
         'Adding when the hypotenuse is already given. If the answer comes out longer than the '
         + 'hypotenuse, you have added where you should have subtracted.',
+          example: 'The missing side is NOT the hypotenuse, so subtract',
     },
     {
       do: 'Square the two sides you have, and write that line down.',
@@ -139,6 +140,7 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
       watch:
         'Doubling instead of squaring, and dropping the squaring step when showing your working — '
         + 'answers with no working score nothing on "show that" questions.',
+          example: '17² = 289 and 15² = 225',
     },
     {
       do: 'Add or subtract as you decided, then take the SQUARE ROOT.',
@@ -147,6 +149,7 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         + 'forgotten.',
       watch:
         'Handing in the squared value. On the triangle above, 289 − 225 = 64 is not the answer — 8 is.',
+          example: '289 − 225 = 64, so the height is √64 = 8 cm',
     },
     {
       do: 'Check what the question actually wanted: a perimeter, an area, or a rounded length.',
@@ -154,9 +157,11 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         'Pythagoras is usually a step inside a longer question, not the end of it.',
       watch:
         'Rounding partway through. Keep the full value on your calculator and round only at the end.',
+          example: 'It wants the height, and 8 cm is it',
     },
   ],
 
+  methodExample: 'A right-angled triangle has a base of 15 cm and a hypotenuse of 17 cm. Find the height.',
   check: [
     'Is the hypotenuse the longest side in your finished triangle? If a shorter side has come out '
       + 'longer than it, the add-or-subtract decision went the wrong way.',
@@ -210,6 +215,7 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'A cuboid measures 6 cm by 8 cm by 24 cm. Find the longest diagonal inside it.',
     steps: [
       {
         do: 'In 3D, do the base triangle first and carry its EXACT value into the second triangle.',
@@ -219,6 +225,7 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         watch:
           'Rounding the base diagonal before using it. Keep it exact, or as a square, and round once '
           + 'at the very end.',
+              example: 'Base first: 6² + 8² = 100 → 10 cm, then 10² + 24² = 676 → 26 cm',
       },
     ],
 

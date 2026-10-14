@@ -114,6 +114,7 @@ export const inequalitiesBriefing: SkillBriefing = {
       watch:
         'Quietly turning it into an equation. The answer is c < 5, not c = 5, and an equals sign '
         + 'there loses the mark.',
+          example: 'Add 4 to both sides, keeping the <: 5c < 25',
     },
     {
       do: 'If you multiply or divide by a NEGATIVE number, flip the sign round.',
@@ -122,6 +123,7 @@ export const inequalitiesBriefing: SkillBriefing = {
       watch:
         'Forgetting the flip. Where you can, add the letter to the other side instead so it never '
         + 'goes negative and the question does not arise.',
+          example: 'Dividing by 5, a positive, so the sign stays as it is',
     },
     {
       do: 'On a number line, fill the circle for ≤ or ≥ and leave it open for < or >. '
@@ -131,6 +133,7 @@ export const inequalitiesBriefing: SkillBriefing = {
         + 'is usually worth a mark on its own.',
       watch:
         'Open and filled the wrong way round, or the arrow pointing the wrong way along the line.',
+          example: 'On a line: open circle at 5, arrow running left',
     },
     {
       do: 'If it asks for integers, list them — and decide about both ends deliberately.',
@@ -139,9 +142,11 @@ export const inequalitiesBriefing: SkillBriefing = {
         + 'questions actually sit.',
       watch:
         'Giving the range when it asked for values, or a fraction when it said integer.',
+          example: 'c < 5 — an inequality, not c = 5',
     },
   ],
 
+  methodExample: 'Solve 5c − 4 < 21',
   check: [
     'Test a value from inside your range in the original inequality. If it does not come out true, '
       + 'the sign is the wrong way round.',
@@ -192,6 +197,7 @@ export const inequalitiesBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Solve −4 ≤ 3x + 2 < 11',
     steps: [
       {
         do: 'With the letter in the middle, do each step to all THREE parts.',
@@ -201,6 +207,7 @@ export const inequalitiesBriefing: SkillBriefing = {
         watch:
           'Splitting it into two separate inequalities and never putting them back together — or, '
           + 'when dividing by a negative, flipping only one of the two signs.',
+              example: 'Subtract 2 from all three: −6 ≤ 3x < 9, then ÷ 3: −2 ≤ x < 3',
       },
     ],
 

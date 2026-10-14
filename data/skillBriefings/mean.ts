@@ -114,6 +114,7 @@ export const meanBriefing: SkillBriefing = {
       watch:
         'Dividing by the wrong count — dropping a zero from the list, or dividing by the number of '
         + 'rows in a table rather than the number of items.',
+          example: 'The mean is given here, so this one runs backwards',
     },
     {
       do: 'If the mean is given, multiply it by the count to get the TOTAL, and work from there.',
@@ -123,6 +124,7 @@ export const meanBriefing: SkillBriefing = {
       watch:
         'Averaging two means. Ten marks averaging 6 and five averaging 9 give 105 ÷ 15 = 7, not 7.5 — '
         + 'the groups are different sizes.',
+          example: '5 × 12 = 60, and 60 − (8 + 11 + 14 + 9) = 18',
     },
     {
       do: 'If you are asked to compare, name the measure and say what it means in the context.',
@@ -132,9 +134,11 @@ export const meanBriefing: SkillBriefing = {
       watch:
         'Writing two numbers down and stopping. "Team A\'s mean is 12.4 and Team B\'s is 10.1" is not '
         + 'a comparison until you say which is better, and why that matters here.',
+          example: 'If it asked you to compare two sets, you would name an average AND a spread',
     },
   ],
 
+  methodExample: 'The mean of 5 numbers is 12. Four of them are 8, 11, 14 and 9. Find the fifth.',
   check: [
     'Is the mean between the smallest and largest value? Outside them, the total or the count is wrong.',
     'Does it look about right? The mean normally sits near the middle of the numbers you were given.',
@@ -169,6 +173,7 @@ export const meanBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Times in classes 0–10, 10–20 and 20–30 with frequencies 4, 10 and 6. Estimate the mean.',
     steps: [
       {
         do: 'Take the MIDPOINT of each class, multiply by the frequency, add those products, then '
@@ -179,6 +184,7 @@ export const meanBriefing: SkillBriefing = {
         watch:
           'Using a class boundary instead of the midpoint, or dividing by the number of classes '
           + 'rather than the total frequency.',
+              example: 'Midpoints 5, 15, 25 → 20 + 150 + 150 = 320, then 320 ÷ 20 = 16',
       },
     ],
 
