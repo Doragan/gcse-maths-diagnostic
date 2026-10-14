@@ -117,6 +117,7 @@ export const reversePercentageBriefing: SkillBriefing = {
       watch:
         'Using the change instead of what is left. After a 15% cut, the £68 is 85% of the usual price, '
         + 'not 15% of it.',
+          example: 'VAT was added, so £504 is 120% of the price before',
     },
     {
       do: 'Divide the amount you were given by that percentage as a decimal: £68 ÷ 0.85. Without a '
@@ -127,6 +128,7 @@ export const reversePercentageBriefing: SkillBriefing = {
       watch:
         'Adding the 15% back on. 15% of £68 added to £68 is £78.20, not £80 — the 15% was of the '
         + 'original, which is a bigger number than £68.',
+          example: '£504 ÷ 1.2 = £420',
     },
     {
       do: 'Check whether the question wants the original amount or the change — the price before VAT, '
@@ -136,9 +138,11 @@ export const reversePercentageBriefing: SkillBriefing = {
       watch:
         'Taking 20% of the price you were given. 20% of £504 is £100.80, which is not the VAT — the '
         + '20% was of £420.',
+          example: 'It wants the price before VAT, which is £420 — the VAT itself would be £84',
     },
   ],
 
+  methodExample: 'A TV costs £504 including VAT at 20%. Work out the cost before VAT was added.',
   check: [
     'Run it forwards. £80 reduced by 15% should give back exactly £68. If it does not, the original is wrong.',
     'Is the original on the right side? Before a decrease it must be BIGGER than what you were given; '
@@ -173,6 +177,7 @@ export const reversePercentageBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'A bike price rises 25%, then the new price falls 20%. It now costs £300. Find the original.',
     steps: [
       {
         do: 'Multiply together the multipliers for every change, then divide once by the result.',
@@ -182,6 +187,7 @@ export const reversePercentageBriefing: SkillBriefing = {
         watch:
           'Adding the percentages. +25% then −20% is not +5%: the multipliers give 1.25 × 0.8 = 1, '
           + 'which is no change at all.',
+              example: '1.25 × 0.8 = 1, so £300 ÷ 1 = £300 — the two changes cancel',
       },
     ],
 

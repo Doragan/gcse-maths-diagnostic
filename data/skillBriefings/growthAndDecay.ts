@@ -108,6 +108,7 @@ export const growthAndDecayBriefing: SkillBriefing = {
       watch:
         'Using 0.15 rather than 0.85. The multiplier is what is LEFT after the change, not what was '
         + 'taken away.',
+          example: '15% off each year → × 0.85',
     },
     {
       do: 'Raise the multiplier to the number of periods, then multiply the starting amount by it.',
@@ -117,9 +118,11 @@ export const growthAndDecayBriefing: SkillBriefing = {
       watch:
         'Taking the same amount off every year. After year one the 15% is a percentage of a smaller '
         + 'number — that difference between simple and compound is the most common way these are lost.',
+          example: '£12,000 × 0.85³ = £7,369.50',
     },
   ],
 
+  methodExample: 'A car is worth £12,000. Its value falls by 15% each year. Work out its value after 3 years.',
   check: [
     'Is the change getting smaller each period? A falling value drops by less each year, because the '
       + 'amount it is a percentage of has shrunk. Equal drops mean you did simple, not compound.',

@@ -117,6 +117,7 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       watch:
         'Doing it the wrong way round — multiplying by the bottom number or dividing by the top. '
         + '2/5 of £30 is £12; if you got £75, you have turned the fraction upside down.',
+          example: '420 ÷ 7 = 60, so 3/7 is 180 students',
     },
     {
       do: 'When there is more than one fraction, write down what is LEFT after each one before taking the next.',
@@ -126,6 +127,7 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       watch:
         'Taking every fraction of the starting amount, or adding the fractions together. 1/4 and then '
         + '1/3 of the rest is not 1/4 + 1/3 of the whole.',
+          example: 'Only one fraction here; a second "of the rest" would be of the 240 left',
     },
     {
       do: 'Before writing the answer, read the last line again: who is it about, and does it want an amount or a fraction?',
@@ -135,9 +137,11 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       watch:
         'Giving what was spent when the question asked what was left, or the fraction for the wrong '
         + 'person. It costs as many marks as a sum that is wrong.',
+          example: 'It asks who does NOT walk: 420 − 180 = 240',
     },
   ],
 
+  methodExample: 'A school has 420 students. 3/7 walk. Work out how many do NOT walk.',
   check: [
     'Is the answer smaller than what you started with? A fraction less than 1 of something is always '
       + 'less than the whole of it.',
@@ -177,6 +181,7 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Kai spends 1/3 of his money on a jacket and 1/4 on shoes. He has £75 left. What did he start with?',
     steps: [
       {
         do: 'Work out what fraction of the whole the amount you have been given is, then find one part and scale up.',
@@ -186,6 +191,7 @@ export const fractionsOfAmountsBriefing: SkillBriefing = {
         watch:
           'Taking the fraction OF the amount you were given. 3/8 of £150 answers nothing: the £150 is '
           + 'what was left, not the whole.',
+              example: 'He spent 7/12, so £75 is the other 5/12: 1/12 = £15, and 12 × £15 = £180',
       },
     ],
 

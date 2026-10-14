@@ -67,7 +67,7 @@ type Stage = 'spot' | 'do' | 'check'
 
 const STAGES: { id: Stage; label: string; blurb: string }[] = [
   { id: 'spot',  label: 'Spot it',  blurb: 'Recognising it, and telling it apart' },
-  { id: 'do',    label: 'Do it',    blurb: 'The method, and why each step' },
+  { id: 'do',    label: 'Do it',    blurb: 'The method, worked through one question' },
   { id: 'check', label: 'Check it', blurb: 'Before you write the answer down' },
 ]
 
@@ -602,13 +602,13 @@ export default function SkillBriefingPage() {
                       onClick={() => judge(i, 'yes', ex.isThisSkill)}
                       style={{ ...secondaryButton, width: 'auto', padding: '7px 14px', fontSize: font.base }}
                     >
-                      Yes, it is
+                      {skill.name} question
                     </button>
                     <button
                       onClick={() => judge(i, 'no', ex.isThisSkill)}
                       style={{ ...secondaryButton, width: 'auto', padding: '7px 14px', fontSize: font.base }}
                     >
-                      No, something else
+                      Another kind of question
                     </button>
                   </div>
                 ) : (
@@ -662,21 +662,50 @@ export default function SkillBriefingPage() {
       {/* ══ DO IT ═════════════════════════════════════════════════════════ */}
       {stage === 'do' && (
       <section style={styles.card}>
-        <p style={styles.h}>How to answer {lowerName} questions, and why each step</p>
-        {g.steps.map((s, i) => (
-          <div key={i} style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
-            <div style={styles.stepN}>{i + 1}</div>
-            <div style={{ flex: 1 }}>
-              <p style={styles.stepDo}>{s.do}</p>
-              <p style={styles.stepSub}>
-                <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>{s.because}
+        <p style={styles.h}>How to answer a {lowerName} question</p>
+        <p style={{ ...styles.hint, marginBottom: g.methodExample ? 0 : 12 }}>
+          Each step says why it is there and where it goes wrong.
+        </p>
+
+        {/* One question worked down the right-hand side, a line per step.
+            The steps on their own describe the method in the abstract, which
+            is what made the section read as something to agree with rather
+            than something to do. */}
+        {g.methodExample && (
+          <p style={styles.methodRun}>
+            <span style={styles.methodRunLabel}>Worked on</span>
+            {g.methodExample}
+          </p>
+        )}
+        {g.steps.map((s, i) => {
+          const firstHigherStep = g.higherStepCount > 0
+            && i === g.steps.length - g.higherStepCount
+          return (
+          <div key={i}>
+            {firstHigherStep && g.higherMethodExample && (
+              <p style={{ ...styles.methodRun, marginTop: 14 }}>
+                <span style={styles.methodRunLabel}>On Higher</span>
+                {g.higherMethodExample}
               </p>
-              <p style={{ ...styles.stepSub, marginBottom: 0 }}>
-                <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>{s.watch}
-              </p>
+            )}
+            <div style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
+              <div style={styles.stepN}>{i + 1}</div>
+              <div style={styles.stepBody}>
+                <div>
+                  <p style={styles.stepDo}>{s.do}</p>
+                  <p style={styles.stepSub}>
+                    <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>{s.because}
+                  </p>
+                  <p style={{ ...styles.stepSub, marginBottom: 0 }}>
+                    <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>{s.watch}
+                  </p>
+                </div>
+                {s.example && <p style={styles.stepExample}>{s.example}</p>}
+              </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </section>
       )}
 
@@ -1212,6 +1241,44 @@ const styles: Record<string, React.CSSProperties> = {
   workedLine: { paddingLeft: '2px', marginBottom: '2px' },
 
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
+  // Method on the left, the worked line on the right. One column on a
+  // phone, where side-by-side would leave both halves too narrow to read.
+  stepBody: {
+    flex: 1,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+    gap: '8px',
+  },
+  stepExample: {
+    margin: 0,
+    alignSelf: 'start',
+    padding: '8px 11px',
+    background: colors.cardAlt,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    fontSize: font.base,
+    color: colors.textPrimary,
+    lineHeight: 1.5,
+  },
+  methodRun: {
+    margin: '10px 0 2px',
+    padding: '8px 12px',
+    background: colors.cardAlt,
+    borderLeft: `3px solid ${colors.primary}`,
+    borderRadius: `0 ${radius.sm} ${radius.sm} 0`,
+    fontSize: font.base,
+    color: colors.textSecondary,
+    lineHeight: 1.5,
+  },
+  methodRunLabel: {
+    display: "inline-block",
+    marginRight: "8px",
+    fontSize: font.sm,
+    fontWeight: '700',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: colors.primary,
+  },
   stepN: {
     flex: 'none',
     width: '24px', height: '24px',

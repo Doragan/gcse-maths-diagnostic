@@ -119,6 +119,7 @@ export const compoundUnitsBriefing: SkillBriefing = {
       watch:
         'Mixed time units. 2 hours 30 minutes is 2.5 hours, not 2.3 — and 20 minutes is one third '
         + 'of an hour, not 0.2 of one.',
+          example: '150 km, and 2 hours 30 minutes',
     },
     {
       do: 'Convert both quantities into the units the answer needs, before dividing anything.',
@@ -127,6 +128,7 @@ export const compoundUnitsBriefing: SkillBriefing = {
         + 'to get wrong.',
       watch:
         'Going the wrong way with 60. Minutes into hours is ÷ 60; hours into minutes is × 60.',
+          example: '2 hours 30 minutes = 2.5 hours, not 2.3',
     },
     {
       do: 'Divide: the quantity named first, by the quantity named after "per".',
@@ -135,9 +137,11 @@ export const compoundUnitsBriefing: SkillBriefing = {
       watch:
         'For a journey in two parts, never average the two speeds. Add the distances, add the times, '
         + 'then divide once at the end.',
+          example: '150 ÷ 2.5 = 60 km/h',
     },
   ],
 
+  methodExample: 'A train travels 150 km in 2 hours 30 minutes. Work out its average speed in km/h.',
   check: [
     'Does the unit on your answer match what the question asked for — km/h, g/cm³, £ per kg?',
     'Is the size believable? A car at 500 mph, or someone walking at 0.5 mph, means something has '

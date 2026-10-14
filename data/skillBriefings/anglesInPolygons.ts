@@ -114,6 +114,7 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
       watch:
         '360 ÷ n is the EXTERIOR angle, not the interior one. Handing that number in as the interior '
         + 'angle is the most common way these are lost.',
+          example: 'Exterior first: 360 ÷ 8 = 45°',
     },
     {
       do: 'Get the interior angle by subtracting from 180°, because the two sit on a straight line together.',
@@ -122,6 +123,7 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
         + 'so 180 − exterior is the interior every time.',
       watch:
         'Subtracting from 360 instead of 180. Look at the diagram: the two angles meet along one side.',
+          example: 'Interior and exterior sit on a line: 180 − 45 = 135°',
     },
     {
       do: 'For the angle SUM, use (n − 2) × 180.',
@@ -131,6 +133,7 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
       watch:
         'Confusing the sum with one angle. For a regular shape, one interior angle is that total '
         + 'divided by n.',
+          example: 'If it wanted the SUM instead: (8 − 2) × 180 = 1080°',
     },
     {
       do: 'If the question asks whether a statement is true, answer with a number and a reason.',
@@ -140,9 +143,11 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
       watch:
         'Assuming more sides means bigger angles throughout. More sides means a bigger INTERIOR angle '
         + 'but a smaller EXTERIOR one, since they always share 360° between more corners.',
+          example: 'If it asked whether a claim is true, give a number and a reason',
     },
   ],
 
+  methodExample: 'Work out the size of each interior angle of a regular octagon.',
   check: [
     'Do your interior and exterior angles add to 180°? If not, one of them is wrong.',
     'Is the interior angle sensible? Every interior angle of a convex polygon is under 180°, and in a '
@@ -180,6 +185,7 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Two regular hexagons and one regular n-sided polygon meet at a point. Find n.',
     steps: [
       {
         do: 'When shapes meet at a point, add their interior angles and set the total to 360°.',
@@ -188,6 +194,7 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
           + 'where the method marks sit.',
         watch:
           'Using exterior angles in the sum. It is the INTERIOR angles that meet at the point.',
+              example: '120 + 120 + interior = 360, so interior = 120° — which is a hexagon, n = 6',
       },
     ],
 

@@ -100,6 +100,7 @@ export const inverseProportionBriefing: SkillBriefing = {
       watch:
         'Dividing instead of multiplying. Dividing is what direct proportion needs, and mixing the two up '
         + 'is by far the most common way these are lost.',
+          example: '4 × 9 = 36 painter-hours, and that stays fixed',
     },
     {
       do: 'Divide that constant by the new value to get the answer.',
@@ -108,9 +109,11 @@ export const inverseProportionBriefing: SkillBriefing = {
         + 'you have.',
       watch:
         'Stopping at the constant and writing that down as the answer.',
+          example: '36 ÷ 6 = 6 hours',
     },
   ],
 
+  methodExample: 'It takes 4 painters 9 hours to paint a hall. Work out how long it would take 6 painters.',
   check: [
     'Did your answer move the OPPOSITE way to the input? More painters must mean fewer hours. '
       + 'If both went up, you have treated it as direct proportion.',
@@ -163,6 +166,7 @@ export const inverseProportionBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'F is inversely proportional to the square of d. When d = 3, F = 20. Work out F when d = 6.',
     steps: [
       {
         do: 'Write y = k ÷ x — or k ÷ x² for a squared relationship — and substitute the pair to find k.',
@@ -171,6 +175,7 @@ export const inverseProportionBriefing: SkillBriefing = {
         watch:
           'Writing y = kx when y falls as x rises. If the quantities move in opposite directions, x belongs '
           + 'on the bottom.',
+              example: 'F = k ÷ d²; 20 = k ÷ 9 so k = 180, then F = 180 ÷ 36 = 5',
       },
     ],
 
