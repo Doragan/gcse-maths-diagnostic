@@ -143,6 +143,15 @@ useEffect(() => {
 			Mathsense
 		  </h1>
 		  <div className="dash-nav" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+			{/* Students before Classes: for a tutor it is the screen they want,
+			    and for a group teacher the class list is one click further on
+			    rather than gone (docs/audit/26 §6). */}
+			<button
+			  onClick={() => router.push('/dashboard/students')}
+			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+			>
+			  Students
+			</button>
 			<button
 			  onClick={() => router.push('/dashboard/classes')}
 			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}

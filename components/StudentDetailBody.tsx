@@ -1,0 +1,196 @@
+'use client'
+
+import { type StudentAnalytics, type Topic, type SkillStatus, TOPICS } from '../lib/teacherAnalytics'
+import type { StudentReadiness } from '../lib/exam/classReadiness'
+import ClassMasteryTrend from './ClassMasteryTrend'
+import ScoreTrend from './exam/ScoreTrend'
+import { colors, font, radius } from '../lib/styles'
+import { ago } from '../lib/relativeTime'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// What a teacher sees about one student: mastery, trend, mini-exams, topics,
+// skills.
+//
+// EXTRACTED FROM StudentDetailModal so the same content can be a modal (from a
+// class roster) and a page (/dashboard/students/[id], docs/audit/26 §4.3)
+// without two implementations drifting apart. The modal keeps the overlay and
+// the header and renders this; the page renders this under its own heading.
+//
+// Presentational only — it fetches nothing. Both callers already hold a
+// StudentAnalytics, and giving this one a loader would mean two ways to get the
+// same data.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TOPIC_COLOUR: Record<Topic, string> = {
+  'Number': '#7c3aed',
+  'Algebra': colors.primary,
+  'Shape and Space': '#ea580c',
+  'Ratio and Proportion': '#0891b2',
+  'Probability and Data': colors.success,
+}
+const bCol = (p: number) => (p >= 70 ? colors.success : p >= 40 ? colors.warning : colors.danger)
+const bBg  = (p: number) => (p >= 70 ? colors.successLight : p >= 40 ? colors.warningLight : colors.dangerLight)
+const bTxt = (p: number) => (p >= 70 ? colors.successText : p >= 40 ? colors.warningText : colors.dangerText)
+
+const STATUS_META: Record<SkillStatus, { bg: string; colour: string }> = {
+  mastered:       { bg: colors.successLight, colour: colors.successText },
+  needs_practice: { bg: colors.warningLight, colour: colors.warningText },
+  in_progress:    { bg: colors.cardAlt,      colour: colors.textSecondary },
+}
+
+export default function StudentDetailBody({
+  s,
+  readiness = null,
+  classId,
+}: {
+  s: StudentAnalytics
+  /** Exam history; null before the fetch lands or when no class scopes it. */
+  readiness?: StudentReadiness | null
+  /** Needed to open a paper — the teacher route is scoped by class, not by session alone. */
+  classId?: string
+}) {
+  const topicRows = TOPICS.filter(t => s.topicMastery[t] !== undefined)
+
+  return (
+    <>
+      {/* overall mastery + engagement */}
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
+        <div style={{
+          fontSize: font['3xl'], fontWeight: 700, lineHeight: 1.1, padding: '8px 18px', borderRadius: radius.lg,
+          color: s.overallMastery !== null ? bCol(s.overallMastery) : colors.textHint,
+          background: s.overallMastery !== null ? bBg(s.overallMastery) : colors.cardAlt,
+          border: `1px solid ${colors.border}`,
+        }}>
+          {s.overallMastery !== null ? `${s.overallMastery}%` : '—'}
+        </div>
+        <div>
+          <div style={{ fontSize: font.md, fontWeight: 600, color: colors.textPrimary }}>
+            Curriculum mastery · {s.masteredSkills} skill{s.masteredSkills === 1 ? '' : 's'} mastered
+          </div>
+          <div style={{ fontSize: font.sm, color: colors.textSecondary, marginTop: 2 }}>
+            {s.questionsThisWeek} answered this week · {s.totalQuestions} total · last active {ago(s.lastActive)}
+          </div>
+        </div>
+      </div>
+
+      {/* mastery over time (reuses the class trend chart) */}
+      <ClassMasteryTrend points={s.timeline} title="Mastery over time" caption="This student's % of the curriculum mastered, by week." />
+
+      {/* ── Exam readiness: the marks currency, beside the mastery one ──
+          Deliberately the SAME ScoreTrend component the student sees on
+          their own dashboard, so teacher and student read one chart rather
+          than two implementations of it. */}
+      {readiness && readiness.papersSat > 0 && (
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontSize: font.md, fontWeight: 700, color: colors.textPrimary, marginBottom: 8 }}>Mini-exams</div>
+          {readiness.trend
+            ? <ScoreTrend trend={readiness.trend} />
+            : (
+              <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
+                Latest <strong>{readiness.latest}%</strong> — one paper so far, so there is no trend to draw yet.
+              </p>
+            )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+            {readiness.papers.map(p => {
+              const score = p.marks_total > 0 ? Math.round((p.marks_earned / p.marks_total) * 100) : 0
+              const label = (
+                <>
+                  <span style={{ color: colors.textSecondary }}>
+                    {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    <span style={{ color: colors.textHint }}>
+                      {' · '}{p.tier === 'higher' ? 'Higher' : 'Foundation'}
+                      {' · '}{p.calculator === 'calc' ? 'Calculator' : 'Non-calculator'}
+                    </span>
+                  </span>
+                  <span style={{ color: colors.textPrimary, fontWeight: 700, flexShrink: 0 }}>
+                    {score}% <span style={{ color: colors.textHint, fontWeight: 400 }}>{p.marks_earned}/{p.marks_total}</span>
+                    {classId && <span style={{ color: colors.textHint, fontWeight: 400 }}> ›</span>}
+                  </span>
+                </>
+              )
+              const row: React.CSSProperties = {
+                display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                gap: 10, fontSize: font.sm, width: '100%', textAlign: 'left',
+              }
+              // Only a link when we know which class to scope the read to —
+              // the teacher route is gated by class, not by session alone.
+              return classId ? (
+                <a
+                  key={p.id}
+                  href={`/dashboard/classes/${classId}/exam/${p.id}`}
+                  style={{ ...row, textDecoration: 'none', cursor: 'pointer' }}
+                >
+                  {label}
+                </a>
+              ) : (
+                <div key={p.id} style={row}>{label}</div>
+              )
+            })}
+          </div>
+          {/* ScoreTrend already carries "not predicted grades", so this adds
+              only what a TEACHER needs and the student does not: the papers
+              are not scoped to what has been taught, unlike the mastery
+              figures directly above them. */}
+          <p style={{ fontSize: '11px', color: colors.textHint, margin: '8px 0 0', lineHeight: 1.6 }}>
+            Mini-exams cover the whole course and are not limited to topics you have marked as covered, so an
+            early score reflects what has not been taught yet as much as anything else.
+          </p>
+        </div>
+      )}
+
+      {/* topic mastery bars */}
+      <div style={{ fontSize: font.md, fontWeight: 700, color: colors.textPrimary, margin: '18px 0 8px' }}>Topic mastery</div>
+      {topicRows.length === 0 ? (
+        <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>No skills attempted yet.</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 8, marginBottom: 18 }}>
+          {topicRows.map(t => {
+            const p = s.topicMastery[t]!
+            return (
+              <div key={t} style={{ padding: '8px 10px', borderRadius: radius.sm, border: `1px solid ${colors.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: font.sm, fontWeight: 600, color: TOPIC_COLOUR[t] }}>{t}</span>
+                  <span style={{ fontSize: font.sm, fontWeight: 700, color: bTxt(p) }}>{p}%</span>
+                </div>
+                <div style={{ height: 5, background: colors.cardAlt, borderRadius: radius.full, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: radius.full, width: `${p}%`, background: TOPIC_COLOUR[t] }} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* skills grouped by topic, tinted by status */}
+      {s.skillDetail.length > 0 && (
+        <>
+          <div style={{ fontSize: font.md, fontWeight: 700, color: colors.textPrimary, margin: '0 0 8px' }}>Skills</div>
+          {topicRows.map(t => {
+            const inTopic = s.skillDetail.filter(d => d.topic === t)
+            if (inTopic.length === 0) return null
+            return (
+              <div key={t} style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: font.sm, fontWeight: 700, color: TOPIC_COLOUR[t], marginBottom: 4 }}>{t}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {inTopic.map(d => {
+                    const m = STATUS_META[d.status]
+                    return (
+                      <span key={d.skillId} style={{ fontSize: font.sm, padding: '2px 8px', borderRadius: radius.sm, background: m.bg, color: m.colour }}>
+                        {d.name}
+                      </span>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+          <div style={{ display: 'flex', gap: 14, marginTop: 8, fontSize: '11px', color: colors.textHint }}>
+            <span><span style={{ color: colors.successText }}>■</span> mastered</span>
+            <span><span style={{ color: colors.warningText }}>■</span> needs practice</span>
+            <span><span style={{ color: colors.textSecondary }}>■</span> in progress</span>
+          </div>
+        </>
+      )}
+    </>
+  )
+}
