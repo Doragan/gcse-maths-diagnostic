@@ -33,6 +33,30 @@ function daysSince(iso: string | null, now: number): number | null {
   return Math.floor((now - new Date(iso).getTime()) / 86_400_000)
 }
 
+/**
+ * Skills currently sitting at `needs_practice` — the number a tutor plans
+ * around.
+ *
+ * ⚠ A COUNT, DELIBERATELY, AND NOT A PERCENTAGE. Two ratios were tried and both
+ * are recorded as rejected in docs/audit/26 §5:
+ *
+ *   mastered / whole curriculum — correct, but the curriculum is ~170 skills, so
+ *     every real tutee sits at 0–3% forever and the column cannot rank anybody.
+ *
+ *   mastered / attempted — ranks fine, and INVERTS THE INCENTIVE. The denominator
+ *     grows every time a student meets something new, so 5-of-12 (42%) becomes
+ *     5-of-15 (33%) after three fresh attempts. The student did more work and
+ *     the number went down, which is exactly backwards for a product whose
+ *     problem is getting students to come back at all.
+ *
+ * Counts have no denominator to grow. "To work on" rising is informative rather
+ * than punitive: it means new material has been met, which is what a tutor wants
+ * to see.
+ */
+function toWorkOn(s: StudentAnalytics): number {
+  return s.skillDetail.filter(d => d.status === 'needs_practice').length
+}
+
 export default function TutorStudentsPage() {
   const router = useRouter()
   const [students, setStudents] = useState<StudentAnalytics[]>([])
@@ -72,13 +96,13 @@ export default function TutorStudentsPage() {
       if (db === null) return -1
       return db - da
     }
-    // attention: lowest mastery first, students with no data last
-    if (a.overallMastery === null && b.overallMastery === null) {
-      return a.displayName.localeCompare(b.displayName)
-    }
-    if (a.overallMastery === null) return 1
-    if (b.overallMastery === null) return -1
-    return a.overallMastery - b.overallMastery
+    // attention: most skills needing practice first. A count, so a student who
+    // has simply done more does not sink to the bottom the way a ratio would
+    // push them.
+    const wa = toWorkOn(a)
+    const wb = toWorkOn(b)
+    if (wa !== wb) return wb - wa
+    return a.displayName.localeCompare(b.displayName)
   })
 
   return (
@@ -113,7 +137,7 @@ export default function TutorStudentsPage() {
         <>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '4px 0 12px' }}>
             {([
-              ['attention', 'Needs attention'],
+              ['attention', 'Most to work on'],
               ['active', 'Quietest first'],
               ['name', 'Name'],
             ] as Array<[SortKey, string]>).map(([key, label]) => (
@@ -158,15 +182,21 @@ export default function TutorStudentsPage() {
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'right' as const, minWidth: 92 }}>
-                    <div style={{ fontSize: font.lg, fontWeight: 700, color: colors.textPrimary }}>
-                      {s.overallMastery === null ? '—' : `${s.overallMastery}%`}
+                  {/* COUNTS, NOT A PERCENTAGE — see the note above the component. */}
+                  <div style={{ textAlign: 'right' as const, minWidth: 86 }}>
+                    <div style={{ fontSize: font.lg, fontWeight: 700, color: colors.successText }}>
+                      {s.masteredSkills}
                     </div>
                     {/* 11px literal, as elsewhere: the shared scale starts at
                         `sm` and these are sub-caption labels under a figure. */}
-                    <div style={{ fontSize: '11px', color: colors.textHint }}>
-                      of the course
+                    <div style={{ fontSize: '11px', color: colors.textHint }}>mastered</div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' as const, minWidth: 86 }}>
+                    <div style={{ fontSize: font.lg, fontWeight: 700, color: toWorkOn(s) > 0 ? colors.warningText : colors.textHint }}>
+                      {toWorkOn(s)}
                     </div>
+                    <div style={{ fontSize: '11px', color: colors.textHint }}>to work on</div>
                   </div>
 
                   <div style={{ textAlign: 'right' as const, minWidth: 74 }}>
@@ -181,16 +211,14 @@ export default function TutorStudentsPage() {
           </div>
 
           {/*
-            Load-bearing caption, not boilerplate. These percentages are of the
-            WHOLE course, whereas a class page shows "% of what you have taught"
-            when coverage is marked — so a tutor who has marked coverage will see
-            a lower number here than there. Two different figures under the same
-            word, unexplained, would be worse than showing one. See docs/audit/26 §5.
+            Counts across every topic, not just the ones marked as taught — this
+            view crosses classes and coverage belongs to a class, so there is no
+            single taught-list to scope to (docs/audit/26 §5). A class page can
+            narrow the same figures to what you have covered.
           */}
           <p style={{ fontSize: font.sm, color: colors.textHint, lineHeight: 1.6, marginTop: 14 }}>
-            Percentages here are of the whole GCSE course, so they are comparable
-            between students. A class page can show progress against just the topics
-            you have marked as taught, which gives a higher figure.
+            Counts cover every topic a student has attempted. A class page can narrow
+            them to just the topics you have marked as taught.
           </p>
         </>
       )}
