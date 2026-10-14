@@ -150,17 +150,54 @@ genuine multi-student class:
 That is a schema change to a working group model in order to solve a 1:1
 presentation problem. The ratio is wrong.
 
-**What to do instead.** The ambiguity exists only in the flat list, and only for
-a student in more than one class, so answer it there:
+**What to do instead: stop using a ratio on that screen.** The ambiguity exists
+only in the flat list, and the answer turned out not to be a better denominator
+but no denominator at all.
 
-- **"My students" shows the UNSCOPED whole-curriculum percentage.** It is
-  comparable across every student regardless of which classes they are in, and it
-  needs no choice to be made.
-- **The scoped "% of what I've taught" stays on the class page**, where the class
-  is known and the number has a well-defined meaning.
+**Two percentages were tried first, and both are recorded here because the next
+person will reach for one of them.**
 
-No migration, nothing touched in the group path, and the flat list gets a figure
-that is honest and consistent. Label it so the two are not confused.
+*mastered / WHOLE CURRICULUM.* The first answer, and what the list originally
+shipped with. It is comparable across students, needs no choice, and is useless:
+the curriculum is around 170 skills, so real tutees read **0%, 1% and 3%**. Those
+were the actual figures over the seeded class. A column that cannot rank anybody
+fails the one job the list has.
+
+*mastered / ATTEMPTED.* The obvious correction, and it ranks perfectly well — and
+it **inverts the incentive**. The denominator grows every time a student meets
+something new, so 5-of-12 (42%) becomes 5-of-15 (33%) after three fresh attempts.
+The student did more work and the number went down. For a product whose blocking
+problem is getting students to return at all, a figure that falls when they
+practise is the wrong thing to put in front of the adult encouraging them. Any
+ratio with a growing denominator has this property; the fault is the shape, not
+the choice of numerator.
+
+**So the list shows counts:** skills mastered, and skills to work on. Nothing
+there falls when a student practises — "to work on" rising is informative rather
+than punitive, because it means new material has been met. Sorting by a count is
+also better than sorting by a ratio, which pushed the busiest students to the
+bottom.
+
+Over the seeded class the counts separate students the percentages could not:
+
+| | mastered | to work on | in progress | (old %) |
+|---|---|---|---|---|
+| Priya K | 5 | 4 | 3 | 3% |
+| Christopher | 0 | 0 | 5 | 0% |
+| Egg | 2 | 0 | 17 | 1% |
+
+**Percentages keep their place on the detail page**, where topic bars and a trend
+give them context, and the scoped "% of what I've taught" stays on the class page
+where the class is known. No migration, and nothing in the group path is touched.
+
+**A consequence worth following up separately.** The reason counts work is that
+early mastery is achievable while any whole-course denominator is enormous. That
+makes the first few sessions decisive: a student who finishes an early session
+having mastered four things has had a different experience from one shown 3%, and
+the day-two return rate is the product's standing problem (10 of 56 students have
+ever come back on a second day). An induction that front-loads reachable wins is
+its own piece of work, and the fast-track already in `masteryStatusFor` — first
+three correct marks a skill mastered early — is the existing hook for it.
 
 ---
 
@@ -184,7 +221,7 @@ that is honest and consistent. Label it so the two are not confused.
 ## 7. Build order
 
 1. **§4.1 teacher-keyed RPC** — no interface change; nothing is visible yet.
-2. **§4.2 "My students" list**, unscoped percentage per §5.
+2. **§4.2 "My students" list**, showing counts rather than a percentage per §5.
 3. **§4.3 student detail as a route**, with the modal kept until the route is
    proven.
 4. **§4.4 invisible class creation** — last, because it changes a write path and
