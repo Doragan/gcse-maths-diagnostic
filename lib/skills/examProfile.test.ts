@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { bareClaim, chainClaim, calcClaim, type SkillExamProfile, type BareBand } from './examProfile'
+import {
+  bareClaim, chainClaim, calcClaim, answerFormClaim, kindClaim,
+  type SkillExamProfile, type BareBand,
+} from './examProfile'
 
 /** A profile with sensible defaults; override only what the test is about. */
 function profile(over: Partial<SkillExamProfile> = {}): SkillExamProfile {
@@ -18,6 +21,9 @@ function profile(over: Partial<SkillExamProfile> = {}): SkillExamProfile {
     calc: { calc: 18, non_calc: 5, na: 1 },
     markSplits: ['M1 M1dep A1'],
     chainedPct: 36,
+    framingCoded: 24,
+    answerForms: { numeric: 20, expression: 4 },
+    kinds: { mastery: 18, exam: 6 },
     traps: [],
     sufficient: true,
     ...over,
@@ -87,7 +93,7 @@ describe('bareClaim', () => {
       const s = bareClaim(profile({ bareBand, framing: { bare: 12 } }), 'Simplifying Indices')
       expect(s).not.toMatch(/\bbe\s*\./)
       expect(s).not.toContain('undefined')
-      expect(s.endsWith('.')).toBe(true)
+      expect(s!.endsWith('.')).toBe(true)
     }
   })
 
@@ -110,7 +116,7 @@ describe('bareClaim', () => {
         expect(s, `${framing} / ${bareBand}`).not.toContain(', so ')
         expect(s, `${framing} / ${bareBand}`).not.toContain('  ')
         expect(s, `${framing} / ${bareBand}`).not.toMatch(/\.\./)
-        expect(s.endsWith('.'), `${framing} / ${bareBand}`).toBe(true)
+        expect(s!.endsWith('.'), `${framing} / ${bareBand}`).toBe(true)
       }
     }
   })
@@ -118,7 +124,7 @@ describe('bareClaim', () => {
   it('degrades gracefully on a framing key with no phrase written for it', () => {
     const s = bareClaim(profile({ framing: { some_future_framing: 9 } }), 'Proportion')
     expect(s).not.toContain('undefined')
-    expect(s.endsWith('.')).toBe(true)
+    expect(s!.endsWith('.')).toBe(true)
   })
 })
 
@@ -145,5 +151,70 @@ describe('calcClaim', () => {
 
   it('says both when the split is even', () => {
     expect(calcClaim(profile({ calc: { calc: 10, non_calc: 10 } }))).toContain('both')
+  })
+})
+
+describe('claims that do not depend on framing', () => {
+  // OCR and Edexcel papers are coded for marks, mark splits, answer form and
+  // kind — but never for framing, calc or traps. Those panels showed almost
+  // nothing, and what they did show was wrong.
+  const unframed = (over: Partial<SkillExamProfile> = {}) =>
+    profile({ framing: {}, framingCoded: 0, barePct: 0, bareBand: 'never', calc: {}, traps: [], ...over })
+
+  it('says nothing about plain asking when the papers were never coded for it', () => {
+    // The bug this exists for: zero framing data reached the "never" band and
+    // the page told the student they would "almost never" be told outright.
+    expect(bareClaim(unframed(), 'Ratio')).toBeNull()
+  })
+
+  it('still speaks when framing IS coded, including a genuine zero', () => {
+    const genuinelyNeverBare = profile({ framing: { real_world: 20 }, framingCoded: 20, barePct: 0, bareBand: 'never' })
+    expect(bareClaim(genuinelyNeverBare, 'Ratio')).toContain('almost never')
+  })
+
+  describe('answerFormClaim', () => {
+    it('is silent on too few parts to generalise from', () => {
+      expect(answerFormClaim(unframed({ answerForms: { numeric: 3 } }))).toBeNull()
+    })
+
+    it('reports an overwhelmingly numeric answer line', () => {
+      expect(answerFormClaim(unframed({ answerForms: { numeric: 18, fraction: 2 } })))
+        .toBe('The answer is nearly always just a number.')
+    })
+
+    it('names the biggest non-numeric form when it is common enough to matter', () => {
+      const s = answerFormClaim(unframed({ answerForms: { numeric: 12, draw_plot: 8 } }))
+      expect(s).toContain('drawing or plotting something')
+      expect(s).toContain('about a third')
+    })
+
+    it('does not name a form that barely appears', () => {
+      const s = answerFormClaim(unframed({ answerForms: { numeric: 13, show_that: 1, text: 1 } }))
+      expect(s).toBe('The answer is nearly always just a number.')
+    })
+
+    it('says nothing rather than inventing a phrase for an unknown form', () => {
+      expect(answerFormClaim(unframed({ answerForms: { some_new_form: 10, numeric: 2 } }))).toBeNull()
+    })
+  })
+
+  describe('kindClaim', () => {
+    it('is silent on too few parts', () => {
+      expect(kindClaim(unframed({ kinds: { exam: 2, mastery: 1 } }))).toBeNull()
+    })
+
+    it('reports a skill that mostly sits inside longer questions', () => {
+      expect(kindClaim(unframed({ kinds: { exam: 16, mastery: 8 } })))
+        .toContain('usually sits inside a longer question')
+    })
+
+    it('reports a skill that nearly always stands alone', () => {
+      expect(kindClaim(unframed({ kinds: { exam: 2, mastery: 26 } })))
+        .toContain('question in its own right')
+    })
+
+    it('says nothing when the split is middling', () => {
+      expect(kindClaim(unframed({ kinds: { exam: 7, mastery: 20 } }))).toBeNull()
+    })
   })
 })

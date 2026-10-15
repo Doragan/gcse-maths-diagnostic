@@ -28,11 +28,24 @@ export type SkillExamProfile = {
   chainedPct: number
   traps: string[]
   sufficient: boolean
+  /**
+   * How many of this skill’s parts were coded for framing.
+   *
+   * Zero means the papers were never coded for it — NOT that the skill is
+   * never asked plainly. Without this the two were indistinguishable, and
+   * every OCR and Edexcel skill was being told "you will almost never be
+   * told straight out", derived from no evidence at all.
+   */
+  framingCoded: number
+  /** How the answer is given: numeric, expression, draw_plot, show_that… */
+  answerForms: Record<string, number>
+  /** mastery = the skill on its own; exam = inside a longer question. */
+  kinds: Record<string, number>
 }
 
 type Manifest = {
   minParts: number
-  slices: { board: string; tier: string; papers: string[]; series: string[]; skillsPresent: number; skillsSufficient: number }[]
+  slices: { board: string; qualification?: string; tier: string; papers: string[]; series: string[]; skillsPresent: number; skillsSufficient: number }[]
   profiles: Record<string, SkillExamProfile>
 }
 
@@ -44,8 +57,21 @@ export type Tier = 'foundation' | 'higher'
 const auditTier = (tier: Tier) => (tier === 'higher' ? 'Higher' : 'Foundation')
 
 /** Exam boards we hold coded papers for, in display order. */
+/**
+ * Boards a GCSE student can be shown, in display order.
+ *
+ * International GCSE slices are excluded. They are a different qualification
+ * with its own papers, not another board sitting the same exam, and offering
+ * one on a GCSE briefing would scope every claim to the wrong syllabus. The
+ * papers stay coded and the profiles stay generated, so serving iGCSE later
+ * is a product decision rather than a data one.
+ */
 export const codedBoards = (): string[] =>
-  [...new Set(data.slices.map(s => s.board))].sort()
+  [...new Set(
+    data.slices
+      .filter(s => !/international/i.test(s.qualification ?? ''))
+      .map(s => s.board),
+  )].sort()
 
 export const minParts = () => data.minParts
 
@@ -127,7 +153,12 @@ function dominantDressing(p: SkillExamProfile): string | null {
  * three bare proportion questions, this moved from "never" to "rarely" on its
  * own. Deliberately not authored per skill.
  */
-export function bareClaim(p: SkillExamProfile, skillName: string): string {
+export function bareClaim(p: SkillExamProfile, skillName: string): string | null {
+  // No framing coding, no claim. Every OCR and Edexcel skill used to reach
+  // the "never" band here purely because the field was absent, and the page
+  // told those students they would "almost never be told straight out" —
+  // asserted from nothing. Silence is the honest output.
+  if (p.framingCoded === 0) return null
   const lower = skillName.toLowerCase()
   const dressing = dominantDressing(p)
   // "that you're doing proportion" rather than "that a question is about
@@ -177,6 +208,78 @@ export function calcClaim(p: SkillExamProfile): string | null {
   if (calc / total >= 0.75) return 'It nearly always turns up on a calculator paper.'
   if (non / total >= 0.75) return 'It nearly always turns up on a non-calculator paper.'
   return 'It turns up on both calculator and non-calculator papers.'
+}
+
+/** How an answer is given, as a student would say it. */
+const ANSWER_FORM_PHRASES: Record<string, string> = {
+  draw_plot:      'drawing or plotting something',
+  draw_shape:     'drawing a shape',
+  show_that:      'showing that a given answer is right',
+  expression:     'an expression rather than a number',
+  equation:       'an equation',
+  fraction:       'a fraction',
+  ratio:          'a ratio',
+  coordinate:     'a coordinate',
+  table_complete: 'filling in a table',
+  exact_surd:     'an exact answer left in surd form',
+  ordering:       'putting things in order',
+  set_select:     'picking from a set',
+  text:           'something written in words',
+  free_text:      'something written in words',
+}
+
+/** "about a third" and friends, for a share between 0 and 1. */
+function roughShare(share: number): string | null {
+  if (share >= 0.45) return 'about half'
+  if (share >= 0.3) return 'about a third'
+  if (share >= 0.2) return 'about a quarter'
+  return null
+}
+
+/**
+ * What the answer line wants — a claim every coded board supports, because
+ * `answer_form` is recorded on every part. This is most of what the OCR and
+ * Edexcel panels can honestly say: those papers carry no framing, calc or
+ * trap coding, so without this they showed marks and little else.
+ */
+export function answerFormClaim(p: SkillExamProfile): string | null {
+  const entries = Object.entries(p.answerForms)
+  const total = entries.reduce((s, [, n]) => s + n, 0)
+  if (total < 4) return null
+
+  const numeric = p.answerForms.numeric ?? 0
+  const others = entries.filter(([k]) => k !== 'numeric').sort((a, b) => b[1] - a[1])
+  const [topKey, topCount] = others[0] ?? []
+  const topPhrase = topKey ? ANSWER_FORM_PHRASES[topKey] : null
+  const topShare = topCount ? topCount / total : 0
+
+  if (numeric / total >= 0.8) return 'The answer is nearly always just a number.'
+
+  const rough = roughShare(topShare)
+  if (topPhrase && rough) {
+    return `The answer is usually a number, but ${rough} of these ask for ${topPhrase}.`
+  }
+  if (numeric / total >= 0.5) {
+    return 'The answer is usually a number, with the odd one wanting something else.'
+  }
+  return null
+}
+
+/**
+ * Whether the skill is the whole question or a step inside a longer one.
+ * `kind` is recorded on every coded part, on every board.
+ */
+export function kindClaim(p: SkillExamProfile): string | null {
+  const exam = p.kinds.exam ?? 0
+  const mastery = p.kinds.mastery ?? 0
+  const total = exam + mastery
+  if (total < 4) return null
+
+  const share = exam / total
+  if (share >= 0.6) return 'It usually sits inside a longer question rather than standing on its own.'
+  if (share >= 0.35) return 'It often sits inside a longer question, not just on its own.'
+  if (share <= 0.15) return 'It is nearly always a question in its own right.'
+  return null
 }
 
 /** Framing counts as sorted display rows, excluding `bare`. */

@@ -8,7 +8,7 @@ import { slugToSkillId } from '../../../lib/skills/slug'
 import { getBriefing, resolveBriefing } from '../../../data/skillBriefings'
 import {
   getExamProfile, dressedFramings, bareClaim, chainClaim, calcClaim,
-  sliceProvenance, codedBoards, type Tier,
+  sliceProvenance, codedBoards, answerFormClaim, kindClaim, type Tier,
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
 import { judgedCorrectly, orderedPair, type Judgement } from '../../../lib/skills/briefingQuiz'
@@ -743,7 +743,9 @@ export default function SkillBriefingPage() {
                 : `${profile.markRange[0]}–${profile.markRange[1]}`}
               label="marks per question"
             />
-            <Stat n={`${profile.barePct}`} sub="%" label="asked straight out" />
+            {profile.framingCoded > 0 && (
+              <Stat n={`${profile.barePct}`} sub="%" label="asked straight out" />
+            )}
           </div>
 
           {dressedTotal > 0 && (
@@ -775,11 +777,26 @@ export default function SkillBriefingPage() {
             </>
           )}
 
-          <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '14px 0 0' }}>
-            <strong>{bareClaim(profile, skill.name)}</strong>
-            {chainClaim(profile) && ` ${chainClaim(profile)}`}
-            {calcClaim(profile) && ` ${calcClaim(profile)}`}
-          </p>
+          {/* Only the claims this board’s coding supports. The OCR and
+              Edexcel papers carry no framing, calculator or trap coding, so
+              their panels lean on answer form and whether the skill stands
+              alone — both recorded on every coded part, on every board. */}
+          {(() => {
+            const claims = [
+              bareClaim(profile, skill.name),
+              kindClaim(profile),
+              answerFormClaim(profile),
+              chainClaim(profile),
+              calcClaim(profile),
+            ].filter(Boolean) as string[]
+            if (!claims.length) return null
+            return (
+              <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '14px 0 0' }}>
+                <strong>{claims[0]}</strong>
+                {claims.slice(1).map(c => ` ${c}`).join('')}
+              </p>
+            )
+          })()}
 
           {provenance && (
             <p style={styles.provenance}>
