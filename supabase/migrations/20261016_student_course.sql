@@ -21,8 +21,8 @@
 -- 20260611_lock_sensitive_columns.sql revoked the blanket table-level UPDATE on
 -- `students` from anon and authenticated, because the self-row UPDATE policy
 -- (USING auth.uid() = id) is row-granular and cannot stop a student setting
--- is_admin / subscription_tier / paid_until on their OWN row. It closes with
--- exactly this case:
+-- subscription_tier / paid_until / stripe_customer_id on their OWN row — i.e.
+-- granting themselves a paid subscription. It closes with exactly this case:
 --
 --     If a profile-edit feature is ever added, re-grant only those columns, e.g.
 --       grant update (display_name, year_group) on students to authenticated;
@@ -34,6 +34,26 @@
 -- GRANT (it is a no-op), but a column-level GRANT with no table-level grant
 -- present is the whole permission. Adding a column to `students` later does NOT
 -- become writable by this.
+--
+-- NOT is_admin: that column is on `teachers`, not on `students` — see the
+-- captured schema in 20260914_capture_students_teachers.sql. The 2026-06-11
+-- migration covered both tables, so its wording names it; this one is students
+-- only, and repeating the list verbatim would send the next reader looking for
+-- a column that is not there. The students-side prize is the subscription.
+--
+-- ── VERIFIED AFTER APPLYING (2026-10-16) ────────────────────────────────────
+-- information_schema.column_privileges, privilege_type = 'UPDATE' on students:
+--
+--     authenticated  course_id        <- this migration, and nothing else
+--     postgres       (every column)   <- owner
+--     service_role   (every column)   <- backend key, never reaches a browser
+--     anon           (none)
+--
+-- Read from the catalog rather than probed with a write: the SQL Editor runs as
+-- superuser and bypasses grants, so an attempted write there proves nothing.
+-- One row for `authenticated` is the assertion — a table-level UPDATE would
+-- list every column instead, which is exactly how the 2026-09-14 audit found
+-- the hole on `teachers`.
 --
 -- ── WHY THE EXISTING POLICY IS ENOUGH ───────────────────────────────────────
 -- `students` already carries "Students can update own record", FOR UPDATE,
