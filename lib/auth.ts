@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { applyAccountCourse } from './skills/accountCourse'
 import { trackEvent } from './analytics'
 import { PENDING_KEY, pendingPracticeRows } from './pendingPractice'
 import { fetchMyClassGrant } from './classGrant'
@@ -233,6 +234,14 @@ export async function getStudentProfile() {
     fetchMyClassGrant(),
   ])
   if (!data) return data
+  // Push the account course into the per-browser qualification and tier.
+  //
+  // Done HERE because it is the one place every caller already goes through,
+  // so no page has to remember to do it, and a student who signs in on a new
+  // device is on their own course before the first render that reads it.
+  // getQualification() and getTier() stay synchronous and simply find the
+  // right answer already in storage. No-ops when course_id is null.
+  applyAccountCourse(data)
   return { ...data, activeClassMembership }
 }
 

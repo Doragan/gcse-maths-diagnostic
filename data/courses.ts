@@ -365,6 +365,33 @@ export function courseFor(qualification: Qualification, tier: CourseTier): Cours
  * other way. Note this is NOT the Higher course: courseFor(q, 'higher').skills
  * is the whole paper, Foundation content included.
  */
+/** Every course id, for guarding a value that came from outside the app. */
+export const COURSE_IDS_ALL: string[] =
+  (Object.keys(COURSE_IDS) as Qualification[])
+    .flatMap(q => (['foundation', 'higher'] as CourseTier[]).map(t => COURSE_IDS[q][t]))
+
+/** The id a (qualification, tier) names. */
+export function courseIdFor(qualification: Qualification, tier: CourseTier): string {
+  return COURSE_IDS[qualification][tier]
+}
+
+/**
+ * Split a stored course id back into the pair it stands for, or null if it is
+ * not a course this build knows. Null rather than a throw: the id comes off a
+ * database row written by an older or newer deploy, so an unknown one is a
+ * situation to fall back from, not a crash.
+ */
+export function courseParts(
+  id: string | null | undefined,
+): { qualification: Qualification; tier: CourseTier } | null {
+  for (const q of Object.keys(COURSE_IDS) as Qualification[]) {
+    for (const tier of ['foundation', 'higher'] as CourseTier[]) {
+      if (COURSE_IDS[q][tier] === id) return { qualification: q, tier }
+    }
+  }
+  return null
+}
+
 export function higherOnlySkillsFor(qualification: Qualification): string[] {
   const foundation = new Set(courseFor(qualification, 'foundation').skills)
   return courseFor(qualification, 'higher').skills.filter(id => !foundation.has(id))

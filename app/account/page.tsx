@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { getUser, updateEmail, updatePassword, deleteAccount, signOut } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
 import { getMyDisplayName, setMyDisplayName } from '../../lib/classes'
+import { courses } from '../../data/courses'
+import { applyAccountCourse } from '../../lib/skills/accountCourse'
 import {
   colors, font, card,
   primaryButton, secondaryButton, inputStyle, labelStyle, errorBox, sectionTitle,
@@ -40,6 +42,15 @@ export default function AccountPage() {
   const [nameError, setNameError] = useState<string | null>(null)
   const [nameSaved, setNameSaved] = useState(false)
 
+  // Student-only. Which course they are sitting, as a data/courses.ts id, or
+  // '' for not stated. Held on the ACCOUNT so it follows them between devices,
+  // unlike the per-browser qualification and tier it feeds.
+  const [userId, setUserId] = useState('')
+  const [courseId, setCourseId] = useState('')
+  const [courseLoading, setCourseLoading] = useState(false)
+  const [courseError, setCourseError] = useState<string | null>(null)
+  const [courseSaved, setCourseSaved] = useState(false)
+
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -51,16 +62,25 @@ export default function AccountPage() {
       // codebase keeps running into. Home serves both.
       if (!user) { router.push('/'); return }
       setEmail(user.email ?? '')
+      setUserId(user.id)
 
       // A student may read their own students row; a teacher gets nothing back,
       // because the SELECT policy is auth.uid() = id. So "a row came back" is a
       // sufficient role test and needs no new endpoint.
+      //
+      // select('*') rather than naming course_id, deliberately: this one query
+      // is BOTH the role test and the course read, and naming a column that does
+      // not exist errors the whole query. Were the code ever to reach production
+      // ahead of 20261016_student_course.sql, that would make every student look
+      // like a teacher here. With '*' an unapplied migration just leaves
+      // course_id undefined, and the page still knows who it is talking to.
       const { data: studentRow } = await supabase
         .from('students')
-        .select('id')
+        .select('*')
         .eq('id', user.id)
         .maybeSingle()
       setIsStudent(!!studentRow)
+      setCourseId(studentRow?.course_id ?? '')
 
       // Only teachers have one; the route answers 403 for a student and the
       // helper turns that into null, so this is safe to call either way.
@@ -148,6 +168,37 @@ export default function AccountPage() {
     }
   }
 
+  /**
+   * Save the course, then apply it to THIS browser straight away.
+   *
+   * Without the second step the student would change their course here and
+   * still see the old one until the next profile fetch, which is the kind of
+   * lag that reads as the setting not having worked.
+   *
+   * '' stores NULL — not stated — which deliberately leaves the per-browser
+   * preference alone rather than resetting it to a default.
+   */
+  async function handleCourseChange(next: string) {
+    setCourseError(null)
+    setCourseSaved(false)
+    setCourseLoading(true)
+    const value = next === '' ? null : next
+    try {
+      const { error } = await supabase
+        .from('students')
+        .update({ course_id: value })
+        .eq('id', userId)
+      if (error) throw new Error(error.message)
+      setCourseId(next)
+      applyAccountCourse({ course_id: value })
+      setCourseSaved(true)
+    } catch (e) {
+      setCourseError(e instanceof Error ? e.message : 'Could not save your course')
+    } finally {
+      setCourseLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <main style={styles.page}>
@@ -173,6 +224,40 @@ export default function AccountPage() {
       <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
         Logged in as <strong>{email}</strong>
       </p>
+
+      {/* Your exam — students only. A teacher sits no paper, and the course
+          they teach is a property of a class rather than of their account. */}
+      {isStudent && (
+        <div style={card}>
+          <h2 style={sectionTitle}>Your exam</h2>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
+            Sets which skills you practise and which exam boards you can compare
+            yourself against. Saved to your account, so it follows you to any
+            device you sign in on.
+          </p>
+          <div style={styles.field}>
+            <label style={labelStyle}>Course</label>
+            {/* One control over whole courses rather than a qualification picker
+                and a tier picker. Two controls can express a pair that is not a
+                real course; this cannot. */}
+            <select
+              value={courseId}
+              onChange={e => handleCourseChange(e.target.value)}
+              disabled={courseLoading}
+              style={inputStyle}
+            >
+              <option value="">Not stated</option>
+              {courses.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          {courseError && <div style={errorBox}>{courseError}</div>}
+          {courseSaved && !courseError && (
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>Saved.</p>
+          )}
+        </div>
+      )}
 
       {/* Your name — teachers only. A student has no invitations to send and
           already sets their own name at signup. */}
