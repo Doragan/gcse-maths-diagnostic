@@ -134,6 +134,24 @@ export async function getAssignmentResults(
   return json
 }
 
+/**
+ * Cheap "has anything changed?" probe for the live view — a count and a
+ * timestamp, so a polling teacher only refetches the real payload when a
+ * student has actually answered something. See the head route for why.
+ */
+export async function getAssignmentResultsHead(
+  assignmentId: string,
+): Promise<{ attemptCount: number; lastAttemptAt: string | null }> {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const res = await fetch(`/api/assignments/${assignmentId}/results/head`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(json?.error ?? 'Failed to check for new attempts')
+  return json
+}
+
 // ── Student helpers ────────────────────────────────────────────────────────
 
 /** Returns all assignments the signed-in student is targeted by. */
