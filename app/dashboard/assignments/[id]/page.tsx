@@ -1,12 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import {
-  getAssignment, getAssignmentQuestions, getAssignmentResults,
+  getAssignment, getAssignmentQuestions, getAssignmentResults, getAssignmentResultsHead,
   type Assignment, type AssignmentQuestion, type AssignmentResult,
 } from '../../../../lib/assignments'
+import {
+  headChanged, isAnsweringNow, shouldPause, formatLastAttempt,
+  POLL_MS, type ResultsHead,
+} from '../../../../lib/liveProgress'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, radius, card,
@@ -32,6 +36,22 @@ export default function AssignmentDetailPage() {
   const [loadingResults, setLoadingResults] = useState(false)
   const [notFound, setNotFound]             = useState(false)
 
+  // ── Live progress (docs/audit/24, Part 3) ────────────────────────────────
+  // Polling, not realtime: a change event carries a student_id and nothing
+  // nameable, so it could only ever supplement this payload rather than
+  // replace it. The cheap head probe keeps the cost down — see the head route.
+  const [live, setLive] = useState(true)
+  // Advanced on each probe so "answering now" and the clock times decay.
+  const [now, setNow] = useState(() => Date.now())
+  const headRef = useRef<ResultsHead | null>(null)
+  const lastChangeRef = useRef<number>(Date.now())
+
+  const loadResults = useCallback(async () => {
+    const res = await getAssignmentResults(assignmentId)
+    setResults(res.results)
+    setAssignedCount(res.assignedCount)
+  }, [assignmentId])
+
   useEffect(() => {
     getSession().then(async session => {
       if (!session) { router.push('/auth'); return }
@@ -49,13 +69,51 @@ export default function AssignmentDetailPage() {
       // Load results in background
       setLoadingResults(true)
       try {
-        const res = await getAssignmentResults(assignmentId)
-        setResults(res.results)
-        setAssignedCount(res.assignedCount)
+        await loadResults()
+        // Seed the probe baseline from the server rather than deriving it from
+        // the rows: an attempt by a student who has since left the class counts
+        // in the head but has no row, which would read as a change for ever.
+        headRef.current = await getAssignmentResultsHead(assignmentId)
       } catch { /* results load failed */ }
       finally { setLoadingResults(false) }
     })
-  }, [assignmentId])
+  }, [assignmentId, loadResults])
+
+  // Poll while the tab is visible; stand down after a long quiet spell.
+  useEffect(() => {
+    if (!live || loading || notFound) return
+    let cancelled = false
+
+    async function probe() {
+      if (cancelled || document.visibilityState === 'hidden') return
+      try {
+        const head = await getAssignmentResultsHead(assignmentId)
+        if (cancelled) return
+        if (headChanged(headRef.current, head)) {
+          headRef.current = head
+          lastChangeRef.current = Date.now()
+          await loadResults()
+        } else if (shouldPause(lastChangeRef.current)) {
+          // A teacher leaves tabs open for days; a lesson lasts an hour.
+          setLive(false)
+        }
+        if (!cancelled) setNow(Date.now())
+      } catch {
+        // A failed probe isn't worth interrupting a lesson for — the next one
+        // retries, and the rows on screen are still the last good ones.
+      }
+    }
+
+    const timer = setInterval(probe, POLL_MS)
+    // Catch up at once when the teacher comes back to the tab.
+    const onVisibility = () => { if (document.visibilityState === 'visible') probe() }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [assignmentId, live, loading, notFound, loadResults])
 
   if (loading) {
     return <main style={styles.page}><p style={{ color: colors.textSecondary }}>Loading…</p></main>
@@ -147,12 +205,29 @@ export default function AssignmentDetailPage() {
 
       {/* Results */}
       <div style={card}>
-        <h2 style={{ ...sectionTitle, margin: '0 0 12px' }}>
-          Results{' '}
-          {results.length > 0 && (
-            <span style={{ color: colors.textHint, fontWeight: '400' }}>({results.length} student{results.length !== 1 ? 's' : ''})</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, margin: '0 0 12px' }}>
+          <h2 style={{ ...sectionTitle, margin: 0 }}>
+            Results{' '}
+            {results.length > 0 && (
+              <span style={{ color: colors.textHint, fontWeight: '400' }}>({results.length} student{results.length !== 1 ? 's' : ''})</span>
+            )}
+          </h2>
+          {/* Say plainly whether what's on screen is keeping itself up to date.
+              A stale table that looks live is worse than no live view at all. */}
+          {live ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '11px', color: colors.textHint, whiteSpace: 'nowrap' as const }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: colors.success, flexShrink: 0 }} />
+              Updating live
+            </span>
+          ) : (
+            <button
+              onClick={() => { lastChangeRef.current = Date.now(); setLive(true) }}
+              style={{ ...secondaryButton, width: 'auto', padding: '4px 10px', fontSize: '11px' }}
+            >
+              Paused · Resume
+            </button>
           )}
-        </h2>
+        </div>
 
         {/* Summary stats row */}
         {results.length > 0 && (
@@ -220,11 +295,20 @@ export default function AssignmentDetailPage() {
                         <span style={{ color: colors.warning, fontWeight: '500' }}>In progress</span>
                       )}
                     </td>
-                    <td style={{ ...styles.td, color: colors.textHint }}>
-                      {r.last_attempt_at
-                        ? new Date(r.last_attempt_at).toLocaleDateString('en-GB')
-                        : '—'}
-                    </td>
+                    {(() => {
+                      // Presence, not a verdict: who is working right now and
+                      // when everyone else last did. No "stuck", no idle time
+                      // (docs/audit/12 decision 2, carried into Part 3).
+                      const here = isAnsweringNow(r.last_attempt_at, now)
+                      return (
+                        <td style={{ ...styles.td, color: here ? colors.successText : colors.textHint, whiteSpace: 'nowrap' as const }}>
+                          {here && (
+                            <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: colors.success, marginRight: 6 }} />
+                          )}
+                          {formatLastAttempt(r.last_attempt_at, now)}
+                        </td>
+                      )
+                    })()}
                   </tr>
                 ))}
               </tbody>
