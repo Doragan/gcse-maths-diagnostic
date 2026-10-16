@@ -4,7 +4,12 @@ import {
   courses,
   foundationSkillIds, higherOnlySkillIds,
   igcseFoundationSkillIds, igcseHigherOnlySkillIds,
+  BOARDS_BY_QUALIFICATION, qualificationOfBoard, type Qualification,
 } from '../../data/courses'
+import { readdirSync, readFileSync } from 'fs'
+import { join } from 'path'
+import { codedBoards } from './examProfile'
+import { DEFAULT_QUALIFICATION } from './qualificationPreference'
 import { getAccessibleSkillIds } from './masteryEngine'
 import { prerequisiteTreeWithin } from './skillGraph'
 
@@ -120,4 +125,100 @@ describe('prerequisite reachability', () => {
       expect(unreachable, 'Foundation skills unreachable even at full mastery').toEqual([])
     },
   )
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Qualification scoping.
+//
+// The corpus in data/exam-audit/ holds more than one qualification, and both
+// derived-data builders read the whole directory. Before this existed, coding
+// the iGCSE 4MA1 papers silently put "Edexcel International" into the board
+// switcher for every GCSE student and pooled 4MA1 mark schemes into the GCSE
+// exam assembler. Nothing failed; the numbers just moved.
+//
+// These are the tests that would have caught it. They assert on the DATA, not
+// on the builders, so they hold however the generated files were produced.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('qualification scoping', () => {
+  const auditBoards = [...new Set(
+    readdirSync(join(process.cwd(), 'data', 'exam-audit'))
+      .filter(f => f.endsWith('.json'))
+      .map(f => JSON.parse(
+        readFileSync(join(process.cwd(), 'data', 'exam-audit', f), 'utf8'),
+      ).meta.board as string),
+  )]
+
+  it('claims every board that appears in the coded audit', () => {
+    // Forces a decision when a board is added: an unclaimed board fails here
+    // rather than quietly appearing in front of students.
+    const unclaimed = auditBoards.filter(b => qualificationOfBoard(b) === null)
+    expect(unclaimed, 'boards in data/exam-audit with no qualification in data/courses.ts').toEqual([])
+  })
+
+  it('gives every coded board exactly one qualification', () => {
+    for (const board of auditBoards) {
+      const owners = (Object.keys(BOARDS_BY_QUALIFICATION) as Qualification[])
+        .filter(q => BOARDS_BY_QUALIFICATION[q].includes(board))
+      expect(owners, `${board} is claimed by ${owners.length} qualifications`).toHaveLength(1)
+    }
+  })
+
+  it('never offers a student a board from another qualification', () => {
+    // The regression itself. codedBoards() feeds the board switcher directly.
+    for (const q of Object.keys(BOARDS_BY_QUALIFICATION) as Qualification[]) {
+      for (const board of codedBoards(q)) {
+        expect(qualificationOfBoard(board), `${board} offered on ${q}`).toBe(q)
+      }
+    }
+  })
+
+  it('offers the default qualification only GCSE boards', () => {
+    // A signed-out visitor gets the generic GCSE experience, so this is what
+    // almost everyone actually sees.
+    expect(codedBoards(DEFAULT_QUALIFICATION)).toEqual(['AQA', 'OCR', 'Pearson Edexcel'])
+  })
+
+  it('gives every course a qualification whose boards are coded', () => {
+    for (const c of courses) {
+      expect(BOARDS_BY_QUALIFICATION[c.qualification], `${c.id}`).toBeDefined()
+      expect(codedBoards(c.qualification).length, `${c.id} has no coded board`).toBeGreaterThan(0)
+    }
+  })
+
+  it('never lets the spec name on a paper contradict its qualification', () => {
+    // meta.qualification is the spec as printed on the paper ("GCSE Mathematics
+    // (8300)", "International GCSE Mathematics A (4MA1)"). The TYPED dimension is
+    // not stored per file — it is derived from the board in data/courses.ts, so
+    // one place decides it instead of 86 files each restating it.
+    //
+    // That derivation is only trustworthy while the two agree. If an iGCSE paper
+    // were ever coded under a board claimed as GCSE, every check above would
+    // still pass while the paper sat in the wrong pool. The spec name is the
+    // independent witness, so it is what this cross-checks.
+    const d = join(process.cwd(), 'data', 'exam-audit')
+    const wrong = readdirSync(d)
+      .filter(f => f.endsWith('.json'))
+      .map(f => ({ f, meta: JSON.parse(readFileSync(join(d, f), 'utf8')).meta }))
+      .filter(({ meta }) => {
+        const saysInternational = /^International/.test(meta.qualification ?? '')
+        return saysInternational !== (qualificationOfBoard(meta.board) === 'igcse')
+      })
+      .map(({ f, meta }) => `${f}: "${meta.qualification}" on board ${meta.board}`)
+
+    expect(wrong, 'papers whose spec name disagrees with their derived qualification').toEqual([])
+  })
+
+  it('keeps the mark-evidence table on one qualification', () => {
+    // This table has no board dimension, so a paper from another qualification
+    // does not create a separate bucket — it moves the shared numbers.
+    const gcsePapers = readdirSync(join(process.cwd(), 'data', 'exam-audit'))
+      .filter(f => f.endsWith('.json'))
+      .filter(f => qualificationOfBoard(JSON.parse(
+        readFileSync(join(process.cwd(), 'data', 'exam-audit', f), 'utf8'),
+      ).meta.board) === 'gcse')
+    const header = readFileSync(join(process.cwd(), 'lib', 'exam', 'markEvidence.data.ts'), 'utf8')
+    const claimed = Number(header.match(/\((\d+) papers,/)?.[1])
+    expect(claimed, 'markEvidence.data.ts is built from a different paper set than the GCSE corpus')
+      .toBe(gcsePapers.length)
+  })
 })

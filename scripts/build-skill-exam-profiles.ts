@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
+import { qualificationOfBoard } from '../data/courses'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tier 3 generator — turns the coded exam audit into a per-skill exam profile.
@@ -190,6 +191,24 @@ function build(): ProfileManifest {
   const slices: ProfileManifest['slices'] = []
 
   // Every (board, tier) pair present in the coded data.
+  //
+  // EVERY BOARD MUST BELONG TO A QUALIFICATION. This builder used to take the
+  // boards it found and emit a slice for each, which is how the iGCSE 4MA1
+  // papers ended up offered to GCSE students: codedBoards() reads these slices
+  // and the board switcher renders whatever it returns. Slices still carry
+  // every qualification — the data is not wrong, it was the exposure that was —
+  // but an unclaimed board is now a hard failure here rather than a surprise in
+  // the UI later.
+  const unclaimed = [...new Set(papers.map(p => p.meta.board))]
+    .filter(b => qualificationOfBoard(b) === null)
+  if (unclaimed.length) {
+    throw new Error(
+      `Coded board(s) belong to no qualification: ${unclaimed.join(', ')}.\n` +
+      `Add them to BOARDS_BY_QUALIFICATION in data/courses.ts — deliberately, ` +
+      `since that decides which students are offered them.`,
+    )
+  }
+
   const sliceKeys = [...new Set(papers.map(p => `${p.meta.board}|${p.meta.tier}`))]
 
   for (const key of sliceKeys) {

@@ -1,4 +1,6 @@
 import { codedBoards } from './examProfile'
+import type { Qualification } from '../../data/courses'
+import { DEFAULT_QUALIFICATION } from './qualificationPreference'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Which exam board the student is sitting.
@@ -29,26 +31,50 @@ const LOCAL_KEY = 'mathsense_board'
  */
 export const DEFAULT_BOARD = 'AQA'
 
-/** Boards we hold coded papers for. Anything else cannot be scoped to. */
-const isCodedBoard = (v: unknown): v is string =>
-  typeof v === 'string' && codedBoards().includes(v)
+/**
+ * Boards we hold coded papers for ON THAT QUALIFICATION. Anything else cannot
+ * be scoped to — including a board that is perfectly real but belongs to a
+ * different qualification, which is the case this guards.
+ */
+const isCodedBoard = (v: unknown, qualification: Qualification): v is string =>
+  typeof v === 'string' && codedBoards(qualification).includes(v)
 
-/** Best known board for this browser. */
-export function getBoard(): string {
-  if (typeof window === 'undefined') return DEFAULT_BOARD
+/**
+ * The board to fall back to on a qualification.
+ *
+ * DEFAULT_BOARD is AQA because it is the deepest GCSE slice, but AQA does not
+ * sit iGCSE — returning it to an iGCSE student would scope the panel to a board
+ * with no slice and show them an empty panel rather than their own exam. So the
+ * constant applies only where it is actually coded, and any other qualification
+ * falls back to its first coded board.
+ */
+export function defaultBoardFor(qualification: Qualification): string {
+  const boards = codedBoards(qualification)
+  if (boards.includes(DEFAULT_BOARD)) return DEFAULT_BOARD
+  return boards[0] ?? DEFAULT_BOARD
+}
+
+/** Best known board for this browser, within the given qualification. */
+export function getBoard(qualification: Qualification = DEFAULT_QUALIFICATION): string {
+  const fallback = defaultBoardFor(qualification)
+  if (typeof window === 'undefined') return fallback
 
   try {
     const stored = localStorage.getItem(LOCAL_KEY)
-    if (isCodedBoard(stored)) return stored
+    if (isCodedBoard(stored, qualification)) return stored
   } catch {
     // Private browsing, or storage disabled. The default is still correct.
   }
-  return DEFAULT_BOARD
+  return fallback
 }
 
-/** Persist the student's board. Ignores a board we hold no papers for. */
-export function setBoard(board: string): void {
-  if (typeof window === 'undefined' || !isCodedBoard(board)) return
+/**
+ * Persist the student's board. Ignores a board we hold no papers for, and a
+ * board belonging to another qualification — so a stored value left behind by
+ * a qualification switch cannot resurface as a claim about the wrong exam.
+ */
+export function setBoard(board: string, qualification: Qualification = DEFAULT_QUALIFICATION): void {
+  if (typeof window === 'undefined' || !isCodedBoard(board, qualification)) return
   try {
     localStorage.setItem(LOCAL_KEY, board)
   } catch {

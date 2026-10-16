@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, Suspense } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 import { skillsById } from '../../../../lib/skills/skillGraph'
-import { courses } from '../../../../data/courses'
+import { courseFor, higherOnlySkillsFor } from '../../../../data/courses'
+import { getQualification } from '../../../../lib/skills/qualificationPreference'
 import { renderQuestion, type RenderedQuestion } from '../../../../lib/questions/paramEngine'
 import { checkAnswer } from '../../../../lib/questions/answerChecker'
 import {
@@ -107,12 +108,10 @@ function readEaseDownOffers(): number {
 /** Resolves the active skill pool from the stored tier + any focus override. */
 function resolveSkillIds(): string[] {
   const storedTier = sessionStorage.getItem('practice_tier') ?? 'foundation'
-  const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
-  const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
-  const higherOnly = higher.filter(hid => !foundation.includes(hid))
-  let skillIds = storedTier === 'foundation' ? foundation
-    : storedTier === 'higher' ? higherOnly
-    : [...new Set([...foundation, ...higher])]
+  const q = getQualification()
+  let skillIds = storedTier === 'foundation' ? courseFor(q, 'foundation').skills
+    : storedTier === 'higher' ? higherOnlySkillsFor(q)
+    : courseFor(q, 'higher').skills
 
   // Honour an active focus mode (skill / topic / weak-spot blitz) so the whole
   // session stays on-target. Auto mode leaves this key unset.

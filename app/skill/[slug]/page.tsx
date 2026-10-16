@@ -15,6 +15,10 @@ import { judgedCorrectly, orderedPair, type Judgement } from '../../../lib/skill
 import {
   getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD,
 } from '../../../lib/skills/boardPreference'
+import {
+  getQualification, DEFAULT_QUALIFICATION,
+} from '../../../lib/skills/qualificationPreference'
+import type { Qualification } from '../../../data/courses'
 import { getStudentProfile } from '../../../lib/auth'
 import { isPaidStudent } from '../../../lib/entitlements'
 import { trackEvent, getSessionId } from '../../../lib/analytics'
@@ -82,6 +86,7 @@ export default function SkillBriefingPage() {
 
   const [tier, setTierState] = useState<Tier>('foundation')
   const [board, setBoardState] = useState<string>(DEFAULT_BOARD)
+  const [qualification, setQualificationState] = useState<Qualification>(DEFAULT_QUALIFICATION)
   const [recent, setRecent] = useState<{ correct: boolean }[] | null>(null)
   const [studentId, setStudentId] = useState<string | null>(null)
   /** Whether this student can drill one chosen skill — a premium focus mode. */
@@ -137,8 +142,13 @@ export default function SkillBriefingPage() {
   // lib/skills/tierPreference and lib/skills/boardPreference. Read after mount
   // so the server-rendered markup and the first client render agree.
   useEffect(() => {
+    const q = getQualification()
+    setQualificationState(q)
     setTierState(getTier())
-    setBoardState(getBoard())
+    // Board is resolved WITHIN the qualification: a board left in storage from
+    // another qualification is ignored rather than scoping the panel to an exam
+    // this student does not sit.
+    setBoardState(getBoard(q))
   }, [])
 
   useEffect(() => {
@@ -184,7 +194,7 @@ export default function SkillBriefingPage() {
    */
   function changeBoard(next: string) {
     setBoardState(next)
-    persistBoard(next)
+    persistBoard(next, qualification)
     trackEvent('skill_briefing_board_change', { skill: skillId, tier, board: next })
   }
 
@@ -295,10 +305,16 @@ export default function SkillBriefingPage() {
    * Rendered in BOTH branches of that panel: a student who switches to a board
    * with too few coded papers lands on the "not enough papers" message, and
    * needs the control to still be there to switch back.
+   *
+   * Scoped to the student's QUALIFICATION, chosen on /skills and stored per
+   * browser (see qualificationPreference). Defaults to the generic GCSE
+   * experience, and a course on a signed-in account will override it there.
+   * Without the scope this offers every coded board, which once meant putting
+   * iGCSE in front of GCSE students.
    */
   const boardSwitch = (
     <div style={styles.tierSwitch} role="group" aria-label="Which exam board are you sitting?">
-      {codedBoards().map(b => (
+      {codedBoards(qualification).map(b => (
         <button
           key={b}
           onClick={() => changeBoard(b)}

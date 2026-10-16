@@ -4,10 +4,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { skills } from '../../data/skills'
-import { foundationSkillIds, higherOnlySkillIds } from '../../data/courses'
+import { courseFor, type Qualification } from '../../data/courses'
 import { hasBriefing, briefedSkillIds } from '../../data/skillBriefings'
 import { skillPath } from '../../lib/skills/slug'
 import { getTier, setTier as persistTier } from '../../lib/skills/tierPreference'
+import {
+  getQualification, setQualification as persistQualification,
+  qualificationLabel, QUALIFICATIONS, DEFAULT_QUALIFICATION,
+} from '../../lib/skills/qualificationPreference'
 import { usePublishedSkillIds, isPractisable } from '../../lib/skills/publishedSkills'
 import { studentMastery, type MasteryStatus } from '../../lib/skills/masteryEngine'
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
@@ -42,12 +46,13 @@ type Filter = 'all' | 'briefings' | 'weak'
 export default function SkillsIndexPage() {
   const router = useRouter()
   const [tier, setTierState] = useState<Tier>('foundation')
+  const [qualification, setQualificationState] = useState<Qualification>(DEFAULT_QUALIFICATION)
   const [filter, setFilter] = useState<Filter>('all')
   const [mastery, setMastery] = useState<Record<string, MasteryStatus>>({})
   const [signedIn, setSignedIn] = useState(false)
   const published = usePublishedSkillIds()
 
-  useEffect(() => { setTierState(getTier()) }, [])
+  useEffect(() => { setTierState(getTier()); setQualificationState(getQualification()) }, [])
 
   useEffect(() => {
     trackEvent('skills_index_view', { tier })
@@ -76,12 +81,23 @@ export default function SkillsIndexPage() {
     trackEvent('skills_index_tier_change', { tier: next })
   }
 
-  const inTier = useMemo(() => {
-    const ids = tier === 'higher'
-      ? [...foundationSkillIds, ...higherOnlySkillIds]
-      : foundationSkillIds
-    return new Set(ids)
-  }, [tier])
+  /**
+   * Changing qualification changes the whole pool — this map, the practice
+   * sessions and which boards the exam panels offer — so it is the widest
+   * control on the page and sits first.
+   */
+  function changeQualification(next: Qualification) {
+    setQualificationState(next)
+    persistQualification(next)
+    trackEvent('skills_index_qualification_change', { qualification: next })
+  }
+
+  // The COURSE for this (qualification, tier) — the whole paper, so Higher
+  // includes Foundation content. Not the higher-only pool /practice drills.
+  const inTier = useMemo(
+    () => new Set(courseFor(qualification, tier).skills),
+    [qualification, tier],
+  )
 
   const grouped = useMemo(() => {
     const visible = skills
@@ -159,6 +175,40 @@ export default function SkillsIndexPage() {
           ))}
         </div>
       </section>
+
+      {/*
+        Qualification, deliberately quiet.
+
+        Nearly everyone here is sitting a domestic GCSE, and this page is
+        branded as such, so a segmented control giving iGCSE equal billing
+        would put a decision in front of the majority to serve a few. It is a
+        one-line link instead — invisible to anyone it does not apply to, and
+        findable by anyone it does. The courses are near-subsets, so a student
+        who never notices it still gets a mostly-right pool rather than a
+        broken one.
+
+        When a signed-in student carries a course on their account this stops
+        being the place the answer comes from; it stays for signed-out visitors.
+      */}
+      {QUALIFICATIONS.length > 1 && (
+        <p style={styles.qualLine}>
+          {qualification === DEFAULT_QUALIFICATION ? (
+            <button
+              onClick={() => changeQualification(QUALIFICATIONS.find(q => q !== DEFAULT_QUALIFICATION)!)}
+              style={styles.qualLink}
+            >
+              Sitting International GCSE?
+            </button>
+          ) : (
+            <>
+              Showing {qualificationLabel(qualification)}.{' '}
+              <button onClick={() => changeQualification(DEFAULT_QUALIFICATION)} style={styles.qualLink}>
+                Switch to {qualificationLabel(DEFAULT_QUALIFICATION)}
+              </button>
+            </>
+          )}
+        </p>
+      )}
 
       {/* Spells out the colour scheme, so the tint is a shortcut for a reader
           who has learnt it rather than the only way to know. Only shown when
@@ -318,6 +368,21 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: 'nowrap',
   },
   filters: { display: 'flex', gap: '6px', flexWrap: 'wrap' },
+  qualLine: {
+    margin: 0,
+    fontSize: font.sm,
+    color: colors.textHint,
+  },
+  qualLink: {
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    color: colors.primary,
+    fontSize: font.sm,
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+  },
   chip: {
     padding: '5px 12px',
     borderRadius: radius.full,

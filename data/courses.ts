@@ -1,8 +1,45 @@
 import { skills } from "./skills";
 
+/**
+ * Which qualification a course sits under.
+ *
+ * This exists because the coded exam corpus in `data/exam-audit/` holds more
+ * than one qualification, and nothing downstream could tell them apart. Both
+ * derived-data builders read that whole directory, so once the iGCSE 4MA1
+ * papers were coded they silently joined GCSE data: the board switcher offered
+ * "Edexcel International" to every GCSE student, and iGCSE mark statistics were
+ * pooled into the GCSE exam assembler. Neither was caught by a test, because
+ * neither builder had any notion that a qualification existed.
+ */
+export type Qualification = 'gcse' | 'igcse'
+
+/**
+ * Exam boards per qualification, spelled exactly as `meta.board` in the coded
+ * audit files — that string is the join key, so a typo here silently empties a
+ * slice rather than failing.
+ *
+ * THIS IS THE ONE SOURCE OF TRUTH. The builders and the board switcher all read
+ * it; none of them keeps its own list. `courses.test.ts` fails if a board
+ * appears in the audit and is not claimed here, so adding a board is a decision
+ * someone has to make rather than something that happens by itself.
+ */
+export const BOARDS_BY_QUALIFICATION: Record<Qualification, readonly string[]> = {
+  gcse: ['AQA', 'OCR', 'Pearson Edexcel'],
+  igcse: ['Edexcel International'],
+}
+
+/** The qualification a coded board belongs to, or null if it is unclaimed. */
+export function qualificationOfBoard(board: string): Qualification | null {
+  for (const q of Object.keys(BOARDS_BY_QUALIFICATION) as Qualification[]) {
+    if (BOARDS_BY_QUALIFICATION[q].includes(board)) return q
+  }
+  return null
+}
+
 export interface Course {
   id: string
   name: string
+  qualification: Qualification
   skills: string[]
 }
 
@@ -269,21 +306,66 @@ export const courses: Course[] = [
   {
     id: "gcse_foundation",
     name: "GCSE Foundation",
+    qualification: "gcse",
     skills: foundationSkillIds,
   },
   {
     id: "gcse_higher",
     name: "GCSE Higher",
+    qualification: "gcse",
     skills: [...foundationSkillIds, ...higherOnlySkillIds],
   },
   {
     id: "igcse_foundation",
     name: "iGCSE Foundation (4MA1)",
+    qualification: "igcse",
     skills: igcseFoundationSkillIds,
   },
   {
     id: "igcse_higher",
     name: "iGCSE Higher (4MA1)",
+    qualification: "igcse",
     skills: [...igcseFoundationSkillIds, ...igcseHigherOnlySkillIds],
   },
 ]
+
+/**
+ * Which tier of a qualification a course is. Not a field on Course because the
+ * pair is what matters: a qualification has exactly one Foundation and one
+ * Higher course, and resolving that pair is the only thing callers ever want.
+ */
+export type CourseTier = 'foundation' | 'higher'
+
+const COURSE_IDS: Record<Qualification, Record<CourseTier, string>> = {
+  gcse:  { foundation: 'gcse_foundation',  higher: 'gcse_higher' },
+  igcse: { foundation: 'igcse_foundation', higher: 'igcse_higher' },
+}
+
+/**
+ * The course a (qualification, tier) names.
+ *
+ * Every student-facing skill pool used to be resolved by looking up the string
+ * "gcse_foundation" inline — in /practice, in the practice question page and in
+ * the diagnostic, each with its own copy of the higher-only filtering below.
+ * That is three places that silently stay GCSE whatever a student picks, so the
+ * lookup lives here once and takes the qualification as an argument.
+ */
+export function courseFor(qualification: Qualification, tier: CourseTier): Course {
+  const id = COURSE_IDS[qualification][tier]
+  const course = courses.find(c => c.id === id)
+  if (!course) throw new Error(`no course ${id} for ${qualification} ${tier}`)
+  return course
+}
+
+/**
+ * The skills a Higher candidate gets that a Foundation one does not.
+ *
+ * Derived by difference rather than read from the *HigherOnlySkillIds arrays,
+ * so it stays right for any qualification whose Higher course is assembled some
+ * other way. Note this is NOT the Higher course: courseFor(q, 'higher').skills
+ * is the whole paper, Foundation content included.
+ */
+export function higherOnlySkillsFor(qualification: Qualification): string[] {
+  const foundation = new Set(courseFor(qualification, 'foundation').skills)
+  return courseFor(qualification, 'higher').skills.filter(id => !foundation.has(id))
+}
