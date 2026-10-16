@@ -78,7 +78,40 @@ describe('titleForPath', () => {
   })
 
   it('ignores a trailing slash', () => {
-    expect(titleForPath('/practice/')).toBe('GCSE Maths practice — Mathsense')
+    expect(titleForPath('/practice/')).toBe('Maths practice — Mathsense')
+  })
+})
+
+describe('qualification neutrality', () => {
+  // A student who switches to International GCSE keeps using these pages, so a
+  // title that names a qualification is wrong for them. The fix is neutral
+  // wording rather than a per-student title: titleForPath is a pure function of
+  // the path and shares RULES with normalizePath, which feeds GA4's page_title,
+  // so branching on a preference would split one surface into two rows.
+  //
+  // DEFAULT_TITLE is deliberately NOT in this list. It is the landing page and
+  // the unmapped-route fallback — marketing copy that has to match the default
+  // in app/layout.tsx, read before anyone has chosen anything.
+  const studentJourney = [
+    '/practice',
+    '/practice/question/abc-123',
+    '/skills',
+    '/skill/percentage-change',
+    '/student/dashboard',
+    '/student/exam',
+    '/account',
+  ]
+
+  it('never names a qualification in a page the student studies in', () => {
+    const naming = studentJourney
+      .map(path => [path, titleForPath(path)] as const)
+      .filter(([, title]) => /GCSE|International|4MA1|iGCSE/i.test(title))
+    expect(naming, 'titles claiming a qualification').toEqual([])
+  })
+
+  it('still titles the practice page something useful', () => {
+    // Neutral must not mean empty — the tab still has to say what the page is.
+    expect(titleForPath('/practice')).toBe('Maths practice — Mathsense')
   })
 })
 

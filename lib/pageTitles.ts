@@ -53,7 +53,18 @@ const RULES: [RegExp, string, string?][] = [
   // Noun "practice" (with a c) to read consistently with 'Practice question'
   // below — both are correct UK English, but the mixed verb/noun spelling looked
   // like a typo side by side in the GA4 report.
-  [/^\/practice$/, 'GCSE Maths practice'],
+  //
+  // Qualification-NEUTRAL, deliberately: this said "GCSE Maths practice"
+  // while a student who had switched to International GCSE was practising
+  // 4MA1 content.
+  //
+  // Fixed by dropping the qualification rather than by naming the right one.
+  // titleForPath is a pure function of the PATH, and it shares RULES with
+  // normalizePath, which feeds GA4's page_title. Branching the title on a
+  // per-browser preference would either break that purity or split one
+  // surface into two rows — the exact collapse this whole file exists to
+  // prevent. A tab title does not need to state the student's syllabus.
+  [/^\/practice$/, 'Maths practice'],
   [/^\/diagnostic$/, 'Diagnostic'],
   [/^\/account$/, 'Account'],
 
