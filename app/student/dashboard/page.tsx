@@ -16,6 +16,9 @@ import { fetchMyClassGrant } from '../../../lib/classGrant'
 import FeedbackWidget from '../../../components/FeedbackWidget'
 import FounderUpgradeModal from '../../../components/FounderUpgradeModal'
 import ProgressChart from '../../../components/ProgressChart'
+import CourseSetupCard from '../../../components/CourseSetupCard'
+import { applyAccountCourse } from '../../../lib/skills/accountCourse'
+import { shouldAskForCourse } from '../../../lib/skills/courseSetup'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle,
@@ -32,6 +35,8 @@ type StudentProfile = {
   stripe_customer_id: string | null
   /** Set only while a recurring subscription exists — the gate on "Manage subscription". */
   stripe_subscription_id: string | null
+  /** The course they are sitting, or null when never asked. 20261016_student_course.sql. */
+  course_id: string | null
   /** The class arm of the entitlement union — see lib/classGrant.ts. */
   activeClassMembership?: boolean
 }
@@ -62,6 +67,9 @@ const TOPIC_COLORS: Record<string, string> = {
 export default function StudentDashboardPage() {
   const router = useRouter()
   const [profile, setProfile] = useState<StudentProfile | null>(null)
+  // Whether to ask which exam they are sitting. Resolved once the profile is
+  // in, so the card never flashes at a student who already has a course.
+  const [askCourse, setAskCourse] = useState(false)
   const [topicGroups, setTopicGroups] = useState<TopicGroup[]>([])
   const [totalAttempts, setTotalAttempts] = useState(0)
   const [correctAttempts, setCorrectAttempts] = useState(0)
@@ -111,6 +119,13 @@ export default function StudentDashboardPage() {
 
       if (!p) { router.push('/student'); return }
       setProfile({ ...p, activeClassMembership })
+      // This page reads the students row directly rather than through
+      // getStudentProfile(), which is where an account course is normally
+      // pushed into the per-browser preferences. So it has to do it here too,
+      // or a student who lands on the dashboard first keeps whatever course
+      // that browser last had until they open a page that does go through it.
+      applyAccountCourse(p)
+      setAskCourse(shouldAskForCourse(p.course_id))
       // Seed the session student-id cache so a later dashboard → practice →
       // question hop skips its own auth.getUser() + students fetch.
       primeStudentIdCache(p.id)
@@ -291,6 +306,14 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
+        {/* Which exam they are sitting — shown until the account has a course
+            or they decline. Above the CTA on this branch deliberately: a
+            student who has not practised yet is about to pick a placement test
+            or a practice session, and both are scoped by the answer. */}
+        {askCourse && (
+          <CourseSetupCard studentId={profile.id} onDone={() => setAskCourse(false)} />
+        )}
+
         {/* Welcome + CTA card */}
         <div style={styles.welcomeCard}>
           <div style={styles.welcomeInner}>
@@ -416,6 +439,12 @@ export default function StudentDashboardPage() {
       <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
         Welcome back, <strong>{profile.display_name}</strong>
       </p>
+
+      {/* Same card for a returning student, below the greeting rather than
+          above it: they came here to see their progress, not to fill in a form. */}
+      {askCourse && (
+        <CourseSetupCard studentId={profile.id} onDone={() => setAskCourse(false)} />
+      )}
 
       {/* Weak spots — paid: one-tap blitz of needs_practice skills.
           Free: same card, shown locked (blurred list) as an upgrade nudge. */}
