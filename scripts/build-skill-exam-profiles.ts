@@ -35,6 +35,8 @@ type AuditRow = {
   marks: number
   skill_ids: string[]
   answer_form: string
+  /** mastery = the skill on its own; exam = it sits inside a longer question. */
+  kind?: string
   framing: string[]
   calc: string
   mark_split: string | null
@@ -92,6 +94,10 @@ export type SkillExamProfile = {
   traps: string[]
   /** False when below MIN_PARTS — the page must not render a claim from this. */
   sufficient: boolean
+  /** Parts coded for framing. Zero means not coded, not never-asked-plainly. */
+  framingCoded: number
+  answerForms: Record<string, number>
+  kinds: Record<string, number>
 }
 
 export type ProfileManifest = {
@@ -107,6 +113,8 @@ export type ProfileManifest = {
   /** Which papers each board × tier slice was built from. */
   slices: {
     board: string
+    /** e.g. GCSE Mathematics (8300), or International GCSE Mathematics A (4MA1). */
+    qualification: string
     tier: string
     papers: string[]
     series: string[]
@@ -166,7 +174,11 @@ function loadPapers(): AuditPaper[] {
     .map(f => {
       const raw = JSON.parse(readFileSync(join(AUDIT_DIR, f), 'utf8'))
       return {
-        paper_id: raw.paper_id,
+        // AQA files carry paper_id; the OCR and Edexcel ones identify
+        // themselves by meta.paper_slug instead. Reading only paper_id gave
+        // every one of those papers the same id of undefined, so a skill in
+        // nine OCR papers was reported as appearing in one.
+        paper_id: raw.paper_id ?? raw.meta?.paper_slug ?? f.replace(/.json$/, ""),
         meta: normaliseMeta(raw.meta, raw.paper_id),
         rows: raw.rows,
       } as AuditPaper
@@ -208,6 +220,8 @@ function build(): ProfileManifest {
       markMin: number; markMax: number
       framing: Record<string, number>; calc: Record<string, number>
       splits: Set<string>; chained: number; traps: Set<string>
+      framingCoded: number
+      answerForms: Record<string, number>; kinds: Record<string, number>
     }
     const acc: Record<string, Acc> = {}
 
@@ -218,6 +232,7 @@ function build(): ProfileManifest {
             parts: 0, marks: 0, papers: new Set(),
             markMin: Infinity, markMax: 0,
             framing: {}, calc: {}, splits: new Set(), chained: 0, traps: new Set(),
+            framingCoded: 0, answerForms: {}, kinds: {},
           })
           a.parts++
           a.marks += row.marks ?? 0
@@ -225,7 +240,10 @@ function build(): ProfileManifest {
           a.markMin = Math.min(a.markMin, row.marks ?? 0)
           a.markMax = Math.max(a.markMax, row.marks ?? 0)
           for (const f of row.framing ?? []) a.framing[f] = (a.framing[f] ?? 0) + 1
-          a.calc[row.calc] = (a.calc[row.calc] ?? 0) + 1
+          if (row.framing?.length) a.framingCoded++
+          if (row.calc) a.calc[row.calc] = (a.calc[row.calc] ?? 0) + 1
+          if (row.answer_form) a.answerForms[row.answer_form] = (a.answerForms[row.answer_form] ?? 0) + 1
+          if (row.kind) a.kinds[row.kind] = (a.kinds[row.kind] ?? 0) + 1
           if (row.mark_split) {
             a.splits.add(row.mark_split)
             // 'dep' marks the mark scheme as chained: a wrong earlier step
@@ -259,12 +277,22 @@ function build(): ProfileManifest {
         markSplits: [...a.splits].sort((x, y) => Number(/dep/i.test(y)) - Number(/dep/i.test(x))).slice(0, 4),
         chainedPct: a.parts ? Math.round((100 * a.chained) / a.parts) : 0,
         traps: [...a.traps],
+        // How many parts carry framing at all. Without this, a board coded
+        // without framing is indistinguishable from one where the skill is
+        // never asked plainly — and the page asserted the latter.
+        framingCoded: a.framingCoded,
+        answerForms: a.answerForms,
+        kinds: a.kinds,
         sufficient: ok,
       }
     }
 
     slices.push({
       board, tier,
+      // "International GCSE Mathematics A (4MA1)" is a different
+      // qualification from "GCSE Mathematics (1MA1)", not a different board.
+      // The briefing pages are GCSE, so they need to be able to tell.
+      qualification: inSlice.find(p => p.meta.spec)?.meta.spec ?? 'GCSE',
       papers: inSlice.map(p => p.paper_id).sort(),
       series: [...new Set(inSlice.map(p => p.meta.series))].sort(),
       skillsPresent: Object.keys(acc).length,

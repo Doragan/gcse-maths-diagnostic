@@ -40,6 +40,21 @@ describe('titleForPath', () => {
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
   })
 
+  it('keeps the tutor student view out of the /dashboard/[id] catch-all', () => {
+    // /dashboard/students matches /^\/dashboard\/[^/]+$/ perfectly well, so
+    // without a rule above it this page would be titled "Student overview" and
+    // reported as /dashboard/[id] — a wrong tab title and two different routes
+    // silently merged into one row in GA4.
+    expect(titleForPath('/dashboard/students')).toBe('My students — Mathsense')
+    expect(normalizePath('/dashboard/students')).toBe('/dashboard/students')
+
+    expect(titleForPath('/dashboard/students/abc-123')).toBe('Student — Mathsense')
+    expect(normalizePath('/dashboard/students/abc-123')).toBe('/dashboard/students/[id]')
+
+    // And the catch-all it sits above still works for what it was meant for.
+    expect(titleForPath('/dashboard/abc-123')).toBe('Student overview — Mathsense')
+  })
+
   it('keeps the skill index distinct from an individual guide', () => {
     // /skills must not be swallowed by the /skill/[slug] pattern, or the index
     // and every guide collapse into one row in the analytics.
@@ -70,6 +85,27 @@ describe('titleForPath', () => {
 describe('normalizePath', () => {
   it('collapses the sensitive parent-pay token', () => {
     expect(normalizePath('/pay/eyJhbGciOi.SECRET-TOKEN')).toBe('/pay/[token]')
+  })
+
+  it('maps the class people sub-page without disturbing the bare class route', () => {
+    expect(titleForPath('/dashboard/classes/abc-123/people')).toBe('Class people — Mathsense')
+    expect(normalizePath('/dashboard/classes/abc-123/people')).toBe('/dashboard/classes/[id]/people')
+    // The sibling routes must be unaffected by the new rule sitting above them.
+    expect(titleForPath('/dashboard/classes/abc-123')).toBe('Class — Mathsense')
+    expect(normalizePath('/dashboard/classes/abc-123')).toBe('/dashboard/classes/[id]')
+    expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
+  })
+
+  it('collapses the class-invitation token', () => {
+    // The invitation token is a bearer credential emailed to one address: it
+    // claims a place in a named class. Letting it reach GA4 as a page path
+    // would both leak it to a third country and store it next to a child's
+    // session. Same reasoning as /pay/[token] above.
+    expect(normalizePath('/invite/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6')).toBe('/invite/[token]')
+    expect(titleForPath('/invite/a1b2c3d4e5f6')).toBe('Class invitation — Mathsense')
+    // And the title must not carry the class name either — it is read before
+    // anyone is signed in, and it lands in browser history.
+    expect(titleForPath('/invite/anything')).not.toMatch(/class [0-9]/i)
   })
 
   it('collapses dynamic id segments', () => {

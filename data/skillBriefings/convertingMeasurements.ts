@@ -107,6 +107,7 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
       watch:
         'Working the whole thing through in mixed units and only noticing at the end, by which time '
         + 'the arithmetic is already wrong.',
+          example: 'Two units in one question: metres and centimetres',
     },
     {
       do: 'Decide the direction by asking whether the number should come out bigger or smaller.',
@@ -115,6 +116,7 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
         + 'makes it smaller, so divide. The question answers itself.',
       watch:
         'Inverting the conversion, or slipping a power of ten. 450 cm is 4.5 m — not 45 m, and not 45000 m.',
+          example: 'Metres into centimetres makes the number bigger, so × 100: 2 m = 200 cm',
     },
     {
       do: 'Convert into the unit the ANSWER LINE asks for, not the one the question opened with.',
@@ -123,9 +125,11 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
         + 'be written down to earn it at all.',
       watch:
         'Leaving the unit off. Where a mark scheme says "units required", an unlabelled number scores nothing.',
+          example: 'The answer line says cm: 200 − 135 = 65 cm',
     },
   ],
 
+  methodExample: 'A 2 m ribbon has 3 pieces of 45 cm cut off. How much is left, in cm?',
   check: [
     'Does the size make sense? A person 1600 mm tall is believable; 16000 mm would be 16 m.',
     'Is the unit written down, and is it the one the answer line asked for?',
@@ -160,6 +164,7 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'A rectangle measures 1.5 m by 80 cm. Work out its area in cm².',
     steps: [
       {
         do: 'For an area, square the length factor; for a volume, cube it. 1 m = 100 cm, so 1 m² = '
@@ -170,6 +175,7 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
         watch:
           'Multiplying an area by 100 instead of 10000 — and going the wrong way as well, which hides '
           + 'the error because the answer still looks tidy.',
+              example: 'Convert first: 1.5 m = 150 cm, then 150 × 80 = 12000 cm²',
       },
     ],
 

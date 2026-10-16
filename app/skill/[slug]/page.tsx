@@ -8,9 +8,10 @@ import { slugToSkillId } from '../../../lib/skills/slug'
 import { getBriefing, resolveBriefing } from '../../../data/skillBriefings'
 import {
   getExamProfile, dressedFramings, bareClaim, chainClaim, calcClaim,
-  sliceProvenance, codedBoards, type Tier,
+  sliceProvenance, codedBoards, answerFormClaim, kindClaim, type Tier,
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
+import { judgedCorrectly, orderedPair, type Judgement } from '../../../lib/skills/briefingQuiz'
 import {
   getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD,
 } from '../../../lib/skills/boardPreference'
@@ -70,7 +71,7 @@ type Stage = 'spot' | 'do' | 'check'
 
 const STAGES: { id: Stage; label: string; blurb: string }[] = [
   { id: 'spot',  label: 'Spot it',  blurb: 'Recognising it, and telling it apart' },
-  { id: 'do',    label: 'Do it',    blurb: 'The method, and why each step' },
+  { id: 'do',    label: 'Do it',    blurb: 'The method, worked through one question' },
   { id: 'check', label: 'Check it', blurb: 'Before you write the answer down' },
 ]
 
@@ -91,8 +92,19 @@ export default function SkillBriefingPage() {
   /** Whether this student can drill one chosen skill — a premium focus mode. */
   const [canFocus, setCanFocus] = useState(false)
 
-  /** Indices of example stems whose verdict has been revealed. */
-  const [revealed, setRevealed] = useState<number[]>([])
+  /**
+   * What the student called each stem, by index — not merely which ones have
+   * been opened.
+   *
+   * The section used to be a reveal: press a button, be told the answer. A
+   * student could read all four and never commit to anything, which is the one
+   * thing this section exists to make them do. Holding their actual call is
+   * what lets the page tell them whether they were right.
+   */
+  const [judged, setJudged] = useState<Record<number, Judgement>>({})
+
+  /** Which comparison card has been sorted, and what the student picked. */
+  const [sorted, setSorted] = useState<Record<string, number>>({})
 
   /**
    * The page is three stages, not six sections, because grouping by SECTION
@@ -171,7 +183,8 @@ export default function SkillBriefingPage() {
   function changeTier(next: Tier) {
     setTierState(next)
     persistTier(next)
-    setRevealed([])   // the example set changes with the tier
+    setJudged({})      // the example set changes with the tier
+    setSorted({})
     trackEvent('skill_briefing_tier_change', { skill: skillId, tier: next })
   }
 
@@ -185,9 +198,24 @@ export default function SkillBriefingPage() {
     trackEvent('skill_briefing_board_change', { skill: skillId, tier, board: next })
   }
 
-  function reveal(index: number) {
-    setRevealed(prev => (prev.includes(index) ? prev : [...prev, index]))
-    trackEvent('skill_briefing_example_reveal', { skill: skillId, tier, index })
+  /**
+   * The student's call on one stem. Recorded with whether it was right, which
+   * is the measure of whether these pages teach recognition — a view count
+   * never could be.
+   */
+  function judge(index: number, chose: Judgement, isThisSkill: boolean) {
+    if (judged[index]) return                      // first answer stands
+    setJudged(prev => ({ ...prev, [index]: chose }))
+    trackEvent('skill_briefing_judge', {
+      skill: skillId, tier, index, chose, correct: judgedCorrectly(chose, isThisSkill),
+    })
+  }
+
+  /** The student's pick on one comparison pair, by the skill it compares with. */
+  function sortPair(otherSkillId: string, picked: number, correct: boolean) {
+    if (sorted[otherSkillId] !== undefined) return
+    setSorted(prev => ({ ...prev, [otherSkillId]: picked }))
+    trackEvent('skill_briefing_pair_sort', { skill: skillId, tier, other: otherSkillId, correct })
   }
 
   /**
@@ -502,15 +530,54 @@ export default function SkillBriefingPage() {
                     descriptions above it, so each question sits under the
                     skill it belongs to. Set apart as specimens because they
                     are questions off a paper, not commentary about them. */}
-                {c.pair && (
-                  <div style={{ ...styles.contrast, ...styles.pairGrid }}>
-                    <span style={{ ...styles.contrastLabel, color: colors.primary }}>{skill.name}</span>
-                    <span style={styles.pairText}>{c.pair.thisOne}</span>
+                {c.pair && (() => {
+                  // Sorted first, read second. The pair is the one place on the
+                  // page where the student can test the distinction they have
+                  // just been given, so the labels stay off until they pick.
+                  const options = orderedPair(skillId, c.skillId, c.pair)
+                  const picked = sorted[c.skillId]
+                  const done = picked !== undefined
 
-                    <span style={{ ...styles.contrastLabel, color: colors.warningText }}>{otherName}</span>
-                    <span style={styles.pairText}>{c.pair.theOther}</span>
-                  </div>
-                )}
+                  return (
+                    <div style={styles.pairGrid}>
+                      <p style={styles.pairPrompt}>
+                        {`Which of these is ${lowerName}?`}
+                      </p>
+
+                      {options.map((o, j) => {
+                        const chosen = picked === j
+                        const show = done
+                        return (
+                          <button
+                            key={j}
+                            onClick={() => sortPair(c.skillId, j, o.isThisSkill)}
+                            disabled={done}
+                            aria-pressed={chosen}
+                            style={{
+                              ...styles.pairOption,
+                              cursor: done ? 'default' : 'pointer',
+                              borderColor: show
+                                ? (o.isThisSkill ? colors.successBorder : colors.border)
+                                : colors.border,
+                              background: show && o.isThisSkill ? colors.successLight : colors.card,
+                            }}
+                          >
+                            <span style={styles.pairText}>{o.question}</span>
+                            {show && (
+                              <span style={{
+                                ...styles.pairVerdict,
+                                color: o.isThisSkill ? colors.successText : colors.warningText,
+                              }}>
+                                {o.isThisSkill ? skill.name : otherName}
+                                {chosen && ' · you picked this'}
+                              </span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
 
                 <p style={styles.ask}>
                   <span style={styles.askLabel}>Ask yourself</span>
@@ -533,7 +600,9 @@ export default function SkillBriefingPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {g.examples.map((ex, i) => {
-            const isOpen = revealed.includes(i)
+            const chose = judged[i]
+            const isOpen = chose !== undefined
+            const wasRight = isOpen && judgedCorrectly(chose, ex.isThisSkill)
             const other = ex.actuallySkillId ? skillsById[ex.actuallySkillId] : null
             return (
               <div key={i} style={styles.example}>
@@ -541,18 +610,39 @@ export default function SkillBriefingPage() {
                 {ex.figure && <BriefingFigure figure={ex.figure} />}
 
                 {!isOpen ? (
-                  <button
-                    onClick={() => reveal(i)}
-                    style={{ ...secondaryButton, width: 'auto', padding: '7px 14px', fontSize: font.base }}
-                  >
-                    Show what it is
-                  </button>
+                  // Two buttons rather than "show me": the student has to
+                  // commit before the page tells them anything. Reading the
+                  // answer teaches nothing about recognising it.
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => judge(i, 'yes', ex.isThisSkill)}
+                      style={{ ...secondaryButton, width: 'auto', padding: '7px 14px', fontSize: font.base }}
+                    >
+                      {skill.name} question
+                    </button>
+                    <button
+                      onClick={() => judge(i, 'no', ex.isThisSkill)}
+                      style={{ ...secondaryButton, width: 'auto', padding: '7px 14px', fontSize: font.base }}
+                    >
+                      Another kind of question
+                    </button>
+                  </div>
                 ) : (
                   <div style={{
                     borderTop: `1px solid ${colors.border}`,
                     paddingTop: '10px',
                     marginTop: '2px',
                   }}>
+                    {/* Their call first, then what it actually is. Getting it
+                        wrong is the useful case, so it is named plainly rather
+                        than softened — but the verdict beside it carries the
+                        teaching, not the tick. */}
+                    <p style={{
+                      ...styles.judgement,
+                      color: wasRight ? colors.successText : colors.warningText,
+                    }}>
+                      {wasRight ? '✓ You were right' : '✗ Not quite'}
+                    </p>
                     <p style={{
                       ...styles.verdict,
                       color: ex.isThisSkill ? colors.successText : colors.warningText,
@@ -588,21 +678,50 @@ export default function SkillBriefingPage() {
       {/* ══ DO IT ═════════════════════════════════════════════════════════ */}
       {stage === 'do' && (
       <section style={styles.card}>
-        <p style={styles.h}>How to answer {lowerName} questions, and why each step</p>
-        {g.steps.map((s, i) => (
-          <div key={i} style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
-            <div style={styles.stepN}>{i + 1}</div>
-            <div style={{ flex: 1 }}>
-              <p style={styles.stepDo}>{s.do}</p>
-              <p style={styles.stepSub}>
-                <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>{s.because}
+        <p style={styles.h}>How to answer a {lowerName} question</p>
+        <p style={{ ...styles.hint, marginBottom: g.methodExample ? 0 : 12 }}>
+          Each step says why it is there and where it goes wrong.
+        </p>
+
+        {/* One question worked down the right-hand side, a line per step.
+            The steps on their own describe the method in the abstract, which
+            is what made the section read as something to agree with rather
+            than something to do. */}
+        {g.methodExample && (
+          <p style={styles.methodRun}>
+            <span style={styles.methodRunLabel}>Worked on</span>
+            {g.methodExample}
+          </p>
+        )}
+        {g.steps.map((s, i) => {
+          const firstHigherStep = g.higherStepCount > 0
+            && i === g.steps.length - g.higherStepCount
+          return (
+          <div key={i}>
+            {firstHigherStep && g.higherMethodExample && (
+              <p style={{ ...styles.methodRun, marginTop: 14 }}>
+                <span style={styles.methodRunLabel}>On Higher</span>
+                {g.higherMethodExample}
               </p>
-              <p style={{ ...styles.stepSub, marginBottom: 0 }}>
-                <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>{s.watch}
-              </p>
+            )}
+            <div style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
+              <div style={styles.stepN}>{i + 1}</div>
+              <div style={styles.stepBody}>
+                <div>
+                  <p style={styles.stepDo}>{s.do}</p>
+                  <p style={styles.stepSub}>
+                    <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>{s.because}
+                  </p>
+                  <p style={{ ...styles.stepSub, marginBottom: 0 }}>
+                    <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>{s.watch}
+                  </p>
+                </div>
+                {s.example && <p style={styles.stepExample}>{s.example}</p>}
+              </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </section>
       )}
 
@@ -640,7 +759,9 @@ export default function SkillBriefingPage() {
                 : `${profile.markRange[0]}–${profile.markRange[1]}`}
               label="marks per question"
             />
-            <Stat n={`${profile.barePct}`} sub="%" label="asked straight out" />
+            {profile.framingCoded > 0 && (
+              <Stat n={`${profile.barePct}`} sub="%" label="asked straight out" />
+            )}
           </div>
 
           {dressedTotal > 0 && (
@@ -672,11 +793,26 @@ export default function SkillBriefingPage() {
             </>
           )}
 
-          <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '14px 0 0' }}>
-            <strong>{bareClaim(profile, skill.name)}</strong>
-            {chainClaim(profile) && ` ${chainClaim(profile)}`}
-            {calcClaim(profile) && ` ${calcClaim(profile)}`}
-          </p>
+          {/* Only the claims this board’s coding supports. The OCR and
+              Edexcel papers carry no framing, calculator or trap coding, so
+              their panels lean on answer form and whether the skill stands
+              alone — both recorded on every coded part, on every board. */}
+          {(() => {
+            const claims = [
+              bareClaim(profile, skill.name),
+              kindClaim(profile),
+              answerFormClaim(profile),
+              chainClaim(profile),
+              calcClaim(profile),
+            ].filter(Boolean) as string[]
+            if (!claims.length) return null
+            return (
+              <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '14px 0 0' }}>
+                <strong>{claims[0]}</strong>
+                {claims.slice(1).map(c => ` ${c}`).join('')}
+              </p>
+            )
+          })()}
 
           {provenance && (
             <p style={styles.provenance}>
@@ -711,12 +847,12 @@ export default function SkillBriefingPage() {
       {nextStage && (
         <button onClick={() => changeStage(nextStage.id)} style={styles.nextStage}>
           <span>
-            <span style={styles.nextLabel}>Next</span>
-            <span style={{ fontWeight: '650', fontSize: font.md, color: colors.textPrimary }}>
+            <span style={{ ...styles.nextLabel, color: '#fff' }}>Next</span>
+            <span style={{ fontWeight: '650', fontSize: font.md, color: '#fff' }}>
               {nextStage.label}
             </span>
           </span>
-          <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
+          <span style={{ fontSize: font.sm, color: '#fff' }}>
             {nextStage.blurb} →
           </span>
         </button>
@@ -728,7 +864,12 @@ export default function SkillBriefingPage() {
           button used to promise "Practise ratio" to everyone and quietly hand
           free students a mixed session instead, which is the one behaviour
           worse than either honest option. Now it says what each will get, and
-          matches the show-but-locked pattern /practice already uses. */}
+          matches the show-but-locked pattern /practice already uses.
+
+          Shown on the LAST stage only. On "spot it" and "do it" the next
+          step is the next stage, and a filled blue button offering to
+          leave drowned that out — the briefing was competing with itself. */}
+      {stage === 'check' && (
       <section style={styles.card}>
         <p style={styles.h}>
           {canFocus ? `Practise ${lowerName}` : 'Practise'}
@@ -773,6 +914,7 @@ export default function SkillBriefingPage() {
           </>
         )}
       </section>
+      )}
 
       {/* ── Was this useful? ─────────────────────────────────────────────
           Always visible, on every stage, and the rating is recorded the
@@ -1027,7 +1169,34 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '10px',
     paddingTop: '10px',
     borderTop: `1px dashed ${colors.border}`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
   },
+  pairPrompt: {
+    fontSize: font.sm,
+    fontWeight: '650',
+    color: colors.textSecondary,
+    margin: '0 0 2px',
+  },
+  // A full-width option rather than a labelled row: it has to read as
+  // something to press, which a line of text beside a label never does.
+  pairOption: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '4px',
+    width: '100%',
+    textAlign: 'left',
+    padding: '9px 12px',
+    borderRadius: radius.sm,
+    border: `1px solid ${colors.border}`,
+    background: colors.card,
+    fontFamily: 'inherit',
+  },
+  pairVerdict: { fontSize: font.sm, fontWeight: '650' },
+  /** The call the student made, above the verdict that explains it. */
+  judgement: { fontSize: font.sm, fontWeight: '650', margin: '0 0 6px' },
   // Italic, like the specimen fragments beside the recognition cues — these
   // are questions as a paper would print them, not our words about them.
   pairText: {
@@ -1105,6 +1274,44 @@ const styles: Record<string, React.CSSProperties> = {
   workedLine: { paddingLeft: '2px', marginBottom: '2px' },
 
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
+  // Method on the left, the worked line on the right. One column on a
+  // phone, where side-by-side would leave both halves too narrow to read.
+  stepBody: {
+    flex: 1,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+    gap: '8px',
+  },
+  stepExample: {
+    margin: 0,
+    alignSelf: 'start',
+    padding: '8px 11px',
+    background: colors.cardAlt,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    fontSize: font.base,
+    color: colors.textPrimary,
+    lineHeight: 1.5,
+  },
+  methodRun: {
+    margin: '10px 0 2px',
+    padding: '8px 12px',
+    background: colors.cardAlt,
+    borderLeft: `3px solid ${colors.primary}`,
+    borderRadius: `0 ${radius.sm} ${radius.sm} 0`,
+    fontSize: font.base,
+    color: colors.textSecondary,
+    lineHeight: 1.5,
+  },
+  methodRunLabel: {
+    display: "inline-block",
+    marginRight: "8px",
+    fontSize: font.sm,
+    fontWeight: '700',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: colors.primary,
+  },
   stepN: {
     flex: 'none',
     width: '24px', height: '24px',
@@ -1211,8 +1418,9 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '3px',
     width: '100%',
     padding: '14px 18px',
-    background: colors.card,
-    border: `1px dashed ${colors.borderStrong}`,
+    background: colors.primary,
+    border: `1px solid ${colors.primary}`,
+    boxShadow: `0 1px 2px rgba(16,24,40,.12)`,
     borderRadius: radius.lg,
     cursor: 'pointer',
     fontFamily: 'inherit',

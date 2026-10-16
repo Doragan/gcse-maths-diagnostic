@@ -116,6 +116,7 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         'You cannot reliably judge 5/8 against 58% by eye. As 0.625 and 0.58 it is obvious.',
       watch:
         'Moving the decimal point the wrong way. 58% is 0.58, not 5.8 — and 5% is 0.05, not 0.5.',
+          example: 'As decimals: 0.6, 0.625, 0.58, 0.667',
     },
     {
       do: 'For "what fraction of" or "what percentage of", write the part over the whole as a fraction first.',
@@ -125,6 +126,7 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
       watch:
         'Putting the wrong number on the bottom. The denominator is the WHOLE — all 40 cars — not '
         + 'the other group, the 26 that are not red.',
+          example: 'If it asked what percentage 14 of 40 is, you would write 14/40 first',
     },
     {
       do: 'Give the answer in the form the question asks for, and simplify a fraction fully.',
@@ -134,9 +136,11 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
       watch:
         'Stopping one step short, like leaving 0.35 when the question asked for a percentage. '
         + 'Or answering for the group the question did not ask about.',
+          example: 'Answer with the ORIGINAL forms: 58%, 0.6, 5/8, 2/3',
     },
   ],
 
+  methodExample: 'Write these in order, smallest first: 0.6, 5/8, 58%, 2/3',
   check: [
     'Is the share a sensible size? 14 out of 40 is a bit over a third, so 35% is believable and 3.5% is not.',
     'Does your group and the rest make 100%? If 35% are red, 65% are not — a quick way to catch '
@@ -186,6 +190,7 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: '60% of a club are adults. 45% of the adults are women. What percentage are adult women?',
     steps: [
       {
         do: 'When one percentage is OF another group, multiply them as decimals: 45% of 60% is 0.45 × 0.6.',
@@ -195,6 +200,7 @@ export const fractionsDecimalsAndPercentagesBriefing: SkillBriefing = {
         watch:
           'Adding or subtracting the percentages, or treating the second one as a share of the '
           + 'whole. 45% of the adults is not 45% of the club.',
+              example: '0.45 × 0.6 = 0.27, so 27% of the club',
       },
     ],
 

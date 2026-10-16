@@ -1,35 +1,42 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- ⚠ THIS TABLE IS APPLIED BUT UNUSED. The code that read it was reverted on
--- 2026-09-16, one day after it shipped. Nothing writes to it and nothing reads
--- it. It holds one test row.
+-- ✅ THIS TABLE IS LIVE AND IN USE AGAIN as of 2026-10-10. The banner that used
+-- to sit here said it was applied but unused, which was true between
+-- 2026-09-16 and 2026-10-10 and is no longer.
 --
--- WHY IT WAS REVERTED: without email delivery, invitations are strictly worse
--- than the join code they were meant to improve on. Both require the teacher to
+-- READ 20261010_class_invitation_tokens.sql NEXT. It adds `token` and `sent_at`
+-- to the table defined below, and its header carries the reasoning for the one
+-- design decision this file gets WRONG in hindsight — decision 1, "NO TOKEN".
+-- That decision was correct while nothing was emailed and became wrong the
+-- moment delivery existed. The table shape below is otherwise unchanged.
+--
+-- ── The history, because it is the useful part ──────────────────────────────
+--
+-- Built 2026-09-15, reverted 2026-09-16, revived 2026-10-10.
+--
+-- WHY IT WAS REVERTED: without email delivery, invitations were strictly worse
+-- than the join code they were meant to improve on. Both required the teacher to
 -- tell the class something. A code is explicit and self-checking — typing it
--- wrong says "code not found" — whereas an invitation is matched on an invisible
--- key, so a pupil who signs up with a personal address instead of their school
--- one sees an empty page and no explanation. It added a failure mode and
--- removed nothing.
+-- wrong says "code not found" — whereas an invitation was matched on an
+-- invisible key, so a pupil who signed up with a personal address instead of
+-- their school one saw an empty page and no explanation. It added a failure mode
+-- and removed nothing. docs/audit/19 §4 also says not to add teacher features
+-- before a real class has used the existing ones, and this was built ahead of
+-- that rule.
 --
--- The one thing a join code cannot do is tell a teacher WHO HAS NOT JOINED yet,
--- since a code implies no expected roster. That is real, and it is the reason to
--- revisit this. It only matters once a real class is chasing stragglers, and
--- docs/audit/19 §4 is explicit that teacher features should not be built before
--- a real class has used the existing ones. This was built ahead of that rule.
+-- WHY IT IS BACK: both of those conditions were named in the revert, and both
+-- are now met.
 --
--- WHY THE FILE STAYS: the table EXISTS in production. Deleting this migration
--- would leave a live table defined nowhere in version control, which is audit
--- finding S1 and the exact gap this whole line of work has been closing (see
--- 20260913_auth_signup_triggers.sql and 20260914_capture_students_teachers.sql).
--- A file describing an unused table is a much smaller problem than a table
--- nobody can find.
+--   1. Email delivery exists. Brevo went live on 2026-10-02 and auth email
+--      already routes through it, in the EU. The invisible key is now a key in
+--      the emailed link, and an invitation that cannot be matched says so on
+--      screen with a recovery path.
 --
--- TO REVIVE IT: `git revert` the revert. The schema below is unchanged and still
--- correct, and the design reasoning is docs/audit/20 §10. Do the email delivery
--- at the same time, or it will be worse than a join code again.
+--   2. A real class is chasing stragglers. A tutoring business is trialling the
+--      product with a Year 9 group and wants the roster prepared in advance, so
+--      they can see who has not signed up — the one thing a join code cannot
+--      do, since a code implies no expected roster.
 --
--- The one pending test row can be removed at any time; it is inert either way:
---   delete from public.class_invitations;
+-- The join code is UNCHANGED and still works. Invitations are additive.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -49,7 +56,13 @@
 --
 -- ── Three decisions worth the words ─────────────────────────────────────────
 --
--- 1. NO TOKEN. An invitation is matched by EMAIL, not by a secret in a link.
+-- 1. NO TOKEN. ⚠ SUPERSEDED 2026-10-10 — there IS a token now; see
+--    20261010_class_invitation_tokens.sql. Kept as written because the
+--    reasoning is still right about what a token costs, and what changed was
+--    the premise, not the logic: this argument assumed the link was shared by
+--    the teacher rather than emailed to the invited address.
+--
+--    An invitation is matched by EMAIL, not by a secret in a link.
 --    A token is a bearer credential: anyone holding the link is the invitee.
 --    An email match instead requires control of the mailbox, which is strictly
 --    stronger, and it removes a secret from the system rather than adding one.
@@ -71,11 +84,20 @@
 --    it must not be paid for with the student's consent.
 --
 -- ── Not in this build, deliberately ─────────────────────────────────────────
--- No email is sent. Delivery means Resend templates, deliverability, and a
--- considered position on emailing children — a larger piece than the mechanism,
--- and not needed for the mechanism to be useful. The teacher shares the link
--- however they already communicate with their class. What the teacher gains
--- today is the roster known in advance, so they can see who has not joined yet.
+-- ⚠ NO LONGER TRUE as of 2026-10-10. Invitations ARE emailed, through Brevo
+-- (EU), reusing the transactional path that already sends auth email rather than
+-- adding a second mechanism. Deliberately NOT Resend, which stores in the United
+-- States and holds nothing for a learner who never opted into practice
+-- reminders — see docs/audit/21 §5. Most of these addresses belong to children.
+--
+-- The paragraph as originally written, for the record:
+--
+--   No email is sent. Delivery means Resend templates, deliverability, and a
+--   considered position on emailing children — a larger piece than the
+--   mechanism, and not needed for the mechanism to be useful. The teacher shares
+--   the link however they already communicate with their class. What the teacher
+--   gains today is the roster known in advance, so they can see who has not
+--   joined yet.
 --
 -- Apply via the Supabase SQL Editor (DDL constraint). Idempotent.
 -- Apply BEFORE deploying the code, which reads this table.

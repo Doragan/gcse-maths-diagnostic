@@ -111,6 +111,7 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
         + 'from a ragged layout.',
       watch:
         'Leaving one as 21 = 3x + y. Put both the same way round before you start.',
+          example: 'Both are already x first, then y',
     },
     {
       do: 'Scale one equation so the number in front of one letter matches in both.',
@@ -118,6 +119,7 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
         'Removing a letter leaves an ordinary one-letter equation, which you already know how to solve.',
       watch:
         'Multiplying only part of an equation. Doubling 3x + y = 21 means every term: 6x + 2y = 42.',
+          example: 'Double the first so the y terms match: 6x + 2y = 42',
     },
     {
       do: 'Decide add or subtract from the SIGNS: same signs, subtract; different signs, add.',
@@ -127,6 +129,7 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       watch:
         'Subtracting when the signs differ. With + 2y and − 2y it is ADDING that cancels them; '
         + 'subtracting leaves 4y.',
+          example: '+2y and −2y differ, so ADD: 10x = 50, x = 5',
     },
     {
       do: 'Put the letter you found back into the simpler equation, then answer BOTH.',
@@ -135,9 +138,11 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       watch:
         'Stopping with one letter found. Even when the question only wants the tea, you need both '
         + 'values to check the work.',
+          example: '15 + y = 21, so y = 6. Answer: x = 5, y = 6',
     },
   ],
 
+  methodExample: 'Solve 3x + y = 21 and 4x − 2y = 8',
   check: [
     'Put BOTH values into BOTH original equations. One equation working proves nothing — the pair '
       + 'has to satisfy the pair.',
@@ -174,6 +179,7 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Solve 3x + 4y = 5 and 5x + 6y = 8',
     steps: [
       {
         do: 'Pick the letter whose two numbers have the smallest common multiple, and scale both equations to it.',
@@ -183,6 +189,7 @@ export const simultaneousEquationsBriefing: SkillBriefing = {
         watch:
           'Scaling one equation and forgetting the other — or scaling the left-hand side and leaving '
           + 'the number on the right untouched.',
+              example: '4 and 6 meet at 12: × 3 and × 2, subtract, x = 1 and y = 0.5',
       },
     ],
 

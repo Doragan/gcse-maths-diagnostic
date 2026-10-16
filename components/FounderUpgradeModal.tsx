@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { trackEvent } from '../lib/analytics'
 import { PLANS, planPricing, seatsLeftLabel } from '../lib/studentPlans'
+import { copyParentLink, emailParentLink, shareParentLink } from '../lib/parentPayShare'
 import { colors, font, radius, primaryButton, secondaryButton } from '../lib/styles'
 
 const SNOOZE_KEY = 'founder_popup_snooze_until'
@@ -105,34 +106,26 @@ export default function FounderUpgradeModal() {
     }
   }
 
+  // Wording, the copy fallback and the share event come from
+  // lib/parentPayShare, shared with /student/upgrade so the two cannot drift.
   async function copyLink() {
     if (!parentLink) return
-    try {
-      await navigator.clipboard.writeText(parentLink)
+    if (await copyParentLink(parentLink, 'founder_popup')) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {
+    } else {
       setError('Could not copy — select and copy the link manually.')
     }
   }
 
-  function shareLink() {
+  async function shareLink() {
     if (!parentLink) return
-    const text = `Please could you help pay for my Mathsense GCSE Maths pass? You can pay securely here: ${parentLink}`
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      navigator.share({ title: 'Mathsense 2027 pass', text, url: parentLink }).catch(() => {})
-    } else {
-      copyLink()
-    }
+    await shareParentLink(parentLink, 'founder_popup', 'pass')
   }
 
   function emailLink() {
     if (!parentLink) return
-    const subject = encodeURIComponent('Please help pay for my Mathsense 2027 pass')
-    const body = encodeURIComponent(
-      `Hi,\n\nPlease could you help pay for my Mathsense GCSE Maths pass? You can pay securely here:\n\n${parentLink}\n\nThank you!`,
-    )
-    window.location.href = `mailto:?subject=${subject}&body=${body}`
+    emailParentLink(parentLink, 'founder_popup', 'pass')
   }
 
   function goToUpgrade() {

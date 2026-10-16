@@ -13,6 +13,7 @@ import {
 } from '../../../lib/studentPlans'
 import { skillsById } from '../../../lib/skills/skillGraph'
 import { trackEvent } from '../../../lib/analytics'
+import { copyParentLink, emailParentLink, shareParentLink } from '../../../lib/parentPayShare'
 
 export default function StudentUpgradePage() {
   const router = useRouter()
@@ -35,6 +36,17 @@ export default function StudentUpgradePage() {
   const [linkLoading, setLinkLoading] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  /**
+   * Which door the student came through. Almost everyone on this page is 13–16
+   * and has no card of their own, yet the page is shaped around one: plans
+   * first, "ask a parent" last. The two doors sit together at the top instead.
+   *
+   * 'self' is the default only because it preserves today's page for whoever
+   * CAN pay; nothing infers which door fits this student. There is no age
+   * signal to read, and asserting the wrong one here is expensive.
+   */
+  const [payer, setPayer] = useState<'self' | 'parent'>('self')
+
   useEffect(() => {
     getStudentProfile().then(p => {
       if (!p) { router.push('/student'); return }
@@ -46,6 +58,13 @@ export default function StudentUpgradePage() {
           params.get('want'),
           skillId ? skillsById[skillId]?.name ?? null : null,
         ))
+        // `?ask=parent` — sent here by a wall that already knows the student
+        // can't pay (the mini-exam quota wall). Open the parent door and have
+        // the link ready, rather than making them find it and tap again.
+        if (params.get('ask') === 'parent') {
+          setPayer('parent')
+          getParentLink()
+        }
       }
     })
     // Founder-seat count for the exam-pass sale framing (aggregate, no PII).
@@ -104,34 +123,28 @@ export default function StudentUpgradePage() {
     }
   }
 
-  async function copyParentLink() {
+  // Wording, the copy fallback and the `parent_pay_link_shared` event all live
+  // in lib/parentPayShare so this page and FounderUpgradeModal cannot drift.
+  async function handleCopy() {
     if (!parentLink) return
-    try {
-      await navigator.clipboard.writeText(parentLink)
+    if (await copyParentLink(parentLink, 'upgrade_page')) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {
+    } else {
       setError('Could not copy — select and copy the link manually.')
     }
   }
 
-  function shareParentLink() {
+  async function handleShare() {
     if (!parentLink) return
-    const text = `Please could you help pay for my Mathsense GCSE Maths subscription? You can pay securely here: ${parentLink}`
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      navigator.share({ title: 'Mathsense subscription', text, url: parentLink }).catch(() => {})
-    } else {
-      copyParentLink()
-    }
+    // The share sheet gives its own feedback; where there isn't one this falls
+    // back to a silent copy. No tick here — that belongs to the Copy button.
+    await shareParentLink(parentLink, 'upgrade_page')
   }
 
-  function emailParentLink() {
+  function handleEmail() {
     if (!parentLink) return
-    const subject = encodeURIComponent('Please help pay for my Mathsense subscription')
-    const body = encodeURIComponent(
-      `Hi,\n\nPlease could you help pay for my Mathsense GCSE Maths subscription? You can choose a plan and pay securely here:\n\n${parentLink}\n\nThank you!`,
-    )
-    window.location.href = `mailto:?subject=${subject}&body=${body}`
+    emailParentLink(parentLink, 'upgrade_page')
   }
 
   if (upgraded) {
@@ -190,6 +203,78 @@ export default function StudentUpgradePage() {
           </p>
         </div>
 
+        {/* ── Two doors ──────────────────────────────────────────────────
+            Nearly everyone here is 13–16 with no card of their own, and the
+            parent link used to be the last thing on the page, below two blocks
+            of pricing. Both ways of paying now sit together, above the fold.
+            Neither is inferred — see the `payer` state. */}
+        <div style={styles.doors}>
+          {([
+            { id: 'self' as const,   label: 'Pay yourself',          sub: 'Card or Apple Pay' },
+            { id: 'parent' as const, label: 'Ask a parent or carer', sub: 'Send them a secure link' },
+          ]).map(d => {
+            const on = payer === d.id
+            return (
+              <button
+                key={d.id}
+                onClick={() => {
+                  setPayer(d.id)
+                  // Have the link ready the moment the door opens: one tap
+                  // fewer, and nothing is shared until they choose to.
+                  if (d.id === 'parent' && !parentLink && !linkLoading) getParentLink()
+                }}
+                style={{
+                  ...styles.door,
+                  border: `2px solid ${on ? colors.primary : colors.border}`,
+                  background: on ? '#eff6ff' : colors.card,
+                }}
+              >
+                <span style={{ fontSize: font.base, fontWeight: 600, color: colors.textPrimary }}>{d.label}</span>
+                <span style={{ fontSize: font.sm, color: colors.textSecondary }}>{d.sub}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ── Ask a parent / carer to pay ── */}
+        {payer === 'parent' && (
+          <div style={styles.parentBox}>
+            <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 12px' }}>
+              Send this link to a parent or carer so they can pay for your account. They don&apos;t need a Mathsense login, and they choose the plan.
+            </p>
+
+            {!parentLink ? (
+              <button
+                onClick={getParentLink}
+                disabled={linkLoading}
+                style={{ ...secondaryButton, opacity: linkLoading ? 0.6 : 1 }}
+              >
+                {linkLoading ? 'Creating link…' : 'Get a link to send'}
+              </button>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={styles.linkChip}>{parentLink}</div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button onClick={handleCopy} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>
+                    {copied ? '✓ Copied' : 'Copy'}
+                  </button>
+                  <button onClick={handleEmail} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>Email</button>
+                  <button onClick={handleShare} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>Share</button>
+                </div>
+                <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
+                  The link works for 30 days and stops once your account is paid for.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <p style={{ fontSize: font.base, color: colors.dangerText, margin: 0 }}>{error}</p>
+        )}
+
+        {payer === 'self' && (
+        <>
         {/* Plan selector */}
         <div style={styles.plans}>
           {PLANS.map(plan => {
@@ -265,10 +350,6 @@ export default function StudentUpgradePage() {
           ))}
         </div>
 
-        {error && (
-          <p style={{ fontSize: font.base, color: colors.dangerText, margin: 0 }}>{error}</p>
-        )}
-
         <button
           onClick={handleUpgrade}
           disabled={loading}
@@ -282,40 +363,8 @@ export default function StudentUpgradePage() {
                 return `${selectedPlan === 'exam' ? 'Get access' : 'Subscribe'} — ${price}`
               })()}
         </button>
-
-        {/* Ask a parent / guardian to pay */}
-        <div style={styles.parentBox}>
-          <p style={{ fontSize: font.base, fontWeight: 600, color: colors.textPrimary, margin: 0 }}>
-            Can&apos;t pay yourself?
-          </p>
-          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '4px 0 12px' }}>
-            Send a secure link to a parent or guardian so they can pay for your account. They don&apos;t need a Mathsense login.
-          </p>
-
-          {!parentLink ? (
-            <button
-              onClick={getParentLink}
-              disabled={linkLoading}
-              style={{ ...secondaryButton, opacity: linkLoading ? 0.6 : 1 }}
-            >
-              {linkLoading ? 'Creating link…' : 'Get a link to send'}
-            </button>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={styles.linkChip}>{parentLink}</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button onClick={copyParentLink} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>
-                  {copied ? '✓ Copied' : 'Copy'}
-                </button>
-                <button onClick={emailParentLink} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>Email</button>
-                <button onClick={shareParentLink} style={{ ...secondaryButton, flex: 1, minWidth: 90 }}>Share</button>
-              </div>
-              <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
-                The link works for 30 days and stops once your account is paid for.
-              </p>
-            </div>
-          )}
-        </div>
+        </>
+        )}
 
         <button
           onClick={() => router.push('/student/dashboard')}
@@ -350,6 +399,24 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: '20px',
+  },
+  doors: {
+    display: 'flex',
+    gap: '10px',
+    // Side by side where there is room, stacked on a narrow phone — neither
+    // door should read as the secondary one.
+    flexWrap: 'wrap' as const,
+  },
+  door: {
+    flex: '1 1 180px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+    borderRadius: radius.md,
+    padding: '12px 14px',
+    cursor: 'pointer',
+    textAlign: 'left' as const,
+    transition: 'border-color 0.15s ease',
   },
   plans: {
     display: 'flex',

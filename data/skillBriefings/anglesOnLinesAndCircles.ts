@@ -130,6 +130,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       watch:
         'Using 360 for angles on a line, or 180 for angles round a point. Look at whether the arms '
         + 'close all the way round or stop on a straight edge.',
+          example: 'They sit on a line, so they add to 180°',
     },
     {
       do: 'Mark every angle you can work out straight onto the diagram as you get it.',
@@ -139,6 +140,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       watch:
         'Equal sides you have not used. A pair of dashes means two equal angles, and forgetting that '
         + 'is what leaves these questions unsolvable.',
+          example: 'Write 2x, 3x and x + 30 onto the diagram as you go',
     },
     {
       do: 'If the angles are algebraic, add them, set the total to 180 or 360, and solve.',
@@ -147,6 +149,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
         + 'into one you already know how to finish.',
       watch:
         'Sign slips when collecting terms, and forgetting that the same x appears in more than one angle.',
+          example: '6x + 30 = 180, so x = 25',
     },
     {
       do: 'Read the last line again: it usually wants an ANGLE, not x.',
@@ -155,9 +158,11 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
         + 'and the largest angle is 3x — that is 75°, not 25.',
       watch:
         'Stopping at x, or giving the wrong one of the angles you worked out.',
+          example: 'It wants an ANGLE: the largest is 3x = 75°',
     },
   ],
 
+  methodExample: 'Angles 2x, 3x and x + 30 meet on a straight line. Find the largest.',
   check: [
     'Do all your angles add back up to the total you used — 180° on a line, 360° round a point?',
     'Does the picture agree? An angle that looks obtuse in the diagram should not come out as 40°, '
@@ -198,6 +203,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'A, B and C are on a circle and AB is a diameter. Angle BAC is 34°. Find angle ABC.',
     steps: [
       {
         do: 'Mark the right angles the circle gives you before anything else: radius to tangent, and '
@@ -208,6 +214,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
         watch:
           'Missing the semicircle right angle, or assuming a radius meets any line at 90° — it is the '
           + 'TANGENT that does that.',
+              example: 'AB is a diameter, so angle C is 90°: 180 − 90 − 34 = 56°',
       },
     ],
 

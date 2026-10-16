@@ -81,9 +81,19 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/student\/upgrade$/, 'Upgrade'],
   [/^\/student$/, 'Student sign in'],
 
+  // Where an emailed class invitation lands. Outside /student because the
+  // visitor usually has no account yet — that is the point of inviting.
+  // The title must not name the class: it is read before anyone is signed in,
+  // and a browser history entry is not the place to put a class name.
+  [/^\/invite\/[^/]+$/, 'Class invitation', '/invite/[token]'],
+
   // Teacher dashboard (named routes before the /dashboard/[id] catch-all)
   // More specific first: the bare-id rule below would otherwise swallow this.
   [/^\/dashboard\/classes\/[^/]+\/papers$/, 'Record a marked paper', '/dashboard/classes/[id]/papers'],
+  // Join code, invitations and roster. Split off the class page 2026-10-13.
+  // Grouped with its siblings by convention; the bare-id rule below is
+  // $-anchored so it could not actually swallow this one.
+  [/^\/dashboard\/classes\/[^/]+\/people$/, 'Class people', '/dashboard/classes/[id]/people'],
   [/^\/dashboard\/classes\/[^/]+$/, 'Class', '/dashboard/classes/[id]'],
   [/^\/dashboard\/classes$/, 'Classes'],
   [/^\/dashboard\/assignments\/create$/, 'Create assignment'],
@@ -91,6 +101,13 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/dashboard\/assignments$/, 'Assignments'],
   [/^\/dashboard\/exam$/, 'Mini-exam'],
   [/^\/dashboard\/upgrade$/, 'Upgrade'],
+  // The tutor's cross-class student view (docs/audit/26). BOTH rules must stay
+  // above the bare-id catch-all below: `/dashboard/students` matches
+  // /^\/dashboard\/[^/]+$/ perfectly well, so without this it would be titled
+  // "Student overview" and normalised to `/dashboard/[id]` — wrong in the tab
+  // and silently merged with a different route in GA4.
+  [/^\/dashboard\/students\/[^/]+$/, 'Student', '/dashboard/students/[id]'],
+  [/^\/dashboard\/students$/, 'My students'],
   [/^\/dashboard\/[^/]+$/, 'Student overview', '/dashboard/[id]'],
   [/^\/dashboard$/, 'Teacher dashboard'],
 

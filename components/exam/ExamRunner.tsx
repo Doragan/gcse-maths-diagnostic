@@ -363,7 +363,12 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
               : <>Preview the mini-exam your students will take: a short (~25-mark) mixed paper from across the course, worked through with <strong> no feedback until submit</strong> — then a score and a full review with the mistake-spotting feedback.</>}
           </p>
           {isStudent ? (
-            <QuotaNote quota={quota} limitReached={limitReached} onUpgrade={() => router.push('/student/upgrade')} />
+            <QuotaNote
+              quota={quota}
+              limitReached={limitReached}
+              onUpgrade={() => router.push('/student/upgrade?want=exam')}
+              onAskParent={() => router.push('/student/upgrade?want=exam&ask=parent')}
+            />
           ) : (
             <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 16px', lineHeight: 1.6 }}>
               This is a teacher preview — nothing is recorded. Assigning mini-exams to a class is coming next. Choose a paper:
@@ -608,10 +613,12 @@ const srOnly: React.CSSProperties = {
 }
 
 /** The student's monthly-allowance line on the config screen. */
-function QuotaNote({ quota, limitReached, onUpgrade }: {
+function QuotaNote({ quota, limitReached, onUpgrade, onAskParent }: {
   quota: { remaining: number | null; isPaid: boolean } | null
   limitReached: boolean
   onUpgrade: () => void
+  /** Second door for a student with no card of their own — docs/audit/24 B2. */
+  onAskParent: () => void
 }) {
   // Unlimited (paid).
   if (quota?.isPaid) {
@@ -628,9 +635,17 @@ function QuotaNote({ quota, limitReached, onUpgrade }: {
         <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '0 0 8px', lineHeight: 1.6 }}>
           You&apos;ve used your <strong>free mini-exam</strong> for this month. It resets on the 1st — or upgrade for unlimited papers now.
         </p>
-        <button onClick={onUpgrade} style={{ ...primaryButton, width: 'auto', padding: '8px 16px', fontSize: font.base }}>
-          Upgrade for unlimited
-        </button>
+        {/* The highest-intent moment in the product: they wanted another paper
+            and were stopped. Most students here have no card, so the parent
+            route is offered alongside rather than buried on the next page. */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={onUpgrade} style={{ ...primaryButton, width: 'auto', padding: '8px 16px', fontSize: font.base }}>
+            Upgrade for unlimited
+          </button>
+          <button onClick={onAskParent} style={{ ...secondaryButton, width: 'auto', padding: '8px 16px', fontSize: font.base }}>
+            Ask a parent
+          </button>
+        </div>
       </div>
     )
   }

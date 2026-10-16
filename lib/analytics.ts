@@ -1,9 +1,21 @@
 /**
- * Analytics — dual-destination event tracking.
+ * Analytics — first-party event tracking.
  *
- * Every call to trackEvent() writes to two places:
- *   1. Supabase `analytics_events` table (your own data, queryable in the dashboard)
- *   2. Google Analytics 4 via gtag (if NEXT_PUBLIC_GA_ID is configured)
+ * Every call to trackEvent() writes to the Supabase `analytics_events` table and
+ * nowhere else. It is ours, it stays in the UK, and it is never joined to an
+ * account: events key on a per-tab session id held in sessionStorage.
+ *
+ * ── Google Analytics was removed, 2026-10-10 ────────────────────────────────
+ * It went out with the ad campaign it existed to measure. With it went the only
+ * third-party cookie, the only transfer of usage data to the United States, the
+ * link to Google Ads, and the consent banner that gated all of it — the banner
+ * had no other purpose.
+ *
+ * If analytics are ever wanted beyond this table again, note what the banner's
+ * removal assumed: that first-party, per-tab, UK-only analytics that never leave
+ * our infrastructure sit in the ICO's low-risk category. Anything that sends
+ * usage data to a third party does not, and would need the consent mechanism
+ * back before it ships.
  *
  * Dev mode (Ctrl+Alt+D):
  *   Toggles a localStorage flag. While active, all tracking is silently skipped
@@ -12,17 +24,7 @@
 
 import { supabase } from './supabase'
 import { normalizePath } from './pageTitles'
-
-/**
- * GA4 measurement ID — the single source of truth (loaded by CookieBanner after
- * consent). Prefer the env var; fall back to the known production property so
- * analytics keep working even if the env var isn't set in an environment.
- * (Measurement IDs are public — they ship in the client either way.)
- */
-// Defined in lib/cookieConsent, which imports nothing, and re-exported here so
-// existing callers are unaffected. It moved because this file reaches Supabase
-// at module load, which made the consent rules impossible to unit-test.
-export { GA_MEASUREMENT_ID } from './cookieConsent'
+import { referrerHost } from './referrer'
 
 const SESSION_KEY = 'mathsense_sid'
 const DEV_KEY     = 'mathsense_dev'
@@ -119,12 +121,20 @@ export function isInternal(): boolean {
 const ATTRIBUTION_FIELDS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'] as const
 
 /**
- * Capture campaign attribution from the landing URL (utm_* / gclid), first-touch:
- * the first hit of the session wins, so a later internal navigation can't
- * overwrite the ad click that brought them in. Stored in sessionStorage and
- * attached to every tracked event (see trackEvent), so a signup can be tied back
- * to its campaign in our own analytics_events — independent of GA, which
- * ad-blockers and consent declines can drop. No-op for organic visits (no params).
+ * Capture attribution from the landing URL (utm_* / gclid) and the referring
+ * host, first-touch: the first hit of the session wins, so a later internal
+ * navigation can't overwrite whatever brought them in. Stored in sessionStorage
+ * and attached to every tracked event (see trackEvent), so a signup can be tied
+ * back to its source in our own analytics_events.
+ *
+ * Since Google Analytics was removed this is the ONLY record of where a visit
+ * came from, which is why the referrer was added here rather than to page_view
+ * alone: first-touch means the arrival is still attached to the signup that
+ * happens four pages later.
+ *
+ * A visit with neither campaign parameters nor a referrer stores nothing, and
+ * reads back as organic-direct — which is the honest answer, since a stripped
+ * referrer and a typed address are indistinguishable.
  */
 export function captureAttribution(): void {
   if (typeof window === 'undefined') return
@@ -135,6 +145,9 @@ export function captureAttribution(): void {
     const v = params.get(f)
     if (v) attr[f] = v
   }
+  const ref = referrerHost(document.referrer, window.location.hostname)
+  if (ref) attr.referrer_host = ref
+
   if (Object.keys(attr).length > 0) {
     attr.landing_page = normalizePath(window.location.pathname)
     sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attr))
@@ -173,12 +186,4 @@ export function trackEvent(
     properties: enriched,
   }).then()
 
-  // 2. Google Analytics 4 (only if the script is loaded — i.e. after consent)
-  const gtag = (window as any).gtag
-  if (gtag) {
-    gtag('event', name, {
-      page_path: path,
-      ...enriched,
-    })
-  }
 }

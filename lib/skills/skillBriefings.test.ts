@@ -355,3 +355,73 @@ describe('comparison pairs', () => {
     expect(clashes, 'comparison questions repeated in the judging drill').toEqual([])
   })
 })
+
+describe('method examples', () => {
+  // One question worked down the side of the method. A column with gaps in it
+  // reads as missing content, so a tier's steps carry an example each or none
+  // at all — and a column with no stated question has no subject.
+  const tiers = (g: (typeof skillBriefings)[string]) => [
+    { what: 'shared', steps: g.steps, run: g.methodExample },
+    { what: 'higher', steps: g.higher?.steps ?? [], run: g.higher?.methodExample },
+  ]
+
+  it('fills a tier’s example column completely, or leaves it empty', () => {
+    const ragged: string[] = []
+    for (const g of Object.values(skillBriefings)) {
+      for (const { what, steps } of tiers(g)) {
+        if (!steps.length) continue
+        const withExample = steps.filter(s => s.example?.trim()).length
+        if (withExample !== 0 && withExample !== steps.length) {
+          ragged.push(`${g.skillId} ${what}: ${withExample} of ${steps.length} steps have an example`)
+        }
+      }
+    }
+    expect(ragged, 'half-filled example columns').toEqual([])
+  })
+
+  it('names the question whenever a column is filled', () => {
+    const orphaned: string[] = []
+    for (const g of Object.values(skillBriefings)) {
+      for (const { what, steps, run } of tiers(g)) {
+        if (steps.some(s => s.example?.trim()) && !run?.trim()) {
+          orphaned.push(`${g.skillId} ${what}: examples with no question stated`)
+        }
+      }
+    }
+    expect(orphaned, 'example columns with no running question').toEqual([])
+  })
+
+  it('does not state a question it then never works', () => {
+    const unused: string[] = []
+    for (const g of Object.values(skillBriefings)) {
+      for (const { what, steps, run } of tiers(g)) {
+        if (run?.trim() && !steps.some(s => s.example?.trim())) {
+          unused.push(`${g.skillId} ${what}: a question is named but no step works it`)
+        }
+      }
+    }
+    expect(unused, 'running questions with no working beside them').toEqual([])
+  })
+
+  it('keeps each example short enough to sit beside its step', () => {
+    for (const g of Object.values(skillBriefings)) {
+      for (const { steps } of tiers(g)) {
+        for (const s of steps) {
+          if (!s.example) continue
+          expect(s.example.length, `${g.skillId}: "${s.example.slice(0, 40)}…" is too long for the column`)
+            .toBeLessThanOrEqual(110)
+        }
+      }
+    }
+  })
+
+  it('gives every Foundation method a worked column', () => {
+    // Every page should demonstrate its own method. Higher blocks are exempt:
+    // where their steps are separate situations rather than one sequence, no
+    // single question can carry them.
+    const bare = Object.values(skillBriefings)
+      .filter(g => !g.steps.some(s => s.example?.trim()))
+      .map(g => g.skillId)
+    expect(bare, 'pages whose method is never demonstrated').toEqual([])
+  })
+})

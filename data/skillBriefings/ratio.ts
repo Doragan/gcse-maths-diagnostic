@@ -114,6 +114,7 @@ export const ratioBriefing: SkillBriefing = {
       watch:
         'Treating one of the parts as if it were the whole. In 2 : 3 the total is 5 shares, not 3 — '
         + 'this is the single most common way these questions are lost.',
+          example: '2 + 3 = 5 shares',
     },
     {
       do: 'Divide the total by the number of shares to find what one share is worth.',
@@ -122,6 +123,7 @@ export const ratioBriefing: SkillBriefing = {
         + 'even when you think you can do it in your head.',
       watch:
         'Dividing by one of the parts rather than by the number of shares.',
+          example: '£60 ÷ 5 = £12 for one share',
     },
     {
       do: 'Multiply one share by the number of parts the question actually asked for.',
@@ -130,9 +132,11 @@ export const ratioBriefing: SkillBriefing = {
       watch:
         'Answering for the wrong person or the wrong part. On these questions "read the wrong name" '
         + 'costs as many marks as bad arithmetic.',
+          example: 'Ben has 3 shares: 3 × £12 = £36',
     },
   ],
 
+  methodExample: 'Amara and Ben share £60 in the ratio 2 : 3. Work out how much Ben receives.',
   check: [
     'Do the shares add back up to the total you started with? If Amara gets £24 and Ben gets £36, '
       + 'that has to come to £60. If it does not, something went wrong earlier.',
@@ -190,6 +194,7 @@ export const ratioBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'Red and blue counters are in the ratio 5 : 3. After 4 red are removed it becomes 3 : 2.',
     steps: [
       {
         do: 'Write both quantities as multiples of the same letter: 5n and 3n.',
@@ -199,6 +204,7 @@ export const ratioBriefing: SkillBriefing = {
         watch:
           'Using two different letters. That throws the ratio away and leaves you with one equation '
           + 'and two unknowns, which cannot be solved.',
+              example: '5n red and 3n blue',
       },
       {
         do: 'Write the "after" situation as a second ratio and set it equal to the one given.',
@@ -206,6 +212,7 @@ export const ratioBriefing: SkillBriefing = {
           'Cross-multiplying turns the second ratio into a normal linear equation in n.',
         watch:
           'Applying the change to both parts when only one of them changed.',
+              example: '(5n − 4) : 3n = 3 : 2 → 10n − 8 = 9n, so n = 8 and blue = 24',
       },
     ],
 

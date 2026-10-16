@@ -126,6 +126,7 @@ export const proportionBriefing: SkillBriefing = {
         + 'and it is where the first method mark lives.',
       watch:
         'Mixed units — minutes against hours, grams against kilograms. Convert before you divide, not after.',
+          example: '8 pens → £3.60',
     },
     {
       do: 'Find the value of one unit, or find the scale factor between the pairs.',
@@ -134,6 +135,7 @@ export const proportionBriefing: SkillBriefing = {
         + 'not the one you were taught first.',
       watch:
         'Dividing the wrong way. "Per kg" means divide by the kilograms, every time.',
+          example: 'One pen: £3.60 ÷ 8 = £0.45',
     },
     {
       do: 'Scale up to the quantity you were asked for.',
@@ -142,9 +144,11 @@ export const proportionBriefing: SkillBriefing = {
       watch:
         'Rounding here instead of at the end. A premature round can lose the accuracy mark '
         + 'even when your method was right.',
+          example: '14 pens: 14 × £0.45 = £6.30',
     },
   ],
 
+  methodExample: '8 identical pens cost £3.60. Work out the cost of 14 pens.',
   check: [
     'Is your answer bigger or smaller than what you started with — and does that match the direction '
     + 'the rate goes? More of something cheap should cost more. If it does not, you divided the wrong way.',
@@ -213,6 +217,7 @@ export const proportionBriefing: SkillBriefing = {
       },
     ],
 
+    methodExample: 'y is proportional to the square of x. When x = 3, y = 45. Work out y when x = 5.',
     steps: [
       {
         do: 'Write the relationship with a constant: y = kx, or y = kx² for a squared relationship.',
@@ -222,6 +227,7 @@ export const proportionBriefing: SkillBriefing = {
         watch:
           'Writing y = kx when the question said proportional to the square. The power belongs on x, '
           + 'not on k.',
+              example: 'It is the SQUARE of x, so y = kx²',
       },
       {
         do: 'Substitute the given pair to find k, then use the equation for the value asked for.',
@@ -229,6 +235,7 @@ export const proportionBriefing: SkillBriefing = {
           'k is fixed for the whole question — find it once and every later part follows from it.',
         watch:
           'Recalculating k for the second part. If k has changed, you have made an error somewhere.',
+              example: '45 = k × 9, so k = 5. Then y = 5 × 25 = 125',
       },
     ],
 

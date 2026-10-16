@@ -5,7 +5,10 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
-import { getClassMembers, rotateClassCode, type ClassMember } from '../../../../lib/classes'
+import {
+  getClassMembers, getClassInvitations,
+  type ClassMember, type TeacherInvitation,
+} from '../../../../lib/classes'
 import ClassAnalytics from '../../../../components/ClassAnalytics'
 import ClassCoverage from '../../../../components/ClassCoverage'
 import {
@@ -13,18 +16,44 @@ import {
   secondaryButton, sectionTitle,
 } from '../../../../lib/styles'
 
-export default function ClassRosterPage() {
+// ─────────────────────────────────────────────────────────────────────────────
+// A class, as a teacher looks at it WEEK TO WEEK.
+//
+// Reorganised on 2026-10-13. This page had grown to six stacked cards and the
+// one a tutor actually comes for — class mastery — was last, below three pieces
+// of start-of-term setup. The join code, the invitation list and the roster all
+// moved to ./people, split by FREQUENCY OF USE rather than by subject: those are
+// done once in September, this is read every week for a year.
+//
+// WHAT STAYS, and why each one earns its place:
+//
+//   * The people SUMMARY. One line, not a card. It is here because knowing who
+//     has NOT joined is the only thing an invitation does that a join code
+//     cannot, and that was the entire justification for building invitations
+//     (see 20260915_class_invitations.sql). Moving the machinery to a sub-page
+//     is fine; losing the signal is not. Do not delete this as clutter.
+//
+//   * Class mastery FIRST. The reason the page is open.
+//
+//   * Topics covered, immediately under mastery rather than on ./people, even
+//     though it looks like setup. It SCOPES the mastery percentage: put it
+//     behind a sub-page and a stale setting silently makes the headline number
+//     wrong, with nothing on screen to suggest why. Directly beneath the number
+//     it reads as the caveat to it, which is what it is.
+//
+//   * Record a marked paper, the third source of skill evidence.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export default function ClassOverviewPage() {
   const router = useRouter()
   const params = useParams<{ id: string }>()
   const classId = params.id
 
   const [className, setClassName] = useState('')
-  const [code, setCode] = useState('')
   const [members, setMembers] = useState<ClassMember[]>([])
+  const [invitations, setInvitations] = useState<TeacherInvitation[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [rotating, setRotating] = useState(false)
-  const [rotateError, setRotateError] = useState('')
   // Bumped when coverage edits are committed → remounts ClassAnalytics to refetch.
   const [coverageVersion, setCoverageVersion] = useState(0)
 
@@ -35,61 +64,48 @@ export default function ClassRosterPage() {
       // The class row is readable via RLS only if the teacher owns it.
       const { data: cls } = await supabase
         .from('classes')
-        .select('name, code')
+        .select('name')
         .eq('id', classId)
         .single()
       if (!cls) { setNotFound(true); setLoading(false); return }
       setClassName(cls.name)
-      setCode(cls.code)
       try {
         setMembers(await getClassMembers(classId))
       } catch {
         // Roster fetch failed (e.g. not the owner) — show empty rather than break.
       }
+      // Only for the summary line. Returns an empty result on any failure,
+      // including the table not existing yet, so the page works whether or not
+      // the invitations migration has been applied.
+      setInvitations((await getClassInvitations(classId)).invitations)
       setLoading(false)
     })
   }, [classId])
 
-  const joinUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/student/classes?code=${code}`
-    : ''
+  // Who the tutor still has to chase. `not_sent` is counted SEPARATELY and
+  // never folded into this: an invitation that was never emailed is the
+  // system's problem, and reporting it as a slow pupil would send the tutor to
+  // nag someone who was never written to.
+  const notJoined = invitations.filter(i => i.state === 'waiting' || i.state === 'expired').length
+  const notSent = invitations.filter(i => i.state === 'not_sent').length
 
-  async function handleRotate() {
-    // Worth a confirm: the old code and every link already shared stop working
-    // the moment this returns, and the teacher may have posted it somewhere
-    // they can't easily update.
-    if (!confirm(
-      `Generate a new join code for "${className}"?\n\n`
-      + `The current code (${code}) and any links you have already shared will stop working.\n\n`
-      + `Students already in the class stay in it — only new joins are affected.`
-    )) return
-
-    setRotating(true)
-    setRotateError('')
-    try {
-      setCode(await rotateClassCode(classId))
-    } catch (err) {
-      setRotateError(err instanceof Error ? err.message : 'Could not generate a new code')
-    } finally {
-      setRotating(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <main style={styles.page}>
-        <p style={{ color: colors.textSecondary }}>Loading...</p>
-      </main>
-    )
-  }
-
+  // ⚠ DELIBERATELY NO WHOLE-PAGE LOADING GATE.
+  //
+  // There used to be an `if (loading) return <p>Loading…</p>` here, and it was
+  // the single biggest cause of this page feeling slow: it stopped
+  // ClassAnalytics and ClassCoverage from MOUNTING, so their requests — the
+  // expensive ones, 300ms to 1.2s for the mastery RPC alone — did not even
+  // start until this page's own three round trips had finished. Two
+  // independent waits, run back to back.
+  //
+  // Now the shell renders immediately and every card fetches concurrently.
+  // Both children already own their loading and error states, so each fills in
+  // when it is ready. If you reinstate a gate here, measure first.
   if (notFound) {
     return (
       <main style={styles.page}>
         <div style={styles.header}>
-          <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
-            Class not found
-          </h1>
+          <h1 style={styles.h1}>Class not found</h1>
           <button
             onClick={() => router.push('/dashboard/classes')}
             style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
@@ -104,9 +120,9 @@ export default function ClassRosterPage() {
   return (
     <main style={styles.page}>
       <div style={styles.header}>
-        <h1 style={{ fontSize: font['2xl'], fontWeight: '600', margin: 0, color: colors.textPrimary }}>
-          {className}
-        </h1>
+        {/* Non-breaking space, not an empty string: it holds the line's
+            height so the header does not jump when the name lands. */}
+        <h1 style={styles.h1}>{className || ' '}</h1>
         <button
           onClick={() => router.push('/dashboard/classes')}
           style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
@@ -115,81 +131,58 @@ export default function ClassRosterPage() {
         </button>
       </div>
 
-      {/* Join code — the thing teachers share with the class */}
-      <div style={card}>
-        <h2 style={sectionTitle}>Join code</h2>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '40px', fontWeight: '700', color: colors.primary, letterSpacing: '0.15em' }}>
-            {code}
-          </span>
-          <button
-            onClick={handleRotate}
-            disabled={rotating}
-            style={{
-              ...secondaryButton,
-              width: 'auto', padding: '8px 14px', fontSize: font.sm,
-              opacity: rotating ? 0.6 : 1,
-              cursor: rotating ? 'default' : 'pointer',
-            }}
-          >
-            {rotating ? 'Generating…' : 'New code'}
-          </button>
-        </div>
-        {rotateError && (
-          <p style={{ fontSize: font.sm, color: colors.dangerText, margin: '8px 0 0' }}>
-            {rotateError}
+      {/* People — a SUMMARY and a way in, not the machinery. See the header
+          note: the straggler count is the one thing a join code cannot give a
+          teacher, so it stays on this page even though the controls do not. */}
+      <div style={{ ...card, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <h2 style={sectionTitle}>People</h2>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '6px 0 0', lineHeight: 1.6 }}>
+            {loading ? 'Counting…' : <>
+            <strong>{members.length}</strong> {members.length === 1 ? 'student has' : 'students have'} joined
+            {notJoined > 0 && (
+              <>
+                {' · '}
+                <strong>{notJoined}</strong> {notJoined === 1 ? 'invitation' : 'invitations'} not accepted yet
+              </>
+            )}
+            {invitations.length === 0 && members.length === 0 && (
+              <> — share the join code or invite your class by email</>
+            )}
+            </>}
           </p>
-        )}
-        <p style={{ fontSize: font.sm, color: colors.textHint, margin: '10px 0 0', lineHeight: '1.6' }}>
-          Students sign in at <strong>{typeof window !== 'undefined' ? window.location.host : 'mathsense.net'}/student</strong>,
-          open <strong>My classes</strong>, and enter this code. Or share this link:
-        </p>
-        <div style={styles.linkRow}>
-          <span style={styles.link}>{joinUrl}</span>
-          <button
-            onClick={() => navigator.clipboard?.writeText(joinUrl)}
-            style={{ ...secondaryButton, width: 'auto', padding: '6px 12px', fontSize: font.sm }}
-          >
-            Copy
-          </button>
+          {/* Called out separately and in red, because the fix is ours, not the
+              pupil's: these addresses were never actually written to. */}
+          {notSent > 0 && (
+            <p style={{ fontSize: font.sm, color: colors.dangerText, margin: '6px 0 0', lineHeight: 1.6 }}>
+              <strong>{notSent}</strong> {notSent === 1 ? 'invitation was' : 'invitations were'} never sent —
+              they need sending before anyone can accept.
+            </p>
+          )}
         </div>
+        <Link
+          href={`/dashboard/classes/${classId}/people`}
+          style={{
+            ...secondaryButton, width: 'auto', padding: '11px 20px',
+            fontSize: font.base, fontWeight: '700',
+            textDecoration: 'none', whiteSpace: 'nowrap',
+          }}
+        >
+          Manage people →
+        </Link>
       </div>
 
-      {/* Roster */}
-      <div style={card}>
-        <h2 style={sectionTitle}>
-          Students {members.length > 0 && <span style={{ color: colors.textHint, fontWeight: '400' }}>({members.length})</span>}
-        </h2>
-        {members.length === 0 ? (
-          <p style={{ fontSize: font.base, color: colors.textHint, margin: '8px 0 0', lineHeight: '1.6' }}>
-            No students have joined yet. Share the code above to get started.
-          </p>
-        ) : (
-          <div style={styles.list}>
-            {members.map(m => (
-              <div key={m.student_id} style={styles.memberRow}>
-                <span style={{ fontSize: font.md, color: colors.textPrimary }}>
-                  {m.display_name}
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {m.year_group && (
-                    <span style={{ fontSize: font.sm, color: colors.textSecondary }}>
-                      {m.year_group}
-                    </span>
-                  )}
-                  <span style={{ fontSize: font.sm, color: colors.textHint }}>
-                    Joined {new Date(m.joined_at).toLocaleDateString('en-GB')}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Aggregated skill mastery across the class (practice + assignments).
+          FIRST, because it is why the page is open. */}
+      <ClassAnalytics key={coverageVersion} classId={classId} />
+
+      {/* Teacher-marked coverage — scopes the mastery % above it to what has
+          actually been taught. Deliberately adjacent to the number it changes. */}
+      <ClassCoverage classId={classId} onChange={() => setCoverageVersion(v => v + 1)} />
 
       {/* Record a paper you have marked — the third source of skill evidence,
           alongside self-serve practice and assignments. */}
-      <div style={{ ...styles.card, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ ...card, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 260 }}>
           <h2 style={sectionTitle}>Marked a paper?</h2>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '6px 0 0', lineHeight: 1.6 }}>
@@ -208,12 +201,6 @@ export default function ClassRosterPage() {
           Record marks →
         </Link>
       </div>
-
-      {/* Teacher-marked coverage — scopes the mastery % to what's been taught */}
-      <ClassCoverage classId={classId} onChange={() => setCoverageVersion(v => v + 1)} />
-
-      {/* Aggregated skill mastery across the class (practice + assignments) */}
-      <ClassAnalytics key={coverageVersion} classId={classId} />
     </main>
   )
 }
@@ -232,37 +219,10 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  linkRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    marginTop: '8px',
-  },
-  link: {
-    flex: 1,
-    fontSize: font.sm,
-    color: colors.textSecondary,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap' as const,
-    background: colors.cardAlt,
-    border: `1px solid ${colors.border}`,
-    borderRadius: radius.sm,
-    padding: '8px 10px',
-  },
-  list: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    marginTop: '12px',
-  },
-  memberRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 12px',
-    borderRadius: radius.md,
-    border: `1px solid ${colors.border}`,
-    background: colors.cardAlt,
+  h1: {
+    fontSize: font['2xl'],
+    fontWeight: '600',
+    margin: 0,
+    color: colors.textPrimary,
   },
 }

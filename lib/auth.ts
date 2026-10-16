@@ -3,8 +3,26 @@ import { trackEvent } from './analytics'
 import { PENDING_KEY, pendingPracticeRows } from './pendingPractice'
 import { fetchMyClassGrant } from './classGrant'
 
-export async function signUp(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password })
+/**
+ * Teacher signup.
+ *
+ * `displayName` is OPTIONAL and goes into the auth user's metadata, from where
+ * handle_new_user copies it onto the teachers row (20261013_teacher_display_name).
+ * It is what invitation emails use to say who sent them; blank means they stay
+ * "Your teacher" until it is set on /account.
+ *
+ * No `role` is set, and that is load-bearing: handle_new_user returns early for
+ * role = 'student', so a teacher signup must NOT carry one. Only pass metadata
+ * when there is something to pass, to keep this identical to the old call
+ * otherwise.
+ */
+export async function signUp(email: string, password: string, displayName?: string) {
+  const name = displayName?.trim()
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    ...(name ? { options: { data: { display_name: name } } } : {}),
+  })
   if (error) throw error
   return data
 }

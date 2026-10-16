@@ -27,6 +27,11 @@ function AuthPage() {
   // Same defect, same fix as /student in PR #70, where 10 of 10 email signups
   // were lost to it.
   const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup')
+  // Optional, and shown only when signing up. Deliberately not required: teacher
+  // signup conversion is measured and this funnel is small, so a mandatory field
+  // to improve the wording of an email would be the wrong trade. /account is the
+  // other way in, and the only one for teachers who already exist.
+  const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -100,7 +105,7 @@ function AuthPage() {
     try {
       if (isSignUp) {
         trackEvent('teacher_signup_submit')
-        await signUp(email, password)
+        await signUp(email, password, displayName)
         trackEvent('teacher_signup_success')
         setConfirmationSent(true)
       } else {
@@ -170,6 +175,27 @@ function AuthPage() {
         </div>
 
         <GoogleButton role="teacher" />
+
+        {isSignUp && (
+          <div style={styles.field}>
+            <label style={labelStyle}>Your name <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={e => setDisplayName(e.target.value)}
+              style={inputStyle}
+              placeholder="Mr Okafor"
+              autoComplete="name"
+              maxLength={60}
+            />
+            {/* Says what it is FOR, because the useful answer is not a legal
+                name — it is whatever their pupils call them. */}
+            <p style={{ fontSize: font.sm, color: colors.textHint, margin: '6px 0 0', lineHeight: 1.5 }}>
+              Shown on class invitation emails, so students recognise who sent them.
+              Use the name your students know you by. You can add this later.
+            </p>
+          </div>
+        )}
 
         <div style={styles.field}>
           <label style={labelStyle}>Email</label>
