@@ -8,7 +8,22 @@ import { generateClassCode } from '../lib/classCode'
 //
 //   npx tsx scripts/seed-demo-class.ts --teacher=you@example.com            (plan only)
 //   npx tsx scripts/seed-demo-class.ts --teacher=you@example.com --apply    (write)
-//   npx tsx scripts/seed-demo-class.ts --teardown                           (remove)
+//   npx tsx scripts/seed-demo-class.ts --teardown                           (remove BOTH shapes)
+//
+// TWO SHAPES, because two audiences want different things:
+//
+//   --shape=tutor   (default) one student. A 1:1 tutor's dashboard is supposed
+//                   to have one row in it, and that is the shape below.
+//   --shape=class   a 12-student cohort plus an assignment with attempts, for a
+//                   head of department, to whom one row reads as a tutoring
+//                   tool. It also fills the Activity view and the live
+//                   assignment view, which the tutor shape leaves empty.
+//
+//   npx tsx scripts/seed-demo-class.ts --teacher=you@... --shape=class --apply
+//   npx tsx scripts/seed-demo-class.ts --teardown --shape=class --apply
+//
+// The class marker CONTAINS the tutor marker, so a bare --teardown removes both
+// and --teardown --shape=class removes only the cohort.
 //
 // WHY THIS EXISTS. The per-student view is the best thing on the teacher side —
 // overall mastery, per-topic bars, a per-skill breakdown and the student's own
@@ -53,13 +68,40 @@ import { generateClassCode } from '../lib/classCode'
 // readiness section is absent. That is the bulk of it and none of it is a lie.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Carried by every row this script creates. Teardown matches on it. */
-const MARKER = 'demo-seed'
+const args = process.argv.slice(2)
+const APPLY = args.includes('--apply')
+const TEARDOWN = args.includes('--teardown')
+const teacherEmail = args.find(a => a.startsWith('--teacher='))?.split('=')[1]?.toLowerCase()
 
-const CLASS_NAME = `Thursday 4pm (${MARKER})`
+/**
+ * Which demo this is. Two audiences want two different shapes:
+ *
+ *   tutor — one student, the 1:1 shape this script was written for. A tutor's
+ *           dashboard is SUPPOSED to have one row in it.
+ *   class — a form-sized cohort with an assignment, for a head of department.
+ *           One row would read as a tutoring tool to them.
+ *
+ * `tutor` is the default so the original invocation is unchanged.
+ */
+const SHAPE: 'tutor' | 'class' =
+  args.find(a => a.startsWith('--shape='))?.split('=')[1] === 'class' ? 'class' : 'tutor'
+
+/**
+ * Carried by every row this script creates. Teardown matches on it.
+ *
+ * The class marker CONTAINS the tutor marker, which is deliberate: a bare
+ * `--teardown` matches `%demo-seed%` and so removes both shapes, while
+ * `--teardown --shape=class` matches `%demo-seed-class%` and removes only the
+ * cohort. Leaving one shape behind by accident is the easy mistake here.
+ */
+const MARKER = SHAPE === 'class' ? 'demo-seed-class' : 'demo-seed'
+
+const CLASS_NAME = SHAPE === 'class'
+  ? `Year 10 Set 2 (${MARKER})`
+  : `Thursday 4pm (${MARKER})`
 const STUDENT_NAME = `Priya K (${MARKER})`
 const STUDENT_EMAIL = `${MARKER}-priya@example.invalid`
-const YEAR_GROUP = 'Year 9'
+const YEAR_GROUP = SHAPE === 'class' ? 'Year 10' : 'Year 9'
 
 /** Weeks of history to spread attempts over, so the trend chart has points. */
 const WEEKS = 6
@@ -69,11 +111,6 @@ const db = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   { auth: { persistSession: false } },
 )
-
-const args = process.argv.slice(2)
-const APPLY = args.includes('--apply')
-const TEARDOWN = args.includes('--teardown')
-const teacherEmail = args.find(a => a.startsWith('--teacher='))?.split('=')[1]?.toLowerCase()
 
 /**
  * The three mastery outcomes, and the attempt sequences that produce them.
@@ -103,6 +140,52 @@ const PLAN: Array<{ status: keyof typeof SEQUENCES; count: number }> = [
   { status: 'needs_practice', count: 4 },
   { status: 'in_progress', count: 3 },
 ]
+
+type Plan = typeof PLAN
+const STRONG:   Plan = [{ status: 'mastered', count: 6 }, { status: 'needs_practice', count: 2 }, { status: 'in_progress', count: 2 }]
+const MIDDLING: Plan = [{ status: 'mastered', count: 3 }, { status: 'needs_practice', count: 4 }, { status: 'in_progress', count: 3 }]
+const WEAK:     Plan = [{ status: 'mastered', count: 1 }, { status: 'needs_practice', count: 5 }, { status: 'in_progress', count: 3 }]
+
+/**
+ * The cohort for `--shape=class`.
+ *
+ * Shaped for what a head of department will actually look at, which is not an
+ * average — it is the spread, and whether anyone is using it.
+ *
+ *   * `lastActiveMinAgo` drives the Activity view's "Last active" column and
+ *     the live assignment view's "answering now" (a two-minute window, see
+ *     lib/liveProgress.ts). The freshest student is seeded inside that window,
+ *     so the live view is demonstrable the moment this finishes — but it ages
+ *     out, so re-run shortly before showing it, or answer a question for real.
+ *   * One student has NO attempts at all. An empty row is a real state on a
+ *     real roster and the dashboard should be seen handling it.
+ *   * The weak students are weak on DIFFERENT skills, which is what makes the
+ *     "Common gaps" panel say something rather than list everything.
+ */
+const COHORT: Array<{
+  name: string
+  plan: Plan
+  lastActiveMinAgo: number | null   // null = never attempted anything
+  assignment: 'complete' | 'partial' | 'none'
+}> = [
+  { name: 'Aisha B',   plan: STRONG,   lastActiveMinAgo: 1,      assignment: 'complete' },
+  { name: 'Tom H',     plan: STRONG,   lastActiveMinAgo: 7,      assignment: 'complete' },
+  { name: 'Leila M',   plan: MIDDLING, lastActiveMinAgo: 24,     assignment: 'complete' },
+  { name: 'Jacob O',   plan: MIDDLING, lastActiveMinAgo: 48,     assignment: 'partial'  },
+  { name: 'Ruby S',    plan: MIDDLING, lastActiveMinAgo: 120,    assignment: 'partial'  },
+  { name: 'Daniel W',  plan: WEAK,     lastActiveMinAgo: 190,    assignment: 'partial'  },
+  { name: 'Noor A',    plan: WEAK,     lastActiveMinAgo: 320,    assignment: 'partial'  },
+  { name: 'Ethan P',   plan: MIDDLING, lastActiveMinAgo: 1_560,  assignment: 'partial'  },
+  { name: 'Grace L',   plan: STRONG,   lastActiveMinAgo: 4_320,  assignment: 'none'     },
+  { name: 'Omar F',    plan: WEAK,     lastActiveMinAgo: 11_520, assignment: 'none'     },
+  { name: 'Chloe D',   plan: MIDDLING, lastActiveMinAgo: 37_440, assignment: 'none'     },
+  { name: 'Harvey N',  plan: [],       lastActiveMinAgo: null,   assignment: 'none'     },
+]
+
+/** Questions on the seeded assignment. Enough that "3 of 6" means something. */
+const ASSIGNMENT_QUESTIONS = 6
+/** Carries the marker so teardown can find it by name, like the class. */
+const ASSIGNMENT_TITLE = `Recap before the mock (${MARKER})`
 
 type SkillPick = { skillId: string; questionIds: string[]; topic: string }
 
@@ -182,10 +265,23 @@ async function teardown() {
     .from('classes').select('id, name').ilike('name', `%${MARKER}%`)
   const classIds = (classes ?? []).map(c => c.id as string)
 
-  console.log(`found ${studentIds.length} seeded student(s), ${classIds.length} seeded class(es)`)
+  // Assignments are found by title, for the same reason as everything else:
+  // matched on the marker, never guessed at by shape. Deleting the assignment
+  // row cascades to its questions, targets and attempts (20260606_assignments).
+  const { data: assignments } = await db
+    .from('assignments').select('id, title').ilike('title', `%${MARKER}%`)
+  const assignmentIds = (assignments ?? []).map(a => a.id as string)
+
+  console.log(`found ${studentIds.length} seeded student(s), ${classIds.length} seeded class(es), ${assignmentIds.length} seeded assignment(s)`)
   if (!APPLY) {
     console.log('\nDRY RUN — nothing deleted. Re-run with --apply to remove them.')
     return
+  }
+
+  // Assignments first: their attempts reference the students about to go.
+  for (const id of assignmentIds) {
+    await db.from('assignments').delete().eq('id', id)
+    console.log(`  deleted assignment ${id}`)
   }
 
   for (const id of studentIds) {
@@ -337,9 +433,193 @@ async function seed() {
   console.log(`\nWhen you are done:  npx tsx scripts/seed-demo-class.ts --teardown --apply`)
 }
 
+// ── Class cohort (--shape=class) ────────────────────────────────────────────
+
+/**
+ * Practice rows for one student: their plan spread over WEEKS, then shifted so
+ * the NEWEST attempt lands exactly at `endMinAgo`. That last part is the point
+ * — "Last active" and "answering now" both read the newest attempt, so the
+ * recency has to be placed, not left wherever the spread happened to end.
+ */
+function buildPractice(
+  assigned: Array<{ pick: SkillPick; status: keyof typeof SEQUENCES }>,
+  endMinAgo: number,
+): Array<Record<string, unknown>> {
+  const now = Date.now()
+  const DAY = 86_400_000
+  const rows: Array<Record<string, unknown>> = []
+  assigned.forEach(({ pick, status }, idx) => {
+    const seq = SEQUENCES[status]
+    const startDaysAgo = WEEKS * 7 - Math.floor((idx / Math.max(1, assigned.length)) * (WEEKS * 7 - 3))
+    seq.forEach((correct, n) => {
+      const daysAgo = Math.max(0, startDaysAgo - n * 2)
+      rows.push({
+        question_id: pick.questionIds[n % pick.questionIds.length],
+        skill_ids: [pick.skillId],
+        correct,
+        attempted_at: new Date(now - daysAgo * DAY).toISOString(),
+        kind: 'mastery',
+      })
+    })
+  })
+  if (rows.length > 0) {
+    const newest = Math.max(...rows.map(r => Date.parse(r.attempted_at as string)))
+    const delta = (now - endMinAgo * 60_000) - newest
+    for (const r of rows) {
+      r.attempted_at = new Date(Date.parse(r.attempted_at as string) + delta).toISOString()
+    }
+  }
+  return rows
+}
+
+async function seedClass() {
+  if (!teacherEmail) throw new Error('Pass --teacher=<the email on your teacher account>')
+  const teacherId = await findTeacher(teacherEmail)
+
+  const widest = Math.max(...COHORT.map(c => c.plan.reduce((n, p) => n + p.count, 0)))
+  const picks = await pickSkills(widest + 6)
+  if (picks.length < ASSIGNMENT_QUESTIONS) {
+    throw new Error(`need ${ASSIGNMENT_QUESTIONS} skills with published questions, found ${picks.length}`)
+  }
+
+  // Offset each student's skills so the cohort is weak on different things —
+  // otherwise "Common gaps" lists every skill and says nothing.
+  const roster = COHORT.map((c, si) => {
+    const assigned: Array<{ pick: SkillPick; status: keyof typeof SEQUENCES }> = []
+    let i = 0
+    for (const { status, count } of c.plan) {
+      for (let n = 0; n < count; n++, i++) assigned.push({ pick: picks[(i + si * 2) % picks.length], status })
+    }
+    return {
+      ...c,
+      display: `${c.name} (${MARKER})`,
+      email: `${MARKER}-${c.name.split(' ')[0].toLowerCase()}@example.invalid`,
+      practice: c.lastActiveMinAgo === null ? [] : buildPractice(assigned, c.lastActiveMinAgo),
+    }
+  })
+
+  const questionIds = picks.slice(0, ASSIGNMENT_QUESTIONS).map(p => p.questionIds[0])
+
+  console.log(`\nteacher    : ${teacherEmail} (${teacherId})`)
+  console.log(`class      : ${CLASS_NAME}  (${roster.length} students, ${YEAR_GROUP})`)
+  console.log(`assignment : "${ASSIGNMENT_TITLE}" — ${questionIds.length} questions, attempt once`)
+  console.log(`attempts   : ${roster.reduce((n, r) => n + r.practice.length, 0)} practice, over ${WEEKS} weeks\n`)
+  for (const r of roster) {
+    const when = r.lastActiveMinAgo === null ? 'never'
+      : r.lastActiveMinAgo < 60 ? `${r.lastActiveMinAgo}m ago`
+      : r.lastActiveMinAgo < 1440 ? `${Math.round(r.lastActiveMinAgo / 60)}h ago`
+      : `${Math.round(r.lastActiveMinAgo / 1440)}d ago`
+    console.log(`  ${r.display.padEnd(32)} ${String(r.practice.length).padStart(2)} attempts  last ${when.padEnd(9)} assignment: ${r.assignment}`)
+  }
+
+  if (!APPLY) {
+    console.log('\nDRY RUN — nothing written. Re-run with --apply.')
+    return
+  }
+
+  // Students first, for the reason the tutor path documents: the account is the
+  // write that can fail, and failing it before the class exists leaves nothing
+  // half-made behind.
+  const ids: string[] = []
+  for (const r of roster) {
+    const { data: created, error } = await db.auth.admin.createUser({
+      email: r.email,
+      password: crypto.randomUUID(),
+      email_confirm: true,
+      user_metadata: { role: 'student', display_name: r.display, year_group: YEAR_GROUP, confirmed_13: true },
+    })
+    if (error || !created.user) throw new Error(`createUser ${r.email}: ${error?.message}`)
+    ids.push(created.user.id)
+    const { error: profErr } = await db.from('students')
+      .update({ display_name: r.display, year_group: YEAR_GROUP, confirmed_13: true })
+      .eq('id', created.user.id)
+    if (profErr) throw new Error(`students update: ${profErr.message} (did the trigger run?)`)
+  }
+  console.log(`✅ ${ids.length} student accounts`)
+
+  const { data: cls, error: clsErr } = await db.from('classes')
+    .insert({ name: CLASS_NAME, code: generateClassCode(), teacher_id: teacherId })
+    .select('id, code').single()
+  if (clsErr || !cls) throw new Error(`class insert: ${clsErr?.message}`)
+  console.log(`✅ class ${cls.id} (join code ${cls.code})`)
+
+  const { error: memErr } = await db.from('class_memberships')
+    .insert(ids.map(id => ({ class_id: cls.id, student_id: id, status: 'active' })))
+  if (memErr) throw new Error(`memberships: ${memErr.message}`)
+
+  // ── Topics covered ───────────────────────────────────────────────────────
+  // WITHOUT THIS THE DEMO LOOKS BROKEN. Mastery is a percentage of the WHOLE
+  // curriculum unless a teacher marks what they have taught, and a cohort six
+  // weeks in has mastered ~6 of ~170 skills — so the headline reads 2% and a
+  // head of department concludes the product does not work. It is the
+  // whole-course-denominator problem docs/audit/26 §5 names.
+  //
+  // Marking the taught skills is what a real teacher does (it is the "Topics
+  // covered" panel), and it makes the figure mean "of what we have taught".
+  // Seeding it is therefore not flattery: it is the product used properly.
+  // Measured: 2% unscoped becomes 21%, with a 6–38% spread across the cohort.
+  const covered = [...new Set(roster.flatMap(r => r.practice.map(p => (p.skill_ids as string[])[0])))]
+  const { error: covErr } = await db.from('class_skill_coverage')
+    .insert(covered.map(skill_id => ({ class_id: cls.id, skill_id })))
+  if (covErr) throw new Error(`class_skill_coverage: ${covErr.message}`)
+  console.log(`✅ ${covered.length} skills marked covered (mastery is scoped to these)`)
+
+  const practice = roster.flatMap((r, i) => r.practice.map(p => ({ ...p, student_id: ids[i] })))
+  if (practice.length > 0) {
+    const { error } = await db.from('practice_attempts').insert(practice)
+    if (error) throw new Error(`practice_attempts: ${error.message}`)
+  }
+  console.log(`✅ ${practice.length} practice attempts`)
+
+  // ── Assignment ───────────────────────────────────────────────────────────
+  const { data: asg, error: asgErr } = await db.from('assignments').insert({
+    teacher_id: teacherId,
+    title: ASSIGNMENT_TITLE,
+    instructions: 'Finish these before Friday. Use the worked example if you get stuck.',
+    selection_mode: 'picked',
+    completion_mode: 'attempt_once',
+    due_at: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+  }).select('id').single()
+  if (asgErr || !asg) throw new Error(`assignment: ${asgErr?.message}`)
+
+  const { error: aqErr } = await db.from('assignment_questions')
+    .insert(questionIds.map((qid, i) => ({ assignment_id: asg.id, question_id: qid, position: i })))
+  if (aqErr) throw new Error(`assignment_questions: ${aqErr.message}`)
+
+  const { error: tgtErr } = await db.from('assignment_targets')
+    .insert({ assignment_id: asg.id, class_id: cls.id })
+  if (tgtErr) throw new Error(`assignment_targets: ${tgtErr.message}`)
+
+  // Attempt-once completion: "complete" means every assigned question tried.
+  const aRows: Array<Record<string, unknown>> = []
+  roster.forEach((r, i) => {
+    if (r.assignment === 'none' || r.lastActiveMinAgo === null) return
+    const n = r.assignment === 'complete' ? questionIds.length : 2 + (i % 3)
+    for (let k = 0; k < n; k++) {
+      aRows.push({
+        assignment_id: asg.id,
+        student_id: ids[i],
+        question_id: questionIds[k],
+        correct: (i + k) % 4 !== 0,
+        // Walk backwards from the student's last-active moment, so the newest
+        // assignment attempt matches the roster's recency rather than fighting it.
+        attempted_at: new Date(Date.now() - (r.lastActiveMinAgo + (n - 1 - k) * 3) * 60_000).toISOString(),
+      })
+    }
+  })
+  const { error: aaErr } = await db.from('assignment_attempts').insert(aRows)
+  if (aaErr) throw new Error(`assignment_attempts: ${aaErr.message}`)
+  console.log(`✅ assignment ${asg.id} — ${aRows.length} attempts`)
+
+  console.log(`\nClass dashboard: Mastery and Activity both have data.`)
+  console.log(`Assignment live view: ${roster[0].display} is inside the two-minute window NOW.`)
+  console.log(`That decays — re-run before the meeting, or answer one question for real.`)
+  console.log(`\nWhen you are done:  npx tsx scripts/seed-demo-class.ts --teardown --shape=class --apply`)
+}
+
 async function main() {
   if (TEARDOWN) return teardown()
-  return seed()
+  return SHAPE === 'class' ? seedClass() : seed()
 }
 
 main().then(() => process.exit(0)).catch(e => {
