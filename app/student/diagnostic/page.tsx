@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { getStudentProfile, PENDING_PLACEMENT_KEY } from '../../../lib/auth'
-import { courses } from '../../../data/courses'
+import { courseFor } from '../../../data/courses'
+import { getQualification } from '../../../lib/skills/qualificationPreference'
 import { skillsById, getPrerequisiteTree, getDependentTree } from '../../../lib/skills/skillGraph'
 import { studentMastery, placementGapIds, type AttemptKind } from '../../../lib/skills/masteryEngine'
 import { renderQuestion, type RenderedQuestion } from '../../../lib/questions/paramEngine'
@@ -206,12 +207,17 @@ export default function StudentDiagnosticPage() {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
+  // Scoped to the student's qualification. This used to resolve the GCSE
+  // courses by name, so an iGCSE student was placed against the wrong
+  // curriculum — tested on eleven skills that are not on their paper, and
+  // never tested on venn_diagrams, upper_and_lower_bounds or set_notation,
+  // which are. The placement seeds the whole skill map, so it decides what
+  // they are then asked to practise.
+  //
+  // Note the Higher course ALREADY contains the Foundation skills (see
+  // data/courses.ts), so the union the old code built was a no-op.
   function getTierSkillIds(t: Tier): string[] {
-    const foundation = courses.find(c => c.id === 'gcse_foundation')?.skills ?? []
-    if (t === 'foundation') return foundation
-    const higher = courses.find(c => c.id === 'gcse_higher')?.skills ?? []
-    // Higher diagnostic covers everything — Higher students still need Foundation skills
-    return [...new Set([...foundation, ...higher])]
+    return courseFor(getQualification(), t).skills
   }
 
   // ── Begin ──────────────────────────────────────────────────────────────────

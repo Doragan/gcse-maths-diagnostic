@@ -6,7 +6,9 @@ import { supabase } from '../../lib/supabase'
 import { getSession } from '../../lib/auth'
 import { candidateOf, type CalculatorMode, type AssembledExam } from '../../lib/exam/assembler'
 import { BLUEPRINTS } from '../../lib/exam/blueprint'
-import { higherOnlySkillIds } from '../../data/courses'
+import { higherOnlySkillsFor, type Qualification } from '../../data/courses'
+import { getQualification, DEFAULT_QUALIFICATION } from '../../lib/skills/qualificationPreference'
+import { calculatorFiltersFor } from '../../lib/questions/calculatorPreference'
 import { serialiseGridAnswer, parseGridAnswer } from '../../lib/questions/gridDraw'
 import { groupExamAttempts } from '../../lib/exam/recordAttempts'
 import {
@@ -30,7 +32,18 @@ import { colors, font, radius, card, primaryButton, secondaryButton } from '../.
 // skill map. Everything between config and review is identical.
 export type ExamVariant = 'teacher-preview' | 'student'
 
-const HIGHER_ONLY = new Set(higherOnlySkillIds)
+/**
+ * What a Foundation paper must not contain, ON THIS STUDENT'S QUALIFICATION.
+ *
+ * This was the GCSE higher-only list for everyone, which is wrong in both
+ * directions on 4MA1: it kept venn_diagrams and upper_and_lower_bounds out of
+ * an iGCSE Foundation paper although they ARE Foundation content there, and let
+ * vectors in although 4MA1 makes it Higher-only. Resolved per call rather than
+ * at module load, because the qualification is a preference that can change
+ * without a reload.
+ */
+const higherOnlyFor = (qualification: Qualification) =>
+  new Set(higherOnlySkillsFor(qualification))
 
 export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const router = useRouter()
@@ -40,6 +53,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [phase, setPhase] = useState<'config' | 'loading' | 'running' | 'review'>('config')
   const [tier, setTier] = useState<Tier>('foundation')
   const [mode, setMode] = useState<CalculatorMode>('non_calc')
+  // Which exam they sit. Decides what a Foundation paper may contain, and
+  // whether a non-calculator paper is a thing that exists for them at all.
+  const [qualification, setQualification] = useState<Qualification>(DEFAULT_QUALIFICATION)
   const [items, setItems] = useState<Item[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [results, setResults] = useState<Record<string, UnitResult>>({})
@@ -76,6 +92,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [shortfall, setShortfall] = useState<AssembledExam['shortfall'] | null>(null)
 
   useEffect(() => {
+    // Read after mount, like every other preference, so the server-rendered
+    // markup and the first client render agree.
+    setQualification(getQualification())
     getSession().then(async session => {
       if (!session) { router.push(isStudent ? '/student' : '/auth'); return }
       if (isStudent) {
@@ -168,7 +187,7 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
       BLUEPRINTS[tier],
       {
         calculatorMode: calcMode,
-        blockedSkillIds: tier === 'foundation' ? HIGHER_ONLY : undefined,
+        blockedSkillIds: tier === 'foundation' ? higherOnlyFor(qualification) : undefined,
       },
       recentPapers,
     )
@@ -425,12 +444,19 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
             const outOfExams = isStudent && quota != null && !quota.isPaid && quota.remaining === 0
             const busy = phase === 'loading'
             const disabled = busy || outOfExams
+            // 4MA1 has no non-calculator paper — both of its papers allow a
+            // calculator — so offering one is not a harder option, it is a
+            // paper that student will never sit. The calculator paper then
+            // stands alone and takes the primary styling.
+            const offerNonCalc = calculatorFiltersFor(qualification).includes('non_calc')
             return (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button disabled={disabled} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
-                  {busy && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
-                </button>
-                <button disabled={disabled} onClick={() => startExam('calc')} style={{ ...secondaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+                {offerNonCalc && (
+                  <button disabled={disabled} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+                    {busy && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
+                  </button>
+                )}
+                <button disabled={disabled} onClick={() => startExam('calc')} style={{ ...(offerNonCalc ? secondaryButton : primaryButton), width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
                   {busy && mode === 'calc' ? 'Assembling…' : 'Calculator paper'}
                 </button>
               </div>
