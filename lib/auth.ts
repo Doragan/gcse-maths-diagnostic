@@ -285,25 +285,57 @@ export function primeStudentIdCache(id: string | null) {
   }
 }
 
+/**
+ * What kind of account an id belongs to — and crucially, whether we could tell.
+ *
+ * ⚠ 'none' AND 'unknown' ARE DIFFERENT, and collapsing them is a bug that has
+ * already shipped once. app/invite/[token] used getStudentProfile() and treated
+ * a null result as "this is a teacher", when all a null actually means is "no
+ * students row came back" — which is also what a failed query looks like. A
+ * genuine student whose lookup hiccupped was told they were a teacher and sent
+ * to the teacher dashboard. Anything deciding what to SAY to someone needs the
+ * distinction; anything deciding what to ALLOW can treat both as a refusal.
+ *
+ *   teacher  a teachers row exists
+ *   student  a students row exists and no teachers row does
+ *   none     neither row exists, and both lookups succeeded in saying so
+ *   unknown  at least one lookup failed, so the answer is not known
+ *
+ * maybeSingle(), not single(): zero rows is an ANSWER here, not an error, and
+ * single() reports it as one. That conflation is what made the two cases
+ * indistinguishable in the first place.
+ *
+ * Takes an id rather than reading the session, so a caller that already has the
+ * user — the invitation page does — pays for no extra auth round trip.
+ */
+export type AccountRole = 'teacher' | 'student' | 'none' | 'unknown'
+
+export async function accountRoleFor(userId: string): Promise<AccountRole> {
+  // Independent lookups, so they go together. Teacher wins if somehow both
+  // exist, matching the precedence getUserRole has always had.
+  const [teacher, student] = await Promise.all([
+    supabase.from('teachers').select('id').eq('id', userId).maybeSingle(),
+    supabase.from('students').select('id').eq('id', userId).maybeSingle(),
+  ])
+  if (teacher.error || student.error) return 'unknown'
+  if (teacher.data) return 'teacher'
+  if (student.data) return 'student'
+  return 'none'
+}
+
+/**
+ * The role of the signed-in user, or null.
+ *
+ * Behaviour-preserving wrapper over accountRoleFor: 'none' and 'unknown' both
+ * flatten to null, exactly as the old implementation did, so requireTeacher and
+ * every other caller are unaffected. Prefer accountRoleFor when the difference
+ * matters to what the user is told.
+ */
 export async function getUserRole(): Promise<'teacher' | 'student' | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-
-  const { data: teacher } = await supabase
-    .from('teachers')
-    .select('id')
-    .eq('id', user.id)
-    .single()
-  if (teacher) return 'teacher'
-
-  const { data: student } = await supabase
-    .from('students')
-    .select('id')
-    .eq('id', user.id)
-    .single()
-  if (student) return 'student'
-
-  return null
+  const role = await accountRoleFor(user.id)
+  return role === 'teacher' || role === 'student' ? role : null
 }
 
 /**
