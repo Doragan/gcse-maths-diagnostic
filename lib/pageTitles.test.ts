@@ -40,6 +40,14 @@ describe('titleForPath', () => {
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
   })
 
+  it('titles the pupil join route', () => {
+    // /s is the route a teacher reads out loud, so it is short enough to
+    // collide with nothing — but it still needs a rule or it falls through
+    // to the brand default.
+    expect(titleForPath('/s')).toBe('Join your class — Mathsense')
+    expect(titleForPath('/s/extra')).toBe(DEFAULT_TITLE)
+  })
+
   it('keeps class sessions out of the /dashboard/[id] catch-all', () => {
     // Same trap as the tutor student view below: /dashboard/sessions matches
     // /^/dashboard/[^/]+$/ perfectly well, so without its own rule it would be

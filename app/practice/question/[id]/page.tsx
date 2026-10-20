@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, Suspense } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 import { skillsById } from '../../../../lib/skills/skillGraph'
@@ -21,6 +21,8 @@ import { hasBriefing } from '../../../../data/skillBriefings'
 import { skillPath } from '../../../../lib/skills/slug'
 import { trackEvent } from '../../../../lib/analytics'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
+import { readJoinedSession, bumpSessionAnswered } from '../../../../lib/classSessions'
+import ClassSessionBanner from '../../../../components/practice/ClassSessionBanner'
 import { calculatorValuesFor, type CalculatorFilter } from '../../../../lib/questions/calculator'
 import { getCalculatorFilter } from '../../../../lib/questions/calculatorPreference'
 import { isCheckpoint, closestToMastery, SESSION_LENGTH } from '../../../../lib/practice/session'
@@ -203,6 +205,24 @@ function QuestionPage() {
   // When ?assignment_id= is present this question is part of an assignment.
   // Back and Next navigate to the assignment page rather than free practice.
   const assignmentId = searchParams.get('assignment_id')
+
+  // When ?session= is present this question is part of a no-login class
+  // session (docs/audit/29): the pupil has no account, answers post against a
+  // participant row, and the context must survive every navigation below or
+  // they silently drop out of their own lesson.
+  const sessionId = searchParams.get('session')
+  const joinedSession = useMemo(() => (sessionId ? readJoinedSession() : null), [sessionId])
+
+  /** A question URL that keeps whatever context this one has. */
+  const questionHref = useCallback((qid: string) => {
+    if (assignmentId) return `/practice/question/${qid}?assignment_id=${assignmentId}`
+    if (sessionId)    return `/practice/question/${qid}?session=${sessionId}`
+    return `/practice/question/${qid}`
+  }, [assignmentId, sessionId])
+
+  /** Where leaving a question goes. A pupil in a lesson must not land in
+   *  free practice, which would drop their session context for good. */
+  const exitHref = sessionId ? '/s' : '/practice'
 
   const [question, setQuestion] = useState<Question | null>(null)
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
@@ -437,7 +457,7 @@ function QuestionPage() {
         .eq('id', id)
         .single()
       if (res.error || !res.data) {
-        router.push('/practice')
+        router.push(exitHref)
         return
       }
       data = res.data as Question
@@ -576,7 +596,32 @@ function QuestionPage() {
     // Count this answer toward the escalating anonymous sign-up nudge (a single-part
     // question = one answer = one question). See registerQuestionForNudge for the
     // milestone logic and why we lowered the first tier to 3.
-    if (!studentId && registerQuestionForNudge()) setShowSignUpPrompt(true)
+    // Not in a class session: a pupil in a lesson is signed out by design, so
+    // without this every one of them would be nudged to create the account
+    // their school has not approved — mid-lesson, on a school device.
+    if (!studentId && !sessionId && registerQuestionForNudge()) setShowSignUpPrompt(true)
+
+    // A class-session answer goes to session_attempts. This is the only client
+    // write the feature has; the insert is gated by session_accepts_attempt(),
+    // which re-checks that the session is open and unexpired, so a closed
+    // session fails here rather than being trusted from the URL.
+    //
+    // Deliberately NOT written to practice_attempts: there is no student_id to
+    // key it on, session work earns no mastery, and that is the product line
+    // rather than an omission (docs/audit/29 §3.3).
+    if (sessionId && joinedSession) {
+      const { error: saError } = await supabase
+        .from('session_attempts')
+        .insert({
+          session_id:     sessionId,
+          participant_id: joinedSession.participantId,
+          question_id:    question.id,
+          correct,
+        })
+      if (saError) console.error('Failed to record session attempt:', saError.message)
+      else bumpSessionAnswered()
+    }
+
     if (!studentId) {
       // Anonymous: park the attempt in localStorage so it migrates into the
       // account on signup/login. appendPendingAttempt stamps it with the time it
@@ -829,7 +874,7 @@ function QuestionPage() {
       const pick = nextPick.current && others.includes(nextPick.current)
         ? nextPick.current
         : pickRandom(others)
-      router.push(`/practice/question/${pick}`)
+      router.push(questionHref(pick))
       return
     }
 
@@ -843,7 +888,7 @@ function QuestionPage() {
       return
     }
 
-    router.push('/practice')
+    router.push(exitHref)
   }
 
   // Re-renders the CURRENT question with new random parameter values, in place.
@@ -852,7 +897,7 @@ function QuestionPage() {
   // same skill instead of being bounced out. Mirrors loadQuestion's resets, and
   // refreshes the mastery window (the id-keyed effect won't refire on same id).
   async function reparametriseCurrent() {
-    if (!question) { router.push('/practice'); return }
+    if (!question) { router.push(exitHref); return }
     // Remount a multi-part question (keyed on this nonce) so it re-renders with
     // fresh params; harmless no-op for the single-part path below. (audit L4)
     setReparamNonce(n => n + 1)
@@ -959,6 +1004,8 @@ function QuestionPage() {
         }}
         studentId={studentId}
         assignmentId={assignmentId}
+        sessionId={sessionId}
+        participantId={joinedSession?.participantId ?? null}
         onSessionAttempt={bumpSessionCounter}
         onNextQuestion={nextQuestion}
         onTryAgain={() => setReparamNonce(n => n + 1)}
@@ -974,10 +1021,12 @@ function QuestionPage() {
   return (
     <main style={styles.page}>
 
+      {sessionId && <ClassSessionBanner />}
+
       {/* Header */}
       <div style={styles.header}>
         <button
-          onClick={() => router.push(assignmentId ? `/student/assignments/${assignmentId}` : studentId ? '/student/dashboard' : '/practice')}
+          onClick={() => router.push(assignmentId ? `/student/assignments/${assignmentId}` : studentId ? '/student/dashboard' : exitHref)}
           style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
         >
           ← Back
@@ -1295,7 +1344,7 @@ function QuestionPage() {
                         question_id: stepUp.id,
                         parts: stepUp.parts,
                       })
-                      router.push(`/practice/question/${stepUp.id}`)
+                      router.push(questionHref(stepUp.id))
                     }}
                     style={{
                       ...secondaryButton,
@@ -1342,7 +1391,7 @@ function QuestionPage() {
                     from_difficulty: question?.difficulty ?? null,
                     to_difficulty: easeDown.difficulty,
                   })
-                  router.push(`/practice/question/${easeDown.id}`)
+                  router.push(questionHref(easeDown.id))
                 }}
                 style={{
                   ...secondaryButton,
@@ -1618,7 +1667,7 @@ function QuestionPage() {
               {/* Action buttons */}
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
                 <button
-                  onClick={() => router.push(studentId ? '/student/dashboard' : '/practice')}
+                  onClick={() => router.push(studentId ? '/student/dashboard' : exitHref)}
                   style={primaryButton}
                 >
                   {studentId ? 'Return to Dashboard' : 'Back to Practice Home'}

@@ -43,6 +43,10 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/auth\/reset$/, 'Reset password'],
   [/^\/auth$/, 'Sign in'],
 
+  // The no-login class session join page (docs/audit/29). Deliberately the
+  // shortest route in the app, because a teacher reads it out loud.
+  [/^\/s$/, 'Join your class'],
+
   // Join a class (invite flow)
   [/^\/join\/diagnostic$/, 'Join – diagnostic'],
   [/^\/join\/complete$/, 'Join – complete'],

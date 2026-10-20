@@ -18,6 +18,8 @@ import MathInput from './MathInput'
 import ReportIssueButton from './ReportIssueButton'
 import FeedbackWidget from '../FeedbackWidget'
 import SignUpPrompt, { registerQuestionForNudge } from './SignUpPrompt'
+import ClassSessionBanner from './ClassSessionBanner'
+import { bumpSessionAnswered } from '../../lib/classSessions'
 import { appendPendingAttempt } from '../../lib/pendingPractice'
 
 type MultiPartQuestionData = {
@@ -52,6 +54,9 @@ type Props = {
   question: MultiPartQuestionData
   studentId: string | null
   assignmentId: string | null
+  /** Set when this question is part of a no-login class session. */
+  sessionId?: string | null
+  participantId?: string | null
   /** Bumps the parent page's live session counter + sessionStorage. */
   onSessionAttempt: (correct: boolean) => void
   /** Advance to the next question (free practice) or assignment flow. */
@@ -65,7 +70,8 @@ type Props = {
 const PART_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
 export default function MultiPartQuestion({
-  question, studentId, assignmentId, onSessionAttempt, onNextQuestion, onTryAgain, fixedValues,
+  question, studentId, assignmentId, sessionId = null, participantId = null,
+  onSessionAttempt, onNextQuestion, onTryAgain, fixedValues,
 }: Props) {
   const router = useRouter()
 
@@ -203,6 +209,24 @@ export default function MultiPartQuestion({
     if (error) console.error('Failed to record assignment rollup:', error.message) // audit L5
   }
 
+  /**
+   * A class-session answer: one row per QUESTION, on the final part, exactly
+   * as recordAssignmentRollup does. Per-part rows would count a three-part
+   * question as three answers against the session target, so a pupil would
+   * read as finished after four questions of ten.
+   */
+  async function recordSessionRollup(allCorrect: boolean) {
+    if (!sessionId || !participantId) return
+    const { error } = await supabase.from('session_attempts').insert({
+      session_id:     sessionId,
+      participant_id: participantId,
+      question_id:    question.id,
+      correct:        allCorrect,
+    })
+    if (error) console.error('Failed to record session rollup:', error.message)
+    else bumpSessionAnswered()
+  }
+
   function submit() {
     const part = question.parts[current]
     const renderedPart = rendered.parts[current]
@@ -304,10 +328,14 @@ export default function MultiPartQuestion({
     // so outcome.misconception is only ever set on the scalar branch above.
     recordPartAttempt(part, outcome.correct, outcome.misconception ?? null)
     if (isLastPart) {
-      recordAssignmentRollup(next.every(o => o?.correct === true))
+      const allCorrect = next.every(o => o?.correct === true)
+      recordAssignmentRollup(allCorrect)
+      recordSessionRollup(allCorrect)
       // The whole multi-part question counts as ONE toward the anonymous sign-up
       // nudge (not one per part) — fire it when the final part is answered.
-      if (!studentId && registerQuestionForNudge()) setShowSignUpPrompt(true)
+      // Never in a class session: the pupil is signed out by design, and the
+      // account their school has not approved is not ours to push mid-lesson.
+      if (!studentId && !sessionId && registerQuestionForNudge()) setShowSignUpPrompt(true)
     }
   }
 
@@ -347,6 +375,12 @@ export default function MultiPartQuestion({
   return (
     <main style={styles.page}>
       {/* Header */}
+      {/* Same banner as the single-part page: this component renders its
+          own layout, so without it a pupil served a multi-part question
+          sees no sign of being in a lesson at all. The count comes from the
+          shared sessionStorage counter the parent maintains. */}
+      {sessionId && <ClassSessionBanner />}
+
       <div style={styles.header}>
         <button
           onClick={() => router.push(assignmentId ? `/student/assignments/${assignmentId}` : studentId ? '/student/dashboard' : '/practice')}
