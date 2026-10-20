@@ -107,6 +107,16 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/dashboard\/classes\/[^/]+\/people$/, 'Class people', '/dashboard/classes/[id]/people'],
   [/^\/dashboard\/classes\/[^/]+$/, 'Class', '/dashboard/classes/[id]'],
   [/^\/dashboard\/classes$/, 'Classes'],
+  // No-login class sessions (docs/audit/29). Both rules must stay above the
+  // bare-id catch-all: `/dashboard/sessions` matches /^\/dashboard\/[^/]+$/
+  // perfectly well, so without the second one it would be titled "Student
+  // overview" and normalised into `/dashboard/[id]` in GA4.
+  //
+  // The title does not name the session, and the id is normalised away: while a
+  // session is live this page is the one most likely to be PROJECTED, and a
+  // browser tab is not where a class name belongs.
+  [/^\/dashboard\/sessions\/[^/]+$/, 'Class session', '/dashboard/sessions/[id]'],
+  [/^\/dashboard\/sessions$/, 'Class sessions'],
   [/^\/dashboard\/assignments\/create$/, 'Create assignment'],
   [/^\/dashboard\/assignments\/[^/]+$/, 'Assignment', '/dashboard/assignments/[id]'],
   [/^\/dashboard\/assignments$/, 'Assignments'],

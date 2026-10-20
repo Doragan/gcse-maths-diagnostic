@@ -164,6 +164,15 @@ useEffect(() => {
 			>
 			  Assignments
 			</button>
+			{/* The no-login lesson mode (docs/audit/29). Sits beside the other
+			    teacher surfaces rather than being buried: it is the one that needs
+			    no setup at all, so it is the one a new teacher can use today. */}
+			<button
+			  onClick={() => router.push('/dashboard/sessions')}
+			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
+			>
+			  Session
+			</button>
 			<button
 			  onClick={() => router.push('/dashboard/exam')}
 			  style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
