@@ -1,16 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import {
   getAssignment, getAssignmentQuestions, getAssignmentResults, getAssignmentResultsHead,
-  type Assignment, type AssignmentQuestion, type AssignmentResult,
+  type Assignment, type AssignmentQuestion,
 } from '../../../../lib/assignments'
-import {
-  headChanged, shouldPause,
-  POLL_MS, type ResultsHead,
-} from '../../../../lib/liveProgress'
+import { useLiveProgress } from '../../../../lib/useLiveProgress'
 import LiveProgressTable from '../../../../components/LiveProgressTable'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
@@ -29,27 +26,25 @@ export default function AssignmentDetailPage() {
   const params = useParams<{ id: string }>()
   const assignmentId = params.id
 
-  const [assignment, setAssignment]         = useState<Assignment | null>(null)
-  const [questions, setQuestions]           = useState<AssignmentQuestion[]>([])
-  const [results, setResults]               = useState<AssignmentResult[]>([])
-  const [loading, setLoading]               = useState(true)
-  const [loadingResults, setLoadingResults] = useState(false)
-  const [notFound, setNotFound]             = useState(false)
+  const [assignment, setAssignment] = useState<Assignment | null>(null)
+  const [questions, setQuestions]   = useState<AssignmentQuestion[]>([])
+  const [loading, setLoading]       = useState(true)
+  const [notFound, setNotFound]     = useState(false)
 
-  // ── Live progress (docs/audit/24, Part 3) ────────────────────────────────
-  // Polling, not realtime: a change event carries a student_id and nothing
-  // nameable, so it could only ever supplement this payload rather than
-  // replace it. The cheap head probe keeps the cost down — see the head route.
-  const [live, setLive] = useState(true)
-  // Advanced on each probe so "answering now" and the clock times decay.
-  const [now, setNow] = useState(() => Date.now())
-  const headRef = useRef<ResultsHead | null>(null)
-  const lastChangeRef = useRef<number>(Date.now())
-
-  const loadResults = useCallback(async () => {
-    const res = await getAssignmentResults(assignmentId)
-    setResults(res.results)
-  }, [assignmentId])
+  // ── Live progress ────────────────────────────────────────────────────────
+  // The loop lives in lib/useLiveProgress, shared with the class-session view
+  // (docs/audit/29 §6). Polling rather than realtime, and why, is documented
+  // there; the decisions are from docs/audit/24 Part 3 and unchanged.
+  const fetchRows = useCallback(
+    () => getAssignmentResults(assignmentId).then(r => r.results),
+    [assignmentId],
+  )
+  const fetchHead = useCallback(() => getAssignmentResultsHead(assignmentId), [assignmentId])
+  const progress = useLiveProgress({
+    enabled: !loading && !notFound,
+    fetchRows,
+    fetchHead,
+  })
 
   useEffect(() => {
     getSession().then(async session => {
@@ -64,55 +59,8 @@ export default function AssignmentDetailPage() {
       setAssignment(a)
       setQuestions(q)
       setLoading(false)
-
-      // Load results in background
-      setLoadingResults(true)
-      try {
-        await loadResults()
-        // Seed the probe baseline from the server rather than deriving it from
-        // the rows: an attempt by a student who has since left the class counts
-        // in the head but has no row, which would read as a change for ever.
-        headRef.current = await getAssignmentResultsHead(assignmentId)
-      } catch { /* results load failed */ }
-      finally { setLoadingResults(false) }
     })
-  }, [assignmentId, loadResults])
-
-  // Poll while the tab is visible; stand down after a long quiet spell.
-  useEffect(() => {
-    if (!live || loading || notFound) return
-    let cancelled = false
-
-    async function probe() {
-      if (cancelled || document.visibilityState === 'hidden') return
-      try {
-        const head = await getAssignmentResultsHead(assignmentId)
-        if (cancelled) return
-        if (headChanged(headRef.current, head)) {
-          headRef.current = head
-          lastChangeRef.current = Date.now()
-          await loadResults()
-        } else if (shouldPause(lastChangeRef.current)) {
-          // A teacher leaves tabs open for days; a lesson lasts an hour.
-          setLive(false)
-        }
-        if (!cancelled) setNow(Date.now())
-      } catch {
-        // A failed probe isn't worth interrupting a lesson for — the next one
-        // retries, and the rows on screen are still the last good ones.
-      }
-    }
-
-    const timer = setInterval(probe, POLL_MS)
-    // Catch up at once when the teacher comes back to the tab.
-    const onVisibility = () => { if (document.visibilityState === 'visible') probe() }
-    document.addEventListener('visibilitychange', onVisibility)
-    return () => {
-      cancelled = true
-      clearInterval(timer)
-      document.removeEventListener('visibilitychange', onVisibility)
-    }
-  }, [assignmentId, live, loading, notFound, loadResults])
+  }, [assignmentId, router])
 
   if (loading) {
     return <main style={styles.page}><p style={{ color: colors.textSecondary }}>Loading…</p></main>
@@ -200,11 +148,11 @@ export default function AssignmentDetailPage() {
       )}
 
       <LiveProgressTable
-        rows={results}
-        live={live}
-        onResume={() => { lastChangeRef.current = Date.now(); setLive(true) }}
-        now={now}
-        loading={loadingResults}
+        rows={progress.rows}
+        live={progress.live}
+        onResume={progress.resume}
+        now={progress.now}
+        loading={progress.loading}
       />
 
     </main>

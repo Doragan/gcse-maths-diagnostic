@@ -1,14 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSession, requireTeacher } from '../../../../lib/auth'
 import { getClassSession, closeClassSession } from '../../../../lib/classSessionsApi'
 import { sessionLifecycle, type ClassSession } from '../../../../lib/classSessions'
+import { getClassSessionResults, getClassSessionResultsHead } from '../../../../lib/classSessionsApi'
+import { useLiveProgress } from '../../../../lib/useLiveProgress'
+import LiveProgressTable from '../../../../components/LiveProgressTable'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, card,
-  primaryButton, secondaryButton, sectionTitle, errorBox,
+  primaryButton, secondaryButton, errorBox,
 } from '../../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -44,6 +47,17 @@ export default function ClassSessionPage() {
       setLoading(false)
     })
   }, [router, sessionId])
+
+  // The same loop and the same table as the assignment view. Polling stops
+  // once the session is no longer live: nothing can change after that, so a
+  // closed session must not keep a tab probing every ten seconds all evening.
+  const fetchRows = useCallback(() => getClassSessionResults(sessionId), [sessionId])
+  const fetchHead = useCallback(() => getClassSessionResultsHead(sessionId), [sessionId])
+  const progress = useLiveProgress({
+    enabled:   !loading && !notFound,
+    fetchRows,
+    fetchHead,
+  })
 
   async function handleClose() {
     setError('')
@@ -132,13 +146,17 @@ export default function ClassSessionPage() {
         </div>
       )}
 
-      {/* ── Live progress (increment 5) ────────────────────────────────────── */}
-      <div style={card}>
-        <h2 style={sectionTitle}>Progress</h2>
-        <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 0', lineHeight: '1.6' }}>
-          Who has joined and how far they have got will appear here.
-        </p>
-      </div>
+      <LiveProgressTable
+        rows={progress.rows}
+        live={progress.live && state === 'live'}
+        onResume={progress.resume}
+        now={progress.now}
+        loading={progress.loading}
+        title="Progress"
+        noun={{ one: 'pupil', many: 'pupils' }}
+        rosterLabel="Joined"
+        emptyMessage="Nobody has joined yet. Read the code out and they will appear here."
+      />
 
       {error && <p style={errorBox}>{error}</p>}
 

@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { getSession } from './auth'
 import type { ClassSession } from './classSessions'
+import type { ProgressRow, ResultsHead } from './liveProgress'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reading and writing class sessions.
@@ -42,6 +43,34 @@ export async function getClassSession(id: string): Promise<ClassSession | null> 
     return null
   }
   return (data as ClassSession) ?? null
+}
+
+/**
+ * The live view's rows. Shares its type and its aggregation with the
+ * assignment view (lib/liveProgress.ts), so one table component renders both.
+ */
+export async function getClassSessionResults(id: string): Promise<ProgressRow[]> {
+  const session = await getSession()
+  if (!session) return []
+
+  const res = await fetch(`/api/class-sessions/${id}/results`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  if (!res.ok) throw new Error('Could not load session results')
+  const body = await res.json()
+  return body.results as ProgressRow[]
+}
+
+/** The cheap change probe. Throws, so the polling loop can simply retry. */
+export async function getClassSessionResultsHead(id: string): Promise<ResultsHead> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch(`/api/class-sessions/${id}/results/head`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  if (!res.ok) throw new Error('Could not probe session results')
+  return await res.json() as ResultsHead
 }
 
 type CreateInput = {
