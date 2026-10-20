@@ -18,6 +18,7 @@ import MathInput from './MathInput'
 import ReportIssueButton from './ReportIssueButton'
 import FeedbackWidget from '../FeedbackWidget'
 import SignUpPrompt, { registerQuestionForNudge } from './SignUpPrompt'
+import { appendPendingAttempt } from '../../lib/pendingPractice'
 
 type MultiPartQuestionData = {
   id: string
@@ -154,7 +155,27 @@ export default function MultiPartQuestion({
 
   async function recordPartAttempt(part: QuestionPart, correct: boolean, misconception: string | null = null) {
     onSessionAttempt(correct)
-    if (!studentId) return
+
+    if (!studentId) {
+      // Anonymous: park the part in localStorage so it migrates into the account
+      // on signup, exactly as the single-part path does (recordAttempt in
+      // app/practice/question/[id]). This branch used to return here having
+      // stored nothing at all, so a signed-out student's multi-part work was
+      // discarded outright — and it is the signed-out first session that the
+      // pending store exists for.
+      //
+      // One entry per PART, mirroring the practice_attempts row below, so a
+      // migrated batch is indistinguishable from having been signed in
+      // throughout. (misconception isn't carried: PendingAttempt has no field
+      // for it, and neither does the single-part path.)
+      appendPendingAttempt({
+        question_id: question.id,
+        skill_ids:   part.skill_ids,
+        correct,
+        kind:        part.kind ?? 'mastery',
+      })
+      return
+    }
 
     // One practice_attempts row per PART, carrying that part's own skill_ids
     // and kind — this is the unit of attribution the mastery engine consumes.
