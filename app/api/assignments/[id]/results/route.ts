@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { supabase as anonClient } from '../../../../../lib/supabase'
+import { aggregateProgress } from '../../../../../lib/liveProgress'
 
 // GET — teacher fetches per-student completion and scores for an assignment.
 // Resolves class targets → members, then aggregates assignment_attempts per student.
@@ -85,71 +86,37 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
-    // All attempts for this assignment (ordered chronologically)
+    // All attempts for this assignment.
     const { data: allAttempts } = await service
       .from('assignment_attempts')
       .select('student_id, question_id, correct, attempted_at')
       .eq('assignment_id', id)
       .order('attempted_at', { ascending: true })
 
-    // Compute per-student summary
-    const results = Array.from(studentMap.entries()).map(([studentId, info]) => {
-      const attempts = (allAttempts ?? []).filter(a => a.student_id === studentId)
-
-      // Unique questions with any attempt / any correct attempt
-      const attemptedQIds = new Set(attempts.map(a => a.question_id))
-      const correctQIds   = new Set(attempts.filter(a => a.correct).map(a => a.question_id))
-      const correctCount  = attempts.filter(a => a.correct).length
-
-      let isComplete = false
-      let score: string | null = null
-
-      if (assignment.selection_mode === 'picked') {
-        if (assignment.completion_mode === 'attempt_once') {
-          isComplete = attemptedQIds.size >= assignedCount
-          score      = `${correctQIds.size}/${assignedCount}`
-        } else if (assignment.completion_mode === 'until_correct') {
-          isComplete = correctQIds.size >= assignedCount
-          score      = `${correctQIds.size}/${assignedCount}`
-        } else {
-          // mastery_based — open-ended; show attempts
-          score = `${correctCount}/${attempts.length}`
-        }
-      } else {
-        // pool mode
-        if (assignment.completion_mode === 'attempt_once') {
-          isComplete = attempts.length >= assignedCount
-          score      = `${correctCount}/${attempts.length}`
-        } else if (assignment.completion_mode === 'until_correct') {
-          isComplete = correctCount >= assignedCount
-          score      = `${correctCount}/${assignedCount}`
-        } else {
-          score = `${correctCount}/${attempts.length}`
-        }
-      }
-
-      return {
-        student_id:       studentId,
-        display_name:     info.display_name,
-        year_group:       info.year_group,
-        total_attempts:   attempts.length,
-        correct_count:    correctCount,
-        questions_started: attemptedQIds.size,
-        is_complete:      isComplete,
-        score,
-        last_attempt_at:  attempts.length > 0 ? attempts[attempts.length - 1].attempted_at : null,
-      }
-    })
-
-    // Sort: complete first, then by last attempt desc, then alphabetically
-    results.sort((a, b) => {
-      if (a.is_complete !== b.is_complete) return a.is_complete ? -1 : 1
-      if (a.last_attempt_at && b.last_attempt_at)
-        return b.last_attempt_at.localeCompare(a.last_attempt_at)
-      if (a.last_attempt_at) return -1
-      if (b.last_attempt_at) return 1
-      return a.display_name.localeCompare(b.display_name)
-    })
+    // ── Aggregation ──────────────────────────────────────────────────────────
+    // Everything above resolved a ROSTER, which is the half that is specific to
+    // assignments (targets → classes → memberships → students). Turning
+    // attempts into per-person progress is not, so it lives in
+    // lib/liveProgress.ts and the class-session results route calls the same
+    // function. See docs/audit/29 §6.
+    const results = aggregateProgress(
+      Array.from(studentMap.entries()).map(([studentId, info]) => ({
+        id:           studentId,
+        display_name: info.display_name,
+        year_group:   info.year_group,
+      })),
+      (allAttempts ?? []).map(a => ({
+        subject_id:   a.student_id,
+        question_id:  a.question_id,
+        correct:      a.correct,
+        attempted_at: a.attempted_at,
+      })),
+      {
+        selectionMode:  assignment.selection_mode,
+        completionMode: assignment.completion_mode,
+        assignedCount,
+      },
+    )
 
     return NextResponse.json({ results, assignedCount, completionMode: assignment.completion_mode })
   } catch (err) {

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   headChanged, isAnsweringNow, shouldPause, formatLastAttempt, averageScorePct,
+  aggregateProgress,
   ANSWERING_NOW_MS, IDLE_PAUSE_MS,
 } from './liveProgress'
 
@@ -109,5 +110,133 @@ describe('averageScorePct', () => {
     expect(averageScorePct([])).toBeNull()
     expect(averageScorePct([row('0/10', 0)])).toBeNull()
     expect(averageScorePct([row('0/0')])).toBeNull()
+  })
+})
+
+describe('aggregateProgress', () => {
+  const who = (id: string, name = id) => ({ id, display_name: name })
+  const at = (subject_id: string, question_id: string, correct: boolean, attempted_at: string) =>
+    ({ subject_id, question_id, correct, attempted_at })
+
+  const PICKED_ONCE = { selectionMode: 'picked' as const, completionMode: 'attempt_once', assignedCount: 3 }
+
+  it('counts unique questions, not attempts, in picked/attempt_once', () => {
+    // Two goes at the same question is one question started, and the score is
+    // out of what was assigned rather than what was tried.
+    const [row] = aggregateProgress([who('a')], [
+      at('a', 'q1', false, '2026-10-20T10:00:00Z'),
+      at('a', 'q1', true,  '2026-10-20T10:01:00Z'),
+    ], PICKED_ONCE)
+    expect(row.questions_started).toBe(1)
+    expect(row.total_attempts).toBe(2)
+    expect(row.correct_count).toBe(1)
+    expect(row.score).toBe('1/3')
+    expect(row.is_complete).toBe(false)
+  })
+
+  it('completes picked/attempt_once once every question has been tried, right or wrong', () => {
+    const [row] = aggregateProgress([who('a')], [
+      at('a', 'q1', false, '2026-10-20T10:00:00Z'),
+      at('a', 'q2', false, '2026-10-20T10:01:00Z'),
+      at('a', 'q3', false, '2026-10-20T10:02:00Z'),
+    ], PICKED_ONCE)
+    expect(row.is_complete).toBe(true)
+    expect(row.score).toBe('0/3')
+  })
+
+  it('completes picked/until_correct only on correct answers', () => {
+    const opts = { selectionMode: 'picked' as const, completionMode: 'until_correct', assignedCount: 2 }
+    const attempts = [
+      at('a', 'q1', true,  '2026-10-20T10:00:00Z'),
+      at('a', 'q2', false, '2026-10-20T10:01:00Z'),
+    ]
+    expect(aggregateProgress([who('a')], attempts, opts)[0].is_complete).toBe(false)
+    expect(aggregateProgress([who('a')], [
+      ...attempts, at('a', 'q2', true, '2026-10-20T10:02:00Z'),
+    ], opts)[0].is_complete).toBe(true)
+  })
+
+  it('scores pool/attempt_once out of what was actually attempted', () => {
+    // Pool mode has no fixed question list, so the denominator is the work done.
+    const [row] = aggregateProgress([who('a')], [
+      at('a', 'q1', true,  '2026-10-20T10:00:00Z'),
+      at('a', 'q2', false, '2026-10-20T10:01:00Z'),
+    ], { selectionMode: 'pool', completionMode: 'attempt_once', assignedCount: 5 })
+    expect(row.score).toBe('1/2')
+    expect(row.is_complete).toBe(false)
+  })
+
+  it('leaves mastery_based open-ended — a score but never complete', () => {
+    const [row] = aggregateProgress([who('a')], [
+      at('a', 'q1', true, '2026-10-20T10:00:00Z'),
+    ], { selectionMode: 'pool', completionMode: 'mastery_based', assignedCount: 5 })
+    expect(row.score).toBe('1/1')
+    expect(row.is_complete).toBe(false)
+  })
+
+  it('includes people with no attempts at all', () => {
+    // The roster is the row set: someone who has not started still has a row,
+    // which is most of the point of the view during a lesson.
+    const rows = aggregateProgress([who('a'), who('b')], [
+      at('a', 'q1', true, '2026-10-20T10:00:00Z'),
+    ], PICKED_ONCE)
+    expect(rows).toHaveLength(2)
+    const b = rows.find(r => r.subject_id === 'b')!
+    expect(b.total_attempts).toBe(0)
+    expect(b.last_attempt_at).toBeNull()
+  })
+
+  it('ignores attempts from someone not on the roster', () => {
+    const rows = aggregateProgress([who('a')], [
+      at('a', 'q1', true, '2026-10-20T10:00:00Z'),
+      at('ghost', 'q1', true, '2026-10-20T10:05:00Z'),
+    ], PICKED_ONCE)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].total_attempts).toBe(1)
+  })
+
+  it('takes the latest attempt without trusting the input order', () => {
+    const [row] = aggregateProgress([who('a')], [
+      at('a', 'q2', true, '2026-10-20T10:05:00Z'),
+      at('a', 'q1', true, '2026-10-20T10:00:00Z'),
+    ], PICKED_ONCE)
+    expect(row.last_attempt_at).toBe('2026-10-20T10:05:00Z')
+  })
+
+  it('sorts complete first, then most recent, then by name', () => {
+    const rows = aggregateProgress(
+      [who('a', 'Avery'), who('b', 'Blake'), who('c', 'Casey'), who('d', 'Drew')],
+      [
+        // c is complete
+        at('c', 'q1', true, '2026-10-20T09:00:00Z'),
+        at('c', 'q2', true, '2026-10-20T09:01:00Z'),
+        at('c', 'q3', true, '2026-10-20T09:02:00Z'),
+        // b answered most recently among the incomplete
+        at('b', 'q1', true, '2026-10-20T10:30:00Z'),
+        at('a', 'q1', true, '2026-10-20T10:00:00Z'),
+        // d has not started
+      ],
+      PICKED_ONCE,
+    )
+    expect(rows.map(r => r.display_name)).toEqual(['Casey', 'Blake', 'Avery', 'Drew'])
+  })
+
+  it('reports year_group as null when the roster has none', () => {
+    // A class session has no year group to report; the table renders it only
+    // when present, so null must come through rather than undefined.
+    const [row] = aggregateProgress([who('a')], [], PICKED_ONCE)
+    expect(row.year_group).toBeNull()
+  })
+
+  it('PINS a known edge: assignedCount 0 reads as complete for everyone', () => {
+    // Reachable today — a picked assignment with no questions, or a pool one
+    // whose target_count is null. Carried over unchanged from the route this
+    // was extracted from: a refactor is the wrong place to change what a
+    // teacher sees. If this ever gets fixed, this test is the one to delete.
+    const [row] = aggregateProgress([who('a')], [], {
+      selectionMode: 'picked', completionMode: 'attempt_once', assignedCount: 0,
+    })
+    expect(row.is_complete).toBe(true)
+    expect(row.total_attempts).toBe(0)
   })
 })

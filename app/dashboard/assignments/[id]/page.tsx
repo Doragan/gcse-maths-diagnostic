@@ -8,9 +8,10 @@ import {
   type Assignment, type AssignmentQuestion, type AssignmentResult,
 } from '../../../../lib/assignments'
 import {
-  headChanged, isAnsweringNow, shouldPause, formatLastAttempt, averageScorePct,
+  headChanged, shouldPause,
   POLL_MS, type ResultsHead,
 } from '../../../../lib/liveProgress'
+import LiveProgressTable from '../../../../components/LiveProgressTable'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, radius, card,
@@ -31,7 +32,6 @@ export default function AssignmentDetailPage() {
   const [assignment, setAssignment]         = useState<Assignment | null>(null)
   const [questions, setQuestions]           = useState<AssignmentQuestion[]>([])
   const [results, setResults]               = useState<AssignmentResult[]>([])
-  const [assignedCount, setAssignedCount]   = useState(0)
   const [loading, setLoading]               = useState(true)
   const [loadingResults, setLoadingResults] = useState(false)
   const [notFound, setNotFound]             = useState(false)
@@ -49,7 +49,6 @@ export default function AssignmentDetailPage() {
   const loadResults = useCallback(async () => {
     const res = await getAssignmentResults(assignmentId)
     setResults(res.results)
-    setAssignedCount(res.assignedCount)
   }, [assignmentId])
 
   useEffect(() => {
@@ -134,10 +133,6 @@ export default function AssignmentDetailPage() {
     )
   }
 
-  const completedCount = results.filter(r => r.is_complete).length
-  const startedCount   = results.filter(r => r.total_attempts > 0).length
-  const avgScorePct    = averageScorePct(results)
-
   return (
     <main style={styles.page}>
       <div style={styles.header}>
@@ -204,111 +199,14 @@ export default function AssignmentDetailPage() {
         </div>
       )}
 
-      {/* Results */}
-      <div style={card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, margin: '0 0 12px' }}>
-          <h2 style={{ ...sectionTitle, margin: 0 }}>
-            Results{' '}
-            {results.length > 0 && (
-              <span style={{ color: colors.textHint, fontWeight: '400' }}>({results.length} student{results.length !== 1 ? 's' : ''})</span>
-            )}
-          </h2>
-          {/* Say plainly whether what's on screen is keeping itself up to date.
-              A stale table that looks live is worse than no live view at all. */}
-          {live ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '11px', color: colors.textHint, whiteSpace: 'nowrap' as const }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: colors.success, flexShrink: 0 }} />
-              Updating live
-            </span>
-          ) : (
-            <button
-              onClick={() => { lastChangeRef.current = Date.now(); setLive(true) }}
-              style={{ ...secondaryButton, width: 'auto', padding: '4px 10px', fontSize: '11px' }}
-            >
-              Paused · Resume
-            </button>
-          )}
-        </div>
+      <LiveProgressTable
+        rows={results}
+        live={live}
+        onResume={() => { lastChangeRef.current = Date.now(); setLive(true) }}
+        now={now}
+        loading={loadingResults}
+      />
 
-        {/* Summary stats row */}
-        {results.length > 0 && (
-          <div style={{ display: 'flex', gap: '0', borderRadius: radius.md, overflow: 'hidden', border: `1px solid ${colors.border}`, marginBottom: '16px' }}>
-            {[
-              { label: 'Assigned', value: String(results.length) },
-              { label: 'Started',  value: String(startedCount) },
-              { label: 'Complete', value: String(completedCount), highlight: completedCount === results.length },
-            ].map(({ label, value, highlight }) => (
-              <div key={label} style={{ flex: 1, padding: '10px 12px', borderRight: `1px solid ${colors.border}`, background: highlight ? colors.successLight : colors.cardAlt, textAlign: 'center' as const }}>
-                <p style={{ fontSize: '11px', fontWeight: '600', color: colors.textSecondary, margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{label}</p>
-                <p style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: highlight ? colors.successText : colors.textPrimary }}>{value}</p>
-              </div>
-            ))}
-            <div style={{ flex: 1, padding: '10px 12px', background: colors.cardAlt, textAlign: 'center' as const }}>
-              <p style={{ fontSize: '11px', fontWeight: '600', color: colors.textSecondary, margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Avg score</p>
-              <p style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary }}>
-                {avgScorePct === null ? '—' : `${avgScorePct}%`}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {loadingResults ? (
-          <p style={{ fontSize: font.base, color: colors.textHint, margin: '12px 0 0' }}>Loading results…</p>
-        ) : results.length === 0 ? (
-          <p style={{ fontSize: font.base, color: colors.textHint, margin: '12px 0 0', lineHeight: '1.6' }}>
-            No students have been targeted or none have started yet.
-          </p>
-        ) : (
-          <div style={{ marginTop: '12px', overflowX: 'auto' as const }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: font.sm }}>
-              <thead>
-                <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                  <th style={styles.th}>Student</th>
-                  <th style={styles.th}>Score</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Last attempt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map(r => (
-                  <tr key={r.student_id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={styles.td}>
-                      <span style={{ fontWeight: '500', color: colors.textPrimary }}>{r.display_name}</span>
-                      {r.year_group && <span style={{ color: colors.textHint }}> · {r.year_group}</span>}
-                    </td>
-                    <td style={{ ...styles.td, fontWeight: '600', color: colors.textPrimary }}>
-                      {r.score ?? '—'}
-                    </td>
-                    <td style={styles.td}>
-                      {r.total_attempts === 0 ? (
-                        <span style={{ color: colors.textHint }}>Not started</span>
-                      ) : r.is_complete ? (
-                        <span style={{ color: colors.successText, fontWeight: '600' }}>✓ Complete</span>
-                      ) : (
-                        <span style={{ color: colors.warning, fontWeight: '500' }}>In progress</span>
-                      )}
-                    </td>
-                    {(() => {
-                      // Presence, not a verdict: who is working right now and
-                      // when everyone else last did. No "stuck", no idle time
-                      // (docs/audit/12 decision 2, carried into Part 3).
-                      const here = isAnsweringNow(r.last_attempt_at, now)
-                      return (
-                        <td style={{ ...styles.td, color: here ? colors.successText : colors.textHint, whiteSpace: 'nowrap' as const }}>
-                          {here && (
-                            <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: colors.success, marginRight: 6 }} />
-                          )}
-                          {formatLastAttempt(r.last_attempt_at, now)}
-                        </td>
-                      )
-                    })()}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
     </main>
   )
 }
