@@ -38,7 +38,7 @@ export default function SchoolDataProtectionPage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense and school data protection</h1>
           <p style={styles.subtitle}>How pupil data works when a school uses Mathsense</p>
-          <p style={styles.meta}>Version 2.0 — Last reviewed: 17 September 2026</p>
+          <p style={styles.meta}>Version 2.1 — Last reviewed: 20 October 2026</p>
         </div>
 
         <div style={styles.notice}>
@@ -54,6 +54,7 @@ export default function SchoolDataProtectionPage() {
         <Section title="1. Why this is not a data processing agreement">
           <P>Most school software is supplied on the basis that the school is the controller and the supplier is its processor: the school decides, and the supplier acts on the school&rsquo;s instruction. Mathsense is not built that way, and it is better to say so plainly than to sign a document describing something the product does not do.</P>
           <P>A Mathsense pupil account is created by the pupil. It exists before any school is involved, and it continues to exist if the school&rsquo;s arrangement ends. A school cannot create one, cannot read one unless the pupil joins a class, and cannot delete one. There is no mechanism by which a school could instruct us to process a pupil&rsquo;s data, which is the thing an Article 28 agreement exists to govern.</P>
+          <P><strong>Class sessions are the exception, and we would rather point at it than let you find it.</strong> A class session involves no pupil account at all, so none of the reasoning above applies to it: the teacher starts it, sets the work and reads the result, and the pupil does nothing but type a first name. For that processing your school is the controller and we are your processor, in the ordinary way, and Article 28 terms apply. Section 7 sets out what that covers.</P>
         </Section>
 
         <Section title="2. Who is the controller of what">
@@ -61,6 +62,7 @@ export default function SchoolDataProtectionPage() {
             'The pupil account — sign-up, practice, skill mastery. Mathsense is the controller, and the pupil is our data subject.',
             'The class view — a teacher seeing the record of a pupil who joined their class. The pupil authorises the disclosure; we build it; the school uses it.',
             'What the school then does with what it sees, including anything it records in its own systems. The school is the controller of that, and we are not involved.',
+            'A class session — a lesson run with no pupil accounts, joined with a code and a first name. Your school is the controller and we are its processor for that session, which lasts hours and is then deleted.',
           ]} />
           <P>A school&rsquo;s data protection officer may reasonably say: these are our pupils, we told them to use it, and the educational purpose is ours. That argument has real force, and how the roles are best described is a question we are happy to work through with you rather than assert at you. What is not in doubt is the mechanism: the account is the pupil&rsquo;s, and a teacher sees it because the pupil joined their class.</P>
         </Section>
@@ -111,12 +113,24 @@ export default function SchoolDataProtectionPage() {
           ]} />
         </Section>
 
-        <Section title="7. If your school needs to be the controller">
+        <Section title="7. Class sessions, where we are your processor">
+          <P>A class session is a lesson a teacher can run today, with no pupil accounts and nothing to provision. The teacher starts a session and reads out a four-character code; each pupil opens the page, types a first name, and answers questions. The teacher sees who has joined and how far they have got, live, while the lesson is happening.</P>
+          <P>For this, and only this, the arrangement is the conventional one: <strong>you instruct, we process, and Article 28 terms apply.</strong> What that covers is narrow by construction, and it is worth being specific, because the whole of it is:</P>
+          <Ul items={[
+            "The first name a pupil types. The field asks for a first name, caps it at 24 characters, and refuses anything containing an @ so that an email address cannot be entered by accident.",
+            "Which questions each pupil answered, and whether each answer was right or wrong.",
+          ]} />
+          <P>There is no email address, no password, no account, no year group, and no identifier that outlives the session. We cannot connect it to anything else we hold, including an account the same pupil might have elsewhere in Mathsense, because there is nothing in it to connect on.</P>
+          <P><strong>It is deleted automatically.</strong> A session stops accepting answers six hours after it starts, or sooner if the teacher closes it, and an hourly job then deletes the session and everything in it. Nothing survives the day, nothing becomes part of a pupil record, and nothing counts towards anyone&rsquo;s progress. The teacher cannot recover it afterwards and neither can we. If your school needs a lasting record of what pupils can do, that is what pupil accounts are for, and creating one is the pupil&rsquo;s own decision.</P>
+          <P>Two consequences worth stating, because a data protection officer will ask. There is <strong>no age requirement</strong> for a class session: the 13+ rule exists because an account is an agreement with the pupil, and here there is neither. And the names are <strong>whatever the pupils type</strong> — we have no way to verify them, so a session is a view of a lesson in progress rather than a record of assessment.</P>
+        </Section>
+
+        <Section title="8. If your school needs to be the controller">
           <P>Some schools will require pupils to be enrolled without any pupil action, which means the school is the controller of the account and we are processing on its behalf. That is lawful and ordinary, but it is a different arrangement from the one described above rather than a setting we can switch on, and it would need a different agreement in place before it began.</P>
           <P>If that is what your school needs, tell us and we will work out what it involves rather than quietly treat it as covered by this page.</P>
         </Section>
 
-        <Section title="8. The agreement, and getting in touch">
+        <Section title="9. The agreement, and getting in touch">
           <P>There is a school agreement covering the arrangement described here. To ask for a copy, to send us your own questionnaire, or to raise anything on this page, contact us at <a href="mailto:privacy@mathsense.net" style={styles.link}>privacy@mathsense.net</a>.</P>
           <P>Mathsense is operated by Christopher Reay, a sole trader, registered with the Information Commissioner&rsquo;s Office under registration number ZC152231. Our pupil-facing privacy notice is at <a href="/privacy" style={styles.link}>mathsense.net/privacy</a>.</P>
         </Section>

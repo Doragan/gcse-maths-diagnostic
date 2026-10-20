@@ -7,7 +7,7 @@ export default function PrivacyNoticePage() {
         <div style={styles.header}>
           <h1 style={styles.title}>Mathsense Privacy Notice</h1>
           <p style={styles.subtitle}>How Mathsense collects, uses and protects your personal data</p>
-          <p style={styles.meta}>Version 1.5 — Last reviewed: 10 October 2026</p>
+          <p style={styles.meta}>Version 1.6 — Last reviewed: 20 October 2026</p>
         </div>
 
         <Section title="1. Who we are">
@@ -25,6 +25,15 @@ export default function PrivacyNoticePage() {
             'Teachers and school staff who create accounts, classes and assessments',
           ]} />
           <P>Mathsense is intended for users aged 13 and over. If you are under 13, you must not create an account. We treat all learner accounts as potentially belonging to a child under 18 and apply heightened privacy protections accordingly.</P>
+          <P>
+            <strong>Class sessions are the one exception, and it is deliberate.</strong>{' '}A teacher can
+            start a class session and give their pupils a code; a pupil joins by typing a first name,
+            with no account, no email address and no password. There is no 13+ requirement, because
+            there is no account being created and no agreement being made with the pupil. The school
+            decides to run the session and is the controller of what it produces, under its own
+            privacy information; we act on the school&apos;s instruction for that session only. What
+            we hold is set out in section 3 and deleted the same day — see section 7.
+          </P>
         </Section>
 
         <Section title="3. What data we collect">
@@ -72,6 +81,21 @@ export default function PrivacyNoticePage() {
             any more. You can clear them through your browser&apos;s settings for this
             site if you would like them gone.
           </P>
+          <SubHeading>Pupils in a class session</SubHeading>
+          <P>
+            A class session collects less than anything else in Mathsense, and this is the whole
+            list:
+          </P>
+          <Ul items={[
+            'The first name typed on joining. The field asks for a first name, is limited to 24 characters, and rejects anything that looks like an email address.',
+            'Which questions were answered, and whether each was right or wrong.',
+          ]} />
+          <P>
+            There is <strong>no email address, no password, no account and no year group</strong>,
+            and no identifier that survives the session. We cannot link it to any other data we
+            hold, including a Mathsense account the same pupil may have, because there is nothing
+            in it to link on.
+          </P>
         </Section>
 
         <Section title="4. Why we collect your data and our legal basis">
@@ -84,6 +108,16 @@ export default function PrivacyNoticePage() {
             'Legitimate interests — to let a teacher whose class you have chosen to join see your results, and to maintain the integrity of assessments',
             'Consent — to send you optional practice-reminder emails, only if you opt in. You can withdraw this consent at any time, either from your dashboard settings or via the unsubscribe link in any reminder email.',
           ]} />
+          <SubHeading>Pupils in a class session</SubHeading>
+          <P>
+            Here we are not relying on a basis of our own, because we have no relationship with
+            the pupil: no account, no agreement, and nothing kept. The school decides to run the
+            session and relies on its own lawful basis for doing so — usually the performance of a
+            public task, as it does for everything else it asks pupils to do in a lesson. We act on
+            the school&apos;s instruction, for that session only, and delete the result the same
+            day. If you are a parent and want to know more, your child&apos;s school is the right
+            place to ask, and we will help them answer.
+          </P>
           <P>Your practice, your results and your progress are never used for advertising, and we never sell your personal data or share it for marketing. Since October 2026 no website usage data goes to Google either: we removed Google Analytics, and with it the link to our advertising account. Nothing about how you use Mathsense is now shared with anyone for any advertising purpose. The only non-essential emails we send are practice reminders, and only to students who have actively opted in.</P>
         </Section>
 
@@ -146,7 +180,15 @@ export default function PrivacyNoticePage() {
             'Inactive student accounts: if you do not sign in or practise for 1 year, we delete the account and everything in it',
             'Deleted accounts: all personal data is permanently deleted within 30 days of account deletion',
             'Payment records: where anyone has paid us — a teacher, a student, or a parent — the record of that payment is retained for 7 years as required by HMRC rules. This is held by us and by our payment provider, and it survives deletion of the account, because we are required to keep it.',
+            'Class sessions: the first name a pupil types and the record of which questions they got right are deleted automatically within about an hour of the session ending, and in every case the same day. A session stops accepting answers six hours after it starts, or sooner if the teacher closes it.',
           ]} />
+          <P>
+            <strong>Nothing from a class session is kept or carried anywhere.</strong>{' '}It does not
+            become part of any pupil&apos;s record, it does not count towards anyone&apos;s progress,
+            and it cannot be recovered afterwards by the teacher, the school or us. That is a
+            consequence of how it is built rather than a policy we apply: a session holds no account
+            to attach anything to.
+          </P>
           <P>
             You do not have to wait for that. You can delete your account yourself at any
             time from <em>Account settings</em>, which removes your practice history,
@@ -202,6 +244,15 @@ export default function PrivacyNoticePage() {
 
         <Section title="11. Changes to this notice">
           <P>We may update this privacy notice from time to time. We will notify registered users of any significant changes by email. The current version will always be available at mathsense.net/privacy.</P>
+          <SubHeading>What changed in version 1.6 (20 October 2026)</SubHeading>
+          <P>
+            Added <strong>class sessions</strong>, a way for a teacher to run a lesson with no
+            pupil accounts at all: pupils join with a code and a first name. Because no account
+            is created, this is the one part of Mathsense with no 13+ requirement, and the school
+            rather than Mathsense is the controller of what it produces. Sections 2, 3, 4 and 7
+            now say what is collected, on what basis, and when it is deleted — which is the same
+            day, automatically.
+          </P>
           <SubHeading>What changed in version 1.5 (10 October 2026)</SubHeading>
           <P>We removed Google Analytics. This is a change in your favour, so it is worth being specific about what has gone.</P>
           <Ul items={[
