@@ -53,6 +53,38 @@ export function shouldPause(
 }
 
 /**
+ * The "Avg score" figure above the results table.
+ *
+ * `score` arrives from the results route as a fraction STRING — "3/10" — whose
+ * denominator is the assigned count in some completion modes and the attempt
+ * count in others. It used to be read with `parseInt`, which takes the numerator
+ * alone, so the tile showed the mean number of correct answers with a percent
+ * sign after it: a student on 3/10 counted as 3%.
+ *
+ * Averaged over students who have STARTED. The tile sits beside "Started" and
+ * "Complete", so it should not double as a progress meter — counting a class who
+ * have not opened the assignment yet as 0% makes the number meaningless for the
+ * first ten minutes of a lesson, which is exactly when it is being watched.
+ *
+ * Null when nobody has a usable score, which the caller renders as a dash.
+ */
+export function averageScorePct(
+  rows: { score: string | null; total_attempts: number }[],
+): number | null {
+  const pcts = rows.flatMap(r => {
+    if (r.total_attempts === 0 || !r.score) return []
+    const [got, outOf] = r.score.split('/').map(Number)
+    // "0/0" is a real payload (mastery_based before the first answer lands), and
+    // a malformed one must not become NaN and poison the mean.
+    if (!Number.isFinite(got) || !Number.isFinite(outOf) || outOf <= 0) return []
+    return [(got / outOf) * 100]
+  })
+
+  if (pcts.length === 0) return null
+  return Math.round(pcts.reduce((sum, p) => sum + p, 0) / pcts.length)
+}
+
+/**
  * How a student's last attempt reads in the table.
  *
  * Live use needs more than a date — during a lesson every row says "today".

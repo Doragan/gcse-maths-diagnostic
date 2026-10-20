@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  headChanged, isAnsweringNow, shouldPause, formatLastAttempt,
+  headChanged, isAnsweringNow, shouldPause, formatLastAttempt, averageScorePct,
   ANSWERING_NOW_MS, IDLE_PAUSE_MS,
 } from './liveProgress'
 
@@ -73,5 +73,41 @@ describe('formatLastAttempt', () => {
 
   it('shows a dash when there is nothing to report', () => {
     expect(formatLastAttempt(null, NOW)).toBe('—')
+  })
+})
+
+describe('averageScorePct', () => {
+  const row = (score: string | null, total_attempts = 1) => ({ score, total_attempts })
+
+  it('reads the fraction, not the numerator', () => {
+    // The bug this replaces: parseInt('3/10') is 3, rendered as "3%".
+    expect(averageScorePct([row('3/10')])).toBe(30)
+  })
+
+  it('averages across students', () => {
+    expect(averageScorePct([row('10/10'), row('5/10')])).toBe(75)
+  })
+
+  it('ignores students who have not started', () => {
+    // A class who have not opened it yet must not drag a real average to zero —
+    // the tile sits beside "Started" and is not a second progress meter.
+    expect(averageScorePct([row('8/10'), row('0/10', 0), row('0/10', 0)])).toBe(80)
+  })
+
+  it('ignores a zero denominator rather than dividing by it', () => {
+    // mastery_based scores as correct/attempts, which is "0/0" before the first
+    // answer lands even once total_attempts has moved.
+    expect(averageScorePct([row('0/0'), row('4/8')])).toBe(50)
+  })
+
+  it('drops a malformed score instead of averaging in NaN', () => {
+    expect(averageScorePct([row('not a score'), row('1/4')])).toBe(25)
+    expect(averageScorePct([row(null), row('1/4')])).toBe(25)
+  })
+
+  it('is null when nobody has a usable score, so the caller can show a dash', () => {
+    expect(averageScorePct([])).toBeNull()
+    expect(averageScorePct([row('0/10', 0)])).toBeNull()
+    expect(averageScorePct([row('0/0')])).toBeNull()
   })
 })

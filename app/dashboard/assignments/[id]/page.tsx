@@ -8,7 +8,7 @@ import {
   type Assignment, type AssignmentQuestion, type AssignmentResult,
 } from '../../../../lib/assignments'
 import {
-  headChanged, isAnsweringNow, shouldPause, formatLastAttempt,
+  headChanged, isAnsweringNow, shouldPause, formatLastAttempt, averageScorePct,
   POLL_MS, type ResultsHead,
 } from '../../../../lib/liveProgress'
 import { skillsById } from '../../../../lib/skills/skillGraph'
@@ -136,6 +136,7 @@ export default function AssignmentDetailPage() {
 
   const completedCount = results.filter(r => r.is_complete).length
   const startedCount   = results.filter(r => r.total_attempts > 0).length
+  const avgScorePct    = averageScorePct(results)
 
   return (
     <main style={styles.page}>
@@ -245,15 +246,7 @@ export default function AssignmentDetailPage() {
             <div style={{ flex: 1, padding: '10px 12px', background: colors.cardAlt, textAlign: 'center' as const }}>
               <p style={{ fontSize: '11px', fontWeight: '600', color: colors.textSecondary, margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Avg score</p>
               <p style={{ fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary }}>
-                {(() => {
-                  const scoreable = results.filter(r => r.score !== null)
-                  if (scoreable.length === 0) return '—'
-                  const avg = scoreable.reduce((sum, r) => {
-                    const pct = r.score ? parseInt(r.score) : 0
-                    return sum + pct
-                  }, 0) / scoreable.length
-                  return `${Math.round(avg)}%`
-                })()}
+                {avgScorePct === null ? '—' : `${avgScorePct}%`}
               </p>
             </div>
           </div>
