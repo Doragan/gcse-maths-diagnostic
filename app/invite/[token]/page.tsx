@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { getStudentProfile } from '../../../lib/auth'
+import { accountRoleFor, signOut } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
 import {
   lookupInvitation, acceptInvitation, getStudentClasses, type InvitationLookup,
@@ -56,7 +56,13 @@ type Viewer =
       /** Already an active member of THIS class. See wouldTakeSomeoneElsesPlace. */
       alreadyMember: boolean
     }
-  | { kind: 'not_student' }
+  /** A teachers row exists. Cannot join a class; class_memberships.student_id
+   *  references students(id). */
+  | { kind: 'teacher' }
+  /** Neither row exists — confirmed, not guessed. */
+  | { kind: 'no_account' }
+  /** We could not tell. Says so, rather than picking a role. */
+  | { kind: 'unknown_role' }
 
 export default function AcceptInvitationPage() {
   const router = useRouter()
@@ -109,10 +115,18 @@ export default function AcceptInvitationPage() {
 
       if (!user) { setViewer({ kind: 'anonymous' }); return }
 
-      // A teacher account cannot accept — class_memberships.student_id
-      // references students(id). Told plainly rather than failing at the button.
-      const profile = await getStudentProfile()
-      if (!profile) { setViewer({ kind: 'not_student' }); return }
+      // ⚠ FOUR OUTCOMES, NOT TWO. This used to call getStudentProfile() and
+      // render "you are signed in as a teacher" whenever it came back null —
+      // but null also covers an account with neither row AND a lookup that
+      // simply failed, so a real student could be told they were a teacher and
+      // sent to the teacher dashboard. accountRoleFor keeps those apart.
+      //
+      // Uses the id from the user we already fetched above, so this costs no
+      // extra auth round trip.
+      const role = await accountRoleFor(user.id)
+      if (role === 'teacher') { setViewer({ kind: 'teacher' }); return }
+      if (role === 'unknown') { setViewer({ kind: 'unknown_role' }); return }
+      if (role === 'none') { setViewer({ kind: 'no_account' }); return }
 
       // Is this account ALREADY in the class the invitation is for?
       //
@@ -143,6 +157,24 @@ export default function AcceptInvitationPage() {
       })
     })()
   }, [token])
+
+  /**
+   * Sign out and stay on this page.
+   *
+   * Deliberately NOT a redirect: the invitation token is in this URL, and the
+   * whole point is that they come back to it on the right account. Reloading
+   * leaves them here, signed out, looking at the "create an account" state for
+   * this same invitation.
+   */
+  async function handleSignOut() {
+    try {
+      await signOut()
+    } finally {
+      // Reload even if sign-out threw: the page re-reads the session either
+      // way, so a failure shows the truth rather than a stale screen.
+      window.location.reload()
+    }
+  }
 
   async function handleAccept() {
     setJoining(true)
@@ -293,7 +325,17 @@ export default function AcceptInvitationPage() {
     )
   }
 
-  if (viewer.kind === 'not_student') {
+  // ── Signed in, but not as someone who can join a class ─────────────────────
+  //
+  // Three separate cards, because the old single card asserted "you are signed
+  // in as a teacher" for all three and that was only true for one of them. Each
+  // one now says what is actually known and offers the action that resolves it.
+  //
+  // All three tell the visitor to use a different account, so all three give
+  // them a way to do it: telling someone to sign out while offering no control
+  // to sign out is the same class of problem as the wrong message was.
+
+  if (viewer.kind === 'teacher') {
     return (
       <div style={pageContainer}>
         <div style={{ ...card, border: `1px solid ${colors.warningBorder}` }}>
@@ -304,8 +346,65 @@ export default function AcceptInvitationPage() {
             and open the link again with the student account you want to use.
           </p>
           <div style={row}>
+            <button onClick={handleSignOut} style={{ ...primaryButton, width: 'auto' }}>
+              Sign out
+            </button>
             <Link href="/dashboard" style={{ ...secondaryButton, width: 'auto', textDecoration: 'none' }}>
               Back to my dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Neither a teachers nor a students row — confirmed, not inferred. Rare, and
+  // it means the account was never finished: an OAuth sign-in whose provisioning
+  // did not complete leaves exactly this.
+  if (viewer.kind === 'no_account') {
+    return (
+      <div style={pageContainer}>
+        <div style={{ ...card, border: `1px solid ${colors.warningBorder}` }}>
+          <h1 style={heading}>This account cannot join a class</h1>
+          <p style={prose}>
+            Your invitation to <strong>{class_name}</strong> is fine — the problem is the
+            account you are signed in with, which is not set up as a student account.
+          </p>
+          <p style={prose}>
+            Sign out and open the link again using your student account, or create one if you
+            do not have one yet. The invitation will still be waiting.
+          </p>
+          <div style={row}>
+            <button onClick={handleSignOut} style={{ ...primaryButton, width: 'auto' }}>
+              Sign out
+            </button>
+            <Link href="/student/classes" style={{ ...secondaryButton, width: 'auto', textDecoration: 'none' }}>
+              Join with a class code
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // We could not read the account at all. Says so, rather than guessing a role
+  // and blaming the visitor for it — the bug this whole block exists to fix.
+  if (viewer.kind === 'unknown_role') {
+    return (
+      <div style={pageContainer}>
+        <div style={{ ...card, border: `1px solid ${colors.warningBorder}` }}>
+          <h1 style={heading}>We could not check your account</h1>
+          <p style={prose}>
+            Something went wrong at our end, not yours, and your invitation to{' '}
+            <strong>{class_name}</strong> is almost certainly fine. Please try again in a
+            minute.
+          </p>
+          <div style={row}>
+            <button onClick={() => window.location.reload()} style={{ ...primaryButton, width: 'auto' }}>
+              Try again
+            </button>
+            <Link href="/student/classes" style={{ ...secondaryButton, width: 'auto', textDecoration: 'none' }}>
+              Join with a class code
             </Link>
           </div>
         </div>
