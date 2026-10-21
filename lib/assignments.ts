@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { getSession } from './auth'
+import type { ProgressRow } from './liveProgress'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,17 +39,18 @@ export type AssignmentQuestion = {
   }
 }
 
-export type AssignmentResult = {
-  student_id: string
-  display_name: string
-  year_group: string | null
-  total_attempts: number
-  correct_count: number
-  questions_started: number
-  is_complete: boolean
-  score: string | null
-  last_attempt_at: string | null
-}
+/**
+ * A row of the live progress table.
+ *
+ * The results route returns exactly what `aggregateProgress` produces, so this
+ * is that type rather than a second copy of it that could drift from the
+ * payload (docs/audit/29 §6.2).
+ *
+ * The id field is `subject_id`, not `student_id`: here it holds a student id,
+ * but the class-session route feeds the same function a participant who has no
+ * account at all, and one shared type cannot call that a student.
+ */
+export type AssignmentResult = ProgressRow
 
 export type AssignmentAttempt = {
   id: string

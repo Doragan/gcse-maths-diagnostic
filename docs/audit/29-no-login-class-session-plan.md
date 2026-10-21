@@ -523,13 +523,82 @@ component extracted, two routes that are thin wrappers over a shared function.
 | | increment | why this order | cost |
 |---|---|---|---|
 | 0 | ✅ **Done 2026-10-20** — the anonymous multi-part hole (§7.4) and the avg-score bug (§6.4) | both were live bugs; the first made a demo fail silently | small |
-| 1 | Schema + RLS migration (§3, §5) — SQL Editor, per the repo's DDL constraint | everything else needs the tables | small |
-| 2 | Extract `aggregateProgress` + `LiveProgressTable` from the assignment page (§6.2, §6.4) | pure refactor, worth doing alone, and tested before anything depends on it | small |
-| 3 | Teacher: start a session, show the code big, close it | the code has to exist before a pupil can join | small |
-| 4 | Pupil: join page + `recordAttempt` session branch + nudge suppression (§7) | first point where data reaches the database | medium |
-| 5 | `results` + `results/head` routes over the shared function; point the live view at them | the payoff; thin, because 2 did the work | small |
-| 6 | Expiry sweep (§4.5) + the DP copy: join-page line, notice section, scoped `/dpa` annex | must be live **before** a real class, not after | medium |
+| 1 | ✅ **Done** — schema + RLS migration (§3, §5) — SQL Editor, per the repo's DDL constraint | everything else needs the tables | small |
+| 2 | ✅ **Done** — extract `aggregateProgress` + `LiveProgressTable` from the assignment page (§6.2, §6.4) | pure refactor, worth doing alone, and tested before anything depends on it | small |
+| 3 | ✅ **Done** — teacher: start a session, show the code big, close it | the code has to exist before a pupil can join | small |
+| 4 | ✅ **Done** — pupil: join page + `recordAttempt` session branch + nudge suppression (§7) | first point where data reaches the database | medium |
+| 5 | ✅ **Done** — `results` + `results/head` routes over the shared function; point the live view at them | the payoff; thin, because 2 did the work | small |
+| 6 | ✅ **Done** — expiry sweep (§4.5) + the DP copy: join-page line, notice section, scoped `/dpa` annex | must be live **before** a real class, not after | medium |
 | — | DPIA revision + the lawful-basis decision (§4.3) | a gate on running with real pupils, not a code task | — |
+
+**All six increments shipped 2026-10-20, on `feat/no-login-class-session`.** What
+changed against this plan as it was built, because the plan was wrong about three
+things and it is worth knowing which:
+
+- **The attempt gate had to become a `SECURITY DEFINER` helper**, not §5.4's
+  inline `EXISTS`. A policy subquery runs as the invoking role, so an inline
+  check against `class_sessions` is filtered by that table's own RLS — under
+  which anon sees nothing — and the insert would have failed closed for every
+  pupil in every session.
+- **`lib/useLiveProgress` was not in the plan.** §6 expected the polling loop to
+  be copied; it is a hook both views call instead, because the loop is where all
+  the judgement lives (visibility gating, the idle stand-down, seeding the probe
+  baseline from the server) and two copies would drift on the first change.
+- **The pupil's answered count needed its own key.** The banner first used the
+  practice counter, which increments per PART, so a pupil on three-part questions
+  read "5 of 5 answered" while the teacher's screen showed two. It now counts
+  questions, bumped exactly where a `session_attempts` row is written, so the two
+  numbers agree by construction.
+
+Still open, and deliberately not decided while building:
+
+- ~~**The score denominator.**~~ ✅ **Fixed 2026-10-21.** In pool/attempt_once the
+  denominator was questions ATTEMPTED, so a pupil one question in read "1/1" while
+  one who had finished three read "2/3" — the pupil furthest behind looking like
+  full marks, on the screen whose entire job is comparing a class at a glance.
+  `aggregateProgress` now takes `scoreAgainst: 'attempted' | 'target'`, the session
+  route passes `'target'`, and the column reads 0/3, 1/3, 2/3.
+
+  **It was worse than described here.** Measured on a three-pupil session, the
+  "Avg score" tile read **83%** before and **50%** after: the old denominator was
+  inflating the class average with that same "1/1", and the average is the number
+  a teacher glances at first. Completion, attempt counts and row order are all
+  unchanged — only the denominator moved.
+
+  **Flipped for pool assignments too, later the same day**, on the user's call —
+  the same figure was just as misleading there, and it is the one `is_complete`
+  already counts against, so the two now agree. Measured before doing it: the
+  database holds **one** assignment and it is picked mode, so **no live row
+  changed**. The caution that kept it an option in the first place ("a teacher has
+  been reading those numbers") turned out to describe a situation that does not
+  exist — worth recording, because it was a guess and the query was cheap.
+
+  It stays an option rather than becoming the only behaviour, since
+  `scoreAgainst` is the honest name for the choice and `'attempted'` is still
+  right for a view with no target.
+- ✅ **"Nothing assigned" — fixed 2026-10-21**, and no longer pinned. Every
+  comparison in `aggregateProgress` was `>= assignedCount`, so a target of zero
+  satisfied all of them and **the whole roster read "✓ Complete"** — on an
+  assignment containing nothing to do, including people who had done nothing.
+  Reachable two ways: a picked assignment with no questions, and a pool one whose
+  `target_count` is null.
+
+  Now a guard ahead of the mode branches: nobody is complete, because you cannot
+  complete a task with no content; and the score falls back to the no-target form,
+  or to `null` (a dash) when nothing has been done either, rather than "0/0". That
+  also removes the "2/0" the `scoreAgainst` flip would otherwise have rendered —
+  the two symptoms had one root, which is why fixing the display alone was never
+  going to be enough.
+
+  **Latent, not live:** checked against the database, the single assignment that
+  exists is picked mode with 3 questions, so no row was reading wrongly. The test
+  that pinned the old behaviour now asserts the new, including a sweep over all
+  six mode-and-score combinations proving no zero denominator can render.
+- **The DPIA**, per the row above. `docs/legal/dpia-student-data.md` v0.2 was
+  written for the account path and is unsigned; children under 13, school-directed
+  processing and a processor role are all new to it.
+- **The authenticated cron path** is unverified locally for want of `CRON_SECRET`;
+  the first production run reports its counts.
 
 ### Explicitly not in scope
 

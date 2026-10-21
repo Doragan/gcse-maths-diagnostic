@@ -40,6 +40,27 @@ describe('titleForPath', () => {
     expect(normalizePath('/dashboard/classes/abc-123/papers')).toBe('/dashboard/classes/[id]/papers')
   })
 
+  it('titles the pupil join route', () => {
+    // /s is the route a teacher reads out loud, so it is short enough to
+    // collide with nothing — but it still needs a rule or it falls through
+    // to the brand default.
+    expect(titleForPath('/s')).toBe('Join your class — Mathsense')
+    expect(titleForPath('/s/extra')).toBe(DEFAULT_TITLE)
+  })
+
+  it('keeps class sessions out of the /dashboard/[id] catch-all', () => {
+    // Same trap as the tutor student view below: /dashboard/sessions matches
+    // /^/dashboard/[^/]+$/ perfectly well, so without its own rule it would be
+    // titled 'Student overview' and merged into /dashboard/[id] in GA4.
+    expect(titleForPath('/dashboard/sessions')).toBe('Class sessions — Mathsense')
+    expect(titleForPath('/dashboard/sessions/abc-123')).toBe('Class session — Mathsense')
+  })
+
+  it('normalises a session id away, since that page gets projected', () => {
+    expect(normalizePath('/dashboard/sessions/abc-123')).toBe('/dashboard/sessions/[id]')
+    expect(normalizePath('/dashboard/sessions')).toBe('/dashboard/sessions')
+  })
+
   it('keeps the tutor student view out of the /dashboard/[id] catch-all', () => {
     // /dashboard/students matches /^\/dashboard\/[^/]+$/ perfectly well, so
     // without a rule above it this page would be titled "Student overview" and

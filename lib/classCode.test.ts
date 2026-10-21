@@ -47,3 +47,27 @@ describe('isWellFormedClassCode', () => {
     expect(CLASS_CODE_LENGTH).toBe(4)
   })
 })
+
+describe('agreement with the class_sessions CHECK constraint', () => {
+  // class_sessions.code carries a CHECK that spells this alphabet out
+  // (supabase/migrations/20261020_class_sessions.sql). Two copies of one
+  // alphabet is a silent-failure shape: widen ALPHABET and every session
+  // created with a new character is rejected by the database at the moment a
+  // teacher is standing in front of a class. This pins them together — if it
+  // fails, update the CHECK in that migration.
+  const DB_CHECK = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}$/
+
+  it('accepts every code the generator can mint', () => {
+    for (let i = 0; i < 500; i++) {
+      const code = generateClassCode()
+      expect(DB_CHECK.test(code), `the DB would reject ${code}`).toBe(true)
+    }
+  })
+
+  it('rejects what the TS guard rejects, so the two agree on bad input', () => {
+    for (const bad of ['abcd', 'ABC0', 'ABCI', 'ABC', 'ABCDE', 'AB-D', '']) {
+      expect(DB_CHECK.test(bad), `${bad} passed the DB check`).toBe(false)
+      expect(isWellFormedClassCode(bad), `${bad} passed the TS guard`).toBe(false)
+    }
+  })
+})
