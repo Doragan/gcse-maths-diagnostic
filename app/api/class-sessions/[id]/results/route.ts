@@ -79,6 +79,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         selectionMode:  'pool',
         completionMode: 'attempt_once',
         assignedCount:  session.target_count ?? 0,
+        // Out of the target, not out of what each pupil has tried. On a screen
+        // being read while a lesson runs, 0/3, 1/3 and 2/3 compare by eye;
+        // scoring out of attempts made the pupil furthest behind read "1/1".
+        scoreAgainst:   'target',
       },
     )
 

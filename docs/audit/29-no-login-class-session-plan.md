@@ -552,11 +552,23 @@ things and it is worth knowing which:
 
 Still open, and deliberately not decided while building:
 
-- **The score denominator.** In pool/attempt_once the denominator is questions
-  ATTEMPTED, so a pupil one question in reads "1/1" while one who finished three
-  reads "2/3" — the pupil furthest behind looks like full marks. "x of target"
-  would compare across a class at a glance, which is this view's whole job, but it
-  needs a seventh branch in `aggregateProgress`. A product call.
+- ~~**The score denominator.**~~ ✅ **Fixed 2026-10-21.** In pool/attempt_once the
+  denominator was questions ATTEMPTED, so a pupil one question in read "1/1" while
+  one who had finished three read "2/3" — the pupil furthest behind looking like
+  full marks, on the screen whose entire job is comparing a class at a glance.
+  `aggregateProgress` now takes `scoreAgainst: 'attempted' | 'target'`, the session
+  route passes `'target'`, and the column reads 0/3, 1/3, 2/3.
+
+  **It was worse than described here.** Measured on a three-pupil session, the
+  "Avg score" tile read **83%** before and **50%** after: the old denominator was
+  inflating the class average with that same "1/1", and the average is the number
+  a teacher glances at first. Completion, attempt counts and row order are all
+  unchanged — only the denominator moved.
+
+  Left as an OPTION defaulting to the old behaviour rather than a straight fix,
+  because the assignment view is live and a teacher has been reading those numbers.
+  The same argument probably applies there, but that is a decision about an
+  existing surface rather than part of building a new one.
 - **The DPIA**, per the row above. `docs/legal/dpia-student-data.md` v0.2 was
   written for the account path and is unsigned; children under 13, school-directed
   processing and a processor role are all new to it.

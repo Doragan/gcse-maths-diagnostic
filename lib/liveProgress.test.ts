@@ -228,6 +228,78 @@ describe('aggregateProgress', () => {
     expect(row.year_group).toBeNull()
   })
 
+  describe('scoreAgainst', () => {
+    const POOL = { selectionMode: 'pool' as const, completionMode: 'attempt_once', assignedCount: 3 }
+
+    it("defaults to 'attempted', preserving what every caller had before", () => {
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true, '2026-10-21T10:00:00Z'),
+      ], POOL)
+      expect(row.score).toBe('1/1')
+    })
+
+    it('scores out of the target when asked, so a class compares by eye', () => {
+      // The bug this fixes: one question in, right, used to read 1/1 — full
+      // marks — next to someone who had finished three and read 2/3.
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true, '2026-10-21T10:00:00Z'),
+      ], { ...POOL, scoreAgainst: 'target' })
+      expect(row.score).toBe('1/3')
+    })
+
+    it('puts a whole class on one denominator', () => {
+      const rows = aggregateProgress([who('a', 'Ada'), who('b', 'Blake'), who('c', 'Cleo')], [
+        at('a', 'q1', true,  '2026-10-21T10:00:00Z'),
+        at('a', 'q2', false, '2026-10-21T10:01:00Z'),
+        at('a', 'q3', true,  '2026-10-21T10:02:00Z'),
+        at('b', 'q1', true,  '2026-10-21T10:03:00Z'),
+      ], { ...POOL, scoreAgainst: 'target' })
+      expect(rows.map(r => `${r.display_name} ${r.score}`)).toEqual([
+        'Ada 2/3', 'Blake 1/3', 'Cleo 0/3',
+      ])
+    })
+
+    it('does not change whether anyone is complete', () => {
+      // Completion is still attempts >= target; only the denominator moved.
+      const attempts = [
+        at('a', 'q1', false, '2026-10-21T10:00:00Z'),
+        at('a', 'q2', false, '2026-10-21T10:01:00Z'),
+        at('a', 'q3', false, '2026-10-21T10:02:00Z'),
+      ]
+      for (const scoreAgainst of ['attempted', 'target'] as const) {
+        const [row] = aggregateProgress([who('a')], attempts, { ...POOL, scoreAgainst })
+        expect(row.is_complete).toBe(true)
+        expect(row.correct_count).toBe(0)
+      }
+    })
+
+    it('leaves the modes it does not apply to alone', () => {
+      // Picked already scores out of the assigned count; pool/until_correct
+      // already scores out of the target; mastery_based has no target at all.
+      const one = [at('a', 'q1', true, '2026-10-21T10:00:00Z')]
+      const score = (o: Parameters<typeof aggregateProgress>[2]) =>
+        aggregateProgress([who('a')], one, o)[0].score
+
+      for (const scoreAgainst of ['attempted', 'target'] as const) {
+        expect(score({ selectionMode: 'picked', completionMode: 'attempt_once', assignedCount: 3, scoreAgainst })).toBe('1/3')
+        expect(score({ selectionMode: 'pool', completionMode: 'until_correct', assignedCount: 3, scoreAgainst })).toBe('1/3')
+        expect(score({ selectionMode: 'pool', completionMode: 'mastery_based', assignedCount: 3, scoreAgainst })).toBe('1/1')
+      }
+    })
+
+    it('feeds a sensible class average', () => {
+      // averageScorePct parses the fraction, so the tile moves with this.
+      const rows = aggregateProgress([who('a'), who('b')], [
+        at('a', 'q1', true, '2026-10-21T10:00:00Z'),
+        at('a', 'q2', true, '2026-10-21T10:01:00Z'),
+        at('a', 'q3', true, '2026-10-21T10:02:00Z'),
+        at('b', 'q1', true, '2026-10-21T10:03:00Z'),
+      ], { ...POOL, scoreAgainst: 'target' })
+      // 3/3 and 1/3 -> 100% and 33% -> 67%
+      expect(averageScorePct(rows)).toBe(67)
+    })
+  })
+
   it('PINS a known edge: assignedCount 0 reads as complete for everyone', () => {
     // Reachable today — a picked assignment with no questions, or a pool one
     // whose target_count is null. Carried over unchanged from the route this

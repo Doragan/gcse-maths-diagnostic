@@ -80,9 +80,32 @@ export function aggregateProgress(
     selectionMode: SelectionMode
     completionMode: CompletionMode | string
     assignedCount: number
+    /**
+     * What a pool-mode score is out of. Defaults to `'attempted'`, which is the
+     * behaviour every caller had before class sessions existed.
+     *
+     * ── Why this is an option and not just a fix ────────────────────────────
+     *
+     * In pool/attempt_once the denominator was the number of questions a person
+     * had TRIED, so on a live class view someone one question in read "1/1"
+     * while someone who had finished all three read "2/3" — the pupil furthest
+     * behind looking like full marks, on the screen whose entire job is
+     * comparing a class at a glance. `'target'` scores out of what was asked
+     * for instead, so the column reads 0/3, 1/3, 2/3 and sorts by eye.
+     *
+     * It is an option rather than a change to the existing behaviour because
+     * the assignment view is live and a teacher has been reading those numbers;
+     * the same argument probably applies there, but that is a product decision
+     * about an existing surface rather than part of building a new one.
+     *
+     * It only affects pool/attempt_once. Picked mode already scores out of the
+     * assigned count, pool/until_correct already scores out of the target, and
+     * mastery_based has no target to score against.
+     */
+    scoreAgainst?: 'attempted' | 'target'
   },
 ): ProgressRow[] {
-  const { selectionMode, completionMode, assignedCount } = opts
+  const { selectionMode, completionMode, assignedCount, scoreAgainst = 'attempted' } = opts
 
   const bySubject = new Map<string, AttemptRow[]>()
   for (const a of attempts) {
@@ -115,11 +138,15 @@ export function aggregateProgress(
     } else {
       if (completionMode === 'attempt_once') {
         isComplete = mine.length >= assignedCount
-        score      = `${correctCount}/${mine.length}`
+        // The one place `scoreAgainst` bites. See its note on the options type.
+        score      = scoreAgainst === 'target'
+          ? `${correctCount}/${assignedCount}`
+          : `${correctCount}/${mine.length}`
       } else if (completionMode === 'until_correct') {
         isComplete = correctCount >= assignedCount
         score      = `${correctCount}/${assignedCount}`
       } else {
+        // mastery_based has no target to score against, whatever is asked for.
         score = `${correctCount}/${mine.length}`
       }
     }
