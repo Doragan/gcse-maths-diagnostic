@@ -92,8 +92,21 @@ export default function ClassSessionPage() {
   }
 
   const state = sessionLifecycle(session)
+
+  // The host, minus any leading "www.", because this line gets READ ALOUD
+  // across a classroom: "mathsense.net slash s" rather than "w w w dot
+  // mathsense dot net slash s". Four fewer syllables, thirty pupils.
+  //
+  // Safe because the apex redirects to www (verified 2026-10-21:
+  // mathsense.net/s answers 307 to www.mathsense.net/s, which answers 200), so
+  // what a pupil types still arrives. If that redirect ever goes away this
+  // line starts advertising a dead address, which is the one thing to know
+  // before changing the domain setup.
+  //
+  // Hosts with no www are untouched, so localhost and preview deployments
+  // still show something a teacher can actually use.
   const joinUrl = typeof window !== 'undefined'
-    ? `${window.location.host}${JOIN_PATH}`
+    ? `${window.location.host.replace(/^www\./, '')}${JOIN_PATH}`
     : JOIN_PATH
 
   return (
