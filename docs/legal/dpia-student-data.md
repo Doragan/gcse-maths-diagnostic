@@ -2,7 +2,9 @@
 
 **DRAFT. NOT SIGNED OFF.**
 
-_Version 0.3, 2026-09-18 (see revision history at the foot). Follows the ICO's DPIA structure so a school's data
+_Version 0.5, 2026-10-21 (see revision history at the foot). The header read
+"0.3" until now while the history already recorded a v0.4 — corrected rather than
+left, because a version number nobody can trust is worse than none. Follows the ICO's DPIA structure so a school's data
 protection officer recognises the shape. Every factual statement was checked
 against the code and the live database on the day; the evidence trail is in
 `docs/audit/21-school-data-protection-position.md`._
@@ -23,8 +25,11 @@ otherwise written as it should have been.
 Yes. Two of the ICO's screening criteria apply squarely:
 
 - **Data concerning vulnerable data subjects**, specifically children. Every
-  learner account belongs to someone aged 13 or over, and the service is aimed at
-  GCSE candidates, so the overwhelming majority are 14 to 16.
+  learner **account** belongs to someone aged 13 or over, and the service is aimed
+  at GCSE candidates, so the overwhelming majority are 14 to 16. Since 2026-10-20
+  there is one path with no age gate at all — a class session, where a teacher's
+  pupils join with a code and a first name and no account exists. See the class
+  sessions note in Step 2 and R2.
 - **Profiling or automated evaluation.** Mathsense infers, per skill, whether a
   pupil has mastered it, is making progress, or needs practice, and surfaces that
   inference to the pupil's teacher.
@@ -81,6 +86,45 @@ assessment should be read at that scale, not at the scale it aspires to.
 **No special category data is collected.** There is no field for health, ethnicity,
 special educational needs, or free school meals status, and none is inferred.
 
+**Class sessions — outside the scope above, and someone else's assessment**
+
+_Added 2026-10-21. A class session is a lesson a teacher runs with no pupil
+accounts: they read out a four-character code, each pupil types a first name, and
+the teacher watches progress live. `docs/audit/29` is the design, and
+`20261020_class_sessions.sql` the schema._
+
+Everything above describes the **account** path, where we are the controller. A
+class session is different in the two ways that matter to this document, and
+neither is about how much data is held:
+
+| | Account path | Class session |
+|---|---|---|
+| Our role | Controller | **Processor.** The school instructs; we act |
+| Data subjects | Self-registering learners, 13+ | **Any pupil in the lesson, including under-13s** |
+| Held | The table above | A first name; per question, right or wrong |
+| Retained | Until deletion or a year's inactivity | **Deleted the same day**, by an hourly job |
+| Feeds mastery | Yes | No — there is no account to attach it to |
+
+Two consequences for this assessment:
+
+1. **The risk work above already covers it, and no new measures are needed.** A
+   session holds strictly less than any row in the scope table, for hours rather
+   than years, with no email address, no identifier that outlives the lesson, and
+   no profiling — the mastery engine never sees it. Every risk below is either
+   inapplicable or less severe here. Short retention is the mitigation, not a new
+   hazard.
+2. **But the Article 35 duty for it is the school's, not ours.** A DPIA is a
+   controller's obligation. For class sessions the school decides the purpose and
+   the means, so the school assesses them, under its own lawful basis — which is
+   the school's to choose and is deliberately not stated anywhere in this document
+   or in our privacy notice. What we owe is an accurate account of what we do on
+   instruction, which is the table above, and we will help a school complete its
+   own assessment on request.
+
+So this note exists to mark the boundary of the assessment rather than to extend
+it. A school's DPO reading this document should be able to see at once which
+processing it covers and which it does not.
+
 ### Context
 
 Learners are children. They arrive either directly, typically via search or
@@ -91,6 +135,12 @@ Where a school buys seats, the learners in its teachers' classes receive the ful
 service. The school does not own, create or control those accounts. The role
 analysis is in `docs/audit/21` and concludes independent controllers rather than
 controller and processor.
+
+**Both statements above are about accounts, and a class session has none.** There
+the relationship is not direct — the pupil is there because their teacher told the
+class to join — and the role is the ordinary one of controller and processor, with
+the school as controller. That is the single exception to the paragraph above, and
+it is set out in the class sessions note in Scope.
 
 ### Purposes
 
@@ -193,15 +243,40 @@ residual was justified by "stated in three places in matching words" — the wor
 matched each other and did not match the system. Any future measure of this kind
 should be checked against the code, not against the other copies of itself.
 
-### R2 — An under-13 uses the service
+### R2 — An under-13 creates an account
+
+_Retitled 2026-10-21. This entry used to be called "an under-13 uses the service",
+and that is no longer the same question: on one path an under-13 using the service
+is intended. The risk is about an under-13 holding an **account**, which is where
+the age gate lives and where we are the controller._
 
 | | |
 |---|---|
-| Harm | Processing a young child's data without a valid basis |
+| Harm | Processing a young child's data as controller without a valid basis |
 | Likelihood | Medium. The gate is a self-declared tick box. |
 | Severity | Medium |
-| Measures | 13+ gate on every signup path, enforced server-side as well as in the form. Terms state the rule. No special category data collected, so the data held about an under-13 would be no more sensitive than for anyone else. Deletion on request. |
+| Measures | 13+ gate on every **signup** path, enforced server-side as well as in the form. Terms state the rule. No special category data collected, so the data held about an under-13 would be no more sensitive than for anyone else. Deletion on request. |
 | Residual | **Medium.** This is not age assurance and should not be described as such. Stronger verification is disproportionate for a service of this kind and scale, but the honest position is that we would not detect a determined 12-year-old. |
+
+**Class sessions are not this risk, and must not be mistaken for it.** An under-13
+in a class session is not a gate being evaded: there is no gate, by design, because
+there is no account and so no agreement with the pupil to be of an age to make. A
+Year 7 class is eleven. The school decides to run the session, is the controller of
+it, and operates under its own basis and its own privacy information.
+
+What that leaves us accountable for is narrow and worth stating plainly: a first
+name and some right-or-wrong marks, deleted the same day, never linked to an
+account, and never used to profile anyone. Because nothing persists, the harm this
+entry is about — a child's record accumulating without a valid basis — has nothing
+to accumulate in. Residual risk from the session path alone: **low**.
+
+The thing that would change this assessment is persistence. If a session ever
+retained anything past the day, fed mastery, or carried an identifier between
+lessons, it would stop being the school's short-lived processing and start being
+a record we hold about a child who passed no age gate — at which point this entry
+needs rewriting and the school's basis is no longer sufficient. That is why
+`docs/audit/29` puts the deletion job and the no-mastery rule in the schema rather
+than in a policy, and why both are on the "revisit this document" list below.
 
 ### R3 — Inaccurate attainment data informs a decision about a child
 
@@ -356,7 +431,11 @@ approval is a reasonable decision.
 _A DPIA is a living document. It should be revisited when: **the first paper
 sitting is recorded** (R3); the first school contract is signed; the teacher paid
 tier launches; exam readiness or a predicted grade is surfaced to a school (R3);
-any new category of personal data is collected; **or any third-party analytics or tracking is introduced, which re-opens R7 and requires the consent mechanism to be rebuilt first**._
+any new category of personal data is collected; **or any third-party analytics or tracking is introduced, which re-opens R7 and requires the consent mechanism to be rebuilt first**.
+Also: **if a class session ever persists anything past the day, writes to mastery,
+or carries an identifier between lessons** — any one of those moves that path from
+the school's processing into a record we hold as controller about a child who
+passed no age gate, and R2 would need rewriting (see R2)._
 
 _Revision history: v0.1 2026-09-17 first draft. v0.2 2026-09-18 R3 downgraded
 from medium-high to low and the recommended action withdrawn, on the controller's
@@ -365,4 +444,14 @@ corrected the scope table and the minimisation claim: mini-exam papers are held
 in full and are readable by a teacher, which v0.1 and v0.2 both denied. R1 amended
 with the reason the error survived three documents. v0.4 2026-10-10 R7 CLOSED:
 Google Analytics removed with the ad campaign it measured, and the consent banner
-with it; the assumption that removal rests on is recorded in R7._
+with it; the assumption that removal rests on is recorded in R7. v0.5 2026-10-21
+a scope and accuracy amendment for class sessions, NOT a risk reassessment: three
+statements had become false descriptions of the service — Step 1's "every learner
+account belongs to someone aged 13 or over", Context's direct relationship and
+independent-controller conclusion, and R2's "13+ gate on every signup path" read
+as covering every path. A class sessions note added to Scope marks the boundary of
+this assessment, since for that path we are the processor and the Article 35 duty
+is the school's. No new risk and no new measures: a session holds less, for hours,
+with no profiling. R2 retitled and given an explicit "what would change this"
+trigger. The header version was also stale at 0.3 while this history recorded a
+v0.4._

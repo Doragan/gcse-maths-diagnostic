@@ -111,12 +111,12 @@ export default function PrivacyNoticePage() {
           <SubHeading>Pupils in a class session</SubHeading>
           <P>
             Here we are not relying on a basis of our own, because we have no relationship with
-            the pupil: no account, no agreement, and nothing kept. The school decides to run the
-            session and relies on its own lawful basis for doing so — usually the performance of a
-            public task, as it does for everything else it asks pupils to do in a lesson. We act on
-            the school&apos;s instruction, for that session only, and delete the result the same
-            day. If you are a parent and want to know more, your child&apos;s school is the right
-            place to ask, and we will help them answer.
+            the pupil: no account, no agreement, and nothing kept. Your school decides to run the
+            session and is the controller of it, so the lawful basis is the school&apos;s to choose
+            and to explain — we are not in a position to state it for them. We act on the
+            school&apos;s instruction, for that session only, and delete the result the same day.
+            If you are a parent and want to know which basis your child&apos;s school is relying
+            on, the school is the right place to ask, and we will help them answer.
           </P>
           <P>Your practice, your results and your progress are never used for advertising, and we never sell your personal data or share it for marketing. Since October 2026 no website usage data goes to Google either: we removed Google Analytics, and with it the link to our advertising account. Nothing about how you use Mathsense is now shared with anyone for any advertising purpose. The only non-essential emails we send are practice reminders, and only to students who have actively opted in.</P>
         </Section>
