@@ -124,7 +124,28 @@ export function aggregateProgress(
     let isComplete = false
     let score: string | null = null
 
-    if (selectionMode === 'picked') {
+    if (assignedCount <= 0) {
+      // ── Nothing assigned ──────────────────────────────────────────────────
+      //
+      // Reachable two ways: a PICKED assignment with no questions on it, and a
+      // POOL one whose `target_count` is null (the column is nullable, and the
+      // route resolves null to 0).
+      //
+      // Every comparison below is `>= assignedCount`, so with a target of zero
+      // they are all trivially satisfied and every person on the roster read
+      // "✓ Complete" — including people who had done nothing, on an assignment
+      // that contained nothing to do. That was carried through the extraction
+      // unchanged and pinned by a test, on the grounds that a refactor is the
+      // wrong place to change what a teacher sees; fixing it deliberately is a
+      // different matter.
+      //
+      // You cannot have completed a task with no content in it, so nobody is
+      // complete. And there is no target to score against, so the score is the
+      // no-target form — or nothing at all when there is also nothing done,
+      // which the table renders as a dash rather than "0/0".
+      isComplete = false
+      score      = mine.length > 0 ? `${correctCount}/${mine.length}` : null
+    } else if (selectionMode === 'picked') {
       if (completionMode === 'attempt_once') {
         isComplete = attemptedQIds.size >= assignedCount
         score      = `${correctQIds.size}/${assignedCount}`
@@ -139,13 +160,10 @@ export function aggregateProgress(
       if (completionMode === 'attempt_once') {
         isComplete = mine.length >= assignedCount
         // The one place `scoreAgainst` bites. See its note on the options type.
-        //
-        // `assignedCount > 0` is not belt-and-braces: pool mode derives it from
-        // `target_count`, which is NULLABLE, so a pool assignment saved without
-        // one arrives here as 0 — and "2/0" is a worse thing to put in front of
-        // a teacher than the denominator this option exists to replace. Falling
-        // back to attempted keeps that row readable.
-        score      = scoreAgainst === 'target' && assignedCount > 0
+        // No `assignedCount > 0` guard needed here any more — a target of zero
+        // is handled by the "nothing assigned" branch above, which is what
+        // stops this rendering "2/0".
+        score      = scoreAgainst === 'target'
           ? `${correctCount}/${assignedCount}`
           : `${correctCount}/${mine.length}`
       } else if (completionMode === 'until_correct') {

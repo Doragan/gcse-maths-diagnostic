@@ -575,9 +575,25 @@ Still open, and deliberately not decided while building:
 
   It stays an option rather than becoming the only behaviour, since
   `scoreAgainst` is the honest name for the choice and `'attempted'` is still
-  right for a view with no target. The guard matters: pool `assignedCount` comes
-  from a NULLABLE `target_count`, so a pool assignment saved without one would
-  render "2/0" — it falls back to attempted instead.
+  right for a view with no target.
+- ✅ **"Nothing assigned" — fixed 2026-10-21**, and no longer pinned. Every
+  comparison in `aggregateProgress` was `>= assignedCount`, so a target of zero
+  satisfied all of them and **the whole roster read "✓ Complete"** — on an
+  assignment containing nothing to do, including people who had done nothing.
+  Reachable two ways: a picked assignment with no questions, and a pool one whose
+  `target_count` is null.
+
+  Now a guard ahead of the mode branches: nobody is complete, because you cannot
+  complete a task with no content; and the score falls back to the no-target form,
+  or to `null` (a dash) when nothing has been done either, rather than "0/0". That
+  also removes the "2/0" the `scoreAgainst` flip would otherwise have rendered —
+  the two symptoms had one root, which is why fixing the display alone was never
+  going to be enough.
+
+  **Latent, not live:** checked against the database, the single assignment that
+  exists is picked mode with 3 questions, so no row was reading wrongly. The test
+  that pinned the old behaviour now asserts the new, including a sweep over all
+  six mode-and-score combinations proving no zero denominator can render.
 - **The DPIA**, per the row above. `docs/legal/dpia-student-data.md` v0.2 was
   written for the account path and is unsigned; children under 13, school-directed
   processing and a processor role are all new to it.

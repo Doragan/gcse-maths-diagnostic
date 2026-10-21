@@ -289,8 +289,9 @@ describe('aggregateProgress', () => {
 
     it('falls back to attempted when there is no target to score against', () => {
       // pool mode derives assignedCount from target_count, which is NULLABLE,
-      // so a pool assignment saved without one arrives as 0. "2/0" in front of
-      // a teacher is worse than the denominator this option replaces.
+      // so a pool assignment saved without one arrives as 0. The "nothing
+      // assigned" branch handles it now; asserted here too, because this is
+      // the option whose whole job is choosing a denominator.
       const [row] = aggregateProgress([who('a')], [
         at('a', 'q1', true,  '2026-10-21T10:00:00Z'),
         at('a', 'q2', false, '2026-10-21T10:01:00Z'),
@@ -311,15 +312,57 @@ describe('aggregateProgress', () => {
     })
   })
 
-  it('PINS a known edge: assignedCount 0 reads as complete for everyone', () => {
-    // Reachable today — a picked assignment with no questions, or a pool one
-    // whose target_count is null. Carried over unchanged from the route this
-    // was extracted from: a refactor is the wrong place to change what a
-    // teacher sees. If this ever gets fixed, this test is the one to delete.
-    const [row] = aggregateProgress([who('a')], [], {
-      selectionMode: 'picked', completionMode: 'attempt_once', assignedCount: 0,
+  describe('nothing assigned (assignedCount 0)', () => {
+    // Until 2026-10-21 every comparison in here was `>= assignedCount`, so a
+    // target of zero satisfied all of them and the whole roster read
+    // "Complete" — on an assignment with nothing in it. Reachable two ways: a
+    // picked assignment with no questions, and a pool one whose target_count
+    // is null.
+
+    const noTarget = { completionMode: 'attempt_once', assignedCount: 0 }
+
+    it('completes nobody, in either selection mode', () => {
+      for (const selectionMode of ['picked', 'pool'] as const) {
+        const [row] = aggregateProgress([who('a')], [], { ...noTarget, selectionMode })
+        expect(row.is_complete, selectionMode).toBe(false)
+      }
     })
-    expect(row.is_complete).toBe(true)
-    expect(row.total_attempts).toBe(0)
+
+    it('completes nobody even for someone who has answered', () => {
+      // The harder case: attempts >= 0 is still true, so only the guard stops
+      // this reading as complete.
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true, '2026-10-21T10:00:00Z'),
+      ], { ...noTarget, selectionMode: 'pool' })
+      expect(row.is_complete).toBe(false)
+    })
+
+    it('shows a dash rather than 0/0 when nothing has been done either', () => {
+      const [row] = aggregateProgress([who('a')], [], { ...noTarget, selectionMode: 'picked' })
+      expect(row.score).toBeNull()
+    })
+
+    it('still reports work done, out of what was attempted', () => {
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true,  '2026-10-21T10:00:00Z'),
+        at('a', 'q2', false, '2026-10-21T10:01:00Z'),
+      ], { ...noTarget, selectionMode: 'pool' })
+      expect(row.score).toBe('1/2')
+      expect(row.total_attempts).toBe(2)
+    })
+
+    it('never renders a zero denominator, whatever else is asked for', () => {
+      // "2/0" in front of a teacher would be worse than the bug being fixed.
+      for (const selectionMode of ['picked', 'pool'] as const) {
+        for (const completionMode of ['attempt_once', 'until_correct', 'mastery_based']) {
+          for (const scoreAgainst of ['attempted', 'target'] as const) {
+            const [row] = aggregateProgress([who('a')], [
+              at('a', 'q1', true, '2026-10-21T10:00:00Z'),
+            ], { selectionMode, completionMode, assignedCount: 0, scoreAgainst })
+            expect(row.score, `${selectionMode}/${completionMode}/${scoreAgainst}`).not.toContain('/0')
+          }
+        }
+      }
+    })
   })
 })
