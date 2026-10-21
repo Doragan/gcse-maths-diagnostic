@@ -935,6 +935,37 @@ export function checkAnswer(
     }
   }
 
+  // Right value, WRONG FORM: the student sidestepped the simplifying altogether by
+  // converting to an equivalent decimal ("0.75" for 3/4). fractionMatch accepts an
+  // exactly-equal terminating decimal on purpose — a decimal is a perfectly good way
+  // to write a fraction's VALUE — but when the question demanded simplest form,
+  // reducing the fraction IS the assessed skill, and a decimal evidences none of it.
+  // Without this gate the student who converted scored the mark while the one who
+  // simplified only partway ("6/8") did not, which is backwards.
+  //
+  // `normCorrect.includes('/')` is load-bearing: a fraction-type question whose
+  // canonical answer is a whole number ("2") has no fraction to write, so a bare
+  // integer must still be accepted. And the gate is `requireSimplest`-only — where
+  // the question never asked for simplest form, a decimal stays a correct answer.
+  //
+  // Distinct from the non-terminating case further down ("0.3636…" for 4/11), which
+  // is wrong for a different reason — approximation, not form — and keeps its own
+  // message. Like every simplest-form branch, this one keeps the word "simplest":
+  // the rest of the app and the tests key on it.
+  const isWrongForm =
+    isCorrect && answerType === 'fraction' && requireSimplest &&
+    normCorrect.includes('/') && !normStudent.includes('/')
+
+  if (isWrongForm) {
+    return {
+      correct: false,
+      trap:    null,
+      message: 'Almost — that’s the right value, but a decimal is not a fraction: converting '
+        + 'avoids the simplifying this question is asking for. Give your answer as a fraction '
+        + 'in its simplest form.',
+    }
+  }
+
   if (isCorrect) {
     return {
       correct: true,
