@@ -48,6 +48,14 @@ describe('titleForPath', () => {
     expect(titleForPath('/s/extra')).toBe(DEFAULT_TITLE)
   })
 
+  it('keeps the moved class diagnostic out of the /dashboard/[id] catch-all', () => {
+    // /dashboard/assessments is a real id-shaped path as far as the
+    // catch-all is concerned, so without its own rule it would be titled
+    // 'Student overview' and merged into /dashboard/[id] in GA4.
+    expect(titleForPath('/dashboard/assessments')).toBe('Class diagnostic — Mathsense')
+    expect(normalizePath('/dashboard/assessments')).toBe('/dashboard/assessments')
+  })
+
   it('keeps class sessions out of the /dashboard/[id] catch-all', () => {
     // Same trap as the tutor student view below: /dashboard/sessions matches
     // /^/dashboard/[^/]+$/ perfectly well, so without its own rule it would be
