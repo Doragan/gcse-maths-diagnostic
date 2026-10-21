@@ -565,10 +565,19 @@ Still open, and deliberately not decided while building:
   a teacher glances at first. Completion, attempt counts and row order are all
   unchanged — only the denominator moved.
 
-  Left as an OPTION defaulting to the old behaviour rather than a straight fix,
-  because the assignment view is live and a teacher has been reading those numbers.
-  The same argument probably applies there, but that is a decision about an
-  existing surface rather than part of building a new one.
+  **Flipped for pool assignments too, later the same day**, on the user's call —
+  the same figure was just as misleading there, and it is the one `is_complete`
+  already counts against, so the two now agree. Measured before doing it: the
+  database holds **one** assignment and it is picked mode, so **no live row
+  changed**. The caution that kept it an option in the first place ("a teacher has
+  been reading those numbers") turned out to describe a situation that does not
+  exist — worth recording, because it was a guess and the query was cheap.
+
+  It stays an option rather than becoming the only behaviour, since
+  `scoreAgainst` is the honest name for the choice and `'attempted'` is still
+  right for a view with no target. The guard matters: pool `assignedCount` comes
+  from a NULLABLE `target_count`, so a pool assignment saved without one would
+  render "2/0" — it falls back to attempted instead.
 - **The DPIA**, per the row above. `docs/legal/dpia-student-data.md` v0.2 was
   written for the account path and is unsigned; children under 13, school-directed
   processing and a processor role are all new to it.

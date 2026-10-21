@@ -287,6 +287,17 @@ describe('aggregateProgress', () => {
       }
     })
 
+    it('falls back to attempted when there is no target to score against', () => {
+      // pool mode derives assignedCount from target_count, which is NULLABLE,
+      // so a pool assignment saved without one arrives as 0. "2/0" in front of
+      // a teacher is worse than the denominator this option replaces.
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true,  '2026-10-21T10:00:00Z'),
+        at('a', 'q2', false, '2026-10-21T10:01:00Z'),
+      ], { selectionMode: 'pool', completionMode: 'attempt_once', assignedCount: 0, scoreAgainst: 'target' })
+      expect(row.score).toBe('1/2')
+    })
+
     it('feeds a sensible class average', () => {
       // averageScorePct parses the fraction, so the tile moves with this.
       const rows = aggregateProgress([who('a'), who('b')], [

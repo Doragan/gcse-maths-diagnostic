@@ -139,7 +139,13 @@ export function aggregateProgress(
       if (completionMode === 'attempt_once') {
         isComplete = mine.length >= assignedCount
         // The one place `scoreAgainst` bites. See its note on the options type.
-        score      = scoreAgainst === 'target'
+        //
+        // `assignedCount > 0` is not belt-and-braces: pool mode derives it from
+        // `target_count`, which is NULLABLE, so a pool assignment saved without
+        // one arrives here as 0 — and "2/0" is a worse thing to put in front of
+        // a teacher than the denominator this option exists to replace. Falling
+        // back to attempted keeps that row readable.
+        score      = scoreAgainst === 'target' && assignedCount > 0
           ? `${correctCount}/${assignedCount}`
           : `${correctCount}/${mine.length}`
       } else if (completionMode === 'until_correct') {

@@ -115,6 +115,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         selectionMode:  assignment.selection_mode,
         completionMode: assignment.completion_mode,
         assignedCount,
+        // Pool scores read out of the target, not out of what each student has
+        // tried so far. Scoring out of attempts meant a student one question in
+        // showed "1/1" — full marks — beside one who had finished and showed
+        // "2/3", and it inflated the class average with it: measured at 83%
+        // against 50% on the same rows. It is also the figure `is_complete`
+        // already counts against, so the two now agree.
+        //
+        // Changed for assignments on 2026-10-21, after the class-session view
+        // was built with it (docs/audit/29 §9). Affects pool/attempt_once only.
+        scoreAgainst:   'target',
       },
     )
 
