@@ -135,12 +135,17 @@ export default function ClassSessionPage() {
           Once the session is over it is not shown at all: a code on screen that
           the database will refuse is the worst thing this feature can do. */}
       {state === 'live' ? (
-        <div style={{ ...card, textAlign: 'center' as const, padding: '24px 20px' }}>
-          <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0 }}>
-            Pupils go to <strong style={{ color: colors.textPrimary }}>{joinUrl}</strong> and enter
-          </p>
+        <div style={{ ...card, textAlign: 'center' as const, padding: '28px 20px' }}>
+          {/* The URL is half the instruction and was set in 12px while the code
+              beside it ran to 104px — unreadable from the room the code was
+              sized for. It gets its own line and a scale of its own now. Still
+              smaller than the code, because pupils type the URL once and the
+              code is what they squint at. */}
+          <p style={styles.joinLabel}>Pupils go to</p>
+          <p style={styles.joinUrl}>{joinUrl}</p>
+          <p style={styles.joinLabel}>and enter</p>
           <p style={styles.code}>{session.code}</p>
-          <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0 }}>
+          <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
             They type a first name — no account, no email. Open until{' '}
             {new Date(session.expires_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}.
           </p>
@@ -226,6 +231,23 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: '12px',
+  },
+  joinLabel: {
+    fontSize: font.base,
+    color: colors.textSecondary,
+    margin: 0,
+  },
+  joinUrl: {
+    // Big enough to read across a room, and in the same mono stack as the code
+    // so a lowercase l and a 1 cannot be confused at distance.
+    fontSize: 'clamp(26px, 7vw, 46px)',
+    fontWeight: '700',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    color: colors.textPrimary,
+    margin: '6px 0 10px',
+    lineHeight: '1.15',
+    // A long preview-deployment host must wrap rather than overflow the card.
+    overflowWrap: 'anywhere' as const,
   },
   code: {
     // Read from the back of a classroom, so this is deliberately enormous.
