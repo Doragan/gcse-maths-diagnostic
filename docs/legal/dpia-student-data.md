@@ -102,7 +102,7 @@ neither is about how much data is held:
 | Our role | Controller | **Processor.** The school instructs; we act |
 | Data subjects | Self-registering learners, 13+ | **Any pupil in the lesson, including under-13s** |
 | Held | The table above | A first name; per question, right or wrong |
-| Retained | Until deletion or a year's inactivity | **Deleted the same day**, by an hourly job |
+| Retained | Until deletion or a year's inactivity | **Deleted the same day**, by a job at the end of each day |
 | Feeds mastery | Yes | No — there is no account to attach it to |
 
 Two consequences for this assessment:

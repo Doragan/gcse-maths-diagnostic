@@ -18,7 +18,7 @@
     },
     {
       "path": "/api/cron/session-sweep",
-      "schedule": "15 * * * *"
+      "schedule": "40 22 * * *"
     }
   ]
 }

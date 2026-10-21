@@ -180,7 +180,7 @@ export default function PrivacyNoticePage() {
             'Inactive student accounts: if you do not sign in or practise for 1 year, we delete the account and everything in it',
             'Deleted accounts: all personal data is permanently deleted within 30 days of account deletion',
             'Payment records: where anyone has paid us — a teacher, a student, or a parent — the record of that payment is retained for 7 years as required by HMRC rules. This is held by us and by our payment provider, and it survives deletion of the account, because we are required to keep it.',
-            'Class sessions: the first name a pupil types and the record of which questions they got right are deleted automatically within about an hour of the session ending, and in every case the same day. A session stops accepting answers six hours after it starts, or sooner if the teacher closes it.',
+            'Class sessions: the first name a pupil types and the record of which questions they got right are deleted automatically at the end of the same day. A session stops accepting answers six hours after it starts, or sooner if the teacher closes it.',
           ]} />
           <P>
             <strong>Nothing from a class session is kept or carried anywhere.</strong>{' '}It does not

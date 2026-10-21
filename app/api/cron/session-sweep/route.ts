@@ -5,6 +5,12 @@ import { planSessionSweep, SWEEP_GRACE_MS, type SweepCandidate } from '../../../
 // ─────────────────────────────────────────────────────────────────────────────
 // Delete finished class sessions (docs/audit/29, increment 6).
 //
+// Scheduled DAILY at 22:40 UTC, not hourly: Vercel's Hobby plan fails the whole
+// deployment for any cron that would run more than once a day. 22:40 UTC is
+// before local midnight in both GMT and BST, so a session from any realistic
+// lesson is still deleted the same day — which is what the privacy notice,
+// /dpa and the DPIA all now say. See the note on SWEEP_GRACE_MS.
+//
 // This is what makes the join page's one sentence about a child's data true:
 // "it is all deleted at the end of the day." Without it the product collects
 // first names from eleven-year-olds and keeps them indefinitely while telling

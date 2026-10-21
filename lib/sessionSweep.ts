@@ -40,6 +40,21 @@
  * lesson may well look at the screen for another minute, and having the table
  * empty itself under them teaches them not to trust it. An hour is long enough
  * to finish looking and far short of "the end of the day".
+ *
+ * ⚠ THE SCHEDULE IS DAILY, NOT HOURLY, AND THAT IS A PLATFORM LIMIT. This was
+ * written for an hourly cron, which is what the grace below was sized against.
+ * Vercel's Hobby plan rejects any cron that would run more than once a day —
+ * the deployment fails outright — so vercel.json runs this at 22:40 UTC, which
+ * is before local midnight in both GMT and BST and therefore still the same day
+ * for every realistic lesson. The documents say "at the end of the same day"
+ * rather than "within the hour" because of this, and they must keep matching
+ * it: see the deletion sentences in app/privacy, app/dpa and the DPIA scope
+ * table.
+ *
+ * The grace rule is kept as it is anyway. It is the right rule, it is harmless
+ * at a daily cadence (anything ending before 21:40 is already past it), and it
+ * is what makes moving back to hourly a one-line change to vercel.json if the
+ * project is ever on a Pro plan.
  */
 export const SWEEP_GRACE_MS = 60 * 60 * 1000
 
