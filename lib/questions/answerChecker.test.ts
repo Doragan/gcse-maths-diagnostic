@@ -50,8 +50,39 @@ describe('characterisation: fraction', () => {
     expect(r.correct).toBe(true)
     expect(r.message).toMatch(/simplif/i)
   })
-  it('accepts an exact decimal equivalent', () => {
-    expect(check('0.75', '3/4', 'fraction').correct).toBe(true)
+  it('accepts an exact decimal equivalent when simplest form is NOT required', () => {
+    expect(checkAnswer('0.75', '3/4', 'fraction', null, [], false).correct).toBe(true)
+  })
+  // The question asked for simplest form, so the simplifying IS the assessed
+  // skill. Converting to a decimal has the right value but shows none of it —
+  // and used to score the mark that "6/8" was (rightly) refused.
+  it('rejects an exact decimal when simplest form is required (0.75 for 3/4)', () => {
+    const r = check('0.75', '3/4', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/simplest/i)
+  })
+  it('rejects an exact decimal when simplest form is required (0.4 for 2/5)', () => {
+    const r = check('0.4', '2/5', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/simplest/i)
+  })
+  it('keeps the unsimplified-fraction message distinct from the wrong-form one', () => {
+    // Both are wrong, for different reasons, so the student must be told apart:
+    // "6/8" simplified partway, "0.75" did not simplify at all.
+    const partway = check('6/8', '3/4', 'fraction')
+    const decimal = check('0.75', '3/4', 'fraction')
+    expect(partway.correct).toBe(false)
+    expect(decimal.correct).toBe(false)
+    expect(partway.message).not.toBe(decimal.message)
+  })
+  it('still accepts a bare integer when the canonical answer is a whole number', () => {
+    // The wrong-form gate only fires when there IS a fraction to write.
+    expect(check('2', '2', 'fraction').correct).toBe(true)
+  })
+  it('still accepts a fraction already in simplest form', () => {
+    const r = check('3/4', '3/4', 'fraction')
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
   })
   it('rejects a rounded decimal guess (0.1667 for 1/6)', () => {
     expect(check('0.1667', '1/6', 'fraction').correct).toBe(false)
@@ -67,7 +98,16 @@ describe('characterisation: fraction', () => {
     expect(check('0.3333333333333333', '1/3', 'fraction').correct).toBe(false)
   })
   it('still accepts exact decimals for terminating fractions (0.35 for 7/20)', () => {
-    expect(check('0.35', '7/20', 'fraction').correct).toBe(true)
+    // requireSimplest false: the question never asked for a fraction, so the
+    // decimal form is a correct answer and the exactness rule is what is tested.
+    expect(checkAnswer('0.35', '7/20', 'fraction', null, [], false).correct).toBe(true)
+  })
+  it('rejects a non-terminating decimal with its own reason, not the form message', () => {
+    // "0.3636…" for 4/11 is wrong because it can only ever approximate, which is
+    // a different fault from "0.75" for 3/4 — that one is exact but unsimplified.
+    const r = check('0.3636363636364', '4/11', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toMatch(/approximation/i)
   })
   it('still accepts a decimal for an unreduced-but-terminating canonical (0.5 for 3/6)', () => {
     expect(checkAnswer('0.5', '3/6', 'fraction', null, [], false).correct).toBe(true)
