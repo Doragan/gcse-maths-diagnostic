@@ -111,6 +111,11 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/dashboard\/classes\/[^/]+\/people$/, 'Class people', '/dashboard/classes/[id]/people'],
   [/^\/dashboard\/classes\/[^/]+$/, 'Class', '/dashboard/classes/[id]'],
   [/^\/dashboard\/classes$/, 'Classes'],
+  // The join-code diagnostic, moved off the landing page (docs/audit/30).
+  // ABOVE the bare-id catch-all, which would otherwise swallow it and title
+  // it "Student overview" — the same trap as the two rules below.
+  [/^\/dashboard\/assessments$/, 'Class diagnostic'],
+
   // No-login class sessions (docs/audit/29). Both rules must stay above the
   // bare-id catch-all: `/dashboard/sessions` matches /^\/dashboard\/[^/]+$/
   // perfectly well, so without the second one it would be titled "Student

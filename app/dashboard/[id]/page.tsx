@@ -55,7 +55,7 @@ export default function AssessmentResultsPage() {
       .eq('id', assessmentId)
       .single()
 
-    if (assessmentError || !assessmentData) { router.push('/dashboard'); return }
+    if (assessmentError || !assessmentData) { router.push('/dashboard/assessments'); return }
     setAssessment(assessmentData)
 
     const { data: sessions, error: sessionsError } = await supabase
@@ -99,7 +99,7 @@ export default function AssessmentResultsPage() {
     <main style={styles.page}>
       <div style={styles.header}>
         <button
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push('/dashboard/assessments')}
           style={{ ...secondaryButton, width: 'auto', padding: '8px 14px', fontSize: font.base }}
         >
           ← Back
