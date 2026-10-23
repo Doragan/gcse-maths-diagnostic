@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { getSession } from './auth'
 import type { ClassSession } from './classSessions'
 import type { ProgressRow, ResultsHead } from './liveProgress'
+import type { SessionInsights } from './sessionInsights'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reading and writing class sessions.
@@ -46,19 +47,31 @@ export async function getClassSession(id: string): Promise<ClassSession | null> 
 }
 
 /**
- * The live view's rows. Shares its type and its aggregation with the
- * assignment view (lib/liveProgress.ts), so one table component renders both.
+ * The live view's rows, and what the class is finding hard.
+ *
+ * The rows share their type and their aggregation with the assignment view
+ * (lib/liveProgress.ts), so one table component renders both. The insights
+ * ride on the same response rather than a second endpoint: they are built
+ * from the very attempt rows this route already reads, and a separate fetch
+ * would double a request the teacher's page makes every time the probe says
+ * something changed.
  */
-export async function getClassSessionResults(id: string): Promise<ProgressRow[]> {
+export async function getClassSessionResults(
+  id: string,
+): Promise<{ rows: ProgressRow[]; insights: SessionInsights }> {
+  const empty: SessionInsights = { questions: [], skills: [] }
   const session = await getSession()
-  if (!session) return []
+  if (!session) return { rows: [], insights: empty }
 
   const res = await fetch(`/api/class-sessions/${id}/results`, {
     headers: { Authorization: `Bearer ${session.access_token}` },
   })
   if (!res.ok) throw new Error('Could not load session results')
   const body = await res.json()
-  return body.results as ProgressRow[]
+  return {
+    rows:     body.results as ProgressRow[],
+    insights: (body.insights as SessionInsights) ?? empty,
+  }
 }
 
 /** The cheap change probe. Throws, so the polling loop can simply retry. */

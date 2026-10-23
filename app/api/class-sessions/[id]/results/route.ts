@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { aggregateProgress } from '../../../../../lib/liveProgress'
+import { sessionInsights } from '../../../../../lib/sessionInsights'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The teacher's live view of a class session (docs/audit/29, increment 5).
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { data: session } = await service
       .from('class_sessions')
-      .select('id, target_count')
+      .select('id, target_count, skill_ids')
       .eq('id', id)
       .eq('teacher_id', user.id)
       .single()
@@ -88,7 +89,36 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     )
 
-    return NextResponse.json({ results, assignedCount: session.target_count ?? 0 })
+    // ── What the class is finding hard ──────────────────────────────────────
+    // Only the questions this session has actually produced attempts for, so
+    // the fetch is bounded by what has been served rather than by the bank.
+    // Computed HERE rather than in the browser: the attempt rows carry a
+    // participant_id, and sending them to the client so it could do its own
+    // tallying would hand every open teacher tab a per-pupil answer log that
+    // the live table deliberately summarises.
+    const attemptRows = attempts ?? []
+    const askedIds = [...new Set(attemptRows.map(a => a.question_id))]
+
+    let questionMeta: { id: string; question_template: string; skill_ids: string[] }[] = []
+    if (askedIds.length > 0) {
+      const { data } = await service
+        .from('questions')
+        .select('id, question_template, skill_ids')
+        .in('id', askedIds)
+      questionMeta = (data ?? []).map(q => ({
+        id:                q.id,
+        question_template: q.question_template ?? '',
+        skill_ids:         q.skill_ids ?? [],
+      }))
+    }
+
+    const insights = sessionInsights(
+      attemptRows.map(a => ({ question_id: a.question_id, correct: a.correct })),
+      questionMeta,
+      session.skill_ids ?? [],
+    )
+
+    return NextResponse.json({ results, assignedCount: session.target_count ?? 0, insights })
   } catch (err) {
     console.error('[class-sessions/results]', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

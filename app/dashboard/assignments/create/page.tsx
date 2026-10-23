@@ -8,6 +8,7 @@ import { getTeacherClasses, getClassMembers, type TeacherClass, type ClassMember
 import { createAssignment } from '../../../../lib/assignments'
 import { usePublishedSkillIds } from '../../../../lib/skills/publishedSkills'
 import SkillPicker from '../../../../components/SkillPicker'
+import { templatePreviewShort } from '../../../../lib/questions/templatePreview'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, sectionTitle, errorBox,
@@ -297,7 +298,7 @@ export default function CreateAssignmentPage() {
                             overflow: 'hidden',
                             lineHeight: '1.45',
                           }}>
-                            {q.question_template.replace(/\{[^}]+\}/g, '[…]')}
+                            {templatePreviewShort(q.question_template)}
                           </p>
                           <span style={{ fontSize: '11px', color: colors.textHint }}>
                             {'★'.repeat(q.difficulty)}{'☆'.repeat(5 - q.difficulty)}
@@ -352,7 +353,7 @@ export default function CreateAssignmentPage() {
                         WebkitBoxOrient: 'vertical' as const,
                         lineHeight: '1.45',
                       }}>
-                        {q.question_template.replace(/\{[^}]+\}/g, '[…]')}
+                        {templatePreviewShort(q.question_template)}
                       </span>
                       <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                         <button onClick={() => moveQuestion(i, -1)} disabled={i === 0} style={styles.iconBtn}>↑</button>

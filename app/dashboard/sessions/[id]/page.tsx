@@ -8,6 +8,8 @@ import { sessionLifecycle, type ClassSession } from '../../../../lib/classSessio
 import { getClassSessionResults, getClassSessionResultsHead } from '../../../../lib/classSessionsApi'
 import { useLiveProgress } from '../../../../lib/useLiveProgress'
 import LiveProgressTable from '../../../../components/LiveProgressTable'
+import SessionInsightsPanel from '../../../../components/SessionInsightsPanel'
+import type { SessionInsights } from '../../../../lib/sessionInsights'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, card,
@@ -36,6 +38,7 @@ export default function ClassSessionPage() {
   const [closing, setClosing] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
   const [error, setError] = useState('')
+  const [insights, setInsights] = useState<SessionInsights>({ questions: [], skills: [] })
 
   useEffect(() => {
     getSession().then(async auth => {
@@ -51,7 +54,15 @@ export default function ClassSessionPage() {
   // The same loop and the same table as the assignment view. Polling stops
   // once the session is no longer live: nothing can change after that, so a
   // closed session must not keep a tab probing every ten seconds all evening.
-  const fetchRows = useCallback(() => getClassSessionResults(sessionId), [sessionId])
+  // The insights ride on the same response as the rows, so they are caught
+  // here on the way past rather than fetched again. useLiveProgress only wants
+  // the rows, and it is shared with the assignment view, which has no insights
+  // to carry — so the adapting happens on this side of it.
+  const fetchRows = useCallback(async () => {
+    const { rows, insights: next } = await getClassSessionResults(sessionId)
+    setInsights(next)
+    return rows
+  }, [sessionId])
   const fetchHead = useCallback(() => getClassSessionResultsHead(sessionId), [sessionId])
   const progress = useLiveProgress({
     enabled:   !loading && !notFound,
@@ -196,6 +207,10 @@ export default function ClassSessionPage() {
         rosterLabel="Joined"
         emptyMessage="Nobody has joined yet. Read the code out and they will appear here."
       />
+
+      {/* Below the names on purpose, and closed on purpose: a teacher with one
+          screen is mirroring this page to the projector. */}
+      <SessionInsightsPanel insights={insights} />
 
       {error && <p style={errorBox}>{error}</p>}
 
