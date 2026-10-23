@@ -124,6 +124,14 @@ const RULES: [RegExp, string, string?][] = [
   // The title does not name the session, and the id is normalised away: while a
   // session is live this page is the one most likely to be PROJECTED, and a
   // browser tab is not where a class name belongs.
+  // The projector view goes BEFORE the session rule. That one is $-anchored so
+  // it would not swallow this deeper path, but specific-before-general is the
+  // convention in this file and the next segment added under sessions/ would
+  // otherwise be a live trap.
+  //
+  // The title is deliberately dull: this page gets PROJECTED, and on a screen
+  // that is not full-screened the tab strip is in front of the class.
+  [/^\/dashboard\/sessions\/[^/]+\/display$/, 'Session code', '/dashboard/sessions/[id]/display'],
   [/^\/dashboard\/sessions\/[^/]+$/, 'Class session', '/dashboard/sessions/[id]'],
   [/^\/dashboard\/sessions$/, 'Class sessions'],
   [/^\/dashboard\/assignments\/create$/, 'Create assignment'],

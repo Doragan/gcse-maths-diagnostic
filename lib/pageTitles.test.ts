@@ -64,6 +64,15 @@ describe('titleForPath', () => {
     expect(titleForPath('/dashboard/sessions/abc-123')).toBe('Class session — Mathsense')
   })
 
+  it('titles the projector view separately from the session page', () => {
+    // It gets projected, so the tab strip can be in front of a class — the
+    // title must not carry the class name, and the id is normalised away.
+    expect(titleForPath('/dashboard/sessions/abc-123/display')).toBe('Session code — Mathsense')
+    expect(normalizePath('/dashboard/sessions/abc-123/display')).toBe('/dashboard/sessions/[id]/display')
+    // And it must not be swallowed by the session rule above it.
+    expect(titleForPath('/dashboard/sessions/abc-123/display')).not.toBe('Class session — Mathsense')
+  })
+
   it('normalises a session id away, since that page gets projected', () => {
     expect(normalizePath('/dashboard/sessions/abc-123')).toBe('/dashboard/sessions/[id]')
     expect(normalizePath('/dashboard/sessions')).toBe('/dashboard/sessions')

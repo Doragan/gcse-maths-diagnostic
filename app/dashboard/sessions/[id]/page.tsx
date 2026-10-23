@@ -145,6 +145,27 @@ export default function ClassSessionPage() {
           <p style={styles.joinUrl}>{joinUrl}</p>
           <p style={styles.joinLabel}>and enter</p>
           <p style={styles.code}>{session.code}</p>
+          {/* Opens in a new tab on purpose: the point is TWO windows — this one
+              for the teacher, that one facing the room, and on a second screen
+              if there is one. The projector page carries no pupil names, which
+              is what makes it safe to put on a wall. */}
+          <p style={{ margin: '0 0 14px' }}>
+            <a
+              href={`/dashboard/sessions/${sessionId}/display`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                ...secondaryButton,
+                display: 'inline-block',
+                width: 'auto',
+                padding: '10px 18px',
+                fontSize: font.base,
+                textDecoration: 'none',
+              }}
+            >
+              Open projector view ↗
+            </a>
+          </p>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0 }}>
             They type a first name — no account, no email. Open until{' '}
             {new Date(session.expires_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}.
