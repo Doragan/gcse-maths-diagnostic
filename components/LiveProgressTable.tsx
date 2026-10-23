@@ -54,6 +54,10 @@ export default function LiveProgressTable({
   rosterLabel = 'Assigned',
   emptyMessage = 'No students have been targeted or none have started yet.',
 }: Props) {
+  // Shown only when somebody has answered a multi-part question. On a task
+  // made entirely of single-part ones this would be a column of dashes.
+  const anyParts = rows.some(r => r.parts !== null)
+
   const completedCount = rows.filter(r => r.is_complete).length
   const startedCount   = rows.filter(r => r.total_attempts > 0).length
   const avgScorePct    = averageScorePct(rows)
@@ -127,6 +131,12 @@ export default function LiveProgressTable({
                     Both now share a denominator so they compare at a glance. */}
                 <th style={styles.th}>Progress</th>
                 <th style={styles.th}>Score</th>
+                {/* Parts right across the multi-part questions THIS person
+                    answered. Deliberately not comparable between rows — they
+                    may have had different questions — so it sits after Score,
+                    which is. It answers the question Score cannot: did they
+                    half-get it, or miss it entirely. */}
+                {anyParts && <th style={styles.th}>Parts</th>}
                 <th style={styles.th}>Status</th>
                 <th style={styles.th}>Last attempt</th>
               </tr>
@@ -151,6 +161,11 @@ export default function LiveProgressTable({
                     <td style={{ ...styles.td, fontWeight: '600', color: colors.textPrimary }}>
                       {r.score ?? '—'}
                     </td>
+                    {anyParts && (
+                      <td style={{ ...styles.td, color: colors.textSecondary, whiteSpace: 'nowrap' as const }}>
+                        {r.parts ? `${r.parts.done}/${r.parts.target}` : '—'}
+                      </td>
+                    )}
                     <td style={styles.td}>
                       {r.total_attempts === 0 ? (
                         <span style={{ color: colors.textHint }}>Not started</span>

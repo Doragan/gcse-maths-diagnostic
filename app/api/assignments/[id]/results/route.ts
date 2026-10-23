@@ -89,7 +89,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // All attempts for this assignment.
     const { data: allAttempts } = await service
       .from('assignment_attempts')
-      .select('student_id, question_id, correct, attempted_at')
+      .select('student_id, question_id, correct, attempted_at, parts_correct, parts_total')
       .eq('assignment_id', id)
       .order('attempted_at', { ascending: true })
 
@@ -106,10 +106,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         year_group:   info.year_group,
       })),
       (allAttempts ?? []).map(a => ({
-        subject_id:   a.student_id,
-        question_id:  a.question_id,
-        correct:      a.correct,
-        attempted_at: a.attempted_at,
+        subject_id:    a.student_id,
+        question_id:   a.question_id,
+        correct:       a.correct,
+        attempted_at:  a.attempted_at,
+        parts_correct: a.parts_correct,
+        parts_total:   a.parts_total,
       })),
       {
         selectionMode:  assignment.selection_mode,

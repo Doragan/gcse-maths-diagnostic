@@ -43,6 +43,12 @@ export type AttemptRow = {
   question_id: string
   correct: boolean
   attempted_at: string
+  /**
+   * Parts right, and parts in the question. Null — the common case — means a
+   * single-part question, and also every row written before 2026-10-23.
+   */
+  parts_correct?: number | null
+  parts_total?: number | null
 }
 
 /**
@@ -69,6 +75,17 @@ export type ProgressRow = {
   /** Derived from `progress` — never set independently of it. */
   is_complete: boolean
   progress: Progress | null
+  /**
+   * Parts right across the multi-part questions this person answered, or null
+   * when they have answered none — which is most pupils on most tasks.
+   *
+   * NOT comparable between people: they may have been served different
+   * questions with different numbers of parts, so the denominator is theirs
+   * alone. It answers "did they half-get it", which `score` could not. For
+   * comparing pupils, `score` and `progress` share a denominator and this
+   * does not.
+   */
+  parts: Progress | null
   score: string | null
   last_attempt_at: string | null
 }
@@ -199,6 +216,21 @@ export function aggregateProgress(
     // complete, which is what a null progress means.
     const isComplete = progress !== null && progress.done >= progress.target
 
+    // Only multi-part answers carry these, so the tally covers those rows and
+    // stays null for a pupil who has met none. Counting single-part questions
+    // as 1-of-1 would bury the signal: a 20/20 made mostly of single-part
+    // questions says nothing about whether they half-get the long ones.
+    let partsCorrect = 0
+    let partsTotal   = 0
+    for (const a of mine) {
+      if (typeof a.parts_total === 'number' && typeof a.parts_correct === 'number') {
+        partsCorrect += a.parts_correct
+        partsTotal   += a.parts_total
+      }
+    }
+    const parts: Progress | null =
+      partsTotal > 0 ? { done: partsCorrect, target: partsTotal } : null
+
     let lastAttemptAt: string | null = null
     for (const a of mine) {
       if (lastAttemptAt === null || a.attempted_at > lastAttemptAt) lastAttemptAt = a.attempted_at
@@ -213,6 +245,7 @@ export function aggregateProgress(
       questions_started: attemptedQIds.size,
       is_complete:       isComplete,
       progress,
+      parts,
       score,
       last_attempt_at:   lastAttemptAt,
     }
