@@ -58,7 +58,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         .eq('session_id', id),
       service
         .from('session_attempts')
-        .select('participant_id, question_id, correct, attempted_at, parts_correct, parts_total')
+        .select('participant_id, question_id, correct, attempted_at, parts_correct, parts_total, misconception')
         .eq('session_id', id),
     ])
 
@@ -113,7 +113,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const insights = sessionInsights(
-      attemptRows.map(a => ({ question_id: a.question_id, correct: a.correct })),
+      // participant_id goes INTO the aggregator and not out of it: the
+      // misconception counts need to know one pupil from four, and nothing
+      // in the result carries an id back to the browser.
+      attemptRows.map(a => ({
+        question_id:    a.question_id,
+        correct:        a.correct,
+        misconception:  a.misconception,
+        participant_id: a.participant_id,
+      })),
       questionMeta,
       session.skill_ids ?? [],
     )

@@ -24,6 +24,19 @@ import { templatePreviewShort } from './questions/templatePreview'
 export type AttemptFact = {
   question_id: string
   correct: boolean
+  /**
+   * Who answered. Used ONLY to count distinct pupils per misconception, and
+   * never sent to the browser — the route aggregates server-side precisely so
+   * it does not have to ship a per-pupil answer log. One pupil meeting the
+   * same trap on four questions is one pupil, not four.
+   */
+  participant_id?: string
+  /**
+   * Id from data/misconceptions.ts for the trap this answer matched. Null on
+   * a right answer, when no trap matched, and when the matching trap is
+   * untagged — see 20261023c_session_attempt_misconception.sql.
+   */
+  misconception?: string | null
 }
 
 export type QuestionMeta = {
@@ -54,9 +67,26 @@ export type SkillInsight = {
   pctCorrect: number
 }
 
+export type MisconceptionInsight = {
+  misconceptionId: string
+  /** How many wrong answers matched a trap carrying this id. */
+  count: number
+  /** How many pupils that was, which is the number a teacher acts on. */
+  pupils: number
+}
+
 export type SessionInsights = {
   questions: QuestionInsight[]
   skills: SkillInsight[]
+  misconceptions: MisconceptionInsight[]
+  /**
+   * Wrong answers with no misconception against them — right answers are not
+   * counted here. The panel shows this so a short list of named mistakes is
+   * never mistaken for the whole picture: most of the bank's traps are
+   * untagged, so "3 dropped the minus sign" out of 20 wrong answers is a
+   * sample, not a diagnosis of the class.
+   */
+  untaggedWrong: number
 }
 
 /**
@@ -170,6 +200,52 @@ export function skillInsights(
       a.skillId.localeCompare(b.skillId))
 }
 
+/**
+ * Named mistakes, commonest first.
+ *
+ * Ranked by PUPILS rather than by occurrences: one pupil who drops the minus
+ * sign four times in a row is one pupil to go and talk to, and ranking by
+ * occurrences would put them above a misconception four different pupils
+ * each made once. Occurrences break the tie, since a mistake repeated is a
+ * firmer signal than one made in passing.
+ *
+ * Only wrong answers carry a misconception, so no filtering on `correct` is
+ * needed here — but a tagged trap on a right answer would be a bug upstream,
+ * and counting it would tell a teacher a pupil holds a misconception they
+ * just disproved. So it is excluded explicitly rather than assumed away.
+ */
+export function misconceptionInsights(attempts: AttemptFact[]): {
+  misconceptions: MisconceptionInsight[]
+  untaggedWrong: number
+} {
+  const tally = new Map<string, { count: number; pupils: Set<string> }>()
+  let untaggedWrong = 0
+
+  for (const a of attempts) {
+    if (a.correct) continue
+    if (!a.misconception) { untaggedWrong += 1; continue }
+    const t = tally.get(a.misconception) ?? { count: 0, pupils: new Set<string>() }
+    t.count += 1
+    // An attempt with no participant_id still counts as an occurrence; it
+    // just cannot be attributed, so it must not silently become "0 pupils".
+    t.pupils.add(a.participant_id ?? `anon:${t.count}`)
+    tally.set(a.misconception, t)
+  }
+
+  const misconceptions = [...tally.entries()]
+    .map(([misconceptionId, t]) => ({
+      misconceptionId,
+      count: t.count,
+      pupils: t.pupils.size,
+    }))
+    .sort((a, b) =>
+      b.pupils - a.pupils ||
+      b.count - a.count ||
+      a.misconceptionId.localeCompare(b.misconceptionId))
+
+  return { misconceptions, untaggedWrong }
+}
+
 export function sessionInsights(
   attempts: AttemptFact[],
   questions: QuestionMeta[],
@@ -179,5 +255,6 @@ export function sessionInsights(
   return {
     questions: questionInsights(attempts, meta),
     skills:    skillInsights(attempts, meta, chosenSkillIds),
+    ...misconceptionInsights(attempts),
   }
 }

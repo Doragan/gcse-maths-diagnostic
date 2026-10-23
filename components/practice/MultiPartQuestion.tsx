@@ -21,6 +21,7 @@ import SignUpPrompt, { registerQuestionForNudge } from './SignUpPrompt'
 import ClassSessionBanner from './ClassSessionBanner'
 import { bumpSessionAnswered } from '../../lib/classSessions'
 import { appendPendingAttempt } from '../../lib/pendingPractice'
+import { rollupMisconception } from '../../lib/attemptMisconception'
 
 type MultiPartQuestionData = {
   id: string
@@ -227,7 +228,11 @@ export default function MultiPartQuestion({
    * question as three answers against the session target, so a pupil would
    * read as finished after four questions of ten.
    */
-  async function recordSessionRollup(allCorrect: boolean, parts: PartTally) {
+  async function recordSessionRollup(
+    allCorrect: boolean,
+    parts: PartTally,
+    misconception: string | null,
+  ) {
     if (!sessionId || !participantId) return
     const { error } = await supabase.from('session_attempts').insert({
       session_id:     sessionId,
@@ -236,6 +241,7 @@ export default function MultiPartQuestion({
       correct:        allCorrect,
       parts_correct:  parts.correct,
       parts_total:    parts.total,
+      misconception,
     })
     if (error) console.error('Failed to record session rollup:', error.message)
     else bumpSessionAnswered()
@@ -350,7 +356,12 @@ export default function MultiPartQuestion({
       }
       const allCorrect = parts.correct === parts.total
       recordAssignmentRollup(allCorrect, parts)
-      recordSessionRollup(allCorrect, parts)
+      // One row, one misconception column, possibly several mistakes — the
+      // rule for choosing lives in lib/attemptMisconception.ts, with its
+      // reasoning and its tests.
+      recordSessionRollup(allCorrect, parts, rollupMisconception(
+        next.map(o => ({ correct: o?.correct === true, misconception: o?.misconception })),
+      ))
       // The whole multi-part question counts as ONE toward the anonymous sign-up
       // nudge (not one per part) — fire it when the final part is answered.
       // Never in a class session: the pupil is signed out by design, and the

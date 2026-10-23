@@ -59,7 +59,7 @@ export async function getClassSession(id: string): Promise<ClassSession | null> 
 export async function getClassSessionResults(
   id: string,
 ): Promise<{ rows: ProgressRow[]; insights: SessionInsights }> {
-  const empty: SessionInsights = { questions: [], skills: [] }
+  const empty: SessionInsights = { questions: [], skills: [], misconceptions: [], untaggedWrong: 0 }
   const session = await getSession()
   if (!session) return { rows: [], insights: empty }
 
