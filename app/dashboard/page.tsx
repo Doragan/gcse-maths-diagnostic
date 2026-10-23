@@ -9,7 +9,7 @@ import { type StudentAnalytics } from '../../lib/teacherAnalytics'
 import FeedbackWidget from '../../components/FeedbackWidget'
 import {
   colors, font, radius, card,
-  primaryButton, secondaryButton, sectionTitle,
+  primaryButton, secondaryButton, sectionTitle, DASHBOARD_MAX_WIDTH,
 } from '../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -339,7 +339,7 @@ export default function DashboardPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '600px',
+    maxWidth: DASHBOARD_MAX_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',
