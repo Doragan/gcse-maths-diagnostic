@@ -150,6 +150,51 @@ describe('characterisation: set', () => {
   })
 })
 
+// Set questions print their sets as the exam does — "ℰ = {1, 2, 3, 4, 5, 6}" — so a
+// student answering in the same notation must not be marked wrong for it.
+describe('set answers written in brace notation', () => {
+  it('accepts a brace-wrapped list', () => {
+    expect(check('{4, 6}', '4, 6', 'set').correct).toBe(true)
+    expect(check('{4,6}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('accepts braces with any inner spacing, and a semicolon separator', () => {
+    expect(check('{ 4 , 6 }', '4, 6', 'set').correct).toBe(true)
+    expect(check('{4  6}', '4, 6', 'set').correct).toBe(true)
+    expect(check('{4; 6}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('still ignores order inside the braces', () => {
+    expect(check('{6, 4}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('sorts numerically, so {2, 10} and {10, 2} are the same set', () => {
+    // Guards the parseFloat sort: alphabetically '10' would come before '2'.
+    expect(check('{10, 2}', '{2, 10}', 'set').correct).toBe(true)
+    expect(check('{10, 2}', '2, 10', 'set').correct).toBe(true)
+  })
+  it('works when the CANONICAL answer is the braced one', () => {
+    expect(check('4, 6', '{4, 6}', 'set').correct).toBe(true)
+  })
+  it('drops a "set name =" prefix, as the stem writes it', () => {
+    expect(check('ℰ = {1, 2, 3}', '1, 2, 3', 'set').correct).toBe(true)
+    expect(check('A∩B = {4, 6}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('leaves a list of assignments alone (two "=" signs, not a named set)', () => {
+    expect(check('x=2, y=3', 'x=2, y=3', 'set').correct).toBe(true)
+    expect(check('x=2, y=3', 'x=2, y=4', 'set').correct).toBe(false)
+  })
+  it('still rejects a genuinely wrong set', () => {
+    expect(check('{4, 7}', '4, 6', 'set').correct).toBe(false)
+    expect(check('{4}', '4, 6', 'set').correct).toBe(false)
+    expect(check('{4, 6, 8}', '4, 6', 'set').correct).toBe(false)
+  })
+  it('matches a trap in brace notation too', () => {
+    const r = check('{4, 7}', '4, 6', 'set', null, [
+      { answer: '4, 7', response: 'Check whether 7 is in both sets.' },
+    ])
+    expect(r.correct).toBe(false)
+    expect(r.message).toBe('Check whether 7 is in both sets.')
+  })
+})
+
 describe('currency symbols are ignored', () => {
   it('accepts £ in an expression answer asked "in pounds"', () => {
     expect(check('£3+£2m', '3+2m', 'expression').correct).toBe(true)
