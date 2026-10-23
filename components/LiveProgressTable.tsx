@@ -120,6 +120,12 @@ export default function LiveProgressTable({
             <thead>
               <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
                 <th style={styles.th}>{noun.one.charAt(0).toUpperCase() + noun.one.slice(1)}</th>
+                {/* Progress and Score are different questions and the table used
+                    to answer only the second. "1/10" could mean one question
+                    answered and right, or ten answered and nine wrong — the same
+                    cell for two situations a teacher would act on differently.
+                    Both now share a denominator so they compare at a glance. */}
+                <th style={styles.th}>Progress</th>
                 <th style={styles.th}>Score</th>
                 <th style={styles.th}>Status</th>
                 <th style={styles.th}>Last attempt</th>
@@ -135,6 +141,12 @@ export default function LiveProgressTable({
                     <td style={styles.td}>
                       <span style={{ fontWeight: '500', color: colors.textPrimary }}>{r.display_name}</span>
                       {r.year_group && <span style={{ color: colors.textHint }}> · {r.year_group}</span>}
+                    </td>
+                    {/* `progress` is whatever the completion rule counts, so
+                        this number and the Status cell can never disagree. Null
+                        on an open-ended task, which has nothing to be short of. */}
+                    <td style={{ ...styles.td, whiteSpace: 'nowrap' as const }}>
+                      {r.progress ? `${r.progress.done}/${r.progress.target}` : '—'}
                     </td>
                     <td style={{ ...styles.td, fontWeight: '600', color: colors.textPrimary }}>
                       {r.score ?? '—'}

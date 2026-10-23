@@ -228,6 +228,84 @@ describe('aggregateProgress', () => {
     expect(row.year_group).toBeNull()
   })
 
+  describe('progress', () => {
+    // Added after watching a live session: the table showed a score and no
+    // sense of how far through anyone was, so "1/10" covered both one question
+    // answered correctly and ten answered with nine wrong.
+
+    it('counts attempts toward the target in pool/attempt_once', () => {
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true,  '2026-10-22T10:00:00Z'),
+        at('a', 'q2', false, '2026-10-22T10:01:00Z'),
+        at('a', 'q3', false, '2026-10-22T10:02:00Z'),
+      ], { selectionMode: 'pool', completionMode: 'attempt_once', assignedCount: 10, scoreAgainst: 'target' })
+      expect(row.progress).toEqual({ done: 3, target: 10 })
+      expect(row.score).toBe('1/10')
+      expect(row.is_complete).toBe(false)
+    })
+
+    it('distinguishes the two situations that used to look identical', () => {
+      const opts = { selectionMode: 'pool' as const, completionMode: 'attempt_once', assignedCount: 10, scoreAgainst: 'target' as const }
+      // One answered, right.
+      const [keen] = aggregateProgress([who('a')], [
+        at('a', 'q1', true, '2026-10-22T10:00:00Z'),
+      ], opts)
+      // Ten answered, one right.
+      const [struggling] = aggregateProgress([who('a')], Array.from({ length: 10 }, (_, i) =>
+        at('a', `q${i}`, i === 0, `2026-10-22T10:${String(i).padStart(2, '0')}:00Z`),
+      ), opts)
+
+      expect(keen.score).toBe(struggling.score)          // both '1/10'
+      expect(keen.progress).toEqual({ done: 1, target: 10 })
+      expect(struggling.progress).toEqual({ done: 10, target: 10 })
+    })
+
+    it('counts unique questions in picked/attempt_once, not retries', () => {
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', false, '2026-10-22T10:00:00Z'),
+        at('a', 'q1', true,  '2026-10-22T10:01:00Z'),
+      ], { selectionMode: 'picked', completionMode: 'attempt_once', assignedCount: 3 })
+      expect(row.progress).toEqual({ done: 1, target: 3 })
+      expect(row.total_attempts).toBe(2)
+    })
+
+    it('counts correct answers when that is what completion needs', () => {
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true,  '2026-10-22T10:00:00Z'),
+        at('a', 'q2', false, '2026-10-22T10:01:00Z'),
+      ], { selectionMode: 'pool', completionMode: 'until_correct', assignedCount: 4 })
+      expect(row.progress).toEqual({ done: 1, target: 4 })
+    })
+
+    it('is null on an open-ended task and when nothing is assigned', () => {
+      const one = [at('a', 'q1', true, '2026-10-22T10:00:00Z')]
+      for (const selectionMode of ['picked', 'pool'] as const) {
+        expect(aggregateProgress([who('a')], one, {
+          selectionMode, completionMode: 'mastery_based', assignedCount: 5,
+        })[0].progress).toBeNull()
+        expect(aggregateProgress([who('a')], one, {
+          selectionMode, completionMode: 'attempt_once', assignedCount: 0,
+        })[0].progress).toBeNull()
+      }
+    })
+
+    it('AGREES with is_complete in every mode — the point of deriving it', () => {
+      // A row reading "2 of 10" and "Complete" at once is the failure this
+      // guards: progress is now the thing completion is decided on.
+      const attempts = Array.from({ length: 6 }, (_, i) =>
+        at('a', `q${i}`, i % 2 === 0, `2026-10-22T10:0${i}:00Z`))
+      for (const selectionMode of ['picked', 'pool'] as const) {
+        for (const completionMode of ['attempt_once', 'until_correct', 'mastery_based']) {
+          for (const assignedCount of [0, 1, 3, 6, 10]) {
+            const [row] = aggregateProgress([who('a')], attempts, { selectionMode, completionMode, assignedCount })
+            const expected = row.progress !== null && row.progress.done >= row.progress.target
+            expect(row.is_complete, `${selectionMode}/${completionMode}/${assignedCount}`).toBe(expected)
+          }
+        }
+      }
+    })
+  })
+
   describe('scoreAgainst', () => {
     const POOL = { selectionMode: 'pool' as const, completionMode: 'attempt_once', assignedCount: 3 }
 

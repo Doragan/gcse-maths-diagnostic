@@ -45,6 +45,20 @@ export type AttemptRow = {
   attempted_at: string
 }
 
+/**
+ * How far through the set task someone is.
+ *
+ * `done` is whatever the completion rule COUNTS, which differs by mode: unique
+ * questions attempted, correct answers, or raw attempts. That is the point of
+ * reporting it here rather than letting a view pick a number — the figure a
+ * teacher reads as progress is then, by construction, the same figure
+ * `is_complete` is decided on.
+ *
+ * Null when there is no target to progress toward: a mastery_based task, which
+ * is open-ended by design, or nothing assigned at all.
+ */
+export type Progress = { done: number; target: number }
+
 export type ProgressRow = {
   subject_id: string
   display_name: string
@@ -52,7 +66,9 @@ export type ProgressRow = {
   total_attempts: number
   correct_count: number
   questions_started: number
+  /** Derived from `progress` — never set independently of it. */
   is_complete: boolean
+  progress: Progress | null
   score: string | null
   last_attempt_at: string | null
 }
@@ -121,7 +137,11 @@ export function aggregateProgress(
     const correctQIds   = new Set(mine.filter(a => a.correct).map(a => a.question_id))
     const correctCount  = mine.filter(a => a.correct).length
 
-    let isComplete = false
+    // Each branch sets `progress`, and completion is DERIVED from it below.
+    // Before this they were computed side by side, so a change to one could
+    // leave a row reading "2 of 10" and "Complete" at the same time. A teacher
+    // watching a lesson would have no way to tell which number to believe.
+    let progress: Progress | null = null
     let score: string | null = null
 
     if (assignedCount <= 0) {
@@ -143,22 +163,22 @@ export function aggregateProgress(
       // complete. And there is no target to score against, so the score is the
       // no-target form — or nothing at all when there is also nothing done,
       // which the table renders as a dash rather than "0/0".
-      isComplete = false
+      // No target, so no progress toward one either.
       score      = mine.length > 0 ? `${correctCount}/${mine.length}` : null
     } else if (selectionMode === 'picked') {
       if (completionMode === 'attempt_once') {
-        isComplete = attemptedQIds.size >= assignedCount
-        score      = `${correctQIds.size}/${assignedCount}`
+        progress = { done: attemptedQIds.size, target: assignedCount }
+        score    = `${correctQIds.size}/${assignedCount}`
       } else if (completionMode === 'until_correct') {
-        isComplete = correctQIds.size >= assignedCount
-        score      = `${correctQIds.size}/${assignedCount}`
+        progress = { done: correctQIds.size, target: assignedCount }
+        score    = `${correctQIds.size}/${assignedCount}`
       } else {
         // mastery_based — open-ended, so there is no target to be short of.
         score = `${correctCount}/${mine.length}`
       }
     } else {
       if (completionMode === 'attempt_once') {
-        isComplete = mine.length >= assignedCount
+        progress   = { done: mine.length, target: assignedCount }
         // The one place `scoreAgainst` bites. See its note on the options type.
         // No `assignedCount > 0` guard needed here any more — a target of zero
         // is handled by the "nothing assigned" branch above, which is what
@@ -167,13 +187,17 @@ export function aggregateProgress(
           ? `${correctCount}/${assignedCount}`
           : `${correctCount}/${mine.length}`
       } else if (completionMode === 'until_correct') {
-        isComplete = correctCount >= assignedCount
+        progress   = { done: correctCount, target: assignedCount }
         score      = `${correctCount}/${assignedCount}`
       } else {
         // mastery_based has no target to score against, whatever is asked for.
         score = `${correctCount}/${mine.length}`
       }
     }
+
+    // The one place completion is decided. An open-ended task is never
+    // complete, which is what a null progress means.
+    const isComplete = progress !== null && progress.done >= progress.target
 
     let lastAttemptAt: string | null = null
     for (const a of mine) {
@@ -188,6 +212,7 @@ export function aggregateProgress(
       correct_count:     correctCount,
       questions_started: attemptedQIds.size,
       is_complete:       isComplete,
+      progress,
       score,
       last_attempt_at:   lastAttemptAt,
     }
