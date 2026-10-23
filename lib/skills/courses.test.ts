@@ -5,6 +5,7 @@ import {
   foundationSkillIds, higherOnlySkillIds,
   igcseFoundationSkillIds, igcseHigherOnlySkillIds,
   BOARDS_BY_QUALIFICATION, qualificationOfBoard, type Qualification,
+  courseFor, higherOnlySkillsFor,
 } from '../../data/courses'
 import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
@@ -206,6 +207,35 @@ describe('qualification scoping', () => {
       .map(({ f, meta }) => `${f}: "${meta.qualification}" on board ${meta.board}`)
 
     expect(wrong, 'papers whose spec name disagrees with their derived qualification').toEqual([])
+  })
+
+  it('classifies the skills whose tier differs between qualifications', () => {
+    // These are the reason a Foundation paper must use ITS OWN higher-only
+    // list, and they are named rather than derived because they are exactly
+    // what broke: the mini-exam blocked the GCSE higher-only set for everyone,
+    // which on 4MA1 kept out two skills that ARE Foundation content there and
+    // let in one that is not.
+    //
+    // This also guards the conflicts from being "tidied up". They are correct:
+    // a skill's tier is a fact about a COURSE, not about the skill.
+    expect(higherOnlySkillsFor('gcse'), 'venn_diagrams is Higher on GCSE').toContain('venn_diagrams')
+    expect(higherOnlySkillsFor('igcse'), 'but Foundation on 4MA1').not.toContain('venn_diagrams')
+
+    expect(higherOnlySkillsFor('gcse'), 'bounds is Higher on GCSE').toContain('upper_and_lower_bounds')
+    expect(higherOnlySkillsFor('igcse'), 'but Foundation on 4MA1').not.toContain('upper_and_lower_bounds')
+
+    expect(higherOnlySkillsFor('gcse'), 'vectors is Foundation on GCSE').not.toContain('vectors')
+    expect(higherOnlySkillsFor('igcse'), 'but Higher-only on 4MA1').toContain('vectors')
+  })
+
+  it('never blocks a skill that is on the student\'s own Foundation paper', () => {
+    // The invariant the mini-exam relies on when it blocks higher-only skills
+    // from a Foundation assembly, and the diagnostic when it builds its pool.
+    for (const q of Object.keys(BOARDS_BY_QUALIFICATION) as Qualification[]) {
+      const blocked = new Set(higherOnlySkillsFor(q))
+      const onTheirPaper = courseFor(q, 'foundation').skills
+      expect(onTheirPaper.filter(id => blocked.has(id)), `${q} Foundation skills blocked`).toEqual([])
+    }
   })
 
   it('keeps the mark-evidence table on one qualification', () => {
