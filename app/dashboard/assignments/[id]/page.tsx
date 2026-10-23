@@ -10,6 +10,7 @@ import {
 import { useLiveProgress } from '../../../../lib/useLiveProgress'
 import LiveProgressTable from '../../../../components/LiveProgressTable'
 import { skillsById } from '../../../../lib/skills/skillGraph'
+import { skillSetLabel } from '../../../../lib/skillSelection'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
@@ -90,7 +91,7 @@ export default function AssignmentDetailPage() {
           </h1>
           <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: '4px 0 0' }}>
             {assignment.selection_mode === 'pool'
-              ? `Skill pool · ${assignment.target_count} questions · ${skillsById[assignment.skill_ids[0]]?.name ?? assignment.skill_ids[0]}`
+              ? `Skill pool · ${assignment.target_count} questions · ${skillSetLabel(assignment.skill_ids, id => skillsById[id]?.name)}`
               : `${questions.length} hand-picked question${questions.length !== 1 ? 's' : ''}`}
             {' · '}{COMPLETION_LABELS[assignment.completion_mode]}
             {assignment.due_at && ` · Due ${new Date(assignment.due_at).toLocaleDateString('en-GB')}`}

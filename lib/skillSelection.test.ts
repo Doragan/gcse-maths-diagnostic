@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { addAll, removeAll, toggleOne, allChosen } from './skillSelection'
+import { addAll, removeAll, toggleOne, allChosen, skillSetLabel } from './skillSelection'
 
 const ALGEBRA = ['solving_linear', 'expanding', 'factorising']
 const NUMBER  = ['fractions', 'percentages']
@@ -87,5 +87,25 @@ describe('the round trip a teacher actually performs', () => {
     let v = addAll(addAll([], NUMBER), ALGEBRA)
     v = removeAll(v, ALGEBRA)
     expect(v).toEqual(NUMBER)
+  })
+})
+
+describe('skillSetLabel', () => {
+  const nameOf = (id: string) => ({ fractions: 'Fractions', ratio: 'Ratio' })[id]
+
+  it('names a single skill rather than counting it', () => {
+    expect(skillSetLabel(['fractions'], nameOf)).toBe('Fractions')
+  })
+
+  it('counts several, because naming only the first understates the homework', () => {
+    expect(skillSetLabel(['fractions', 'ratio'], nameOf)).toBe('2 skills')
+  })
+
+  it('falls back to the id when the skill is unknown', () => {
+    expect(skillSetLabel(['retired_skill'], nameOf)).toBe('retired_skill')
+  })
+
+  it('has something to show for an empty set', () => {
+    expect(skillSetLabel([], nameOf)).toBe('Skill')
   })
 })

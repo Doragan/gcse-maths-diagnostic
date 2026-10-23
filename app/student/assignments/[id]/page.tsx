@@ -9,6 +9,7 @@ import {
   type Assignment, type AssignmentQuestion, type AssignmentAttempt,
 } from '../../../../lib/assignments'
 import { skillsById } from '../../../../lib/skills/skillGraph'
+import { skillSetLabel } from '../../../../lib/skillSelection'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle,
@@ -283,7 +284,7 @@ export default function StudentAssignmentPage() {
       {assignment.selection_mode === 'pool' && (
         <div style={card}>
           <h2 style={sectionTitle}>
-            {skillsById[assignment.skill_ids[0]]?.name ?? 'Skill'} · {poolTotal} questions
+            {skillSetLabel(assignment.skill_ids, id => skillsById[id]?.name)} · {poolTotal} questions
           </h2>
 
           {/* Progress */}

@@ -42,3 +42,21 @@ export function allChosen(value: string[], ids: string[]): boolean {
   const have = new Set(value)
   return ids.every(id => have.has(id))
 }
+
+/**
+ * How to name a chosen set of skills in a heading.
+ *
+ * Both the teacher's and the student's assignment page used
+ * `skill_ids[0]` for this, which was accurate only while a pool could hold
+ * one skill. It no longer can, and a three-skill pool labelled with the first
+ * skill is worse than no label: it tells the student the homework is about
+ * something narrower than it is.
+ *
+ * One skill still reads as its own name, because that is the common case and
+ * "1 skill" would be a regression for it.
+ */
+export function skillSetLabel(ids: string[], nameOf: (id: string) => string | undefined): string {
+  if (ids.length === 0) return 'Skill'
+  if (ids.length === 1) return nameOf(ids[0]) ?? ids[0]
+  return `${ids.length} skills`
+}

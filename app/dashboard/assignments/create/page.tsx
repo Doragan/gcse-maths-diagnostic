@@ -6,9 +6,8 @@ import { getSession, requireTeacher } from '../../../../lib/auth'
 import { supabase } from '../../../../lib/supabase'
 import { getTeacherClasses, getClassMembers, type TeacherClass, type ClassMember } from '../../../../lib/classes'
 import { createAssignment } from '../../../../lib/assignments'
-import { skills } from '../../../../data/skills'
-import { usePublishedSkillIds, isPractisable } from '../../../../lib/skills/publishedSkills'
-import { skillsById } from '../../../../lib/skills/skillGraph'
+import { usePublishedSkillIds } from '../../../../lib/skills/publishedSkills'
+import SkillPicker from '../../../../components/SkillPicker'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, sectionTitle, errorBox,
@@ -22,8 +21,14 @@ type PickedQuestion = {
   question_type: string
 }
 
-// Unique topics from the skill list
-const TOPICS = [...new Set(skills.map(s => s.topic))].sort()
+/**
+ * How many questions the browser shows at once.
+ *
+ * Selecting a whole topic is now one click, and "every question in Shape and
+ * Space" is not a list anyone scrolls — it is a slow query and a wall. The cap
+ * is on the fetch, and the teacher is told when it bites.
+ */
+const BROWSE_LIMIT = 150
 
 const COMPLETION_OPTIONS = [
   {
@@ -47,6 +52,7 @@ export default function CreateAssignmentPage() {
   const published = usePublishedSkillIds()
   const router = useRouter()
   const dateInputRef = useRef<HTMLInputElement>(null)
+  const browseToken = useRef(0)
 
   // ── Form state ──────────────────────────────────────────────────────────
   const [title, setTitle] = useState('')
@@ -57,14 +63,16 @@ export default function CreateAssignmentPage() {
 
   // Picked mode
   const [pickedQuestions, setPickedQuestions] = useState<PickedQuestion[]>([])
-  const [browseSkillId, setBrowseSkillId] = useState('')
-  const [browseTopic, setBrowseTopic] = useState('')
+  const [browseSkillIds, setBrowseSkillIds] = useState<string[]>([])
   const [browseResults, setBrowseResults] = useState<PickedQuestion[]>([])
   const [browsing, setBrowsing] = useState(false)
+  const [browseTruncated, setBrowseTruncated] = useState(false)
 
-  // Pool mode
-  const [poolTopic, setPoolTopic] = useState('')
-  const [poolSkillId, setPoolSkillId] = useState('')
+  // Pool mode. Several skills, not one: `assignments.skill_ids` has always
+  // been an array and the student page already draws from it with
+  // `.overlaps(...)`, so a mixed pool needed nothing but a form that could
+  // express it.
+  const [poolSkillIds, setPoolSkillIds] = useState<string[]>([])
   const [poolCount, setPoolCount] = useState(10)
 
   // Targets
@@ -87,18 +95,33 @@ export default function CreateAssignmentPage() {
   }, [])
 
   // ── Question browser ─────────────────────────────────────────────────────
-  async function browseQuestions(skillId: string) {
-    if (!skillId) { setBrowseResults([]); return }
+  // Re-runs whenever the chosen skills change. The guard is a request id
+  // rather than a loading flag: selecting a second skill while the first
+  // query is still out would otherwise let the slower response win and show
+  // results for a selection the teacher has already moved on from.
+  useEffect(() => {
+    if (browseSkillIds.length === 0) {
+      setBrowseResults([])
+      setBrowseTruncated(false)
+      return
+    }
+    const token = ++browseToken.current
     setBrowsing(true)
-    const { data } = await supabase
+    supabase
       .from('questions')
       .select('id, skill_ids, difficulty, question_template, question_type')
       .eq('is_published', true)
-      .overlaps('skill_ids', [skillId])
+      .overlaps('skill_ids', browseSkillIds)
       .order('difficulty', { ascending: true })
-    setBrowseResults((data ?? []) as PickedQuestion[])
-    setBrowsing(false)
-  }
+      .limit(BROWSE_LIMIT + 1)
+      .then(({ data }) => {
+        if (token !== browseToken.current) return
+        const rows = (data ?? []) as PickedQuestion[]
+        setBrowseTruncated(rows.length > BROWSE_LIMIT)
+        setBrowseResults(rows.slice(0, BROWSE_LIMIT))
+        setBrowsing(false)
+      })
+  }, [browseSkillIds])
 
   function addQuestion(q: PickedQuestion) {
     if (!pickedQuestions.find(p => p.id === q.id)) {
@@ -145,8 +168,8 @@ export default function CreateAssignmentPage() {
     if (selectionMode === 'picked' && pickedQuestions.length === 0) {
       setCreateError('Add at least one question.'); return
     }
-    if (selectionMode === 'pool' && !poolSkillId) {
-      setCreateError('Choose a skill for the question pool.'); return
+    if (selectionMode === 'pool' && poolSkillIds.length === 0) {
+      setCreateError('Choose at least one skill for the question pool.'); return
     }
     if (targetClassIds.length === 0 && targetStudentIds.length === 0) {
       setCreateError('Choose at least one target class or student.'); return
@@ -158,7 +181,7 @@ export default function CreateAssignmentPage() {
         title,
         instructions,
         selectionMode,
-        skillIds:         selectionMode === 'pool' ? [poolSkillId] : [],
+        skillIds:         selectionMode === 'pool' ? poolSkillIds : [],
         targetCount:      selectionMode === 'pool' ? poolCount : 0,
         completionMode,
         dueAt,
@@ -173,15 +196,6 @@ export default function CreateAssignmentPage() {
       setCreating(false)
     }
   }
-
-  // ── Skill lists filtered by topic ────────────────────────────────────────
-  // Only skills with a published question — there is nothing to assign for the rest.
-  const skillsForBrowseTopic = browseTopic
-    ? skills.filter(s => s.topic === browseTopic && isPractisable(s.id, published))
-    : []
-  const skillsForPoolTopic = poolTopic
-    ? skills.filter(s => s.topic === poolTopic && isPractisable(s.id, published))
-    : []
 
   return (
     <main style={styles.page}>
@@ -259,26 +273,13 @@ export default function CreateAssignmentPage() {
               <p style={{ fontSize: font.sm, fontWeight: '600', color: colors.textSecondary, margin: '0 0 8px' }}>
                 Browse questions by skill
               </p>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
-                <select
-                  value={browseTopic}
-                  onChange={e => { setBrowseTopic(e.target.value); setBrowseSkillId(''); setBrowseResults([]) }}
-                  style={{ ...inputStyle, flex: 1, minWidth: '140px' }}
-                >
-                  <option value="">Topic…</option>
-                  {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <select
-                  value={browseSkillId}
-                  onChange={e => { setBrowseSkillId(e.target.value); browseQuestions(e.target.value) }}
-                  style={{ ...inputStyle, flex: 1, minWidth: '160px' }}
-                  disabled={!browseTopic}
-                >
-                  <option value="">Skill…</option>
-                  {skillsForBrowseTopic.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </div>
+              <SkillPicker value={browseSkillIds} onChange={setBrowseSkillIds} published={published} />
               {browsing && <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 0' }}>Loading…</p>}
+              {browseTruncated && (
+                <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 0' }}>
+                  Showing the first {BROWSE_LIMIT}, easiest first. Narrow the skills to see the rest.
+                </p>
+              )}
               {browseResults.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px', maxHeight: '280px', overflowY: 'auto' as const }}>
                   {browseResults.map(q => {
@@ -321,9 +322,9 @@ export default function CreateAssignmentPage() {
                   })}
                 </div>
               )}
-              {browseSkillId && !browsing && browseResults.length === 0 && (
+              {browseSkillIds.length > 0 && !browsing && browseResults.length === 0 && (
                 <p style={{ fontSize: font.sm, color: colors.textHint, margin: '8px 0 0' }}>
-                  No published questions for this skill yet.
+                  No published questions for {browseSkillIds.length === 1 ? 'this skill' : 'these skills'} yet.
                 </p>
               )}
             </div>
@@ -369,28 +370,11 @@ export default function CreateAssignmentPage() {
         {selectionMode === 'pool' && (
           <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <p style={{ fontSize: font.sm, color: colors.textHint, margin: 0, lineHeight: '1.6' }}>
-              Students are served random questions from the chosen skill until they reach the target count.
+              Students are served random questions from the chosen skills until they reach the
+              target count. Choose several to set a mixed homework.
             </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
-              <select
-                value={poolTopic}
-                onChange={e => { setPoolTopic(e.target.value); setPoolSkillId('') }}
-                style={{ ...inputStyle, flex: 1, minWidth: '140px' }}
-              >
-                <option value="">Topic…</option>
-                {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-              <select
-                value={poolSkillId}
-                onChange={e => setPoolSkillId(e.target.value)}
-                style={{ ...inputStyle, flex: 1, minWidth: '160px' }}
-                disabled={!poolTopic}
-              >
-                <option value="">Skill…</option>
-                {skillsForPoolTopic.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
-            {poolSkillId && (
+            <SkillPicker value={poolSkillIds} onChange={setPoolSkillIds} published={published} />
+            {poolSkillIds.length > 0 && (
               <div>
                 <label style={{ fontSize: font.sm, color: colors.textSecondary, display: 'block', marginBottom: '6px' }}>
                   Number of questions: <strong>{poolCount}</strong>
