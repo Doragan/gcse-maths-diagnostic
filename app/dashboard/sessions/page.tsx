@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession, requireTeacher } from '../../../lib/auth'
 import { createClassSession, getMyClassSessions } from '../../../lib/classSessionsApi'
 import { sessionLifecycle, type ClassSession } from '../../../lib/classSessions'
-import { skills } from '../../../data/skills'
 import { courseIdFor, type CourseTier, type Qualification } from '../../../data/courses'
-import { usePublishedSkillIds, isPractisable } from '../../../lib/skills/publishedSkills'
+import { usePublishedSkillIds } from '../../../lib/skills/publishedSkills'
+import SkillPicker from '../../../components/SkillPicker'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle, inputStyle, labelStyle, errorBox,
@@ -35,8 +35,6 @@ const TIERS: { value: CourseTier; label: string }[] = [
   { value: 'higher',     label: 'Higher' },
 ]
 
-const TOPICS = [...new Set(skills.map(s => s.topic))].sort()
-
 export default function ClassSessionsPage() {
   const router = useRouter()
   const published = usePublishedSkillIds()
@@ -47,7 +45,6 @@ export default function ClassSessionsPage() {
   const [title, setTitle]               = useState('')
   const [qualification, setQualification] = useState<Qualification>('gcse')
   const [tier, setTier]                 = useState<CourseTier>('foundation')
-  const [topic, setTopic]               = useState('')
   const [chosen, setChosen]             = useState<string[]>([])
   const [target, setTarget]             = useState(DEFAULT_TARGET)
   const [starting, setStarting]         = useState(false)
@@ -61,19 +58,6 @@ export default function ClassSessionsPage() {
       setLoading(false)
     })
   }, [router])
-
-  // Only skills with a published question: an empty pool in front of a live
-  // class is the one failure this page can actually cause.
-  const topicSkills = useMemo(
-    () => topic ? skills.filter(s => s.topic === topic && isPractisable(s.id, published)) : [],
-    [topic, published],
-  )
-
-  function toggle(skillId: string) {
-    setChosen(prev => prev.includes(skillId)
-      ? prev.filter(s => s !== skillId)
-      : [...prev, skillId])
-  }
 
   async function handleStart() {
     setError('')
@@ -179,48 +163,11 @@ export default function ClassSessionsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>Topic</label>
-            <select value={topic} onChange={e => setTopic(e.target.value)} style={inputStyle}>
-              <option value="">Choose a topic…</option>
-              {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-
-          {topic && (
-            <div>
-              <label style={labelStyle}>
-                Skills {chosen.length > 0 && <span style={{ color: colors.textHint, fontWeight: '400' }}>({chosen.length} chosen)</span>}
-              </label>
-              {topicSkills.length === 0 ? (
-                <p style={{ fontSize: font.sm, color: colors.textHint, margin: '4px 0 0' }}>
-                  No published questions for this topic yet.
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', marginTop: '4px' }}>
-                  {topicSkills.map(s => {
-                    const on = chosen.includes(s.id)
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => toggle(s.id)}
-                        style={{
-                          ...secondaryButton,
-                          width: 'auto',
-                          padding: '6px 10px',
-                          fontSize: font.sm,
-                          background: on ? colors.successLight : undefined,
-                          borderColor: on ? colors.success : undefined,
-                          color: on ? colors.successText : undefined,
-                        }}
-                      >
-                        {on ? '✓ ' : ''}{s.name}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
+            <label style={labelStyle}>Skills</label>
+            <div style={{ marginTop: '6px' }}>
+              <SkillPicker value={chosen} onChange={setChosen} published={published} />
             </div>
-          )}
+          </div>
 
           {error && <p style={errorBox}>{error}</p>}
 
