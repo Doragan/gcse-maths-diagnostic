@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { titleForPath, normalizePath, DEFAULT_TITLE } from './pageTitles'
+import { readdirSync, statSync } from 'fs'
+import { join } from 'path'
 
 describe('titleForPath', () => {
   it('uses the brand default for home and unmapped routes', () => {
@@ -73,7 +75,7 @@ describe('titleForPath', () => {
     // /dashboard/students matches /^\/dashboard\/[^/]+$/ perfectly well, so
     // without a rule above it this page would be titled "Student overview" and
     // reported as /dashboard/[id] — a wrong tab title and two different routes
-    // silently merged into one row in GA4.
+    // silently merged into one row in analytics.
     expect(titleForPath('/dashboard/students')).toBe('My students — Mathsense')
     expect(normalizePath('/dashboard/students')).toBe('/dashboard/students')
 
@@ -111,11 +113,61 @@ describe('titleForPath', () => {
   })
 })
 
+describe('every route is mapped', () => {
+  // The rules are maintained by hand, so a new route silently reports as the
+  // brand default until someone notices. Worse for a DYNAMIC route: with no
+  // rule, normalizePath returns the path unchanged, so its ids go straight
+  // into analytics_events — which is the one thing this file exists to stop.
+  //
+  // Found exactly that on 2026-10-18: /dashboard/classes/[id]/exam/[sessionId]
+  // had no rule and was putting a class id and a session id into every view.
+  // This walks app/ so the next one fails here instead.
+  function routesFromDisk(dir: string, seg: string[] = []): string[] {
+    const out: string[] = []
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry)
+      if (statSync(full).isDirectory()) {
+        // Route groups are not URL segments; /api has no page to title.
+        if (entry.startsWith('(') || entry === 'api') continue
+        out.push(...routesFromDisk(full, [...seg, entry]))
+      } else if (entry === 'page.tsx') {
+        out.push('/' + seg.join('/'))
+      }
+    }
+    return out
+  }
+
+  const routes = routesFromDisk(join(process.cwd(), 'app'))
+  // A concrete pathname: dynamic segments filled with a stand-in id.
+  const concrete = (r: string) => r.replace(/\[[^\]]+\]/g, 'abc123')
+
+  it('finds the app routes at all', () => {
+    // Guards the walk itself — a broken walk would make every assertion below
+    // pass vacuously.
+    expect(routes.length).toBeGreaterThan(40)
+    expect(routes).toContain('/practice')
+  })
+
+  it('gives every route its own title', () => {
+    const unmapped = routes
+      .filter(r => r !== '/')
+      .filter(r => titleForPath(concrete(r)) === DEFAULT_TITLE)
+    expect(unmapped, 'routes with no rule in RULES').toEqual([])
+  })
+
+  it('collapses every dynamic route, so no id reaches analytics', () => {
+    const leaking = routes
+      .filter(r => r.includes('['))
+      .filter(r => normalizePath(concrete(r)).includes('abc123'))
+    expect(leaking, 'dynamic routes whose ids reach analytics_events').toEqual([])
+  })
+})
+
 describe('qualification neutrality', () => {
   // A student who switches to International GCSE keeps using these pages, so a
   // title that names a qualification is wrong for them. The fix is neutral
   // wording rather than a per-student title: titleForPath is a pure function of
-  // the path and shares RULES with normalizePath, which feeds GA4's page_title,
+  // the path and shares RULES with normalizePath, which feeds the stored page_title,
   // so branching on a preference would split one surface into two rows.
   //
   // DEFAULT_TITLE is deliberately NOT in this list. It is the landing page and
@@ -160,7 +212,7 @@ describe('normalizePath', () => {
 
   it('collapses the class-invitation token', () => {
     // The invitation token is a bearer credential emailed to one address: it
-    // claims a place in a named class. Letting it reach GA4 as a page path
+    // claims a place in a named class. Letting it reach analytics as a page path
     // would both leak it to a third country and store it next to a child's
     // session. Same reasoning as /pay/[token] above.
     expect(normalizePath('/invite/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6')).toBe('/invite/[token]')
