@@ -308,9 +308,29 @@ function expressionMatch(a: string, b: string): boolean {
  * "1, 2, 3, 6"  → "1,2,3,6"
  * "6 3 1 2"     → "1,2,3,6"
  * "SC, sf, GC"  → "gc,sc,sf"
+ * "{4, 6}"      → "4,6"
+ * "ℰ = {1, 2}"  → "1,2"
  */
 function normalisedSet(s: string): string {
-  return s
+  // Braces are stripped, not refused. The questions print their sets in brace
+  // notation — "ℰ = {1, 2, 3, 4, 5}" — so a student who mirrors the stem and answers
+  // "{4, 6}" has written the SAME answer as "4, 6", in the notation the exam paper
+  // itself uses. A brace is punctuation around a list, not a different kind of
+  // answer, and leaving one off evidences nothing about the assessed skill.
+  // (Contrast the fraction "right value, wrong form" branch in checkAnswer, which
+  // REFUSES a decimal written for a fraction: there the form is itself what is being
+  // marked.) The prompts do say "separate them with commas", but that instruction
+  // should not be load-bearing — being told you are wrong when you are right
+  // teaches the student nothing.
+  const unbraced = s.trim().replace(/[{}]/g, ' ')
+
+  // A "set name =" prefix goes the same way, since the stem writes its sets as
+  // "ℰ = {…}" and an answer may well come back as "A∩B = {4, 6}". Only a SHORT label
+  // is dropped, and only when no second "=" survives, so an answer that is really a
+  // list of assignments ("x=2, y=3") is left intact for the types that handle it.
+  const named = unbraced.match(/^[^=]{0,6}=([^=]*)$/)
+
+  return (named ? named[1] : unbraced)
     .trim()
     .split(/[\s,;]+/)
     .map(t => t.trim().toLowerCase())
