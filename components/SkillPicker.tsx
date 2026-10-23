@@ -112,7 +112,7 @@ export default function SkillPicker({ value, onChange, published }: Props) {
 
         {chosenSkills.length === 0 ? (
           <p style={{ fontSize: font.sm, color: colors.textSecondary, margin: 0, lineHeight: '1.5' }}>
-            Open a topic below and pick the skills this lesson is about.
+            Open a topic below to choose skills.
           </p>
         ) : (
           <div style={styles.chipRow}>
