@@ -73,6 +73,31 @@ export async function getClassSessionResultsHead(id: string): Promise<ResultsHea
   return await res.json() as ResultsHead
 }
 
+/**
+ * What the projector view shows. Deliberately carries NO pupil names — see the
+ * route's header for why that is the endpoint's job and not the page's.
+ */
+export type SessionDisplay = {
+  title: string
+  code: string
+  status: 'open' | 'closed'
+  expires_at: string
+  joined: number
+  answers: number
+}
+
+/** Throws, so the display page's poll can simply try again on the next tick. */
+export async function getSessionDisplay(id: string): Promise<SessionDisplay> {
+  const session = await getSession()
+  if (!session) throw new Error('Not signed in')
+
+  const res = await fetch(`/api/class-sessions/${id}/display`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  if (!res.ok) throw new Error('Could not load the session')
+  return await res.json() as SessionDisplay
+}
+
 type CreateInput = {
   title: string
   skillIds: string[]
