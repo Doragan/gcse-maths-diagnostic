@@ -57,7 +57,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         .eq('session_id', id),
       service
         .from('session_attempts')
-        .select('participant_id, question_id, correct, attempted_at')
+        .select('participant_id, question_id, correct, attempted_at, parts_correct, parts_total')
         .eq('session_id', id),
     ])
 
@@ -70,10 +70,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         year_group:   null,
       })),
       (attempts ?? []).map(a => ({
-        subject_id:   a.participant_id,
-        question_id:  a.question_id,
-        correct:      a.correct,
-        attempted_at: a.attempted_at,
+        subject_id:    a.participant_id,
+        question_id:   a.question_id,
+        correct:       a.correct,
+        attempted_at:  a.attempted_at,
+        parts_correct: a.parts_correct,
+        parts_total:   a.parts_total,
       })),
       {
         selectionMode:  'pool',

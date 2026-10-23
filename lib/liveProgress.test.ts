@@ -228,6 +228,79 @@ describe('aggregateProgress', () => {
     expect(row.year_group).toBeNull()
   })
 
+  describe('parts (partial credit on multi-part questions)', () => {
+    // A multi-part question writes ONE row with correct = every part right,
+    // so two parts of three scored the same as none of three. The part counts
+    // are what tell those apart; `correct` deliberately still means all.
+    const withParts = (
+      subject_id: string, question_id: string, correct: boolean,
+      attempted_at: string, parts_correct: number, parts_total: number,
+    ) => ({ subject_id, question_id, correct, attempted_at, parts_correct, parts_total })
+
+    const POOL = { selectionMode: 'pool' as const, completionMode: 'attempt_once', assignedCount: 5 }
+
+    it('is null when nobody has answered a multi-part question', () => {
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true, '2026-10-23T10:00:00Z'),
+      ], POOL)
+      expect(row.parts).toBeNull()
+    })
+
+    it('tells two-of-three apart from none-of-three', () => {
+      const [keen] = aggregateProgress([who('a')], [
+        withParts('a', 'q1', false, '2026-10-23T10:00:00Z', 2, 3),
+      ], POOL)
+      const [lost] = aggregateProgress([who('a')], [
+        withParts('a', 'q1', false, '2026-10-23T10:00:00Z', 0, 3),
+      ], POOL)
+
+      expect(keen.score).toBe(lost.score)        // the old view: identical
+      expect(keen.parts).toEqual({ done: 2, target: 3 })
+      expect(lost.parts).toEqual({ done: 0, target: 3 })
+    })
+
+    it('sums across questions, ignoring single-part ones', () => {
+      // A 1-of-1 for every single-part question would bury the signal.
+      const [row] = aggregateProgress([who('a')], [
+        withParts('a', 'q1', false, '2026-10-23T10:00:00Z', 2, 3),
+        at('a', 'q2', true, '2026-10-23T10:01:00Z'),
+        withParts('a', 'q3', true,  '2026-10-23T10:02:00Z', 4, 4),
+      ], POOL)
+      expect(row.parts).toEqual({ done: 6, target: 7 })
+    })
+
+    it('leaves score, progress and completion exactly as they were', () => {
+      // The part counts are additional information, not a change to the
+      // numbers a teacher already reads.
+      const plain = [
+        at('a', 'q1', false, '2026-10-23T10:00:00Z'),
+        at('a', 'q2', true,  '2026-10-23T10:01:00Z'),
+      ]
+      const tagged = [
+        withParts('a', 'q1', false, '2026-10-23T10:00:00Z', 2, 3),
+        at('a', 'q2', true, '2026-10-23T10:01:00Z'),
+      ]
+      const [before] = aggregateProgress([who('a')], plain, POOL)
+      const [after]  = aggregateProgress([who('a')], tagged, POOL)
+
+      expect(after.score).toBe(before.score)
+      expect(after.progress).toEqual(before.progress)
+      expect(after.is_complete).toBe(before.is_complete)
+      expect(after.correct_count).toBe(before.correct_count)
+    })
+
+    it('ignores a half-written pair rather than counting it as zero', () => {
+      // Both columns are set together by the write path and a CHECK enforces
+      // it, so this is defensive — but counting a stray parts_total with no
+      // parts_correct would quietly deflate the tally.
+      const [row] = aggregateProgress([who('a')], [
+        { ...at('a', 'q1', true, '2026-10-23T10:00:00Z'), parts_total: 3 },
+        withParts('a', 'q2', false, '2026-10-23T10:01:00Z', 1, 2),
+      ], POOL)
+      expect(row.parts).toEqual({ done: 1, target: 2 })
+    })
+  })
+
   describe('progress', () => {
     // Added after watching a live session: the table showed a score and no
     // sense of how far through anyone was, so "1/10" covered both one question

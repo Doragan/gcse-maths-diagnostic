@@ -69,6 +69,9 @@ type Props = {
 
 const PART_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
+/** How many parts of a multi-part question were right, and how many there were. */
+type PartTally = { correct: number; total: number }
+
 export default function MultiPartQuestion({
   question, studentId, assignmentId, sessionId = null, participantId = null,
   onSessionAttempt, onNextQuestion, onTryAgain, fixedValues,
@@ -196,15 +199,24 @@ export default function MultiPartQuestion({
     if (error) console.error('Failed to record part attempt:', error.message) // audit L5
   }
 
-  async function recordAssignmentRollup(allCorrect: boolean) {
-    // Assignment attempts are keyed by question_id, so a multi-part question
-    // contributes one row recorded when the final part is answered.
+  /**
+   * Assignment attempts are keyed by question_id, so a multi-part question
+   * contributes one row, recorded when the final part is answered.
+   *
+   * `correct` still means EVERY part right — completion and the score are
+   * derived from it and must not move. The part counts are what let a
+   * teacher tell two parts of three from none of three, which that boolean
+   * could not (20261023_attempt_part_counts.sql).
+   */
+  async function recordAssignmentRollup(allCorrect: boolean, parts: PartTally) {
     if (!assignmentId || !studentId) return
     const { error } = await supabase.from('assignment_attempts').insert({
       assignment_id: assignmentId,
       student_id: studentId,
       question_id: question.id,
       correct: allCorrect,
+      parts_correct: parts.correct,
+      parts_total:   parts.total,
     })
     if (error) console.error('Failed to record assignment rollup:', error.message) // audit L5
   }
@@ -215,13 +227,15 @@ export default function MultiPartQuestion({
    * question as three answers against the session target, so a pupil would
    * read as finished after four questions of ten.
    */
-  async function recordSessionRollup(allCorrect: boolean) {
+  async function recordSessionRollup(allCorrect: boolean, parts: PartTally) {
     if (!sessionId || !participantId) return
     const { error } = await supabase.from('session_attempts').insert({
       session_id:     sessionId,
       participant_id: participantId,
       question_id:    question.id,
       correct:        allCorrect,
+      parts_correct:  parts.correct,
+      parts_total:    parts.total,
     })
     if (error) console.error('Failed to record session rollup:', error.message)
     else bumpSessionAnswered()
@@ -328,9 +342,15 @@ export default function MultiPartQuestion({
     // so outcome.misconception is only ever set on the scalar branch above.
     recordPartAttempt(part, outcome.correct, outcome.misconception ?? null)
     if (isLastPart) {
-      const allCorrect = next.every(o => o?.correct === true)
-      recordAssignmentRollup(allCorrect)
-      recordSessionRollup(allCorrect)
+      // Counted from `next` rather than state: setOutcomes has not flushed
+      // yet at this point, so `outcomes` is still missing this last part.
+      const parts: PartTally = {
+        correct: next.filter(o => o?.correct === true).length,
+        total:   question.parts.length,
+      }
+      const allCorrect = parts.correct === parts.total
+      recordAssignmentRollup(allCorrect, parts)
+      recordSessionRollup(allCorrect, parts)
       // The whole multi-part question counts as ONE toward the anonymous sign-up
       // nudge (not one per part) — fire it when the final part is answered.
       // Never in a class session: the pupil is signed out by design, and the
