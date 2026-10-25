@@ -617,6 +617,11 @@ function QuestionPage() {
           participant_id: joinedSession.participantId,
           question_id:    question.id,
           correct,
+          // The same value practice_attempts has stored since 20260824. A
+          // session pupil has no account to track mastery on, but the class
+          // still has a teacher watching, and "7 dropped the minus sign" is
+          // the thing they can act on in the next five minutes.
+          misconception,
         })
       if (saError) console.error('Failed to record session attempt:', saError.message)
       else bumpSessionAnswered()

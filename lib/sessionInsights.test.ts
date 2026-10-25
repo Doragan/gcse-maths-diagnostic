@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  sessionInsights, questionInsights, skillInsights,
+  sessionInsights, questionInsights, skillInsights, misconceptionInsights,
   MIN_ATTEMPTS_TO_RANK,
   type QuestionMeta, type AttemptFact,
 } from './sessionInsights'
@@ -128,6 +128,76 @@ describe('skillInsights', () => {
   })
 })
 
+describe('misconceptionInsights', () => {
+  const wrong = (m: string | null, pupil: string) =>
+    ({ question_id: 'q1', correct: false, misconception: m, participant_id: pupil })
+  const right = (pupil: string) =>
+    ({ question_id: 'q1', correct: true, misconception: null, participant_id: pupil })
+
+  it('counts occurrences and the pupils behind them', () => {
+    const { misconceptions } = misconceptionInsights([
+      wrong('sign_dropped', 'a'), wrong('sign_dropped', 'b'), wrong('sign_dropped', 'a'),
+    ])
+    expect(misconceptions).toEqual([
+      { misconceptionId: 'sign_dropped', count: 3, pupils: 2 },
+    ])
+  })
+
+  it('ranks by pupils, not by how often it happened', () => {
+    // One pupil tripping four times is one pupil to talk to; three pupils
+    // tripping once each is a reteach.
+    const { misconceptions } = misconceptionInsights([
+      ...Array.from({ length: 4 }, () => wrong('repeated_by_one', 'a')),
+      wrong('spread_wide', 'x'), wrong('spread_wide', 'y'), wrong('spread_wide', 'z'),
+    ])
+    expect(misconceptions.map(m => m.misconceptionId)).toEqual(['spread_wide', 'repeated_by_one'])
+  })
+
+  it('breaks a tie on pupils with the number of occurrences', () => {
+    const { misconceptions } = misconceptionInsights([
+      wrong('once_each', 'a'), wrong('once_each', 'b'),
+      wrong('twice_each', 'a'), wrong('twice_each', 'a'),
+      wrong('twice_each', 'b'), wrong('twice_each', 'b'),
+    ])
+    expect(misconceptions.map(m => m.misconceptionId)).toEqual(['twice_each', 'once_each'])
+  })
+
+  it('counts wrong answers that carry no misconception, separately', () => {
+    const { misconceptions, untaggedWrong } = misconceptionInsights([
+      wrong('sign_dropped', 'a'), wrong(null, 'b'), wrong(null, 'c'),
+    ])
+    expect(misconceptions).toHaveLength(1)
+    expect(untaggedWrong).toBe(2)
+  })
+
+  it('does not count a correct answer as untagged', () => {
+    const { untaggedWrong } = misconceptionInsights([right('a'), right('b'), wrong(null, 'c')])
+    expect(untaggedWrong).toBe(1)
+  })
+
+  it('ignores a misconception sitting on a CORRECT answer', () => {
+    // Would be an upstream bug, and reporting it tells a teacher a pupil holds
+    // a misconception they just disproved.
+    const { misconceptions, untaggedWrong } = misconceptionInsights([
+      { question_id: 'q1', correct: true, misconception: 'sign_dropped', participant_id: 'a' },
+    ])
+    expect(misconceptions).toEqual([])
+    expect(untaggedWrong).toBe(0)
+  })
+
+  it('still counts an attempt with no participant, rather than reading 0 pupils', () => {
+    const { misconceptions } = misconceptionInsights([
+      { question_id: 'q1', correct: false, misconception: 'sign_dropped' },
+      { question_id: 'q2', correct: false, misconception: 'sign_dropped' },
+    ])
+    expect(misconceptions[0]).toMatchObject({ count: 2, pupils: 2 })
+  })
+
+  it('is empty before anyone gets anything wrong', () => {
+    expect(misconceptionInsights([])).toEqual({ misconceptions: [], untaggedWrong: 0 })
+  })
+})
+
 describe('sessionInsights', () => {
   it('builds both views from one set of attempts', () => {
     const out = sessionInsights(
@@ -143,6 +213,7 @@ describe('sessionInsights', () => {
   })
 
   it('is empty all round before anyone answers', () => {
-    expect(sessionInsights([], [], ['percentages'])).toEqual({ questions: [], skills: [] })
+    expect(sessionInsights([], [], ['percentages']))
+      .toEqual({ questions: [], skills: [], misconceptions: [], untaggedWrong: 0 })
   })
 })

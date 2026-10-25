@@ -38,7 +38,9 @@ export default function ClassSessionPage() {
   const [closing, setClosing] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
   const [error, setError] = useState('')
-  const [insights, setInsights] = useState<SessionInsights>({ questions: [], skills: [] })
+  const [insights, setInsights] = useState<SessionInsights>(
+    { questions: [], skills: [], misconceptions: [], untaggedWrong: 0 },
+  )
 
   useEffect(() => {
     getSession().then(async auth => {

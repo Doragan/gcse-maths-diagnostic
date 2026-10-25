@@ -1,6 +1,7 @@
 'use client'
 
 import { skillsById } from '../lib/skills/skillGraph'
+import { getMisconception } from '../data/misconceptions'
 import type { SessionInsights } from '../lib/sessionInsights'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 
@@ -38,8 +39,8 @@ type Props = {
 const DEFAULT_TOP_N = 5
 
 export default function SessionInsightsPanel({ insights, topN = DEFAULT_TOP_N }: Props) {
-  const { questions, skills } = insights
-  const nothingYet = questions.length === 0 && skills.length === 0
+  const { questions, skills, misconceptions, untaggedWrong } = insights
+  const nothingYet = questions.length === 0 && skills.length === 0 && misconceptions.length === 0
 
   return (
     <details style={{ ...card, padding: 0 }}>
@@ -78,6 +79,45 @@ export default function SessionInsightsPanel({ insights, topN = DEFAULT_TOP_N }:
                 {questions.length > topN && (
                   <p style={styles.note}>
                     …and {questions.length - topN} more with at least one wrong answer.
+                  </p>
+                )}
+              </section>
+            )}
+
+            {misconceptions.length > 0 && (
+              <section>
+                <h3 style={styles.subhead}>Common mistakes</h3>
+                <div style={styles.list}>
+                  {misconceptions.slice(0, topN).map(m => {
+                    const known = getMisconception(m.misconceptionId)
+                    return (
+                      <div key={m.misconceptionId} style={styles.questionRow}>
+                        <span style={styles.count}>
+                          {m.pupils} pupil{m.pupils === 1 ? '' : 's'}
+                        </span>
+                        <span style={styles.prompt}>
+                          {/* The id itself if the vocabulary has lost the
+                              entry: a stored id outlives a deleted one, and a
+                              blank line tells the teacher nothing. */}
+                          <strong>{known?.name ?? m.misconceptionId}</strong>
+                          {known?.description && (
+                            <span style={styles.mistakeDesc}> — {known.description}</span>
+                          )}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+                {/* Only when something is missing. Without it the list reads
+                    as a diagnosis of the class rather than of the wrong
+                    answers we could attribute — most of the bank's traps
+                    carry no id. With nothing missing there is no caveat to
+                    give, and claiming one would be its own inaccuracy. */}
+                {untaggedWrong > 0 && (
+                  <p style={styles.note}>
+                    {untaggedWrong} other wrong answer{untaggedWrong === 1 ? '' : 's'}{' '}
+                    {untaggedWrong === 1 ? 'is' : 'are'} not counted above — not every question
+                    can say what went wrong.
                   </p>
                 )}
               </section>
@@ -204,6 +244,9 @@ const styles: Record<string, React.CSSProperties> = {
     color: colors.textHint,
     margin: '10px 0 0',
     lineHeight: '1.5',
+  },
+  mistakeDesc: {
+    color: colors.textSecondary,
   },
   skillList: {
     display: 'flex',
