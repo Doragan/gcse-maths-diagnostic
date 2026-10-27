@@ -44,16 +44,22 @@ gets back:
   you can send to a parent or keep.
 - **An answer key** for the paper.
 - **A mark summary** across everyone who sat it.
-- Each student's **skill map updated automatically** — full marks on a question
-  counts as secure, and a dropped mark never pulls a skill down, so one bad
-  morning doesn't undo a term's evidence.
+
+**You don't need an account for any of that and you never will.** Nothing is
+saved either — it lives in the browser tab, so you download the PDF and close it.
+
+There is a second version, inside a class, for students who have signed up: the
+same marking grid, but it **updates each student's skill map automatically** —
+full marks on a question counts as secure, and a dropped mark never pulls a skill
+down, so one bad morning doesn't undo a term's evidence. That one needs accounts
+on both sides, which is the only reason I mention them at all.
 
 66 papers are in there: AQA across five series both tiers, Edexcel June 2024,
 November 2024 and June 2025 both tiers, and OCR June 2023, 2024 and 2025 — all
 three boards, both tiers, going back three years.
 
-**You don't need an account to use this and you never will.** If you try one
-thing, try this — it's the closest thing to your spreadsheet, and it works today.
+If you try one thing, try the no-account version — it's the closest thing to your
+spreadsheet, and it works today.
 
 ---
 
