@@ -92,6 +92,34 @@
 -- privilege already absent is a no-op.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- ── 🔴 DO NOT WIDEN THIS LIST WITHOUT READING THIS ────────────────────────
+--
+-- `anon` holds EXECUTE on more definer functions than the seven below, and
+-- revoking them all would BREAK A LIVE FEATURE. Checked 2026-10-27:
+--
+--   session_accepts_attempt(uuid, uuid)  — LEAVE IT. Granted to anon on
+--     purpose, and it gates the insert policy anonymous pupils write through
+--     during a no-login class session:
+--       for insert with check (session_accepts_attempt(session_id, participant_id))
+--     Revoke it and pupils in a lesson cannot post attempts at all. The whole
+--     point of that feature is that they have no accounts.
+--
+--   student_has_assignment(uuid, uuid)   — not touched. Explicitly granted
+--   teacher_owns_assignment(uuid, uuid)     `to anon, authenticated` in their
+--     own migration, so the grant is deliberate rather than a platform default.
+--     They are the same parameter-taking shape as the two oracles below and may
+--     well deserve the same treatment, but whether an anonymous path needs them
+--     has NOT been established, and this file does not guess.
+--
+--   handle_new_user / handle_new_student / handle_new_teacher /
+--   update_updated_at / rls_auto_enable  — trigger functions. Not callable as
+--     RPCs in any useful sense; the trigger runs them regardless of the
+--     caller's EXECUTE. Nothing to gain.
+--
+-- The seven below were each checked: no anonymous path reaches them, and no
+-- policy an anonymous role evaluates calls them.
+-- ───────────────────────────────────────────────────────────────────────────
+
 begin;
 
 revoke execute on function public.student_has_class_grant()                     from anon;
