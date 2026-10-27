@@ -42,7 +42,11 @@ gets back:
 
 - **A feedback sheet per student** — what went well, even better if — as a PDF
   you can send to a parent or keep.
-- **An answer key** for the paper.
+- **An answer key for the practice questions** on those sheets — not for the
+  exam paper itself, which you mark from the board's mark scheme as you do
+  now. The tool never sees the paper; it holds the question numbers, the marks
+  available and the skill each one tests, and you type in the marks you have
+  already awarded.
 - **A mark summary** across everyone who sat it.
 
 **You don't need an account for any of that and you never will.** Nothing is

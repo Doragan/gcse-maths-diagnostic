@@ -93,6 +93,17 @@ kept.
 | Updates their skill map | **No** | **Yes** |
 | Still there tomorrow | No | Yes |
 
+> **What this tool does, and doesn't.** It does not mark anything. The system
+> holds no question text, no images, no answers and no mark scheme — only each
+> question's number, what it's out of, and which skill it tests. **You mark the
+> paper yourself, as you do now, and type the marks in.** What you get back is
+> the thing the marks can't tell you on their own: which skills they point at.
+>
+> That's also why it needs no account and saves nothing — the papers are built
+> into the page, the marking stays in the browser, and the PDF is made there
+> too. Nothing is ever sent anywhere, so there's nothing to log in to and
+> nothing to come back to.
+
 ### 3.1 The quick version — mathsense.net/mark
 
 **1. Pick the paper.** 66 of them: AQA, Edexcel and OCR, both tiers, back to
@@ -118,8 +129,12 @@ median, lowest, highest, a breakdown by topic, and — the useful one —
 first. This part is for you and never appears on a student's sheet.
 
 **6. Press "Get feedback sheets."** One PDF: a page per student with what went
-well, what to work on, and up to three questions to practise — plus the answer
+well, what to work on, and up to three questions to practise — plus an answer
 key as a final page for you.
+
+> ⚠️ **That answer key is for the practice questions on the sheets, not for the
+> exam paper.** It's so you can mark the follow-up work without doing it
+> yourself. For the paper, you need the board's own mark scheme, same as now.
 
 > Anyone who scored **80% or more** also gets one harder question to push on.
 > Below that they don't, deliberately: a student who dropped a third of the
