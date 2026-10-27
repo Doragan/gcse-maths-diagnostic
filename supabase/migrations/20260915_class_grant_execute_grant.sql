@@ -45,8 +45,13 @@
 -- `postgres`, with PUBLIC absent.
 --
 -- So revoking from PUBLIC is necessary and NOT SUFFICIENT here. The grant that
--- exposes a function on this platform is the direct one to `anon`, and it has
--- to be revoked by name. 20261027_revoke_definer_from_anon.sql does that for
+-- exposed THIS function is the direct one to `anon`, and it had to be revoked
+-- by name.
+--
+-- ⚠ That is true of this function, not of the platform. Where the grant lives
+-- varies function by function — some hold only the direct `anon` grant, some
+-- only PUBLIC, and the two worst offenders held both. Revoke from BOTH, every
+-- time; the table in 20261027_revoke_definer_from_anon.sql has the evidence. 20261027_revoke_definer_from_anon.sql does that for
 -- all seven definer functions, and records what each was leaking — two of them
 -- really were answering truthfully to anonymous callers, because they take the
 -- uid as a parameter and never consult auth.uid() at all.
