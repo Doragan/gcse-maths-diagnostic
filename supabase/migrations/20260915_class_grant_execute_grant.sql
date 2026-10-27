@@ -34,6 +34,30 @@
 -- ⚠ FOR THE NEXT SECURITY DEFINER FUNCTION: `grant execute ... to authenticated`
 -- is not a restriction. Revoke from PUBLIC in the same statement block, always.
 --
+-- 🔴 THE LINE ABOVE IS HALF RIGHT, AND THE FIX IN THIS FILE DID NOT WORK.
+-- Corrected 2026-10-27, after probing the deployed function again.
+--
+-- `anon` could still execute it six weeks later. The revoke below succeeded and
+-- removed nothing, because PUBLIC was never the grant in force: Supabase's
+-- default privileges for the `public` schema grant EXECUTE on new functions
+-- DIRECTLY to `anon`, `authenticated` and `service_role`.
+-- `information_schema.routine_privileges` lists exactly those three plus
+-- `postgres`, with PUBLIC absent.
+--
+-- So revoking from PUBLIC is necessary and NOT SUFFICIENT here. The grant that
+-- exposed THIS function is the direct one to `anon`, and it had to be revoked
+-- by name.
+--
+-- ⚠ That is true of this function, not of the platform. Where the grant lives
+-- varies function by function — some hold only the direct `anon` grant, some
+-- only PUBLIC, and the two worst offenders held both. Revoke from BOTH, every
+-- time; the table in 20261027_revoke_definer_from_anon.sql has the evidence. 20261027_revoke_definer_from_anon.sql does that for
+-- all seven definer functions, and records what each was leaking — two of them
+-- really were answering truthfully to anonymous callers, because they take the
+-- uid as a parameter and never consult auth.uid() at all.
+--
+-- The reasoning below about severity still stands. The remedy does not.
+--
 -- ── Noted, deliberately NOT changed here ────────────────────────────────────
 -- is_active_class_member(_class_id, _uid) and teacher_owns_class(_class_id,
 -- _uid) are granted to `anon, authenticated` explicitly and DO take a uid

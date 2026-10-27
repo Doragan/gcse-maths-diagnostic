@@ -1,0 +1,265 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Take EXECUTE on every SECURITY DEFINER function away from `anon`.
+--
+-- ── The rule this file corrects ────────────────────────────────────────────
+--
+-- 20260915_class_grant_execute_grant.sql found `student_has_class_grant()`
+-- callable by `anon`, and wrote down the lesson:
+--
+--     "grant execute ... to authenticated is not a restriction. Revoke from
+--      PUBLIC in the same statement block, always."
+--
+-- That lesson is HALF RIGHT, and the remedy it prescribes does not work. The
+-- migration ran `revoke execute ... from public` and declared the class closed.
+-- Probed on 2026-10-27, over six weeks later, `anon` could still execute it.
+--
+-- WHY. Supabase's default privileges for the `public` schema grant EXECUTE on
+-- new functions DIRECTLY to `anon`, `authenticated` and `service_role` — not
+-- through PUBLIC. `information_schema.routine_privileges` for
+-- student_has_class_grant lists exactly those four grantees plus `postgres`,
+-- and PUBLIC is absent: the 20260915 revoke succeeded and removed nothing,
+-- because the grant it targeted had never been the one in force.
+--
+-- 🔴 AND THAT IS STILL NOT THE WHOLE RULE. The paragraph above was written as
+-- though every function on this platform is exposed the same way. Measured
+-- afterwards, function by function, they are NOT — where the grant lives
+-- depends on how each one came to exist:
+--
+--   DIRECT TO anon ONLY     student_has_class_grant
+--                           get_teacher_student_mastery
+--   VIA PUBLIC ONLY         get_class_skill_mastery
+--                           get_class_exam_sessions
+--                           get_class_exam_paper
+--   BOTH                    is_active_class_member
+--                           teacher_owns_class
+--
+-- The two that held BOTH are the two that were actually leaking, which is why
+-- running only the `from anon` block left them still answering `true` to
+-- anonymous callers. Each block below closed functions the other missed.
+--
+-- ⚠ AND NEITHER REVOKE IS DIAGNOSTIC, which is what made this take three goes.
+-- A REVOKE of a privilege that was never held SUCCEEDS and reports "no rows" —
+-- character for character what a revoke that removed a live grant reports. The
+-- statement's result tells you nothing about whether anything changed. The only
+-- honest check is to call the function with the anon key and look for 42501.
+--
+-- So: revoking from PUBLIC is necessary (a bare CREATE FUNCTION grants to
+-- PUBLIC), revoking from `anon` by name is necessary (Supabase's defaults do
+-- not go through PUBLIC), and neither is sufficient on its own.
+--
+-- 20261027_teacher_grant_arm.sql repeated the PUBLIC-only line an hour before
+-- this was found, because it followed the documented pattern. Both headers are
+-- corrected in the same change as this.
+--
+-- ── What was actually exposed, measured rather than assumed ────────────────
+--
+-- All seven definer functions were callable by `anon` on 2026-10-27. Five of
+-- them leak nothing, because their bodies gate on auth.uid(), which is NULL for
+-- `anon`:
+--
+--   student_has_class_grant()            -> constant false
+--   get_teacher_student_mastery()        -> 0 rows
+--   get_class_skill_mastery(_class_id)   -> 0 rows, gated on teacher_owns_class
+--   get_class_exam_sessions(_class_id)   -> 0 rows, same
+--   get_class_exam_paper(_class_id, …)   -> same
+--
+-- TWO DO LEAK, because they take the uid as a PARAMETER and so never consult
+-- auth.uid() at all. Probed against real ids, as `anon`, both answered
+-- truthfully:
+--
+--   is_active_class_member(_class_id, _uid)  -> true
+--   teacher_owns_class(_class_id, _uid)      -> true
+--
+-- That is an oracle: anyone may ask "is this student in that class" and "does
+-- this teacher own that class" without an account. It is bounded by needing two
+-- uuids, which are 122 bits each and appear in no public surface, so the
+-- practical exposure is small — but it is a real answer about real people given
+-- to an unauthenticated caller, which is not something to leave because it is
+-- inconvenient to reach.
+--
+-- ── Why REVOKE, and not a guard inside the functions ───────────────────────
+--
+-- The tidier-looking fix is to make each function refuse to answer about anyone
+-- but its caller (`_uid = auth.uid()`). It works for teacher_owns_class, whose
+-- eight call sites all pass auth.uid(). It BREAKS is_active_class_member, which
+-- is called from inside other definer bodies with other people's ids —
+-- `(_class_id, pa.student_id)` and `(_class_id, es.student_id)` — where asking
+-- about another person is the entire point and the caller has already been
+-- authorised. A guard there would silently empty the teacher analytics.
+--
+-- So: revoke the grant, keep the bodies.
+--
+-- ── Why this does not break anonymous reads ────────────────────────────────
+--
+-- Both helpers are referenced by RLS policies, two of them `to public`, so a
+-- role evaluating such a policy needs EXECUTE. If an anonymous visitor queried
+-- `classes` directly, this change would turn "0 rows" into a permission error.
+--
+-- Checked before writing: no anonymous path does. Every browser-side query
+-- against classes / class_memberships / class_skill_coverage is on an
+-- authenticated teacher page or in lib/classes.ts, and the one public lookup a
+-- logged-out visitor can reach, app/api/classes/lookup, holds the SERVICE ROLE
+-- and never touches the policy. `authenticated` and `service_role` keep EXECUTE
+-- throughout.
+--
+-- ── What this does NOT close, stated so it is not mistaken for closed ──────
+--
+-- A SIGNED-IN user can still call both helpers about anybody. Revoking `anon`
+-- removes the unauthenticated surface, not the oracle itself. Closing it
+-- properly means splitting each helper into an internal one for definer bodies
+-- and a guarded one for clients, which is a behavioural change to functions
+-- that sit inside live RLS policies and belongs in its own reviewed migration —
+-- the same judgement 20260915 made, now with the evidence it lacked.
+--
+-- Apply via the Supabase SQL Editor (DDL constraint). Idempotent — REVOKE on a
+-- privilege already absent is a no-op.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- ── 🔴 DO NOT WIDEN THIS LIST WITHOUT READING THIS ────────────────────────
+--
+-- `anon` holds EXECUTE on more definer functions than the seven below, and
+-- revoking them all would BREAK A LIVE FEATURE. Checked 2026-10-27:
+--
+--   session_accepts_attempt(uuid, uuid)  — LEAVE IT. Granted to anon on
+--     purpose, and it gates the insert policy anonymous pupils write through
+--     during a no-login class session:
+--       for insert with check (session_accepts_attempt(session_id, participant_id))
+--     Revoke it and pupils in a lesson cannot post attempts at all. The whole
+--     point of that feature is that they have no accounts.
+--
+--   student_has_assignment(uuid, uuid)   — not touched. Explicitly granted
+--   teacher_owns_assignment(uuid, uuid)     `to anon, authenticated` in their
+--     own migration, so the grant is deliberate rather than a platform default.
+--     They are the same parameter-taking shape as the two oracles below and may
+--     well deserve the same treatment, but whether an anonymous path needs them
+--     has NOT been established, and this file does not guess.
+--
+--   handle_new_user / handle_new_student / handle_new_teacher /
+--   update_updated_at / rls_auto_enable  — trigger functions. Not callable as
+--     RPCs in any useful sense; the trigger runs them regardless of the
+--     caller's EXECUTE. Nothing to gain.
+--
+-- The seven below were each checked: no anonymous path reaches them, and no
+-- policy an anonymous role evaluates calls them.
+-- ───────────────────────────────────────────────────────────────────────────
+
+-- ⚠ NO TRANSACTION WRAPPER, DELIBERATELY, AND IT MATTERS.
+--
+-- The first version of this file wrapped all fourteen statements in
+-- begin/commit. Applied on 2026-10-27, NOTHING took effect: one statement
+-- errored, the transaction rolled back, and the other thirteen went with it —
+-- silently, because a rolled-back REVOKE looks exactly like a REVOKE that had
+-- nothing to remove. Running the first line on its own immediately produced
+-- `42501 permission denied for function student_has_class_grant`, which is how
+-- we know the statements themselves are fine.
+--
+-- These revokes are independent and individually idempotent, so atomicity buys
+-- nothing and costs the ability to apply any of them.
+--
+-- 🔴 BUT REMOVING THE WRAPPER IS NOT SUFFICIENT, and the first version of this
+-- note claimed it was without testing the claim. Corrected the same day.
+--
+-- PostgreSQL executes a MULTI-STATEMENT QUERY STRING in an implicit
+-- transaction. The Supabase SQL Editor sends the whole editor contents as one
+-- string, so pasting this file still gives you one transaction whether or not
+-- it contains begin/commit — and one failing line still rolls back the rest,
+-- just as silently.
+--
+-- ⚠ SO: APPLY THESE A FEW LINES AT A TIME, not as one paste, until the failing
+-- statement is known. BOTH blocks matter: by the table above, five of the seven
+-- were closed by the `from public` block and not by the `from anon` one. An
+-- earlier version of this note called the second block optional. It is not.
+--
+-- Re-running any of it is safe: a REVOKE on a privilege already gone is a
+-- no-op, and student_has_class_grant has already been revoked by hand.
+--
+-- THE GENERAL LESSON, and it is no longer "nearly": this note DID become the
+-- next wrong claim. Four distinct confident-and-wrong conclusions have now come
+-- out of this one corner of the schema —
+--
+--   1. 20260915 said revoking PUBLIC closed student_has_class_grant.  It did not.
+--   2. 20261027_teacher_grant_arm copied that line, believing the same.
+--   3. This file said the wrapper was the whole problem.               Untested.
+--   4. This file said `from anon` was the fix and `from public` was spare.
+--
+-- Every one of them came from the same place: a grant statement that succeeds
+-- while changing nothing, read as evidence that it changed something. The habit
+-- that finally worked is to stop trusting the SQL and go round the outside —
+-- call the thing over the API as the role you are trying to lock out, with real
+-- ids, and read the status code.
+
+revoke execute on function public.student_has_class_grant()                     from anon;
+revoke execute on function public.get_teacher_student_mastery()                 from anon;
+revoke execute on function public.get_class_skill_mastery(uuid)                 from anon;
+revoke execute on function public.get_class_exam_sessions(uuid)                 from anon;
+revoke execute on function public.get_class_exam_paper(uuid, uuid)              from anon;
+revoke execute on function public.is_active_class_member(uuid, uuid)            from anon;
+revoke execute on function public.teacher_owns_class(uuid, uuid)                from anon;
+
+-- 🔴 NOT belt and braces, despite what this comment said when it was written.
+-- This block is the ONLY thing that closed the three get_class_* functions, and
+-- half of what closed the two oracles. See the table in the header.
+revoke execute on function public.student_has_class_grant()                     from public;
+revoke execute on function public.get_teacher_student_mastery()                 from public;
+revoke execute on function public.get_class_skill_mastery(uuid)                 from public;
+revoke execute on function public.get_class_exam_sessions(uuid)                 from public;
+revoke execute on function public.get_class_exam_paper(uuid, uuid)              from public;
+revoke execute on function public.is_active_class_member(uuid, uuid)            from public;
+revoke execute on function public.teacher_owns_class(uuid, uuid)                from public;
+
+
+
+-- ── Verify after applying ────────────────────────────────────────────────────
+--
+-- 🚨 The SQL Editor is SUPERUSER and bypasses grants, so calling a function
+-- here proves nothing. Two checks that do mean something:
+--
+-- 1. `anon` no longer holds EXECUTE on any of them. EXPECT no rows:
+--
+--      select routine_name, grantee
+--      from information_schema.routine_privileges
+--      where routine_schema = 'public'
+--        and grantee = 'anon'
+--        and routine_name in (
+--          'student_has_class_grant', 'get_teacher_student_mastery',
+--          'get_class_skill_mastery', 'get_class_exam_sessions',
+--          'get_class_exam_paper', 'is_active_class_member',
+--          'teacher_owns_class');
+--
+-- 2. `authenticated` still does, or every teacher dashboard breaks.
+--    EXPECT seven rows from the same query with grantee = 'authenticated'.
+--
+-- 3. From the application side, re-run the probe that found this: calling each
+--    as the anon key should now return 42501 rather than an answer. A teacher
+--    dashboard should be unchanged.
+
+-- ── APPLIED 2026-10-27, AND VERIFIED FROM OUTSIDE THE DATABASE ──────────────
+--
+-- Applied by hand in the SQL Editor, a few lines at a time as the note above
+-- says. Then probed over the deployed REST API with the ANON key, which is the
+-- only check that means anything here:
+--
+--   student_has_class_grant        42501
+--   get_teacher_student_mastery    42501
+--   get_class_skill_mastery        42501
+--   get_class_exam_sessions        42501
+--   get_class_exam_paper           42501
+--   is_active_class_member         42501   <- had answered `true`
+--   teacher_owns_class             42501   <- had answered `true`
+--
+-- The two oracles were re-probed with the SAME real class and student ids that
+-- had got truthful answers before, deliberately not placeholders: a made-up
+-- uuid would have produced a refusal that looked identical and proved nothing.
+--
+-- The three things that had to SURVIVE, each checked rather than assumed:
+--
+--   anon           session_accepts_attempt still executes. The no-login class
+--                  session writes attempts through it; revoking it would have
+--                  broken a live feature, and widening this list was the first
+--                  instinct on finding more definer functions.
+--   service_role   still executes all seven.
+--   authenticated  a teacher class page renders class mastery, the per-student
+--                  table and topics covered. That exercises the three
+--                  get_class_* RPCs, which are precisely the ones whose only
+--                  grant was PUBLIC — so losing it was the one plausible way
+--                  this change could have broken the dashboard. It did not.
