@@ -10,19 +10,22 @@ doesn't work the way you'd expect, it says so._
 
 This is the thing most likely to confuse you, so it's first.
 
-| What you want to do | Account needed? | Kept afterwards? |
-|---|---|---|
-| Mark a paper and get feedback sheets | **No** | No — gone when you close the tab |
-| Run a session where students answer questions | **No** | No — deleted the same day |
-| Mark a paper **and have it update a student's skill map** | Yes, and so do they | Yes |
-| See a student's progress over weeks | Yes, and so do they | Yes |
-| Set work for a student | Yes, and so do they | Yes |
+| What you want to do | You need an account | They do | Kept afterwards? |
+|---|---|---|---|
+| Mark a paper and get feedback sheets | **No** | **No** | No — gone when you close the tab |
+| Run a session where students answer questions | **Yes** | **No** | No — deleted the same day |
+| Mark a paper **and have it update a student's skill map** | Yes | Yes | Yes |
+| See a student's progress over weeks | Yes | Yes | Yes |
+| Set work for a student | Yes | Yes | Yes |
 
-**The short version:** you can do a lot without anyone signing up, but nothing is
-remembered. Accounts are what turn one-off sessions into a record.
+**The short version:** only one thing here needs nobody to sign up at all, and
+that's marking a paper. **Running a session needs an account for you but nothing
+from the students** — which is the useful middle ground. Everything that is
+remembered afterwards needs accounts on both sides.
 
-My suggestion is to go in that order — use the free, no-account bits first, and
-only ask students to sign up once you've decided it's worth it.
+My suggestion is to work down that table — try the marking with no sign-up at
+all, make yourself an account when you want to run a session, and only ask
+students to sign up once you've decided it's worth it.
 
 ---
 
@@ -71,10 +74,14 @@ on — plus the answer key as a final page for you, never on a student's sheet.
 
 ---
 
-## 2. Run a session with no accounts (no sign-up for anyone)
+## 2. Run a session — no sign-up for the students
 
-Use this for a first session, or any time asking for email addresses is more
-trouble than it's worth.
+Use this for a first session, or any time asking students for email addresses is
+more trouble than it's worth.
+
+> **You need your own account for this** — it lives in your dashboard, so sign up
+> first (section 3, two minutes). **The students need nothing at all:** no email,
+> no password, no sign-up.
 
 **You:** go to **Your dashboard → Run a lesson → Start a session**. Choose the
 qualification and how many questions each, press **Start session**. You get a
@@ -226,7 +233,7 @@ Inactive accounts are deleted after a year. Full notice at
 |---|---|
 | **Blank ≠ zero** when entering marks | A blank is "didn't attempt" and is ignored; a zero counts against them |
 | **/mark saves nothing** | Download the PDF before closing the tab |
-| **No-account sessions vanish the same day** | Fine for a lesson, useless as a record |
+| **Sessions vanish the same day** | Fine for a lesson, useless as a record. They need your account, not the students' |
 | **One class per student for 1:1** | Not one class with all your individuals in it |
 | **"To work on" rising is normal** | It means they're attempting things |
 | **Mark "Topics covered"** | Otherwise mastery is measured against the whole course and looks worse than it is |
