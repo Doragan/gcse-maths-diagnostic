@@ -103,9 +103,16 @@ $$;
 -- function's privileges, so in the normal case this changes nothing — but if
 -- the function were ever dropped and recreated, PostgreSQL would hand EXECUTE
 -- to PUBLIC automatically and `grant ... to authenticated` would NOT take it
--- back. That is exactly how this function ended up callable by `anon` once
--- before (20260915_class_grant_execute_grant.sql). Asserting both every time
--- costs nothing and closes the case permanently.
+-- back.
+--
+-- 🔴 AND IT DOES NOT CLOSE THE CASE, which this file claimed an hour before it
+-- was disproved. Corrected 2026-10-27. Revoking from PUBLIC does not stop
+-- `anon`, because Supabase's default privileges grant EXECUTE on functions in
+-- the `public` schema DIRECTLY to `anon` — PUBLIC was never the grant in force.
+-- This line was copied from 20260915_class_grant_execute_grant.sql, which made
+-- the same mistake and believed it fixed something for six weeks.
+-- 20261027_revoke_definer_from_anon.sql revokes from `anon` by name, which is
+-- what actually works.
 revoke execute on function public.student_has_class_grant() from public;
 grant  execute on function public.student_has_class_grant() to authenticated;
 
