@@ -37,9 +37,13 @@ top.
 **Your dashboard → Classes → New class.** Name it whatever you like.
 
 > ⚠️ **For one-to-one, make one class per student.** It looks odd, and I'd
-> rather tell you than let you find out: the system keeps work separate by
-> class, so all your individual students in a single "class" would have their
-> results pooled. Name each one after the student.
+> rather tell you than let you find out, because it fails quietly.
+>
+> **Topics covered** (§5) is set per class, not per student. Put eight
+> individuals in one "class" and they share a single taught-list, so the
+> mastery percentages are measured against the wrong thing for all of them —
+> with no warning. Their individual skill maps are still their own; it's the
+> denominator that goes wrong. Name each class after the student.
 
 ---
 
@@ -58,8 +62,12 @@ to chase.
 
 ### Or hand out the join code
 
-Same page, under **Join code**. They go to **mathsense.net/join** and type it.
-Nothing to collect, but no list of who hasn't joined.
+Same page, under **Join code** — four characters, like `MX4T`. The student
+signs up, goes to **My classes**, and types it in. Nothing for you to collect,
+but no list of who hasn't joined.
+
+> Not to be confused with mathsense.net/join, which is an older route for a
+> different thing. The class code goes in **My classes** on their own dashboard.
 
 ### Three things to know before you invite thirty people
 
@@ -110,8 +118,12 @@ median, lowest, highest, a breakdown by topic, and — the useful one —
 first. This part is for you and never appears on a student's sheet.
 
 **6. Press "Get feedback sheets."** One PDF: a page per student with what went
-well, what to work on, questions to practise and one harder question to push on
-— plus the answer key as a final page for you.
+well, what to work on, and up to three questions to practise — plus the answer
+key as a final page for you.
+
+> Anyone who scored **80% or more** also gets one harder question to push on.
+> Below that they don't, deliberately: a student who dropped a third of the
+> paper doesn't need stretching, and the sheet stays a page.
 
 > ⚠️ **Nothing here is saved.** It lives in that browser tab and is gone when
 > you close it. Download the PDF first.
@@ -162,8 +174,15 @@ password, no age question, nothing to install.
 **While it runs:** you see who's answering and what they're getting right and
 wrong, live. There's a display view with the code in large type for a screen.
 
-> ⚠️ **It deletes itself at the end of the day.** No skill map, no history. This
-> is a way to run a session, not a way to keep a record.
+> ⚠️ **Two clocks, and the first one will catch you out.**
+>
+> **The session stops working 6 hours after you start it.** Start one at 9am and
+> it won't accept answers after 3pm — the code stops working mid-afternoon. For
+> a second session that day, start a new one.
+>
+> **The data is deleted the same evening**, by a job that runs at 22:40 UTC. No
+> skill map, no history, nothing to come back to. This is a way to run a
+> session, not a way to keep a record.
 
 ---
 
@@ -172,7 +191,12 @@ wrong, live. There's a display view with the code in large type for a screen.
 **Your dashboard → Your students.** Two numbers per student:
 
 - **mastered** — skills they've shown they can do
-- **to work on** — skills they've attempted and are getting wrong
+- **to work on** — skills they've had a real go at and aren't getting right yet
+
+> "To work on" needs **five attempts** at a skill before it will say anything.
+> Under five, a skill sits quietly as *in progress*. So a student who tried
+> something twice and got it wrong both times won't show up here yet — which is
+> why the number barely moves in the first session or two.
 
 Sort by **Most to work on** or **Quietest first**. The second is usually more
 useful: it finds the student who's drifted, not the one struggling loudly. Tap a
@@ -200,7 +224,12 @@ look bleak for no good reason.
 
 - **Practice** on any skill or topic, with instant feedback and worked
   explanations.
-- **Mini-exams** assembled from real past paper questions.
+- **Mini-exams** — built from our own question bank, but **shaped like a real
+  paper**: 80 marks, the same spread of marks per question, and a different
+  balance for Foundation and Higher, all taken from 30 real papers we coded
+  question by question. The questions are ours; the shape of the paper is
+  theirs. If you're expecting scanned past paper questions, that isn't what
+  this is.
 - **Their own skill map.**
 - Anything you set them.
 
@@ -225,7 +254,11 @@ Two things worth knowing rather than discovering:
 - **If a student deletes their account, the papers you marked for them go too.**
   It's their record, not my archive of your assessments.
 
-Inactive accounts are deleted after a year. Full notice at
+**They can leave your class whenever they want**, from **My classes**, and
+nobody can be added to a class without accepting. Leaving stops the sharing
+from that point on — it doesn't delete what you've already marked.
+
+Inactive accounts are deleted after a year of not signing in. Full notice at
 **mathsense.net/privacy**.
 
 ---
@@ -234,11 +267,12 @@ Inactive accounts are deleted after a year. Full notice at
 
 | | |
 |---|---|
-| **One class per student for 1:1** | Not one class holding all your individuals |
+| **One class per student for 1:1** | One class holding all of them shares a single "Topics covered", so every percentage is measured against the wrong list |
 | **Inviting creates no accounts** | They must click the link and sign up before you see anything |
 | **Blank is the same as zero** | To take a question out, untick "They sat the whole paper" and deselect it |
+| **"To work on" needs 5 attempts** | Fewer than that and the skill stays quietly "in progress" |
 | **/mark saves nothing** | Download the PDF before closing the tab |
-| **Sessions vanish the same day** | And they need your account, not the students' |
+| **Sessions stop after 6 hours** | And are deleted the same evening. They need your account, not the students' |
 | **"To work on" rising is normal** | It means they're attempting things |
 | **Mark "Topics covered"** | Otherwise mastery is measured against the whole course |
 
