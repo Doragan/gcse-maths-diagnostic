@@ -131,11 +131,29 @@
 -- we know the statements themselves are fine.
 --
 -- These revokes are independent and individually idempotent, so atomicity buys
--- nothing and costs the ability to apply any of them. Without the wrapper a
--- failing line takes out only itself and says so.
+-- nothing and costs the ability to apply any of them.
 --
--- Re-running the whole file is safe: a REVOKE on a privilege already gone is a
+-- 🔴 BUT REMOVING THE WRAPPER IS NOT SUFFICIENT, and the first version of this
+-- note claimed it was without testing the claim. Corrected the same day.
+--
+-- PostgreSQL executes a MULTI-STATEMENT QUERY STRING in an implicit
+-- transaction. The Supabase SQL Editor sends the whole editor contents as one
+-- string, so pasting this file still gives you one transaction whether or not
+-- it contains begin/commit — and one failing line still rolls back the rest,
+-- just as silently.
+--
+-- ⚠ SO: APPLY THESE A FEW LINES AT A TIME, not as one paste, until the failing
+-- statement is known. The seven `from anon` revokes are the ones that matter;
+-- the `from public` block below is belt-and-braces and can go separately.
+--
+-- Re-running any of it is safe: a REVOKE on a privilege already gone is a
 -- no-op, and student_has_class_grant has already been revoked by hand.
+--
+-- THE GENERAL LESSON, which is the third of its kind in this corner of the
+-- schema: a list of independent grant changes does not want a transaction, and
+-- on this platform does not want to be one paste either. Two previous
+-- migrations here documented fixes that had not worked; this note was nearly
+-- the third, which is why it now says what was tested and what was assumed.
 
 revoke execute on function public.student_has_class_grant()                     from anon;
 revoke execute on function public.get_teacher_student_mastery()                 from anon;
