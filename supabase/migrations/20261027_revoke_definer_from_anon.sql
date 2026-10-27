@@ -120,7 +120,22 @@
 -- policy an anonymous role evaluates calls them.
 -- ───────────────────────────────────────────────────────────────────────────
 
-begin;
+-- ⚠ NO TRANSACTION WRAPPER, DELIBERATELY, AND IT MATTERS.
+--
+-- The first version of this file wrapped all fourteen statements in
+-- begin/commit. Applied on 2026-10-27, NOTHING took effect: one statement
+-- errored, the transaction rolled back, and the other thirteen went with it —
+-- silently, because a rolled-back REVOKE looks exactly like a REVOKE that had
+-- nothing to remove. Running the first line on its own immediately produced
+-- `42501 permission denied for function student_has_class_grant`, which is how
+-- we know the statements themselves are fine.
+--
+-- These revokes are independent and individually idempotent, so atomicity buys
+-- nothing and costs the ability to apply any of them. Without the wrapper a
+-- failing line takes out only itself and says so.
+--
+-- Re-running the whole file is safe: a REVOKE on a privilege already gone is a
+-- no-op, and student_has_class_grant has already been revoked by hand.
 
 revoke execute on function public.student_has_class_grant()                     from anon;
 revoke execute on function public.get_teacher_student_mastery()                 from anon;
@@ -140,7 +155,7 @@ revoke execute on function public.get_class_exam_paper(uuid, uuid)              
 revoke execute on function public.is_active_class_member(uuid, uuid)            from public;
 revoke execute on function public.teacher_owns_class(uuid, uuid)                from public;
 
-commit;
+
 
 -- ── Verify after applying ────────────────────────────────────────────────────
 --
