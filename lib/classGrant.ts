@@ -5,9 +5,21 @@ import { supabase } from './supabase'
  *
  *   student premium = personal grant OR class grant
  *
- *   class grant : an ACTIVE class_memberships row
- *                 -> classes.school_id
- *                 -> schools.granted_until > now
+ *   class grant : an ACTIVE class_memberships row, then EITHER
+ *                 (a) -> classes.school_id  -> schools.granted_until  > now
+ *                 (b) -> classes.teacher_id -> teachers.paid_until    > now
+ *
+ * ── Why there are two arms ─────────────────────────────────────────────────
+ * Two kinds of customer, arriving differently. A SCHOOL is provisioned by hand:
+ * a `schools` row attached to the teacher's classes. A TUTOR is self-serve and
+ * pays for themselves, which the Stripe webhook records on `teachers.paid_until`.
+ * Arm (b) is what makes the money they paid reach their students; without it a
+ * paying tutor's class stayed on the free tier.
+ *
+ * Arm (b) also resolves through the class's OWNER rather than an attached
+ * school, so a class created after payment is covered the moment it exists.
+ * Arm (a) attaches classes as they are at the time, which is why the
+ * provisioning runbook has to warn that a class made later gets nothing.
  *
  * Read it here, then hand it to `isPaidStudent` as `activeClassMembership`.
  * Nothing should re-implement the rule: that is the whole reason every premium
@@ -60,15 +72,18 @@ export async function fetchMyClassGrant(): Promise<boolean> {
 /**
  * Server (service role): does this one student have a class grant?
  *
- * Deliberately three plain queries rather than one embedded join. The join is
- * one round trip and looks neater, but if PostgREST ever failed to resolve the
+ * Deliberately plain queries rather than embedded joins. A join is one round
+ * trip and looks neater, but if PostgREST ever failed to resolve the
  * relationship the error would surface as `false` — silently removing premium
- * from every school-covered student, in a way no test here could catch, since
- * none of this can run against the real database from CI. These filters cannot
- * be misresolved.
+ * from every covered student, in a way no test here could catch, since none of
+ * this can run against the real database from CI. These filters cannot be
+ * misresolved.
  *
- * It costs one round trip in the common case: a student with no active
+ * It still costs one round trip in the common case: a student with no active
  * membership returns immediately, and today almost every student is that case.
+ * A covered student costs three, or four if arm (a) is checked and misses —
+ * and the arms are ordered so the provisioned-school case, which is the one
+ * with a human waiting on a trial, short-circuits first.
  */
 export async function fetchClassGrant(
   client: QueryClient,
@@ -85,22 +100,43 @@ export async function fetchClassGrant(
     const classIds = (memberships ?? []).map((m: { class_id: string }) => m.class_id)
     if (classIds.length === 0) return false
 
+    // Both owning columns in ONE read, because both arms need this row set and
+    // asking twice would be a second round trip for the same answer.
     const { data: classes } = await client
       .from('classes')
-      .select('school_id')
+      .select('school_id, teacher_id')
       .in('id', classIds)
-      .not('school_id', 'is', null)
 
-    const schoolIds = [...new Set((classes ?? []).map((c: { school_id: string }) => c.school_id))]
-    if (schoolIds.length === 0) return false
+    const rows = (classes ?? []) as Array<{ school_id: string | null; teacher_id: string | null }>
 
-    const { data: schools } = await client
-      .from('schools')
+    // ── Arm (a): an attached school with a live grant ────────────────────────
+    const schoolIds = [...new Set(rows.map(c => c.school_id).filter((id): id is string => !!id))]
+    if (schoolIds.length > 0) {
+      const { data: schools } = await client
+        .from('schools')
+        .select('id')
+        .in('id', schoolIds)
+        .gt('granted_until', now.toISOString())
+      if ((schools ?? []).length > 0) return true
+    }
+
+    // ── Arm (b): the class's OWNER holds a pass ──────────────────────────────
+    // ⚠ Reached whether or not arm (a) found a school. The previous version
+    // returned false as soon as no class had a school_id, which is precisely
+    // the case a self-serve tutor is in: they have never been provisioned a
+    // `schools` row, so every one of their classes has a null school_id. An
+    // early return there would have made this arm unreachable for exactly the
+    // customers it exists for.
+    const teacherIds = [...new Set(rows.map(c => c.teacher_id).filter((id): id is string => !!id))]
+    if (teacherIds.length === 0) return false
+
+    const { data: teachers } = await client
+      .from('teachers')
       .select('id')
-      .in('id', schoolIds)
-      .gt('granted_until', now.toISOString())
+      .in('id', teacherIds)
+      .gt('paid_until', now.toISOString())
 
-    return (schools ?? []).length > 0
+    return (teachers ?? []).length > 0
   } catch (err) {
     console.error('class grant lookup threw:', err)
     return false
