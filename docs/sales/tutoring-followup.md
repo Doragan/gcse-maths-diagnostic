@@ -1,17 +1,33 @@
-# Mathsense — what we talked about
+# Mathsense — what we talked about, and what's changed since
 
-_After our conversation. The warm-contact version of the proposition; the
-cold-prospect one is `tutoring-one-pager.md`, kept as a template._
+_Written after our conversation on 9 October, refreshed 27 October. The
+warm-contact version of the proposition; the cold-prospect one is
+`tutoring-one-pager.md`, kept as a template._
 
 ---
 
-Thanks for the time, and for being straight about what you actually use. Most of
-this is me writing down what I said so you've got it, plus the bits I said I'd
-check.
+Thanks again for the time, and for being straight about what you actually use.
+Most of this is me writing down what I said so you've got it, plus the bits I
+said I'd check — and three things that have changed since we spoke, one of which
+is me correcting myself in your favour.
 
 Short version: there's one thing here that I think is genuinely useful to you
 now, a clear list of things that aren't, and a trial with your Year 9s whenever
 your mocks are out of the way.
+
+---
+
+## What's changed since we spoke
+
+Three things, so you don't have to read the whole thing again to find them.
+
+1. **The invitation flow is built and live.** When we spoke it was a plan. It
+   isn't now — see *Getting them signed up*.
+2. **There's a second option I didn't have on the day: running a session with no
+   accounts at all.** Given what you said about linking accounts, this may matter
+   more to you than the first one.
+3. **I was wrong about iGCSE, partly.** I told you nothing was switched on. Some
+   of it now is. The correction has limits and I've set them out below.
 
 ---
 
@@ -44,7 +60,7 @@ thing, try this — it's the closest thing to your spreadsheet, and it works tod
 ## The trial
 
 Your Year 9s, starting whenever the mocks are done — four weeks or so, as you
-said.
+said. By my reckoning that's about now, which is part of why I'm writing.
 
 - **Free, for about eight weeks**, for however many students you want on it.
 - Everyone in the group gets the **full paid version** for the whole window:
@@ -54,8 +70,8 @@ said.
 - **When it ends, nothing is deleted.** The extras switch off; accounts, skill
   maps and marked papers all stay, and they can carry on with the free version.
 
-Year 9 is the right choice and not only because of the mocks — see the next
-section but one.
+Year 9 is the right choice and not only because of the mocks — see the section on
+what I can't help with.
 
 ---
 
@@ -65,23 +81,75 @@ You said they'd never link their own accounts, and that you'd rather make the
 accounts and hand out the logins. I understand why — that's how tutorbird works
 for you, and it's the normal way round in your world.
 
-I'm not going to be able to do exactly that, and I'd rather tell you why than
-quietly not build it. If I create an account and you hold the password, then I
-can't honestly tell a parent that their child's record is only visible to you
-because the child agreed to it — and that one sentence is what keeps me out of a
-much heavier legal arrangement with every tutor and school I ever work with.
+I'm still not going to do exactly that, and I'd rather tell you why than quietly
+not build it. If I create an account and you hold the password, then I can't
+honestly tell a parent that their child's record is only visible to you because
+the child agreed to it — and that one sentence is what keeps me out of a much
+heavier legal arrangement with every tutor and school I ever work with.
 
-**What I'm building instead, and it should be ready for your trial:** you type in
-the students you're expecting, the system emails each of them a link, they click
-it and pick a password. You see a list of who's joined and **who hasn't**, so you
-can chase the stragglers — which is the bit you actually wanted and the bit the
-current join-code approach can't do.
+What I said I'd build instead is **now built and live.** You type in the students
+you're expecting, the system emails each of them a link, they click it and pick a
+password. You see a list of who's joined and **who hasn't**, so you can chase the
+stragglers — which is the bit you actually wanted and the bit a join code can't
+do.
 
 For Year 9s I'd suggest inviting a parent's email address rather than the
 student's. It's less chasing, and it puts the consent where it belongs anyway.
 
-If that still turns out to be too much friction once you've tried it, tell me —
-that's exactly the kind of thing the trial is for.
+### And an option I didn't have on the day
+
+Since we spoke I've built something for a school with a two-month approval
+process for any new pupil login. It solves a different version of your problem,
+and you can use it:
+
+**You start a session and get a code. Students go to the site, type the code and
+a first name, and start working. No accounts, no emails, no passwords, nothing to
+chase.** You watch what they're getting right and wrong as they do it.
+
+The catch, stated plainly: **it deletes itself at the end of the day.** No skill
+map, no history, nothing to come back to. It is a way to run a session, not a way
+to keep a record.
+
+So I'd suggest using both, in this order:
+
+1. **First session: use the code.** Nobody signs up for anything. You find out in
+   forty minutes whether the questions suit your students, and they find out
+   whether they like it — before anyone has been asked for an email address.
+2. **Then invite the ones who stick.** Signing up is a much easier ask once a
+   student has already used the thing and wants their progress kept.
+
+That also gives you a straight answer to a parent who asks what they're being
+signed up for, because they'll have already seen it.
+
+---
+
+## iGCSE — correcting what I told you
+
+On the call I said the course definitions existed but nothing was switched on: no
+iGCSE practice, no 4MA1 papers. **The first half is now out of date.** I've
+checked properly rather than from memory, and here's exactly where it stands.
+
+**What works now.** A student can pick iGCSE rather than GCSE, and their practice
+and skill map follow the iGCSE course rather than the GCSE one.
+
+- **iGCSE Foundation — 103 of 110 skills have questions (94%).** As well covered
+  as GCSE Foundation. I'd call this usable.
+- **iGCSE Higher — 133 of 149 (89%).** Same proportion as GCSE Higher, with one
+  gap that matters below.
+
+**The gap, because it's a real one.** iGCSE Higher has five topics GCSE doesn't,
+and **four of them are empty**: differentiation, stationary points, and calculus
+in kinematics have no questions at all, and set notation has two written but not
+yet published. Calculus is a distinctive chunk of 4MA1 Higher, so if your iGCSE
+students are Higher tier and near the end of the course, that absence is going to
+show. It's on my list and it is not there today.
+
+**Still true: no 4MA1 papers in the marking tool.** All 66 papers are GCSE. I've
+coded 20 iGCSE papers into the system's own analysis, which is the groundwork,
+but you cannot sit down and mark an iGCSE paper the way you can a GCSE one.
+
+So: iGCSE Foundation practice, yes, today. iGCSE Higher practice, yes apart from
+calculus. Marking an iGCSE paper, not yet.
 
 ---
 
@@ -101,11 +169,6 @@ Also not happening:
 - **Annotating on your screen while a student works**, MyMaths-style. There's
   nothing like it and it isn't close. For primary especially, MyMaths is doing
   something I'm not.
-- **iGCSE, today.** I checked after we spoke: the course definitions exist in the
-  system but nothing is switched on for it — no iGCSE practice and no 4MA1 papers
-  in the marking tool. I'm part-way through the groundwork, and knowing you have
-  iGCSE students moves it up my list, but I'm not going to tell you it's there
-  when it isn't.
 
 ---
 
@@ -127,6 +190,9 @@ Two things worth knowing rather than discovering:
 - **If a student deletes their account, the papers you marked for them go too.**
   It's their record, not my archive of your assessments.
 
+The no-account sessions are different again: nothing is kept, so there's nothing
+to see afterwards and nothing to delete.
+
 Inactive accounts are deleted after a year. The full privacy notice is at
 mathsense.net/privacy, and there's a longer written position on roles and
 sub-processors if you ever want it.
@@ -143,7 +209,8 @@ actually do them:
    this is the most obviously doable thing on your list.
 2. **Colour overlays for SEN.** Nobody asks for this who doesn't need it. Worth
    doing properly.
-3. **iGCSE**, as above.
+3. **iGCSE calculus and 4MA1 papers**, per the section above — knowing you have
+   iGCSE students is what moved this up.
 4. **Question formatting** — you rate MathsGenie's, so I'll go and look at it
    properly rather than guess what you meant.
 
@@ -159,9 +226,9 @@ Two things, honestly stated.
 don't, and a tutor who sets the expectation is the single thing I most need to
 find out about. Your answer to that is worth more to me than a polite review.
 
-**Use the marking.** Nobody has ever marked a paper through the product. You'd be
-the first, and anything clumsy about it is more useful to me than anything that
-goes smoothly.
+**Use the marking.** Nobody has ever marked a paper through the product — that is
+still true today, and you'd be the first. Anything clumsy about it is more useful
+to me than anything that goes smoothly.
 
 ---
 
