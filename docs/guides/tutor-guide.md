@@ -99,6 +99,10 @@ kept.
 > paper yourself, as you do now, and type the marks in.** What you get back is
 > the thing the marks can't tell you on their own: which skills they point at.
 >
+> That mapping is the work. Every question in all 66 papers was read and tagged
+> with the skills it assesses — 2,466 of them. The tool is that table plus some
+> arithmetic, which is why it can run with nobody logged in.
+>
 > That's also why it needs no account and saves nothing — the papers are built
 > into the page, the marking stays in the browser, and the PDF is made there
 > too. Nothing is ever sent anywhere, so there's nothing to log in to and
@@ -128,13 +132,34 @@ median, lowest, highest, a breakdown by topic, and — the useful one —
 **Questions to revisit**, ordered by the marks the group lost, biggest lesson
 first. This part is for you and never appears on a student's sheet.
 
-**6. Press "Get feedback sheets."** One PDF: a page per student with what went
-well, what to work on, and up to three questions to practise — plus an answer
-key as a final page for you.
+**6. Press "Get feedback sheets."** One PDF, a page per student: **what went
+well** and **what to work on**, worked out from which skills they dropped marks
+on. Every paper gives you that.
 
-> ⚠️ **That answer key is for the practice questions on the sheets, not for the
-> exam paper.** It's so you can mark the follow-up work without doing it
-> yourself. For the paper, you need the board's own mark scheme, same as now.
+> ⚠️ **Practice questions only exist for 10 of the 66 papers.** They're written
+> by hand, one per question, and most papers don't have them yet. On the other
+> 56 the sheet is still useful — what went well and what to work on — but there
+> are no questions to hand out and no answer key, because there's nothing to
+> answer.
+>
+> **The 10 that have them:**
+> - **AQA June 2025** — all six (1F, 2F, 3F, 1H, 2H, 3H)
+> - **AQA November 2024** — Foundation only (1F, 2F, 3F), and these are the
+>   only three that also carry a harder stretch question
+> - **Edexcel June 2025 Paper 1 Foundation**
+>
+> **No OCR paper has them**, and no Edexcel paper except that one. If you want
+> to see the tool at its best on the first go, mark an **AQA June 2025** paper.
+
+Where practice questions do exist, you get up to three per student, chosen from
+the questions they dropped marks on — plus an answer key as a final page.
+
+> ⚠️ **That answer key is for the practice questions, not for the exam paper.**
+> It's so you can mark the follow-up work without working it out yourself. For
+> the paper you need the board's mark scheme, same as now.
+>
+> They're questions to print or read out, not links into the app — no parameters
+> and no marking, just a question and the answer for you.
 
 > Anyone who scored **80% or more** also gets one harder question to push on.
 > Below that they don't, deliberately: a student who dropped a third of the
@@ -287,6 +312,7 @@ Inactive accounts are deleted after a year of not signing in. Full notice at
 | **Blank is the same as zero** | To take a question out, untick "They sat the whole paper" and deselect it |
 | **"To work on" needs 5 attempts** | Fewer than that and the skill stays quietly "in progress" |
 | **/mark saves nothing** | Download the PDF before closing the tab |
+| **Practice questions: 10 papers of 66** | All AQA June 2025, AQA Nov 2024 Foundation, Edexcel Jun 2025 1F. No OCR. The other 56 still give what-went-well and what-to-work-on |
 | **Sessions stop after 6 hours** | And are deleted the same evening. They need your account, not the students' |
 | **"To work on" rising is normal** | It means they're attempting things |
 | **Mark "Topics covered"** | Otherwise mastery is measured against the whole course |
