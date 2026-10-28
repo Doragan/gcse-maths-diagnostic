@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { aggregateProgress } from '../../../../../lib/liveProgress'
-import { sessionInsights } from '../../../../../lib/sessionInsights'
+import { progressInsights } from '../../../../../lib/progressInsights'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The teacher's live view of a class session (docs/audit/29, increment 5).
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }))
     }
 
-    const insights = sessionInsights(
+    const insights = progressInsights(
       // participant_id goes INTO the aggregator and not out of it: the
       // misconception counts need to know one pupil from four, and nothing
       // in the result carries an id back to the browser.

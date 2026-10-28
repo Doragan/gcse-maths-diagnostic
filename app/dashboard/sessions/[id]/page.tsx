@@ -8,8 +8,8 @@ import { sessionLifecycle, type ClassSession } from '../../../../lib/classSessio
 import { getClassSessionResults, getClassSessionResultsHead } from '../../../../lib/classSessionsApi'
 import { useLiveProgress } from '../../../../lib/useLiveProgress'
 import LiveProgressTable from '../../../../components/LiveProgressTable'
-import SessionInsightsPanel from '../../../../components/SessionInsightsPanel'
-import type { SessionInsights } from '../../../../lib/sessionInsights'
+import ClassInsightsPanel from '../../../../components/ClassInsightsPanel'
+import type { ProgressInsights } from '../../../../lib/progressInsights'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, card,
@@ -38,7 +38,7 @@ export default function ClassSessionPage() {
   const [closing, setClosing] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
   const [error, setError] = useState('')
-  const [insights, setInsights] = useState<SessionInsights>(
+  const [insights, setInsights] = useState<ProgressInsights>(
     { questions: [], skills: [], misconceptions: [], untaggedWrong: 0 },
   )
 
@@ -212,7 +212,7 @@ export default function ClassSessionPage() {
 
       {/* Below the names on purpose, and closed on purpose: a teacher with one
           screen is mirroring this page to the projector. */}
-      <SessionInsightsPanel insights={insights} />
+      <ClassInsightsPanel insights={insights} />
 
       {error && <p style={errorBox}>{error}</p>}
 

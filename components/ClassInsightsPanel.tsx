@@ -2,11 +2,15 @@
 
 import { skillsById } from '../lib/skills/skillGraph'
 import { getMisconception } from '../data/misconceptions'
-import type { SessionInsights } from '../lib/sessionInsights'
+import type { ProgressInsights } from '../lib/progressInsights'
 import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// What the class is finding hard — the teacher's half of a running session.
+// What the class found hard — the teacher's half of a class session and of an
+// assignment. Both surfaces ask the same question ("what do I reteach") of the
+// same shape of data, so they share this and lib/progressInsights.ts; the
+// wording is past-tense-neutral because homework is read after the fact and a
+// lesson while it runs.
 //
 // ── Why this is a disclosure, and why it is closed ─────────────────────────
 //
@@ -14,13 +18,14 @@ import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 // is on this page is on the wall. Pupil names are already below the code card
 // for that reason, and this panel sits below them and starts CLOSED. Opening
 // it is a deliberate act, which is the right shape for "six of them got this
-// wrong" in front of the six.
+// wrong" in front of the six — and going through last night's homework on the
+// board is the same situation.
 //
 // ── Why counts, not just percentages ───────────────────────────────────────
 //
 // "100% wrong" is one pupil as often as it is the class. Every line leads with
 // how many people, because that is the number a teacher acts on — see the
-// ranking rule in lib/sessionInsights.ts.
+// ranking rule in lib/progressInsights.ts.
 //
 // ── Why nothing here names a pupil ─────────────────────────────────────────
 //
@@ -31,14 +36,14 @@ import { colors, font, radius, card, sectionTitle } from '../lib/styles'
 // ─────────────────────────────────────────────────────────────────────────────
 
 type Props = {
-  insights: SessionInsights
+  insights: ProgressInsights
   /** How many questions to list before it stops being a lesson decision. */
   topN?: number
 }
 
 const DEFAULT_TOP_N = 5
 
-export default function SessionInsightsPanel({ insights, topN = DEFAULT_TOP_N }: Props) {
+export default function ClassInsightsPanel({ insights, topN = DEFAULT_TOP_N }: Props) {
   const { questions, skills, misconceptions, untaggedWrong } = insights
   const nothingYet = questions.length === 0 && skills.length === 0 && misconceptions.length === 0
 
