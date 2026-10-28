@@ -142,13 +142,72 @@ export const errorBox: React.CSSProperties = {
  * sits just under 900. 960 clears it without being on the edge, which matters
  * because a longer nav label would otherwise silently push it back to two rows.
  *
- * ⚠ Only the dashboard uses this so far. The other table-bearing surfaces
- * (students, sessions/[id], assignments/[id], classes/[id]) still have their
- * own numbers, so moving between them still jumps. Converging them is a
- * follow-up, and this constant is the place to converge on.
+ * The HUB only. It is a grid of cards rather than a column of text, so it
+ * takes the extra width usefully; everything else uses TEACHER_CONTENT_WIDTH
+ * below. Two tiers on purpose, not an oversight.
  */
 export const DASHBOARD_MAX_WIDTH = '960px'
 
+/**
+ * Every other teacher page: a single column of cards, forms and tables.
+ *
+ * It used to be six different numbers — 480, 600, 640, 700, 780 and unbounded
+ * — so the content column jumped every time a teacher moved between pages,
+ * and the two pages with no bound at all stretched the full width of a large
+ * monitor.
+ *
+ * ── Why 780 ────────────────────────────────────────────────────────────────
+ *
+ * Measured, not chosen by eye. The progress table is the widest thing any of
+ * these pages carries (Student · Progress · Score · Parts · Status · Last
+ * attempt), and with realistic double-barrelled names it stops wrapping names
+ * onto a second line at 700px: rows are 59–60px tall at 600 and 640, and 40px
+ * at 700 and every width above it.
+ *
+ * So 700 is the floor and 780 is that floor plus room for a longer name or one
+ * more column. It is also a width the product already shipped — classes/[id]
+ * has used it since it was written — so this converges on something seen
+ * rather than something invented.
+ *
+ * Note what this means: the table pages were NOT too narrow before. The 700s
+ * were fine and the 600/640 pages would only have wrapped if they had carried
+ * the table, which they do not. This change is about the jump between pages,
+ * not about rescuing a squeezed layout.
+ */
+export const TEACHER_CONTENT_WIDTH = '780px'
+
+/**
+ * Checkout, and nothing else. A payment page is a single short form and a
+ * price; letting it run to 780 would leave a lot of whitespace around very
+ * little, and narrow reads as deliberate there in a way it would not
+ * elsewhere.
+ */
+export const TEACHER_NARROW_WIDTH = '480px'
+
+/**
+ * A teacher page: one centred column of stacked cards.
+ *
+ * Every dashboard page had already written this out by hand, identically. The
+ * two that had NOT — students and students/[id] — reached for `pageContainer`
+ * below instead, which is a different thing wearing a similar name: it centres
+ * a SINGLE card in the viewport with `align-items: center` and no
+ * `flex-direction`, so it lays its children out in a ROW.
+ *
+ * On a page with a heading and a list of students that put the heading beside
+ * the first card and pushed the leftmost content off the left edge of the
+ * viewport (measured at x = -130px). `pageContainer` is right for the auth,
+ * join and pay pages, which really do hold one card; it was never right here.
+ */
+export const teacherPage: React.CSSProperties = {
+  maxWidth: TEACHER_CONTENT_WIDTH,
+  margin: '0 auto',
+  padding: '24px 20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+}
+
+/** Centres ONE card in the viewport. See teacherPage for what this is not. */
 export const pageContainer: React.CSSProperties = {
   minHeight: '100dvh',
   display: 'flex',

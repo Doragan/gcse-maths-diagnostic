@@ -9,6 +9,7 @@ import FeedbackWidget from '../../../components/FeedbackWidget'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../lib/styles'
 
 type Student = {
@@ -249,7 +250,7 @@ export default function AssessmentResultsPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '700px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',

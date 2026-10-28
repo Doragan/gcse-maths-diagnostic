@@ -14,6 +14,7 @@ import { skillsById } from '../../../../lib/skills/skillGraph'
 import {
   colors, font, card,
   primaryButton, secondaryButton, errorBox,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -257,7 +258,7 @@ export default function ClassSessionPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '700px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',
