@@ -120,6 +120,75 @@ describe('aggregateProgress', () => {
 
   const PICKED_ONCE = { selectionMode: 'picked' as const, completionMode: 'attempt_once', assignedCount: 3 }
 
+  describe('answering past the target', () => {
+    // A pupil can: the student page shows "✓ Complete" and leaves the next
+    // question available. In POOL mode the counters are attempts, so nothing
+    // bounded them and the teacher's table read "12/10".
+    const POOL_ONCE = {
+      selectionMode: 'pool' as const, completionMode: 'attempt_once',
+      assignedCount: 10, scoreAgainst: 'target' as const,
+    }
+    const tries = (n: number, correct: number) => Array.from({ length: n }, (_, i) =>
+      at('a', 'q' + i, i < correct, '2026-10-20T10:' + String(i).padStart(2, '0') + ':00Z'))
+
+    it('never shows progress beyond the target', () => {
+      const [row] = aggregateProgress([who('a')], tries(12, 8), POOL_ONCE)
+      expect(row.progress).toEqual({ done: 10, target: 10 })
+      expect(row.is_complete).toBe(true)
+    })
+
+    it('never scores above the denominator', () => {
+      // 11 of 12 right against a target of 10 used to read "11/10".
+      const [row] = aggregateProgress([who('a')], tries(12, 11), POOL_ONCE)
+      expect(row.score).toBe('10/10')
+    })
+
+    it('still reports the real totals, which are not capped', () => {
+      // The cap is about counting toward a TARGET. How much work someone
+      // actually did is a different fact and the teacher should keep it.
+      const [row] = aggregateProgress([who('a')], tries(12, 8), POOL_ONCE)
+      expect(row.total_attempts).toBe(12)
+      expect(row.correct_count).toBe(8)
+    })
+
+    it('leaves someone short of the target completely alone', () => {
+      const [row] = aggregateProgress([who('a')], tries(4, 3), POOL_ONCE)
+      expect(row.progress).toEqual({ done: 4, target: 10 })
+      expect(row.score).toBe('3/10')
+      expect(row.is_complete).toBe(false)
+    })
+
+    it('caps until_correct the same way', () => {
+      const POOL_UNTIL = { ...POOL_ONCE, completionMode: 'until_correct' }
+      const [row] = aggregateProgress([who('a')], tries(14, 12), POOL_UNTIL)
+      expect(row.progress).toEqual({ done: 10, target: 10 })
+      expect(row.score).toBe('10/10')
+    })
+
+    it('caps picked mode too, for a question removed after it was answered', () => {
+      // attemptedQIds is distinct ids, so it only exceeds the count when the
+      // assignment itself shrank underneath the pupil. Nothing prevents that.
+      const [row] = aggregateProgress([who('a')], [
+        at('a', 'q1', true, '2026-10-20T10:00:00Z'),
+        at('a', 'q2', true, '2026-10-20T10:01:00Z'),
+        at('a', 'q3', true, '2026-10-20T10:02:00Z'),
+      ], { selectionMode: 'picked' as const, completionMode: 'attempt_once', assignedCount: 2 })
+      expect(row.progress).toEqual({ done: 2, target: 2 })
+      expect(row.score).toBe('2/2')
+    })
+
+    it('keeps the class average inside 100%', () => {
+      const rows = aggregateProgress(
+        [who('a'), who('b')],
+        [...tries(12, 11), ...tries(2, 1).map(x => ({ ...x, subject_id: 'b' }))],
+        POOL_ONCE,
+      )
+      const avg = averageScorePct(rows)
+      expect(avg).not.toBeNull()
+      expect(avg).toBeLessThanOrEqual(100)
+      expect(avg).toBe(55)   // 100% and 10%
+    })
+  })
   it('counts unique questions, not attempts, in picked/attempt_once', () => {
     // Two goes at the same question is one question started, and the score is
     // out of what was assigned rather than what was tried.
