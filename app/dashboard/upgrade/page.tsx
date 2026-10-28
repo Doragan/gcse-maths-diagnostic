@@ -14,7 +14,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { colors, font } from '../../../lib/styles'
+import { colors, font, TEACHER_NARROW_WIDTH } from '../../../lib/styles'
 
 export default function RetiredUpgradePage() {
   const router = useRouter()
@@ -22,7 +22,7 @@ export default function RetiredUpgradePage() {
   useEffect(() => { router.replace('/dashboard') }, [router])
 
   return (
-    <main style={{ maxWidth: '480px', margin: '0 auto', padding: '48px 20px', textAlign: 'center' }}>
+    <main style={{ maxWidth: TEACHER_NARROW_WIDTH, margin: '0 auto', padding: '48px 20px', textAlign: 'center' }}>
       <p style={{ fontSize: font.lg, color: colors.textPrimary, margin: '0 0 8px', fontWeight: '600' }}>
         Class diagnostics are free.
       </p>

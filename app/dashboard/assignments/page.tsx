@@ -7,6 +7,7 @@ import { getTeacherAssignments, type Assignment } from '../../../lib/assignments
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../lib/styles'
 
 const COMPLETION_LABELS: Record<string, string> = {
@@ -116,7 +117,7 @@ export default function TeacherAssignmentsPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '640px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',

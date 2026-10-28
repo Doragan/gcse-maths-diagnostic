@@ -14,6 +14,7 @@ import { skillSetLabel } from '../../../../lib/skillSelection'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../../lib/styles'
 
 const COMPLETION_LABELS: Record<string, string> = {
@@ -162,7 +163,7 @@ export default function AssignmentDetailPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '700px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',

@@ -14,6 +14,7 @@ import ClassCoverage from '../../../../components/ClassCoverage'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -207,7 +208,7 @@ export default function ClassOverviewPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '780px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',

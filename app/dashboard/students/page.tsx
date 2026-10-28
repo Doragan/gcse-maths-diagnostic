@@ -7,7 +7,7 @@ import { getSession, requireTeacher } from '../../../lib/auth'
 import { getTutorStudents } from '../../../lib/tutorStudents'
 import { type StudentAnalytics } from '../../../lib/teacherAnalytics'
 import {
-  colors, font, radius, card, secondaryButton, pageContainer, pageTitle, sectionTitle,
+  colors, font, radius, card, secondaryButton, teacherPage, pageTitle, sectionTitle,
 } from '../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ export default function TutorStudentsPage() {
   })
 
   return (
-    <div style={pageContainer}>
+    <div style={teacherPage}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <h1 style={pageTitle}>My students</h1>
         <Link href="/dashboard/classes" style={{ ...secondaryButton, width: 'auto', textDecoration: 'none' }}>
