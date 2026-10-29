@@ -208,6 +208,57 @@ describe('qualification scoping', () => {
     expect(wrong, 'papers whose spec name disagrees with their derived qualification').toEqual([])
   })
 
+  it('keeps the content exclusive to one qualification off the other courses', () => {
+    // These lists are not decoration: a course's skill pool IS the mini-exam's
+    // question filter, so a skill that drifts into the wrong pool becomes a
+    // question served for an exam the student will not sit. That is what the
+    // mini-exam was doing — it filtered by TIER only, and 2 set-notation
+    // questions reached GCSE papers while 18 questions on the content below
+    // reached iGCSE ones.
+    //
+    // Named rather than derived, because deriving them from the same lists
+    // that are under test would assert nothing: if an exclusion list were
+    // emptied, a derived test would happily agree with it.
+    const igcseOnly = [
+      'set_notation', 'counting_elements_in_sets',
+      // Calculus — 4MA1 spec 3.4, no GCSE equivalent.
+      'differentiation', 'stationary_points', 'calculus_kinematics',
+    ]
+    const gcseOnly = [
+      'iteration', 'time_series', 'relative_frequency', 'plans_and_elevations',
+      'equation_of_a_circle', 'nth_term_quadratic_sequences',
+      'scatter_graphs', 'loci', 'exponential_graphs', 'equations_and_identities',
+      // Absent from 4MA1 AND prerequisites of content it does examine, which is
+      // why they are excluded by the course pool rather than by the graph.
+      'sampling', 'frequency_trees', 'frequency_diagrams', 'box_plots',
+      'exact_trig_values',
+    ]
+    const poolOf = (q: Qualification) => new Set(courses
+      .filter(c => c.qualification === q)
+      .flatMap(c => c.skills))
+
+    expect(
+      igcseOnly.filter(id => poolOf('gcse').has(id)),
+      '4MA1-only content on a GCSE course',
+    ).toEqual([])
+    expect(
+      gcseOnly.filter(id => poolOf('igcse').has(id)),
+      'content 4MA1 does not examine on an iGCSE course',
+    ).toEqual([])
+
+    // And the other half of the claim: each list really is content its own
+    // qualification examines, so neither test above passes by naming skills
+    // that simply no longer exist.
+    expect(
+      igcseOnly.filter(id => !poolOf('igcse').has(id)),
+      'listed as 4MA1-only but on no iGCSE course',
+    ).toEqual([])
+    expect(
+      gcseOnly.filter(id => !poolOf('gcse').has(id)),
+      'listed as GCSE-only but on no GCSE course',
+    ).toEqual([])
+  })
+
   it('keeps the mark-evidence table on one qualification', () => {
     // This table has no board dimension, so a paper from another qualification
     // does not create a separate bucket — it moves the shared numbers.

@@ -110,16 +110,39 @@ export function assembleExam(
      * paper passes nothing here (every Foundation question is also Higher).
      */
     blockedSkillIds?: Set<string>
+    /**
+     * The student's whole course pool: a candidate qualifies only if EVERY
+     * skill it carries is in here. This is the positive form of the rule above
+     * and it is the one that actually matches the invariant — "on my course" —
+     * where a block list only ever catches the exclusions someone remembered.
+     *
+     * Blocking alone was measurably not enough. `blockedSkillIds` is the
+     * HIGHER-ONLY set, so it says nothing about content that is off-syllabus
+     * without being higher-only, and 4MA1 has a lot of that: measured against
+     * the 281 published questions, a GCSE paper could serve 2 set-notation
+     * questions (iGCSE-only content) and an iGCSE Higher paper 18 questions on
+     * iteration, time series, the equation of a circle and six other topics
+     * 4MA1 does not examine. Keeping a block list in step with the four
+     * separate delta lists in data/courses.ts is the maintenance burden this
+     * avoids.
+     *
+     * EVERY, not SOME: question 54337c4a is tagged
+     * ["counting_elements_in_sets", "solving_linear_equations"], and its second
+     * tag is GCSE content — a question is only safe when all of its tags are.
+     */
+    allowedSkillIds?: Set<string>
     rng?: () => number
   },
 ): AssembledExam {
   const rng = opts.rng ?? Math.random
   const exclude = opts.exclude ?? new Set<string>()
   const blocked = opts.blockedSkillIds
+  const allowed = opts.allowedSkillIds
   const pool = candidates.filter(c =>
     calcEligible(c, opts.calculatorMode) &&
     !exclude.has(c.id) &&
-    (!blocked || c.skillIds.every(id => !blocked.has(id))),
+    (!blocked || c.skillIds.every(id => !blocked.has(id))) &&
+    (!allowed || c.skillIds.every(id => allowed.has(id))),
   )
 
   const used = new Set<string>()

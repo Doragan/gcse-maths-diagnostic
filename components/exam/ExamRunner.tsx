@@ -6,7 +6,8 @@ import { supabase } from '../../lib/supabase'
 import { getSession } from '../../lib/auth'
 import { candidateOf, type CalculatorMode, type AssembledExam } from '../../lib/exam/assembler'
 import { BLUEPRINTS } from '../../lib/exam/blueprint'
-import { higherOnlySkillIds } from '../../data/courses'
+import { higherOnlySkillIds, courseFor, type Qualification } from '../../data/courses'
+import { getQualification, DEFAULT_QUALIFICATION } from '../../lib/skills/qualificationPreference'
 import { serialiseGridAnswer, parseGridAnswer } from '../../lib/questions/gridDraw'
 import { groupExamAttempts } from '../../lib/exam/recordAttempts'
 import {
@@ -32,6 +33,23 @@ export type ExamVariant = 'teacher-preview' | 'student'
 
 const HIGHER_ONLY = new Set(higherOnlySkillIds)
 
+/**
+ * Every question a student on this course could legitimately be asked.
+ *
+ * The paper used to be assembled from the whole published bank, narrowed only
+ * by the Higher-only block below — a TIER filter doing a COURSE filter's job,
+ * so anything off-syllabus without being higher-only went straight through.
+ * Measured on the 281 published questions: a GCSE paper could serve 2
+ * set-notation questions (iGCSE-only content), and an iGCSE Higher paper 18
+ * questions on content 4MA1 does not examine — iteration, time series, the
+ * equation of a circle and six more topics.
+ *
+ * Resolved per call rather than at module load, because the qualification is a
+ * preference that can change without a reload.
+ */
+const onCourseFor = (qualification: Qualification, tier: Tier) =>
+  new Set(courseFor(qualification, tier).skills)
+
 export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const router = useRouter()
   const isStudent = variant === 'student'
@@ -40,6 +58,8 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [phase, setPhase] = useState<'config' | 'loading' | 'running' | 'review'>('config')
   const [tier, setTier] = useState<Tier>('foundation')
   const [mode, setMode] = useState<CalculatorMode>('non_calc')
+  // Which exam they sit, and so which questions are on their course at all.
+  const [qualification, setQualification] = useState<Qualification>(DEFAULT_QUALIFICATION)
   const [items, setItems] = useState<Item[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [results, setResults] = useState<Record<string, UnitResult>>({})
@@ -76,6 +96,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [shortfall, setShortfall] = useState<AssembledExam['shortfall'] | null>(null)
 
   useEffect(() => {
+    // Read after mount, like every other preference, so the server-rendered
+    // markup and the first client render agree.
+    setQualification(getQualification())
     getSession().then(async session => {
       if (!session) { router.push(isStudent ? '/student' : '/auth'); return }
       if (isStudent) {
@@ -141,9 +164,10 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
     const byId = new Map(rows.map(r => [r.id, r]))
     const candidates = rows.map(candidateOf).filter((c): c is NonNullable<typeof c> => c !== null)
     // Each tier has its OWN blueprint — a real Higher paper is fewer, heavier,
-    // synthesis-led questions, not the same paper with harder content. Foundation
-    // additionally excludes anything touching a Higher-only skill; Higher draws
-    // from the whole pool (every Foundation skill is also on Higher).
+    // synthesis-led questions, not the same paper with harder content. Both
+    // tiers then draw only from their own COURSE pool (see onCourseFor), which
+    // for Foundation is what keeps Higher-only content out and for either tier
+    // is what keeps another qualification's content out.
     // Hold back what this student saw on their last few papers. Measured
     // without it: 8% of a Foundation paper and 24% of a Higher one repeated the
     // paper before. Read here rather than from `quota` because a teacher
@@ -168,6 +192,14 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
       BLUEPRINTS[tier],
       {
         calculatorMode: calcMode,
+        // Everything on this paper must be on this student's course. Strictly
+        // this makes the Higher-only block below redundant — higherOnlySkillIds
+        // is the Higher course MINUS the Foundation one, so nothing it names
+        // was ever in a Foundation pool — but it is kept as the one line that
+        // states the tier rule at the point the paper is built, and it is the
+        // only thing still protecting a Foundation paper if the pool above is
+        // ever widened.
+        allowedSkillIds: onCourseFor(qualification, tier),
         blockedSkillIds: tier === 'foundation' ? HIGHER_ONLY : undefined,
       },
       recentPapers,
