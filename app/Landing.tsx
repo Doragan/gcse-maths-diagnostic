@@ -336,7 +336,7 @@ function DemoQuestion({ initialPool, initialQuestion }: {
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 20px', lineHeight: 1.6 }}>
             <strong style={{ color: colors.textPrimary }}>{correctCount}/{answered}</strong> correct across{' '}
             <strong style={{ color: colors.textPrimary }}>{skillsSeen.size}</strong> skill{skillsSeen.size === 1 ? '' : 's'} so far.
-            Create a free account to save your progress and build your full skill map across all 135 GCSE Maths skills.
+            Create a free account to save your progress and build your full skill map across all {SKILL_COUNT} GCSE Maths skills.
           </p>
           <Link
             href="/student?mode=signup"
