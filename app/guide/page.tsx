@@ -164,6 +164,31 @@ function Where({ children }: { children: React.ReactNode }) {
   )
 }
 
+/**
+ * A screenshot of a real screen. Captured from the live site with invented
+ * student names — NEVER a real pupil's name or email: this page is public.
+ */
+function Figure({ src, alt, caption }: { src: string; alt: string; caption: string }) {
+  return (
+    <figure style={{ margin: '0 0 18px' }}>
+      <img
+        src={src}
+        alt={alt}
+        style={{
+          width: '100%', height: 'auto', display: 'block',
+          border: `1px solid ${colors.border}`,
+          borderRadius: radius.md,
+          background: colors.card,
+        }}
+      />
+      <figcaption style={{
+        fontSize: font.base, color: colors.textSecondary,
+        margin: '8px 2px 0', lineHeight: '1.5',
+      }}>{caption}</figcaption>
+    </figure>
+  )
+}
+
 export default function GuidePage() {
   return (
     <div style={page}>
@@ -401,6 +426,12 @@ export default function GuidePage() {
           useful one — <strong>Questions to revisit</strong>, ordered so the biggest lesson is at
           the top. That part is yours; it never appears on a student’s sheet.
         </p>
+
+        <Figure
+          src="/guide/questions-to-revisit.png"
+          alt="The class summary: a bar per topic, then Questions to revisit listing each question with the marks the class lost."
+          caption="What you get while you type — the sample names here are invented. Questions to revisit is ordered by marks lost, so the first row is the lesson to reteach."
+        />
 
         <h3 id="marks" style={h3}>Three things to know</h3>
         <div style={noteBox}>
