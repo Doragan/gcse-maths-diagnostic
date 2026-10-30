@@ -346,7 +346,9 @@ export default function ClassPapersPage() {
             <div style={{ ...cardStyle, marginBottom: 16 }}>
               <h2 style={{ ...sectionTitle, marginBottom: 4 }}>Enter marks</h2>
               <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 12px' }}>
-                Leave a question blank to skip it. Columns are coloured by topic; hover a heading for the skill.
+                A blank scores the same as a zero — every question on the paper counts. Full marks is what
+                makes a skill secure, and a dropped mark never pulls one down. Columns are coloured by topic;
+                hover a heading for the skill.
               </p>
               <div style={{ overflowX: 'auto', borderRadius: radius.md, border: `1px solid ${colors.border}` }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm }}>

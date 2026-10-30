@@ -325,8 +325,9 @@ export default function FreeMarkingPage() {
           <div style={{ ...cardStyle, marginBottom: 16 }}>
             <h2 style={{ ...sectionTitle, marginBottom: 4 }}>Enter marks</h2>
             <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 12px' }}>
-              Leave a question blank if it was not attempted — that is different from a zero,
-              and only a zero counts against the student. Hover a heading for the skill.
+              A blank scores the same as a zero. To leave questions out of the total, untick
+              <strong> They sat the whole paper</strong> above and choose the ones they sat.
+              Hover a heading for the skill.
             </p>
             <p style={{ margin: '0 0 12px' }}>
               <GuideLink anchor="marks">Blank, zero, or leave it out?</GuideLink>
