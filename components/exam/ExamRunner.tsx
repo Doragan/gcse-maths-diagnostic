@@ -9,6 +9,7 @@ import { BLUEPRINTS } from '../../lib/exam/blueprint'
 import { type Qualification } from '../../data/courses'
 import { coursePoolOptions } from '../../lib/exam/coursePool'
 import { getQualification, DEFAULT_QUALIFICATION } from '../../lib/skills/qualificationPreference'
+import { calculatorFiltersFor } from '../../lib/questions/calculatorPreference'
 import { serialiseGridAnswer, parseGridAnswer } from '../../lib/questions/gridDraw'
 import { groupExamAttempts } from '../../lib/exam/recordAttempts'
 import {
@@ -433,12 +434,20 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
             const outOfExams = isStudent && quota != null && !quota.isPaid && quota.remaining === 0
             const busy = phase === 'loading'
             const disabled = busy || outOfExams
+            // 4MA1 has no non-calculator paper — both of its papers allow a
+            // calculator — so offering one is not a harder option, it is a
+            // paper that student will never sit. The calculator paper then
+            // stands alone and takes the primary styling. Same rule as
+            // /practice, through the same calculatorFiltersFor().
+            const offerNonCalc = calculatorFiltersFor(qualification).includes('non_calc')
             return (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button disabled={disabled} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
-                  {busy && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
-                </button>
-                <button disabled={disabled} onClick={() => startExam('calc')} style={{ ...secondaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+                {offerNonCalc && (
+                  <button disabled={disabled} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+                    {busy && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
+                  </button>
+                )}
+                <button disabled={disabled} onClick={() => startExam('calc')} style={{ ...(offerNonCalc ? secondaryButton : primaryButton), width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
                   {busy && mode === 'calc' ? 'Assembling…' : 'Calculator paper'}
                 </button>
               </div>
