@@ -283,6 +283,12 @@ export default function GuidePage() {
         <Step n={3}>Each student gets an email with a link. They click it, choose their own password, and accept.</Step>
         <Step n={4}>You’ll see <strong>Invited (3 of 8 joined)</strong>, so you always know who still needs a nudge.</Step>
 
+        <Figure
+          src="/guide/invite-roster.png"
+          alt="The invite box above a roster: three addresses marked Joined, five marked Invited, not joined yet, each with Send again and Withdraw buttons."
+          caption="The roster after inviting eight. The five who haven’t joined keep a Send again button, which is the whole point of inviting by email rather than handing out a code."
+        />
+
         <h3 id="code" style={h3}>Option B · Give out the class code</h3>
         <Where>Your class → People → Join code</Where>
         <p style={p}>It’s four characters, like <code>MX4T</code>.</p>
@@ -351,6 +357,12 @@ export default function GuidePage() {
           first name — no email, no password, nothing to install. You watch their answers come in,
           right and wrong, as they work.
         </p>
+
+        <Figure
+          src="/guide/session-code.png"
+          alt="A session screen showing the address mathsense.net/s in large type, a four-character code, a projector view button, and empty Progress and Where the class is struggling panels."
+          caption="What you see the moment a session starts. Open projector view puts the code on a screen; the panels below fill as pupils answer."
+        />
         <div style={noteBox}>
           <p style={{ ...p, margin: '0 0 10px' }}><strong>Two time limits.</strong></p>
           <p style={{ ...p, margin: '0 0 10px' }}>
@@ -479,6 +491,12 @@ export default function GuidePage() {
           than finding whoever is struggling loudly, because they’ll tell you themselves. Tap any
           student for the full breakdown.
         </p>
+
+        <Figure
+          src="/guide/your-students.png"
+          alt="A list of students, each row showing a name, when they were last active, and three figures: mastered, to work on, and questions this week."
+          caption="One row per student, sorted by who has most to work on. The names here are invented."
+        />
         <div style={noteBox}>
           <p style={{ ...p, margin: 0 }}>
             <strong>“To work on” needs five attempts</strong> at a skill before it says anything.
