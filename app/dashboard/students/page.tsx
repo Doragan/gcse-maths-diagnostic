@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getSession, requireTeacher } from '../../../lib/auth'
 import { getTutorStudents } from '../../../lib/tutorStudents'
 import { type StudentAnalytics } from '../../../lib/teacherAnalytics'
+import GuideLink from '../../../components/GuideLink'
 import {
   colors, font, radius, card, secondaryButton, teacherPage, pageTitle, sectionTitle,
 } from '../../../lib/styles'
@@ -109,6 +110,7 @@ export default function TutorStudentsPage() {
     <div style={teacherPage}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <h1 style={pageTitle}>My students</h1>
+        <GuideLink anchor="progress">What these numbers mean</GuideLink>
         <Link href="/dashboard/classes" style={{ ...secondaryButton, width: 'auto', textDecoration: 'none' }}>
           Classes
         </Link>

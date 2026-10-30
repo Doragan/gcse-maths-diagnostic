@@ -8,6 +8,7 @@ import { sessionLifecycle, type ClassSession } from '../../../lib/classSessions'
 import { courseIdFor, type CourseTier, type Qualification } from '../../../data/courses'
 import { usePublishedSkillIds } from '../../../lib/skills/publishedSkills'
 import SkillPicker from '../../../components/SkillPicker'
+import GuideLink from '../../../components/GuideLink'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle, inputStyle, labelStyle, errorBox,
@@ -114,7 +115,10 @@ export default function ClassSessionsPage() {
 
       {/* ── Start one ──────────────────────────────────────────────────────── */}
       <div style={card}>
-        <h2 style={sectionTitle}>Start a session</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+          <h2 style={{ ...sectionTitle, margin: 0 }}>Start a session</h2>
+          <GuideLink anchor="sessions">How sessions work</GuideLink>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
           <div>
