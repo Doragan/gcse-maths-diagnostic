@@ -150,6 +150,19 @@ async function main() {
       ? `nothing within ${NEAR} of the real count (${skillCount})`
       : `found ${[...new Set(suspicious)].join(', ')} — within ${NEAR} of the skill count (${skillCount}). Use SKILL_COUNT.`)
 
+  // The window above is the wrong instrument for a number that LABELS skills:
+  // such a number IS the skill count whatever its value, and distance says
+  // nothing about that. The sign-up modal carried "all 135 GCSE Maths skills"
+  // beside a stats strip reading 164 — 29 adrift, so comfortably outside NEAR,
+  // and the page contradicted itself in two places a visitor sees in one
+  // session. Match on the label instead, where the window cannot reach.
+  const labelled = [...copy.matchAll(/\b(\d{2,4})\s+(?:GCSE\s+)?(?:Maths\s+)?skills\b/gi)]
+    .map(m => m[1])
+  check('no number is typed in front of "skills"', labelled.length === 0,
+    labelled.length === 0
+      ? 'every skills figure in the copy is derived'
+      : `found ${[...new Set(labelled)].join(', ')} labelling skills (the real count is ${skillCount}). Use SKILL_COUNT.`)
+
   const priceLiterals = [...copy.matchAll(/£\s?\d+(?:\.\d\d)?/g)].map(m => m[0])
   check('no hardcoded price in the copy', priceLiterals.length === 0,
     priceLiterals.length === 0
