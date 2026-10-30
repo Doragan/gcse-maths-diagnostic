@@ -12,6 +12,7 @@ import ClassView from '../../components/papers/ClassView'
 import { toWwwEbiSheets, answerKeyFor } from '../../lib/papers/wwwEbi'
 import { downloadFeedbackPdf } from '../../lib/papers/feedbackPdf'
 import { parseMarksCsv, marksCsvTemplate, parsePastedNames } from '../../lib/papers/marksCsv'
+import GuideLink from '../../components/GuideLink'
 import {
   colors, font, radius, card as cardStyle,
   primaryButton, secondaryButton, errorBox, sectionTitle, pageTitle, SITE_NAV_HEIGHT,
@@ -326,6 +327,9 @@ export default function FreeMarkingPage() {
             <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 12px' }}>
               Leave a question blank if it was not attempted — that is different from a zero,
               and only a zero counts against the student. Hover a heading for the skill.
+            </p>
+            <p style={{ margin: '0 0 12px' }}>
+              <GuideLink anchor="marks">Blank, zero, or leave it out?</GuideLink>
             </p>
             <div style={{ overflowX: 'auto', borderRadius: radius.md, border: `1px solid ${colors.border}` }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: font.sm }}>

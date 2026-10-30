@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession, signOut, requireTeacher } from '../../../lib/auth'
 import { supabase } from '../../../lib/supabase'
+import GuideLink from '../../../components/GuideLink'
 import {
   createClass, getTeacherClasses, type TeacherClass,
 } from '../../../lib/classes'
@@ -111,7 +112,10 @@ export default function TeacherClassesPage() {
 
       {/* Create */}
       <div style={card}>
-        <h2 style={sectionTitle}>New class</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+          <h2 style={{ ...sectionTitle, margin: 0 }}>New class</h2>
+          <GuideLink anchor="one-to-one">Teaching one-to-one?</GuideLink>
+        </div>
         <div style={styles.row}>
           <input
             type="text"

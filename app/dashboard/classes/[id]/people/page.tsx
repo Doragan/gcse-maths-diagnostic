@@ -11,6 +11,7 @@ import {
   type TeacherInvitation,
 } from '../../../../../lib/classes'
 import { STATE_LABEL } from '../../../../../lib/invitations'
+import GuideLink from '../../../../../components/GuideLink'
 import {
   colors, font, radius, card,
   secondaryButton, sectionTitle,
@@ -275,11 +276,15 @@ export default function ClassPeoplePage() {
           consented. See supabase/migrations/20260915_class_invitations.sql and
           docs/audit/20 §10. */}
       <div style={card}>
-        <h2 style={sectionTitle}>
-          Invite by email {waiting.length > 0 && (
-            <span style={{ color: colors.textHint, fontWeight: '400' }}>({waiting.length} waiting)</span>
-          )}
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+          <h2 style={{ ...sectionTitle, margin: 0 }}>
+            Invite by email{' '}
+            {waiting.length > 0 && (
+              <span style={{ color: colors.textHint, fontWeight: '400' }}>({waiting.length} waiting)</span>
+            )}
+          </h2>
+          <GuideLink anchor="invite">How invitations work</GuideLink>
+        </div>
         <p style={{ fontSize: font.sm, color: colors.textHint, margin: '4px 0 12px', lineHeight: '1.6' }}>
           Paste your class list — commas, spaces or one per line. Each student gets an
           email with a link. <strong>No accounts are created:</strong> they sign up
