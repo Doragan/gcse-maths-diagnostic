@@ -1,5 +1,10 @@
+import SiteNav from '../../components/SiteNav'
+import { SITE_NAV_HEIGHT } from '../../lib/styles'
+
 export default function TermsPage() {
   return (
+    <>
+    <SiteNav />
     <main style={styles.page}>
       <div style={styles.container}>
 
@@ -135,6 +140,7 @@ export default function TermsPage() {
 
       </div>
     </main>
+    </>
   )
 }
 
@@ -166,7 +172,7 @@ function Ul({ items }: { items: string[] }) {
 const styles: Record<string, React.CSSProperties> = {
   page: {
     background: '#f4f6f8',
-    minHeight: '100vh',
+    minHeight: `calc(100vh - ${SITE_NAV_HEIGHT})`,
     padding: '40px 20px',
   },
   container: {

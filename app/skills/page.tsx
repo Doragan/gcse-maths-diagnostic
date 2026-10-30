@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import SiteNav from '../../components/SiteNav'
 import { supabase } from '../../lib/supabase'
 import { skills } from '../../data/skills'
 import { courseFor, type Qualification } from '../../data/courses'
@@ -17,7 +18,7 @@ import { studentMastery, type MasteryStatus } from '../../lib/skills/masteryEngi
 import { getPrerequisiteTree } from '../../lib/skills/skillGraph'
 import { getStudentProfile } from '../../lib/auth'
 import { trackEvent } from '../../lib/analytics'
-import { colors, font, radius, secondaryButton } from '../../lib/styles'
+import { colors, font, radius, secondaryButton, SITE_NAV_HEIGHT } from '../../lib/styles'
 import type { Tier } from '../../lib/skills/examProfile'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -119,6 +120,8 @@ export default function SkillsIndexPage() {
   const totalVisible = grouped.reduce((n, g) => n + g.list.length, 0)
 
   return (
+    <>
+    <SiteNav />
     <main style={styles.page}>
 
       <header>
@@ -308,6 +311,7 @@ export default function SkillsIndexPage() {
         ← Back to practice
       </button>
     </main>
+    </>
   )
 }
 
@@ -337,7 +341,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: '14px',
-    minHeight: '100dvh',
+    minHeight: `calc(100dvh - ${SITE_NAV_HEIGHT})`,
   },
   title: {
     fontSize: font['3xl'],

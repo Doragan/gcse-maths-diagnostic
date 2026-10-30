@@ -146,6 +146,13 @@ export const errorBox: React.CSSProperties = {
  * takes the extra width usefully; everything else uses TEACHER_CONTENT_WIDTH
  * below. Two tiers on purpose, not an oversight.
  */
+/**
+ * The height of SiteNav, so a page that sizes itself against the viewport can
+ * subtract it. It lives here rather than in the component because it isn't the
+ * nav that needs the number — it is every full-height page underneath one.
+ */
+export const SITE_NAV_HEIGHT = '60px'
+
 export const DASHBOARD_MAX_WIDTH = '960px'
 
 /**
