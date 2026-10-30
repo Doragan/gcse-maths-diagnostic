@@ -6,7 +6,10 @@ import { supabase } from '../../lib/supabase'
 import { getSession } from '../../lib/auth'
 import { candidateOf, type CalculatorMode, type AssembledExam } from '../../lib/exam/assembler'
 import { BLUEPRINTS } from '../../lib/exam/blueprint'
-import { higherOnlySkillIds } from '../../data/courses'
+import { type Qualification } from '../../data/courses'
+import { coursePoolOptions } from '../../lib/exam/coursePool'
+import { getQualification, DEFAULT_QUALIFICATION } from '../../lib/skills/qualificationPreference'
+import { calculatorFiltersFor } from '../../lib/questions/calculatorPreference'
 import { serialiseGridAnswer, parseGridAnswer } from '../../lib/questions/gridDraw'
 import { groupExamAttempts } from '../../lib/exam/recordAttempts'
 import {
@@ -30,8 +33,6 @@ import { colors, font, radius, card, primaryButton, secondaryButton } from '../.
 // skill map. Everything between config and review is identical.
 export type ExamVariant = 'teacher-preview' | 'student'
 
-const HIGHER_ONLY = new Set(higherOnlySkillIds)
-
 export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const router = useRouter()
   const isStudent = variant === 'student'
@@ -40,6 +41,8 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [phase, setPhase] = useState<'config' | 'loading' | 'running' | 'review'>('config')
   const [tier, setTier] = useState<Tier>('foundation')
   const [mode, setMode] = useState<CalculatorMode>('non_calc')
+  // Which exam they sit, and so which questions are on their course at all.
+  const [qualification, setQualification] = useState<Qualification>(DEFAULT_QUALIFICATION)
   const [items, setItems] = useState<Item[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [results, setResults] = useState<Record<string, UnitResult>>({})
@@ -76,6 +79,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
   const [shortfall, setShortfall] = useState<AssembledExam['shortfall'] | null>(null)
 
   useEffect(() => {
+    // Read after mount, like every other preference, so the server-rendered
+    // markup and the first client render agree.
+    setQualification(getQualification())
     getSession().then(async session => {
       if (!session) { router.push(isStudent ? '/student' : '/auth'); return }
       if (isStudent) {
@@ -141,9 +147,9 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
     const byId = new Map(rows.map(r => [r.id, r]))
     const candidates = rows.map(candidateOf).filter((c): c is NonNullable<typeof c> => c !== null)
     // Each tier has its OWN blueprint — a real Higher paper is fewer, heavier,
-    // synthesis-led questions, not the same paper with harder content. Foundation
-    // additionally excludes anything touching a Higher-only skill; Higher draws
-    // from the whole pool (every Foundation skill is also on Higher).
+    // synthesis-led questions, not the same paper with harder content. Which
+    // QUESTIONS either tier may use is a separate matter, and lives in
+    // lib/exam/coursePool.ts.
     // Hold back what this student saw on their last few papers. Measured
     // without it: 8% of a Foundation paper and 24% of a Higher one repeated the
     // paper before. Read here rather than from `quota` because a teacher
@@ -168,7 +174,10 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
       BLUEPRINTS[tier],
       {
         calculatorMode: calcMode,
-        blockedSkillIds: tier === 'foundation' ? HIGHER_ONLY : undefined,
+        // Everything on this paper must be on this student's course, which is
+        // also what keeps Higher content off a Foundation paper — see
+        // coursePoolOptions for why there is no separate block list.
+        ...coursePoolOptions(qualification, tier),
       },
       recentPapers,
     )
@@ -425,12 +434,20 @@ export default function ExamRunner({ variant }: { variant: ExamVariant }) {
             const outOfExams = isStudent && quota != null && !quota.isPaid && quota.remaining === 0
             const busy = phase === 'loading'
             const disabled = busy || outOfExams
+            // 4MA1 has no non-calculator paper — both of its papers allow a
+            // calculator — so offering one is not a harder option, it is a
+            // paper that student will never sit. The calculator paper then
+            // stands alone and takes the primary styling. Same rule as
+            // /practice, through the same calculatorFiltersFor().
+            const offerNonCalc = calculatorFiltersFor(qualification).includes('non_calc')
             return (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button disabled={disabled} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
-                  {busy && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
-                </button>
-                <button disabled={disabled} onClick={() => startExam('calc')} style={{ ...secondaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+                {offerNonCalc && (
+                  <button disabled={disabled} onClick={() => startExam('non_calc')} style={{ ...primaryButton, width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
+                    {busy && mode === 'non_calc' ? 'Assembling…' : 'Non-calculator paper'}
+                  </button>
+                )}
+                <button disabled={disabled} onClick={() => startExam('calc')} style={{ ...(offerNonCalc ? secondaryButton : primaryButton), width: 'auto', flex: 1, minWidth: 200, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}>
                   {busy && mode === 'calc' ? 'Assembling…' : 'Calculator paper'}
                 </button>
               </div>

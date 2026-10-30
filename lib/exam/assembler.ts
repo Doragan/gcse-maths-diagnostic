@@ -104,22 +104,57 @@ export function assembleExam(
     calculatorMode: CalculatorMode
     exclude?: Set<string>
     /**
-     * Skills that disqualify a candidate from this paper. For a Foundation
-     * paper this is the Higher-only skill set: any question touching one of
-     * these is dropped, so Foundation stays within its curriculum. A Higher
-     * paper passes nothing here (every Foundation question is also Higher).
+     * Skills that disqualify a candidate from this paper: any question touching
+     * one of these is dropped.
+     *
+     * NO PRODUCTION CALLER PASSES THIS ANY MORE. It was the mini-exam's
+     * Foundation filter, holding the Higher-only skill set, and it is retained
+     * only because a caller may legitimately want to subtract from a pool.
+     *
+     * Prefer `allowedSkillIds`, and read lib/exam/coursePool.ts before reaching
+     * for this one: a block list of what a tier excludes is a second source of
+     * truth about the pool it describes, and the mini-exam's copy went wrong in
+     * the way those always do. It held the GCSE Higher-only list and was
+     * applied to a Foundation paper on either qualification, which cost an
+     * iGCSE Foundation student 10 of their 216 eligible questions —
+     * `venn_diagrams` and `upper_and_lower_bounds` are Higher on GCSE and
+     * Foundation on 4MA1.
      */
     blockedSkillIds?: Set<string>
+    /**
+     * The student's whole course pool: a candidate qualifies only if EVERY
+     * skill it carries is in here. This is the positive form of the rule above
+     * and the one that actually matches the invariant — "on my course" — where
+     * a block list only ever catches the exclusions someone remembered, and
+     * only for the qualification whose exclusions they were.
+     *
+     * Blocking alone was measurably not enough. `blockedSkillIds` is the
+     * HIGHER-ONLY set, so it says nothing about content that is off-syllabus
+     * without being higher-only, and 4MA1 has a lot of that: measured against
+     * the 281 published questions, a GCSE paper could serve 2 set-notation
+     * questions (iGCSE-only content) and an iGCSE Higher paper 18 questions on
+     * iteration, time series, the equation of a circle and six other topics
+     * 4MA1 does not examine. Keeping a block list in step with the four
+     * separate delta lists in data/courses.ts is the maintenance burden this
+     * avoids.
+     *
+     * EVERY, not SOME: question 54337c4a is tagged
+     * ["counting_elements_in_sets", "solving_linear_equations"], and its second
+     * tag is GCSE content — a question is only safe when all of its tags are.
+     */
+    allowedSkillIds?: Set<string>
     rng?: () => number
   },
 ): AssembledExam {
   const rng = opts.rng ?? Math.random
   const exclude = opts.exclude ?? new Set<string>()
   const blocked = opts.blockedSkillIds
+  const allowed = opts.allowedSkillIds
   const pool = candidates.filter(c =>
     calcEligible(c, opts.calculatorMode) &&
     !exclude.has(c.id) &&
-    (!blocked || c.skillIds.every(id => !blocked.has(id))),
+    (!blocked || c.skillIds.every(id => !blocked.has(id))) &&
+    (!allowed || c.skillIds.every(id => allowed.has(id))),
   )
 
   const used = new Set<string>()

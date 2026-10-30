@@ -30,8 +30,13 @@
  * agreement, once its locations and transfer mechanisms have been verified
  * rather than recalled.
  */
+import SiteNav from '../../components/SiteNav'
+import { SITE_NAV_HEIGHT } from '../../lib/styles'
+
 export default function SchoolDataProtectionPage() {
   return (
+    <>
+    <SiteNav audience="teacher" />
     <main style={styles.page}>
       <div style={styles.container}>
 
@@ -137,6 +142,7 @@ export default function SchoolDataProtectionPage() {
 
       </div>
     </main>
+    </>
   )
 }
 
@@ -168,7 +174,7 @@ function Ul({ items }: { items: string[] }) {
 const styles: Record<string, React.CSSProperties> = {
   page: {
     background: '#f4f6f8',
-    minHeight: '100vh',
+    minHeight: `calc(100vh - ${SITE_NAV_HEIGHT})`,
     padding: '40px 20px',
   },
   container: {

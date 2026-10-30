@@ -154,6 +154,34 @@ export function aggregateProgress(
     const correctQIds   = new Set(mine.filter(a => a.correct).map(a => a.question_id))
     const correctCount  = mine.filter(a => a.correct).length
 
+    /**
+     * Nothing counted toward a target may exceed it.
+     *
+     * In POOL mode the counters are ATTEMPTS, not distinct questions, and
+     * nothing stops a pupil answering past the target — the student page shows
+     * "✓ Complete" and leaves the next question available. So a pupil who
+     * answered twelve of a ten-question task made the teacher's table read
+     * "12/10", and their score "11/10", which fed a class average over 100%.
+     *
+     * The student's own progress bar has always clamped (`Math.min(100, …)` in
+     * app/student/assignments/[id]); this is the same rule on the other side of
+     * the same number, so the two views finally agree.
+     *
+     * PICKED mode is clamped too. The counts there are distinct question ids,
+     * which cannot normally exceed the number of questions set — unless a
+     * question is removed from the assignment after someone answered it, which
+     * nothing prevents.
+     *
+     * What this deliberately does NOT do is pick WHICH answers count. Scoring
+     * "the first ten by time" would be more precise for the pupil who overshot
+     * and got one wrong, but this module takes the latest attempt as a maximum
+     * rather than trusting the caller's ordering (see the note on Options), and
+     * a scoring rule that silently depended on sort order would be worse than
+     * the imprecision it fixed. A capped score says "reached the target", which
+     * is true of anyone it applies to.
+     */
+    const cap = (n: number) => Math.min(n, assignedCount)
+
     // Each branch sets `progress`, and completion is DERIVED from it below.
     // Before this they were computed side by side, so a change to one could
     // leave a row reading "2 of 10" and "Complete" at the same time. A teacher
@@ -184,28 +212,28 @@ export function aggregateProgress(
       score      = mine.length > 0 ? `${correctCount}/${mine.length}` : null
     } else if (selectionMode === 'picked') {
       if (completionMode === 'attempt_once') {
-        progress = { done: attemptedQIds.size, target: assignedCount }
-        score    = `${correctQIds.size}/${assignedCount}`
+        progress = { done: cap(attemptedQIds.size), target: assignedCount }
+        score    = `${cap(correctQIds.size)}/${assignedCount}`
       } else if (completionMode === 'until_correct') {
-        progress = { done: correctQIds.size, target: assignedCount }
-        score    = `${correctQIds.size}/${assignedCount}`
+        progress = { done: cap(correctQIds.size), target: assignedCount }
+        score    = `${cap(correctQIds.size)}/${assignedCount}`
       } else {
         // mastery_based — open-ended, so there is no target to be short of.
         score = `${correctCount}/${mine.length}`
       }
     } else {
       if (completionMode === 'attempt_once') {
-        progress   = { done: mine.length, target: assignedCount }
+        progress   = { done: cap(mine.length), target: assignedCount }
         // The one place `scoreAgainst` bites. See its note on the options type.
         // No `assignedCount > 0` guard needed here any more — a target of zero
         // is handled by the "nothing assigned" branch above, which is what
         // stops this rendering "2/0".
         score      = scoreAgainst === 'target'
-          ? `${correctCount}/${assignedCount}`
+          ? `${cap(correctCount)}/${assignedCount}`
           : `${correctCount}/${mine.length}`
       } else if (completionMode === 'until_correct') {
-        progress   = { done: correctCount, target: assignedCount }
-        score      = `${correctCount}/${assignedCount}`
+        progress   = { done: cap(correctCount), target: assignedCount }
+        score      = `${cap(correctCount)}/${assignedCount}`
       } else {
         // mastery_based has no target to score against, whatever is asked for.
         score = `${correctCount}/${mine.length}`
@@ -330,7 +358,11 @@ export function averageScorePct(
     // "0/0" is a real payload (mastery_based before the first answer lands), and
     // a malformed one must not become NaN and poison the mean.
     if (!Number.isFinite(got) || !Number.isFinite(outOf) || outOf <= 0) return []
-    return [(got / outOf) * 100]
+    // aggregateProgress caps every score it builds, so this should never bite.
+    // It stays because this is an exported pure function over whatever rows it
+    // is handed, and a class average reading "104%" would be the kind of wrong
+    // that makes a teacher distrust the whole table rather than the one row.
+    return [Math.min(100, (got / outOf) * 100)]
   })
 
   if (pcts.length === 0) return null

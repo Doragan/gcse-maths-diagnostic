@@ -12,6 +12,7 @@ import { templatePreviewShort } from '../../../../lib/questions/templatePreview'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, sectionTitle, errorBox,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../../lib/styles'
 
 type PickedQuestion = {
@@ -510,7 +511,7 @@ export default function CreateAssignmentPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '640px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px 48px',
     display: 'flex',

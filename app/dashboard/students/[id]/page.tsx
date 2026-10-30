@@ -8,7 +8,7 @@ import { getTutorStudents } from '../../../../lib/tutorStudents'
 import { type StudentAnalytics } from '../../../../lib/teacherAnalytics'
 import StudentDetailBody from '../../../../components/StudentDetailBody'
 import {
-  colors, font, card, secondaryButton, pageContainer, pageTitle,
+  colors, font, card, secondaryButton, teacherPage, pageTitle,
 } from '../../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ export default function TutorStudentPage() {
   }, [studentId, router])
 
   return (
-    <div style={pageContainer}>
+    <div style={teacherPage}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <h1 style={pageTitle}>
           {student ? student.displayName : 'Student'}

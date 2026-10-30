@@ -310,7 +310,7 @@
       "part": null,
       "marks": 4,
       "skill_ids": [
-        "calculus_kinematics"
+        "rates_of_change"
       ],
       "kind": "exam",
       "mark_split": "M1 M1 M1 A1",

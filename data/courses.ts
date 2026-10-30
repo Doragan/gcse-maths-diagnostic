@@ -137,29 +137,48 @@ export const higherOnlySkillIds = [
 // ─────────────────────────────────────────────────────────────────────────────
 // Edexcel International GCSE 4MA1 ("iGCSE"). Added 2026-10-07.
 //
-// PROVISIONAL, AND NOT YET SELECTABLE ANYWHERE. No UI offers these courses and
-// ALLOWED_COURSES in app/api/assessments/create/route.ts does not list them.
-// They exist so the two iGCSE-only skills are not orphans — a skill in no
+// STUDENT-SELECTABLE; teacher-side it is still GCSE-only. Corrected 2026-10-29:
+// this block used to say "NOT YET SELECTABLE ANYWHERE", and that half has been
+// false for a while. `QUALIFICATIONS` is derived from BOARDS_BY_QUALIFICATION
+// above, so components/CourseSetupCard.tsx offers 'igcse' the moment there is
+// more than one qualification and writes courseIdFor(qualification, tier) to
+// students.course_id; app/account/page.tsx renders a picker over the whole
+// `courses` array, all four of them. A signed-in student can be on either
+// iGCSE course today. What is still true is the teacher side:
+// ALLOWED_COURSES in app/api/assessments/create/route.ts lists only
+// gcse_foundation and gcse_higher, so a class assessment cannot be set on 4MA1.
+//
+// They also exist so the iGCSE-only skills are not orphans — a skill in no
 // course is unreachable AND poisons its dependents, which is the failure mode
 // courses.test.ts exists to make loud.
 //
 // Built from the GCSE lists by applying ONLY the deltas the coded papers
-// evidence (data/exam-audit/IGCSE-*.json, 12 of 20 papers). The exclusions in
-// docs/audit/25-igcse-4ma1-delta.md §4 — scatter graphs, time series, sampling,
-// box plots, frequency trees, plans and elevations, loci, iteration — are NOT
-// yet applied; that list needs the full corpus before it is safe to act on.
+// evidence (data/exam-audit/IGCSE-*.json, now 20 of 20 papers: five series,
+// both tiers, both papers). The exclusions in docs/audit/25-igcse-4ma1-delta.md
+// §4 ARE applied — see `igcseExcluded` and `igcseAbsentAndGating` below, landed
+// 2026-10-08 and re-tested against the complete corpus on 2026-10-29.
 //
 // Every move below is verified against the CODED PAPERS rather than read off
 // the specification. That is not pedantry: the spec's two-column layout misled
 // an earlier reading of this exact question, and a Foundation paper overturned
-// it. Counts are (Foundation parts : Higher parts) across the 12 coded papers.
+// it. Counts are (Foundation parts : Higher parts) across all 20 coded papers,
+// refreshed 2026-10-29 — they used to be 12-paper counts.
+//
+// READ THE PART COUNTS WITH CARE. 4MA1 prints the SAME question on both tiers:
+// the Foundation paper's stretch block is the Higher paper's opening block, item
+// for item. `set_notation` is 10 parts on each tier and that is THREE questions
+// in total, not six — Jun24 1F q22 = 1H q7, Nov23 1F q15 = 1H q1, Nov24 1F q21
+// = 1H q4. Summing the two tiers double-counts every crossover item, so the
+// four-part bar reads about twice as generous on 4MA1 as it does on a GCSE
+// board. Judge a tier on ITS OWN slice, which is what skillExamProfiles.json
+// does, and never on the sum.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Foundation on GCSE, Higher-only on 4MA1.
  *
- * `vectors` 0:5 — never once at Foundation across the coded papers, and spec
- * 5.1 is flagged "Higher Tier only".
+ * `vectors` 0:8 (6 distinct questions) — never once at Foundation across the
+ * coded papers, and spec 5.1 is flagged "Higher Tier only".
  *
  * `translations` was briefly moved here too, and has been PUT BACK. That move
  * was never evidence-driven: it was forced by the prerequisite graph, which
@@ -176,16 +195,28 @@ const igcseMovedToHigher = ["vectors"]
 
 /**
  * Higher-only on GCSE, Foundation on 4MA1.
- * venn_diagrams 6:11, upper_and_lower_bounds 4:7 — both well past the
- * four-part evidence bar on the Foundation slice alone.
+ *
+ * Across all 20 papers: `venn_diagrams` 4:4 (3 and 2 distinct questions),
+ * `upper_and_lower_bounds` 4:9 (2 and 7). Both reach the four-part bar on the
+ * Foundation slice alone, which is what the move rests on.
+ *
+ * `venn_diagrams` was recorded here as 6:11 at twelve papers and is now 4:4.
+ * Nothing was overturned: the 2026-10-07 set-notation build retagged the pure
+ * membership rows off their interim `venn_diagrams` tag onto `set_notation` and
+ * `counting_elements_in_sets`, where they belonged. The move still clears the
+ * bar on its own evidence, with no part borrowed from the sets skills.
  */
 const igcseMovedToFoundation = ["venn_diagrams", "upper_and_lower_bounds"]
 
-// NOT moved, deliberately: direct_proportion and inverse_proportion appear on
-// NO coded 4MA1 paper, Foundation or Higher. The spec puts algebraic proportion
-// at Higher while keeping ratio word problems at Foundation, which would split
-// one app concept across two tiers — but with zero paper evidence either way
-// that stays an open question rather than a guess. See the delta doc §3.
+// NOT moved, deliberately. The spec puts algebraic proportion at Higher while
+// keeping ratio word problems at Foundation, which would split one app concept
+// across two tiers. Updated 2026-10-29: this used to say both appear on NO
+// coded 4MA1 paper, and `direct_proportion` no longer does — Jun23 2H q16 is
+// 0:2 (one question), proportion given as a graph and wanted as a formula,
+// which is spec 2.5's "relate algebraic solutions to graphical representation"
+// exactly. `inverse_proportion` is still 0:0 across all twenty. One part is
+// well short of the bar, so the direction now matches the spec but the move
+// still has nothing like enough behind it. See the delta doc §3 and §10.
 
 /**
  * Content 4MA1 does not examine. Each one verified absent from BOTH the
@@ -219,14 +250,53 @@ const igcseMovedToFoundation = ["venn_diagrams", "upper_and_lower_bounds"]
  * **Absence of a WORD from the specification is weak evidence** — weakest for
  * question FORMATS and for COMPOSITES of listed content.
  *
- * Entries below carrying the same risk, to re-test once all twenty papers are
- * coded rather than trust now: `relative_frequency` (examinable as "estimate
- * the probability from these results"), `equations_and_identities` (a concept,
- * not a named topic), `exact_trig_values` and `frequency_diagrams`. The safer
- * entries are the ones the spec excludes by positive statement rather than by
- * silence — `nth_term_quadratic_sequences` (3.1 is arithmetic only),
- * `scatter_graphs` and `time_series` (Foundation data is capped by its own
- * note at pictograms, bar charts, pie charts and two-way tables).
+ * Entries carrying the same risk were flagged for re-test once all twenty
+ * papers were coded rather than trusted then: `relative_frequency` (examinable
+ * as "estimate the probability from these results"), `equations_and_identities`
+ * (a concept, not a named topic), `exact_trig_values` and `frequency_diagrams`.
+ * The safer entries are the ones the spec excludes by positive statement rather
+ * than by silence — `nth_term_quadratic_sequences` (3.1 is arithmetic only),
+ * `scatter_graphs` and `time_series` (Foundation data is capped by its own note
+ * at pictograms, bar charts, pie charts and two-way tables).
+ *
+ * RE-TEST DONE 2026-10-29, corpus complete at 20 of 20. **All four stay out.**
+ * Searched the question SUBSTANCE in every row's `app_gap_note`, not just
+ * `skill_ids` — an excluded skill is never tagged, so matching on tags would
+ * have proved nothing. Per tier, parts / distinct questions:
+ *
+ *   relative_frequency        F 0/0   H 0/0
+ *   equations_and_identities  F 0/0   H 0/0
+ *   exact_trig_values         F 0/0   H 0/0
+ *   frequency_diagrams        F 0/0   H 0/0
+ *
+ * Zero on every wording tried: "relative frequenc", "estimate the probability",
+ * "trial", "experiment", "identit", "equivalen", "true for all", "exact value",
+ * "surd form", "frequency polygon", "frequency diagram". The four strings also
+ * appear nowhere in the twenty files at all, `coding_notes` included.
+ *
+ * Three of the four now have a POSITIVE reason too, which is what the frustum
+ * correction said to look for instead of spec silence:
+ *   exact_trig_values  — every one of the twenty papers is a CALCULATOR paper
+ *                        (`meta.paper` on all 20; 4MA1 has no non-calculator
+ *                        component, unlike 1MA1's 1 in 3). The skill is "write
+ *                        down the exact value of sin 90" — a non-calculator
+ *                        question form 4MA1 does not possess.
+ *   frequency_diagrams — the spec's own note on Foundation 6.1 caps the data
+ *                        strand at "pictograms, bar charts and pie charts, and
+ *                        only two-way tables", and the papers match it exactly:
+ *                        22 Foundation parts of `simple_charts` (bar charts and
+ *                        pictograms), 0 of anything else chart-shaped.
+ *   relative_frequency — 4MA1 examines the CONVERSE and only the converse.
+ *                        `expected_outcomes` is 4:4 — given a probability, how
+ *                        many in n trials. The estimate-a-probability-from-
+ *                        results direction appears nowhere.
+ * `equations_and_identities` rests on silence alone, now across twenty papers.
+ *
+ * Cost of leaving them out, measured against the live bank the same day: 3
+ * published questions are hidden from an iGCSE student — 2 on
+ * `relative_frequency`, 1 on `exact_trig_values`, 0 on the other two. That is
+ * the price of the exclusion, and it is the right price: a question for content
+ * the student will not be examined on is worse than a gap.
  */
 const igcseExcluded = [
   "loci",
@@ -242,16 +312,20 @@ const igcseExcluded = [
 ]
 
 /**
- * These six are also absent from 4MA1, and were briefly KEPT as scaffolding
+ * These five are also absent from 4MA1, and were briefly KEPT as scaffolding
  * because each gates something 4MA1 does examine:
  *
  *   sampling            → gathering_and_organising_data → the whole data tree
- *   function_machines   → substitution, forming_expressions_and_formulae
- *                         → most of algebra
  *   frequency_diagrams  → histograms
  *   frequency_trees     → tree_diagrams
  *   box_plots           → interquartile_range
  *   exact_trig_values   → trig_graphs
+ *
+ * This list said "six" and named `function_machines → substitution,
+ * forming_expressions_and_formulae` until 2026-10-29. The array lost that entry
+ * in the 2026-10-09 correction recorded above — Nov23 2F q10 and Jun23 1F q9
+ * are number machines, 4:0 — but the prose here was not updated with it. The
+ * five above are what the array holds.
  *
  * Excluding them naively made 63 of 161 skills unreachable — `substitution`,
  * `pythagoras_theorem` and `solving_linear_equations` among them.
@@ -291,15 +365,20 @@ export const igcseHigherOnlySkillIds = [
   "counting_elements_in_sets",
   // Calculus, spec 3.4, flagged "Higher Tier only" in the Foundation listing
   // and confirmed by the papers — all eight coded calculus parts are on Higher
-  // papers, none on a Foundation one. `differentiation` clears the four-part
-  // evidence bar with five; `stationary_points` (2) and `calculus_kinematics`
-  // (1) do not, and are built anyway: minParts gates whether the app makes an
-  // EXAM CLAIM about a skill, not whether the skill exists. Only 13-18% of
-  // skills clear it on the OCR and Edexcel slices, and those are all real
-  // skills students practise.
-  "differentiation",
+  // papers, none on a Foundation one.
+  //
+  // RESHAPED 2026-10-30, and `calculus_kinematics` is gone; see the block above
+  // these three in data/skills.ts for why. `rates_of_change` clears the
+  // four-part evidence bar with 4 parts and 17 marks;
+  // `polynomial_differentiation` (2) and `stationary_points` (2) do not, and
+  // are built anyway: minParts gates whether the app makes an EXAM CLAIM about
+  // a skill, not whether the skill exists. Only 13-18% of skills clear it on
+  // the OCR and Edexcel slices, and those are all real skills students
+  // practise. `polynomial_differentiation` is in any case exercised by all
+  // eight parts as the prerequisite of the other two.
+  "polynomial_differentiation",
+  "rates_of_change",
   "stationary_points",
-  "calculus_kinematics",
 ]
 
 export const courses: Course[] = [

@@ -55,11 +55,25 @@ export function getPrerequisiteTree(skillId: string): string[] {
  * genuinely upstream and genuinely taught, and only the untaught stepping stone
  * is skipped. Cutting the edge at B would silently drop A too.
  *
- * Inert for every course that is already closed under its prerequisites — which
- * is all four of today's — so adding it changes no current behaviour. It exists
- * so that a course need not carry a topic it does not teach merely to keep the
- * graph walkable, and so a future A-level or Further Maths course does not have
- * to drag GCSE scaffolding along with it.
+ * It exists so that a course need not carry a topic it does not teach merely to
+ * keep the graph walkable, and so a future A-level or Further Maths course does
+ * not have to drag GCSE scaffolding along with it.
+ *
+ * WAS "inert for all four of today's courses". That was true when written and
+ * is now FALSE — the iGCSE pools have since had their absent-and-gating skills
+ * properly excluded. Measured 2026-10-29: the scoped tree differs from the
+ * unscoped one for 6 igcse_foundation skills (dropping `vectors`, `sampling`,
+ * `frequency_trees`) and 10 igcse_higher skills (dropping `sampling`,
+ * `frequency_trees`, `frequency_diagrams`, `box_plots`, `exact_trig_values`).
+ * Still inert for both GCSE courses, which remain closed under the graph.
+ *
+ * So WHICH tree a caller passes now changes the answer, and only ONE caller
+ * passes this one: app/practice/page.tsx. /skills, /student/dashboard,
+ * components/exam/ExamReview.tsx and lib/skills/progressSeries.ts all still
+ * pass the unscoped `getPrerequisiteTree`. Today's effect is mild — on those
+ * surfaces prerequisite credit flows to skills outside the pool, which they do
+ * not display — but it is an inconsistency, not a decision, and it is left
+ * visible here rather than quietly fixed in a PR about the mini-exam.
  */
 export function prerequisiteTreeWithin(
   poolIds: Iterable<string>,

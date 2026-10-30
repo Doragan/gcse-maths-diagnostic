@@ -11,6 +11,7 @@ import SkillPicker from '../../../components/SkillPicker'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, sectionTitle, inputStyle, labelStyle, errorBox,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -223,7 +224,7 @@ export default function ClassSessionsPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '700px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',

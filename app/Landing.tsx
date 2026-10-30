@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import SiteNav from '../components/SiteNav'
+import { dashboardPath, useAccountNav } from '../lib/useAccountNav'
 import { trackEvent } from '../lib/analytics'
 import { renderOne, type DemoQ, type Rendered } from '../lib/demoQuestions'
 import { checkAnswer } from '../lib/questions/answerChecker'
@@ -29,8 +31,6 @@ const ANNUAL_PRICE = PLANS.find(p => p.id === 'annual')?.price ?? null
 
 // ── Demo Question — real engine, varied questions from the live bank ──────────
 
-const feedbackHtml: React.CSSProperties = { fontSize: font.base, color: colors.textPrimary, margin: '0 0 14px', lineHeight: 1.6 }
-
 /**
  * The pool and the FIRST rendered question both arrive as props, drawn on the
  * server (see lib/demoQuestions.ts and app/page.tsx).
@@ -49,7 +49,7 @@ function DemoQuestion({ initialPool, initialQuestion }: {
   const [cursor, setCursor] = useState(0)
   const [current, setCurrent] = useState<Rendered | null>(initialQuestion)
   const [raw, setRaw] = useState('')
-  const [result, setResult] = useState<{ correct: boolean; html: string } | null>(null)
+  const [result, setResult] = useState<{ correct: boolean; message: string; explanation: string } | null>(null)
   const [answered, setAnswered] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [skillsSeen, setSkillsSeen] = useState<Set<string>>(new Set())
@@ -62,12 +62,30 @@ function DemoQuestion({ initialPool, initialQuestion }: {
 
   function check() {
     if (!current || !raw.trim()) return
-    const res = checkAnswer(raw, current.answer, current.q.answer_type, current.q.tolerance, current.traps, current.q.requires_simplest ?? false)
+    // The last argument is the UNRENDERED answer template, and it is what lets
+    // the grader tell a poor value of π from a wrong method. /practice passes it;
+    // the demo did not, so a visitor who answered with 3.14 was simply told they
+    // were wrong.
+    const res = checkAnswer(
+      raw, current.answer, current.q.answer_type, current.q.tolerance,
+      current.traps, current.q.requires_simplest ?? false, current.q.answer_template,
+    )
     setResult({
       correct: res.correct,
-      html: res.correct
-        ? (current.explanationHtml || `The answer is <strong>${current.answer}</strong>.`)
-        : (res.trap?.response || `Not quite — the correct answer is <strong>${current.answer}</strong>.`),
+      // checkAnswer's OWN message, rather than a two-branch summary of it. The
+      // summary discarded everything the grader knows how to say — the units
+      // reminder, the simplest-form nudge, the rounding and standard-form notes,
+      // the π verdict — and kept only the trap response. A demo whose claim is
+      // that it names the mistake cannot afford to drop the part that names it.
+      //
+      // Suppressed only when it is the bare 'Correct!', which the heading above
+      // it already says.
+      message: res.message === 'Correct!' ? '' : res.message,
+      // Shown whether they were right or wrong, as /practice does. Withholding
+      // it on a wrong answer left the demo saying only that the correct answer
+      // is 2/5: the bare fact, with the working kept from the one visitor who
+      // needed it.
+      explanation: current.explanationHtml,
     })
     const answeredNow = answered + 1
     setAnswered(answeredNow)
@@ -182,52 +200,95 @@ function DemoQuestion({ initialPool, initialQuestion }: {
               </div>
             )}
 
-            {/* Correct */}
-            {result?.correct && (
-              <div style={{ background: colors.successLight, border: `1px solid ${colors.successBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
-                <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.successText, margin: '0 0 6px' }}>✓ Correct!</p>
-                <div style={feedbackHtml} dangerouslySetInnerHTML={{ __html: result.html }} />
-                <button
-                  onClick={() => { trackEvent('demo_next_clicked'); next() }}
-                  style={{
-                    background: colors.primary, color: '#fff', border: 'none',
-                    borderRadius: radius.md, padding: '9px 18px', fontSize: font.base,
-                    fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                >
-                  Try another →
-                </button>
-              </div>
-            )}
+            {/* Feedback — the same three parts /practice shows, in the same
+                order: the verdict and what the grader made of the answer, the
+                worked explanation, then the way onwards. The buttons sit OUTSIDE
+                the coloured box now; inside it they came before the explanation,
+                which invited "Next question" to be clicked past the working. */}
+            {result && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-            {/* Wrong / trap */}
-            {result && !result.correct && (
-              <div style={{ background: colors.dangerLight, border: `1px solid ${colors.dangerBorder}`, borderRadius: radius.md, padding: '14px 16px' }}>
-                <p style={{ fontSize: font.lg, fontWeight: '700', color: colors.dangerText, margin: '0 0 6px' }}>✗ Not quite</p>
-                <div style={feedbackHtml} dangerouslySetInnerHTML={{ __html: result.html }} />
+                <div style={{
+                  background: result.correct ? colors.successLight : colors.dangerLight,
+                  border: `1px solid ${result.correct ? colors.successBorder : colors.dangerBorder}`,
+                  borderRadius: radius.md,
+                  padding: '14px 16px',
+                }}>
+                  <p style={{
+                    fontSize: font.lg, fontWeight: '700', margin: '0 0 6px',
+                    color: result.correct ? colors.successText : colors.dangerText,
+                  }}>
+                    {result.correct ? '✓ Correct!' : '✗ Not quite'}
+                  </p>
+
+                  {result.message && (
+                    <div
+                      style={{ fontSize: font.base, lineHeight: 1.6, color: result.correct ? colors.successText : colors.dangerText }}
+                      dangerouslySetInnerHTML={{ __html: result.message }}
+                    />
+                  )}
+
+                  {/* The input is hidden once answered, so the visitor can no
+                      longer see what they typed. /practice shows both lines. */}
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <p style={{
+                      fontSize: font.sm, margin: 0,
+                      color: result.correct ? colors.successText : colors.dangerText,
+                    }}>
+                      Your answer: <strong>{raw}</strong>
+                    </p>
+                    {!result.correct && (
+                      <p style={{ fontSize: font.sm, margin: 0, color: colors.dangerText }}>
+                        Correct answer:{' '}
+                        <strong><span dangerouslySetInnerHTML={{ __html: current.answer }} /></strong>
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {result.explanation && (
+                  <div style={{
+                    background: colors.warningLight,
+                    border: `1px solid ${colors.warningBorder}`,
+                    borderRadius: radius.md,
+                    padding: '14px 16px',
+                  }}>
+                    <p style={{ fontSize: font.sm, fontWeight: '600', margin: '0 0 4px', color: colors.warningText }}>
+                      Explanation:
+                    </p>
+                    <div
+                      style={{ fontSize: font.base, color: colors.textPrimary, lineHeight: 1.6 }}
+                      dangerouslySetInnerHTML={{ __html: result.explanation }}
+                    />
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
-                  <button
-                    onClick={retry}
-                    style={{
-                      background: 'transparent', color: colors.textPrimary,
-                      border: `1.5px solid ${colors.borderStrong}`,
-                      borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
-                      fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
-                    }}
-                  >
-                    Try again
-                  </button>
+                  {!result.correct && (
+                    <button
+                      onClick={retry}
+                      style={{
+                        background: 'transparent', color: colors.textPrimary,
+                        border: `1.5px solid ${colors.borderStrong}`,
+                        borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
+                        fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
+                      }}
+                    >
+                      Try again
+                    </button>
+                  )}
                   <button
                     onClick={() => { trackEvent('demo_next_clicked'); next() }}
                     style={{
                       background: colors.primary, color: '#fff', border: 'none',
-                      borderRadius: radius.md, padding: '8px 16px', fontSize: font.base,
+                      borderRadius: radius.md, padding: '9px 18px', fontSize: font.base,
                       fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
                     }}
                   >
-                    Next question →
+                    {result.correct ? 'Try another →' : 'Next question →'}
                   </button>
                 </div>
+
               </div>
             )}
 
@@ -275,7 +336,7 @@ function DemoQuestion({ initialPool, initialQuestion }: {
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: '0 0 20px', lineHeight: 1.6 }}>
             <strong style={{ color: colors.textPrimary }}>{correctCount}/{answered}</strong> correct across{' '}
             <strong style={{ color: colors.textPrimary }}>{skillsSeen.size}</strong> skill{skillsSeen.size === 1 ? '' : 's'} so far.
-            Create a free account to save your progress and build your full skill map across all 135 GCSE Maths skills.
+            Create a free account to save your progress and build your full skill map across all {SKILL_COUNT} GCSE Maths skills.
           </p>
           <Link
             href="/student?mode=signup"
@@ -313,50 +374,16 @@ export default function Landing({ demoPool, demoQuestion }: {
   /** Pre-rendered on the server so the demo is in the HTML, not fetched later. */
   demoQuestion: Rendered | null
 }) {
+  // Drives every call to action on the page, not just the nav: a signed-in
+  // student was being asked to log in and set up an account they already have.
+  const account = useAccountNav()
+  const signedIn = account.state === 'signedIn'
+  const myDashboard = account.state === 'signedIn' ? dashboardPath(account.role) : '/student'
+
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', background: '#f8fafc' }}>
 
-      {/* ── Navigation ─────────────────────────────────────────────────────────── */}
-      <nav style={{
-        position: 'sticky' as const,
-        top: 0,
-        zIndex: 50,
-        background: 'rgba(255,255,255,0.96)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${colors.border}`,
-        padding: '0 24px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <span style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, letterSpacing: '-0.02em' }}>
-          Mathsense
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Link href="/for-teachers" style={{ fontSize: font.sm, color: colors.textSecondary, textDecoration: 'none', fontWeight: '500', padding: '8px 12px' }}>
-            For teachers
-          </Link>
-          <Link href="/student" style={{ fontSize: font.sm, color: colors.textSecondary, textDecoration: 'none', fontWeight: '500', padding: '8px 12px' }}>
-            Log in
-          </Link>
-          <Link
-            href="/practice"
-            onClick={() => trackEvent('nav_practice_clicked')}
-            style={{
-              background: colors.primary,
-              color: '#fff',
-              borderRadius: radius.md,
-              padding: '8px 16px',
-              fontSize: font.sm,
-              fontWeight: '700',
-              textDecoration: 'none',
-            }}
-          >
-            Start practising free
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* ── Hero ───────────────────────────────────────────────────────────────── */}
       <section style={{
@@ -434,11 +461,11 @@ export default function Landing({ demoPool, demoQuestion }: {
                 letterSpacing: '-0.01em',
               }}
             >
-              Start practising free →
+              {signedIn ? 'Continue practising →' : 'Start practising free →'}
             </Link>
             <Link
-              href="/student"
-              onClick={() => trackEvent('hero_login_clicked')}
+              href={myDashboard}
+              onClick={() => trackEvent('hero_login_clicked', { signed_in: signedIn })}
               style={{
                 background: 'transparent',
                 color: '#ffffff',
@@ -451,7 +478,7 @@ export default function Landing({ demoPool, demoQuestion }: {
                 display: 'inline-block',
               }}
             >
-              Log in
+              {signedIn ? 'My dashboard' : 'Log in'}
             </Link>
           </div>
 
@@ -615,7 +642,7 @@ export default function Landing({ demoPool, demoQuestion }: {
                 letterSpacing: '-0.01em',
               }}
             >
-              Start practising free →
+              {signedIn ? 'Continue practising →' : 'Start practising free →'}
             </Link>
           </div>
         </div>
@@ -757,15 +784,15 @@ export default function Landing({ demoPool, demoQuestion }: {
           </div>
 
           <Link
-            href="/student?mode=signup"
-            onClick={() => trackEvent('parent_signup_clicked')}
+            href={signedIn ? myDashboard : '/student?mode=signup'}
+            onClick={() => trackEvent('parent_signup_clicked', { signed_in: signedIn })}
             style={{
               background: colors.primary, color: '#fff', padding: '13px 26px',
               borderRadius: radius.md, fontSize: font.base, fontWeight: '700',
               textDecoration: 'none', display: 'inline-block',
             }}
           >
-            Set up a free account →
+            {signedIn ? 'Go to your dashboard →' : 'Set up a free account →'}
           </Link>
 
           {/*

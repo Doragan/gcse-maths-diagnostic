@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase'
 import {
   colors, font, radius, card,
   primaryButton, secondaryButton, inputStyle, sectionTitle,
+  TEACHER_CONTENT_WIDTH,
 } from '../../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -247,7 +248,7 @@ export default function LegacyAssessmentsPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '600px',
+    maxWidth: TEACHER_CONTENT_WIDTH,
     margin: '0 auto',
     padding: '24px 20px',
     display: 'flex',

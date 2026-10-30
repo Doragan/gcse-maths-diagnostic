@@ -311,7 +311,7 @@
       "part": null,
       "marks": 4,
       "skill_ids": [
-        "differentiation",
+        "rates_of_change",
         "solving_quadratic_equations_factorising"
       ],
       "kind": "exam",

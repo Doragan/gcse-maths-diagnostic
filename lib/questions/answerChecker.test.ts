@@ -150,6 +150,51 @@ describe('characterisation: set', () => {
   })
 })
 
+// Set questions print their sets as the exam does — "ℰ = {1, 2, 3, 4, 5, 6}" — so a
+// student answering in the same notation must not be marked wrong for it.
+describe('set answers written in brace notation', () => {
+  it('accepts a brace-wrapped list', () => {
+    expect(check('{4, 6}', '4, 6', 'set').correct).toBe(true)
+    expect(check('{4,6}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('accepts braces with any inner spacing, and a semicolon separator', () => {
+    expect(check('{ 4 , 6 }', '4, 6', 'set').correct).toBe(true)
+    expect(check('{4  6}', '4, 6', 'set').correct).toBe(true)
+    expect(check('{4; 6}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('still ignores order inside the braces', () => {
+    expect(check('{6, 4}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('sorts numerically, so {2, 10} and {10, 2} are the same set', () => {
+    // Guards the parseFloat sort: alphabetically '10' would come before '2'.
+    expect(check('{10, 2}', '{2, 10}', 'set').correct).toBe(true)
+    expect(check('{10, 2}', '2, 10', 'set').correct).toBe(true)
+  })
+  it('works when the CANONICAL answer is the braced one', () => {
+    expect(check('4, 6', '{4, 6}', 'set').correct).toBe(true)
+  })
+  it('drops a "set name =" prefix, as the stem writes it', () => {
+    expect(check('ℰ = {1, 2, 3}', '1, 2, 3', 'set').correct).toBe(true)
+    expect(check('A∩B = {4, 6}', '4, 6', 'set').correct).toBe(true)
+  })
+  it('leaves a list of assignments alone (two "=" signs, not a named set)', () => {
+    expect(check('x=2, y=3', 'x=2, y=3', 'set').correct).toBe(true)
+    expect(check('x=2, y=3', 'x=2, y=4', 'set').correct).toBe(false)
+  })
+  it('still rejects a genuinely wrong set', () => {
+    expect(check('{4, 7}', '4, 6', 'set').correct).toBe(false)
+    expect(check('{4}', '4, 6', 'set').correct).toBe(false)
+    expect(check('{4, 6, 8}', '4, 6', 'set').correct).toBe(false)
+  })
+  it('matches a trap in brace notation too', () => {
+    const r = check('{4, 7}', '4, 6', 'set', null, [
+      { answer: '4, 7', response: 'Check whether 7 is in both sets.' },
+    ])
+    expect(r.correct).toBe(false)
+    expect(r.message).toBe('Check whether 7 is in both sets.')
+  })
+})
+
 describe('currency symbols are ignored', () => {
   it('accepts £ in an expression answer asked "in pounds"', () => {
     expect(check('£3+£2m', '3+2m', 'expression').correct).toBe(true)
@@ -613,6 +658,60 @@ describe('expression: leading "x ="', () => {
   it('does not strip anything from an inequality', () => {
     expect(check('x≤5', 'x≤5', 'expression').correct).toBe(true)
     expect(check('x≥5', 'x≤5', 'expression').correct).toBe(false)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// "dy/dx =" IN FRONT OF A DERIVATIVE
+//
+// The prompt on the calculus questions says "Find dy/dx", so writing it back
+// is the natural answer — and it was marked wrong, while the single-letter
+// "y =" was accepted. The prefix is notation, not part of the answer.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('expression: leading derivative subject', () => {
+  const CANON = '12x^2+10x-2'
+
+  it('accepts a Leibniz subject the student added', () => {
+    expect(check('dy/dx=12x^2+10x-2', CANON, 'expression').correct).toBe(true)
+    expect(check('dy/dx = 10x + 12x^2 - 2', CANON, 'expression').correct).toBe(true)
+    expect(check('d²y/dx² = 24x + 10', '24x+10', 'expression').correct).toBe(true)
+  })
+
+  it('accepts a bare expression when the canonical answer carries the subject', () => {
+    expect(check('12x^2+10x-2', 'dy/dx=12x^2+10x-2', 'expression').correct).toBe(true)
+    expect(check('dy/dx=12x^2+10x-2', 'dy/dx=12x^2+10x-2', 'expression').correct).toBe(true)
+  })
+
+  it('accepts the kinematics subjects a student would reach for', () => {
+    // 'v' and 'a' already worked, being single letters; the Leibniz forms did not.
+    expect(check('ds/dt = 3t^2 - 4', '3t^2-4', 'expression').correct).toBe(true)
+    expect(check('dv/dt = 6t', '6t', 'expression').correct).toBe(true)
+    expect(check('v = 3t^2 - 4', '3t^2-4', 'expression').correct).toBe(true)
+  })
+
+  it('accepts the Lagrange forms, either apostrophe', () => {
+    expect(check("f'(x) = 12x^2 + 10x - 2", CANON, 'expression').correct).toBe(true)
+    expect(check("f''(x) = 24x + 10", '24x+10', 'expression').correct).toBe(true)
+    expect(check('f’(x) = 12x^2 + 10x - 2', CANON, 'expression').correct).toBe(true)
+  })
+
+  it('still distinguishes different derivative subjects', () => {
+    // Stripping blindly would accept a rate of change of the wrong quantity.
+    expect(check('ds/dt=6t', 'dv/dt=6t', 'expression').correct).toBe(false)
+    expect(check('dy/dx=6t', 'ds/dt=6t', 'expression').correct).toBe(false)
+  })
+
+  it('leaves the single-letter behaviour exactly as it was', () => {
+    expect(check('y=12x^2+10x-2', CANON, 'expression').correct).toBe(true)
+    expect(check('y=5', 'x=5', 'expression').correct).toBe(false)
+    expect(check('x=-2andx=-3', 'x=-3andx=-2', 'expression').correct).toBe(true)
+  })
+
+  it('still rejects a wrong derivative', () => {
+    // Forgot to drop the power / differentiated the constant to itself.
+    expect(check('dy/dx=4x^3+5x^2-2', CANON, 'expression').correct).toBe(false)
+    expect(check('dy/dx=12x^2+10x', CANON, 'expression').correct).toBe(false)
+    expect(check("f'(x)=12x^2+10x+2", CANON, 'expression').correct).toBe(false)
   })
 })
 

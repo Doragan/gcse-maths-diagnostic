@@ -1,44 +1,20 @@
 'use client'
 
 import Link from 'next/link'
+import SiteNav from '../../components/SiteNav'
+import { dashboardPath, useAccountNav } from '../../lib/useAccountNav'
 import { trackEvent } from '../../lib/analytics'
 import { colors, font, radius } from '../../lib/styles'
 
 export default function ForTeachersPage() {
+  const account = useAccountNav()
+  const signedIn = account.state === 'signedIn'
+  const myDashboard = account.state === 'signedIn' ? dashboardPath(account.role) : '/auth'
+
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', background: '#f8fafc', minHeight: '100dvh' }}>
 
-      {/* ── Nav ──────────────────────────────────────────────────────────────── */}
-      <nav style={{
-        background: 'rgba(255,255,255,0.96)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${colors.border}`,
-        padding: '0 24px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <Link href="/" style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          Mathsense
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Link href="/student" style={{ fontSize: font.sm, color: colors.textSecondary, textDecoration: 'none', fontWeight: '500', padding: '8px 12px' }}>
-            Student login
-          </Link>
-          <Link href="/auth" style={{
-            background: colors.primary,
-            color: '#fff',
-            borderRadius: radius.md,
-            padding: '8px 16px',
-            fontSize: font.sm,
-            fontWeight: '700',
-            textDecoration: 'none',
-          }}>
-            Teacher login
-          </Link>
-        </div>
-      </nav>
+      <SiteNav audience="teacher" />
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section style={{
@@ -437,11 +413,13 @@ export default function ForTeachersPage() {
             Ready to get started?
           </h2>
           <p style={{ fontSize: font.md, color: 'rgba(255,255,255,0.8)', margin: '0 0 32px', lineHeight: '1.65' }}>
-            Log in to the teacher dashboard, or get in touch if you&apos;d like to discuss how Mathsense could work for your school.
+            {signedIn
+              ? 'Pick up where you left off, or get in touch if you’d like to discuss how Mathsense could work for your school.'
+              : 'Log in to the teacher dashboard, or get in touch if you’d like to discuss how Mathsense could work for your school.'}
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
             <Link
-              href="/auth"
+              href={myDashboard}
               style={{
                 background: '#ffffff',
                 color: colors.primary,
@@ -453,7 +431,7 @@ export default function ForTeachersPage() {
                 display: 'inline-block',
               }}
             >
-              Teacher login
+              {signedIn ? 'My dashboard' : 'Teacher login'}
             </Link>
             <Link
               href="/contact?from=for_teachers_bottom"
