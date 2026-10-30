@@ -17,7 +17,7 @@
 
 import Link from 'next/link'
 import { trackEvent } from '../lib/analytics'
-import { colors, font, radius } from '../lib/styles'
+import { colors, font, radius, SITE_NAV_HEIGHT } from '../lib/styles'
 import { dashboardPath, useAccountNav } from '../lib/useAccountNav'
 
 const barStyle: React.CSSProperties = {
@@ -28,7 +28,7 @@ const barStyle: React.CSSProperties = {
   backdropFilter: 'blur(8px)',
   borderBottom: `1px solid ${colors.border}`,
   padding: '0 24px',
-  height: '60px',
+  height: SITE_NAV_HEIGHT,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',

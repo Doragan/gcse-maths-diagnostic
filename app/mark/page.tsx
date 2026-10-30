@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import SiteNav from '../../components/SiteNav'
 import { PAPERS, DEFAULT_PAPER_ID } from '../../lib/demoPapers'
 import { topicColourFor } from '../../lib/demoTopicColours'
 import { marksTotal, selectedItems, type ItemMarks } from '../../lib/papers/sittingMarks'
@@ -13,7 +14,7 @@ import { downloadFeedbackPdf } from '../../lib/papers/feedbackPdf'
 import { parseMarksCsv, marksCsvTemplate, parsePastedNames } from '../../lib/papers/marksCsv'
 import {
   colors, font, radius, card as cardStyle,
-  primaryButton, secondaryButton, errorBox, sectionTitle, pageTitle,
+  primaryButton, secondaryButton, errorBox, sectionTitle, pageTitle, SITE_NAV_HEIGHT,
 } from '../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -193,7 +194,9 @@ export default function FreeMarkingPage() {
   }, [paper, students, marks, items, selection])
 
   return (
-    <div style={{ minHeight: '100dvh', background: colors.background, padding: '28px 20px 60px' }}>
+    <>
+    <SiteNav audience="teacher" />
+    <div style={{ minHeight: `calc(100dvh - ${SITE_NAV_HEIGHT})`, background: colors.background, padding: '28px 20px 60px' }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
 
         <h1 style={{ ...pageTitle, marginBottom: 6 }}>Mark a paper</h1>
@@ -443,6 +446,7 @@ export default function FreeMarkingPage() {
         )}
       </div>
     </div>
+    </>
   )
 }
 

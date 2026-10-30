@@ -3,10 +3,11 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import SiteNav from '../../components/SiteNav'
 import { trackEvent, getSessionId } from '../../lib/analytics'
 import {
   colors, font, radius,
-  pageContainer, narrowCard, pageTitle,
+  pageContainer, narrowCard, pageTitle, SITE_NAV_HEIGHT,
   primaryButton, inputStyle, labelStyle, errorBox,
 } from '../../lib/styles'
 
@@ -17,6 +18,25 @@ const ROLES = [
   { id: 'student', label: 'Student' },
   { id: 'other',   label: 'Other' },
 ] as const
+
+/**
+ * The nav plus the centring container, shared by the form and the "sent"
+ * screen.
+ *
+ * pageContainer centres ONE card in the viewport, so the nav has to come out
+ * of its height — otherwise the card sits 60px low with a scrollbar for
+ * company.
+ */
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <SiteNav />
+      <main style={{ ...pageContainer, minHeight: `calc(100dvh - ${SITE_NAV_HEIGHT})` }}>
+        {children}
+      </main>
+    </>
+  )
+}
 
 function ContactForm() {
   const params = useSearchParams()
@@ -62,7 +82,7 @@ function ContactForm() {
 
   if (sent) {
     return (
-      <main style={pageContainer}>
+      <Shell>
         <div style={narrowCard}>
           <h1 style={pageTitle}>Thanks — that's sent</h1>
           <p style={{ fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: 1.6 }}>
@@ -72,12 +92,12 @@ function ContactForm() {
             <button style={primaryButton}>Back to Mathsense</button>
           </Link>
         </div>
-      </main>
+      </Shell>
     )
   }
 
   return (
-    <main style={pageContainer}>
+    <Shell>
       <div style={narrowCard}>
         <div>
           <h1 style={pageTitle}>Get in touch</h1>
@@ -160,7 +180,7 @@ function ContactForm() {
           {loading ? 'Sending…' : 'Send message'}
         </button>
       </div>
-    </main>
+    </Shell>
   )
 }
 
