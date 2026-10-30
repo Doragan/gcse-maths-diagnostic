@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import SiteNav from '../../components/SiteNav'
 import { colors, font, radius } from '../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -167,30 +168,7 @@ export default function GuidePage() {
   return (
     <div style={page}>
 
-      {/* ── Nav ──────────────────────────────────────────────────────────── */}
-      <nav style={{
-        background: 'rgba(255,255,255,0.96)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${colors.border}`,
-        padding: '0 24px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-      }}>
-        <Link href="/" style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          Mathsense
-        </Link>
-        <Link href="/auth" style={{
-          background: colors.primary, color: '#fff', borderRadius: radius.md,
-          padding: '8px 16px', fontSize: font.sm, fontWeight: '700', textDecoration: 'none',
-        }}>
-          Teacher login
-        </Link>
-      </nav>
+      <SiteNav audience="teacher" />
 
       <div style={wrap}>
 
