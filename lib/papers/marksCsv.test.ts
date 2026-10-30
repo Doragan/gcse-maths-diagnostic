@@ -33,8 +33,20 @@ describe('parseMarksCsv', () => {
   })
 
   it('treats a blank cell as not attempted, NOT as zero', () => {
-    // The distinction matters: a zero counts against the student, an absence
-    // does not. A teacher who means zero types 0.
+    // The PARSE distinguishes them: a blank leaves the key out, a 0 sets it
+    // to zero. A teacher who means zero types 0.
+    //
+    // ⚠ IT CHANGES NOTHING THE TEACHER SEES, and this comment used to say it
+    // did ("a zero counts against the student, an absence does not").
+    // buildStudentEvidence reads `marks[q.id] ?? 0` over every selected item,
+    // so a missing key is scored as a zero on the sheet and in the class
+    // summary; and calculateMastery skips a wrong exam-kind attempt, so
+    // neither can lower a skill. The only difference left is that a blank
+    // writes no practice_attempts row where a zero writes one that mastery
+    // then ignores.
+    //
+    // The parse stays as it is because leaving the key out is the honest
+    // reading of an empty cell — not because the two behave differently.
     const r = ok(parseMarksCsv('Student,1(a),1(b),2\nAmira,1,,0', paper))
     expect(r.rows[0].marks).toEqual({ '1a': 1, '2': 0 })
     expect('1b' in r.rows[0].marks).toBe(false)
