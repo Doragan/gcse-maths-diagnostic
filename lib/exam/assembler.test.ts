@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { assembleExam, candidateOf, MAX_MULTI_PART, type Candidate } from './assembler'
 import { normalizePart, emptyPart, emptyBlank } from '../questions/parts'
 import type { ExamBlueprint, DifficultyBand, SlotKind } from './blueprint'
+import { BLUEPRINTS } from './blueprint'
+import { courses } from '../../data/courses'
+import { skills } from '../../data/skills'
+import { skillsById } from '../skills/skillGraph'
+import type { Tier } from './examPaper'
 
 // A blueprint is now a MARK BUDGET. Helper: spend `target` marks, split evenly
 // across the given bands (equal shares unless one is given explicitly).
@@ -325,5 +330,71 @@ describe('candidateOf', () => {
     const c = candidateOf({ ...base, calculator: 'bogus', skill_ids: ['simple_arithmetic'] })!
     expect(c.calculator).toBe('na')
     expect(c.strand).toBe('Number') // simple_arithmetic is a Number skill
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// A paper must only contain content the student's own course examines. This is
+// the COURSE direction of the filter, which is not the tier direction: the
+// mini-exam used to pass only the Higher-only block, which says nothing about
+// content that is off-syllabus without being higher-only. Measured on the 281
+// published questions at the time: 2 leaked into a GCSE paper (set notation,
+// iGCSE-only) and 18 into an iGCSE Higher paper (iteration, time series, the
+// equation of a circle and six more topics 4MA1 does not examine).
+// ─────────────────────────────────────────────────────────────────────────────
+describe('assembleExam — course pool', () => {
+  it('drops a question whose SECOND skill is off the course', () => {
+    // The shape that makes .some() the wrong test. Live row 54337c4a is tagged
+    // ["counting_elements_in_sets", "solving_linear_equations"]: one tag is
+    // iGCSE-only content, the other is GCSE content, so the question is only
+    // safe when EVERY tag is in the pool.
+    const candidates = [
+      cand('on', 2, { skillIds: ['solving_linear_equations'], strand: 'A' }),
+      cand('mixed', 2, { skillIds: ['counting_elements_in_sets', 'solving_linear_equations'], strand: 'B' }),
+      cand('off', 2, { skillIds: ['counting_elements_in_sets'], strand: 'C' }),
+    ]
+    const res = assembleExam(candidates, bp(3, [{ band: 2 }]), {
+      calculatorMode: 'calc',
+      allowedSkillIds: new Set(['solving_linear_equations']),
+      rng: firstRng,
+    })
+    expect(res.questionIds).toEqual(['on'])
+  })
+
+  // One candidate per defined skill, so the pool offered to the assembler
+  // deliberately contains every course's content at once — which is exactly
+  // what the live bank is. Difficulty cycles so each band has something to
+  // spend on; the real blueprints are used so the test fails if a paper is
+  // assembled at all from off-course content.
+  const wholeBank: Candidate[] = skills.map((s, i) => ({
+    id: s.id,
+    difficulty: ((i % 4) + 1),
+    calculator: 'na',
+    kind: i % 3 === 0 ? 'exam' : 'mastery',
+    strand: skillsById[s.id]?.topic ?? 'Other',
+    marks: (i % 3) + 1,
+    skillIds: [s.id],
+    multiPart: false,
+  }))
+
+  it.each(courses)('$id serves nothing outside its own skill pool', course => {
+    const pool = new Set(course.skills)
+    const tier: Tier = course.id.endsWith('higher') ? 'higher' : 'foundation'
+    // Many draws, unseeded: selection is randomised within a band, and the
+    // courses that exclude only a handful of skills (gcse_higher excludes 5)
+    // would otherwise pass a single draw by luck rather than by filtering.
+    for (const calculatorMode of ['calc', 'non_calc'] as const) {
+      for (let draw = 0; draw < 25; draw++) {
+        const res = assembleExam(wholeBank, BLUEPRINTS[tier], {
+          calculatorMode,
+          allowedSkillIds: pool,
+        })
+        // Not a vacuous pass: a filter that emptied the pool would also serve
+        // nothing off-course.
+        expect(res.questionIds.length, `${course.id} assembled an empty paper`).toBeGreaterThan(0)
+        const offCourse = res.questionIds.filter(id => !pool.has(id))
+        expect(offCourse, `${course.id} served skills it does not examine`).toEqual([])
+      }
+    }
   })
 })
