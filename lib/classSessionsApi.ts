@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import { getSession } from './auth'
 import type { ClassSession } from './classSessions'
 import type { ProgressRow, ResultsHead } from './liveProgress'
-import type { SessionInsights } from './sessionInsights'
+import type { ProgressInsights } from './progressInsights'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reading and writing class sessions.
@@ -58,8 +58,8 @@ export async function getClassSession(id: string): Promise<ClassSession | null> 
  */
 export async function getClassSessionResults(
   id: string,
-): Promise<{ rows: ProgressRow[]; insights: SessionInsights }> {
-  const empty: SessionInsights = { questions: [], skills: [], misconceptions: [], untaggedWrong: 0 }
+): Promise<{ rows: ProgressRow[]; insights: ProgressInsights }> {
+  const empty: ProgressInsights = { questions: [], skills: [], misconceptions: [], untaggedWrong: 0 }
   const session = await getSession()
   if (!session) return { rows: [], insights: empty }
 
@@ -70,7 +70,7 @@ export async function getClassSessionResults(
   const body = await res.json()
   return {
     rows:     body.results as ProgressRow[],
-    insights: (body.insights as SessionInsights) ?? empty,
+    insights: (body.insights as ProgressInsights) ?? empty,
   }
 }
 

@@ -209,7 +209,11 @@ export default function MultiPartQuestion({
    * teacher tell two parts of three from none of three, which that boolean
    * could not (20261023_attempt_part_counts.sql).
    */
-  async function recordAssignmentRollup(allCorrect: boolean, parts: PartTally) {
+  async function recordAssignmentRollup(
+    allCorrect: boolean,
+    parts: PartTally,
+    misconception: string | null,
+  ) {
     if (!assignmentId || !studentId) return
     const { error } = await supabase.from('assignment_attempts').insert({
       assignment_id: assignmentId,
@@ -218,6 +222,7 @@ export default function MultiPartQuestion({
       correct: allCorrect,
       parts_correct: parts.correct,
       parts_total:   parts.total,
+      misconception,
     })
     if (error) console.error('Failed to record assignment rollup:', error.message) // audit L5
   }
@@ -355,13 +360,16 @@ export default function MultiPartQuestion({
         total:   question.parts.length,
       }
       const allCorrect = parts.correct === parts.total
-      recordAssignmentRollup(allCorrect, parts)
       // One row, one misconception column, possibly several mistakes — the
       // rule for choosing lives in lib/attemptMisconception.ts, with its
-      // reasoning and its tests.
-      recordSessionRollup(allCorrect, parts, rollupMisconception(
+      // reasoning and its tests. Both rollups get the SAME value: a homework
+      // question and a lesson question are the same question, and a pupil who
+      // meets it twice should not be diagnosed two different ways.
+      const misconception = rollupMisconception(
         next.map(o => ({ correct: o?.correct === true, misconception: o?.misconception })),
-      ))
+      )
+      recordAssignmentRollup(allCorrect, parts, misconception)
+      recordSessionRollup(allCorrect, parts, misconception)
       // The whole multi-part question counts as ONE toward the anonymous sign-up
       // nudge (not one per part) — fire it when the final part is answered.
       // Never in a class session: the pupil is signed out by design, and the

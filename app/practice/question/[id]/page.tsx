@@ -685,6 +685,9 @@ function QuestionPage() {
           student_id:    studentId,
           question_id:   question.id,
           correct,
+          // Same value the session write records, so homework gets the
+          // diagnosis a live lesson already had.
+          misconception,
         })
       if (aaError) console.error('Failed to record assignment attempt:', aaError.message) // audit L5
     }

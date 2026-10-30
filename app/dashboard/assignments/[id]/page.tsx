@@ -9,6 +9,8 @@ import {
 } from '../../../../lib/assignments'
 import { useLiveProgress } from '../../../../lib/useLiveProgress'
 import LiveProgressTable from '../../../../components/LiveProgressTable'
+import ClassInsightsPanel from '../../../../components/ClassInsightsPanel'
+import type { ProgressInsights } from '../../../../lib/progressInsights'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import { skillSetLabel } from '../../../../lib/skillSelection'
 import {
@@ -31,16 +33,20 @@ export default function AssignmentDetailPage() {
   const [assignment, setAssignment] = useState<Assignment | null>(null)
   const [questions, setQuestions]   = useState<AssignmentQuestion[]>([])
   const [loading, setLoading]       = useState(true)
+  const [insights, setInsights]     = useState<ProgressInsights>(
+    { questions: [], skills: [], misconceptions: [], untaggedWrong: 0 },
+  )
   const [notFound, setNotFound]     = useState(false)
 
   // ── Live progress ────────────────────────────────────────────────────────
   // The loop lives in lib/useLiveProgress, shared with the class-session view
   // (docs/audit/29 §6). Polling rather than realtime, and why, is documented
   // there; the decisions are from docs/audit/24 Part 3 and unchanged.
-  const fetchRows = useCallback(
-    () => getAssignmentResults(assignmentId).then(r => r.results),
-    [assignmentId],
-  )
+  const fetchRows = useCallback(async () => {
+    const r = await getAssignmentResults(assignmentId)
+    setInsights(r.insights)
+    return r.results
+  }, [assignmentId])
   const fetchHead = useCallback(() => getAssignmentResultsHead(assignmentId), [assignmentId])
   const progress = useLiveProgress({
     enabled: !loading && !notFound,
@@ -156,6 +162,12 @@ export default function AssignmentDetailPage() {
         now={progress.now}
         loading={progress.loading}
       />
+
+      {/* Below the names and closed, same as the class-session page: this one
+          is less likely to be projected, but a teacher going through homework
+          on the board is exactly when "4 of 9 got this wrong" is useful and
+          exactly when the names should not be up. */}
+      <ClassInsightsPanel insights={insights} />
 
     </main>
   )

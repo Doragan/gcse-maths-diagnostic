@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { supabase as anonClient } from '../../../../../lib/supabase'
 import { aggregateProgress } from '../../../../../lib/liveProgress'
+import { progressInsights } from '../../../../../lib/progressInsights'
 
 // GET — teacher fetches per-student completion and scores for an assignment.
 // Resolves class targets → members, then aggregates assignment_attempts per student.
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // Verify teacher owns this assignment
     const { data: assignment } = await service
       .from('assignments')
-      .select('id, teacher_id, selection_mode, target_count, completion_mode')
+      .select('id, teacher_id, selection_mode, target_count, completion_mode, skill_ids')
       .eq('id', id)
       .eq('teacher_id', user.id)
       .single()
@@ -89,7 +90,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // All attempts for this assignment.
     const { data: allAttempts } = await service
       .from('assignment_attempts')
-      .select('student_id, question_id, correct, attempted_at, parts_correct, parts_total')
+      .select('student_id, question_id, correct, attempted_at, parts_correct, parts_total, misconception')
       .eq('assignment_id', id)
       .order('attempted_at', { ascending: true })
 
@@ -130,7 +131,48 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     )
 
-    return NextResponse.json({ results, assignedCount, completionMode: assignment.completion_mode })
+    // ── What the class found hard ────────────────────────────────────────────
+    // The same two-view panel the class-session page has, from the same
+    // module. Only the questions this assignment actually produced attempts
+    // for are fetched, so the cost is bounded by what was answered.
+    //
+    // An assignment has no chosen skill list in picked mode — the teacher
+    // chose QUESTIONS — so the skills come from the questions themselves,
+    // which is exactly the fallback progressInsights documents. Pool mode
+    // passes its skill_ids through and gets the scoped breakdown.
+    //
+    // student_id goes INTO the aggregator and not out of it, for the pupil
+    // counts; nothing in the response carries one back.
+    const attempts = allAttempts ?? []
+    const askedIds = [...new Set(attempts.map(a => a.question_id))]
+
+    let questionMeta: { id: string; question_template: string; skill_ids: string[] }[] = []
+    if (askedIds.length > 0) {
+      const { data } = await service
+        .from('questions')
+        .select('id, question_template, skill_ids')
+        .in('id', askedIds)
+      questionMeta = (data ?? []).map(q => ({
+        id:                q.id,
+        question_template: q.question_template ?? '',
+        skill_ids:         q.skill_ids ?? [],
+      }))
+    }
+
+    const insights = progressInsights(
+      attempts.map(a => ({
+        question_id:    a.question_id,
+        correct:        a.correct,
+        misconception:  a.misconception,
+        participant_id: a.student_id,
+      })),
+      questionMeta,
+      assignment.selection_mode === 'pool' ? (assignment.skill_ids ?? []) : [],
+    )
+
+    return NextResponse.json({
+      results, assignedCount, completionMode: assignment.completion_mode, insights,
+    })
   } catch (err) {
     console.error('[assignments/results]', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

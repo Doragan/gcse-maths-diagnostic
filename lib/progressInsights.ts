@@ -75,7 +75,7 @@ export type MisconceptionInsight = {
   pupils: number
 }
 
-export type SessionInsights = {
+export type ProgressInsights = {
   questions: QuestionInsight[]
   skills: SkillInsight[]
   misconceptions: MisconceptionInsight[]
@@ -246,11 +246,11 @@ export function misconceptionInsights(attempts: AttemptFact[]): {
   return { misconceptions, untaggedWrong }
 }
 
-export function sessionInsights(
+export function progressInsights(
   attempts: AttemptFact[],
   questions: QuestionMeta[],
   chosenSkillIds: string[],
-): SessionInsights {
+): ProgressInsights {
   const meta = new Map(questions.map(q => [q.id, q]))
   return {
     questions: questionInsights(attempts, meta),

@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { getSession } from './auth'
 import type { ProgressRow } from './liveProgress'
+import type { ProgressInsights } from './progressInsights'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -125,7 +126,13 @@ export async function getAssignmentQuestions(assignmentId: string): Promise<Assi
 /** Returns per-student results for a teacher's assignment. */
 export async function getAssignmentResults(
   assignmentId: string,
-): Promise<{ results: AssignmentResult[]; assignedCount: number; completionMode: string }> {
+): Promise<{
+  results: AssignmentResult[]
+  assignedCount: number
+  completionMode: string
+  /** What the class found hard. Rides on this response, not a second fetch. */
+  insights: ProgressInsights
+}> {
   const session = await getSession()
   if (!session) throw new Error('Not authenticated')
   const res = await fetch(`/api/assignments/${assignmentId}/results`, {

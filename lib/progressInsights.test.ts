@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
-  sessionInsights, questionInsights, skillInsights, misconceptionInsights,
+  progressInsights, questionInsights, skillInsights, misconceptionInsights,
   MIN_ATTEMPTS_TO_RANK,
   type QuestionMeta, type AttemptFact,
-} from './sessionInsights'
+} from './progressInsights'
 
 const q = (id: string, template: string, skill_ids: string[]): QuestionMeta =>
   ({ id, question_template: template, skill_ids })
@@ -198,9 +198,9 @@ describe('misconceptionInsights', () => {
   })
 })
 
-describe('sessionInsights', () => {
+describe('progressInsights', () => {
   it('builds both views from one set of attempts', () => {
-    const out = sessionInsights(
+    const out = progressInsights(
       [...tries('q1', 6, 4), ...tries('q2', 6, 1)],
       [
         q('q1', '<p>Simplify {{a}}:{{b}}</p>', ['simplifying_ratio']),
@@ -213,7 +213,7 @@ describe('sessionInsights', () => {
   })
 
   it('is empty all round before anyone answers', () => {
-    expect(sessionInsights([], [], ['percentages']))
+    expect(progressInsights([], [], ['percentages']))
       .toEqual({ questions: [], skills: [], misconceptions: [], untaggedWrong: 0 })
   })
 })
