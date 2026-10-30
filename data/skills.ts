@@ -1716,23 +1716,47 @@ export const skills: Skill[] = [
   },
   {
     // ── Calculus: iGCSE (4MA1) only, Higher. Spec 3.4. ──────────────────────
-    // Three nodes rather than one. They always CO-OCCUR on a paper — a
-    // turning-point question necessarily differentiates first — but that is
-    // what a prerequisite looks like, not evidence they are one skill. A
-    // student who differentiates correctly and then does not know to set the
-    // derivative to zero has a specific, nameable gap, and collapsing these
-    // would make that failure indistinguishable from not differentiating at
-    // all.
+    //
+    // Three nodes, cut by WHAT THE DERIVATIVE IS SET EQUAL TO. Read across the
+    // eight coded 4MA1 parts and every non-bare calculus question is the same
+    // move — differentiate, then solve "derivative = something". Only two
+    // things vary: what it equals, and how many times you differentiate.
+    //
+    //   dy/dx on its own   2 parts,  4 marks   polynomial_differentiation
+    //   dy/dx = k          4 parts, 17 marks   rates_of_change  (k ≠ 0; the
+    //                                          kinematics part is d²s/dt² = k)
+    //   dy/dx = 0          2 parts,  8 marks   stationary_points
+    //
+    // RESHAPED 2026-10-30. The previous cut was differentiation /
+    // stationary_points / calculus_kinematics, which gave a node to the two
+    // RAREST tasks and none to the commonest: "find x where the gradient is k"
+    // is 3 parts and 13 marks across 3 of 5 series, and it was tagged
+    // `differentiation`. That made the app unable to tell "cannot
+    // differentiate" from "can differentiate but does not know the derivative
+    // IS the gradient" — which is the conceptual gap, and spec item A.
+    //
+    // `calculus_kinematics` is gone. Applying a skill to a real-world context
+    // does not earn a node of its own anywhere else in this graph, and the
+    // spec agrees: item E is "apply calculus to linear kinematics AND TO OTHER
+    // SIMPLE PRACTICAL PROBLEMS", an applications item whose example happens to
+    // be kinematics. Velocity and acceleration ARE rates of change, so its one
+    // coded part (Nov23 2H q18) is tagged `rates_of_change`.
     //
     // Prerequisites deliberately LEAN. `simplifying_indices` costs 2, so
-    // differentiation costs 3. Everything downstream of quadratics in this
-    // graph costs 8-9 (`quadratic_functions` 9, and
+    // polynomial_differentiation costs 3. Everything downstream of quadratics
+    // in this graph costs 8-9 (`quadratic_functions` 9, and
     // `solving_quadratic_equations_factorising` 8), and hanging the derived
     // nodes off those would treble their cost for no diagnostic gain — the
     // audit rows that need the solving are tagged with it directly, so the
     // prerequisite does not need to duplicate it.
-    "id": "differentiation",
-    "name": "Differentiation",
+    //
+    // Named for the POLYNOMIAL case, not for differentiation in general: spec
+    // 3.4 B is "differentiate integer powers of x" and there is no chain rule,
+    // product rule, trig or exponential derivative anywhere in 4MA1. A later
+    // qualification that needs those gets its own node beside this one rather
+    // than silently widening what this one claims.
+    "id": "polynomial_differentiation",
+    "name": "Polynomial Differentiation",
     "topic": "Algebra",
     "prerequisites": [
       "simplifying_indices"
@@ -1741,38 +1765,49 @@ export const skills: Skill[] = [
     "exampleAnswer": "12x² + 10x − 2"
   },
   {
-    // Setting the derivative to zero. Distinct from `differentiation`: the
-    // skill is knowing that stationary points are where the gradient is zero,
-    // and telling a maximum from a minimum (spec 3.4 C and D — the spec says
-    // "by considering the general shape of the graph only", so no second
-    // derivative test is required).
-    "id": "stationary_points",
-    "name": "Stationary and Turning Points",
-    "topic": "Algebra",
-    "prerequisites": [
-      "differentiation"
-    ],
-    "exampleQuestion": "Find the coordinates of the turning points on the curve y = x³ − 3x.",
-    "exampleAnswer": "(1, −2) and (−1, 2). Setting dy/dx = 3x² − 3 = 0 gives x = ±1.",
-    "image": false
-  },
-  {
-    // Spec 3.4 E, the one calculus item the specification gives its own worked
-    // example. Displacement differentiates to velocity and again to
-    // acceleration — the SECOND derivative is what separates this from
-    // `differentiation`, and the app has no other node for it.
+    // The derivative as a GRADIENT FUNCTION, which is spec 3.4 A (understand
+    // the concept of a variable rate of change) and the first half of C
+    // (gradients, rates of change). The student is given a value and has to
+    // know that dy/dx is the thing that equals it.
+    //
+    // The most examined calculus task on 4MA1 and the one the old shape had no
+    // node for: 4 parts and 17 marks across 4 of 5 series, against 2 parts for
+    // `stationary_points`.
+    //
+    // Also the home of spec item E, so this is where the SECOND derivative
+    // lives — a displacement differentiated twice is an acceleration, which is
+    // still a rate of change. Note that `stationary_points` deliberately does
+    // NOT use one; see the note there.
     //
     // `compound_units` was considered as a second prerequisite, since velocity
     // and acceleration are rates, and rejected: it costs 3 more and drags
     // Function Machines into the tree for no diagnostic gain.
-    "id": "calculus_kinematics",
-    "name": "Calculus and Kinematics",
+    "id": "rates_of_change",
+    "name": "Rates of Change",
     "topic": "Algebra",
     "prerequisites": [
-      "differentiation"
+      "polynomial_differentiation"
     ],
-    "exampleQuestion": "A particle's displacement from O is s = 2t³ + 5t² − 6t + 5 metres after t seconds. Find an expression for its acceleration.",
-    "exampleAnswer": "v = ds/dt = 6t² + 10t − 6, so a = dv/dt = 12t + 10 m/s²"
+    "exampleQuestion": "A curve has equation y = x³ + 5x. The gradient of the curve is 17 at two points. Work out the x-coordinates of these two points.",
+    "exampleAnswer": "dy/dx = 3x² + 5, so 3x² + 5 = 17 gives x² = 4 and x = 2 or x = −2."
+  },
+  {
+    // Setting the derivative to ZERO — the one case the student has to decide
+    // on for themselves rather than being handed the value. Spec 3.4 C's
+    // turning points and D.
+    //
+    // D is worth reading before authoring for this node: maxima and minima are
+    // distinguished "by considering the general shape of the graph only", so
+    // 4MA1 asks for NO second derivative test and no sign table. A question
+    // that needs one is not on this specification.
+    "id": "stationary_points",
+    "name": "Stationary and Turning Points",
+    "topic": "Algebra",
+    "prerequisites": [
+      "polynomial_differentiation"
+    ],
+    "exampleQuestion": "Find the coordinates of the turning points on the curve y = x³ − 3x.",
+    "exampleAnswer": "(1, −2) and (−1, 2). Setting dy/dx = 3x² − 3 = 0 gives x = ±1."
   },
   {
     "id": "area_and_volume_scale_factors",

@@ -365,15 +365,20 @@ export const igcseHigherOnlySkillIds = [
   "counting_elements_in_sets",
   // Calculus, spec 3.4, flagged "Higher Tier only" in the Foundation listing
   // and confirmed by the papers — all eight coded calculus parts are on Higher
-  // papers, none on a Foundation one. `differentiation` clears the four-part
-  // evidence bar with five; `stationary_points` (2) and `calculus_kinematics`
-  // (1) do not, and are built anyway: minParts gates whether the app makes an
-  // EXAM CLAIM about a skill, not whether the skill exists. Only 13-18% of
-  // skills clear it on the OCR and Edexcel slices, and those are all real
-  // skills students practise.
-  "differentiation",
+  // papers, none on a Foundation one.
+  //
+  // RESHAPED 2026-10-30, and `calculus_kinematics` is gone; see the block above
+  // these three in data/skills.ts for why. `rates_of_change` clears the
+  // four-part evidence bar with 4 parts and 17 marks;
+  // `polynomial_differentiation` (2) and `stationary_points` (2) do not, and
+  // are built anyway: minParts gates whether the app makes an EXAM CLAIM about
+  // a skill, not whether the skill exists. Only 13-18% of skills clear it on
+  // the OCR and Edexcel slices, and those are all real skills students
+  // practise. `polynomial_differentiation` is in any case exercised by all
+  // eight parts as the prerequisite of the other two.
+  "polynomial_differentiation",
+  "rates_of_change",
   "stationary_points",
-  "calculus_kinematics",
 ]
 
 export const courses: Course[] = [

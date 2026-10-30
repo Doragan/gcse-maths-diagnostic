@@ -291,7 +291,7 @@
       "part": "a",
       "marks": 2,
       "skill_ids": [
-        "differentiation"
+        "polynomial_differentiation"
       ],
       "kind": "mastery",
       "mark_split": "M1 A1",

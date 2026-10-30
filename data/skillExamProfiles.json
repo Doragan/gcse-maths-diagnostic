@@ -10468,26 +10468,24 @@
       },
       "sufficient": false
     },
-    "Edexcel International|Higher|differentiation": {
-      "skillId": "differentiation",
+    "Edexcel International|Higher|polynomial_differentiation": {
+      "skillId": "polynomial_differentiation",
       "board": "Edexcel International",
       "tier": "Higher",
-      "parts": 5,
-      "marks": 17,
-      "papersSeen": 4,
+      "parts": 2,
+      "marks": 4,
+      "papersSeen": 2,
       "papersTotal": 10,
       "markRange": [
         2,
-        5
+        2
       ],
       "framing": {},
       "barePct": 0,
       "bareBand": "never",
       "calc": {},
       "markSplits": [
-        "M1 A1",
-        "M1 M1 M1 A1",
-        "M1 M1 M1 M1 A1"
+        "M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
@@ -10496,8 +10494,36 @@
         "expression": 2
       },
       "kinds": {
-        "mastery": 2,
-        "exam": 3
+        "mastery": 2
+      },
+      "sufficient": false
+    },
+    "Edexcel International|Higher|rates_of_change": {
+      "skillId": "rates_of_change",
+      "board": "Edexcel International",
+      "tier": "Higher",
+      "parts": 4,
+      "marks": 17,
+      "papersSeen": 4,
+      "papersTotal": 10,
+      "markRange": [
+        4,
+        5
+      ],
+      "framing": {},
+      "barePct": 0,
+      "bareBand": "never",
+      "calc": {},
+      "markSplits": [
+        "M1 M1 M1 A1",
+        "M1 M1 M1 M1 A1"
+      ],
+      "chainedPct": 0,
+      "traps": [],
+      "framingCoded": 0,
+      "answerForms": {},
+      "kinds": {
+        "exam": 4
       },
       "sufficient": true
     },
@@ -13139,34 +13165,6 @@
       "calc": {},
       "markSplits": [
         "M1 M1 A1"
-      ],
-      "chainedPct": 0,
-      "traps": [],
-      "framingCoded": 0,
-      "answerForms": {},
-      "kinds": {
-        "exam": 1
-      },
-      "sufficient": false
-    },
-    "Edexcel International|Higher|calculus_kinematics": {
-      "skillId": "calculus_kinematics",
-      "board": "Edexcel International",
-      "tier": "Higher",
-      "parts": 1,
-      "marks": 4,
-      "papersSeen": 1,
-      "papersTotal": 10,
-      "markRange": [
-        4,
-        4
-      ],
-      "framing": {},
-      "barePct": 0,
-      "bareBand": "never",
-      "calc": {},
-      "markSplits": [
-        "M1 M1 M1 A1"
       ],
       "chainedPct": 0,
       "traps": [],
