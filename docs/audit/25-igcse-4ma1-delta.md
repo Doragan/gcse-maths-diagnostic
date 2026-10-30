@@ -9,10 +9,20 @@ skills) and the tier lists in `data/courses.ts` as of commit `41e969f`._
 > is still analysis.** `set_notation` and `counting_elements_in_sets` are in
 > `data/skills.ts`, placed in new provisional `igcse_foundation` /
 > `igcse_higher` courses in `data/courses.ts`, and the 14 affected audit rows
-> are retagged off their interim `venn_diagrams` tag. **Neither course is
-> selectable anywhere** — no UI offers them and `ALLOWED_COURSES` does not list
-> them — so nothing reaches a student yet. `npm run verify` passes (1889 tests).
-> See §9 for what was done and what is deliberately left.
+> are retagged off their interim `venn_diagrams` tag. `npm run verify` passes
+> (1889 tests). See §9 for what was done and what is deliberately left.
+>
+> **Selectability, corrected 2026-10-29.** This paragraph used to say "Neither
+> course is selectable anywhere — no UI offers them and `ALLOWED_COURSES` does
+> not list them — so nothing reaches a student yet." Half of that is still true
+> and half is not. `QUALIFICATIONS` is derived from `BOARDS_BY_QUALIFICATION`,
+> so `components/CourseSetupCard.tsx` offers 'igcse' as soon as there is a
+> second qualification and writes `courseIdFor(qualification, tier)` to
+> `students.course_id`; `app/account/page.tsx` renders a picker over the whole
+> `courses` array, all four. **A signed-in student can be on either iGCSE course
+> today.** What remains true is the teacher side: `ALLOWED_COURSES` in
+> `app/api/assessments/create/route.ts` is still `['gcse_foundation',
+> 'gcse_higher']`, so a class assessment cannot be set on 4MA1.
 >
 > The remaining candidates (calculus, arithmetic series, domain and range) are
 > still gathering evidence; see §2.4. For where this sits against everything
@@ -199,8 +209,21 @@ carrying exactly one warning each.
 asks for the tangent there, so it was counted under `differentiation`; if the
 two end up merged into one calculus skill this distinction disappears.
 
-Note every sighting except Nov24 1F q21 sits on a **Higher** paper, so the
-ceiling for those is 10 papers, not 20.
+> **Correction, 2026-10-29 — error 2 of 2.** This paragraph used to read "Note
+> every sighting except Nov24 1F q21 sits on a **Higher** paper, so the ceiling
+> for those is 10 papers, not 20." **Wrong about which tier examines what**, and
+> contradicted by the row two above it in this very table: `set_notation`'s
+> sightings include **Jun24 1F q22** and, once November 2023 was coded, **Nov23
+> 1F q15** — three Foundation questions in all, not one. The 10-paper ceiling is
+> true of the four remaining candidates (`arithmetic_series_sum`,
+> `differentiation`, `stationary_points`, `domain_and_range`), every one of which
+> really is Higher-only on the papers and in the spec, and it was never true of
+> the sets rows the sentence swept in with them.
+
+The four remaining candidates all sit on **Higher** papers only, so the ceiling
+for those is 10 papers, not 20. The sets rows are the exception and are on both
+tiers — see the crossover note at the head of §3 for why that is one question
+and not two.
 
 **Interim tagging.** A candidate item is tagged with whatever existing skill
 honestly covers *part* of it, rather than left untagged, where such a skill
@@ -232,6 +255,18 @@ direct contradictions, all verified against the spec's inline tier flags:
 > line they share. June 2025 1F q23(b) — factorise y² − 11y + 30, hence solve —
 > is the proof, and the paper is the authority over my reading of the spec.
 
+> **Method note on part counts, 2026-10-29. 4MA1 prints the SAME question on
+> both tiers**, so summing the two tiers double-counts every crossover item and
+> the `minParts: 4` bar reads about twice as generous here as it does on a GCSE
+> board. Verified item for item on the sets rows: **Jun24 1F q22 = 1H q7, Nov23
+> 1F q15 = 1H q1, Nov24 1F q21 = 1H q4.** `set_notation` is 10 parts on each
+> tier and that is **three questions in total, not six**. So quote parts AND
+> distinct questions, and judge a tier on its own slice — which is what
+> `skillExamProfiles.json` already does, and what the table below does. The
+> crossover block is a structural feature of the qualification (the Foundation
+> paper's stretch section is the Higher paper's opening section), not a
+> coincidence of a few series, so this applies to every count in this document.
+
 | App skill(s) | App tier | 4MA1 tier | Spec |
 |---|---|---|---|
 | `vectors` | Foundation | **Higher only** | 5.1 `Higher Tier only` (re-derived with correct column pairing) |
@@ -255,7 +290,18 @@ against the coded papers rather than the spec** — it is the one row here I wou
 not act on from the specification alone.
 
 Also confirmed Higher-only in 4MA1 and already Higher-only in the app, so no
-change: `functions_notation` (3.2), `nth_term_quadratic_sequences` (3.1).
+change: `functions_notation` (3.2) — 0:4 across the twenty coded papers, four
+distinct questions, all Higher.
+
+> **Correction, 2026-10-29 — error 1 of 2 in this section.** This line used to
+> name `nth_term_quadratic_sequences` (3.1) alongside `functions_notation` as
+> "confirmed Higher-only in 4MA1". **It has no 4MA1 tier at all.** §4 below
+> concludes, from the spec, that 4MA1's 3.1 is arithmetic sequences only, which
+> is why `data/courses.ts` puts it in `igcseExcluded` — off BOTH iGCSE courses,
+> not on the Higher one. The coded papers back that and give the line nothing to
+> stand on either: **0 parts at Foundation and 0 at Higher across all twenty**.
+> Assigning a tier to content the qualification does not examine is a different
+> claim from placing it, and this table is where tier claims get read from.
 
 ### Consequence for the test suite
 
@@ -302,6 +348,10 @@ search term, but the spec may word them differently, so check before excluding:
 - `frequency_diagrams` (searched "frequency polygon") — note `grouped_frequency_tables` **is** present (6.2 C/D: estimated mean and modal class for grouped data)
 - `relative_frequency` (searched "relative frequency", "trial", "estimate of probability")
 - `exact_trig_values` (searched "exact value")
+
+> **All three now settled against the papers, 2026-10-29** — zero parts on
+> either tier across all twenty, with a positive reason for each rather than
+> spec silence. See §10, *The four at-risk entries, searched properly*.
 
 ---
 
@@ -368,7 +418,10 @@ repeated lesson being that a document describing a thing is not the thing.
    issue number is recorded here rather than asserted as current. Confirm from
    the "Specification and sample assessments" category before committing
    authoring effort.
-2. **The three "probable but not confirmed" exclusions** in §4.
+2. **The three "probable but not confirmed" exclusions** in §4. ~~Open.~~
+   **Settled 2026-10-29** against the complete corpus — all three stay out, and
+   two of them (`exact_trig_values`, `frequency_diagrams`) now rest on a
+   positive statement rather than on silence. §10.
 3. **Most of this is not checked against the papers.** The mapping is
    spec-derived apart from the rows in §3 marked "confirmed on a paper". The
    spec says what *may* be examined; the coded papers say what *is*, and the
@@ -649,11 +702,52 @@ than three.
 ### Exclusions re-tested against all twenty papers
 
 **All fifteen hold.** No excluded skill is tagged anywhere in the completed
-corpus, and the four flagged as at-risk after the `function_machines` and
-`frustum` corrections — `relative_frequency`, `equations_and_identities`,
-`exact_trig_values`, `frequency_diagrams` — have zero hits in the June 2023
-papers on any wording searched. The two that were wrong were caught; the rest
-survived the full corpus.
+corpus. The two that were wrong were caught; the rest survived.
+
+**The four at-risk entries, searched properly — 2026-10-29.** The paragraph here
+originally said they had "zero hits in the June 2023 papers", which is the last
+series coded and not the re-test the `igcseExcluded` comment asked for. Done
+across all twenty, and by reading the question SUBSTANCE in every row's
+`app_gap_note` rather than matching on `skill_ids` — an excluded skill is by
+definition never tagged, so a tag search would have proved nothing.
+
+| Skill | F parts / distinct q | H parts / distinct q | Verdict |
+|---|---|---|---|
+| `relative_frequency` | 0 / 0 | 0 / 0 | **stays out** |
+| `equations_and_identities` | 0 / 0 | 0 / 0 | **stays out** |
+| `exact_trig_values` | 0 / 0 | 0 / 0 | **stays out** |
+| `frequency_diagrams` | 0 / 0 | 0 / 0 | **stays out** |
+
+Wordings searched, all zero across the 892 coded rows: "relative frequenc",
+"estimate the probability", "trial", "experiment", "expected number",
+"identit", "≡", "equivalen", "true for all", "exact value", "exact trig",
+"surd form", "frequency polygon", "frequency diagram". The four skill ids
+themselves appear nowhere in the twenty files either, `coding_notes` included.
+
+Three of the four now have a **positive** reason, which is what the frustum
+correction said to look for instead of spec silence:
+
+- `exact_trig_values` — **every one of the twenty papers is a calculator paper**
+  (`meta.paper` on all 20). 4MA1 has no non-calculator component at all, unlike
+  1MA1's 1 in 3 (see the table in §1). The skill is "write down the exact value
+  of sin 90°" — a non-calculator question form this qualification does not have.
+- `frequency_diagrams` — the spec's own note on Foundation 6.1 caps the data
+  strand at "pictograms, bar charts and pie charts, and only two-way tables",
+  and the papers match it exactly: 22 Foundation parts of `simple_charts`, bar
+  charts and pictograms, and nothing else chart-shaped.
+- `relative_frequency` — 4MA1 examines the **converse, and only the converse**.
+  `expected_outcomes` is 4:4 (given a probability, how many in n trials). The
+  estimate-a-probability-from-results direction appears nowhere.
+
+`equations_and_identities` rests on silence alone, now across twenty papers
+rather than twelve. It is the one of the four to revisit first if a new series
+is ever coded.
+
+**What the exclusion costs**, measured against the live bank on 2026-10-29:
+**3 published questions** are hidden from an iGCSE student — 2 on
+`relative_frequency`, 1 on `exact_trig_values`, 0 on the other two. Worth
+knowing the number, and it is the right trade: a question for content the
+student will not be examined on is worse than a gap.
 
 ### One tier conflict left, and it is real
 
@@ -667,7 +761,42 @@ a point are equal in length. The Higher listing adds the *angle* properties
 
 One Foundation part, so it does not clear `minParts: 4`. **Recorded, not
 acted on.** It is the same shape as the `venn_diagrams` and
-`upper_and_lower_bounds` moves, which had 6 and 4 Foundation parts behind them.
+`upper_and_lower_bounds` moves, which have 4 Foundation parts each behind them
+across the full corpus — 3 and 2 distinct questions respectively.
+
+> **Count corrected 2026-10-29.** This said "6 and 4 Foundation parts". The 6
+> was `venn_diagrams` at twelve papers, before the 2026-10-07 set-notation build
+> retagged its pure-membership rows onto `set_notation` and
+> `counting_elements_in_sets`. It is 4:4 now, and the move still clears the bar
+> on its own evidence with nothing borrowed from the sets skills. The same stale
+> 6:11 pair sat in `data/courses.ts` and has been refreshed there too.
+
+### Four more tier conflicts the papers show, none acted on — 2026-10-29
+
+The §3 table lists the tier re-placements found from the spec in 2026-10-07. The
+completed corpus adds four skills that are **Foundation in `data/courses.ts`
+(both GCSE and iGCSE) and appear on 4MA1 HIGHER papers only**:
+
+| Skill | F parts / q | H parts / q | Spec |
+|---|---|---|---|
+| `tree_diagrams` | 0 / 0 | 10 / 5 | 6.3 A, in §5's Higher data bundle |
+| `combined_events` | 0 / 0 | 8 / 8 | 6.3 B independent events, same bundle |
+| `sketching_functions` | 0 / 0 | 7 / 5 | 3.3 A cubic and reciprocal graphs |
+| `area_and_volume_scale_factors` | 0 / 0 | 4 / 4 | 4.11 |
+
+All four clear the four-part bar on Higher with a clean zero at Foundation, and
+§5 already files every one of them with the Higher content. **Recorded, not
+acted on**, for one reason: this is an argument from *absence* on the Foundation
+slice, which is exactly the move the `frustum` and `function_machines`
+corrections punished. Twenty papers of silence is what thirteen papers of
+silence looked like before Nov23 2H q23. Moving them would also shrink the iGCSE
+Foundation pool by four skills and take `tree_diagrams` out of a Foundation
+student's reach, so it is a content decision, not a tidy-up. The way to settle
+it is a 4MA1 Foundation paper that does or does not carry a probability tree.
+
+Note these are not errors in the §3 table, which was honest about being
+spec-derived (§8 item 3) — they are what §8 item 3 predicted the corpus would
+turn up.
 
 ### Zero-evidence skills remaining
 
