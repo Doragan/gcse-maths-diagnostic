@@ -259,15 +259,40 @@ function fractionPartsMatch(a: string, b: string): boolean {
 }
 
 /**
- * A leading "x =" on an otherwise bare expression, as in "x=(4+3y)/(y-1)".
+ * The subjects an answer may be written against: a single letter ("x="), the
+ * Leibniz derivative forms ("dy/dx=", "ds/dt=", and the second derivative
+ * "d^2y/dx^2="), and the Lagrange forms ("f'(x)=", "f''(x)=").
+ *
+ * The derivative forms are here because the questions that ASK for a
+ * derivative print the subject in the prompt — "Find dy/dx" — so writing it
+ * back is the natural answer and the one the exam papers model. A prefix is
+ * notation around the expression, not a different answer, and leaving it off
+ * evidences nothing about differentiating. (Contrast the fraction branch in
+ * checkAnswer, which REFUSES a decimal written for a fraction: there the form
+ * is itself what is being marked.)
+ *
+ * normalise() has already lower-cased and de-spaced the answer and turned "²"
+ * into "^2", so only the caret form of the order needs matching. Both
+ * apostrophes are accepted because a phone keyboard offers the curly one.
+ */
+const ASSIGNMENT_SUBJECT =
+  /^(d\^?\d?[a-z]\/d[a-z]\^?\d?|[a-z]['’]{1,2}(?:\([a-z]\))?|[a-z])=(.+)$/
+
+/**
+ * A leading subject on an otherwise bare expression, as in "x=(4+3y)/(y-1)"
+ * or "dy/dx=12x^2+10x-2".
  * Returns null for anything with a second '=' — a solution list such as
  * "x=-3andx=-2", or simultaneous answers like "x=2,y=3", must be left for
  * `sortedSolutions`.
  */
-function assignmentPrefix(s: string): { letter: string; rest: string } | null {
-  const m = s.match(/^([a-z])=(.+)$/)
+function assignmentPrefix(s: string): { subject: string; rest: string } | null {
+  const m = s.match(ASSIGNMENT_SUBJECT)
   if (!m || m[2].includes('=')) return null
-  return { letter: m[1], rest: m[2] }
+  // The subject is compared verbatim, so "dy/dx" and "ds/dt" stay distinct —
+  // see the DIFFERENT-subjects guard in expressionMatch. Only the apostrophe
+  // is canonicalised, since "f'(x)" and "f’(x)" are the same subject typed on
+  // different keyboards.
+  return { subject: m[1].replace(/’/g, "'"), rest: m[2] }
 }
 
 /**
@@ -281,14 +306,15 @@ function expressionMatch(a: string, b: string): boolean {
   // mis-split as an additive term.
   if (INEQUALITY_OP.test(a) || INEQUALITY_OP.test(b)) return inequalityMatch(a, b)
 
-  // "x = <expression>" is a common way to write a rearrangement and was marked
-  // wrong. Strip the subject from BOTH sides, so it works whichever side wrote
-  // it — but not when the two name DIFFERENT subjects, or "y=5" would be
-  // accepted for "x=5". The stripped remainder contains no '=', so this
-  // recurses at most once.
+  // "x = <expression>" is a common way to write a rearrangement, and
+  // "dy/dx = <expression>" is how a derivative is written, both marked wrong
+  // before. Strip the subject from BOTH sides, so it works whichever side
+  // wrote it — but not when the two name DIFFERENT subjects, or "y=5" would be
+  // accepted for "x=5" and "ds/dt=2t" for "dv/dt=2t". The stripped remainder
+  // contains no '=', so this recurses at most once.
   const pa = assignmentPrefix(a)
   const pb = assignmentPrefix(b)
-  if ((pa || pb) && !(pa && pb && pa.letter !== pb.letter)) {
+  if ((pa || pb) && !(pa && pb && pa.subject !== pb.subject)) {
     return expressionMatch(pa ? pa.rest : a, pb ? pb.rest : b)
   }
 

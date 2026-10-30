@@ -661,6 +661,60 @@ describe('expression: leading "x ="', () => {
   })
 })
 
+// ─────────────────────────────────────────────────────────────────────────────
+// "dy/dx =" IN FRONT OF A DERIVATIVE
+//
+// The prompt on the calculus questions says "Find dy/dx", so writing it back
+// is the natural answer — and it was marked wrong, while the single-letter
+// "y =" was accepted. The prefix is notation, not part of the answer.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('expression: leading derivative subject', () => {
+  const CANON = '12x^2+10x-2'
+
+  it('accepts a Leibniz subject the student added', () => {
+    expect(check('dy/dx=12x^2+10x-2', CANON, 'expression').correct).toBe(true)
+    expect(check('dy/dx = 10x + 12x^2 - 2', CANON, 'expression').correct).toBe(true)
+    expect(check('d²y/dx² = 24x + 10', '24x+10', 'expression').correct).toBe(true)
+  })
+
+  it('accepts a bare expression when the canonical answer carries the subject', () => {
+    expect(check('12x^2+10x-2', 'dy/dx=12x^2+10x-2', 'expression').correct).toBe(true)
+    expect(check('dy/dx=12x^2+10x-2', 'dy/dx=12x^2+10x-2', 'expression').correct).toBe(true)
+  })
+
+  it('accepts the kinematics subjects a student would reach for', () => {
+    // 'v' and 'a' already worked, being single letters; the Leibniz forms did not.
+    expect(check('ds/dt = 3t^2 - 4', '3t^2-4', 'expression').correct).toBe(true)
+    expect(check('dv/dt = 6t', '6t', 'expression').correct).toBe(true)
+    expect(check('v = 3t^2 - 4', '3t^2-4', 'expression').correct).toBe(true)
+  })
+
+  it('accepts the Lagrange forms, either apostrophe', () => {
+    expect(check("f'(x) = 12x^2 + 10x - 2", CANON, 'expression').correct).toBe(true)
+    expect(check("f''(x) = 24x + 10", '24x+10', 'expression').correct).toBe(true)
+    expect(check('f’(x) = 12x^2 + 10x - 2', CANON, 'expression').correct).toBe(true)
+  })
+
+  it('still distinguishes different derivative subjects', () => {
+    // Stripping blindly would accept a rate of change of the wrong quantity.
+    expect(check('ds/dt=6t', 'dv/dt=6t', 'expression').correct).toBe(false)
+    expect(check('dy/dx=6t', 'ds/dt=6t', 'expression').correct).toBe(false)
+  })
+
+  it('leaves the single-letter behaviour exactly as it was', () => {
+    expect(check('y=12x^2+10x-2', CANON, 'expression').correct).toBe(true)
+    expect(check('y=5', 'x=5', 'expression').correct).toBe(false)
+    expect(check('x=-2andx=-3', 'x=-3andx=-2', 'expression').correct).toBe(true)
+  })
+
+  it('still rejects a wrong derivative', () => {
+    // Forgot to drop the power / differentiated the constant to itself.
+    expect(check('dy/dx=4x^3+5x^2-2', CANON, 'expression').correct).toBe(false)
+    expect(check('dy/dx=12x^2+10x', CANON, 'expression').correct).toBe(false)
+    expect(check("f'(x)=12x^2+10x+2", CANON, 'expression').correct).toBe(false)
+  })
+})
+
 describe('poor estimates for π', () => {
   // Area of a circle, r = 10: π gives 314.16, 3.14 gives 314.00, 3.142 gives 314.20.
   const CORRECT = '314.16 cm²'
