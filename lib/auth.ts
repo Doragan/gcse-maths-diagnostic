@@ -68,9 +68,12 @@ export async function signInWithGoogle(role: 'teacher' | 'student') {
 }
 
 export async function signOut() {
-  // Clear the per-session student-id cache so a subsequent sign-in (e.g. a
-  // different account in the same tab) doesn't read a stale id.
-  if (typeof window !== 'undefined') sessionStorage.removeItem(STUDENT_ID_CACHE_KEY)
+  // Clear the per-session caches so a subsequent sign-in (e.g. a different
+  // account in the same tab) doesn't read a stale id or role.
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(STUDENT_ID_CACHE_KEY)
+    sessionStorage.removeItem(ACCOUNT_ROLE_CACHE_KEY)
+  }
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
@@ -350,4 +353,44 @@ export async function getUserRole(): Promise<'teacher' | 'student' | null> {
  */
 export async function requireTeacher(): Promise<boolean> {
   return (await getUserRole()) === 'teacher'
+}
+
+const ACCOUNT_ROLE_CACHE_KEY = 'cached_account_role'
+
+/**
+ * accountRoleFor, cached for the browser session — for UI that needs the role
+ * on every page rather than once per flow (the site nav).
+ *
+ * Two queries is nothing on a dashboard that is about to run ten more, but it
+ * is a poor trade on a static marketing page whose header is the only thing
+ * asking. The role of an account does not change, so one lookup per browser
+ * session is enough; the cache is keyed by user id so signing in as someone
+ * else in the same tab cannot read the previous answer, and signOut() clears
+ * it as well.
+ *
+ * An inconclusive answer ('none' or 'unknown') is deliberately NOT cached: it
+ * may be a lookup that merely failed, and caching a failure would make it
+ * permanent for the session.
+ */
+export async function getCachedAccountRole(userId: string): Promise<AccountRole> {
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = sessionStorage.getItem(ACCOUNT_ROLE_CACHE_KEY)
+      if (raw) {
+        const cached = JSON.parse(raw) as { id?: string; role?: AccountRole }
+        if (cached.id === userId && (cached.role === 'teacher' || cached.role === 'student')) {
+          return cached.role
+        }
+      }
+    } catch { /* unparseable or storage disabled — just re-resolve */ }
+  }
+
+  const role = await accountRoleFor(userId)
+
+  if (typeof window !== 'undefined' && (role === 'teacher' || role === 'student')) {
+    try {
+      sessionStorage.setItem(ACCOUNT_ROLE_CACHE_KEY, JSON.stringify({ id: userId, role }))
+    } catch { /* storage disabled */ }
+  }
+  return role
 }

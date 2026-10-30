@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import SiteNav from '../components/SiteNav'
+import { dashboardPath, useAccountNav } from '../lib/useAccountNav'
 import { trackEvent } from '../lib/analytics'
 import { renderOne, type DemoQ, type Rendered } from '../lib/demoQuestions'
 import { checkAnswer } from '../lib/questions/answerChecker'
@@ -313,50 +315,16 @@ export default function Landing({ demoPool, demoQuestion }: {
   /** Pre-rendered on the server so the demo is in the HTML, not fetched later. */
   demoQuestion: Rendered | null
 }) {
+  // Drives every call to action on the page, not just the nav: a signed-in
+  // student was being asked to log in and set up an account they already have.
+  const account = useAccountNav()
+  const signedIn = account.state === 'signedIn'
+  const myDashboard = account.state === 'signedIn' ? dashboardPath(account.role) : '/student'
+
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', background: '#f8fafc' }}>
 
-      {/* ── Navigation ─────────────────────────────────────────────────────────── */}
-      <nav style={{
-        position: 'sticky' as const,
-        top: 0,
-        zIndex: 50,
-        background: 'rgba(255,255,255,0.96)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${colors.border}`,
-        padding: '0 24px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <span style={{ fontSize: font.xl, fontWeight: '800', color: colors.primary, letterSpacing: '-0.02em' }}>
-          Mathsense
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Link href="/for-teachers" style={{ fontSize: font.sm, color: colors.textSecondary, textDecoration: 'none', fontWeight: '500', padding: '8px 12px' }}>
-            For teachers
-          </Link>
-          <Link href="/student" style={{ fontSize: font.sm, color: colors.textSecondary, textDecoration: 'none', fontWeight: '500', padding: '8px 12px' }}>
-            Log in
-          </Link>
-          <Link
-            href="/practice"
-            onClick={() => trackEvent('nav_practice_clicked')}
-            style={{
-              background: colors.primary,
-              color: '#fff',
-              borderRadius: radius.md,
-              padding: '8px 16px',
-              fontSize: font.sm,
-              fontWeight: '700',
-              textDecoration: 'none',
-            }}
-          >
-            Start practising free
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* ── Hero ───────────────────────────────────────────────────────────────── */}
       <section style={{
@@ -434,11 +402,11 @@ export default function Landing({ demoPool, demoQuestion }: {
                 letterSpacing: '-0.01em',
               }}
             >
-              Start practising free →
+              {signedIn ? 'Continue practising →' : 'Start practising free →'}
             </Link>
             <Link
-              href="/student"
-              onClick={() => trackEvent('hero_login_clicked')}
+              href={myDashboard}
+              onClick={() => trackEvent('hero_login_clicked', { signed_in: signedIn })}
               style={{
                 background: 'transparent',
                 color: '#ffffff',
@@ -451,7 +419,7 @@ export default function Landing({ demoPool, demoQuestion }: {
                 display: 'inline-block',
               }}
             >
-              Log in
+              {signedIn ? 'My dashboard' : 'Log in'}
             </Link>
           </div>
 
@@ -615,7 +583,7 @@ export default function Landing({ demoPool, demoQuestion }: {
                 letterSpacing: '-0.01em',
               }}
             >
-              Start practising free →
+              {signedIn ? 'Continue practising →' : 'Start practising free →'}
             </Link>
           </div>
         </div>
@@ -757,15 +725,15 @@ export default function Landing({ demoPool, demoQuestion }: {
           </div>
 
           <Link
-            href="/student?mode=signup"
-            onClick={() => trackEvent('parent_signup_clicked')}
+            href={signedIn ? myDashboard : '/student?mode=signup'}
+            onClick={() => trackEvent('parent_signup_clicked', { signed_in: signedIn })}
             style={{
               background: colors.primary, color: '#fff', padding: '13px 26px',
               borderRadius: radius.md, fontSize: font.base, fontWeight: '700',
               textDecoration: 'none', display: 'inline-block',
             }}
           >
-            Set up a free account →
+            {signedIn ? 'Go to your dashboard →' : 'Set up a free account →'}
           </Link>
 
           {/*

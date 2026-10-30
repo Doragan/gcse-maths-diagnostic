@@ -1,30 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Header from "@/components/Header";
+import SiteNav from "@/components/SiteNav";
 
 export default function AboutPage() {
   return (
   <>
-	  <header
-	  style={{
-		padding: "16px 24px",
-		borderBottom: "1px solid #e5e7eb",
-		marginBottom: "24px",
-	  }}
-	>
-	  <Link
-		href="/"
-		style={{
-		  textDecoration: "none",
-		  fontWeight: "700",
-		  fontSize: "18px",
-		  color: "#111827",
-		}}
-	  >
-		Mathsense
-	  </Link>
-	</header>
+      <SiteNav />
 	
     <main
       style={{
