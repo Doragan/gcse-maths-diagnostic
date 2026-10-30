@@ -81,6 +81,11 @@ The only wholly new *topic*. Spec items A–E:
 | `stationary_points` | gradients, rates of change, stationary and turning points (maxima/minima) by differentiation, related to graphs; distinguishing max from min **by the general shape of the graph only** | `differentiation`, `quadratic_functions` |
 | `calculus_kinematics` | "apply calculus to linear kinematics and to other simple practical problems" | `differentiation`, `kinematic_graphs` |
 
+> **Superseded by §12 (2026-10-30).** None of these three ids exists any more.
+> The nodes are now `polynomial_differentiation`, `rates_of_change` and
+> `stationary_points`, cut by what the derivative is set equal to rather than by
+> topic. The table above is kept as the record of what was proposed here.
+
 The spec's own worked example is displacement → velocity → acceleration:
 `s = 24t² − t³`, find expressions for velocity and acceleration. Note the app's
 existing `gradient_of_a_curve` is tangent/chord gradients (spec 3.3 D) — adjacent
@@ -895,3 +900,86 @@ places them.
 No briefings and no questions, so `isPractisable` hides all three from the
 practice pool and the skills page. Author `differentiation` first: the other two
 are unreachable until it has been attempted.
+
+## 12. Calculus reshaped — cut by what the derivative equals, 2026-10-30
+
+**This supersedes §2.1's proposed calculus nodes and §11's built shape.** Both
+earlier sections are left as the record of what was decided at the time.
+
+The shape built in §11 was `differentiation` / `stationary_points` /
+`calculus_kinematics`. Reading all eight coded parts for what the student
+actually has to *do*, rather than what the question is *about*, every non-bare
+calculus question on 4MA1 turns out to be the same move — differentiate, then
+solve "derivative = something". Only two things vary: what it equals, and how
+many times you differentiate.
+
+| what the derivative is set equal to | parts | marks | series | node |
+|---|---|---|---|---|
+| nothing — `dy/dx` asked bare | 2 | 4 | 2 of 5 | `polynomial_differentiation` |
+| `dy/dx = k`, k ≠ 0 (incl. `d²s/dt² = k`) | **4** | **17** | 4 of 5 | `rates_of_change` |
+| `dy/dx = 0` | 2 | 8 | 2 of 5 | `stationary_points` |
+
+### Why the old cut was wrong
+
+"Find x where the gradient is k" is **3 parts and 13 marks across 3 of 5
+series** — the most examined calculus task in the corpus — and it was tagged
+`differentiation`. So the app could not tell *"cannot differentiate"* from
+*"can differentiate but does not know the derivative IS the gradient"*. The
+second is the conceptual gap, and it is spec item **A**. The old cut gave a node
+to the two rarest tasks and none to the commonest.
+
+### Why `calculus_kinematics` is gone
+
+Applying a skill to a real-world context earns no node of its own anywhere else
+in this graph, and the spec agrees: item **E** reads "apply calculus to linear
+kinematics **and to other simple practical problems**". It is an applications
+item whose worked example happens to be kinematics, not a kinematics topic.
+Velocity and acceleration *are* rates of change, so Nov23 2H q18 is now a
+`rates_of_change` part. Note this also removes the app's second "kinematics"
+node, leaving `kinematic_graphs` — which is separately spec'd at 3.3 A, "to
+include speed/time and distance/time graphs".
+
+### The name
+
+`differentiation` → `polynomial_differentiation`. Spec 3.4 B is "differentiate
+integer powers of x", and 4MA1 has no chain rule, no product rule and no trig
+or exponential derivative. The narrower name means a later qualification that
+needs those gets its own node beside this one, instead of silently widening
+what this one claims.
+
+### What the spec actually says, in full
+
+3.4 Calculus, *Higher Tier only*:
+
+| | |
+|---|---|
+| A | understand the concept of a variable rate of change |
+| B | differentiate integer powers of x |
+| C | determine gradients, rates of change, stationary points, turning points (maxima and minima) by differentiation and relate these to graphs |
+| D | distinguish between maxima and minima **by considering the general shape of the graph only** |
+| E | apply calculus to linear kinematics and to other simple practical problems |
+
+Two authoring constraints fall straight out of that, both now recorded on the
+nodes themselves:
+
+- **No second-derivative test, ever.** D restricts maxima-vs-minima to the
+  shape of the graph. The second derivative appears in 4MA1 in exactly one
+  place — E, as an acceleration — so it belongs to `rates_of_change` and never
+  to `stationary_points`.
+- **No integration.** The only occurrence of the word in the whole
+  specification is on the calculator-rules page, forbidding calculators that
+  perform symbolic integration. B is differentiation only.
+
+### Evidence after the reshape
+
+`rates_of_change` 4 parts / 17 marks / 4 papers — **clears the four-part bar**,
+where under the old shape neither derived node did.
+`polynomial_differentiation` 2 and `stationary_points` 2 stay under it, and are
+built anyway: minParts gates whether the app makes an exam CLAIM, not whether a
+skill exists. `polynomial_differentiation` is in any case exercised by all eight
+parts, as the prerequisite of the other two.
+
+### Cost of the change
+
+Nil. All five calculus questions were unpublished drafts and no student is on an
+iGCSE course, so the retag touched no attempt history and no live content.

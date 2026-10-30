@@ -209,6 +209,26 @@ describe('qualification scoping', () => {
     expect(wrong, 'papers whose spec name disagrees with their derived qualification').toEqual([])
   })
 
+  it('tags every coded part with a skill that data/skills.ts defines', () => {
+    // Added 2026-10-30, after renaming a skill and retagging six coded rows.
+    // Nothing checked that a coded `skill_ids` entry still names a real skill,
+    // so a typo or a rename left behind passed the whole suite silently —
+    // measured: changing one tag to `rate_of_change` kept all 2328 tests
+    // green. The corpus feeds the exam profiles, so a dead id there does not
+    // crash, it just quietly stops counting towards the skill it was meant for.
+    const known = new Set(skills.map(s => s.id))
+    const d = join(process.cwd(), 'data', 'exam-audit')
+    const dangling: string[] = []
+    for (const f of readdirSync(d).filter(x => x.endsWith('.json'))) {
+      for (const r of JSON.parse(readFileSync(join(d, f), 'utf8')).rows ?? []) {
+        for (const id of r.skill_ids ?? []) {
+          if (!known.has(id)) dangling.push(`${f} q${r.q}${r.part ?? ''}: ${id}`)
+        }
+      }
+    }
+    expect(dangling, 'coded skill_ids with no skill in data/skills.ts').toEqual([])
+  })
+
   it('classifies the skills whose tier differs between qualifications', () => {
     // These three are named rather than derived because they are exactly what
     // broke: the mini-exam blocked the GCSE higher-only set for everyone,
@@ -241,7 +261,7 @@ describe('qualification scoping', () => {
     const igcseOnly = [
       'set_notation', 'counting_elements_in_sets',
       // Calculus — 4MA1 spec 3.4, no GCSE equivalent.
-      'differentiation', 'stationary_points', 'calculus_kinematics',
+      'polynomial_differentiation', 'rates_of_change', 'stationary_points',
     ]
     const gcseOnly = [
       'iteration', 'time_series', 'relative_frequency', 'plans_and_elevations',
