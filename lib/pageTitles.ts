@@ -3,13 +3,19 @@
  *
  * Almost every page in this app is a client component (`'use client'`), so it
  * can't `export const metadata` — which means, without this, every route falls
- * through to the root default title and the GA4 "Pages and screens" report
- * (grouped by page_title) collapses into one row.
+ * through to the root default title and every unmapped surface reports as one
+ * undifferentiated row.
  *
  * `titleForPath` is the single source of truth for the document <title>. The
  * Analytics component sets `document.title` from it (correct browser tab) AND
- * sends it to GA4 as an explicit `page_title` (so the report is right regardless
- * of when the tab title updates).
+ * sends it as an explicit `page_title` property on the event, so the stored
+ * title is right regardless of when the tab title updates.
+ *
+ * WHERE THE EVENTS GO: `analytics_events` in Supabase, and nowhere else. Google
+ * Analytics was removed on 2026-10-12 (#139) and this file's comments went on
+ * describing GA4 for days afterwards — including in a change written after the
+ * removal, which then reasoned from it. The destination is worth naming
+ * precisely here because the rules below exist to shape what lands there.
  *
  * `normalizePath` reuses the same rules to collapse a concrete pathname to its
  * route pattern (e.g. `/pay/<token>` → `/pay/[token]`) so dynamic segments —
@@ -40,6 +46,10 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/dpa$/, 'School data protection'],
 
   // Auth
+  // The Google OAuth landing page. Not purely a redirect — a new student stops
+  // here to give the 13+ consent Google cannot, so it is a page someone reads.
+  // It had no rule and reported as the brand default; static, so no id leaked.
+  [/^\/auth\/callback$/, 'Finishing sign-in'],
   [/^\/auth\/confirm$/, 'Confirm your email'],
   [/^\/auth\/reset$/, 'Reset password'],
   [/^\/auth$/, 'Sign in'],
@@ -57,7 +67,7 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/practice\/question\/[^/]+$/, 'Practice question', '/practice/question/[id]'],
   // Noun "practice" (with a c) to read consistently with 'Practice question'
   // below — both are correct UK English, but the mixed verb/noun spelling looked
-  // like a typo side by side in the GA4 report.
+  // like a typo side by side in the analytics report.
   //
   // Qualification-NEUTRAL, deliberately: this said "GCSE Maths practice"
   // while a student who had switched to International GCSE was practising
@@ -65,7 +75,7 @@ const RULES: [RegExp, string, string?][] = [
   //
   // Fixed by dropping the qualification rather than by naming the right one.
   // titleForPath is a pure function of the PATH, and it shares RULES with
-  // normalizePath, which feeds GA4's page_title. Branching the title on a
+  // normalizePath, which feeds the stored page_title. Branching the title on a
   // per-browser preference would either break that purity or split one
   // surface into two rows — the exact collapse this whole file exists to
   // prevent. A tab title does not need to state the student's syllabus.
@@ -74,7 +84,7 @@ const RULES: [RegExp, string, string?][] = [
   [/^\/account$/, 'Account'],
 
   // Skill guides. The slug is a readable skill id, not a token — but it is
-  // still collapsed here so GA4 reports one row for the surface. Which skill
+  // still collapsed here so analytics reports one row for the surface. Which skill
   // was viewed rides on the skill_briefing_view event instead.
   // The index sits at /skills and must be matched BEFORE the singular pattern
   // so it keeps its own row rather than being swallowed.
@@ -110,6 +120,16 @@ const RULES: [RegExp, string, string?][] = [
   // Grouped with its siblings by convention; the bare-id rule below is
   // $-anchored so it could not actually swallow this one.
   [/^\/dashboard\/classes\/[^/]+\/people$/, 'Class people', '/dashboard/classes/[id]/people'],
+  // A teacher reading one student's sat paper. Had NO rule until 2026-10-18,
+  // so it fell through to the brand default and — worse — normalizePath
+  // returned it unchanged, putting a class id AND a session id into
+  // analytics_events on every view. Two dynamic segments, which is exactly
+  // what the third tuple element exists to collapse.
+  //
+  // Titled without the student's name, like the class invitation rule below:
+  // the page heading says "<name>'s paper", but a browser history entry and an
+  // analytics row are not places to put a child's name.
+  [/^\/dashboard\/classes\/[^/]+\/exam\/[^/]+$/, 'Class exam review', '/dashboard/classes/[id]/exam/[sessionId]'],
   [/^\/dashboard\/classes\/[^/]+$/, 'Class', '/dashboard/classes/[id]'],
   [/^\/dashboard\/classes$/, 'Classes'],
   // The join-code diagnostic, moved off the landing page (docs/audit/30).
@@ -144,7 +164,7 @@ const RULES: [RegExp, string, string?][] = [
   // above the bare-id catch-all below: `/dashboard/students` matches
   // /^\/dashboard\/[^/]+$/ perfectly well, so without this it would be titled
   // "Student overview" and normalised to `/dashboard/[id]` — wrong in the tab
-  // and silently merged with a different route in GA4.
+  // and silently merged with a different route in analytics.
   [/^\/dashboard\/students\/[^/]+$/, 'Student', '/dashboard/students/[id]'],
   [/^\/dashboard\/students$/, 'My students'],
   [/^\/dashboard\/[^/]+$/, 'Student overview', '/dashboard/[id]'],
