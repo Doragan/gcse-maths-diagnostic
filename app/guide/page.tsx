@@ -424,7 +424,13 @@ export default function GuidePage() {
         <Step n={3}><strong>Paste your student names</strong>, one per line, then <strong>Add these students</strong>.</Step>
         <Step n={4}><strong>Type the marks in.</strong> Hover a question number to see which skill it tests.</Step>
         <Step n={5}><strong>Watch “The class so far” build as you type.</strong> Nothing to press.</Step>
-        <Step n={6}><strong>Press “Get feedback sheets”</strong> for a PDF, one page per student.</Step>
+        <Step n={6}><strong>Press “Get feedback sheets”</strong> for a PDF, one sheet per student.</Step>
+
+        <Figure
+          src="/guide/feedback-sheet.png"
+          alt="A feedback sheet for one student: name, score out of 80, a What went well list, an Even better if list naming specific skills, and a Practise these section with questions to try."
+          caption="One student’s sheet. What went well and Even better if are worked out from the skills behind the marks; the practice questions are the ones they dropped marks on. Most sheets fit a page — a strong paper with a stretch question added can run to two."
+        />
 
         <div style={tipBox}>
           <p style={{ ...p, margin: 0 }}>
