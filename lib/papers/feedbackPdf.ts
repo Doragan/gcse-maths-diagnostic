@@ -598,6 +598,14 @@ async function renderSheet(doc: jsPDF, sheet: WwwEbiSheet, options: FeedbackPdfO
  * at TARGET_CELL per square and then clamped: never wider than the text, never
  * more than about a third of a page tall, and never so small that a pencil
  * cannot work in it.
+ *
+ * THIS IS WHAT MAKES A TWO-PAGE SHEET, measured rather than assumed: a figure
+ * printed this way takes about 112mm of the 257mm column, the prose above it
+ * takes 118mm, and 35 of 39 sheets carrying one figure ran to a second page
+ * while sheets carrying none did not (1 of 466). The caps in wwwEbi.ts count
+ * questions, so none of them can see this. Deliberate, and the trade is set
+ * here rather than there — see MAX_QUESTIONS for why trimming the question
+ * list is not the answer either.
  */
 const DIAGRAM_TARGET_CELL = 9    // mm per grid square
 const DIAGRAM_MIN_WIDTH = 58
