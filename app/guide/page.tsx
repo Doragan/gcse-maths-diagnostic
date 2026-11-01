@@ -429,7 +429,7 @@ export default function GuidePage() {
         <Figure
           src="/guide/feedback-sheet.png"
           alt="A feedback sheet for one student: name, score out of 80, a What went well list, an Even better if list naming specific skills, and a Practise these section with questions to try."
-          caption="One student’s sheet. What went well and Even better if are worked out from the skills behind the marks; the practice questions are the ones they dropped marks on. Most sheets fit a page — a strong paper with a stretch question added can run to two."
+          caption="One student’s sheet. What went well and Even better if are worked out from the skills behind the marks; the practice questions are the ones they dropped marks on. Most sheets fit a page. One whose practice questions include a grid to work on runs to two, whatever the student scored — the grid is printed big enough to write in."
         />
 
         <div style={tipBox}>
