@@ -49,6 +49,8 @@ type Question = {
   answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest?: boolean
+  /** See QuestionPart.answer_subjects — expression answers only, feedback only. */
+  answer_subjects?: string[] | null
   traps: { answer_template: string, response: string, misconception?: string | null }[]
   explanation: string | null
   image_url: string | null
@@ -724,6 +726,7 @@ function QuestionPage() {
       rendered.traps,
       question.requires_simplest ?? false,
       question.answer_template,
+      question.answer_subjects,
     )
 
     setFeedback({
@@ -1097,6 +1100,7 @@ function QuestionPage() {
 						rendered.traps,
 						question.requires_simplest ?? false,
 						question.answer_template,
+						question.answer_subjects,
 					  )
 					  setAnswer(opt)
 					  setFeedback({

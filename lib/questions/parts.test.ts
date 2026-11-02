@@ -64,6 +64,18 @@ describe('normalizePart', () => {
     const out = normalizePart({ ...emptyPart(), answer_type: 'numeric' })
     expect('blanks' in out).toBe(false)
   })
+  it('preserves a declared answer subject through an admin-form save', () => {
+    // There is no form field for it yet, so the only thing standing between a
+    // scripted declaration and a silent wipe on the next edit is this passthrough.
+    const out = normalizePart({
+      ...emptyPart(), answer_type: 'expression', answer_subjects: [' v ', 'ds/dt', 'v', ''],
+    })
+    expect(out.answer_subjects).toEqual(['v', 'ds/dt'])
+  })
+  it('emits no answer_subjects key when none is declared (clean stored jsonb)', () => {
+    expect('answer_subjects' in normalizePart({ ...emptyPart() })).toBe(false)
+    expect('answer_subjects' in normalizePart({ ...emptyPart(), answer_subjects: ['  '] })).toBe(false)
+  })
 })
 
 describe('nextBlankLabel', () => {

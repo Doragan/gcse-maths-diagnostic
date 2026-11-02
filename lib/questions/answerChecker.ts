@@ -296,6 +296,24 @@ function assignmentPrefix(s: string): { subject: string; rest: string } | null {
 }
 
 /**
+ * The canonical form of an AUTHORED subject — "ds/dt", "d²s/dt²", "y'" — in the
+ * same space `assignmentPrefix` returns for a student's typed one: lower-cased,
+ * superscripts as carets, the curly apostrophe straightened.
+ *
+ * Built by running the authored string through the REAL pipeline (normalise,
+ * then ASSIGNMENT_SUBJECT) rather than re-implementing its rules, so an
+ * authored "d²s/dt²" and a typed "d^2s/dt^2" cannot drift apart. The "=0" is
+ * only there because the grammar is anchored on a whole assignment.
+ *
+ * Returns null for anything the grammar does not recognise as a subject, which
+ * is how an authoring typo is discarded instead of quietly becoming a subject
+ * no student can ever match.
+ */
+export function canonicalSubject(authored: string): string | null {
+  return assignmentPrefix(normalise(`${authored}=0`))?.subject ?? null
+}
+
+/**
  * Try all commutativity-aware equivalence checks in turn.
  * Used for answer_type === 'expression'.
  */
@@ -819,6 +837,20 @@ const UNITS_REMINDER =
 const SIMPLIFICATION_REMINDER =
   'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
 
+/**
+ * Right expression, wrong quantity named in front of it: "s = 6t² + 10t - 4"
+ * for the VELOCITY, where s is the displacement.
+ *
+ * Deliberately a message and nothing else — see the `subjectIssue` block in
+ * checkAnswer for why the alternative (putting the subject in the answer
+ * template) is not available.
+ */
+const SUBJECT_REMINDER = (wrote: string, expected: string) =>
+  `Correct — the expression is right, so the marks are safe. But look at what you have called it: `
+  + `you wrote <strong>${wrote} =</strong>, and the quantity this question asks for is `
+  + `<strong>${expected}</strong>. Naming the wrong one is how the next step of a longer question `
+  + `goes astray.`
+
 const ROUNDING_REMINDER = (dp: number) =>
   `Correct — but remember to round your answer to ${dp} decimal place${dp === 1 ? '' : 's'}.`
 
@@ -897,6 +929,17 @@ export function checkAnswer(
    * one at a time cannot break the ones not yet reached.
    */
   answerTemplate?: string,
+  /**
+   * The quantity this answer IS, as the question would name it — ['v','ds/dt']
+   * for a velocity, ['a','dv/dt','d²s/dt²'] for an acceleration, ['dy/dx',"y'"]
+   * for a derivative. Several because they are synonyms: v and ds/dt are the
+   * same quantity written two ways and both are right.
+   *
+   * Optional, and null/empty is the whole bank bar a handful of questions —
+   * those keep exactly the previous behaviour, which is why this is a new
+   * argument rather than something read out of the answer template.
+   */
+  answerSubjects?: string[] | null,
 ): CheckResult {
   const tol         = tolerance ?? 0
   const usesPi      = usesSubstitutablePi(answerTemplate)
@@ -941,6 +984,44 @@ export function checkAnswer(
   const studentHasUnits = containsUnits(studentAnswer)
   const missingUnits    = correctHasUnits && !studentHasUnits   // expected units omitted
   const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
+
+  // The student named a DIFFERENT quantity in front of a right expression:
+  // "s = 6t² + 10t - 4" where s is the displacement and the question asked for
+  // the velocity. Measured on 89c77019 against the live grader: s =, ds/dt =,
+  // dv/dt = and even y = are all accepted, because `assignmentPrefix` strips a
+  // prefix from one side when the other has none, and these answer templates
+  // are bare expressions.
+  //
+  // Accepting them is RIGHT and does not change here — the prefix is notation,
+  // not the answer, and the expression is what the skill is. The only thing
+  // added is a word about it, on the same `message` channel the units and
+  // simplification reminders use.
+  //
+  // Hence a declaration separate from the answer template. Writing the subject
+  // INTO the template is not an option: that makes both sides carry one, which
+  // engages the different-subjects guard in expressionMatch and REJECTS the
+  // mismatch — the opposite of what is wanted. It is also unreadable as intent,
+  // since a template that happens to carry a subject (there are several) cannot
+  // be told apart from one declaring the quantity on purpose.
+  const subjectIssue = (() => {
+    // Only 'expression' strips a prefix at all, so a declaration on any other
+    // answer type is inert rather than wrong.
+    if (answerType !== 'expression') return null
+    const declared = (answerSubjects ?? [])
+      .map(s => ({ authored: s.trim(), canonical: canonicalSubject(s) }))
+      .filter((d): d is { authored: string; canonical: string } => d.canonical !== null)
+    // Nothing the subject grammar recognises — an empty declaration, or one
+    // whose every entry is a typo. Behave exactly as before: a broken authored
+    // list must not turn every student's prefix into a nudge.
+    if (declared.length === 0) return null
+    const wrote = assignmentPrefix(normStudent)?.subject
+    // No prefix (or a solution list, which assignmentPrefix refuses) — nothing
+    // was named, so there is nothing to correct.
+    if (!wrote) return null
+    if (declared.some(d => d.canonical === wrote)) return null
+    // Named back in the AUTHOR's spelling ("d²s/dt²"), not the canonical one.
+    return { wrote, expected: declared[0].authored }
+  })()
 
   // Right value, WRONG unit. Checked before every acceptance path below,
   // because for numeric answers the value comparison never sees the unit at all
@@ -1020,8 +1101,12 @@ export function checkAnswer(
       // stands, but the answer as written is not in the unit the question
       // asked for, so the exam's accuracy mark is not there to be given.
       ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
+      // Units before subject: an omitted unit actually costs the accuracy mark
+      // (see unitsIssue), while a mis-named quantity costs nothing here — so the
+      // one with a mark attached is the one worth the student's attention.
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
+              : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
               : 'Correct!',
     }
   }
@@ -1095,6 +1180,7 @@ export function checkAnswer(
         ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
+               : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
                : 'Correct!',
       }
     }

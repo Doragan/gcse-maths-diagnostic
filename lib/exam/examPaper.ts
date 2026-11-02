@@ -35,6 +35,12 @@ export type Unit = {
    * answer is built from π, which gates the poor-π-estimate check.
    */
   answerTemplate?: string
+  /**
+   * The quantity the answer IS, in every spelling that is correct. Carried
+   * so the grader can tell a student who named a different one — still
+   * correct, just told. See QuestionPart.answer_subjects.
+   */
+  answerSubjects?: string[] | null
   answerType: AnswerType
   tolerance: number | null
   requiresSimplest: boolean
@@ -180,6 +186,8 @@ export type QuestionRow = {
   answer_type: AnswerType
   tolerance: number | null
   requires_simplest: boolean | null
+  /** See QuestionPart.answer_subjects — the single-part question's own copy. */
+  answer_subjects?: string[] | null
   traps: { answer_template: string; response: string; method_marks?: number }[] | null
   explanation: string | null
   image_url: string | null
@@ -194,7 +202,7 @@ export type QuestionRow = {
  * supabase-js infers the row type from the literal, so splitting or
  * concatenating it collapses the result to GenericStringError.
  */
-export const QUESTION_COLUMNS = 'id, skill_ids, difficulty, calculator, kind, marks, question_type, parts, question_template, answer_template, answer_type, tolerance, requires_simplest, traps, explanation, image_url, parameters, mc_options' as const
+export const QUESTION_COLUMNS = 'id, skill_ids, difficulty, calculator, kind, marks, question_type, parts, question_template, answer_template, answer_type, tolerance, requires_simplest, answer_subjects, traps, explanation, image_url, parameters, mc_options' as const
 
 const letter = (i: number) => `(${String.fromCharCode(97 + i)})`
 
@@ -297,6 +305,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
         promptHtml: stripLeadingLetter(r.parts[i].prompt, i),
         correctAnswer: r.parts[i].answer,
         answerTemplate: p.answer_template,
+        answerSubjects: p.answer_subjects,
         answerType: p.answer_type,
         tolerance: p.tolerance,
         requiresSimplest: p.requires_simplest ?? false,
@@ -346,6 +355,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
       promptHtml: '',
       correctAnswer: r.answer,
       answerTemplate: q.answer_template,
+      answerSubjects: q.answer_subjects,
       answerType: q.answer_type,
       tolerance: q.tolerance,
       requiresSimplest: q.requires_simplest ?? false,
@@ -505,7 +515,7 @@ export function gradeUnits(
         }
         continue
       }
-      const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest, u.answerTemplate)
+      const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest, u.answerTemplate, u.answerSubjects)
       if (check.correct) {
         // Units missing or wrong. The maths is sound, so it stays `correct`
         // and the skill map credits it in full — the unit is rarely the skill
