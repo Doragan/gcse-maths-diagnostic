@@ -45,6 +45,8 @@ type Question = {
   answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
   tolerance: number | null
   requires_simplest?: boolean
+  /** See QuestionPart.answer_subjects — expression answers only, feedback only. */
+  answer_subjects?: string[] | null
   traps: { answer_template: string; response: string }[]
   explanation: string | null
   image_url: string | null
@@ -342,6 +344,7 @@ export default function StudentDiagnosticPage() {
       item.rendered.traps,
       item.question.requires_simplest ?? false,
       item.question.answer_template,
+      item.question.answer_subjects,
     )
 
     setAnswer(chosen)

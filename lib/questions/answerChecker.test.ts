@@ -715,6 +715,96 @@ describe('expression: leading derivative subject', () => {
   })
 })
 
+// ─────────────────────────────────────────────────────────────────────────────
+// A QUESTION THAT SAYS WHAT QUANTITY ITS ANSWER IS
+//
+// "Find an expression for the velocity" and the student writes
+// "s = 6t² + 10t - 4". Measured on 89c77019 against the live grader: correct —
+// and so are "ds/dt =", "dv/dt =" and "y =", because a prefix is stripped from
+// one side when the other has none and these templates are bare expressions.
+//
+// Accepting them is RIGHT and is unchanged by any of this. But s is the
+// displacement, so the student should be told. The declaration is a separate
+// argument and not the answer template, because a subject on both sides
+// REJECTS the mismatch (see 'still distinguishes different subjects' above) —
+// the opposite of what is wanted.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('expression: the declared answer subject', () => {
+  const VELOCITY = '6t^2+10t-4'
+  const SUBJECTS = ['v', 'ds/dt']
+  const sub = (student: string, subjects?: string[] | null) =>
+    checkAnswer(student, VELOCITY, 'expression', null, [], false, undefined, subjects)
+
+  it('says nothing extra when the subject is the declared one', () => {
+    const r = sub('v = 6t² + 10t - 4', SUBJECTS)
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
+  })
+
+  it('treats a synonym as the right subject', () => {
+    // ds/dt IS the velocity; nudging it would be nudging a flawless answer.
+    const r = sub('ds/dt = 6t² + 10t - 4', SUBJECTS)
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
+  })
+
+  it('nudges a different subject WITHOUT marking it wrong', () => {
+    for (const wrote of ['s', 'y', 'dv/dt']) {
+      const r = sub(`${wrote} = 6t² + 10t - 4`, SUBJECTS)
+      expect(r.correct).toBe(true)
+      expect(r.trap).toBeNull()
+      expect(r.message).toContain(`<strong>${wrote} =</strong>`)
+      expect(r.message).toContain('<strong>v</strong>')
+    }
+  })
+
+  it('names the quantity in the author’s spelling', () => {
+    const r = checkAnswer('y = 24x + 10', '24x+10', 'expression', null, [], false, undefined, ['d²y/dx²'])
+    expect(r.message).toContain('<strong>d²y/dx²</strong>')
+  })
+
+  it('matches a declared subject however either side spells it', () => {
+    const silent = (student: string, subjects: string[]) =>
+      checkAnswer(student, '12t+10', 'expression', null, [], false, undefined, subjects).message
+    expect(silent('d^2s/dt^2 = 12t + 10', ['d²s/dt²'])).toBe('Correct!')
+    expect(silent('d²s/dt² = 12t + 10', ['d^2s/dt^2'])).toBe('Correct!')
+    expect(silent('Y’ = 12t + 10', ["y'"])).toBe('Correct!')
+  })
+
+  it('says nothing when no subject was written at all', () => {
+    expect(sub('6t² + 10t - 4', SUBJECTS).message).toBe('Correct!')
+  })
+
+  it('leaves a question that declares nothing exactly as it was', () => {
+    // The overwhelming majority of the bank. A wrong subject here must still
+    // be accepted in silence, which is today's behaviour.
+    for (const declared of [undefined, null, [], ['']] as (string[] | null | undefined)[]) {
+      const r = sub('s = 6t² + 10t - 4', declared)
+      expect(r.correct).toBe(true)
+      expect(r.message).toBe('Correct!')
+    }
+  })
+
+  it('stays silent when no declared subject is even parseable', () => {
+    // An authoring typo must not turn every student's prefix into a nudge.
+    expect(sub('v = 6t² + 10t - 4', ['velocity']).message).toBe('Correct!')
+  })
+
+  it('never rescues a wrong expression', () => {
+    expect(sub('v = 6t² + 10t', SUBJECTS).correct).toBe(false)
+    expect(sub('s = 6t² + 10t', SUBJECTS).correct).toBe(false)
+  })
+
+  it('is inert on an answer type that never strips a subject', () => {
+    // A numeric answer reads the first number and ignores the rest, so
+    // "v = 12" is already correct — but nothing about a prefix is ASSESSED
+    // there, so a declaration must stay silent rather than nudge.
+    const r = checkAnswer('v = 12', '12', 'numeric', 0, [], false, undefined, ['a'])
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
+  })
+})
+
 describe('poor estimates for π', () => {
   // Area of a circle, r = 10: π gives 314.16, 3.14 gives 314.00, 3.142 gives 314.20.
   const CORRECT = '314.16 cm²'

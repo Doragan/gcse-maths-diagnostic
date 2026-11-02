@@ -141,6 +141,20 @@ export type QuestionPart = {
   marks: number
   kind: QuestionKind
   explanation: string | null
+  /**
+   * The quantity this part's answer IS, as the question names it — ['v','ds/dt']
+   * for a velocity, ['a','dv/dt','d²s/dt²'] for an acceleration. Several
+   * because they are synonyms, all equally right.
+   *
+   * Expression parts only, and purely a FEEDBACK declaration: a student who
+   * names a different quantity in front of a right expression is still marked
+   * correct and simply told (see the subjectIssue block in answerChecker). It
+   * cannot live in `answer_template` — a subject on both sides engages the
+   * different-subjects guard and rejects the mismatch instead.
+   *
+   * Omitted from stored jsonb when empty, which is every part but a handful.
+   */
+  answer_subjects?: string[]
   // Only present when answer_type === 'multi_blank'; scalar parts never carry
   // the key (normalizePart omits it, keeping stored jsonb clean).
   blanks?: Blank[]
@@ -362,6 +376,8 @@ export type PartInput = {
   marks: string | number
   kind: QuestionKind
   explanation: string | null
+  /** See QuestionPart.answer_subjects. No form field yet — authored by script. */
+  answer_subjects?: string[]
   blanks?: BlankInput[]
   /** Banded mark scheme for a multi_blank part; see QuestionPart.mark_bands. */
   mark_bands?: MarkBand[]
@@ -514,5 +530,16 @@ export function normalizePart(p: PartInput): QuestionPart {
     marks: p.marks === '' || p.marks == null ? 1 : Number(p.marks),
     kind: p.kind,
     explanation: p.explanation && p.explanation.trim() !== '' ? p.explanation : null,
+    // Omitted when empty, keeping stored jsonb clean — but preserved when set,
+    // so editing a question in the admin form never silently drops the
+    // declaration (the same reason normalizeBlank preserves ecf_template).
+    ...(subjectList(p.answer_subjects) ? { answer_subjects: subjectList(p.answer_subjects)! } : {}),
   }
+}
+
+/** Trimmed, de-duplicated subject list, or null when there is nothing to store. */
+function subjectList(raw: string[] | undefined): string[] | null {
+  if (!Array.isArray(raw)) return null
+  const out = [...new Set(raw.map(s => String(s).trim()).filter(s => s !== ''))]
+  return out.length ? out : null
 }

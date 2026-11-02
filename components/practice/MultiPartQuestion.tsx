@@ -336,6 +336,7 @@ export default function MultiPartQuestion({
         renderedPart.traps,
         part.requires_simplest ?? false,
         part.answer_template,
+        part.answer_subjects,
       )
       outcome = {
         answer, correct: result.correct, message: result.message,
