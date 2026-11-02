@@ -12,6 +12,7 @@ import {
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
 import { judgedCorrectly, orderedPair, type Judgement } from '../../../lib/skills/briefingQuiz'
+import { splitExpressions } from '../../../lib/skills/mathPhrases'
 import {
   getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD,
 } from '../../../lib/skills/boardPreference'
@@ -50,6 +51,27 @@ import type { Figure } from '../../../lib/skills/briefingFigures'
  * role="img" with the alt text means a screen reader gets the same content the
  * diagram is carrying, rather than a pile of unlabelled shapes.
  */
+/**
+ * Text with its short expressions held on one line.
+ *
+ * Without this an expression breaks wherever the column ends — "−2 ≤ x <"
+ * then "3" on the next line — and the reader has to put it back together.
+ * splitExpressions decides what counts as an expression; this only wraps.
+ */
+function MathText({ children }: { children: string }) {
+  return (
+    <>
+      {/* The separating space sits OUTSIDE the span: inside it, the space
+          before an expression became unbreakable too, taking the preceding
+          word down with it. */}
+      {splitExpressions(children).flatMap((seg, i) => [
+        i > 0 ? ' ' : null,
+        <span key={i} style={seg.nowrap ? { whiteSpace: 'nowrap' } : undefined}>{seg.text}</span>,
+      ])}
+    </>
+  )
+}
+
 function BriefingFigure({ figure }: { figure: Figure }) {
   return (
     <span
@@ -298,6 +320,8 @@ export default function SkillBriefingPage() {
   // Headings name the skill rather than saying "it". Plural rather than
   // "a/an <skill>", so the phrasing stays grammatical for every skill name.
   const lowerName = skill.name.toLowerCase()
+  /** 'an inequalities question', not 'a inequalities question'. */
+  const article = /^[aeiou]/.test(lowerName) ? 'an' : 'a'
   /**
    * Scopes the exam panel, and only the exam panel — the authored material
    * above it is the same whichever board you sit.
@@ -662,7 +686,7 @@ export default function SkillBriefingPage() {
                     {ex.worked && ex.worked.length > 0 && (
                       <ol style={styles.worked}>
                         {ex.worked.map((line, j) => (
-                          <li key={j} style={styles.workedLine}>{line}</li>
+                          <li key={j} style={styles.workedLine}><MathText>{line}</MathText></li>
                         ))}
                       </ol>
                     )}
@@ -678,7 +702,7 @@ export default function SkillBriefingPage() {
       {/* ══ DO IT ═════════════════════════════════════════════════════════ */}
       {stage === 'do' && (
       <section style={styles.card}>
-        <p style={styles.h}>How to answer a {lowerName} question</p>
+        <p style={styles.h}>How to answer {article} {lowerName} question</p>
         <p style={{ ...styles.hint, marginBottom: g.methodExample ? 0 : 12 }}>
           Each step says why it is there and where it goes wrong.
         </p>
@@ -708,15 +732,17 @@ export default function SkillBriefingPage() {
               <div style={styles.stepN}>{i + 1}</div>
               <div style={styles.stepBody}>
                 <div>
-                  <p style={styles.stepDo}>{s.do}</p>
+                  <p style={styles.stepDo}><MathText>{s.do}</MathText></p>
                   <p style={styles.stepSub}>
-                    <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>{s.because}
+                    <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>
+                    <MathText>{s.because}</MathText>
                   </p>
                   <p style={{ ...styles.stepSub, marginBottom: 0 }}>
-                    <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>{s.watch}
+                    <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>
+                    <MathText>{s.watch}</MathText>
                   </p>
                 </div>
-                {s.example && <p style={styles.stepExample}>{s.example}</p>}
+                {s.example && <p style={styles.stepExample}><MathText>{s.example}</MathText></p>}
               </div>
             </div>
           </div>
@@ -1115,6 +1141,10 @@ const styles: Record<string, React.CSSProperties> = {
   // diagram dominating the cue it belongs to.
   figure: {
     display: 'block',
+    // The SVGs carry no width attribute on purpose, so they size to their
+    // container. Inside the example card — a flex column with align-items:
+    // flex-start — the box was shrink-to-fit and the diagram collapsed to 26px.
+    width: '100%',
     maxWidth: '320px',
     marginTop: '10px',
     padding: '10px 12px',
