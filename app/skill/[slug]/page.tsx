@@ -843,7 +843,7 @@ export default function SkillBriefingPage() {
           {provenance && (
             <p style={styles.provenance}>
               Derived from {provenance.papers.length} {board} {tier === 'higher' ? 'Higher' : 'Foundation'} papers
-              {provenance.series.length ? ` (${provenance.series.join(', ')})` : ''} · {profile.parts} coded parts
+              {provenance.series.length ? ` (${provenance.series.join(', ')})` : ''}
             </p>
           )}
         </section>
