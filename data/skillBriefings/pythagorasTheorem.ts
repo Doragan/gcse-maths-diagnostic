@@ -132,6 +132,12 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         'Adding when the hypotenuse is already given. If the answer comes out longer than the '
         + 'hypotenuse, you have added where you should have subtracted.',
           example: 'The missing side is NOT the hypotenuse, so subtract',
+      // Both distractors are 'start calculating before you have decided',
+      // which is exactly what a candidate who knows the formula does.
+      nextMoveDistractors: [
+        'First square the two sides you have been given, then add the two squares together.',
+        'First write down a² + b² = c², then put the two sides you have into a and b.',
+      ],
     },
     {
       do: 'Square the two sides you have, and write that line down.',
@@ -141,6 +147,12 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
         'Doubling instead of squaring, and dropping the squaring step when showing your working — '
         + 'answers with no working score nothing on "show that" questions.',
           example: '17² = 289 and 15² = 225',
+      // The first is the doubling error this step's own watch names; the
+      // second is (a + b)², the other standard slip at this line.
+      nextMoveDistractors: [
+        'Double each of the two sides you have, and write that line down.',
+        'Add the two sides you have together first, then square the total.',
+      ],
     },
     {
       do: 'Add or subtract as you decided, then take the SQUARE ROOT.',
@@ -150,6 +162,12 @@ export const pythagorasTheoremBriefing: SkillBriefing = {
       watch:
         'Handing in the squared value. On the triangle above, 289 − 225 = 64 is not the answer — 8 is.',
           example: '289 − 225 = 64, so the height is √64 = 8 cm',
+      // The first IS the forgotten root in the watch below; the second is
+      // √(a² − b²) = a − b, which is wrong and reliably tempting.
+      nextMoveDistractors: [
+        'Add or subtract as you decided, and give that value as the answer.',
+        'Take the square root of each squared side first, then add or subtract.',
+      ],
     },
     {
       do: 'Check what the question actually wanted: a perimeter, an area, or a rounded length.',

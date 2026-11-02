@@ -107,6 +107,33 @@ export type MethodStep = {
   because: string
   /** Where it goes wrong. */
   watch: string
+  /**
+   * Two plausible WRONG next moves, which turn this step's reveal into a
+   * decision: the student picks between these and the real `do` before the
+   * step opens.
+   *
+   * The section used to be a list the student read and agreed with, which is
+   * the same failure briefingQuiz.ts was written to fix one section further up
+   * the page — nothing they did could be right or wrong and nothing came back.
+   *
+   * Rules, enforced by skillBriefings.test.ts:
+   *
+   *  • Both must be PLAUSIBLE. A joke option makes the question free and
+   *    teaches the student to skim rather than decide. The best source is this
+   *    step's own `watch`, or the step AFTER this one — "start squaring before
+   *    you have decided which side you want" is exactly what a real candidate
+   *    does.
+   *  • Neither may restate the `do`, nor each other.
+   *  • Keep them the same shape as the `do`: an instruction, comparable length.
+   *    An option that is visibly shorter or longer than the others is the
+   *    answer, whatever it says.
+   *
+   * Optional, and sparse by design: a step without them renders exactly as it
+   * did before, so a briefing can gate some steps and not others — a closing
+   * "check what the question asked" step is usually not a decision worth
+   * posing.
+   */
+  nextMoveDistractors?: readonly [string, string]
 }
 
 /**
