@@ -1,5 +1,5 @@
 import type { SkillBriefing } from './types'
-import { numberLine } from '../../lib/skills/briefingFigures'
+import { numberLine, numberLineRange } from '../../lib/skills/briefingFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inequalities — eleventh authored briefing, second of the algebra cluster.
@@ -36,7 +36,8 @@ export const inequalitiesBriefing: SkillBriefing = {
       example: 'Solve 3n + 7 ≥ 19',
     },
     {
-      text: 'A number line to mark, with circles to fill in or leave open.',
+      text: 'A number line to mark. A filled circle means the boundary itself counts; '
+        + 'an open one means it does not, so the values stop just short of it.',
       example: 'Show your answer on the number line below.',
       // The circle is the mark. Shown rather than described, because
       // open-vs-closed is what the student has to recognise on the page.
@@ -80,6 +81,14 @@ export const inequalitiesBriefing: SkillBriefing = {
     {
       stem: 'Write down all the integer values of n that satisfy −3 < n ≤ 2.',
       isThisSkill: true,
+      // Both ends at once: open at −3, filled at 2. The cue shows a single
+      // open boundary, so this is where the contrast between them lands.
+      figure: numberLineRange({
+        from: -4, to: 3, lower: -3, lowerClosed: false, upper: 2, upperClosed: true,
+        alt: "A number line from −4 to 3 with an open circle at −3, a filled circle at 2 "
+          + "and the range between them marked. The open circle at −3 means −3 is not "
+          + "included; the filled circle at 2 means 2 is.",
+      }),
       worked: [
         'The range is given, so list the whole numbers inside it',
         '−3 is NOT included (<) but 2 IS (≤)',
@@ -114,7 +123,7 @@ export const inequalitiesBriefing: SkillBriefing = {
       watch:
         'Quietly turning it into an equation. The answer is c < 5, not c = 5, and an equals sign '
         + 'there loses the mark.',
-          example: 'Add 4 to both sides, keeping the <: 5c < 25',
+          example: 'Add 4 to both sides and keep the sign as it is, giving 5c < 25',
     },
     {
       do: 'If you multiply or divide by a NEGATIVE number, flip the sign round.',
@@ -126,8 +135,9 @@ export const inequalitiesBriefing: SkillBriefing = {
           example: 'Dividing by 5, a positive, so the sign stays as it is',
     },
     {
-      do: 'On a number line, fill the circle for ≤ or ≥ and leave it open for < or >. '
-        + 'The arrow then runs the way the values go.',
+      do: 'On a number line, fill the circle in when the boundary counts — that is ≤ or ≥ — '
+        + 'and leave it open when it does not, for < or >. The arrow then runs the way the '
+        + 'values go.',
       because:
         'The circle is the only thing on the page saying whether the boundary itself counts, and it '
         + 'is usually worth a mark on its own.',

@@ -353,3 +353,54 @@ export function regularPolygon(opts: {
 
   return { svg: OPEN(`0 0 ${W} ${H}`) + parts.join('') + `</svg>`, alt }
 }
+
+/**
+ * A number line with a range marked between two boundaries.
+ *
+ * The single-boundary version covers "x > 1"; this covers "−3 < n ≤ 2", where
+ * the whole point is that the two ends are treated DIFFERENTLY — one included,
+ * one not. Showing both circles on one line is the only way that contrast is
+ * visible rather than described.
+ */
+export function numberLineRange(opts: {
+  from: number
+  to: number
+  lower: number
+  lowerClosed: boolean
+  upper: number
+  upperClosed: boolean
+  alt: string
+}): Figure {
+  const { from, to, lower, lowerClosed, upper, upperClosed, alt } = opts
+  const W = 320, H = 54, PAD = 16
+  const x = (n: number) => PAD + ((n - from) / (to - from)) * (W - 2 * PAD)
+  const R = 5.5
+
+  const ticks: string[] = []
+  for (let n = from; n <= to; n++) {
+    ticks.push(`<line x1="${x(n)}" y1="20" x2="${x(n)}" y2="28" />`)
+    ticks.push(
+      `<text x="${x(n)}" y="44" text-anchor="middle" stroke="none" fill="currentColor">${n}</text>`,
+    )
+  }
+
+  // The band stops at each circle's edge, for the same reason the ray does in
+  // numberLine: drawn through the middle it fills an open circle in and the
+  // diagram then says the opposite of what it means.
+  const band = `<line x1="${(x(lower) + R + 1).toFixed(1)}" y1="24" `
+    + `x2="${(x(upper) - R - 1).toFixed(1)}" y2="24" stroke-width="3" />`
+
+  const circle = (at: number, closed: boolean) =>
+    `<circle cx="${x(at).toFixed(1)}" cy="24" r="${R}" fill="${closed ? 'currentColor' : 'none'}" />`
+
+  return {
+    svg: OPEN(`0 0 ${W} ${H}`)
+      + `<line x1="${PAD}" y1="24" x2="${W - PAD}" y2="24" />`
+      + ticks.join('')
+      + band
+      + circle(lower, lowerClosed)
+      + circle(upper, upperClosed)
+      + `</svg>`,
+    alt,
+  }
+}
