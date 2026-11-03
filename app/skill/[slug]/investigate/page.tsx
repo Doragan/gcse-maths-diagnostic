@@ -205,13 +205,15 @@ export default function InvestigatePage() {
                   <p style={styles.phase}>1 · Predict</p>
                   <p style={styles.prompt}>{stage.predict.prompt}</p>
 
-                  {!st.predicted && stage.predict.on.kind === 'grid' && (
+                  {stage.predict.on.kind === 'grid' && !st.predicted && (
                     <>
-                      <GridCanvas
-                        grid={stage.predict.on.grid}
-                        value={st.placed}
-                        onChange={pts => update(i, { placed: pts })}
-                      />
+                      <figure style={styles.figure}>
+                        <GridCanvas
+                          grid={stage.predict.on.grid}
+                          value={st.placed}
+                          onChange={pts => update(i, { placed: pts })}
+                        />
+                      </figure>
                       <div style={styles.row}>
                         <button
                           style={{ ...primaryButton, width: 'auto' }}
@@ -224,12 +226,29 @@ export default function InvestigatePage() {
                     </>
                   )}
 
+                  {/* The reveal: their point and the real answer on the same
+                      axes they predicted on. The step exists to be settled by
+                      a picture, so taking the picture away the moment they
+                      commit is the one thing it must not do. */}
+                  {stage.predict.on.kind === 'grid' && st.predicted && stage.predict.reveal && (
+                    <figure style={styles.figure}>
+                      <GridCanvas
+                        grid={stage.predict.reveal}
+                        value={st.placed}
+                        readOnly
+                        showCanonical
+                      />
+                    </figure>
+                  )}
+
                   {stage.predict.on.kind === 'choice' && (
                     <>
                       {stage.figure && (
                         // A stage that reads a line off the graph needs the
                         // graph on screen before its options mean anything.
-                        <GridCanvas grid={stage.figure} value={[]} readOnly />
+                        <figure style={styles.figure}>
+                          <GridCanvas grid={stage.figure} value={[]} readOnly />
+                        </figure>
                       )}
                       <div style={styles.choices}>
                         {stage.predict.on.options.map((opt, k) => (
@@ -340,11 +359,13 @@ export default function InvestigatePage() {
                         </div>
                       )}
 
-                      <GridCanvas
-                        grid={stage.control.render(st.drawn, st.current)}
-                        value={[]}
-                        readOnly
-                      />
+                      <figure style={styles.figure}>
+                        <GridCanvas
+                          grid={stage.control.render(st.drawn, st.current)}
+                          value={[]}
+                          readOnly
+                        />
+                      </figure>
 
                       {stage.observe && (
                         <div style={styles.tableWrap}>
@@ -533,6 +554,10 @@ const styles: Record<string, React.CSSProperties> = {
   hint: { fontSize: font.sm, color: colors.textHint, margin: 0 },
   error: { fontSize: font.sm, color: colors.warningText, margin: 0 },
   row: { display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' },
+  // A grid renders at its container width with its height following the cell
+  // ratio, so in a wide column a tall grid fills the screen and the student
+  // scrolls past the question to reach it. Capped and centred instead.
+  figure: { margin: 0, width: '100%', maxWidth: '420px', alignSelf: 'center' },
   varLabel: { fontSize: font.lg, fontWeight: '700', fontStyle: 'italic', color: colors.textPrimary },
   numberInput: {
     width: '5.5rem', padding: '8px 10px', fontSize: font.base, fontFamily: 'inherit',

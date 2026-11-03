@@ -16,10 +16,17 @@ import {
 // before anything moves, so the figure can contradict them.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Axes are kept SQUARE, and the c domain is trimmed to fit rather than the
+// axes stretched to hold it. A grid renders at the column's full width with
+// its height following the cell ratio, so 12 across by 16 up came out half a
+// screen tall on desktop and worse on a phone. Nothing is taught by the extra
+// rows: c from −5 to 5 shows everything c does.
 const X = { min: -6, max: 6, step: 1, label: 'x' }
-const Y1 = { min: -7, max: 9, step: 1, label: 'y' }
+const Y1 = { min: -6, max: 6, step: 1, label: 'y' }
 const Y2 = { min: -6, max: 6, step: 1, label: 'y' }
-const X3 = { min: -3, max: 5, step: 1, label: 'x' }
+// Stage 3 shares the same square axes: a wider x makes the crossing point
+// easier to find, and the steep draws simply leave through the top.
+const X3 = { min: -6, max: 6, step: 1, label: 'x' }
 
 function stageOne(p: Params): Stage {
   const c1 = p.c1
@@ -34,16 +41,25 @@ function stageOne(p: Params): Stage {
         grid: pointsGrid({ x: X, y: Y1, ghosts: [[1, 0]], expect: [{ x: 0, y: c1 }] }),
         expect: [{ x: 0, y: c1 }],
       },
+      // The same axes with the line they were predicting actually drawn on
+      // them, so the answer is something they SEE rather than are told.
+      reveal: pointsGrid({
+        x: X,
+        y: Y1,
+        ghosts: [[1, 0], [1, c1]],
+        expect: [{ x: 0, y: c1 }],
+      }),
       right: `(0, ${c1}) is where it crosses — the + ${c1} lifted every point on the `
         + `line up by ${c1}.`,
-      wrong: `It crosses at (0, ${c1}). Draw some lines of your own now and watch what c does.`,
+      wrong: `It crosses at (0, ${c1}). The ring on the graph is where it actually goes — `
+        + 'now draw some lines of your own and watch what c does.',
     },
     control: {
       name: 'c',
       prompt: 'Your turn. Type a value for c, draw it, and keep going. Every line you draw '
         + 'stays on the axes.',
-      hint: 'Whole numbers from −6 to 6.',
-      domain: { min: -6, max: 6, step: 1 },
+      hint: 'Whole numbers from −5 to 5.',
+      domain: { min: -5, max: 5, step: 1 },
       suggest: [-2, 5],
       render: (drawn, current) => straightLineGrid({
         x: X,

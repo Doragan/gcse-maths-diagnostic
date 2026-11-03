@@ -100,6 +100,20 @@ export type Prediction = {
   right: string
   /** Never scolds: it states what actually happens and points at the control. */
   wrong: string
+  /**
+   * The figure shown AFTER committing, with the answer on it.
+   *
+   * This is the moment the whole predict step exists for: the student has
+   * said where the line will cross, and now sees whether it does. Without it
+   * the page takes their guess, prints a sentence and moves on — the figure
+   * that would settle it disappears at exactly the point it becomes useful.
+   *
+   * Its `elements` are the canonical answer, drawn ghosted via
+   * `showCanonical`, and the student's own placement is drawn over the top.
+   * Only meaningful for a `grid` prediction; a choice prediction has nothing
+   * of the student's to put back on a figure.
+   */
+  reveal?: RenderedGrid
 }
 
 /**

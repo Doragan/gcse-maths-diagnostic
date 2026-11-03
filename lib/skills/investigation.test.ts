@@ -373,3 +373,91 @@ describe('resolveInvestigation', () => {
     expect(r.stages[0].ask).toContain(String(r.params.c1))
   })
 })
+
+describe('figures are a shape that fits a screen', () => {
+  // A grid renders at its container's width, with its height following the
+  // cell ratio — so a grid much taller than it is wide fills a desktop screen
+  // and is worse on a phone. Reported from the live site on the pilot's first
+  // stage, which was 12 across by 16 up.
+  const MAX_RATIO = 1.35
+
+  it('never authors a grid much taller than it is wide', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const across = (stage.axes.x.max - stage.axes.x.min) / stage.axes.x.step
+          const up = (stage.axes.y.max - stage.axes.y.min) / stage.axes.y.step
+          expect(up / across, `${inv.skillId} stage ${i + 1} is ${across} x ${up} cells`)
+            .toBeLessThanOrEqual(MAX_RATIO)
+        })
+      }
+    }
+  })
+
+  it('keeps every value the control allows inside the axes it draws on', () => {
+    // The axes were trimmed to fit the screen; the domain has to be trimmed
+    // with them, or a student types a legal value whose crossing point is off
+    // the top of the picture.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const c = stage.control
+          if (!c) return
+          for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) {
+            const where = `${inv.skillId} stage ${i + 1}, ${c.name} = ${v}`
+            expect(v, where).toBeGreaterThanOrEqual(Math.min(stage.axes.y.min, stage.axes.x.min))
+            expect(v, where).toBeLessThanOrEqual(Math.max(stage.axes.y.max, stage.axes.x.max))
+          }
+        })
+      }
+    }
+  })
+})
+
+describe('a grid prediction settles itself with a picture', () => {
+  it('carries a reveal figure', () => {
+    // Without it the page takes the student's guess, prints a sentence and
+    // moves on — the figure disappears at the moment it becomes useful.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          if (stage.predict.on.kind !== 'grid') return
+          expect(stage.predict.reveal, `${inv.skillId} stage ${i + 1} has no reveal`).toBeTruthy()
+        })
+      }
+    }
+  })
+
+  it('reveals the same answer it marks against, on the same axes', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const on = stage.predict.on
+          if (on.kind !== 'grid' || !stage.predict.reveal) return
+          const where = `${inv.skillId} stage ${i + 1}`
+          const reveal = stage.predict.reveal
+          expect(reveal.elements.map(e => `${e.x},${e.y}`), where)
+            .toEqual(on.grid.elements.map(e => `${e.x},${e.y}`))
+          expect(reveal.x, where).toEqual(stage.axes.x)
+          expect(reveal.y, where).toEqual(stage.axes.y)
+        })
+      }
+    }
+  })
+
+  it('draws the line the student was predicting about', () => {
+    // The reveal has to show MORE than the question did, or it is the same
+    // picture with a ring on it.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const on = stage.predict.on
+          if (on.kind !== 'grid' || !stage.predict.reveal) return
+          const before = (on.grid.background.match(/<line/g) || []).length
+          const after = (stage.predict.reveal.background.match(/<line/g) || []).length
+          expect(after, `${inv.skillId} stage ${i + 1} reveals nothing new`).toBeGreaterThan(before)
+        })
+      }
+    }
+  })
+})
