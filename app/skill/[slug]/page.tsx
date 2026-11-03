@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { skillsById } from '../../../lib/skills/skillGraph'
-import { slugToSkillId } from '../../../lib/skills/slug'
+import { slugToSkillId, investigatePath } from '../../../lib/skills/slug'
 import { getBriefing, resolveBriefing } from '../../../data/skillBriefings'
+import { hasInvestigation } from '../../../data/investigations'
 import {
   getExamProfile, dressedFramings, bareClaim, chainClaim, calcClaim,
   sliceProvenance, codedBoards, answerFormClaim, kindClaim, type Tier,
@@ -457,6 +458,24 @@ export default function SkillBriefingPage() {
           </div>
         </div>
         <p style={{ ...styles.muted, marginBottom: '14px' }}>{g.summary}</p>
+
+        {/* A quiet line, not a banner. This page is for a student who has the
+            idea and wants the exam shape of it; the investigation is for one
+            who does not, and only they should take the detour. */}
+        {hasInvestigation(skillId) && (
+          <p style={{ ...styles.muted, marginBottom: '14px' }}>
+            Not sure what {lowerName} actually mean?{' '}
+            <a
+              href={investigatePath(skillId)}
+              onClick={() => trackEvent('investigation_prompt_click', {
+                skill: skillId, from: 'briefing',
+              })}
+              style={{ color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
+            >
+              Work it out for yourself first →
+            </a>
+          </p>
+        )}
 
         {recent && recent.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>

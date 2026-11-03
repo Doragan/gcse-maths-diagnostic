@@ -7,7 +7,8 @@ import { supabase } from '../../lib/supabase'
 import { skills } from '../../data/skills'
 import { courseFor, type Qualification } from '../../data/courses'
 import { hasBriefing, briefedSkillIds } from '../../data/skillBriefings'
-import { skillPath } from '../../lib/skills/slug'
+import { hasInvestigation } from '../../data/investigations'
+import { skillPath, investigatePath } from '../../lib/skills/slug'
 import { getTier, setTier as persistTier } from '../../lib/skills/tierPreference'
 import {
   getQualification, setQualification as persistQualification,
@@ -250,6 +251,7 @@ export default function SkillsIndexPage() {
           <ul style={styles.grid}>
             {list.map(s => {
               const briefed = hasBriefing(s.id)
+              const investigated = hasInvestigation(s.id)
               const status = mastery[s.id]
               // The whole row carries the mastery colour rather than a dot at
               // the end of it: across a hundred-odd rows a small dot is far
@@ -272,6 +274,12 @@ export default function SkillsIndexPage() {
                       {s.name}
                     </span>
                     {briefed && <span style={styles.briefingBadge}>Briefing</span>}
+                    {/* A second badge rather than a replacement: a skill with
+                        an investigation still has the briefing, and the two
+                        answer different questions. */}
+                    {investigated && (
+                      <span style={styles.investigationBadge}>Investigation</span>
+                    )}
                   </span>
                 </>
               )
@@ -283,10 +291,21 @@ export default function SkillsIndexPage() {
 
               return (
                 <li key={s.id} style={styles.item}>
-                  {briefed ? (
+                  {briefed || investigated ? (
                     <a
-                      href={skillPath(s.id)}
-                      onClick={() => trackEvent('skills_index_briefing_click', { skill: s.id, tier })}
+                      // Briefing first where there is one, which is the
+                      // OPPOSITE of the preference after a wrong answer
+                      // (lib/skills/skillEntry.ts) and deliberately so: a
+                      // student browsing the index is not stuck, the briefing
+                      // is the fuller page, and it carries its own quiet link
+                      // on to the investigation. A skill with only an
+                      // investigation goes straight there rather than landing
+                      // on an empty briefing.
+                      href={briefed ? skillPath(s.id) : investigatePath(s.id)}
+                      onClick={() => trackEvent(
+                        briefed ? 'skills_index_briefing_click' : 'skills_index_investigation_click',
+                        { skill: s.id, tier },
+                      )}
                       style={rowStyle}
                       title={label}
                       aria-label={label}
@@ -294,8 +313,8 @@ export default function SkillsIndexPage() {
                       {row}
                     </a>
                   ) : (
-                    // Not a link: /skill/<id> without a briefing is a dead end, and
-                    // 151 of those would be dead ends for search engines too.
+                    // Not a link: /skill/<id> with neither is a dead end, and
+                    // 150 of those would be dead ends for search engines too.
                     <span style={{ ...rowStyle, cursor: 'default' }} title={label} aria-label={label}>
                       {row}
                     </span>
@@ -443,6 +462,21 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#eff4ff',
     color: colors.primaryHover,
     border: '1px solid #c3d5fb',
+    whiteSpace: 'nowrap',
+  },
+  // Distinct from the briefing badge rather than louder than it: the two are
+  // different kinds of help, not a ranking.
+  investigationBadge: {
+    marginLeft: '6px',
+    fontSize: '10px',
+    fontWeight: '700',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    padding: '1px 6px',
+    borderRadius: radius.full,
+    background: '#ecfdf5',
+    color: '#047857',
+    border: '1px solid #a7f3d0',
     whiteSpace: 'nowrap',
   },
   legend: {
