@@ -425,3 +425,57 @@ describe('method examples', () => {
     expect(bare, 'pages whose method is never demonstrated').toEqual([])
   })
 })
+
+describe('gated method steps', () => {
+  const gated = () => Object.values(skillBriefings).flatMap(g =>
+    [...g.steps, ...(g.higher?.steps ?? [])]
+      .filter(s => s.nextMoveDistractors)
+      .map(s => ({ skillId: g.skillId, step: s })))
+
+  it('never offers the real move as one of its own distractors', () => {
+    for (const { skillId, step } of gated()) {
+      for (const d of step.nextMoveDistractors!) {
+        expect(d, `${skillId} restates its own step as a distractor`).not.toBe(step.do)
+      }
+    }
+  })
+
+  it('never repeats a distractor', () => {
+    for (const { skillId, step } of gated()) {
+      const [a, b] = step.nextMoveDistractors!
+      expect(a, `${skillId} offers the same wrong move twice`).not.toBe(b)
+    }
+  })
+
+  it('keeps every option the same shape, so length is not the tell', () => {
+    // An option visibly shorter or longer than the others is the answer
+    // whatever it says, and the student learns to measure instead of decide.
+    for (const { skillId, step } of gated()) {
+      const lengths = [step.do, ...step.nextMoveDistractors!].map(o => o.length)
+      const shortest = Math.min(...lengths)
+      const longest = Math.max(...lengths)
+      // 1.6, not 2: at the looser bound pythagoras step 1 shipped an option
+      // 75% longer than its rivals, which reads as the answer before it is read.
+      expect(longest / shortest, `${skillId}: options run ${lengths.join('/')} characters`)
+        .toBeLessThan(1.6)
+    }
+  })
+
+  it('writes every distractor as an instruction, like the step it stands against', () => {
+    for (const { skillId, step } of gated()) {
+      for (const d of step.nextMoveDistractors!) {
+        expect(d, `${skillId}: "${d}" does not open like an instruction`).toMatch(/^[A-Z]/)
+        expect(d.endsWith('.'), `${skillId}: "${d}" has no full stop`).toBe(true)
+      }
+    }
+  })
+
+  it('gates at least one step, and leaves at least one ungated', () => {
+    // The field is sparse by design: a briefing that gated every step would
+    // make the section unreadable, and one that gated none is not the feature.
+    const all = Object.values(skillBriefings).flatMap(g => [...g.steps, ...(g.higher?.steps ?? [])])
+    const withQuestion = all.filter(s => s.nextMoveDistractors)
+    expect(withQuestion.length, 'nothing is gated').toBeGreaterThan(0)
+    expect(withQuestion.length, 'every step is gated').toBeLessThan(all.length)
+  })
+})

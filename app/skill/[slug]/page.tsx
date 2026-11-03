@@ -11,7 +11,9 @@ import {
   sliceProvenance, codedBoards, answerFormClaim, kindClaim, type Tier,
 } from '../../../lib/skills/examProfile'
 import { getTier, setTier as persistTier } from '../../../lib/skills/tierPreference'
-import { judgedCorrectly, orderedPair, type Judgement } from '../../../lib/skills/briefingQuiz'
+import {
+  judgedCorrectly, orderedPair, methodOptions, firstUnansweredStep, type Judgement,
+} from '../../../lib/skills/briefingQuiz'
 import { splitExpressions } from '../../../lib/skills/mathPhrases'
 import {
   getBoard, setBoard as persistBoard, boardLabel, DEFAULT_BOARD,
@@ -129,6 +131,19 @@ export default function SkillBriefingPage() {
   const [sorted, setSorted] = useState<Record<string, number>>({})
 
   /**
+   * Which method step's question has been answered, and which option was
+   * picked — step index to option index.
+   *
+   * Same argument as `judged` one section up, applied to the method: a list of
+   * steps read top to bottom is something to agree with. A step that carries
+   * `nextMoveDistractors` asks what the next move is before it opens, and the
+   * steps after it stay closed until it does. Any answer opens it, right or
+   * wrong: this is a teaching gate, not a lock, and a stuck student must never
+   * be unable to read on.
+   */
+  const [methodPicks, setMethodPicks] = useState<Record<number, number>>({})
+
+  /**
    * The page is three stages, not six sections, because grouping by SECTION
    * would split recognising the question from telling it apart from its
    * neighbours — and that pair is the whole argument for the page. Grouping by
@@ -207,6 +222,7 @@ export default function SkillBriefingPage() {
     persistTier(next)
     setJudged({})      // the example set changes with the tier
     setSorted({})
+    setMethodPicks({})  // and so does the step list, so the indices change meaning
     trackEvent('skill_briefing_tier_change', { skill: skillId, tier: next })
   }
 
@@ -230,6 +246,19 @@ export default function SkillBriefingPage() {
     setJudged(prev => ({ ...prev, [index]: chose }))
     trackEvent('skill_briefing_judge', {
       skill: skillId, tier, index, chose, correct: judgedCorrectly(chose, isThisSkill),
+    })
+  }
+
+  /**
+   * The student's call on what the next move is. Recorded with whether it was
+   * right, which is the whole measure of whether gating a step beats showing
+   * it — the thing docs/audit/31 Increment 1 exists to find out.
+   */
+  function pickMove(index: number, option: number, correct: boolean) {
+    if (methodPicks[index] !== undefined) return    // first answer stands
+    setMethodPicks(prev => ({ ...prev, [index]: option }))
+    trackEvent('skill_briefing_method_choice', {
+      skill: skillId, tier, step: index, option, correct,
     })
   }
 
@@ -317,6 +346,12 @@ export default function SkillBriefingPage() {
   }
 
   const g = resolveBriefing(briefing, tier)
+  /**
+   * The step whose question is open, or -1 when none is — every gated step has
+   * been answered, or this briefing gates none and the method reads straight
+   * through exactly as it did before.
+   */
+  const askingAt = firstUnansweredStep(skillId, g.steps, methodPicks)
   // Headings name the skill rather than saying "it". Plural rather than
   // "a/an <skill>", so the phrasing stays grammatical for every skill name.
   const lowerName = skill.name.toLowerCase()
@@ -704,7 +739,9 @@ export default function SkillBriefingPage() {
       <section style={styles.card}>
         <p style={styles.h}>How to answer {article} {lowerName} question</p>
         <p style={{ ...styles.hint, marginBottom: g.methodExample ? 0 : 12 }}>
-          Each step says why it is there and where it goes wrong.
+          {askingAt > -1
+            ? 'Decide the next move before each step opens. Each step then says why it is there and where it goes wrong.'
+            : 'Each step says why it is there and where it goes wrong.'}
         </p>
 
         {/* One question worked down the right-hand side, a line per step.
@@ -720,6 +757,17 @@ export default function SkillBriefingPage() {
         {g.steps.map((s, i) => {
           const firstHigherStep = g.higherStepCount > 0
             && i === g.steps.length - g.higherStepCount
+
+          // The section reveals in order: steps past the first unanswered
+          // question are not rendered, because a method whose later steps are
+          // on screen has already answered its own question.
+          if (askingAt > -1 && i > askingAt) return null
+
+          const options = methodOptions(skillId, i, s)
+          const picked = methodPicks[i]
+          const asking = i === askingAt
+          const gotItRight = options && picked !== undefined && options[picked].isCorrect
+
           return (
           <div key={i}>
             {firstHigherStep && g.higherMethodExample && (
@@ -730,8 +778,43 @@ export default function SkillBriefingPage() {
             )}
             <div style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
               <div style={styles.stepN}>{i + 1}</div>
+              {asking && options ? (
+                // Three options rather than "show me the next step". The
+                // distractors are what a candidate actually does — usually
+                // this step's own `watch`, or the step after it — so picking
+                // one is a diagnosis rather than a guess.
+                <div style={styles.stepBody}>
+                  <div>
+                    <p style={styles.stepDo}>
+                      {i === 0 ? 'What is the first move?' : 'What is the next move?'}
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {options.map((o, k) => (
+                        <button
+                          key={k}
+                          onClick={() => pickMove(i, k, o.isCorrect)}
+                          style={styles.pairOption}
+                        >
+                          <MathText>{o.text}</MathText>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
               <div style={styles.stepBody}>
                 <div>
+                  {options && picked !== undefined && (
+                    // Their call, named plainly — the same way the judged
+                    // stems do it. The step below carries the teaching; this
+                    // line only says whether they had it.
+                    <p style={{
+                      ...styles.judgement,
+                      color: gotItRight ? colors.successText : colors.warningText,
+                    }}>
+                      {gotItRight ? '✓ That was the move' : '✗ Not the move — here it is'}
+                    </p>
+                  )}
                   <p style={styles.stepDo}><MathText>{s.do}</MathText></p>
                   <p style={styles.stepSub}>
                     <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>
@@ -744,6 +827,7 @@ export default function SkillBriefingPage() {
                 </div>
                 {s.example && <p style={styles.stepExample}><MathText>{s.example}</MathText></p>}
               </div>
+              )}
             </div>
           </div>
           )
