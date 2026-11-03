@@ -96,7 +96,7 @@ type Stage = 'spot' | 'do' | 'check'
 const STAGES: { id: Stage; label: string; blurb: string }[] = [
   { id: 'spot',  label: 'Spot it',  blurb: 'Recognising it, and telling it apart' },
   { id: 'do',    label: 'Do it',    blurb: 'The method, worked through one question' },
-  { id: 'check', label: 'Check it', blurb: 'Before you write the answer down' },
+  { id: 'check', label: 'Check it', blurb: 'Catching a wrong answer before you hand it in' },
 ]
 
 export default function SkillBriefingPage() {
@@ -840,7 +840,7 @@ export default function SkillBriefingPage() {
           "am I right / what should I expect", which is one job. */}
       {stage === 'check' && (
       <section style={{ ...styles.card, background: colors.cardAlt }}>
-        <p style={styles.h}>Before you write the answer down</p>
+        <p style={styles.h}>Before you write your answer down, check:</p>
         <ul style={{ ...styles.list, listStyle: 'none', paddingLeft: 0 }}>
           {g.check.map((c, i) => (
             <li key={i} style={{ ...styles.li, display: 'flex', gap: '10px' }}>
@@ -1138,7 +1138,7 @@ const BAR_SHADES = ['#2563eb', '#60a5fa', '#bfdbfe', '#dbeafe']
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    maxWidth: '640px',
+    maxWidth: '880px',
     margin: '0 auto',
     padding: '24px 20px 64px',
     display: 'flex',
@@ -1212,7 +1212,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   list: { margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px' },
-  li: { fontSize: font.base, color: colors.textPrimary, lineHeight: 1.55 },
+  li: {
+    // The page is wider than a phone column now, so prose needs its own cap:
+    // a line of 100 characters is harder to read than the narrow page was.
+    maxWidth: '70ch', fontSize: font.base, color: colors.textPrimary, lineHeight: 1.55 },
 
   /**
    * A fragment shown as it would appear on a paper. Deliberately set apart from
@@ -1347,6 +1350,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'flex-start',
   },
   exampleStem: {
+    maxWidth: '70ch',
     fontSize: font.md,
     color: colors.textPrimary,
     margin: 0,
@@ -1362,6 +1366,7 @@ const styles: Record<string, React.CSSProperties> = {
     margin: '0 0 8px',
   },
   exampleCue: {
+    maxWidth: '70ch',
     fontSize: font.base,
     color: colors.textSecondary,
     margin: 0,
