@@ -43,8 +43,9 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
       example: 'Which is longer, 1.2 m or 125 cm?',
     },
     {
-      text: 'The answer line names a unit that the question never used.',
-      example: 'Answer ________ km',
+      text: 'The answer line names a unit the question never used — printed after the blank, '
+        + 'or spelled out as an instruction.',
+      example: 'Answer ________ km   ·   Give your answer in litres.',
     },
   ],
 
@@ -102,21 +103,22 @@ export const convertingMeasurementsBriefing: SkillBriefing = {
     {
       do: 'Before any arithmetic, scan the question for two different units — and convert everything to one of them.',
       because:
-        'These are rarely "convert this" questions. They are questions about something else where the '
-        + 'units quietly disagree, and noticing is most of the mark.',
+        'These are rarely "convert this" questions. They are questions about something else, and the '
+        + 'units do not match — spotting that is most of the mark.',
       watch:
         'Working the whole thing through in mixed units and only noticing at the end, by which time '
         + 'the arithmetic is already wrong.',
           example: 'Two units in one question: metres and centimetres',
     },
     {
-      do: 'Decide the direction by asking whether the number should come out bigger or smaller.',
+      do: 'Decide the direction by asking whether you end up with MORE of the new unit or fewer.',
       because:
-        'Metres into centimetres makes the number bigger, so multiply by 100; centimetres into metres '
-        + 'makes it smaller, so divide. The question answers itself.',
+        'A centimetre is smaller than a metre, so it takes more of them to make the same length: '
+        + 'metres into centimetres means more, so multiply by 100. Centimetres into metres means '
+        + 'fewer, so divide. The question answers itself.',
       watch:
         'Inverting the conversion, or slipping a power of ten. 450 cm is 4.5 m — not 45 m, and not 45000 m.',
-          example: 'Metres into centimetres makes the number bigger, so × 100: 2 m = 200 cm',
+          example: 'More centimetres than metres, so × 100: 2 m = 200 cm',
     },
     {
       do: 'Convert into the unit the ANSWER LINE asks for, not the one the question opened with.',
