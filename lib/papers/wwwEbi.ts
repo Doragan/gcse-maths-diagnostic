@@ -121,6 +121,33 @@ export const MAX_CHALLENGE = 1
  * Three practice questions AND two to push on is a worksheet, not a feedback
  * sheet, and it ran every sheet to a second page. Practice has first claim on
  * the slots: a challenge question costs one rather than adding to the pile.
+ *
+ * ⚠ THESE CAPS DO NOT BUY A ONE-PAGE SHEET, and nothing here can. The caps
+ * read like a one-page budget and a high scorer’s sheet runs to two pages
+ * anyway, so the accounting was measured rather than reasoned about — 528
+ * sheets, every paper, built through a browser because drawGrid reserves no
+ * space without a DOM and a sheet built in vitest is the wrong length:
+ *
+ *   • The accounting above is correct. A challenge question does cost a
+ *     practice slot; a two-page sheet carries the three questions allowed,
+ *     not four.
+ *   • WHAT FILLS THE PAGE IS FIGURES, which no cap here counts. 1 of 466
+ *     sheets with no figure ran over a page. 35 of the 39 carrying ONE did.
+ *   • A grid is printed at a size a pencil can work in — about 112mm of the
+ *     257mm column (see diagramSize in feedbackPdf.ts, where a smaller one
+ *     was tried and cost two questions). The header, "what went well" and
+ *     "even better if" take 118mm before a question is set. One figure plus
+ *     the prose is already more page than there is.
+ *   • So a slot cap cannot fix it. Spending the WHOLE practice budget on the
+ *     figure question — one question, nothing else — still left 29 of 56
+ *     over a page, at the price of two practice questions the student had
+ *     earned.
+ *
+ * A sheet carrying a grid is therefore a two-page sheet, and that is the
+ * printed-figure decision rather than a bug in this file. /guide says as
+ * much to teachers. Do not "fix" it by shrinking the grid or by trimming the
+ * question list; the only lever that would work is the prose, which is what
+ * the sheet is for.
  */
 export const MAX_QUESTIONS = 3
 /** How many skills the "full marks on every question testing…" line may name. */
