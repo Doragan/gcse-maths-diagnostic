@@ -21,3 +21,6 @@ export function slugToSkillId(slug: string): string | null {
 }
 
 export const skillPath = (skillId: string): string => `/skill/${skillIdToSlug(skillId)}`
+
+/** The investigation under a skill's briefing. Only authored for a few. */
+export const investigatePath = (skillId: string): string => `${skillPath(skillId)}/investigate`
