@@ -79,6 +79,10 @@ const RULES: [RegExp, string, string?][] = [
   // The index sits at /skills and must be matched BEFORE the singular pattern
   // so it keeps its own row rather than being swallowed.
   [/^\/skills$/, 'All skills'],
+  // Specific before the parent, house order — though the briefing pattern is
+  // $-anchored, so it could not have swallowed this one anyway. The third
+  // element is not optional: without it the skill slug reaches GA4.
+  [/^\/skill\/[^/]+\/investigate$/, 'Investigation', '/skill/[slug]/investigate'],
   [/^\/skill\/[^/]+$/, 'Exam briefing', '/skill/[slug]'],
 
   // Parent-pay (public, token link)

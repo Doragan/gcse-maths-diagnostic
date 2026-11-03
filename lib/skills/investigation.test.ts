@@ -1,0 +1,375 @@
+import { describe, it, expect } from 'vitest'
+import {
+  allDraws, drawParams, resolveInvestigation, predictionCorrect, concludeGate,
+  rejectValue, addValue, sentenceState,
+} from './investigation'
+import { clipLine, lineEquation } from './investigationFigures'
+import { investigations, getInvestigation, hasInvestigation } from '../../data/investigations'
+import { skillsById } from './skillGraph'
+import { misconceptions } from '../../data/misconceptions'
+import type { Stage } from '../../data/investigations/types'
+
+const every = () => Object.values(investigations)
+
+describe('investigation registry', () => {
+  it('only registers investigations for real skills', () => {
+    for (const inv of every()) {
+      expect(skillsById[inv.skillId], `${inv.skillId} is not a skill`).toBeTruthy()
+    }
+  })
+
+  it('reports an unauthored skill as absent rather than inventing one', () => {
+    expect(hasInvestigation('simple_arithmetic')).toBe(false)
+    expect(getInvestigation('simple_arithmetic')).toBeNull()
+  })
+})
+
+describe('parameter draws', () => {
+  it('enumerates the whole space and applies the constraint', () => {
+    const spec = {
+      values: { a: [1, 2], b: [3, 4, 5] },
+      valid: (p: Record<string, number>) => p.a !== 2 || p.b !== 5,
+    }
+    const draws = allDraws(spec)
+    expect(draws).toHaveLength(5)                       // 6 combinations, one excluded
+    expect(draws.some(d => d.a === 2 && d.b === 5)).toBe(false)
+  })
+
+  it('never hands out a draw the constraint excludes', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        expect(inv.parameters.valid?.(p) ?? true, `${inv.skillId}: ${JSON.stringify(p)}`).toBe(true)
+      }
+    }
+  })
+
+  it('refuses a spec with no legal draw rather than looping', () => {
+    expect(() => drawParams({ values: { a: [1] }, valid: () => false })).toThrow()
+  })
+
+  it('picks a legal draw for any random value, including the 1.0 edge', () => {
+    for (const inv of every()) {
+      for (const r of [0, 0.25, 0.5, 0.999999, 1]) {
+        const p = drawParams(inv.parameters, () => r)
+        expect(inv.parameters.valid?.(p) ?? true).toBe(true)
+      }
+    }
+  })
+})
+
+// The point of the parameter work: walk EVERY draw a student could be given
+// and assert it is teachable, rather than checking the one we happened to see.
+describe('every legal draw builds a usable investigation', () => {
+  it('builds stages for all of them', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        const stages = inv.build(p)
+        expect(stages.length, `${inv.skillId} ${JSON.stringify(p)}`).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('never offers two identical options in one prediction', () => {
+    // A distractor that renders as the right answer hands full marks to a
+    // wrong reading. 4 of the pilot's 24 stage-3 combinations did exactly
+    // that before the constraint was added.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const on = stage.predict.on
+          if (on.kind !== 'choice') return
+          const unique = new Set(on.options)
+          expect(unique.size, `${inv.skillId} stage ${i + 1}, ${JSON.stringify(p)}: `
+            + on.options.join(' | ')).toBe(on.options.length)
+        })
+      }
+    }
+  })
+
+  it('points every choice prediction at a real option', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const on = stage.predict.on
+          if (on.kind !== 'choice') return
+          expect(on.correct, `${inv.skillId} stage ${i + 1}`).toBeGreaterThanOrEqual(0)
+          expect(on.correct).toBeLessThan(on.options.length)
+        })
+      }
+    }
+  })
+
+  it('keeps every expected prediction point inside its own axes', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const on = stage.predict.on
+          if (on.kind !== 'grid') return
+          for (const pt of on.expect) {
+            const where = `${inv.skillId} stage ${i + 1}, ${JSON.stringify(p)}`
+            expect(pt.x, where).toBeGreaterThanOrEqual(stage.axes.x.min)
+            expect(pt.x, where).toBeLessThanOrEqual(stage.axes.x.max)
+            expect(pt.y, where).toBeGreaterThanOrEqual(stage.axes.y.min)
+            expect(pt.y, where).toBeLessThanOrEqual(stage.axes.y.max)
+          }
+        })
+      }
+    }
+  })
+
+  it('draws a visible figure for every value the control allows', () => {
+    // Asserted on what is actually RENDERED, which is `background`.
+    //
+    // This test first checked grid.elements, and passed while the page drew
+    // nothing: GridCanvas renders elements only with showCanonical, because
+    // they are a grid_draw part's answer rather than part of the picture. The
+    // ghosts appeared and the live line did not. Checking the field the
+    // renderer ignores is worse than not checking at all — it reports success
+    // for a blank figure.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const c = stage.control
+          if (!c) return
+          for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) {
+            const grid = c.render([v], 0)
+            expect(grid.background, `${inv.skillId} stage ${i + 1}, ${c.name} = ${v} draws nothing`)
+              .toContain('<line')
+          }
+        })
+      }
+    }
+  })
+
+  it('draws the fixed figure on a stage that has one', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          if (!stage.figure) return
+          expect(stage.figure.background, `${inv.skillId} stage ${i + 1} draws nothing`)
+            .toContain('<line')
+        })
+      }
+    }
+  })
+
+  it('gives a stage with no control something to look at', () => {
+    // A choice stage that neither varies anything nor carries a figure asks
+    // about a graph that is not on the page.
+    for (const inv of every()) {
+      inv.build(allDraws(inv.parameters)[0]).forEach((stage, i) => {
+        if (stage.control || stage.predict.on.kind === 'grid') return
+        expect(stage.figure, `${inv.skillId} stage ${i + 1} has nothing to read`).toBeTruthy()
+      })
+    }
+  })
+})
+
+describe('authoring rules', () => {
+  const stagesOfEvery = (): { skillId: string; stage: Stage; i: number }[] =>
+    every().flatMap(inv =>
+      inv.build(allDraws(inv.parameters)[0]).map((stage, i) => ({ skillId: inv.skillId, stage, i })))
+
+  it('writes a sentence with exactly one more chunk than it has slots', () => {
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      expect(stage.conclude.sentence.length, `${skillId} stage ${i + 1}`)
+        .toBe(stage.conclude.slots.length + 1)
+    }
+  })
+
+  it('gives every slot a diagnosis and a misconception entry per option', () => {
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      for (const slot of stage.conclude.slots) {
+        const where = `${skillId} stage ${i + 1}`
+        expect(slot.diagnosis, where).toHaveLength(slot.options.length)
+        expect(slot.misconception, where).toHaveLength(slot.options.length)
+        expect(slot.correct, where).toBeLessThan(slot.options.length)
+      }
+    }
+  })
+
+  it('explains every wrong option and leaves the right one unexplained', () => {
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      stage.conclude.slots.forEach((slot, s) => {
+        slot.options.forEach((_, o) => {
+          const where = `${skillId} stage ${i + 1} slot ${s} option ${o}`
+          if (o === slot.correct) {
+            expect(slot.diagnosis[o], `${where} (correct) carries a diagnosis`).toBe('')
+          } else {
+            expect(slot.diagnosis[o].length, `${where} has no diagnosis`).toBeGreaterThan(10)
+          }
+        })
+      })
+    }
+  })
+
+  it('resolves every misconception id it tags against the taxonomy', () => {
+    // Null is legal and '' means null here; a typo is not, because a tagged
+    // wrong answer reaches the teacher's Common mistakes surface.
+    const known = new Set(misconceptions.map(m => m.id))
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      for (const slot of stage.conclude.slots) {
+        for (const id of slot.misconception) {
+          if (id === '') continue
+          expect(known.has(id), `${skillId} stage ${i + 1}: unknown misconception "${id}"`).toBe(true)
+        }
+      }
+    }
+  })
+
+  it('never tags the correct option as a misconception', () => {
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      stage.conclude.slots.forEach((slot, s) => {
+        expect(slot.misconception[slot.correct], `${skillId} stage ${i + 1} slot ${s}`).toBe('')
+      })
+    }
+  })
+
+  it('gives a control both an observation table and a coverage rule', () => {
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      if (!stage.control) continue
+      const where = `${skillId} stage ${i + 1}`
+      expect(stage.observe, `${where} varies something but tabulates nothing`).toBeTruthy()
+      expect(stage.control.row(stage.control.domain.min), where)
+        .toHaveLength(stage.observe!.headers.length)
+    }
+  })
+
+  it('never opens the conclusion on one value, however many times it is drawn', () => {
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      if (!stage.control) continue
+      expect(concludeGate(stage, []), `${skillId} stage ${i + 1} opens on nothing`).toBeTruthy()
+      expect(concludeGate(stage, [1]), `${skillId} stage ${i + 1} opens on one value`).toBeTruthy()
+    }
+  })
+
+  it('can always be satisfied by values the domain actually allows', () => {
+    // A coverage rule asking for something the domain cannot provide is a
+    // dead end the student can never leave.
+    for (const { skillId, stage, i } of stagesOfEvery()) {
+      const c = stage.control
+      if (!c) continue
+      const all: number[] = []
+      for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) all.push(v)
+      expect(concludeGate(stage, all), `${skillId} stage ${i + 1} cannot be satisfied`).toBeNull()
+    }
+  })
+})
+
+describe('typed values', () => {
+  const stage = () => investigations['understanding_straight_line_graphs']
+    .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[0]
+
+  it('accepts a value in the domain', () => {
+    expect(rejectValue(stage(), '3')).toBeNull()
+    expect(rejectValue(stage(), '-4')).toBeNull()
+  })
+
+  it('explains an empty box, a non-number and an out-of-range value', () => {
+    expect(rejectValue(stage(), '')).toMatch(/type a number/i)
+    expect(rejectValue(stage(), 'seven')).toMatch(/not a number/i)
+    expect(rejectValue(stage(), '99')).toMatch(/between/i)
+  })
+
+  it('rejects a value off the step', () => {
+    expect(rejectValue(stage(), '2.5')).toMatch(/whole numbers/i)
+  })
+
+  it('accepts a half where the step is a half', () => {
+    const m = investigations['understanding_straight_line_graphs']
+      .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[1]
+    expect(rejectValue(m, '2.5')).toBeNull()
+    expect(rejectValue(m, '2.25')).toMatch(/steps of/i)
+  })
+})
+
+describe('the drawn history', () => {
+  it('appends a new value and makes it live', () => {
+    expect(addValue([3, -2], 5)).toEqual({ drawn: [3, -2, 5], current: 2 })
+  })
+
+  it('re-selects a repeat rather than listing it twice', () => {
+    // Otherwise the table shows a duplicate row and the coverage rule counts
+    // a value it has already seen.
+    expect(addValue([3, -2], 3)).toEqual({ drawn: [3, -2], current: 0 })
+  })
+})
+
+describe('marking a grid prediction', () => {
+  const inv = investigations['understanding_straight_line_graphs']
+  const first = () => inv.build(allDraws(inv.parameters)[0])[0]
+
+  it('accepts the expected point', () => {
+    const s = first()
+    const want = (s.predict.on as { expect: readonly { x: number; y: number }[] }).expect[0]
+    expect(predictionCorrect(s, [{ x: want.x, y: want.y }])).toBe(true)
+  })
+
+  it('rejects the square next door', () => {
+    const s = first()
+    const want = (s.predict.on as { expect: readonly { x: number; y: number }[] }).expect[0]
+    expect(predictionCorrect(s, [{ x: want.x, y: want.y + 1 }])).toBe(false)
+    expect(predictionCorrect(s, [{ x: want.x + 1, y: want.y }])).toBe(false)
+  })
+
+  it('rejects an empty grid', () => {
+    expect(predictionCorrect(first(), [])).toBe(false)
+  })
+})
+
+describe('the conclusion sentence', () => {
+  const stage = { conclude: { slots: [{ correct: 0 }, { correct: 1 }] } } as unknown as Stage
+
+  it('is incomplete until every slot is answered', () => {
+    expect(sentenceState(stage, {})).toMatchObject({ complete: false, correct: false })
+    expect(sentenceState(stage, { 0: 0 })).toMatchObject({ complete: false })
+  })
+
+  it('names the first wrong slot', () => {
+    expect(sentenceState(stage, { 0: 1, 1: 1 })).toMatchObject({ firstWrong: 0, correct: false })
+    expect(sentenceState(stage, { 0: 0, 1: 0 })).toMatchObject({ firstWrong: 1, correct: false })
+  })
+
+  it('is correct only when every slot is', () => {
+    expect(sentenceState(stage, { 0: 0, 1: 1 }))
+      .toMatchObject({ complete: true, correct: true, firstWrong: -1 })
+  })
+})
+
+describe('line geometry', () => {
+  const x = { min: -5, max: 5, step: 1, label: 'x' }
+  const y = { min: -5, max: 5, step: 1, label: 'y' }
+
+  it('clips a line to the axes box', () => {
+    expect(clipLine(1, 0, x, y)).toEqual([[-5, -5], [5, 5]])
+  })
+
+  it('clips a steep line at the top and bottom, not the sides', () => {
+    const p = clipLine(5, 0, x, y)!
+    expect(p.map(q => q[1]).sort((a, b) => a - b)).toEqual([-5, 5])
+  })
+
+  it('returns null for a line that misses the box entirely', () => {
+    expect(clipLine(0, 99, x, y)).toBeNull()
+  })
+
+  it('handles a horizontal line, where there is no x to solve for', () => {
+    expect(clipLine(0, 2, x, y)).toEqual([[-5, 2], [5, 2]])
+  })
+
+  it('writes an equation the way a paper does', () => {
+    expect(lineEquation(1, 0)).toBe('y = x')
+    expect(lineEquation(-1, 0)).toBe('y = −x')
+    expect(lineEquation(2, -3)).toBe('y = 2x − 3')
+    expect(lineEquation(0.5, 4)).toBe('y = 0.5x + 4')
+  })
+})
+
+describe('resolveInvestigation', () => {
+  it('carries the drawn numbers into the stages it builds', () => {
+    const inv = investigations['understanding_straight_line_graphs']
+    const r = resolveInvestigation(inv, () => 0)
+    expect(r.stages).toHaveLength(3)
+    expect(r.stages[0].ask).toContain(String(r.params.c1))
+  })
+})

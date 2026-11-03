@@ -293,6 +293,13 @@ export const misconceptions: Misconception[] = [
     name: 'Used too rough a value for π',
     description: 'Worked the formula correctly but substituted 3.14 or 22/7 for π, landing outside the accuracy the question asks for. Recurs across every circle-derived skill — area, circumference, arc and sector, sphere, cone, cylinder, frustum — and is the one misconception detected from the answer itself rather than an authored trap.',
   },
+
+  // ── Graphs ────────────────────────────────────────────────────────────────
+  {
+    id: 'confused_gradient_with_intercept',
+    name: 'Swapped gradient and intercept',
+    description: 'Read how steep a line is as where it crosses, or the other way round — giving c when the question wanted m, or taking the number in front of x as the crossing point. Clears the "fires in more than one skill" bar comfortably: it is available in understanding straight line graphs, perpendicular gradients, kinematic graphs, trig graphs and gradient of a curve.',
+  },
 ]
 
 export const misconceptionsById: Record<string, Misconception> =
