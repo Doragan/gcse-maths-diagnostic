@@ -313,7 +313,7 @@ export function regularPolygon(opts: {
   const parts = [`<polygon points="${points}" />`]
 
   if (mark === 'interior' || mark === 'both') {
-    const [x, y] = onCircle(cx, cy, R - 26, 0)
+    const [x, y] = onCircle(cx, cy, R - 15, 0)
     parts.push(
       `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" stroke="none" `
       + `fill="currentColor">interior</text>`,

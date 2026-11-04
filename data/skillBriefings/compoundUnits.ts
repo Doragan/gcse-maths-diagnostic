@@ -29,7 +29,7 @@ export const compoundUnitsBriefing: SkillBriefing = {
     {
       text: 'The word "per", or a unit written as a fraction. If the answer line has one of these, '
         + 'the question is asking for a rate.',
-      example: 'Answer ________ g/cm³',
+      example: 'Answer ________ g/cm³   ·   Give your answer in grams per cm³.',
     },
     {
       text: 'Two quantities of genuinely different kinds that have to be combined — a distance and '

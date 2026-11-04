@@ -68,6 +68,13 @@ export const anglesInPolygonsBriefing: SkillBriefing = {
     {
       stem: 'Work out the size of each interior angle of a regular octagon.',
       isThisSkill: true,
+      // The cue shows a pentagon. Counting the eight sides is part of this
+      // question, and the shape is what the paper would put in front of them.
+      figure: regularPolygon({
+        sides: 8, mark: 'interior',
+        alt: 'A regular octagon with one interior angle marked inside it. All eight sides are '
+          + 'equal, so all eight interior angles are equal too.',
+      }),
       worked: [
         'Exterior angle first: 360 ÷ 8 = 45°',
         'Interior and exterior sit on a straight line',
