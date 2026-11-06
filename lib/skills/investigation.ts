@@ -1,7 +1,6 @@
 import { checkGridDraw, type GridPoint } from '../questions/gridDraw'
-import { checkAnswer } from '../questions/answerChecker'
 import type {
-  Investigation, Params, ParameterSpec, ResolvedInvestigation, Stage, CheckVariant,
+  Investigation, Params, ParameterSpec, ResolvedInvestigation, Stage,
 } from '../../data/investigations/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -147,61 +146,6 @@ export function sentenceState(
 // ─────────────────────────────────────────────────────────────────────────────
 // Section checks
 // ─────────────────────────────────────────────────────────────────────────────
-
-/** What a student has put into a check question. */
-export type CheckResponse = {
-  typed?: string
-  picked?: number | null
-  placed?: readonly GridPoint[]
-}
-
-/**
- * Mark one check answer.
- *
- * The numeric case goes through `checkAnswer`, the grader every real question
- * uses, rather than a comparison written for this page: a student who types
- * "−4" or "-4.0" is right in practice and must be right here too. The grid
- * case goes through `checkGridDraw` for the same reason.
- */
-export function markCheck(
-  variant: CheckVariant,
-  response: CheckResponse,
-  axes: { x: { step: number }; y: { step: number } },
-): boolean {
-  const answer = variant.answer
-
-  if (answer.kind === 'choice') {
-    return response.picked !== null && response.picked === answer.correct
-  }
-
-  if (answer.kind === 'numeric') {
-    const typed = (response.typed ?? '').trim()
-    if (typed === '') return false
-    return checkAnswer(typed, answer.value, 'numeric', answer.tolerance ?? null, []).correct
-  }
-
-  const placed = response.placed ?? []
-  if (placed.length === 0) return false
-  return checkGridDraw(
-    [...placed],
-    answer.grid.elements,
-    'points',
-    answer.grid.tolerance,
-    { xStep: axes.x.step, yStep: axes.y.step },
-  ).correct
-}
-
-/**
- * The next variant to offer.
- *
- * Wraps, so "try another" is never a dead button — a student who works
- * through every variant of a two-variant check gets the first one back, which
- * is a far better outcome than a control that stops responding.
- */
-export function nextVariant(current: number, variants: number): number {
-  if (variants <= 0) return 0
-  return (current + 1) % variants
-}
 
 /** Has every check on this stage been attempted at least once? */
 export function checksAttempted(
