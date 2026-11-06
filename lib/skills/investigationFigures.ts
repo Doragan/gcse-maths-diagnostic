@@ -184,8 +184,14 @@ export function riseRunGrid(opts: {
   from: number
   /** How far across it goes. */
   run: number
-  /** Label the legs. Needs GridCanvas to draw author labels. */
-  label?: boolean
+  /**
+   * Which legs to label.
+   *
+   * 'run' exists because a figure can be the QUESTION: "across 1, the line
+   * rises by…" above a triangle whose vertical leg reads "up 3" has already
+   * answered itself.
+   */
+  label?: 'both' | 'run' | 'none'
 }): RenderedGrid {
   const { x, y, m, c, from, run } = opts
   const parts: string[] = []
@@ -211,12 +217,19 @@ export function riseRunGrid(opts: {
   )
 
   const rise = y1 - y0
-  const labels = opts.label === false ? undefined : [
-    // Above the horizontal leg, inside the triangle: below it the label
-    // lands on the axis tick numerals and the two sets of numbers collide.
-    { x: from + run / 2, y: y0, text: `across ${fmt(run)}`, dy: rise >= 0 ? -8 : 18 },
-    { x: x1, y: (y0 + y1) / 2, text: `${rise >= 0 ? 'up' : 'down'} ${fmt(Math.abs(rise))}`, dx: 34 },
-  ]
+  const mode = opts.label ?? 'both'
+  // Above the horizontal leg, inside the triangle: below it the label lands on
+  // the axis tick numerals and the two sets of numbers collide.
+  const runLabel = { x: from + run / 2, y: y0, text: `across ${fmt(run)}`, dy: rise >= 0 ? -8 : 18 }
+  const riseLabel = {
+    x: x1,
+    y: (y0 + y1) / 2,
+    text: `${rise >= 0 ? 'up' : 'down'} ${fmt(Math.abs(rise))}`,
+    dx: 34,
+  }
+  const labels = mode === 'none' ? undefined
+    : mode === 'run' ? [runLabel]
+    : [runLabel, riseLabel]
 
   return {
     mode: 'points',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
   renderQuestion, type Parameters, type RenderedQuestion, type TrapTemplate,
@@ -53,12 +53,29 @@ type Props = {
   questionId: string
   /** Called once per submitted answer. The caller decides what it counts for. */
   onAnswered?: (outcome: BankQuestionOutcome) => void
+  /**
+   * Called when there is no question to show — unpublished, deleted, or a
+   * shape this cannot render (multi-part, grid_draw).
+   *
+   * Not cosmetic. A caller that gates progress on "every check answered" will
+   * wait forever for a check that never appeared, which is exactly how a
+   * multi-part question silently made one section of the investigation
+   * impossible to leave.
+   */
+  onUnavailable?: () => void
   /** Offered after an answer: the same question on fresh numbers. */
   allowAnother?: boolean
 }
 
-export default function BankQuestion({ questionId, onAnswered, allowAnother = true }: Props) {
+export default function BankQuestion({
+  questionId, onAnswered, onUnavailable, allowAnother = true,
+}: Props) {
   const [row, setRow] = useState<Row | null>(null)
+  // Held in a ref so the load effect does not re-run when the caller passes a
+  // fresh closure, which would re-fetch the question on every render. Assigned
+  // in an effect rather than during render, which React forbids.
+  const onUnavailableRef = useRef(onUnavailable)
+  useEffect(() => { onUnavailableRef.current = onUnavailable })
   const [failed, setFailed] = useState(false)
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
   const [typed, setTyped] = useState('')
@@ -101,6 +118,7 @@ export default function BankQuestion({ questionId, onAnswered, allowAnother = tr
       const q = data as unknown as Row | null
       if (error || !q || q.parts || !isScalarAnswerType(q.answer_type)) {
         setFailed(true)
+        onUnavailableRef.current?.()
         return
       }
       setRow(q)

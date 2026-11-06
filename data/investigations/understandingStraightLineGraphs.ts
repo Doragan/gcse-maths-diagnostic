@@ -63,8 +63,11 @@ const Q_Y_INTERCEPT = '507b069f-6a05-4eff-9259-0de1acee1f20'
 const Q_GRADIENT = 'd2f9449a-d88e-407d-b4a9-05eda7e954d3'
 /** "The line y = ax + b passes through ({{c}}, y). Find y." (d1, numeric) */
 const Q_POINT_ON_LINE = 'ccc88b02-19fb-48cd-8e78-382bf3258c8b'
-/** Gradient from two given points, no diagram (d3, expression, multi-part) */
-const Q_GRADIENT_FROM_POINTS = '4287173a-9ec0-4d43-b9db-43da2230e5b3'
+// NOT usable as a check: 4287173a (gradient from two points) is MULTI-PART,
+// and BankQuestion renders scalar answers only. Pointing a check at it drew
+// nothing at all — and since a section waits for every check to be answered,
+// that section could never be left. It is in the handover instead, where the
+// ordinary practice page renders it properly.
 /** Find the equation of the line parallel to L through a point (d3, expression) */
 const Q_PARALLEL = '2279ed0d-53c9-4b2e-955c-58f170214459'
 
@@ -158,7 +161,10 @@ function stageOne(p: Params): Stage {
       because: 'At x = 0 every term with an x in it disappears, so whatever c is, that is the '
         + 'height where the line meets the y-axis. Change c and the line moves vertically; its '
         + 'steepness is untouched.',
-      algebra: 'y = mx + c → at x = 0: y = m × 0 + c = c',
+      algebra: 'y = mx + c\n'
+        + 'at x = 0:\n'
+        + '\u2003y = m × 0 + c\n'
+        + '\u2003y = c',
     },
     naming: {
       term: 'the y-intercept',
@@ -279,114 +285,154 @@ function stageTwo(p: Params): Stage {
     },
     check: [
       {
-        questionId: Q_GRADIENT,
-        because: 'Asks for the gradient by name, using the word naming has just introduced. '
-          + 'Reading m off the equation needs only this section, not the measuring in the next.',
+        questionId: Q_PARALLEL,
+        challenge: true,
+        because: 'Same gradient, different intercept. It needs only the idea that m is the '
+          + 'slope and c is not — no measuring — which is what this section built.',
       },
     ],
   }
 }
 
 /**
- * Measuring the gradient: how far up for how far across.
+ * Measuring the gradient between two points the student chooses.
  *
- * The control is the RUN rather than the line. The line stays put and the
- * student stretches the triangle along it — which is the argument that the
- * gradient belongs to the line and not to the triangle drawn on it, and it is
- * not an argument that can be made by varying the line.
+ * The pair being THEIRS is the whole argument. A control that stretches one
+ * triangle for them demonstrates that the answer does not change; letting them
+ * pick any two points on the line and getting the same answer anyway is the
+ * student finding it out. The table carries the subtraction either way, so the
+ * method they meet here is the one the exam asks for between two named points.
  */
 function stageMeasure(p: Params): Stage {
   const m = p.mMeasure
+  const axes = measureAxes(m)
   const line = lineEquation(m, 0)
+  /** y at a chosen x, on this line through the origin. */
+  const at = (x: number) => m * x
 
   return {
-    ask: `This is ${line}. You know it climbs — but by how much? Go across 1 and see how far `
-      + 'up you have to go to meet the line again.',
-    axes: measureAxes(m),
-    figure: riseRunGrid({ ...measureAxes(m), m, c: 0, from: 0, run: 1 }),
+    ask: `This is ${line}. You know which way it leans — now put a number on it. How much `
+      + 'does y go up for each 1 that x goes across?',
+    axes,
+    // The triangle sits away from the axes so its label does not collide with
+    // the tick numerals, and ONLY THE RUN is labelled: this figure is the
+    // question, and a label reading "up 3" answers it.
+    figure: riseRunGrid({ ...axes, m, c: 0, from: 1, run: 1, label: 'run' }),
     predict: {
       prompt: 'Across 1, the line rises by…',
-      on: {
-        kind: 'choice',
-        options: [fmt(m), fmt(m + 1), fmt(1)],
-        correct: 0,
-      },
+      on: { kind: 'choice', options: [fmt(m), fmt(m + 1), fmt(1)], correct: 0 },
       right: `Across 1, up ${fmt(m)} — which is exactly the number in front of x.`,
       wrong: `Across 1 it goes up ${fmt(m)}. Count the squares up the dashed side of the `
         + 'triangle.',
     },
     control: {
-      name: 'across',
-      prompt: 'Now stretch the triangle. Choose how far across to go, and read off how far up '
-        + 'the line has climbed by then.',
-      hint: `Whole numbers from 1 to ${RUN_MAX}.`,
-      domain: { min: 1, max: RUN_MAX, step: 1 },
-      suggest: [2, 3],
-      render: (drawn, current) => riseRunGrid({
-        ...measureAxes(m),
+      name: 'point',
+      pick: {
+        kind: 'onLine',
         m,
         c: 0,
-        from: 0,
-        run: drawn.length ? drawn[current] : 1,
-      }),
-      label: v => `across ${v}`,
-      row: v => [fmt(v), fmt(m * v), `${fmt(m * v)} ÷ ${fmt(v)} = ${fmt(m)}`],
-      coverage: drawn => (drawn.length < 2
-        ? 'Try at least two different widths — the point is what stays the same.'
-        : null),
+        grid: straightLineGrid({ ...axes, ghosts: [], live: [m, 0] }),
+        offLine: 'That point is not on the line. Tap a corner of the grid that the line passes '
+          + 'exactly through.',
+      },
+      prompt: 'Now choose two points on the line yourself, and work out the gradient between '
+        + 'them. Then pick a third, and measure again.',
+      hint: 'Tap where the line crosses a corner of the grid. Tap a point again to take it back.',
+      domain: { min: axes.x.min, max: axes.x.max, step: 1 },
+      render: drawn => {
+        if (drawn.length < 2) return straightLineGrid({ ...axes, ghosts: [], live: [m, 0] })
+        const [a, b] = [drawn[drawn.length - 2], drawn[drawn.length - 1]].sort((x, y) => x - y)
+        return riseRunGrid({ ...axes, m, c: 0, from: a, run: b - a })
+      },
+      label: v => `(${fmt(v)}, ${fmt(at(v))})`,
+      row: v => [`(${fmt(v)}, ${fmt(at(v))})`],
+      // One row per PAIR: a single point says nothing about a gradient.
+      rows: drawn => {
+        const out: string[][] = []
+        for (let i = 1; i < drawn.length; i++) {
+          const [a, b] = [drawn[i - 1], drawn[i]].sort((x, y) => x - y)
+          const dy = at(b) - at(a)
+          const dx = b - a
+          // A negative is bracketed when subtracted: "6 − −2" is how it is
+          // typed, not how it is written, and this line is the worked method.
+          const minus = (n: number) => (n < 0 ? `(${fmt(n)})` : fmt(n))
+          out.push([
+            `(${fmt(a)}, ${fmt(at(a))}) to (${fmt(b)}, ${fmt(at(b))})`,
+            `${fmt(at(b))} − ${minus(at(a))} = ${fmt(dy)}`,
+            `${fmt(b)} − ${minus(a)} = ${fmt(dx)}`,
+            `${fmt(dy)} ÷ ${fmt(dx)} = ${fmt(dy / dx)}`,
+          ])
+        }
+        return out
+      },
+      coverage: drawn => {
+        if (drawn.length < 2) return 'Pick two points on the line to measure between.'
+        if (drawn.length < 3) {
+          return 'Now pick a third point, so you have measured between two different pairs.'
+        }
+        return null
+      },
     },
-    observe: { headers: ['across', 'up', 'up ÷ across'] },
+    observe: {
+      headers: ['between', 'change in y', 'change in x', 'change in y ÷ change in x'],
+    },
     conclude: {
       sentence: [
-        'The gradient is ',
-        ', and stretching the triangle wider ',
+        'The gradient of a line is ',
+        ', and measuring between a different pair of points ',
         ' the answer.',
       ],
       slots: [
         {
-          options: ['the up divided by the across', 'the up added to the across'],
+          // The language the exam uses. "Up over across" is the picture; this
+          // is the thing itself, and it still works when the line is measured
+          // right to left or sits below the axis, which "up" does not.
+          options: [
+            'the change in y divided by the change in x',
+            'the change in x divided by the change in y',
+          ],
           correct: 0,
           diagnosis: [
             '',
-            'Check your table: across 2 gave up ' + fmt(m * 2) + ', and ' + fmt(m * 2) + ' + 2 is '
-            + 'not ' + fmt(m) + '. It is a division — how much up for each one across.',
+            'That is upside down. Check your table: on this line the change in y is the bigger '
+            + 'number, and the gradient came out bigger than 1, not smaller.',
           ],
-          misconception: ['', 'added_instead_of_operating'],
+          misconception: ['', 'divided_the_wrong_way_round'],
         },
         {
-          options: ['does not change', 'doubles'],
+          options: ['does not change', 'changes'],
           correct: 0,
           diagnosis: [
             '',
-            'Every row of your table came to the same answer. The triangle got bigger, but so '
-            + 'did both of its sides, so the division did not move.',
+            'Every pair you measured gave the same answer. The two changes grow together, so '
+            + 'the division always lands on the same number.',
           ],
           misconception: ['', ''],
         },
       ],
-      because: 'The gradient is a rate: how far up for each one across. A wider triangle has a '
-        + 'taller rise in exactly the same proportion, so the division always comes back to the '
-        + 'same number — which is why the gradient belongs to the line rather than to the '
-        + 'triangle you drew on it.',
-      algebra: 'gradient = up ÷ across = rise ÷ run\u2003→\u2003for y = ' + fmt(m)
-        + 'x:\u2003' + fmt(m * 2) + ' ÷ 2 = ' + fmt(m),
+      because: 'The gradient is a rate: how much y changes for each 1 that x changes. Between '
+        + 'any two points on the same straight line both changes scale together, so dividing '
+        + 'one by the other always gives the same number — which is why the gradient belongs to '
+        + 'the line rather than to the pair of points you happened to pick.',
+      algebra: 'gradient = change in y ÷ change in x\n'
+        + '\u2003\u2003= (y₂ − y₁) ÷ (x₂ − x₁)',
     },
     naming: {
-      term: 'rise over run',
-      means: 'The rise is how far up, the run is how far across, and the gradient is the rise '
-        + 'divided by the run. Measured between any two points on the line, it gives the same '
-        + 'answer every time.',
-      elsewhere: 'It is how a road sign states a hill: 1 in 5 means a rise of 1 for a run of 5. '
-        + 'Wheelchair ramps are specified the same way, usually 1 in 12 or gentler.',
-      onThePaper: 'Work out the gradient of the line joining A and B. / Find the gradient of the '
-        + 'line shown.',
+      term: 'the gradient, as a number',
+      means: 'The gradient is the change in y divided by the change in x, measured between any '
+        + 'two points on the line. You may also hear it called rise over run — the rise is the '
+        + 'change in y, the run is the change in x.',
+      elsewhere: 'It is how a road sign states a hill: 1 in 5 means the road rises 1 for every '
+        + '5 it runs forward. Wheelchair ramps are specified the same way, usually 1 in 12 or '
+        + 'gentler.',
+      onThePaper: 'Work out the gradient of the line joining A and B. / Find the gradient of '
+        + 'the line shown.',
     },
     check: [
       {
-        questionId: Q_GRADIENT_FROM_POINTS,
-        challenge: true,
-        because: 'Rise over run between two given points, with no triangle drawn. The method '
-          + 'this section builds, applied without the scaffolding.',
+        questionId: Q_GRADIENT,
+        because: 'Reads the gradient straight off the equation — the number this section has '
+          + 'just learned to measure is the one already sitting in front of the x.',
       },
     ],
   }
@@ -467,9 +513,10 @@ function stageThree(p: Params): Stage {
 export const understandingStraightLineGraphsInvestigation: Investigation = {
   skillId: 'understanding_straight_line_graphs',
   title: 'Understanding Straight Line Graphs',
-  outcomes: 'By the end of this you will be able to look at the equation of a straight line and '
-    + 'say where it crosses the y-axis and which way it slopes — and go the other way, from a '
-    + 'line drawn on a grid back to its equation.',
+  outcomes: 'Straight lines are written y = mx + c. By the end of this you will know what m '
+    + 'and c each do: you will be able to look at an equation and say where the line crosses the '
+    + 'y-axis and how steep it is, work out a gradient from two points, and go the other way — '
+    + 'from a line drawn on a grid back to its equation.',
   parameters: {
     values: {
       // Stage 1's target: positive and at least 2, so the new line is clear of
@@ -501,7 +548,7 @@ export const understandingStraightLineGraphsInvestigation: Investigation = {
    * Closing that gap needs new questions authored into the bank.
    */
   transferQuestionIds: [
+    '4287173a-9ec0-4d43-b9db-43da2230e5b3',  // gradient from two points (d3, multi-part)
     'f6ac7079-92b4-4912-a1e7-66d3e6bbf871',  // rearrange to find the gradient (d4)
-    'a0b123af-b920-42ac-8383-69cb7cda4759',  // perpendicular through a point (d4)
   ],
 }
