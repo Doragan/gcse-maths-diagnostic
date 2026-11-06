@@ -334,6 +334,7 @@ function stageMeasure(p: Params): Stage {
         grid: straightLineGrid({ ...axes, ghosts: [], live: [m, 0] }),
         offLine: 'That point is not on the line. Tap a corner of the grid that the line passes '
           + 'exactly through.',
+        maxPoints: 4,
       },
       prompt: 'Now choose two points on the line yourself, and work out the gradient between '
         + 'them. Then pick a third, and measure again.',
