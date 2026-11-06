@@ -195,12 +195,12 @@ export type Stage = {
   /** Shown with `because`. Optional. */
   naming?: Naming
   /**
-   * Applied questions closing the section, shown AFTER `naming` so they can
-   * use the word it introduces — which is how the vocabulary gets exercised
-   * rather than merely read.
+   * Applied questions closing the section, shown AFTER `naming` so the
+   * student meets the word before being asked to use it.
    *
-   * Answering one wrong never blocks the section: the student sees why, and
-   * may take another variant if they want one.
+   * Answering one wrong never blocks the section: the student sees the
+   * authored trap's explanation, and may take the same question on fresh
+   * numbers.
    */
   check?: readonly Check[]
   /**
@@ -259,42 +259,23 @@ export type ResolvedInvestigation = {
 // clicked the right words" into "they can use it", and it gives per-section
 // measurement, which the end-of-investigation transfer question cannot.
 //
-// Deliberately asks the student to APPLY the rule rather than restate it:
-// stage 1 concludes that c is where the line crosses, so its check asks where
-// a line they have not seen crosses, not what c tells you.
+// These are QUESTIONS FROM THE BANK, not questions authored here. An earlier
+// version wrote its own, which duplicated content the bank already had and
+// threw away everything that makes a bank question good: drawn parameters, the
+// verification harness, and the authored traps that name WHY a particular
+// wrong answer is wrong and carry the misconception id feeding the teacher's
+// Common mistakes surface. Where no suitable question exists, the fix is to
+// author one into the bank — where every other surface can use it too — rather
+// than to write a private one here.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** How a check question is answered, and therefore how it is marked. */
-export type CheckAnswer =
-  /**
-   * A typed value, marked by `checkAnswer` — the grader the rest of the app
-   * uses — so a check answer is held to the same standard as a real question's.
-   */
-  | { kind: 'numeric'; value: string; tolerance?: number | null; prefix?: string }
-  | { kind: 'choice'; options: readonly string[]; correct: number }
-  | { kind: 'grid'; grid: RenderedGrid; expect: readonly GridPoint[] }
-
-export type CheckVariant = {
-  ask: string
-  /** A diagram to read the answer off, where the question needs one. */
-  figure?: RenderedGrid
-  answer: CheckAnswer
-  /** Shown when right. Says why, briefly — a tick on its own teaches nothing. */
-  right: string
-  /** Shown when wrong. Points at the rule they just stated; never scolds. */
-  wrong: string
-}
-
-/**
- * One check question, in as many variants as it has.
- *
- * A generator rather than a fixed question, because a student who gets it
- * wrong is offered another go — and the same question again would test
- * whether they remember the answer rather than whether they have the idea.
- * Finite and indexed so the harness can walk every variant a student could
- * ever be shown.
- */
 export type Check = {
-  variants: number
-  build: (variant: number) => CheckVariant
+  /** A PUBLISHED question id. A check that cannot load is simply not shown. */
+  questionId: string
+  /**
+   * Why this question closes this section. Author-facing only: it is the note
+   * that stops someone swapping in a question about the wrong half of the
+   * skill, which is easy to do when one skill covers gradient AND intercept.
+   */
+  because: string
 }
