@@ -212,7 +212,9 @@ export function riseRunGrid(opts: {
 
   const rise = y1 - y0
   const labels = opts.label === false ? undefined : [
-    { x: from + run / 2, y: y0, text: `across ${fmt(run)}`, dy: 16 },
+    // Above the horizontal leg, inside the triangle: below it the label
+    // lands on the axis tick numerals and the two sets of numbers collide.
+    { x: from + run / 2, y: y0, text: `across ${fmt(run)}`, dy: rise >= 0 ? -8 : 18 },
     { x: x1, y: (y0 + y1) / 2, text: `${rise >= 0 ? 'up' : 'down'} ${fmt(Math.abs(rise))}`, dx: 34 },
   ]
 
