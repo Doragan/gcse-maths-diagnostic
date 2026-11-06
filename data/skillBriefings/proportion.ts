@@ -32,7 +32,7 @@ export const proportionBriefing: SkillBriefing = {
     },
     {
       text: 'A unit on the answer line is the single strongest tell.',
-      example: 'Answer ________ litres',
+      example: 'Answer ________ litres   ·   Give your answer in litres.',
     },
   ],
 

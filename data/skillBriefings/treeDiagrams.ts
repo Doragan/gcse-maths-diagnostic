@@ -92,6 +92,15 @@ export const treeDiagramsBriefing: SkillBriefing = {
       stem: 'The probability that it rains on any day is 0.3. Work out the probability that it rains '
         + 'on exactly one of the next two days.',
       isThisSkill: true,
+      // The contrast with the cue: nothing is removed between the days, so
+      // the second stage repeats the first instead of dropping.
+      figure: probabilityTree({
+        first: [{ label: 'Rain', prob: '0.3' }, { label: 'Dry', prob: '0.7' }],
+        second: ['0.3', '0.7', '0.3', '0.7'],
+        alt: 'A two-stage tree for rain on two days. Both stages read 0.3 for rain and 0.7 for '
+          + 'dry, because one day does not change the next. The two routes giving exactly one '
+          + 'rainy day are rain then dry, and dry then rain.',
+      }),
       worked: [
         'Two routes give exactly one rainy day: rain then dry, and dry then rain',
         'Each route: 0.3 × 0.7 = 0.21',
@@ -130,8 +139,8 @@ export const treeDiagramsBriefing: SkillBriefing = {
           example: 'First fork: 5/8 red, so 3/8 blue',
     },
     {
-      do: 'Decide whether the bag changes. Without replacement, the second set of branches has a '
-        + 'total one smaller.',
+      do: 'Decide whether the bag changes. Without replacement, the second set of branches is out '
+        + 'of one less.',
       because:
         'The second set of branches is the whole difficulty of these questions: one item has been '
         + 'removed, so the denominator drops.',
