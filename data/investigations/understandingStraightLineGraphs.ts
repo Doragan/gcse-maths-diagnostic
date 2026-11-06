@@ -64,16 +64,24 @@ function stageOne(p: Params): Stage {
       },
       // The same axes with the line they were predicting actually drawn on
       // them, so the answer is something they SEE rather than are told.
-      reveal: pointsGrid({
-        x: X,
-        y: Y1,
-        ghosts: [[1, 0], [1, c1]],
-        expect: [{ x: 0, y: c1 }],
-      }),
+      reveal: {
+        // The crossing point is LABELLED, not just coloured. The canvas draws
+        // the right answer in green at 55% opacity and the student's own point
+        // in blue, which asks them to tell two colours apart — no good to a
+        // colourblind student, and not much better for anyone on a phone in
+        // daylight. The label says which point is which in words.
+        ...pointsGrid({
+          x: X,
+          y: Y1,
+          ghosts: [[1, 0], [1, c1]],
+          expect: [{ x: 0, y: c1 }],
+        }),
+        labels: [{ x: 0, y: c1, text: `crosses at (0, ${fmt(c1)})`, dx: 62, dy: -8 }],
+      },
       right: `(0, ${c1}) is where it crosses — the + ${c1} lifted every point on the `
         + `line up by ${c1}.`,
-      wrong: `It crosses at (0, ${c1}). The ring on the graph is where it actually goes — `
-        + 'now draw some lines of your own and watch what c does.',
+      wrong: `It crosses at (0, ${c1}) — the labelled point on the graph. Now draw some `
+        + 'lines of your own and watch what c does.',
     },
     control: {
       name: 'c',
@@ -131,11 +139,13 @@ function stageOne(p: Params): Stage {
       because: 'At x = 0 every term with an x in it disappears, so whatever c is, that is the '
         + 'height where the line meets the y-axis. Change c and the line moves vertically; its '
         + 'steepness is untouched.',
+      algebra: 'y = mx + c → at x = 0: y = m × 0 + c = c',
     },
     naming: {
       term: 'the y-intercept',
-      means: 'the value of c — the height where the line crosses the y-axis. Every line '
-        + 'you drew had a different one.',
+      means: 'The y-intercept is where the line plotted crosses the y-axis (this is where '
+        + 'x = 0). In the equation y = mx + c, the y coordinate for this is given by the '
+        + 'letter c.',
       elsewhere: 'To intercept is to cut across something’s path and meet it: you '
         + 'intercept a pass, a message, a runner. The line is travelling, the y-axis is in its '
         + 'way, and the y-intercept is where they meet. From Latin inter, between, and capere, '
@@ -149,8 +159,10 @@ function stageOne(p: Params): Stage {
       },
       {
         questionId: Q_POINT_ON_LINE,
+        challenge: true,
         because: 'Substitution into the same equation — the rule applied somewhere other '
-          + 'than the y-axis, which is where it is easy to think c only matters at x = 0.',
+          + 'than the y-axis, which is where it is easy to think c only matters at x = 0. '
+          + 'Harder than the section needs, so it is flagged as a challenge.',
       },
     ],
   }
@@ -322,10 +334,10 @@ function stageThree(p: Params): Stage {
 
 export const understandingStraightLineGraphsInvestigation: Investigation = {
   skillId: 'understanding_straight_line_graphs',
-  title: 'What m and c do',
-  premise: 'A student can be shown y = mx + c and agree with all of it without holding what m '
-    + 'and c mean. The only way to hold it is to move one of them and watch, which is what the '
-    + 'classroom version of this lesson does.',
+  title: 'Understanding Straight Line Graphs',
+  outcomes: 'By the end of this you will be able to look at the equation of a straight line and '
+    + 'say where it crosses the y-axis and which way it slopes — and go the other way, from a '
+    + 'line drawn on a grid back to its equation.',
   parameters: {
     values: {
       // Stage 1's target: positive and at least 2, so the new line is clear of
@@ -343,7 +355,17 @@ export const understandingStraightLineGraphsInvestigation: Investigation = {
     valid: p => p.m3 !== p.c3,
   },
   build: p => [stageOne(p), stageTwo(p), stageThree(p)],
-  // Nothing authored yet: the page falls back to practice on the skill, which
-  // is honest while the bank has no verified question for this handoff.
-  transferQuestionIds: [],
+  /**
+   * The handover. These are the only questions here that count towards
+   * progress.
+   *
+   * Both are a step up from the checks, because the bank has nothing gentler
+   * left: of the seven published questions on this skill, the only two at d1
+   * and d2 are already used as section checks and everything else is d3 or d4.
+   * Closing that gap needs new questions authored into the bank.
+   */
+  transferQuestionIds: [
+    '4287173a-9ec0-4d43-b9db-43da2230e5b3',  // gradient from two points (d3)
+    'f6ac7079-92b4-4912-a1e7-66d3e6bbf871',  // rearrange to find the gradient (d4)
+  ],
 }

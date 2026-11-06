@@ -9,7 +9,7 @@ import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
   resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue,
-  sentenceState, stageComplete,
+  sentenceState, stageComplete, stepNumbers,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
 import type { GridPoint } from '../../../../lib/questions/gridDraw'
@@ -206,7 +206,7 @@ export default function InvestigatePage() {
         <header>
           <p style={styles.eyebrow}>Investigation · {skill.topic}</p>
           <h1 style={styles.title}>{resolved.title}</h1>
-          <p style={styles.lede}>{investigation.premise}</p>
+          <p style={styles.lede}>{investigation.outcomes}</p>
         </header>
 
         <nav style={styles.pips} aria-label="Progress">
@@ -229,6 +229,7 @@ export default function InvestigatePage() {
 
         {resolved.stages.map((stage, i) => {
           const st = states[i]
+          const step = stepNumbers(stage)
           const locked = i > 0 && !states[i - 1].done
           if (i !== onScreen) return null
           return (
@@ -243,7 +244,7 @@ export default function InvestigatePage() {
               ) : (
                 <>
                   {/* 1 · predict */}
-                  <p style={styles.phase}>1 · Predict</p>
+                  <p style={styles.phase}>{step.predict} · Predict</p>
                   <p style={styles.prompt}>{stage.predict.prompt}</p>
 
                   {stage.predict.on.kind === 'grid' && !st.predicted && (
@@ -336,7 +337,7 @@ export default function InvestigatePage() {
                   {/* 2 · change it */}
                   {st.predicted && stage.control && (
                     <>
-                      <p style={styles.phase}>2 · Draw your own</p>
+                      <p style={styles.phase}>{step.draw} · Draw your own</p>
                       <p style={styles.prompt}>{stage.control.prompt}</p>
                       <div style={styles.row}>
                         <label htmlFor={`v-${i}`} style={styles.varLabel}>
@@ -453,7 +454,7 @@ export default function InvestigatePage() {
                     const state = sentenceState(stage, st.slots)
                     return (
                       <>
-                        <p style={styles.phase}>3 · So what is the rule?</p>
+                        <p style={styles.phase}>{step.rule} · So what is the rule?</p>
                         <p style={styles.sentence}>
                           {stage.conclude.sentence.map((chunk, k) => (
                             <span key={k}>
@@ -505,11 +506,16 @@ export default function InvestigatePage() {
                             }}>
                               <strong>That is it. </strong>{stage.conclude.because}
                             </p>
+                            {stage.conclude.algebra && (
+                              <p style={styles.algebra}>{stage.conclude.algebra}</p>
+                            )}
 
                             {stage.naming && (
                               <div style={styles.naming}>
-                                <p style={styles.namingLabel}>The word for it</p>
-                                <p style={styles.namingTerm}>{stage.naming.term}</p>
+                                <p style={styles.namingTerm}>
+                                  <span style={styles.namingLabel}>Definition:</span>
+                                  {stage.naming.term}
+                                </p>
                                 <p style={styles.namingMeans}>{stage.naming.means}</p>
                                 <p style={styles.namingElse}>{stage.naming.elsewhere}</p>
                                 <p style={styles.namingPaper}>
@@ -531,9 +537,14 @@ export default function InvestigatePage() {
                                 explanation rather than a restatement. */}
                             {(stage.check ?? []).length > 0 && (
                               <>
-                                <p style={styles.phase}>4 · Check you have it</p>
+                                <p style={styles.phase}>{step.check} · Check you have it</p>
                                 {(stage.check ?? []).map((check, c) => (
                                   <div key={check.questionId} style={styles.check}>
+                                    {check.challenge && (
+                                      <p style={styles.challenge}>
+                                        Challenge — harder than this section needs
+                                      </p>
+                                    )}
                                     <BankQuestion
                                       questionId={check.questionId}
                                       onAnswered={o => {
@@ -628,7 +639,7 @@ export default function InvestigatePage() {
                 style={{ ...secondaryButton, width: 'auto' }}
                 onClick={() => router.push(skillPath(resolved.skillId))}
               >
-                Read the briefing
+                How to prepare for this in an exam
               </button>
             </div>
           </section>
@@ -745,9 +756,32 @@ const styles: Record<string, React.CSSProperties> = {
   },
   namingLabel: {
     fontSize: font.sm, fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase',
-    color: colors.primary, margin: 0,
+    color: colors.primary, marginRight: '10px',
   },
-  namingTerm: { fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary },
+  namingTerm: {
+    fontSize: font.lg, fontWeight: '700', margin: 0, color: colors.textPrimary,
+    display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '2px',
+  },
+  // Monospace and indented: it is a line of working, and it reads as one.
+  algebra: {
+    margin: 0,
+    padding: '10px 14px',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    fontSize: font.base,
+    color: colors.textPrimary,
+    background: colors.cardAlt,
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    overflowX: 'auto',
+  },
+  challenge: {
+    margin: 0,
+    fontSize: font.sm,
+    fontWeight: '700',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: colors.warningText,
+  },
   namingMeans: { fontSize: font.base, fontWeight: '600', margin: 0, color: colors.textPrimary },
   namingElse: { fontSize: font.base, margin: 0, color: colors.textSecondary, lineHeight: 1.55 },
   namingPaper: {

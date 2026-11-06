@@ -191,6 +191,14 @@ export type Stage = {
     slots: readonly Slot[]
     /** Why — shown once every slot is right. */
     because: string
+    /**
+     * The same reason in algebra, on its own line under `because`.
+     *
+     * The words carry the idea and the line carries the proof; a student who
+     * has the first still has to meet the second, because the exam is written
+     * in it.
+     */
+    algebra?: string
   }
   /** Shown with `because`. Optional. */
   naming?: Naming
@@ -218,8 +226,15 @@ export type Investigation = {
   /** Must exist in data/skills.ts. */
   skillId: string
   title: string
-  /** Author-facing: why this concept needs varying rather than telling. */
-  premise: string
+  /**
+   * What the student will be able to do by the end, said TO them.
+   *
+   * Shown under the title, so it is the second thing they read. It was once a
+   * note to the author about why the concept needs varying rather than
+   * telling — which meant the page opened by talking about "the student" to
+   * the student.
+   */
+  outcomes: string
   parameters: ParameterSpec
   /** The stages for one draw. Called once per visit. */
   build: (p: Params) => readonly Stage[]
@@ -272,6 +287,13 @@ export type ResolvedInvestigation = {
 export type Check = {
   /** A PUBLISHED question id. A check that cannot load is simply not shown. */
   questionId: string
+  /**
+   * Harder than the section needs, and labelled as such.
+   *
+   * A student who cannot do it has still understood the section; saying so on
+   * the question is what stops it reading as a failure.
+   */
+  challenge?: boolean
   /**
    * Why this question closes this section. Author-facing only: it is the note
    * that stops someone swapping in a question about the wrong half of the

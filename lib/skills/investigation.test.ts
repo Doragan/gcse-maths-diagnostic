@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   allDraws, drawParams, resolveInvestigation, predictionCorrect, concludeGate,
-  rejectValue, addValue, sentenceState, checksAttempted, stageComplete,
+  rejectValue, addValue, sentenceState, checksAttempted, stageComplete, stepNumbers,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
 import { investigations, getInvestigation, hasInvestigation } from '../../data/investigations'
@@ -538,5 +538,90 @@ describe('moving through a section', () => {
 
   it('treats a stage with no checks as having nothing outstanding', () => {
     expect(checksAttempted({ check: undefined } as unknown as Stage, {})).toBe(true)
+  })
+})
+
+describe('step numbering', () => {
+  const inv = () => investigations['understanding_straight_line_graphs']
+  const stages = () => inv().build(allDraws(inv().parameters)[0])
+
+  it('numbers a full stage 1 to 4', () => {
+    expect(stepNumbers(stages()[0])).toEqual({ predict: 1, draw: 2, rule: 3, check: 4 })
+  })
+
+  it('leaves no gap on a stage with nothing to vary', () => {
+    // The reported bug: stage 3 varies nothing, and with the numbers
+    // hard-coded it ran 1, 3, 4 — which reads as a step that failed to load.
+    const last = stages()[stages().length - 1]
+    expect(last.control, 'this stage was expected to have no control').toBeUndefined()
+    expect(stepNumbers(last)).toEqual({ predict: 1, draw: 0, rule: 2, check: 3 })
+  })
+
+  it('never skips a number on any stage of any draw', () => {
+    for (const i of every()) {
+      for (const p of allDraws(i.parameters)) {
+        i.build(p).forEach((stage, n) => {
+          const used = Object.values(stepNumbers(stage)).filter(v => v > 0).sort()
+          const expected = used.map((_, k) => k + 1)
+          expect(used, `${i.skillId} stage ${n + 1} numbers ${used.join(',')}`).toEqual(expected)
+        })
+      }
+    }
+  })
+})
+
+describe('the handover', () => {
+  it('names real questions rather than falling back to generic practice', () => {
+    // An empty list sent the closing button to /practice, which for a signed
+    // out or unpaid student is the generic screen rather than a question.
+    for (const inv of every()) {
+      expect(inv.transferQuestionIds.length, `${inv.skillId} hands over to nothing`)
+        .toBeGreaterThan(0)
+      for (const id of inv.transferQuestionIds) {
+        expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+      }
+    }
+  })
+})
+
+describe('student-facing copy', () => {
+  it('states outcomes to the student, not notes about them', () => {
+    for (const inv of every()) {
+      expect(inv.outcomes, `${inv.skillId} talks about "the student"`)
+        .not.toMatch(/\bthe student\b/i)
+      expect(inv.outcomes.length).toBeGreaterThan(40)
+    }
+  })
+
+  it('never tells a student to look for a colour', () => {
+    // The reveal marks the right answer with a LABEL. Colour alone is no use
+    // to a colourblind student, and little better for anyone on a phone.
+    const colours = /\b(green|blue|red|yellow|orange|purple)\b/i
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          for (const [field, text] of Object.entries({
+            right: stage.predict.right,
+            wrong: stage.predict.wrong,
+            because: stage.conclude.because,
+          })) {
+            expect(text, `${inv.skillId} stage ${i + 1} ${field} names a colour`)
+              .not.toMatch(colours)
+          }
+        })
+      }
+    }
+  })
+
+  it('labels the reveal so the answer can be read without colour', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        for (const stage of inv.build(p)) {
+          if (stage.predict.on.kind !== 'grid' || !stage.predict.reveal) continue
+          expect(stage.predict.reveal.labels?.length, `${inv.skillId} reveal has no label`)
+            .toBeGreaterThan(0)
+        }
+      }
+    }
   })
 })
