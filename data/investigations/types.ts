@@ -77,6 +77,8 @@ export type PickOnLine = {
   grid: RenderedGrid
   /** Said when a tap misses the line. */
   offLine: string
+  /** How many points may be on the grid at once. */
+  maxPoints: number
 }
 
 export type Control = {

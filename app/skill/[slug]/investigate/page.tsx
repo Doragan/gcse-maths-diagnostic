@@ -242,18 +242,33 @@ export default function InvestigatePage() {
         </header>
 
         <nav style={styles.pips} aria-label="Progress">
-          {resolved.stages.map((_, i) => (
-            <span
-              key={i}
-              style={{
-                ...styles.pip,
-                ...(i === onScreen ? styles.pipNow : {}),
-                ...(states[i]?.done ? styles.pipDone : {}),
-              }}
-            >
-              {i + 1}
-            </span>
-          ))}
+          {resolved.stages.map((_, i) => {
+            // Reachable on exactly the rule that "Next section" uses, so the
+            // pips cannot become a way round a check. Going BACK is what this
+            // is for: a student on section 3 who wants to re-read what c did
+            // had only a Back button at the foot of a long section.
+            const prev = states[i - 1]
+            const reachable = i === 0 || (!!prev
+              && stageComplete(resolved.stages[i - 1], prev.done, answeredMap(prev)))
+            return (
+              <button
+                key={i}
+                disabled={!reachable}
+                onClick={() => { setCurrent(i); window.scrollTo({ top: 0 }) }}
+                aria-current={i === onScreen ? 'step' : undefined}
+                aria-label={`Section ${i + 1}${states[i]?.done ? ', done' : ''}`}
+                style={{
+                  ...styles.pip,
+                  ...(i === onScreen ? styles.pipNow : {}),
+                  ...(states[i]?.done ? styles.pipDone : {}),
+                  cursor: reachable ? 'pointer' : 'not-allowed',
+                  opacity: reachable ? 1 : 0.5,
+                }}
+              >
+                {i + 1}
+              </button>
+            )
+          })}
           <span style={styles.pipCount}>
             Section {onScreen + 1} of {resolved.stages.length}
           </span>
@@ -375,11 +390,12 @@ export default function InvestigatePage() {
                       {stage.control.pick && (
                         <>
                           <p style={styles.hint}>{stage.control.hint}</p>
-                          {st.entryError && <p style={styles.error}>{st.entryError}</p>}
+                          {st.entryError && <p role="alert" style={styles.error}>{st.entryError}</p>}
                           <figure style={styles.figure}>
                             <GridCanvas
                               grid={stage.control.pick.grid}
                               value={st.pickedPoints}
+                              maxPoints={stage.control.pick.maxPoints}
                               onChange={pts => pickPoints(i, stage, pts)}
                             />
                           </figure>
@@ -597,7 +613,13 @@ export default function InvestigatePage() {
                                 explanation rather than a restatement. */}
                             {(stage.check ?? []).length > 0 && (
                               <>
-                                <p style={styles.phase}>{step.check} · Check you have it</p>
+                                {/* A section whose only check is a challenge
+                                    gets no heading: "Check you have it" over
+                                    nothing but an optional harder question
+                                    reads as a question that failed to load. */}
+                                {(stage.check ?? []).some(c => !c.challenge) && (
+                                  <p style={styles.phase}>{step.check} · Check you have it</p>
+                                )}
                                 {(stage.check ?? []).map((check, c) => (
                                   <div key={check.questionId} style={styles.check}>
                                     {check.challenge && (
@@ -653,7 +675,7 @@ export default function InvestigatePage() {
                         opacity: ready ? 1 : 0.45,
                         cursor: ready ? 'pointer' : 'not-allowed',
                       }}
-                      title={ready ? undefined : 'Finish the rule and both checks first'}
+                      title={ready ? undefined : 'Finish the rule and have a go at the check first'}
                       disabled={!ready}
                       onClick={() => {
                         setCurrent(onScreen + 1)

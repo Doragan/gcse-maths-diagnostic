@@ -532,11 +532,32 @@ describe('moving through a section', () => {
     .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[0]
 
   it('is not finished until the rule is right AND every check has had a go', () => {
+    const required = { check: [{ questionId: 'a', because: 'x' }, { questionId: 'b', because: 'y' }] } as unknown as Stage
+    expect(stageComplete(required, false, { 0: true, 1: true })).toBe(false)
+    expect(stageComplete(required, true, {})).toBe(false)
+    expect(stageComplete(required, true, { 0: true })).toBe(false)
+    expect(stageComplete(required, true, { 0: true, 1: true })).toBe(true)
+  })
+
+  it('never makes a challenge a hurdle', () => {
+    // It is labelled "harder than this section needs", so holding the section
+    // shut until it is answered contradicts what the student is reading.
+    const withChallenge = {
+      check: [
+        { questionId: 'a', because: 'x' },
+        { questionId: 'b', because: 'y', challenge: true },
+      ],
+    } as unknown as Stage
+    expect(stageComplete(withChallenge, true, { 0: true })).toBe(true)
+    // and the ordinary one is still required
+    expect(stageComplete(withChallenge, true, { 1: true })).toBe(false)
+  })
+
+  it('lets the pilot past a section whose only outstanding check is a challenge', () => {
     const s = stage()
-    expect(stageComplete(s, false, { 0: true, 1: true })).toBe(false)
-    expect(stageComplete(s, true, {})).toBe(false)
-    expect(stageComplete(s, true, { 0: true })).toBe(false)
-    expect(stageComplete(s, true, { 0: true, 1: true })).toBe(true)
+    const ordinary = (s.check ?? []).findIndex(c => !c.challenge)
+    expect(ordinary, 'this stage has no ordinary check').toBeGreaterThanOrEqual(0)
+    expect(stageComplete(s, true, { [ordinary]: true })).toBe(true)
   })
 
   it('counts a WRONG check as having had a go', () => {

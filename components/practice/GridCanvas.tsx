@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { colors, font, radius, secondaryButton, errorBox } from '../../lib/styles'
 import { gridGeometry, buildGridFrame, buildPointsLayer, buildSolutionLayer, buildLabelsLayer, toGhostPoint, CELL, PAD } from '../../lib/questions/gridSvg'
 import type { RenderedGrid, GridPoint } from '../../lib/questions/gridDraw'
@@ -27,9 +27,22 @@ type Props = {
   showCanonical?: boolean
   // Review: colour the i-th student point by verdict (aligned to value order).
   perElement?: boolean[]
+  /**
+   * How many points may be placed, when that is not the number of canonical
+   * elements.
+   *
+   * A grid_draw part is marked against a canonical answer, so the answer's
+   * length is the natural cap. A canvas used to COLLECT points — pick two on
+   * this line and measure between them — has no canonical answer at all, and
+   * with the cap read off an empty elements array it silently accepted
+   * nothing: "0 of 0 points placed", every tap ignored.
+   */
+  maxPoints?: number
 }
 
-export default function GridCanvas({ grid, value, onChange, readOnly, showCanonical, perElement }: Props) {
+export default function GridCanvas({
+  grid, value, onChange, readOnly, showCanonical, perElement, maxPoints: maxPointsProp,
+}: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null)
   // Where a pointer went down, so we can tell a tap (place a point) from a
   // drag (the browser scrolling the page) — see handlePointerUp.
@@ -45,6 +58,32 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
   // never be submitted or marked.
   const [pending, setPending] = useState<GridPoint | null>(null)
   const [announce, setAnnounce] = useState('')
+  // The canvas is CONTROLLED, so a tap is only a request: a parent may refuse
+  // it (a point that is not on the line). Announcing at tap time told a screen
+  // reader "Point placed" for a point that was then dropped, so the
+  // announcement waits for the value that actually came back.
+  const asked = useRef<{ p: GridPoint; adding: boolean } | null>(null)
+  const settled = useRef(value)
+
+  // Say what the value DID, once it has come back.
+  useEffect(() => {
+    const act = asked.current
+    const before = settled.current
+    asked.current = null
+    settled.current = value
+    if (!act) return
+    const has = (list: readonly GridPoint[]) => list.some(v => v.x === act.p.x && v.y === act.p.y)
+    const isCells = grid.mode === 'cells'
+    const at = `(${act.p.x}, ${act.p.y})`
+    if (act.adding && has(value) && !has(before)) {
+      setAnnounce(isCells ? `Square shaded at ${at}` : `Point placed at ${at}`)
+    } else if (!act.adding && !has(value) && has(before)) {
+      setAnnounce(isCells ? `Square unshaded at ${at}` : `Point removed at ${at}`)
+    }
+    // Refused: the parent owns the reason, and says it in its own alert.
+    // Only a new `value` can settle a tap; grid.mode is here for the linter
+    // and re-runs harmlessly, since there is no pending tap to report.
+  }, [value, grid.mode])
 
   // A number line is deliberately 1-D, so its y axis collapses to a point —
   // demanding y.max > y.min would send every number line to the error box.
@@ -69,18 +108,18 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     return <div style={errorBox}>This diagram could not be drawn.</div>
   }
 
-  const maxPoints = grid.elements.length
+  const maxPoints = maxPointsProp ?? grid.elements.length
 
   function togglePoint(p: GridPoint) {
     if (readOnly || !onChange) return
     const isCells = grid.mode === 'cells'
     const at = value.findIndex(v => v.x === p.x && v.y === p.y)
     if (at >= 0) {
+      asked.current = { p, adding: false }
       onChange(value.filter((_, i) => i !== at))
-      setAnnounce(isCells ? `Square unshaded at (${p.x}, ${p.y})` : `Point removed at (${p.x}, ${p.y})`)
     } else if (value.length < maxPoints) {
+      asked.current = { p, adding: true }
       onChange([...value, p])
-      setAnnounce(isCells ? `Square shaded at (${p.x}, ${p.y})` : `Point placed at (${p.x}, ${p.y})`)
     } else {
       setAnnounce(isCells
         ? `All ${maxPoints} squares are shaded — unshade one first`

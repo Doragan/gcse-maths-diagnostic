@@ -153,7 +153,10 @@ export function checksAttempted(
   answered: Readonly<Record<number, boolean>>,
 ): boolean {
   const checks = stage.check ?? []
-  return checks.every((_, i) => answered[i] === true)
+  // A CHALLENGE never holds anyone up. It is flagged as harder than the
+  // section needs precisely so that not doing it is a fair outcome, and
+  // requiring it anyway contradicts the label the student is reading.
+  return checks.every((c, i) => c.challenge === true || answered[i] === true)
 }
 
 /**
