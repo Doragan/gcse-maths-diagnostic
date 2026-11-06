@@ -170,3 +170,23 @@ export function stageComplete(
 ): boolean {
   return ruleCorrect && checksAttempted(stage, answered)
 }
+
+/**
+ * The step numbers a stage actually has.
+ *
+ * Numbered from what is PRESENT rather than from a fixed list. A stage with
+ * nothing to vary has no "draw your own" step, and with the numbers hard-coded
+ * that stage ran 1, 3, 4 — which reads as a step that failed to load rather
+ * than one that does not exist. 0 means the step is absent.
+ */
+export function stepNumbers(stage: Stage): {
+  predict: number; draw: number; rule: number; check: number
+} {
+  let n = 0
+  return {
+    predict: ++n,
+    draw: stage.control ? ++n : 0,
+    rule: ++n,
+    check: (stage.check ?? []).length ? ++n : 0,
+  }
+}
