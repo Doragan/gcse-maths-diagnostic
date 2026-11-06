@@ -195,6 +195,15 @@ export type Stage = {
   /** Shown with `because`. Optional. */
   naming?: Naming
   /**
+   * Applied questions closing the section, shown AFTER `naming` so they can
+   * use the word it introduces — which is how the vocabulary gets exercised
+   * rather than merely read.
+   *
+   * Answering one wrong never blocks the section: the student sees why, and
+   * may take another variant if they want one.
+   */
+  check?: readonly Check[]
+  /**
    * Something true that the slots had to flatten in order to have one answer.
    *
    * Shown with `because`, asked about never. Stage 1's is that moving a line
@@ -239,4 +248,53 @@ export type ResolvedInvestigation = {
   params: Params
   stages: readonly Stage[]
   transferQuestionIds: readonly string[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The check at the end of a section.
+//
+// The conclusion sentence teaches, but it is weak evidence: two slots of two
+// options means a student guessing blind states the whole rule correctly one
+// time in four. A couple of applied questions afterwards is what turns "they
+// clicked the right words" into "they can use it", and it gives per-section
+// measurement, which the end-of-investigation transfer question cannot.
+//
+// Deliberately asks the student to APPLY the rule rather than restate it:
+// stage 1 concludes that c is where the line crosses, so its check asks where
+// a line they have not seen crosses, not what c tells you.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** How a check question is answered, and therefore how it is marked. */
+export type CheckAnswer =
+  /**
+   * A typed value, marked by `checkAnswer` — the grader the rest of the app
+   * uses — so a check answer is held to the same standard as a real question's.
+   */
+  | { kind: 'numeric'; value: string; tolerance?: number | null; prefix?: string }
+  | { kind: 'choice'; options: readonly string[]; correct: number }
+  | { kind: 'grid'; grid: RenderedGrid; expect: readonly GridPoint[] }
+
+export type CheckVariant = {
+  ask: string
+  /** A diagram to read the answer off, where the question needs one. */
+  figure?: RenderedGrid
+  answer: CheckAnswer
+  /** Shown when right. Says why, briefly — a tick on its own teaches nothing. */
+  right: string
+  /** Shown when wrong. Points at the rule they just stated; never scolds. */
+  wrong: string
+}
+
+/**
+ * One check question, in as many variants as it has.
+ *
+ * A generator rather than a fixed question, because a student who gets it
+ * wrong is offered another go — and the same question again would test
+ * whether they remember the answer rather than whether they have the idea.
+ * Finite and indexed so the harness can walk every variant a student could
+ * ever be shown.
+ */
+export type Check = {
+  variants: number
+  build: (variant: number) => CheckVariant
 }

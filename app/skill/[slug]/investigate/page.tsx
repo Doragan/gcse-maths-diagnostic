@@ -8,7 +8,7 @@ import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
   resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue,
-  sentenceState,
+  sentenceState, markCheck, nextVariant, stageComplete,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
 import type { GridPoint } from '../../../../lib/questions/gridDraw'
@@ -37,6 +37,7 @@ type StageState = {
   entryError: string
   typed: string
   slots: Record<number, number>
+  checks: Record<number, CheckState>
   done: boolean
 }
 
@@ -50,8 +51,26 @@ const blankStage = (): StageState => ({
   entryError: '',
   typed: '',
   slots: {},
+  checks: {},
   done: false,
 })
+
+/** One check question's state: which variant, what was put in, how it went. */
+type CheckState = {
+  variant: number
+  typed: string
+  picked: number | null
+  placed: GridPoint[]
+  answered: boolean
+  correct: boolean
+}
+
+/** Which of a stage's checks have been attempted, in the shape stageComplete wants. */
+const answeredMap = (st: StageState): Record<number, boolean> =>
+  Object.fromEntries(Object.entries(st.checks).map(([k, v]) => [Number(k), v.answered]))
+
+const blankCheck = (variant = 0): CheckState =>
+  ({ variant, typed: '', picked: null, placed: [], answered: false, correct: false })
 
 export default function InvestigatePage() {
   const router = useRouter()
@@ -73,6 +92,8 @@ export default function InvestigatePage() {
    */
   const [resolved, setResolved] = useState<ResolvedInvestigation | null>(null)
   const [states, setStates] = useState<StageState[]>([])
+  /** Which section is on screen. */
+  const [current, setCurrent] = useState(0)
 
   useEffect(() => {
     if (!investigation) return
@@ -169,7 +190,48 @@ export default function InvestigatePage() {
     })
   }
 
+  function checkState(i: number, c: number): CheckState {
+    return states[i].checks[c] ?? blankCheck()
+  }
+
+  function updateCheck(i: number, c: number, patch: Partial<CheckState>) {
+    setStates(prev => prev.map((st, k) => (k === i
+      ? { ...st, checks: { ...st.checks, [c]: { ...(st.checks[c] ?? blankCheck()), ...patch } } }
+      : st)))
+  }
+
+  function submitCheck(i: number, stage: Stage, c: number) {
+    const cs = checkState(i, c)
+    if (cs.answered) return
+    const variant = stage.check![c].build(cs.variant)
+    const right = markCheck(variant, cs, stage.axes)
+    updateCheck(i, c, { answered: true, correct: right })
+    trackEvent('investigation_check', {
+      skill: resolved!.skillId,
+      stage: i + 1,
+      check: c + 1,
+      variant: cs.variant,
+      kind: variant.answer.kind,
+      correct: right,
+    })
+  }
+
+  /** A different question, not a second go at the same one. */
+  function anotherVariant(i: number, stage: Stage, c: number) {
+    const cs = checkState(i, c)
+    updateCheck(i, c, blankCheck(nextVariant(cs.variant, stage.check![c].variants)))
+    trackEvent('investigation_check_retry', {
+      skill: resolved!.skillId, stage: i + 1, check: c + 1,
+    })
+  }
+
   const allDone = states.length > 0 && states[states.length - 1].done
+
+  // One section at a time. A "page" the student moves through rather than a
+  // Next route: every number in the investigation is drawn once per visit, and
+  // a route change would re-mount and re-draw them, so stage 2 would quietly
+  // be about a different line from stage 1.
+  const onScreen = Math.min(current, resolved.stages.length - 1)
 
   return (
     <main style={styles.page}>
@@ -187,9 +249,28 @@ export default function InvestigatePage() {
           <p style={styles.lede}>{investigation.premise}</p>
         </header>
 
+        <nav style={styles.pips} aria-label="Progress">
+          {resolved.stages.map((_, i) => (
+            <span
+              key={i}
+              style={{
+                ...styles.pip,
+                ...(i === onScreen ? styles.pipNow : {}),
+                ...(states[i]?.done ? styles.pipDone : {}),
+              }}
+            >
+              {i + 1}
+            </span>
+          ))}
+          <span style={styles.pipCount}>
+            Section {onScreen + 1} of {resolved.stages.length}
+          </span>
+        </nav>
+
         {resolved.stages.map((stage, i) => {
           const st = states[i]
           const locked = i > 0 && !states[i - 1].done
+          if (i !== onScreen) return null
           return (
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
               <p style={styles.stageN}>Stage {i + 1}</p>
@@ -477,12 +558,161 @@ export default function InvestigatePage() {
                                 <p style={styles.asideBody}>{stage.aside.body}</p>
                               </div>
                             )}
+
+                            {/* 4 · the check. After naming, so a question may
+                                use the word it just introduced. */}
+                            {(stage.check ?? []).length > 0 && (
+                              <>
+                                <p style={styles.phase}>4 · Check you have it</p>
+                                {(stage.check ?? []).map((check, c) => {
+                                  const cs = checkState(i, c)
+                                  const variant = check.build(cs.variant)
+                                  const a = variant.answer
+                                  return (
+                                    <div key={c} style={styles.check}>
+                                      <p style={styles.checkAsk}>{variant.ask}</p>
+
+                                      {variant.figure && (
+                                        <figure style={styles.figure}>
+                                          <GridCanvas grid={variant.figure} value={[]} readOnly />
+                                        </figure>
+                                      )}
+
+                                      {a.kind === 'numeric' && (
+                                        <div style={styles.row}>
+                                          {a.prefix && (
+                                            <span style={styles.varLabel}>{a.prefix}</span>
+                                          )}
+                                          <input
+                                            type="text"
+                                            inputMode="text"
+                                            value={cs.typed}
+                                            disabled={cs.answered}
+                                            onChange={e => updateCheck(i, c, { typed: e.target.value })}
+                                            onKeyDown={e => {
+                                              if (e.key === 'Enter') {
+                                                e.preventDefault()
+                                                submitCheck(i, stage, c)
+                                              }
+                                            }}
+                                            style={styles.numberInput}
+                                            aria-label={variant.ask}
+                                          />
+                                        </div>
+                                      )}
+
+                                      {a.kind === 'choice' && (
+                                        <div style={styles.choices}>
+                                          {a.options.map((opt, k) => (
+                                            <button
+                                              key={k}
+                                              disabled={cs.answered}
+                                              onClick={() => updateCheck(i, c, { picked: k })}
+                                              style={{
+                                                ...styles.choice,
+                                                borderColor: cs.picked === k
+                                                  ? colors.primary : colors.border,
+                                                background: cs.picked === k
+                                                  ? colors.cardAlt : colors.card,
+                                              }}
+                                            >
+                                              {opt}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
+
+                                      {a.kind === 'grid' && (
+                                        <figure style={styles.figure}>
+                                          <GridCanvas
+                                            grid={a.grid}
+                                            value={cs.placed}
+                                            readOnly={cs.answered}
+                                            onChange={pts => updateCheck(i, c, { placed: pts })}
+                                          />
+                                        </figure>
+                                      )}
+
+                                      <div style={styles.row}>
+                                        {!cs.answered && (
+                                          <button
+                                            style={{ ...primaryButton, width: 'auto' }}
+                                            onClick={() => submitCheck(i, stage, c)}
+                                          >
+                                            Check
+                                          </button>
+                                        )}
+                                        {cs.answered && (
+                                          <button
+                                            style={{ ...secondaryButton, width: 'auto' }}
+                                            onClick={() => anotherVariant(i, stage, c)}
+                                          >
+                                            Try another
+                                          </button>
+                                        )}
+                                      </div>
+
+                                      {cs.answered && (
+                                        <p style={{
+                                          ...styles.verdict,
+                                          color: cs.correct
+                                            ? colors.successText : colors.warningText,
+                                          background: cs.correct
+                                            ? colors.successLight : colors.warningLight,
+                                          borderColor: cs.correct
+                                            ? colors.successBorder : colors.warningBorder,
+                                        }}>
+                                          <strong>{cs.correct ? '' : 'Not this time. '}</strong>
+                                          {cs.correct ? variant.right : variant.wrong}
+                                        </p>
+                                      )}
+                                    </div>
+                                  )
+                                })}
+                              </>
+                            )}
                           </>
                         )}
                       </>
                     )
                   })()}
                 </>
+              )}
+              {!locked && (
+                <div style={{ ...styles.row, justifyContent: 'space-between' }}>
+                  <button
+                    style={{ ...secondaryButton, width: 'auto', visibility: onScreen === 0 ? 'hidden' : 'visible' }}
+                    onClick={() => setCurrent(onScreen - 1)}
+                  >
+                    ← Back
+                  </button>
+                  {onScreen < resolved.stages.length - 1 && (() => {
+                    const ready = stageComplete(stage, st.done, answeredMap(st))
+                    return (
+                    <button
+                      // A disabled control that looks enabled reads as a
+                      // broken button, not as a step still to finish.
+                      style={{
+                        ...primaryButton,
+                        width: 'auto',
+                        opacity: ready ? 1 : 0.45,
+                        cursor: ready ? 'pointer' : 'not-allowed',
+                      }}
+                      title={ready ? undefined : 'Finish the rule and both checks first'}
+                      disabled={!ready}
+                      onClick={() => {
+                        setCurrent(onScreen + 1)
+                        window.scrollTo({ top: 0 })
+                        trackEvent('investigation_section_done', {
+                          skill: resolved.skillId, stage: i + 1,
+                        })
+                      }}
+                    >
+                      Next section →
+                    </button>
+                    )
+                  })()}
+                </div>
               )}
             </section>
           )
@@ -558,6 +788,20 @@ const styles: Record<string, React.CSSProperties> = {
   // ratio, so in a wide column a tall grid fills the screen and the student
   // scrolls past the question to reach it. Capped and centred instead.
   figure: { margin: 0, width: '100%', maxWidth: '420px', alignSelf: 'center' },
+  pips: { display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' },
+  pip: {
+    width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex',
+    alignItems: 'center', justifyContent: 'center', fontSize: font.sm, fontWeight: '700',
+    background: colors.card, border: `1px solid ${colors.border}`, color: colors.textHint,
+  },
+  pipNow: { borderColor: colors.primary, color: colors.primary, background: colors.cardAlt },
+  pipDone: { borderColor: colors.success, color: colors.successText, background: colors.successLight },
+  pipCount: { fontSize: font.sm, color: colors.textHint, marginLeft: '4px' },
+  check: {
+    border: `1px solid ${colors.border}`, borderRadius: radius.sm, padding: '14px 16px',
+    display: 'flex', flexDirection: 'column', gap: '10px',
+  },
+  checkAsk: { fontSize: font.base, fontWeight: '600', margin: 0, color: colors.textPrimary },
   varLabel: { fontSize: font.lg, fontWeight: '700', fontStyle: 'italic', color: colors.textPrimary },
   numberInput: {
     width: '5.5rem', padding: '8px 10px', fontSize: font.base, fontFamily: 'inherit',
