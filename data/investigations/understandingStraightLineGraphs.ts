@@ -1,4 +1,4 @@
-import type { Investigation, Params, Stage } from './types'
+import type { Check, Investigation, Params, Stage } from './types'
 import {
   straightLineGrid, pointsGrid, lineEquation, fmt,
 } from '../../lib/skills/investigationFigures'
@@ -27,6 +27,141 @@ const Y2 = { min: -6, max: 6, step: 1, label: 'y' }
 // Stage 3 shares the same square axes: a wider x makes the crossing point
 // easier to find, and the steep draws simply leave through the top.
 const X3 = { min: -6, max: 6, step: 1, label: 'x' }
+
+// ─── Section checks ──────────────────────────────────────────────────────────
+//
+// Two per stage, applying the rule rather than restating it, and each in
+// several variants so "try another" is a different question rather than a
+// second go at the same one.
+//
+// The read-it-off-the-diagram ones are the reason `numeric` exists: "what is
+// the value of c here" has one right answer, a box is how a student would
+// write it, and no list of options can be offered without giving it away.
+
+/** Values used by the read-off checks, kept inside the square axes. */
+const C_VALUES = [4, -3, 5, -2] as const
+const M_VALUES = [2, -2, 3, -3] as const
+
+function stageOneChecks(): Check[] {
+  return [
+    {
+      // Applying the rule to a line they have not drawn — no diagram, because
+      // the point is that they no longer need one.
+      variants: C_VALUES.length,
+      build: v => {
+        const c = C_VALUES[v] * 2        // beyond the axes on purpose: the
+        return {                          // rule does not stop at the picture
+          ask: `Without drawing it: where does ${lineEquation(1, c)} cross the y-axis? `
+            + 'Give the y-value.',
+          answer: { kind: 'numeric', value: String(c), prefix: '(0,' },
+          right: `Yes — ${fmt(c)}. You did not need the graph, because c IS the crossing point.`,
+          wrong: `It crosses at ${fmt(c)}. In y = x + c the number on the end is the height `
+            + 'where it meets the y-axis, whatever the rest of the equation does.',
+        }
+      },
+    },
+    {
+      // Read it off the diagram. Same question a paper asks.
+      variants: C_VALUES.length,
+      build: v => {
+        const c = C_VALUES[v]
+        return {
+          ask: 'What is the value of c for the line drawn here?',
+          figure: straightLineGrid({ x: X, y: Y1, ghosts: [], live: [1, c] }),
+          answer: { kind: 'numeric', value: String(c), prefix: 'c =' },
+          right: `Yes — c = ${fmt(c)}, read straight off where the line meets the y-axis.`,
+          wrong: `c = ${fmt(c)}. Follow the line to the y-axis and read the number there.`,
+        }
+      },
+    },
+  ]
+}
+
+function stageTwoChecks(): Check[] {
+  return [
+    {
+      // Uses the word `naming` has just introduced, which is how the
+      // vocabulary gets exercised rather than merely read.
+      variants: 3,
+      build: v => {
+        const sets = [
+          [['y = 2x', 2], ['y = 5x', 5], ['y = ½x', 0.5]],
+          [['y = 3x', 3], ['y = −4x', -4], ['y = x', 1]],
+          [['y = −2x', -2], ['y = 6x', 6], ['y = 0.5x', 0.5]],
+        ] as const
+        const set = sets[v]
+        const steepest = set.reduce((a, b) => (Math.abs(b[1]) > Math.abs(a[1]) ? b : a))
+        return {
+          ask: 'Which of these lines has the steepest gradient?',
+          answer: {
+            kind: 'choice',
+            options: set.map(s => s[0]),
+            correct: set.findIndex(s => s[0] === steepest[0]),
+          },
+          right: `Yes — ${steepest[0]} climbs ${Math.abs(steepest[1])} for every 1 across. `
+            + 'Steepness is about the SIZE of m; the sign only says which way.',
+          wrong: `${steepest[0]} is the steepest: it changes by ${Math.abs(steepest[1])} for `
+            + 'every 1 across. A minus sign makes a line fall, not flatten.',
+        }
+      },
+    },
+    {
+      variants: M_VALUES.length,
+      build: v => {
+        const m = M_VALUES[v]
+        return {
+          ask: 'What is the gradient of the line drawn here?',
+          figure: straightLineGrid({ x: X, y: Y2, ghosts: [], live: [m, 0] }),
+          answer: { kind: 'numeric', value: String(m), prefix: 'm =' },
+          right: `Yes — m = ${fmt(m)}. Go across 1 and the line `
+            + `${m > 0 ? 'climbs' : 'falls'} ${Math.abs(m)}.`,
+          wrong: `m = ${fmt(m)}. Pick a point where the line crosses a corner, go 1 to the `
+            + `right, and count how far it ${m > 0 ? 'rises' : 'falls'}.`,
+        }
+      },
+    },
+  ]
+}
+
+function stageThreeChecks(): Check[] {
+  return [
+    {
+      variants: M_VALUES.length,
+      build: v => {
+        const m = M_VALUES[v]
+        const c = C_VALUES[v]
+        return {
+          ask: 'Read the gradient of this line.',
+          figure: straightLineGrid({ x: X3, y: Y2, ghosts: [], live: [m, c] }),
+          answer: { kind: 'numeric', value: String(m), prefix: 'm =' },
+          right: `Yes — m = ${fmt(m)}. The ${fmt(c)} moves the line up or down and leaves `
+            + 'the steepness alone.',
+          wrong: `m = ${fmt(m)}. Count the climb for 1 across — ignore where it crosses, `
+            + 'that is c.',
+        }
+      },
+    },
+    {
+      // Same gradient, different intercept: the clearest test that they have
+      // the two apart. "Parallel" is avoided — the investigation never taught
+      // the word, and a check is not the place to meet one.
+      variants: M_VALUES.length,
+      build: v => {
+        const m = M_VALUES[v]
+        const c = C_VALUES[v]
+        const options = [lineEquation(m, c + 3), lineEquation(-m, c), lineEquation(m + 1, c)]
+        return {
+          ask: `Which of these has the same steepness as ${lineEquation(m, c)}?`,
+          answer: { kind: 'choice', options, correct: 0 },
+          right: `Yes — same m, so the same steepness. Only c changed, which slides it `
+            + 'up the axis.',
+          wrong: `${options[0]}. Steepness is m, so look only at the number in front of x `
+            + '— the other one moves the line without tilting it.',
+        }
+      },
+    },
+  ]
+}
 
 function stageOne(p: Params): Stage {
   const c1 = p.c1
@@ -121,6 +256,7 @@ function stageOne(p: Params): Stage {
         + 'to seize.',
       onThePaper: 'Write down the coordinates of the point where the line crosses the y-axis.',
     },
+    check: stageOneChecks(),
     aside: {
       head: 'One honest complication',
       body: 'Moving y = x up by 3 gives exactly the same line as sliding it 3 to the left — '
@@ -216,6 +352,7 @@ function stageTwo(p: Params): Stage {
       onThePaper: 'Write down the gradient of the line. / Find the gradient of the line joining '
         + 'A and B.',
     },
+    check: stageTwoChecks(),
   }
 }
 
@@ -281,6 +418,7 @@ function stageThree(p: Params): Stage {
       because: 'Every straight line is fixed by those two numbers — its y-intercept and its '
         + 'gradient. That is the whole of y = mx + c, and those are the words the exam uses.',
     },
+    check: stageThreeChecks(),
   }
 }
 

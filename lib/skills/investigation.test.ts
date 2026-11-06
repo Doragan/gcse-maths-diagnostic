@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   allDraws, drawParams, resolveInvestigation, predictionCorrect, concludeGate,
-  rejectValue, addValue, sentenceState,
+  rejectValue, addValue, sentenceState, markCheck, nextVariant, checksAttempted,
+  stageComplete,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
 import { investigations, getInvestigation, hasInvestigation } from '../../data/investigations'
@@ -459,5 +460,165 @@ describe('a grid prediction settles itself with a picture', () => {
         })
       }
     }
+  })
+})
+
+describe('section checks', () => {
+  const AXES = { x: { step: 1 }, y: { step: 1 } }
+
+  /** Every variant of every check on every stage of every legal draw. */
+  const allVariants = () => every().flatMap(inv =>
+    allDraws(inv.parameters).flatMap(p =>
+      inv.build(p).flatMap((stage, i) =>
+        (stage.check ?? []).flatMap((check, c) =>
+          Array.from({ length: check.variants }, (_, v) => ({
+            where: `${inv.skillId} stage ${i + 1} check ${c + 1} variant ${v + 1}`,
+            stage,
+            variant: check.build(v),
+          }))))))
+
+  it('closes every section with at least two questions', () => {
+    for (const inv of every()) {
+      inv.build(allDraws(inv.parameters)[0]).forEach((stage, i) => {
+        expect(stage.check?.length ?? 0, `${inv.skillId} stage ${i + 1}`)
+          .toBeGreaterThanOrEqual(2)
+      })
+    }
+  })
+
+  it('offers more than one variant, so "try another" is a different question', () => {
+    for (const inv of every()) {
+      inv.build(allDraws(inv.parameters)[0]).forEach((stage, i) => {
+        (stage.check ?? []).forEach((check, c) => {
+          expect(check.variants, `${inv.skillId} stage ${i + 1} check ${c + 1}`)
+            .toBeGreaterThan(1)
+        })
+      })
+    }
+  })
+
+  it('accepts its own answer, in every variant', () => {
+    // The check that would have caught a typo in any authored answer.
+    for (const { where, stage, variant } of allVariants()) {
+      const a = variant.answer
+      const response = a.kind === 'numeric' ? { typed: a.value }
+        : a.kind === 'choice' ? { picked: a.correct }
+        : { placed: a.expect }
+      expect(markCheck(variant, response, stage.axes), where).toBe(true)
+    }
+  })
+
+  it('rejects an empty answer rather than waving it through', () => {
+    for (const { where, stage, variant } of allVariants()) {
+      expect(markCheck(variant, { typed: '', picked: null, placed: [] }, stage.axes), where)
+        .toBe(false)
+    }
+  })
+
+  it('rejects a wrong answer, in every variant', () => {
+    for (const { where, stage, variant } of allVariants()) {
+      const a = variant.answer
+      if (a.kind === 'numeric') {
+        const wrong = String(Number(a.value) + 1)
+        expect(markCheck(variant, { typed: wrong }, stage.axes), `${where} accepted ${wrong}`)
+          .toBe(false)
+      } else if (a.kind === 'choice') {
+        const wrong = (a.correct + 1) % a.options.length
+        expect(markCheck(variant, { picked: wrong }, stage.axes), where).toBe(false)
+      }
+    }
+  })
+
+  it('accepts a minus sign typed the way a student types it', () => {
+    // The numeric path goes through checkAnswer precisely so "-4" and "−4"
+    // are both right, as they are everywhere else in the app.
+    for (const { where, stage, variant } of allVariants()) {
+      if (variant.answer.kind !== 'numeric') continue
+      const n = Number(variant.answer.value)
+      if (n >= 0) continue
+      expect(markCheck(variant, { typed: `−${Math.abs(n)}` }, stage.axes), where).toBe(true)
+      expect(markCheck(variant, { typed: `-${Math.abs(n)}` }, stage.axes), where).toBe(true)
+    }
+  })
+
+  it('never offers the same option twice in one choice', () => {
+    for (const { where, variant } of allVariants()) {
+      if (variant.answer.kind !== 'choice') continue
+      const opts = variant.answer.options
+      expect(new Set(opts).size, `${where}: ${opts.join(' | ')}`).toBe(opts.length)
+    }
+  })
+
+  it('points every choice at a real option', () => {
+    for (const { where, variant } of allVariants()) {
+      if (variant.answer.kind !== 'choice') continue
+      expect(variant.answer.correct, where).toBeGreaterThanOrEqual(0)
+      expect(variant.answer.correct).toBeLessThan(variant.answer.options.length)
+    }
+  })
+
+  it('says something useful either way', () => {
+    for (const { where, variant } of allVariants()) {
+      expect(variant.ask.length, `${where} asks nothing`).toBeGreaterThan(10)
+      expect(variant.right.length, `${where} has no right-response`).toBeGreaterThan(10)
+      expect(variant.wrong.length, `${where} has no wrong-response`).toBeGreaterThan(10)
+    }
+  })
+
+  it('draws a figure whenever the question says "here" or "this"', () => {
+    // "What is the value of c for the line drawn here?" with no line drawn is
+    // a question that cannot be answered.
+    for (const { where, variant } of allVariants()) {
+      if (!/\b(here|this line|drawn)\b/i.test(variant.ask)) continue
+      expect(variant.figure, `${where} refers to a figure it does not have`).toBeTruthy()
+      expect(variant.figure!.background, `${where} draws an empty figure`).toContain('<line')
+    }
+  })
+
+  it('keeps a read-off answer inside the axes it is drawn on', () => {
+    for (const { where, variant } of allVariants()) {
+      if (!variant.figure || variant.answer.kind !== 'numeric') continue
+      const n = Number(variant.answer.value)
+      if (!Number.isFinite(n)) continue
+      const f = variant.figure
+      // A gradient is a rate rather than a position, so only intercept-style
+      // answers are bounded by the y-axis; this checks the ones that are.
+      if (!/\bc\b/.test(variant.ask)) continue
+      expect(n, where).toBeGreaterThanOrEqual(f.y.min)
+      expect(n, where).toBeLessThanOrEqual(f.y.max)
+    }
+  })
+})
+
+describe('moving through a section', () => {
+  const stage = () => investigations['understanding_straight_line_graphs']
+    .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[0]
+
+  it('wraps round the variants rather than running out', () => {
+    expect(nextVariant(0, 4)).toBe(1)
+    expect(nextVariant(3, 4)).toBe(0)
+    expect(nextVariant(0, 1)).toBe(0)
+  })
+
+  it('survives a check with no variants rather than dividing by zero', () => {
+    expect(nextVariant(0, 0)).toBe(0)
+  })
+
+  it('is not finished until the rule is right AND every check has had a go', () => {
+    const s = stage()
+    expect(stageComplete(s, false, { 0: true, 1: true })).toBe(false)
+    expect(stageComplete(s, true, {})).toBe(false)
+    expect(stageComplete(s, true, { 0: true })).toBe(false)
+    expect(stageComplete(s, true, { 0: true, 1: true })).toBe(true)
+  })
+
+  it('counts a WRONG check as having had a go', () => {
+    // Getting one wrong must not trap a student on the page.
+    const s = stage()
+    expect(checksAttempted(s, { 0: true, 1: true })).toBe(true)
+  })
+
+  it('treats a stage with no checks as having nothing outstanding', () => {
+    expect(checksAttempted({ check: undefined } as unknown as Stage, {})).toBe(true)
   })
 })
