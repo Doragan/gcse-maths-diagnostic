@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { colors, font, radius, secondaryButton, errorBox } from '../../lib/styles'
-import { gridGeometry, buildGridFrame, buildPointsLayer, buildSolutionLayer, toGhostPoint, CELL, PAD } from '../../lib/questions/gridSvg'
+import { gridGeometry, buildGridFrame, buildPointsLayer, buildSolutionLayer, buildLabelsLayer, toGhostPoint, CELL, PAD } from '../../lib/questions/gridSvg'
 import type { RenderedGrid, GridPoint } from '../../lib/questions/gridDraw'
 
 /**
@@ -279,6 +279,11 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
     : ''
   // Method overlay (ray lines etc.) — revealed with the correct answer.
   const solution = showCanonical ? buildSolutionLayer(grid, geo) : ''
+  // Author labels. buildGridSvg has always drawn these, and this canvas never
+  // did — so a labelled diagram (a vertex name, a side length, a point called
+  // out on a line) kept its labels on paper and silently lost them on screen.
+  // Drawn LAST so a label sits over the shape it names.
+  const labels = buildLabelsLayer(grid, geo)
 
   // Student joins (polyline/line) rendered via the shared builder WITHOUT
   // markers — the point markers are JSX so review views can colour them per
@@ -369,6 +374,7 @@ export default function GridCanvas({ grid, value, onChange, readOnly, showCanoni
         {solution && <g dangerouslySetInnerHTML={{ __html: solution }} />}
         {ghost && <g dangerouslySetInnerHTML={{ __html: ghost }} />}
         {joins && <g dangerouslySetInnerHTML={{ __html: joins }} />}
+        {labels && <g dangerouslySetInnerHTML={{ __html: labels }} />}
         {/* bars and number_line draw their whole mark in `joins` above — a bar
             rect or a circle-plus-arrow has no separate marker to overlay. */}
         {grid.mode !== 'bars' && grid.mode !== 'bars_free' && grid.mode !== 'number_line' && value.map((p, i) => {
