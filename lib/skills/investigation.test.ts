@@ -369,7 +369,8 @@ describe('resolveInvestigation', () => {
   it('carries the drawn numbers into the stages it builds', () => {
     const inv = investigations['understanding_straight_line_graphs']
     const r = resolveInvestigation(inv, () => 0)
-    expect(r.stages).toHaveLength(3)
+    // what c does, which way m leans, measuring m, reading both back
+    expect(r.stages).toHaveLength(4)
     expect(r.stages[0].ask).toContain(String(r.params.c1))
   })
 })

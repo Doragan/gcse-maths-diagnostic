@@ -156,3 +156,75 @@ export function lineEquation(m: number, c: number): string {
 export function fmt(n: number): string {
   return String(n).replace('-', '−')
 }
+
+/** The right-angle tick and the two legs of a measuring triangle. */
+const LEG = 'stroke="currentColor" stroke-opacity="0.85" stroke-width="0.07" fill="none" '
+  + 'stroke-dasharray="0.3 0.2"'
+
+/**
+ * A line with a right-angled triangle on it, showing the run across and the
+ * rise up — how a gradient is actually measured.
+ *
+ * The triangle is what makes "m is a rate" visible rather than asserted. A
+ * student can read the two legs off the grid squares and divide, which is the
+ * method the exam expects, and varying the run while the quotient stays put is
+ * the whole argument that the gradient belongs to the LINE and not to the
+ * triangle you happened to draw on it.
+ *
+ * Legs are dashed so they read as measurement rather than as part of the
+ * figure; the line itself stays solid.
+ */
+export function riseRunGrid(opts: {
+  x: RenderedAxis
+  y: RenderedAxis
+  /** The line being measured. */
+  m: number
+  c: number
+  /** Where the triangle starts, on the line. */
+  from: number
+  /** How far across it goes. */
+  run: number
+  /** Label the legs. Needs GridCanvas to draw author labels. */
+  label?: boolean
+}): RenderedGrid {
+  const { x, y, m, c, from, run } = opts
+  const parts: string[] = []
+
+  const p0 = clipLine(m, c, x, y)
+  if (p0) parts.push(drawLine(p0, LIVE))
+
+  const y0 = m * from + c
+  const x1 = from + run
+  const y1 = m * x1 + c
+
+  // Across, then up (or down) to meet the line again.
+  parts.push(drawLine([[from, y0], [x1, y0]], LEG))
+  parts.push(drawLine([[x1, y0], [x1, y1]], LEG))
+
+  // The right angle, drawn a fifth of a square in from the corner so it reads
+  // at any grid size.
+  const t = 0.2
+  const up = y1 > y0 ? t : -t
+  parts.push(
+    `<path d="M ${x1 - t} ${y0} L ${x1 - t} ${y0 + up} L ${x1} ${y0 + up}" `
+    + 'stroke="currentColor" stroke-opacity="0.85" stroke-width="0.05" fill="none"/>',
+  )
+
+  const rise = y1 - y0
+  const labels = opts.label === false ? undefined : [
+    // Above the horizontal leg, inside the triangle: below it the label
+    // lands on the axis tick numerals and the two sets of numbers collide.
+    { x: from + run / 2, y: y0, text: `across ${fmt(run)}`, dy: rise >= 0 ? -8 : 18 },
+    { x: x1, y: (y0 + y1) / 2, text: `${rise >= 0 ? 'up' : 'down'} ${fmt(Math.abs(rise))}`, dx: 34 },
+  ]
+
+  return {
+    mode: 'points',
+    x,
+    y,
+    background: parts.join(''),
+    elements: [],
+    tolerance: 0.25,
+    ...(labels ? { labels } : {}),
+  }
+}
