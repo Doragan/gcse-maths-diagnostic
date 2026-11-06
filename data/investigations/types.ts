@@ -56,9 +56,34 @@ export type ParameterSpec = {
  * RenderedGrid already has (§6.2): the ghosts go in `background`, which is
  * display-only, and the live one in `elements`.
  */
+/**
+ * A control the student drives by TAPPING THE LINE rather than typing a value.
+ *
+ * Some things cannot be asked for in a number box. "Pick two points and work
+ * out the gradient between them" is one: the whole idea is that the pair is
+ * the student's own choice and the answer comes out the same anyway, which a
+ * slider over one number quietly does for them.
+ *
+ * Each tap contributes its x-coordinate to the same `drawn` list a typed
+ * control fills, so everything downstream — the figure, the table, the
+ * coverage rule — is unchanged.
+ */
+export type PickOnLine = {
+  kind: 'onLine'
+  /** The line taps have to land on. */
+  m: number
+  c: number
+  /** The grid tapped on. */
+  grid: RenderedGrid
+  /** Said when a tap misses the line. */
+  offLine: string
+}
+
 export type Control = {
   /** The letter the student is changing. 'c' */
   name: string
+  /** Present when the student picks points instead of typing a value. */
+  pick?: PickOnLine
   /** Shown above the input. */
   prompt: string
   /** The domain in the student's words, under the input. */
@@ -73,6 +98,15 @@ export type Control = {
   label: (v: number) => string
   /** This value's row in the observation table, one cell per header. */
   row: (v: number) => readonly string[]
+  /**
+   * The whole table at once, when a row is about a RELATIONSHIP between
+   * values rather than about one value.
+   *
+   * A gradient measured between two points is the case: there is nothing to
+   * say about a single point, and the row only exists once there is a pair.
+   * Takes precedence over `row` when present.
+   */
+  rows?: (drawn: readonly number[]) => readonly (readonly string[])[]
   /**
    * null when the conclusion may open, else what is still missing, said to the
    * student.

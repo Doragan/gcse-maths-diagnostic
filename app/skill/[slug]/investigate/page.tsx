@@ -34,6 +34,8 @@ type StageState = {
   predicted: boolean
   predictRight: boolean
   drawn: number[]
+  /** What is on the grid, for a control the student taps rather than types. */
+  pickedPoints: GridPoint[]
   current: number
   entryError: string
   typed: string
@@ -48,6 +50,7 @@ const blankStage = (): StageState => ({
   predicted: false,
   predictRight: false,
   drawn: [],
+  pickedPoints: [],
   current: 0,
   entryError: '',
   typed: '',
@@ -145,6 +148,35 @@ export default function InvestigatePage() {
       skill: resolved!.skillId, stage: i + 1, kind: 'choice', correct: right,
     })
   }
+
+  /**
+   * Points tapped on the line.
+   *
+   * Only points ON the line count: the x-coordinates become the same `drawn`
+   * list a typed control fills, so the figure, the table and the coverage rule
+   * need to know nothing about how the value arrived. A tap that misses is
+   * refused with a reason rather than silently dropped.
+   */
+  function pickPoints(i: number, stage: Stage, pts: GridPoint[]) {
+    const pick = stage.control?.pick
+    if (!pick) return
+    const onLine = pts.filter(pt => Math.abs(pick.m * pt.x + pick.c - pt.y) < 1e-9)
+    const missed = pts.length > onLine.length
+    update(i, {
+      pickedPoints: onLine,
+      drawn: onLine.map(pt => pt.x),
+      current: Math.max(0, onLine.length - 1),
+      entryError: missed ? pick.offLine : '',
+    })
+    if (!missed && onLine.length > st(i).drawn.length) {
+      trackEvent('investigation_draw', {
+        skill: resolved!.skillId, stage: i + 1, control: stage.control?.name,
+        value: onLine[onLine.length - 1].x, nth: onLine.length,
+      })
+    }
+  }
+
+  const st = (i: number) => states[i]
 
   function draw(i: number, stage: Stage, raw: string) {
     const why = rejectValue(stage, raw)
@@ -339,6 +371,22 @@ export default function InvestigatePage() {
                     <>
                       <p style={styles.phase}>{step.draw} · Draw your own</p>
                       <p style={styles.prompt}>{stage.control.prompt}</p>
+
+                      {stage.control.pick && (
+                        <>
+                          <p style={styles.hint}>{stage.control.hint}</p>
+                          {st.entryError && <p style={styles.error}>{st.entryError}</p>}
+                          <figure style={styles.figure}>
+                            <GridCanvas
+                              grid={stage.control.pick.grid}
+                              value={st.pickedPoints}
+                              onChange={pts => pickPoints(i, stage, pts)}
+                            />
+                          </figure>
+                        </>
+                      )}
+
+                      {!stage.control.pick && (
                       <div style={styles.row}>
                         <label htmlFor={`v-${i}`} style={styles.varLabel}>
                           {stage.control.name} =
@@ -364,10 +412,15 @@ export default function InvestigatePage() {
                           Draw it
                         </button>
                       </div>
-                      <p style={styles.hint}>{stage.control.hint}</p>
-                      {st.entryError && <p style={styles.error}>{st.entryError}</p>}
+                      )}
+                      {!stage.control.pick && (
+                        <>
+                          <p style={styles.hint}>{stage.control.hint}</p>
+                          {st.entryError && <p style={styles.error}>{st.entryError}</p>}
+                        </>
+                      )}
 
-                      {st.drawn.length === 0 && stage.control.suggest && (
+                      {!stage.control.pick && st.drawn.length === 0 && stage.control.suggest && (
                         <div style={styles.chips}>
                           <span style={styles.chipLabel}>stuck? try</span>
                           {stage.control.suggest.map(v => (
@@ -408,13 +461,15 @@ export default function InvestigatePage() {
                         <p style={styles.nudge}>{concludeGate(stage, st.drawn)}</p>
                       )}
 
-                      <figure style={styles.figure}>
-                        <GridCanvas
-                          grid={stage.control.render(st.drawn, st.current)}
-                          value={[]}
-                          readOnly
-                        />
-                      </figure>
+                      {(!stage.control.pick || st.drawn.length >= 2) && (
+                        <figure style={styles.figure}>
+                          <GridCanvas
+                            grid={stage.control.render(st.drawn, st.current)}
+                            value={[]}
+                            readOnly
+                          />
+                        </figure>
+                      )}
 
                       {stage.observe && (
                         <div style={styles.tableWrap}>
@@ -427,15 +482,20 @@ export default function InvestigatePage() {
                               </tr>
                             </thead>
                             <tbody>
-                              {st.drawn.length === 0 ? (
+                              {(stage.control!.rows
+                                ? stage.control!.rows(st.drawn).length
+                                : st.drawn.length) === 0 ? (
                                 <tr>
                                   <td style={styles.tdEmpty} colSpan={stage.observe.headers.length}>
                                     Nothing yet — type a value above and draw it.
                                   </td>
                                 </tr>
-                              ) : st.drawn.map(v => (
-                                <tr key={v}>
-                                  {stage.control!.row(v).map((cell, c) => (
+                              ) : (stage.control!.rows
+                                ? stage.control!.rows(st.drawn)
+                                : st.drawn.map(v => stage.control!.row(v))
+                              ).map((cells, r) => (
+                                <tr key={r}>
+                                  {cells.map((cell, c) => (
                                     <td key={c} style={styles.td}>{cell}</td>
                                   ))}
                                 </tr>
@@ -547,6 +607,9 @@ export default function InvestigatePage() {
                                     )}
                                     <BankQuestion
                                       questionId={check.questionId}
+                                      // A check that cannot load must not
+                                      // trap the student on the section.
+                                      onUnavailable={() => markAnswered(i, c)}
                                       onAnswered={o => {
                                         markAnswered(i, c)
                                         trackEvent('investigation_check', {
@@ -773,6 +836,9 @@ const styles: Record<string, React.CSSProperties> = {
     border: `1px solid ${colors.border}`,
     borderRadius: radius.sm,
     overflowX: 'auto',
+    // Authored over several lines, so it reads as working rather than as one
+    // long run-on.
+    whiteSpace: 'pre-line',
   },
   challenge: {
     margin: 0,

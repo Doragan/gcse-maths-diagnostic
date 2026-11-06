@@ -230,8 +230,16 @@ describe('authoring rules', () => {
       if (!stage.control) continue
       const where = `${skillId} stage ${i + 1}`
       expect(stage.observe, `${where} varies something but tabulates nothing`).toBeTruthy()
-      expect(stage.control.row(stage.control.domain.min), where)
-        .toHaveLength(stage.observe!.headers.length)
+      const width = stage.observe!.headers.length
+      if (stage.control.rows) {
+        // A table about PAIRS: rows appear only once there are two values, and
+        // every one of them still has to line up with the headers.
+        const sample = [stage.control.domain.min, stage.control.domain.min + stage.control.domain.step]
+        expect(stage.control.rows([sample[0]]), `${where} tabulates a lone value`).toHaveLength(0)
+        for (const row of stage.control.rows(sample)) expect(row, where).toHaveLength(width)
+      } else {
+        expect(stage.control.row(stage.control.domain.min), where).toHaveLength(width)
+      }
     }
   })
 
