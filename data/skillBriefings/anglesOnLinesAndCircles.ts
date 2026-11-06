@@ -12,10 +12,20 @@ import { anglesAtAPoint } from '../../lib/skills/briefingFigures'
 // before any arithmetic, and the figures show the two cases side by side.
 //
 // Every Higher coded part is chained, and `give_the_unit_angle_not_the_multiple`
-// recurs on both tiers: these questions hand you an equation in disguise and
-// then ask for an angle, not for x. That is the last step, and it is the same
-// warning solvingLinearEquations.ts gives from the algebra side — which is why
-// these two pages point at each other.
+// recurs on both tiers: the angle just found is usually a stepping stone, and
+// where the angles are algebraic, x is never the answer. That is the last step
+// of the method.
+//
+// The comparisons are the two skills this is genuinely mistaken for. Corresponding
+// angles look identical until you notice there are TWO crossings and a pair of
+// parallel marks; trigonometry asks for an angle in a triangle too, but hands you
+// lengths, which no angle fact can reach. A card pairing this with
+// `solving_linear_equations` was removed on review (2026-11-04): a printed
+// "solve 5x + 3 = 2x + 18" is not something anyone mistakes for geometry, so it
+// crowded out the two comparisons that do get mixed up. The pairing stays apt in
+// the other direction — an angle fact IS where many linear equations come from —
+// but comparisons are kept reciprocal, so both sides go, and that page already
+// covers diagram-built equations in its own cues and drill.
 //
 // Do not restate any framing percentage here or in `recognise`: the page
 // computes its own headline claim from the audit.
@@ -59,13 +69,24 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
 
   confusableWith: [
     {
-      skillId: 'solving_linear_equations',
-      thisOne: 'The geometry is the point: which fact applies, and what the diagram is telling you.',
-      theOther: 'The equation is printed, or built from a story, and the work is the algebra.',
-      ask: 'Am I choosing an angle fact, or solving an equation I have already got?',
+      skillId: 'alternate_and_corresponding_angles',
+      thisOne: 'Every angle you need meets at ONE point — on a line, round a point, or in one triangle.',
+      theOther: 'The angles are at TWO different crossings, joined by a pair of parallel lines.',
+      ask: 'Are these angles all at the same point, or at two crossings with parallel arrows?',
       pair: {
-        thisOne: 'The angles on a straight line are 3x and 2x + 30. Work out x.',
-        theOther: 'Solve 3x = 2x + 30.',
+        thisOne: 'Two angles meet at a point on a straight line. One of them is 118°. Work out the other.',
+        theOther: 'A straight line crosses two parallel lines. An angle at the first crossing is 118°. '
+          + 'Work out the corresponding angle at the second crossing.',
+      },
+    },
+    {
+      skillId: 'trigonometry_missing_angles',
+      thisOne: 'You are given ANGLES, and an angle fact reaches the missing one.',
+      theOther: 'You are given LENGTHS, and the angle only comes out of sin, cos or tan.',
+      ask: 'What am I actually given here — angles, or side lengths?',
+      pair: {
+        thisOne: 'In triangle ABC, angle A is 40° and angle B is 65°. Work out angle C.',
+        theOther: 'In triangle ABC, angle B is 90°, AB = 7 cm and BC = 24 cm. Work out angle ACB.',
       },
     },
     {
@@ -113,10 +134,12 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       cue: 'Eight sides, so the angle sum depends on the number of sides — not on one point or one triangle.',
     },
     {
-      stem: 'Solve 5x + 3 = 2x + 18',
+      stem: 'In triangle ABC, angle ABC is 90°, AB = 5 cm and BC = 12 cm. '
+        + 'Work out the size of angle ACB.',
       isThisSkill: false,
-      actuallySkillId: 'solving_linear_equations',
-      cue: 'The equation is already written down. There is no diagram and no angle fact to choose.',
+      actuallySkillId: 'trigonometry_missing_angles',
+      cue: 'It wants an angle in a triangle, which is why it looks like this skill — but what you '
+        + 'are given is two LENGTHS. No angle fact can reach it; tan can.',
     },
   ],
 
@@ -130,7 +153,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       watch:
         'Using 360 for angles on a line, or 180 for angles round a point. Look at whether the arms '
         + 'close all the way round or stop on a straight edge.',
-          example: 'They sit on a line, so they add to 180°',
+          example: 'ABD and DBC sit on a line, so they add to 180°',
     },
     {
       do: 'Mark every angle you can work out straight onto the diagram as you get it.',
@@ -140,7 +163,7 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
       watch:
         'Equal sides you have not used. A pair of dashes means two equal angles, and forgetting that '
         + 'is what leaves these questions unsolvable.',
-          example: 'Write 2x, 3x and x + 30 onto the diagram as you go',
+          example: 'Angle DBC = 180 − 118 = 62°. Write 62° onto the diagram at B',
     },
     {
       do: 'If the angles are algebraic, add them, set the total to 180 or 360, and solve.',
@@ -149,24 +172,26 @@ export const anglesOnLinesAndCirclesBriefing: SkillBriefing = {
         + 'into one you already know how to finish.',
       watch:
         'Sign slips when collecting terms, and forgetting that the same x appears in more than one angle.',
-          example: '6x + 30 = 180, so x = 25',
+          example: 'If the angles on the line were 2x, 3x and x + 30: 6x + 30 = 180, so x = 25',
     },
     {
-      do: 'Read the last line again: it usually wants an ANGLE, not x.',
+      do: 'Read the last line again and check which angle it actually names.',
       because:
-        'x is the middle of the problem, not the end of it. In 2x, 3x, x + 30 the total gives x = 25, '
-        + 'and the largest angle is 3x — that is 75°, not 25.',
+        'The angle you have just worked out is usually a stepping stone, not the answer — these '
+        + 'questions are built so the easiest angle to reach is not the one asked for. And where '
+        + 'the angles are algebraic, x is never the answer: the angle built from it is.',
       watch:
-        'Stopping at x, or giving the wrong one of the angles you worked out.',
-          example: 'It wants an ANGLE: the largest is 3x = 75°',
+        'Handing in the angle you found on the way, or stopping at x.',
+          example: 'It wants DCB: 180 − 62 − 25 = 93°, not the 62° found on the way',
     },
   ],
 
-  methodExample: 'Angles 2x, 3x and x + 30 meet on a straight line. Find the largest.',
+  methodExample: 'ABC is a straight line. Angle ABD is 118° and angle BDC is 25°. Find angle DCB.',
   check: [
     'Do all your angles add back up to the total you used — 180° on a line, 360° round a point?',
-    'Does the picture agree? An angle that looks obtuse in the diagram should not come out as 40°, '
-      + 'even though diagrams are not drawn to scale.',
+    'Is every angle you found possible? A negative angle, or 200° among angles on a straight line, '
+      + 'means a slip further back. What it LOOKS like is not evidence — papers print "not '
+      + 'accurately drawn" for exactly that reason.',
     'If the triangle was isosceles, did the two equal angles come out equal?',
   ],
 

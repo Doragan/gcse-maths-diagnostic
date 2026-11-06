@@ -76,19 +76,12 @@ export const solvingLinearEquationsBriefing: SkillBriefing = {
         theOther: 'Solve 2x + y = 11 and x − y = 1.',
       },
     },
-    {
-      // Mirror of the entry in anglesOnLinesAndCircles.ts. Worth having on this
-      // side too: a third of the coded parts here build their equation from a
-      // diagram, and the student has to notice that is what is happening.
-      skillId: 'angles_on_lines_and_circles',
-      thisOne: 'The equation is printed, or built from a story, and the work is the algebra.',
-      theOther: 'The geometry is the point: which angle fact applies, and what the diagram tells you.',
-      ask: 'Am I solving an equation I already have, or choosing an angle fact first?',
-      pair: {
-        thisOne: 'Solve 3x = 2x + 30.',
-        theOther: 'The angles on a straight line are 3x and 2x + 30. Work out x.',
-      },
-    },
+    // There was a card here pairing this with `angles_on_lines_and_circles`.
+    // It read well from this side — a third of the coded parts here build their
+    // equation from a diagram — but not from the other, where nobody mistakes a
+    // printed equation for geometry, and comparisons are kept reciprocal. The
+    // case it made is still on this page: see the 'no equation printed at all'
+    // cue, and the angles-in-a-triangle stem in the drill below.
   ],
 
   examples: [

@@ -1156,8 +1156,18 @@ function Stat({ n, sub, label }: { n: string; sub?: string; label: string }) {
 const BAR_SHADES = ['#2563eb', '#60a5fa', '#bfdbfe', '#dbeafe']
 
 const styles: Record<string, React.CSSProperties> = {
+  // Width is set by the LINE, not by the window. Measured on this page at 14px,
+  // the average character is 6.2px wide, so a card this wide holds:
+  //    640px page -> 90 characters   720 -> 103   880 -> 129
+  // 880 was tried with the prose capped at 70ch to hold the line down, and the
+  // cap is what the gap came from: text stopping 230px short of the card it sits
+  // in, which reads as a column that gave up rather than as a measure. There is
+  // no width that both fills an 880px card and keeps a sane line at this size,
+  // so the card comes in to meet the line instead. Raising this again means
+  // giving the extra width to the LAYOUT — a figure beside its cue rather than
+  // under it — not to longer lines.
   page: {
-    maxWidth: '880px',
+    maxWidth: '720px',
     margin: '0 auto',
     padding: '24px 20px 64px',
     display: 'flex',
@@ -1231,10 +1241,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   list: { margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px' },
-  li: {
-    // The page is wider than a phone column now, so prose needs its own cap:
-    // a line of 100 characters is harder to read than the narrow page was.
-    maxWidth: '70ch', fontSize: font.base, color: colors.textPrimary, lineHeight: 1.55 },
+  li: { fontSize: font.base, color: colors.textPrimary, lineHeight: 1.55 },
 
   /**
    * A fragment shown as it would appear on a paper. Deliberately set apart from
@@ -1251,8 +1258,11 @@ const styles: Record<string, React.CSSProperties> = {
     // container. Inside the example card — a flex column with align-items:
     // flex-start — the box was shrink-to-fit and the diagram collapsed to 26px.
     width: '100%',
-    maxWidth: '320px',
-    marginTop: '10px',
+    maxWidth: '360px',
+    // Centred in its column. The auto margins are what do it: inside the example
+    // card the figure is a flex item, where align-items would otherwise pin it
+    // left, and auto margins beat align-items on the cross axis.
+    margin: '10px auto 0',
     padding: '10px 12px',
     background: colors.cardAlt,
     border: `1px solid ${colors.border}`,
@@ -1369,7 +1379,6 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'flex-start',
   },
   exampleStem: {
-    maxWidth: '70ch',
     fontSize: font.md,
     color: colors.textPrimary,
     margin: 0,
@@ -1385,7 +1394,6 @@ const styles: Record<string, React.CSSProperties> = {
     margin: '0 0 8px',
   },
   exampleCue: {
-    maxWidth: '70ch',
     fontSize: font.base,
     color: colors.textSecondary,
     margin: 0,

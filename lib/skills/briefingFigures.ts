@@ -230,11 +230,31 @@ export function anglesAtAPoint(opts: {
     parts.push(`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" />`)
   }
 
-  // Each label sits on the bisector of its own sector, close enough to the
-  // vertex to be unambiguous about which angle it names.
+  // The arc is what says WHICH angle a label names. Without one the figure is
+  // numbers floating between rays, and the student has to guess whether 2x is
+  // the slice to the left of the ray or the right of it.
+  //
+  // Neighbouring sectors alternate radius on purpose: at a single radius the
+  // four arcs round a point meet end to end and read as a plain circle drawn
+  // around the vertex, not as four angles each marked separately.
+  sizes.forEach((_, i) => {
+    const from = edges[i], to = edges[i + 1]
+    const r = i % 2 ? 27 : 20
+    // Degrees grow anticlockwise on screen while SVG's sweep flag of 1 turns
+    // clockwise, so a sector whose edge angle DROPS sweeps 1.
+    const sweep = to < from ? 1 : 0
+    const large = Math.abs(to - from) > 180 ? 1 : 0
+    parts.push(
+      `<path d="M ${pt(onCircle(cx, cy, r, from))} A ${r} ${r} 0 ${large} ${sweep} `
+      + `${pt(onCircle(cx, cy, r, to))}" />`,
+    )
+  })
+
+  // Each label sits on the bisector of its own sector, outside its own arc and
+  // close enough to the vertex to be unambiguous about which angle it names.
   labels.forEach((t, i) => {
     const mid = (edges[i] + edges[i + 1]) / 2
-    const [x, y] = onCircle(cx, cy, R * 0.58, mid)
+    const [x, y] = onCircle(cx, cy, R * 0.74, mid)
     parts.push(
       `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" `
       + `stroke="none" fill="currentColor">${t}</text>`,

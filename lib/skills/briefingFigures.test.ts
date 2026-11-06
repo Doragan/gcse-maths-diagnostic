@@ -230,6 +230,23 @@ describe('anglesAtAPoint', () => {
     expect(Math.abs((cx - ls[0].x) - (ls[2].x - cx))).toBeLessThan(1)
   })
 
+  it('marks every angle with an arc, not only a label', () => {
+    // Regression: the figure drew the rays and the labels and nothing else, so
+    // three numbers sat between the rays with nothing saying which angle each
+    // one measured.
+    const line = anglesAtAPoint({ mode: 'line', labels: ['2x', '3x', 'x + 40'], alt: 'Three angles on a line.' })
+    const point = anglesAtAPoint({ mode: 'point', labels: ['110°', '95°', 'y', '80°'], alt: 'Four angles at a point.' })
+
+    expect(line.svg.match(/<path /g)?.length, 'one arc per angle on a line').toBe(3)
+    expect(point.svg.match(/<path /g)?.length, 'one arc per angle round a point').toBe(4)
+
+    // Two radii, alternating: at one radius the four arcs round a point join up
+    // into a circle and stop reading as four separate angles.
+    const radii = [...point.svg.matchAll(/ A (\d+) /g)].map(m => Number(m[1]))
+    expect(radii.length).toBe(4)
+    expect(new Set(radii).size, 'adjacent arcs share a radius').toBe(2)
+  })
+
   it('sizes the sectors by the numbers when the labels are numbers', () => {
     // 140 against 40 must not come out as two equal halves: the diagram would
     // contradict its own labels.
