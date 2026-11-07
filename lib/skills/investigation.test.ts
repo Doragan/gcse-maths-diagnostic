@@ -141,6 +141,40 @@ describe('every legal draw builds a usable investigation', () => {
     }
   })
 
+  it('shows a tapped control its line before anything is tapped', () => {
+    // The canvas a student TAPS now renders control.render(drawn) itself,
+    // rather than sitting next to a second read-only copy of the figure — so
+    // render is called with an EMPTY list, which it never used to be. Blank
+    // here is a section that asks for points on a line it has not drawn.
+    // A TYPED control is exempt: its figure is the lines the student draws,
+    // so empty is the honest picture until they draw one.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          if (!stage.control?.pick) return
+          expect(stage.control.render([], 0).background, `${inv.skillId} stage ${i + 1} opens blank`)
+            .toContain('<line')
+        })
+      }
+    }
+  })
+
+  it('lets a tapped control take enough points to measure between', () => {
+    // GridCanvas caps placement at the number of CANONICAL elements, which a
+    // collecting canvas has none of: the cap has to come from the control, and
+    // a missing or zero one silently ignores every tap.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const pick = stage.control?.pick
+          if (!pick) return
+          expect(pick.maxPoints, `${inv.skillId} stage ${i + 1} accepts too few taps`)
+            .toBeGreaterThanOrEqual(2)
+        })
+      }
+    }
+  })
+
   it('draws the fixed figure on a stage that has one', () => {
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
