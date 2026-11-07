@@ -6,11 +6,12 @@ import { METHOD_SHARE_BY_MARKS } from './markEvidence.data'
 /**
  * Three-state marks: a wrong final answer is not automatically worth zero.
  *
- * Across the 54 papers coded with a mark_split, 1268 of 4554 marks (28%) are
- * METHOD marks, awarded
- * for a sound approach behind a wrong answer. Auto-grading cannot read working,
- * so those marks are split three ways: confirmed (a trap proves the method),
- * unknown (we cannot tell), or lost.
+ * Across the 54 papers coded with a mark_split, 1844 of 4554 marks (40%) are
+ * METHOD marks, awarded for a sound approach behind a wrong answer — a share
+ * that read 28% until the builder was fixed to count Edexcel's P process marks
+ * and the continuation-suffixed M1dep/M1ft codes. Auto-grading cannot read
+ * working, so those marks are split three ways: confirmed (a trap proves the
+ * method), unknown (we cannot tell), or lost.
  */
 
 /** A single-part question worth `marks`, optionally with a method-marked trap. */
@@ -56,6 +57,15 @@ describe('methodMarkShare', () => {
     for (const m of [2, 3, 4, 5, 8]) {
       expect(methodMarkShare(m)).toBeLessThanOrEqual(m - 1)
     }
+  })
+
+  it('counts the method codes the schemes actually print, suffixes and all', () => {
+    // A regression guard with a known wrong answer behind it. Matching only
+    // /\bM(\d)\b/ dropped M1dep (331 parts) and read Edexcel P process marks as
+    // answer marks, which put a 4-mark part at 1.30 — barely a third of it.
+    // Counting what the schemes print puts it at 2.39. Anything back near 1.3
+    // means the builder has stopped seeing those codes.
+    expect(METHOD_SHARE_BY_MARKS[4]).toBeGreaterThan(2)
   })
 
   it('is an expectation, not a ceiling — well below the marks-minus-one maximum', () => {
