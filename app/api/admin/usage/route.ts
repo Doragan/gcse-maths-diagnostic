@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { computeUsage } from '../../../../lib/adminUsage'
 import { fetchClassGrantedStudentIds } from '../../../../lib/classGrant'
+import { DEMO_SEED_PATTERN, demoSeedStudentIds } from '../../../../lib/demoSeed'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Product-usage aggregates for /admin/usage.
@@ -77,9 +78,16 @@ export async function GET(req: Request) {
     // ── Fetch ────────────────────────────────────────────────────────────────
     // Only the columns the report needs. `students` deliberately does not
     // select display_name, and auth.users is not touched at all.
+    //
+    // Seeded demo students are filtered out SERVER-SIDE on display_name, which
+    // keeps that rule intact: the column is matched against, never returned.
+    // They would otherwise read as real usage here exactly as they did in the
+    // daily digest — see lib/demoSeed.
     const { data: students, error: sErr } = await admin
       .from('students').select('id, created_at, subscription_tier, paid_until')
+      .not('display_name', 'ilike', DEMO_SEED_PATTERN)
     if (sErr) throw new Error(`students: ${sErr.message}`)
+    const seededIds = await demoSeedStudentIds(admin)
 
     // Purchases the webhook has seen since conversion tracking was added.
     const { count: conversions } = await admin
@@ -116,7 +124,9 @@ export async function GET(req: Request) {
         .order('attempted_at')
         .range(from, from + PAGE - 1)
       if (error) throw new Error(`practice_attempts: ${error.message}`)
-      attempts.push(...(data ?? []))
+      // practice_attempts has no display_name to filter on, so the seeded ids
+      // are resolved once above and the rows dropped here.
+      attempts.push(...(data ?? []).filter(a => !seededIds.has(a.student_id)))
       if (!data || data.length < PAGE) break
     }
 
