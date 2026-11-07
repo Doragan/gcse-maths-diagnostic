@@ -161,6 +161,9 @@ function stageOne(p: Params): Stage {
       because: 'At x = 0 every term with an x in it disappears, so whatever c is, that is the '
         + 'height where the line meets the y-axis. Change c and the line moves vertically; its '
         + 'steepness is untouched.',
+      algebraLead: 'Here is the same argument in symbols. Start from the general equation '
+        + 'of a straight line and put in the x-coordinate that every point on the y-axis '
+        + 'shares.',
       algebra: 'y = mx + c\n'
         + 'at x = 0:\n'
         + '\u2003y = m × 0 + c\n'
@@ -314,10 +317,10 @@ function stageMeasure(p: Params): Stage {
     ask: `This is ${line}. You know which way it leans — now put a number on it. How much `
       + 'does y go up for each 1 that x goes across?',
     axes,
-    // The triangle sits away from the axes so its label does not collide with
-    // the tick numerals, and ONLY THE RUN is labelled: this figure is the
-    // question, and a label reading "up 3" answers it.
-    figure: riseRunGrid({ ...axes, m, c: 0, from: 1, run: 1, label: 'run' }),
+    // The triangle sits away from the axes, and NEITHER leg is labelled:
+    // this figure is the question. "up 3" answers it outright, and "across 1"
+    // only repeats the prompt standing directly above it in words.
+    figure: riseRunGrid({ ...axes, m, c: 0, from: 1, run: 1, label: 'none' }),
     predict: {
       prompt: 'Across 1, the line rises by…',
       on: { kind: 'choice', options: [fmt(m), fmt(m + 1), fmt(1)], correct: 0 },
@@ -331,7 +334,6 @@ function stageMeasure(p: Params): Stage {
         kind: 'onLine',
         m,
         c: 0,
-        grid: straightLineGrid({ ...axes, ghosts: [], live: [m, 0] }),
         offLine: 'That point is not on the line. Tap a corner of the grid that the line passes '
           + 'exactly through.',
         maxPoints: 4,
@@ -415,6 +417,10 @@ function stageMeasure(p: Params): Stage {
         + 'any two points on the same straight line both changes scale together, so dividing '
         + 'one by the other always gives the same number — which is why the gradient belongs to '
         + 'the line rather than to the pair of points you happened to pick.',
+      algebraLead: 'Here is the same calculation the way an exam paper writes it. Your two '
+        + 'points are called (x₁, y₁) and (x₂, y₂) — the small numbers are labels saying which '
+        + 'point is which, not multiplication — so the two subtractions are exactly the ones '
+        + 'you did in the table.',
       algebra: 'gradient = change in y ÷ change in x\n'
         + '\u2003\u2003= (y₂ − y₁) ÷ (x₂ − x₁)',
     },

@@ -74,7 +74,6 @@ export type PickOnLine = {
   m: number
   c: number
   /** The grid tapped on. */
-  grid: RenderedGrid
   /** Said when a tap misses the line. */
   offLine: string
   /** How many points may be on the grid at once. */
@@ -235,6 +234,16 @@ export type Stage = {
      * in it.
      */
     algebra?: string
+    /**
+     * One sentence introducing `algebra`, above it.
+     *
+     * Without it the block arrives as bare symbols: a student who has just
+     * read the reason in words has no way of knowing whether the lines under
+     * it are a restatement, a proof or a new rule to memorise — and the
+     * second one introduces y₁ and y₂, which nothing else on the page has
+     * used.
+     */
+    algebraLead?: string
   }
   /** Shown with `because`. Optional. */
   naming?: Naming

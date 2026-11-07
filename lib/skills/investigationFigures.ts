@@ -220,7 +220,18 @@ export function riseRunGrid(opts: {
   const mode = opts.label ?? 'both'
   // Above the horizontal leg, inside the triangle: below it the label lands on
   // the axis tick numerals and the two sets of numbers collide.
-  const runLabel = { x: from + run / 2, y: y0, text: `across ${fmt(run)}`, dy: rise >= 0 ? -8 : 18 }
+  // Centred on the leg and lifted clear of it. Both offsets are forced by the
+  // figure now carrying the student's OWN points: they sit on the ENDS of this
+  // leg, so the label has to clear a point's radius vertically, and "across 1"
+  // is wider than a single cell, so it has to be pulled back from the corner
+  // or its last character disappears behind the right-angle mark.
+  const runLabel = {
+    x: from + run / 2,
+    y: y0,
+    text: `across ${fmt(run)}`,
+    dx: -14,
+    dy: rise >= 0 ? -17 : 27,
+  }
   const riseLabel = {
     x: x1,
     y: (y0 + y1) / 2,

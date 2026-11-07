@@ -393,7 +393,7 @@ export default function InvestigatePage() {
                           {st.entryError && <p role="alert" style={styles.error}>{st.entryError}</p>}
                           <figure style={styles.figure}>
                             <GridCanvas
-                              grid={stage.control.pick.grid}
+                              grid={stage.control.render(st.drawn, st.current)}
                               value={st.pickedPoints}
                               maxPoints={stage.control.pick.maxPoints}
                               onChange={pts => pickPoints(i, stage, pts)}
@@ -477,7 +477,7 @@ export default function InvestigatePage() {
                         <p style={styles.nudge}>{concludeGate(stage, st.drawn)}</p>
                       )}
 
-                      {(!stage.control.pick || st.drawn.length >= 2) && (
+                      {!stage.control.pick && (
                         <figure style={styles.figure}>
                           <GridCanvas
                             grid={stage.control.render(st.drawn, st.current)}
@@ -503,7 +503,9 @@ export default function InvestigatePage() {
                                 : st.drawn.length) === 0 ? (
                                 <tr>
                                   <td style={styles.tdEmpty} colSpan={stage.observe.headers.length}>
-                                    Nothing yet — type a value above and draw it.
+                                    {stage.control!.pick
+                                      ? 'Nothing yet — tap two points on the line above.'
+                                      : 'Nothing yet — type a value above and draw it.'}
                                   </td>
                                 </tr>
                               ) : (stage.control!.rows
@@ -582,6 +584,9 @@ export default function InvestigatePage() {
                             }}>
                               <strong>That is it. </strong>{stage.conclude.because}
                             </p>
+                            {stage.conclude.algebraLead && (
+                              <p style={styles.algebraLead}>{stage.conclude.algebraLead}</p>
+                            )}
                             {stage.conclude.algebra && (
                               <p style={styles.algebra}>{stage.conclude.algebra}</p>
                             )}
@@ -848,6 +853,9 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '2px',
   },
   // Monospace and indented: it is a line of working, and it reads as one.
+  algebraLead: {
+    fontSize: font.base, margin: '0 0 8px', color: colors.textSecondary, lineHeight: 1.55,
+  },
   algebra: {
     margin: 0,
     padding: '10px 14px',
