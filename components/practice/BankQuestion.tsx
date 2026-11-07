@@ -80,7 +80,7 @@ export default function BankQuestion({
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
   const [typed, setTyped] = useState('')
   const [verdict, setVerdict] = useState<
-    { correct: boolean; answer: string; response: string | null } | null
+    { correct: boolean; answer: string; response: string | null; explanation: string } | null
   >(null)
 
   /**
@@ -154,6 +154,10 @@ export default function BankQuestion({
       // The authored trap's own words where one matched — the reason to use a
       // bank question here at all.
       response: result.trap?.response ?? null,
+      // Taken from THIS roll: "Try another" re-rolls the parameters, and an
+      // explanation left over from the previous one would be worked through
+      // with numbers that are no longer on screen.
+      explanation: rendered.explanation,
     })
     onAnswered?.({
       questionId: row.id,
@@ -203,8 +207,26 @@ export default function BankQuestion({
           {verdict.correct
             ? 'That is the one.'
             // The trap's words when the wrong answer is one the author
-            // anticipated; the plain answer when it is not.
-            : verdict.response ?? `The answer is ${verdict.answer}.`}
+            // anticipated. Otherwise the explanation below carries both the
+            // answer and the reason, and stating the answer here as well put
+            // the same number twice in three lines; only a question with no
+            // explanation at all still needs it said outright.
+            : verdict.response ?? (verdict.explanation ? '' : `The answer is ${verdict.answer}.`)}
+        </div>
+      )}
+
+      {/* The worked reason, which this component used to render and then
+          throw away. Without it a wrong answer the author did not anticipate
+          got "The answer is 36." and nothing else — a statement of the answer
+          is not teaching, and the bank already holds the explanation.
+
+          Below the verdict rather than inside it: the verdict says how you
+          did, in the colour of that outcome, and the explanation says how the
+          question works, which is the same either way. */}
+      {verdict && verdict.explanation && (
+        <div style={styles.explanation}>
+          <p style={styles.explanationHead}>Why</p>
+          <div dangerouslySetInnerHTML={{ __html: verdict.explanation }} />
         </div>
       )}
     </div>
@@ -213,6 +235,18 @@ export default function BankQuestion({
 
 const styles: Record<string, React.CSSProperties> = {
   wrap: { display: 'flex', flexDirection: 'column', gap: '10px' },
+  explanation: {
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    padding: '12px 14px',
+    fontSize: font.base,
+    lineHeight: 1.6,
+    color: colors.textSecondary,
+  },
+  explanationHead: {
+    fontSize: font.sm, fontWeight: '700', letterSpacing: '0.08em',
+    textTransform: 'uppercase', color: colors.textHint, margin: '0 0 6px',
+  },
   prompt: { fontSize: font.base, color: colors.textPrimary, lineHeight: 1.5 },
   row: { display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' },
   input: {
