@@ -353,11 +353,12 @@ export default function SkillBriefingPage() {
    * through exactly as it did before.
    */
   const askingAt = firstUnansweredStep(skillId, g.steps, methodPicks)
-  // Headings name the skill rather than saying "it". Plural rather than
-  // "a/an <skill>", so the phrasing stays grammatical for every skill name.
+  // Headings name the skill rather than saying "it", and reach it through
+  // "a question on <name>" rather than "<name> question". Not every skill
+  // name is a noun: "understanding straight line graphs questions" was the
+  // first one to break the old phrasing, and an article in front of it
+  // ("an understanding straight line graphs question") only made it worse.
   const lowerName = skill.name.toLowerCase()
-  /** 'an inequalities question', not 'a inequalities question'. */
-  const article = /^[aeiou]/.test(lowerName) ? 'an' : 'a'
   /**
    * Scopes the exam panel, and only the exam panel — the authored material
    * above it is the same whichever board you sit.
@@ -464,7 +465,7 @@ export default function SkillBriefingPage() {
             who does not, and only they should take the detour. */}
         {hasInvestigation(skillId) && (
           <p style={{ ...styles.muted, marginBottom: '14px' }}>
-            Not sure what {lowerName} actually mean?{' '}
+            New to {lowerName}?{' '}
             <a
               href={investigatePath(skillId)}
               onClick={() => trackEvent('investigation_prompt_click', {
@@ -564,7 +565,7 @@ export default function SkillBriefingPage() {
           abstract, which is easy to agree with and hard to spot in the exam. */}
       {stage === 'spot' && (
       <section style={styles.card}>
-        <p style={styles.h}>Recognising {lowerName} questions</p>
+        <p style={styles.h}>Recognising a question on {lowerName}</p>
         <ul style={{ ...styles.list, gap: '14px' }}>
           {g.recognise.map((r, i) => (
             <li key={i} style={styles.li}>
@@ -671,7 +672,7 @@ export default function SkillBriefingPage() {
       {/* ── Judge the stems ──────────────────────────────────────────────── */}
       {stage === 'spot' && (
       <section style={styles.card}>
-        <p style={styles.h}>Which of these are {skill.name.toLowerCase()} questions?</p>
+        <p style={styles.h}>Which of these are questions on {lowerName}?</p>
         <p style={{ ...styles.hint, marginBottom: '12px' }}>
           Decide before you look. Not all of them are — that&apos;s the point.
         </p>
@@ -756,7 +757,7 @@ export default function SkillBriefingPage() {
       {/* ══ DO IT ═════════════════════════════════════════════════════════ */}
       {stage === 'do' && (
       <section style={styles.card}>
-        <p style={styles.h}>How to answer {article} {lowerName} question</p>
+        <p style={styles.h}>How to answer a question on {lowerName}</p>
         <p style={{ ...styles.hint, marginBottom: g.methodExample ? 0 : 12 }}>
           {askingAt > -1
             ? 'Decide the next move before each step opens. Each step then says why it is there and where it goes wrong.'
