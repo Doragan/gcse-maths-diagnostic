@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { skills } from '../data/skills'
 import { evaluateTemplate, generateValues, satisfiesAllConstraints, type Parameters } from '../lib/questions/paramEngine'
 import { checkAnswer, normalise } from '../lib/questions/answerChecker'
-import { SCALAR_ANSWER_TYPES } from '../lib/questions/answerTypes'
+import { SCALAR_ANSWER_TYPES, type FractionForm } from '../lib/questions/answerTypes'
 import { checkGridDraw, type RenderedGrid } from '../lib/questions/gridDraw'
 import { buildGridSvg, toGhostPoint } from '../lib/questions/gridSvg'
 import { evidenceFor, resolveQuestionMarks } from '../lib/exam/markEvidence'
@@ -68,6 +68,8 @@ type Unit = {
   answer_type: string
   tolerance: number | null
   requires_simplest: boolean
+  /** The form a fraction answer must take, where the question insists. */
+  requires_fraction_form?: FractionForm | null
   traps: Trap[]
   explanation: string
   /** What this unit is worth — bounds any method marks its traps claim. */
@@ -182,6 +184,7 @@ function unitsOf(q: Q): Unit[] {
           answer_type: b.answer_type ?? 'numeric',
           tolerance: b.tolerance ?? null,
           requires_simplest: b.requires_simplest ?? false,
+          requires_fraction_form: b.requires_fraction_form,
           traps: b.traps ?? [],
           explanation: bi === 0 ? (p.explanation ?? '') : '',
           marks: Number(b.marks) || 1,
@@ -195,6 +198,7 @@ function unitsOf(q: Q): Unit[] {
         answer_type: p.answer_type ?? 'numeric',
         tolerance: p.tolerance ?? null,
         requires_simplest: p.requires_simplest ?? false,
+        requires_fraction_form: p.requires_fraction_form,
         traps: p.traps ?? [],
         explanation: p.explanation ?? '',
         marks: Number(p.marks) || 1,
@@ -208,6 +212,7 @@ function unitsOf(q: Q): Unit[] {
     answer_type: q.answer_type ?? 'numeric',
     tolerance: q.tolerance ?? null,
     requires_simplest: q.requires_simplest ?? false,
+    requires_fraction_form: q.requires_fraction_form,
     traps: q.traps ?? [],
     explanation: q.explanation ?? '',
     // Single-part questions are priced by the evidence unless the author
@@ -756,7 +761,8 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
       })
       for (const t of rt) if (BAD_RENDER.test(t.answer) || BAD_RENDER.test(t.response)) fail(`${k}:trap-render:${t.tpl}`, `${k}: trap "${t.tpl}" renders badly at ${JSON.stringify(c)}`)
 
-      const graded = checkAnswer(ans, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest)
+      const graded = checkAnswer(ans, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest,
+        undefined, undefined, u.requires_fraction_form)
       if (!graded.correct) fail(`${k}:self`, `${k}: canonical answer "${ans}" NOT accepted by grader at ${JSON.stringify(c)}`)
 
       if (u.group) {
@@ -774,7 +780,8 @@ function verifyQuestion(q: Q, label: string, draws: number): { fails: string[]; 
           fail(`trapprose:${t.tpl}`, `${k}: trap "${t.tpl}" gives the student no explanation — it renders as "${shown}"`)
         }
         if (!t.answer.trim() || BAD_RENDER.test(t.answer)) continue
-        const res = checkAnswer(t.answer, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest)
+        const res = checkAnswer(t.answer, ans, u.answer_type as any, u.tolerance, rt, u.requires_simplest,
+          undefined, undefined, u.requires_fraction_form)
         const key = `${k}|${t.tpl}`
         if (res.correct) {
           trapCollisions.set(key, (trapCollisions.get(key) ?? 0) + 1)

@@ -1,6 +1,6 @@
 import { checkAnswer, type CheckResult } from './answerChecker'
 import { evaluateTemplate } from './paramEngine'
-import type { ScalarAnswerType } from './answerTypes'
+import type { FractionForm, ScalarAnswerType } from './answerTypes'
 
 /**
  * Grading for a `multi_blank` part: N labelled scalar blanks, each graded
@@ -23,6 +23,8 @@ export type BlankCheck = {
   answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest: boolean
+  /** See Blank.requires_fraction_form; undefined accepts either form. */
+  requires_fraction_form?: FractionForm | null
   traps: { answer: string, response: string, method_marks?: number }[] // RENDERED traps
   // RENDERED errors-carried-forward formula: arithmetic over numbers and
   // [[SIBLING]] refs, e.g. '[[F]] - 4'. See Blank.ecf_template.
@@ -87,7 +89,7 @@ export function checkMultiBlank(blanks: BlankCheck[]): MultiBlankResult {
     if (b.student.trim() === '') {
       return { label: b.label, student: b.student, correct: false, trap: null, message: 'Not answered.' }
     }
-    const res = checkAnswer(b.student, b.answer, b.answer_type, b.tolerance, b.traps, b.requires_simplest, b.answer_template)
+    const res = checkAnswer(b.student, b.answer, b.answer_type, b.tolerance, b.traps, b.requires_simplest, b.answer_template, undefined, b.requires_fraction_form)
     return { label: b.label, student: b.student, ...res }
   })
 
@@ -107,7 +109,7 @@ export function checkMultiBlank(blanks: BlankCheck[]): MultiBlankResult {
     // exactly as they do for the canonical answer. Traps are dropped: a value
     // that legitimately follows through isn't a misconception, so trap
     // feedback would actively mislead.
-    const res = checkAnswer(b.student, expected, b.answer_type, b.tolerance, [], b.requires_simplest, b.answer_template)
+    const res = checkAnswer(b.student, expected, b.answer_type, b.tolerance, [], b.requires_simplest, b.answer_template, undefined, b.requires_fraction_form)
     if (!res.correct) continue
     results[i] = {
       label: b.label,

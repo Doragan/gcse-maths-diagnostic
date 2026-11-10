@@ -1,4 +1,4 @@
-import type { ScalarAnswerType } from './answerTypes'
+import type { FractionForm, ScalarAnswerType } from './answerTypes'
 import { detectPiEstimate, usesSubstitutablePi } from './piEstimate'
 
 export type CheckResult = {
@@ -546,6 +546,26 @@ export function normalise(value: string): string {
     .replace(/<=/g, '≤')
     .replace(/>=/g, '≥')
     .replace(/!=/g, '≠')
+    // A MIXED NUMBER keeps its whole part: "2 1/3" → "2_1/3".
+    //
+    // This HAS to happen before whitespace is stripped, because stripping it
+    // is what caused the bug. Measured against the live grader on 2026-11-03:
+    // normalise('2 1/3') returned '21/3' — the string for seven — so "21/3"
+    // was ACCEPTED as an answer of two and a third on both the fraction and
+    // the exact type, while "7/3", the same number, was rejected.
+    //
+    // The marker is '_' because it appears in no answer anywhere: checked over
+    // all 1,847 rows of the questions table (answer templates, trap templates
+    // and MC options) — every '_' in that data is a snake_case skill or
+    // misconception id, never part of a value. A '+' was the alternative and is
+    // worse: it would make the mixed form indistinguishable from a typed sum,
+    // and the expression type would then start rearranging it.
+    //
+    // Deliberately narrow — <whole> <num>/<den>, and the whole part must start
+    // at a boundary, so "0.5 1/2" (a decimal next to a fraction) is not read as
+    // a mixed number. A negative sign in front belongs to the WHOLE value:
+    // "-2 1/3" is -(2 + 1/3), which is how a paper writes it.
+    .replace(/(^|[^\d.])(\d+)\s+(\d+)\s*\/\s*(\d+)/g, '$1$2_$3/$4')
     // Remove all whitespace
     .replace(/\s+/g, '')
     // Standard form typed with the LETTER x: "4.15 x 10^5" → "4.15*10^5".
@@ -599,6 +619,13 @@ function extractNumber(s: string): number {
     const den = parseFloat(frac[2].replace(/,/g, ''))
     if (den !== 0) return parseFloat(frac[1].replace(/,/g, '')) / den
   }
+  // A mixed number is ONE value too, for exactly the same reason: taking the
+  // first number would read "2_1/3" as 2 and then fire whatever trap was
+  // written for 2. Only the NORMALISED form is recognised — the callers that
+  // pass a raw string here (the rounding and π-estimate checks) are about
+  // decimal answers, where a mixed number does not arise.
+  const mixed = parseMixedNumber(s.trim())
+  if (mixed !== null) return mixed
   const m = s.match(/-?[\d,]+(?:\.\d+)?/)
   return m ? parseFloat(m[0].replace(/,/g, '')) : NaN
 }
@@ -657,13 +684,41 @@ function roundingRelation(studentStr: string, correctStr: string): { rel: Roundi
 // ── Fraction parsing ──────────────────────────────────────────────────────────
 
 /**
- * Parse a string that may be an integer, decimal, or fraction (e.g. "3/4", "-1/2").
+ * A NORMALISED mixed number: "2_1/3" for two and a third. normalise() leaves
+ * the '_' where the space was — see the mixed-number step there for why the
+ * whole part cannot simply be glued on.
+ *
+ * Anchored, so a mixed number is the WHOLE answer; "2_1/3cm" is a value with a
+ * unit and is handled by the units-stripping retry, not here.
+ */
+const MIXED_NUMBER = /^(-?)(\d+)_(\d+)\/(\d+)$/
+
+/**
+ * The value of a normalised mixed number, or null if it is not one.
+ *
+ * The sign goes on the WHOLE value: "-2_1/3" is -(2 + 1/3) = -2.333…, which is
+ * what "-2⅓" means on a paper, and not -2 + 1/3.
+ */
+function parseMixedNumber(s: string): number | null {
+  const m = s.match(MIXED_NUMBER)
+  if (!m) return null
+  const den = parseInt(m[4], 10)
+  if (den === 0) return null
+  const magnitude = parseInt(m[2], 10) + parseInt(m[3], 10) / den
+  return m[1] === '-' ? -magnitude : magnitude
+}
+
+/**
+ * Parse a string that may be an integer, decimal, fraction (e.g. "3/4", "-1/2")
+ * or mixed number ("2_1/3", normalise()'s form for "2 1/3").
  * Returns the numeric value, or NaN if the string is not a recognised number form.
  *
  * normalise() strips whitespace before this is called, so we only need to handle
  * compact forms like "3/4" or "-1/2", not "3 / 4".
  */
 function parseFraction(s: string): number {
+  const mixed = parseMixedNumber(s)
+  if (mixed !== null) return mixed
   const m = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/)
   if (m) {
     const num = parseFloat(m[1])
@@ -682,6 +737,12 @@ function parseFraction(s: string): number {
  * "1/4" → true (0.25)   "3/6" → true (reduces to 1/2)   "4/11" → false
  */
 function hasTerminatingDecimal(canonical: string): boolean {
+  // A mixed number terminates exactly when its fractional part does — the
+  // whole part contributes no digits after the point. Without this branch
+  // "2_1/3" fell through as "not a fraction" and counted as terminating, which
+  // cost the student the "this decimal can only be an approximation" message.
+  const mix = canonical.match(MIXED_NUMBER)
+  if (mix) return hasTerminatingDecimal(`${mix[3]}/${mix[4]}`)
   const m = canonical.match(/^(-?\d+)\/(\d+)$/)
   if (!m) return true
   let den = parseInt(m[2], 10) / gcd(parseInt(m[1], 10), parseInt(m[2], 10))
@@ -727,8 +788,31 @@ function fractionMatch(
  *
  * Only called after the answer has been confirmed numerically correct, so this
  * is purely a "could be tidier" check rather than a correctness gate.
+ *
+ * ── WHAT "SIMPLEST" MEANS FOR A MIXED NUMBER ────────────────────────────────
+ * Two conditions, and a mixed number must meet both: its fractional part is in
+ * lowest terms, and that part is PROPER. "2_2/6" fails the first, "1_4/3"
+ * the second — it is really 2⅓, and a paper would not accept it. "2_1/3" meets
+ * both, so it is simplest and is not nudged.
+ *
+ * This matters because the bug made it look otherwise: "2 1/3" normalised to
+ * "21/3", gcd(21, 3) = 3, and the student who had written a perfectly simplified
+ * mixed number was told to "give your answer in its simplest form" (measured on
+ * the live grader, 2026-11-03).
+ *
+ * An improper fraction in lowest terms ("7/3") is NOT unsimplified — nothing
+ * cancels. The mark schemes agree: they credit "7/3 oe". Where a question wants
+ * one form rather than the other it says so with requires_fraction_form, which
+ * is a separate gate from this one.
  */
 function isUnsimplifiedFraction(s: string): boolean {
+  const mix = s.match(MIXED_NUMBER)
+  if (mix) {
+    const num = parseInt(mix[3], 10)
+    const den = parseInt(mix[4], 10)
+    if (den === 0) return false
+    return num >= den || gcd(num, den) > 1
+  }
   const m = s.match(/^-?(\d+)\/(\d+)$/)
   if (!m) return false
   let a = parseInt(m[1], 10)
@@ -911,6 +995,61 @@ function unsimplifiedRatioMessage(normStudent: string): string {
   return NOT_SIMPLEST
 }
 
+/**
+ * Right value, wrong FRACTION FORM — or null when there is nothing to say.
+ *
+ * Only ever consulted on a question that DECLARED which form it wants. Absent
+ * that declaration both forms are accepted, which is the default and what the
+ * mark schemes say: "oe" on all but a handful of parts. The handful is real
+ * though — JUN23-H-P1 q3's gap note reads "mixed-number answer; improper form
+ * not credited" — and for those the conversion IS the assessed skill.
+ *
+ * Called with the RAW answers and strips units from both, because a unit is not
+ * part of the form: "1 1/2 hours" is a mixed number with a word after it, and
+ * MIXED_NUMBER is anchored, so the bare values are what can be judged.
+ *
+ * `hasWholePart` is the counterpart of the `normCorrect.includes('/')` guard in
+ * the decimal branch: a question can demand the mixed form only where the
+ * answer HAS one. An answer that is a whole number ("2") or a proper fraction
+ * ("2/3") has no mixed form at all, and a student who typed it exactly right
+ * must not be sent to convert it into something that does not exist.
+ *
+ * Used by 'fraction' only. 'exact' compares strings, so it already enforces
+ * whatever form the author wrote, and no other answer type has two forms to
+ * choose between.
+ */
+function fractionFormIssue(
+  studentAnswer: string,
+  correctAnswer: string,
+  requireFractionForm: FractionForm | null | undefined,
+): FractionForm | null {
+  if (!requireFractionForm) return null
+  const bareStudent = normalise(stripUnits(studentAnswer))
+  const bareCorrect = normalise(stripUnits(correctAnswer))
+  const correctIsMixed = MIXED_NUMBER.test(bareCorrect)
+  const studentIsMixed = MIXED_NUMBER.test(bareStudent)
+  const correctValue = parseFraction(bareCorrect)
+  const hasWholePart = Number.isFinite(correctValue) && Math.abs(correctValue) > 1
+  if (!bareCorrect.includes('/') || !(correctIsMixed || hasWholePart)) return null
+  if (requireFractionForm === 'mixed'    && !studentIsMixed) return 'mixed'
+  if (requireFractionForm === 'improper' && studentIsMixed)  return 'improper'
+  return null
+}
+
+/**
+ * What to say about a right-valued answer in the wrong fraction form. Names the
+ * form and how to get there, without giving the answer away — the same line the
+ * simplest-form messages walk.
+ */
+const WRONG_FRACTION_FORM: Record<FractionForm, string> = {
+  mixed: 'Almost — that’s the right value, but the question asks for a <strong>mixed number</strong>: '
+    + 'a whole number with a proper fraction beside it, like 1 3/4. Work out how many whole ones '
+    + 'your fraction holds, and what is left over.',
+  improper: 'Almost — that’s the right value, but the question asks for an <strong>improper fraction</strong>: '
+    + 'a single fraction, top heavier than the bottom, like 7/4. Multiply the whole number by the '
+    + 'denominator and add the numerator you already have.',
+}
+
 export function checkAnswer(
   studentAnswer: string,
   correctAnswer: string,
@@ -940,6 +1079,16 @@ export function checkAnswer(
    * argument rather than something read out of the answer template.
    */
   answerSubjects?: string[] | null,
+  /**
+   * The form a fraction answer must be written in, where the question insists
+   * on one: 'mixed' for "write 7/3 as a mixed number", 'improper' for the
+   * reverse. See FractionForm.
+   *
+   * Optional, and null/absent — the whole bank — keeps exactly the behaviour
+   * described above: both forms accepted, because they are the same number and
+   * the schemes mark them "oe".
+   */
+  requireFractionForm?: FractionForm | null,
 ): CheckResult {
   const tol         = tolerance ?? 0
   const usesPi      = usesSubstitutablePi(answerTemplate)
@@ -1093,6 +1242,36 @@ export function checkAnswer(
     }
   }
 
+  // Right value, wrong FRACTION FORM: "7/3" where the question said "write
+  // this as a mixed number", or "2 1/3" where it asked for an improper
+  // fraction. See fractionFormIssue.
+  //
+  // After the simplest-form gate on purpose: a student who wrote "14/6" for
+  // 2 1/3 has two things to fix, and reducing the fraction is the one to name
+  // first — it is the more basic habit, and the conversion is easier from
+  // lowest terms anyway.
+  const formIssue = isCorrect && answerType === 'fraction'
+    ? fractionFormIssue(studentAnswer, correctAnswer, requireFractionForm)
+    : null
+
+  if (formIssue) {
+    return {
+      correct: false,
+      // A named misconception, not a bare message, and the same shape the
+      // π-estimate branch uses: the value is right and the method sound, so
+      // this is a real diagnostic the teacher's "Common mistakes" panel should
+      // be able to count — "4 pupils left it as an improper fraction" — and
+      // `answer_not_in_requested_form` already exists for exactly this
+      // ("...or a fraction left improper", data/misconceptions.ts).
+      //
+      // No `method_marks`: how much of the tariff the conversion is worth
+      // depends on the question, which the grader does not see. An authored
+      // trap can still pay for it.
+      trap: { response: '', misconception: 'answer_not_in_requested_form' },
+      message: WRONG_FRACTION_FORM[formIssue],
+    }
+  }
+
   if (isCorrect) {
     return {
       correct: true,
@@ -1170,6 +1349,21 @@ export function checkAnswer(
     })()
 
     if (matchesWithoutUnits) {
+      // The form demand applies here too. This path is how "3/2" is accepted
+      // for a canonical of "1 1/2 hours" (the student omitted the unit), and it
+      // returns before the form gate above ever runs — so without this the one
+      // question shape that carries both a unit and a mixed-number answer would
+      // quietly accept either form.
+      const strippedFormIssue = answerType === 'fraction'
+        ? fractionFormIssue(studentAnswer, correctAnswer, requireFractionForm)
+        : null
+      if (strippedFormIssue) {
+        return {
+          correct: false,
+          trap: { response: '', misconception: 'answer_not_in_requested_form' },
+          message: WRONG_FRACTION_FORM[strippedFormIssue],
+        }
+      }
       const notSimplifiedStripped =
         answerType === 'fraction' && isUnsimplifiedFraction(normStudentStripped)
       return {

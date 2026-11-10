@@ -6,7 +6,7 @@ import {
   renderQuestion, type Parameters, type RenderedQuestion, type TrapTemplate,
 } from '../../lib/questions/paramEngine'
 import { checkAnswer } from '../../lib/questions/answerChecker'
-import { isScalarAnswerType, type ScalarAnswerType } from '../../lib/questions/answerTypes'
+import { isScalarAnswerType, type FractionForm, type ScalarAnswerType } from '../../lib/questions/answerTypes'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../lib/styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,6 +35,7 @@ type Row = {
   answer_type: string
   tolerance: number | null
   requires_simplest: boolean | null
+  requires_fraction_form: FractionForm | null
   parameters: Parameters | null
   traps: TrapTemplate[] | null
   explanation: string | null
@@ -110,7 +111,8 @@ export default function BankQuestion({
       const { data, error } = await supabase
         .from('questions')
         .select('id, question_template, answer_template, answer_type, tolerance, '
-          + 'requires_simplest, parameters, traps, parts, explanation, answer_subjects')
+          + 'requires_simplest, requires_fraction_form, parameters, traps, parts, explanation, '
+          + 'answer_subjects')
         .eq('id', questionId)
         .eq('is_published', true)
         .maybeSingle()
@@ -147,6 +149,7 @@ export default function BankQuestion({
       row.requires_simplest ?? false,
       row.answer_template,
       row.answer_subjects ?? undefined,
+      row.requires_fraction_form,
     )
     setVerdict({
       correct: result.correct,

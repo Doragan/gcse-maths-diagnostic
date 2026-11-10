@@ -35,7 +35,7 @@ import {
 } from '../../../../lib/skills/easeDown'
 import { masteryStatusFor, attemptsToMastery } from '../../../../lib/skills/masteryEngine'
 import type { QuestionPart } from '../../../../lib/questions/parts'
-import type { ScalarAnswerType } from '../../../../lib/questions/answerTypes'
+import type { FractionForm, ScalarAnswerType } from '../../../../lib/questions/answerTypes'
 import MultiPartQuestion from '../../../../components/practice/MultiPartQuestion'
 import SignUpPrompt, { registerQuestionForNudge } from '../../../../components/practice/SignUpPrompt'
 
@@ -50,6 +50,8 @@ type Question = {
   answer_type: ScalarAnswerType
   tolerance: number | null
   requires_simplest?: boolean
+  /** See QuestionPart.requires_fraction_form — fraction answers only. */
+  requires_fraction_form?: FractionForm | null
   /** See QuestionPart.answer_subjects — expression answers only, feedback only. */
   answer_subjects?: string[] | null
   traps: { answer_template: string, response: string, misconception?: string | null }[]
@@ -728,6 +730,7 @@ function QuestionPage() {
       question.requires_simplest ?? false,
       question.answer_template,
       question.answer_subjects,
+      question.requires_fraction_form,
     )
 
     setFeedback({
@@ -1102,6 +1105,7 @@ function QuestionPage() {
 						question.requires_simplest ?? false,
 						question.answer_template,
 						question.answer_subjects,
+						question.requires_fraction_form,
 					  )
 					  setAnswer(opt)
 					  setFeedback({

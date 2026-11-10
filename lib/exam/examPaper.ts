@@ -15,6 +15,7 @@ import { checkAnswer } from '../questions/answerChecker'
 import { resolveQuestionMarks, methodMarkShare } from './markEvidence'
 import { bandedMarks, bandedMax, type QuestionPart, type MarkBand } from '../questions/parts'
 import { checkMultiBlank } from '../questions/multiBlank'
+import type { FractionForm } from '../questions/answerTypes'
 import { buildOptions, renderMcOptions } from '../questions/multipleChoice'
 import type { ScalarAnswerType } from '../questions/answerTypes'
 import {
@@ -44,6 +45,12 @@ export type Unit = {
   answerType: AnswerType
   tolerance: number | null
   requiresSimplest: boolean
+  /**
+   * The fraction form the question insists on, where it insists on one.
+   * Undefined (all but a handful) accepts mixed and improper alike.
+   * See QuestionPart.requires_fraction_form.
+   */
+  requiresFractionForm?: FractionForm | null
   traps: { answer: string; response: string; method_marks?: number }[]
   explanation: string
   skillIds: string[]
@@ -186,6 +193,8 @@ export type QuestionRow = {
   answer_type: AnswerType
   tolerance: number | null
   requires_simplest: boolean | null
+  /** See QuestionPart.requires_fraction_form — the single-part question's own copy. */
+  requires_fraction_form?: FractionForm | null
   /** See QuestionPart.answer_subjects — the single-part question's own copy. */
   answer_subjects?: string[] | null
   traps: { answer_template: string; response: string; method_marks?: number }[] | null
@@ -202,7 +211,7 @@ export type QuestionRow = {
  * supabase-js infers the row type from the literal, so splitting or
  * concatenating it collapses the result to GenericStringError.
  */
-export const QUESTION_COLUMNS = 'id, skill_ids, difficulty, calculator, kind, marks, question_type, parts, question_template, answer_template, answer_type, tolerance, requires_simplest, answer_subjects, traps, explanation, image_url, parameters, mc_options' as const
+export const QUESTION_COLUMNS = 'id, skill_ids, difficulty, calculator, kind, marks, question_type, parts, question_template, answer_template, answer_type, tolerance, requires_simplest, requires_fraction_form, answer_subjects, traps, explanation, image_url, parameters, mc_options' as const
 
 const letter = (i: number) => `(${String.fromCharCode(97 + i)})`
 
@@ -261,6 +270,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
           answerType: blank.answer_type,
           tolerance: blank.tolerance,
           requiresSimplest: blank.requires_simplest ?? false,
+          requiresFractionForm: blank.requires_fraction_form,
           traps: rb[b]?.traps ?? [],
           // Explanation shown once, in the last blank's review box.
           explanation: b === (p.blanks?.length ?? 0) - 1 ? r.parts[i].explanation : '',
@@ -309,6 +319,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
         answerType: p.answer_type,
         tolerance: p.tolerance,
         requiresSimplest: p.requires_simplest ?? false,
+        requiresFractionForm: p.requires_fraction_form,
         traps: r.parts[i].traps,
         explanation: r.parts[i].explanation,
         skillIds: p.skill_ids,
@@ -359,6 +370,7 @@ export function buildItem(q: QuestionRow, number: number, fixedValues?: Record<s
       answerType: q.answer_type,
       tolerance: q.tolerance,
       requiresSimplest: q.requires_simplest ?? false,
+      requiresFractionForm: q.requires_fraction_form,
       traps: r.traps,
       explanation: r.explanation,
       skillIds: q.skill_ids,
@@ -395,6 +407,7 @@ function gradeBlankGroup(
     answer_type: u.answerType,
     tolerance: u.tolerance,
     requires_simplest: u.requiresSimplest,
+    requires_fraction_form: u.requiresFractionForm,
     traps: u.traps,
     ...(u.blank!.ecf ? { ecf: u.blank!.ecf } : {}),
   })))
@@ -515,7 +528,7 @@ export function gradeUnits(
         }
         continue
       }
-      const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest, u.answerTemplate, u.answerSubjects)
+      const check = checkAnswer(raw, u.correctAnswer, u.answerType, u.tolerance, u.traps, u.requiresSimplest, u.answerTemplate, u.answerSubjects, u.requiresFractionForm)
       if (check.correct) {
         // Units missing or wrong. The maths is sound, so it stays `correct`
         // and the skill map credits it in full — the unit is rarely the skill

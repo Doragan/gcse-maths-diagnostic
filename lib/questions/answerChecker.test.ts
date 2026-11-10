@@ -850,3 +850,191 @@ describe('poor estimates for π', () => {
     expect(checkAnswer('314.16', CORRECT, 'numeric', 0.005, [], false, TEMPLATE).correct).toBe(true)
   })
 })
+// ─────────────────────────────────────────────────────────────────────────────
+// MIXED NUMBERS
+//
+// normalise() stripped all whitespace, so "2 1/3" became "21/3" — the string
+// for seven. Measured against the live grader on 2026-11-03: "21/3" was
+// ACCEPTED for a canonical of "2 1/3", "7/3" (the same number) was rejected,
+// and under requires_simplest the perfectly-written "2 1/3" was told to
+// simplify, because gcd(21, 3) = 3.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('mixed numbers: the parse', () => {
+  it('keeps the whole part attached instead of gluing it to the numerator', () => {
+    // The bug in one line: this returned '21/3' before.
+    expect(normalise('2 1/3')).toBe('2_1/3')
+  })
+
+  it('reads a mixed number as one value, not as the digits run together', () => {
+    // "21/3" IS seven and must not be accepted as two and a third — the plain
+    // bug, independent of any question declaring a form.
+    expect(check('21/3', '2 1/3', 'fraction').correct).toBe(false)
+    // …and the exact type compares the same normalised string, so it had it too.
+    expect(check('21/3', '2 1/3', 'exact').correct).toBe(false)
+    expect(check('2 1/3', '2 1/3', 'exact').correct).toBe(true)
+  })
+
+  it('does not read a decimal beside a fraction as a mixed number', () => {
+    // The whole part has to start at a boundary, so "0.5" keeps its 5.
+    expect(normalise('0.5 1/2')).toBe('0.51/2')
+  })
+
+  it('puts a leading minus on the WHOLE value, as a paper writes it', () => {
+    // -2 1/3 is -2.333…, not -2 + 0.333…
+    expect(check('-2 1/3', '-7/3', 'fraction').correct).toBe(true)
+    expect(check('-2 1/3', '-5/3', 'fraction').correct).toBe(false)
+  })
+
+  it('reads a mixed number inside a ratio or a coordinate too', () => {
+    // parseFraction is shared, so these come free — and they are forms a
+    // student actually types. requireSimplest is off for the ratio: a ratio
+    // with a fractional part is unsimplified whatever it is written with, and
+    // that gate is not what is under test here.
+    expect(checkAnswer('2 1/2 : 3', '5/2:3', 'ratio', null, [], false).correct).toBe(true)
+    expect(check('(1 1/2, 2)', '(3/2, 2)', 'coordinate').correct).toBe(true)
+  })
+
+  it('reads a mixed number as one value on a numeric answer too', () => {
+    // extractNumber, not parseFraction, is what the numeric type uses, and it
+    // took the FIRST number — so a canonical of "2 1/3" was the number 2 and a
+    // student's "7/3" missed it by a third.
+    expect(check('7/3', '2 1/3', 'numeric', 0).correct).toBe(true)
+    expect(check('2 1/3', '2 1/3', 'numeric', 0).correct).toBe(true)
+    expect(check('2', '2 1/3', 'numeric', 0).correct).toBe(false)
+  })
+})
+
+describe('mixed numbers: equivalence is the default', () => {
+  it('accepts either form when the question declares nothing', () => {
+    // "oe" in the mark schemes: 7/3 and 2 1/3 are the same answer.
+    expect(check('7/3', '2 1/3', 'fraction').correct).toBe(true)
+    expect(check('2 1/3', '7/3', 'fraction').correct).toBe(true)
+  })
+
+  it('accepts either form under requires_simplest', () => {
+    // A mixed number IS simplest form, and so is an improper fraction in
+    // lowest terms. Neither may be told to simplify.
+    for (const typed of ['2 1/3', '7/3']) {
+      const r = checkAnswer(typed, '2 1/3', 'fraction', null, [], true)
+      expect(r.correct, typed).toBe(true)
+      expect(r.message, typed).toBe('Correct!')
+    }
+  })
+
+  it('still asks for the fraction part to be reduced', () => {
+    // "2 2/6" is right-valued but not simplest: 2/6 cancels.
+    const r = checkAnswer('2 2/6', '2 1/3', 'fraction', null, [], true)
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('simplest')
+  })
+
+  it('still asks for the fraction part to be proper', () => {
+    // "1 4/3" is 2 1/3 written with an improper tail — no paper accepts it.
+    const r = checkAnswer('1 4/3', '2 1/3', 'fraction', null, [], true)
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('simplest')
+  })
+
+  it('nudges rather than rejects an unsimplified mixed number where the question never asked', () => {
+    const r = checkAnswer('2 2/6', '2 1/3', 'fraction', null, [], false)
+    expect(r.correct).toBe(true)
+    expect(r.message).toContain('simplify')
+  })
+
+  it('tells a mixed-number canonical that a decimal can only approximate it', () => {
+    // 2 1/3 does not terminate, so no number of typed digits is the exact answer.
+    const r = check('2.3333333', '2 1/3', 'fraction')
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('does not terminate')
+  })
+
+  it('matches a trap authored as a mixed number against either form', () => {
+    const traps = [{ answer: '1 1/3', response: 'You subtracted instead of adding.' }]
+    for (const typed of ['1 1/3', '4/3']) {
+      const r = checkAnswer(typed, '2 1/3', 'fraction', null, traps, false)
+      expect(r.correct, typed).toBe(false)
+      expect(r.trap?.response, typed).toBe('You subtracted instead of adding.')
+    }
+  })
+})
+
+describe('mixed numbers: a question that demands one form', () => {
+  const demand = (student: string, correct: string, form: 'mixed' | 'improper') =>
+    checkAnswer(student, correct, 'fraction', null, [], false, undefined, undefined, form)
+
+  it('rejects the improper form where the mixed one was asked for', () => {
+    // JUN23-H-P1 q3: "mixed-number answer; improper form not credited".
+    const r = demand('7/3', '2 1/3', 'mixed')
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('mixed number')
+    // A named misconception, so the teacher's panel can count it.
+    expect(r.trap?.misconception).toBe('answer_not_in_requested_form')
+    expect(r.trap?.method_marks).toBeUndefined()
+  })
+
+  it('accepts the mixed form it asked for', () => {
+    const r = demand('2 1/3', '2 1/3', 'mixed')
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
+  })
+
+  it('rejects the mixed form where the improper one was asked for', () => {
+    // OCR-JUN23-F-P2: "mixed number to improper fraction" — the one part in
+    // the 86 coded papers that runs the other way.
+    const r = demand('2 1/3', '7/3', 'improper')
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('improper fraction')
+    expect(r.trap?.misconception).toBe('answer_not_in_requested_form')
+  })
+
+  it('accepts the improper form it asked for', () => {
+    expect(demand('7/3', '7/3', 'improper').correct).toBe(true)
+  })
+
+  it('does not demand a mixed form of an answer that has none', () => {
+    // A proper fraction has no whole part to pull out, so a student who typed
+    // it exactly right must not be sent to convert it into something that does
+    // not exist.
+    const r = demand('2/3', '2/3', 'mixed')
+    expect(r.correct).toBe(true)
+    expect(r.message).toBe('Correct!')
+  })
+
+  it('judges the form on the value, not on a unit written after it', () => {
+    // "1 1/2 hours" is a mixed number with a word after it, and MIXED_NUMBER is
+    // anchored — so the unit has to come off before the form can be read.
+    expect(demand('1 1/2 hours', '1 1/2 hours', 'mixed').correct).toBe(true)
+  })
+
+  it('still demands the form when the student omitted the unit', () => {
+    // A student who drops the unit is accepted by the units-stripped retry,
+    // which returns before the form gate — so the demand has to be made there
+    // too, or the one shape that carries both a unit and a mixed answer would
+    // take either form.
+    const r = demand('3/2', '1 1/2 hours', 'mixed')
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('mixed number')
+    expect(r.trap?.misconception).toBe('answer_not_in_requested_form')
+    // …and the right form, unit or no unit, is still right.
+    expect(demand('1 1/2', '1 1/2 hours', 'mixed').correct).toBe(true)
+  })
+
+  it('names the simplifying first when both are wrong', () => {
+    // "14/6" is 2 1/3 unreduced AND in the wrong form. Reducing is the more
+    // basic fix and the conversion is easier from lowest terms, so that is the
+    // one said out loud.
+    const r = checkAnswer('14/6', '2 1/3', 'fraction', null, [], true, undefined, undefined, 'mixed')
+    expect(r.correct).toBe(false)
+    expect(r.message).toContain('simplest')
+  })
+
+  it('leaves a question declaring nothing exactly as it was', () => {
+    // The whole bank: null / absent must mean what it meant before this
+    // existed, which is that both forms are right.
+    for (const form of [null, undefined]) {
+      const r = checkAnswer('7/3', '2 1/3', 'fraction', null, [], false, undefined, undefined, form)
+      expect(r.correct).toBe(true)
+      expect(r.message).toBe('Correct!')
+    }
+  })
+})
