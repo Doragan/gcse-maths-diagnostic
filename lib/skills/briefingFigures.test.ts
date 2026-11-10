@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
-  numberLine, probabilityTree, anglesAtAPoint, rightTriangle, regularPolygon, type Figure,
+  numberLine, probabilityTree, anglesAtAPoint, rightTriangle, regularPolygon, lineGraph,
+  type Figure,
 } from './briefingFigures'
 import { skillBriefings } from '../../data/skillBriefings'
 
@@ -39,6 +40,14 @@ const samples = (): { where: string; figure: Figure }[] => [
     figure: numberLine({
       from: 0, to: 6, boundary: 4, closed: true, direction: 'left',
       alt: 'A number line with a filled circle at 4 and an arrow to the left, showing x ≤ 4.',
+    }),
+  },
+  {
+    where: 'lineGraph',
+    figure: lineGraph({
+      xRange: [-1, 5], yRange: [-3, 7], line: { m: 2, c: -1 }, lineLabel: 'L',
+      points: [{ x: 0, y: -1 }, { x: 3, y: 5 }], step: true,
+      alt: 'A line through (0, −1) and (3, 5) with the rise and run marked between them.',
     }),
   },
   {
@@ -326,5 +335,81 @@ describe('regularPolygon', () => {
     // Inside the wedge means pointing the same general way as both edges of it.
     expect(dir[0] * ext[0] + dir[1] * ext[1]).toBeGreaterThan(0)
     expect(dir[0] * next[0] + dir[1] * next[1]).toBeGreaterThan(0)
+  })
+})
+
+describe('lineGraph', () => {
+  /** Every grid line, as {x1,y1,x2,y2}. */
+  const lines = (svg: string) =>
+    [...svg.matchAll(/<line x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)"/g)]
+      .map(m => ({ x1: +m[1], y1: +m[2], x2: +m[3], y2: +m[4] }))
+
+  it('draws the squares square, so the gradient looks like the gradient', () => {
+    // A gradient read off a stretched grid is a different gradient. This is
+    // the one property of the figure that cannot be allowed to drift: the
+    // spacing between the vertical rules must equal the spacing between the
+    // horizontal ones, whatever the axis ranges are.
+    const f = lineGraph({
+      xRange: [0, 6], yRange: [0, 4], line: { m: 1, c: 0 }, alt: 'A line on a wide grid.',
+    })
+    const ls = lines(f.svg)
+    // Deduplicated: an axis is drawn over the grid rule it sits on, so the raw
+    // list holds that position twice and the first gap reads as zero.
+    const at = (xs: number[]) =>
+      [...new Set(xs.map(v => Math.round(v * 10) / 10))].sort((a, b) => a - b)
+    const verticals = at(ls.filter(l => l.x1 === l.x2).map(l => l.x1))
+    const horizontals = at(ls.filter(l => l.y1 === l.y2).map(l => l.y1))
+
+    const gapX = verticals[1] - verticals[0]
+    const gapY = horizontals[1] - horizontals[0]
+    expect(Math.abs(gapX - gapY), `squares are ${gapX} by ${gapY}`).toBeLessThan(0.2)
+  })
+
+  it('numbers the axis in the units it climbs in, not in squares', () => {
+    // The scale trap only exists if the figure can show it: one square up
+    // worth two units is what makes a gradient counted in squares wrong.
+    const f = lineGraph({
+      xRange: [0, 5], yRange: [0, 10], line: { m: 2, c: 0 },
+      unitsPerSquare: { x: 1, y: 2 },
+      alt: 'A line on a grid whose y-axis climbs in twos.',
+    })
+    const labels = texts(f.svg).map(t => t.text)
+    for (const n of ['2', '4', '6', '8', '10']) {
+      expect(labels, `missing the y label ${n}`).toContain(n)
+    }
+    expect(labels, 'labelled an axis value that is not on it').not.toContain('9')
+  })
+
+  it('stops the line at the edge of the grid instead of overshooting it', () => {
+    // A steep line leaves through the TOP. Drawn to the full x range it is
+    // plotted outside the viewBox, where it is clipped into a line that no
+    // longer passes through the points it is supposed to.
+    const f = lineGraph({
+      xRange: [0, 6], yRange: [0, 4], line: { m: 3, c: 0 }, alt: 'A steep line.',
+    })
+    const ls = lines(f.svg)
+    const bottom = Math.max(...ls.map(l => Math.max(l.y1, l.y2)))
+    const top = Math.min(...ls.map(l => Math.min(l.y1, l.y2)))
+
+    // The thick stroke is the line itself; every end of it is inside the grid.
+    const drawn = [...f.svg.matchAll(
+      /<line x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)" stroke-width="2.2"/g,
+    )]
+    expect(drawn.length, 'the line itself is not drawn').toBe(1)
+    for (const v of [+drawn[0][2], +drawn[0][4]]) {
+      expect(v).toBeGreaterThanOrEqual(top - 0.5)
+      expect(v).toBeLessThanOrEqual(bottom + 0.5)
+    }
+  })
+
+  it('marks the rise and the run with the numbers they are', () => {
+    const f = lineGraph({
+      xRange: [-1, 5], yRange: [-3, 7], line: { m: 2, c: -1 },
+      points: [{ x: 0, y: -1 }, { x: 3, y: 5 }], step: true,
+      alt: 'A line with the step between two points marked.',
+    })
+    const labels = texts(f.svg).map(t => t.text)
+    expect(labels).toContain('3 across')
+    expect(labels).toContain('6 up')
   })
 })

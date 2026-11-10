@@ -424,3 +424,150 @@ export function numberLineRange(opts: {
     alt,
   }
 }
+
+/**
+ * A straight line drawn on a numbered grid — the form this skill is actually
+ * set in.
+ *
+ * Every coded board sets "find the equation of the line" against a printed
+ * grid, and the traps are things you can only do to a PICTURE:
+ * `gradient_computed_upside_down`, `read_the_wrong_axis`,
+ * `scale_in_the_wrong_direction`. A prose description of a line asks the
+ * student to recognise something they cannot see.
+ *
+ * `unitsPerSquare` is the scale trap made drawable: a y-axis climbing in 2s
+ * looks identical to one climbing in 1s until you read the numbers, and a
+ * gradient counted in SQUARES rather than units is then wrong by a factor of
+ * two. Default 1 on both axes.
+ */
+export function lineGraph(opts: {
+  /** Axis range, in graph units. */
+  xRange: [number, number]
+  yRange: [number, number]
+  /** y = mx + c, or a vertical line at x = k, which has no gradient. */
+  line: { m: number; c: number } | { verticalAt: number }
+  /** Points to ring. Labelled with their coordinates unless `label` says otherwise. */
+  points?: { x: number; y: number; label?: string }[]
+  /** The rise-and-run step between the first two points, as the gradient is read. */
+  step?: boolean
+  /** Graph units per ruled square. Set it where the question's grid is not 1. */
+  unitsPerSquare?: { x: number; y: number }
+  /** A name for the line itself, printed beside it — "L" on most papers. */
+  lineLabel?: string
+  alt: string
+}): Figure {
+  const { xRange, yRange, line, points = [], step, lineLabel, alt } = opts
+  const per = opts.unitsPerSquare ?? { x: 1, y: 1 }
+  const [xMin, xMax] = xRange
+  const [yMin, yMax] = yRange
+
+  // Squares are drawn SQUARE. A gradient read off a stretched grid looks like
+  // a different gradient, which is the one thing this figure must not do, so
+  // the cell size is chosen from the width and the height follows from it.
+  const W = 320
+  const PAD = { top: 10, right: 12, bottom: 26, left: 30 }
+  const across = (xMax - xMin) / per.x
+  const down = (yMax - yMin) / per.y
+  const cell = (W - PAD.left - PAD.right) / across
+  const plotH = cell * down
+  const H = plotH + PAD.top + PAD.bottom
+
+  const px = (v: number) => PAD.left + ((v - xMin) / per.x) * cell
+  const py = (v: number) => PAD.top + plotH - ((v - yMin) / per.y) * cell
+  const n = (v: number) => v.toFixed(1)
+
+  const parts: string[] = []
+
+  // The ruled squares, faint. At full strength they compete with the line,
+  // and the line is the thing being read.
+  for (let v = xMin; v <= xMax + 1e-9; v += per.x) {
+    parts.push(`<line x1="${n(px(v))}" y1="${n(PAD.top)}" x2="${n(px(v))}" `
+      + `y2="${n(PAD.top + plotH)}" stroke-opacity="0.18" />`)
+  }
+  for (let v = yMin; v <= yMax + 1e-9; v += per.y) {
+    parts.push(`<line x1="${n(PAD.left)}" y1="${n(py(v))}" x2="${n(PAD.left + cell * across)}" `
+      + `y2="${n(py(v))}" stroke-opacity="0.18" />`)
+  }
+
+  // The axes sit at zero when zero is on the grid, and on the edge when it is
+  // not — the same choice the printed paper makes.
+  const axisY = yMin <= 0 && 0 <= yMax ? py(0) : PAD.top + plotH
+  const axisX = xMin <= 0 && 0 <= xMax ? px(0) : PAD.left
+  parts.push(`<line x1="${n(PAD.left)}" y1="${n(axisY)}" x2="${n(PAD.left + cell * across)}" y2="${n(axisY)}" />`)
+  parts.push(`<line x1="${n(axisX)}" y1="${n(PAD.top)}" x2="${n(axisX)}" y2="${n(PAD.top + plotH)}" />`)
+
+  // Numerals. Zero is labelled once, at the origin, rather than on both axes.
+  for (let v = xMin; v <= xMax + 1e-9; v += per.x) {
+    if (v === 0 && yMin <= 0 && 0 <= yMax) continue
+    parts.push(`<text x="${n(px(v))}" y="${n(axisY + 14)}" text-anchor="middle" `
+      + `stroke="none" fill="currentColor" font-size="10">${v}</text>`)
+  }
+  for (let v = yMin; v <= yMax + 1e-9; v += per.y) {
+    parts.push(`<text x="${n(axisX - 6)}" y="${n(py(v) + 3.5)}" text-anchor="end" `
+      + `stroke="none" fill="currentColor" font-size="10">${v}</text>`)
+  }
+  parts.push(`<text x="${n(PAD.left + cell * across)}" y="${n(axisY - 6)}" text-anchor="end" `
+    + `stroke="none" fill="currentColor" font-style="italic">x</text>`)
+  parts.push(`<text x="${n(axisX + 6)}" y="${n(PAD.top + 9)}" stroke="none" `
+    + `fill="currentColor" font-style="italic">y</text>`)
+
+  // The line, clipped to the grid. Drawn heavier than the rules so it reads as
+  // the subject rather than as one more grid line.
+  let ends: [number, number, number, number]
+  if ('verticalAt' in line) {
+    ends = [line.verticalAt, yMin, line.verticalAt, yMax]
+  } else {
+    const { m, c } = line
+    const at = (x: number) => m * x + c
+    let [ax, ay] = [xMin, at(xMin)]
+    let [bx, by] = [xMax, at(xMax)]
+    // Where the line leaves the top or bottom of the grid, walk the end back
+    // along the line to the edge instead of letting it overshoot the axes.
+    if (m !== 0) {
+      if (ay < yMin) { ax = (yMin - c) / m; ay = yMin } else if (ay > yMax) { ax = (yMax - c) / m; ay = yMax }
+      if (by < yMin) { bx = (yMin - c) / m; by = yMin } else if (by > yMax) { bx = (yMax - c) / m; by = yMax }
+    }
+    ends = [ax, ay, bx, by]
+  }
+  parts.push(`<line x1="${n(px(ends[0]))}" y1="${n(py(ends[1]))}" x2="${n(px(ends[2]))}" `
+    + `y2="${n(py(ends[3]))}" stroke-width="2.2" />`)
+
+  if (lineLabel) {
+    // Three quarters along the line, not at its end: a steep line leaves
+    // through the TOP of the grid, and a label hung off that end is drawn
+    // outside the viewBox and clipped away.
+    const lx = px(ends[0]) + 0.75 * (px(ends[2]) - px(ends[0]))
+    const ly = py(ends[1]) + 0.75 * (py(ends[3]) - py(ends[1]))
+    parts.push(`<text x="${n(lx - 7)}" y="${n(ly - 7)}" text-anchor="end" `
+      + `stroke="none" fill="currentColor" font-style="italic">${lineLabel}</text>`)
+  }
+
+  // The step between the two points: along, then up. Dashed, because it is
+  // working the student adds, not part of the printed question.
+  if (step && points.length >= 2) {
+    const [a, b] = points
+    const corner = { x: b.x, y: a.y }
+    parts.push(`<path d="M ${n(px(a.x))},${n(py(a.y))} L ${n(px(corner.x))},${n(py(corner.y))} `
+      + `L ${n(px(b.x))},${n(py(b.y))}" stroke-dasharray="4 3" />`)
+    parts.push(`<text x="${n((px(a.x) + px(b.x)) / 2)}" y="${n(py(a.y) + (a.y <= b.y ? 13 : -6))}" `
+      + `text-anchor="middle" stroke="none" fill="currentColor" font-size="10">`
+      + `${b.x - a.x} across</text>`)
+    parts.push(`<text x="${n(px(b.x) + 5)}" y="${n((py(a.y) + py(b.y)) / 2)}" `
+      + `stroke="none" fill="currentColor" font-size="10">${Math.abs(b.y - a.y)} `
+      + `${b.y >= a.y ? 'up' : 'down'}</text>`)
+  }
+
+  for (const pt of points) {
+    parts.push(`<circle cx="${n(px(pt.x))}" cy="${n(py(pt.y))}" r="3" fill="currentColor" stroke="none" />`)
+    const label = pt.label ?? `(${pt.x}, ${pt.y})`
+    if (label) {
+      // Above the point normally, below it when the point sits under the
+      // x-axis — up there the label lands on the axis numerals.
+      const dy = pt.y < 0 ? 14 : -7
+      parts.push(`<text x="${n(px(pt.x) + 6)}" y="${n(py(pt.y) + dy)}" stroke="none" `
+        + `fill="currentColor" font-size="10">${label}</text>`)
+    }
+  }
+
+  return { svg: OPEN(`0 0 ${W} ${n(H)}`) + parts.join('') + `</svg>`, alt }
+}
