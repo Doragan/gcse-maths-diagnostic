@@ -172,8 +172,9 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
       do: 'Get two points the line definitely passes through: the pair in the question, or two '
         + 'places where the line cuts a corner of the grid.',
       because:
-        'Two points is all a gradient ever needs, and a corner is a point you can read exactly. '
-        + 'Anywhere else you are estimating, and the estimate is what goes wrong.',
+        'Two points is all the gradient of a straight line ever needs, and a corner is a point '
+        + 'you can read exactly. Anywhere else you are estimating, and the estimate is what '
+        + 'goes wrong.',
       watch:
         'Taking a point where the line crosses mid-square, and reading a value off the wrong axis.',
       example: 'The question gives them: (1, 5) and (4, 17)',
@@ -215,8 +216,8 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
   ],
 
   check: [
-    'Put one of your points back into your equation. If (4, 17) does not come out as 17, either '
-      + 'the gradient or the intercept is wrong.',
+    'Put one of your points back into your equation. Take (4, 17): putting x = 4 in should give '
+      + 'y = 17. If it does not, the gradient or the intercept is wrong.',
     'Does the sign match the way the line leans? Up to the right is a positive gradient, down to '
       + 'the right is negative.',
     'Is your answer actually an equation? "4" and "4x + 1" are not — the mark is for y = 4x + 1.',
