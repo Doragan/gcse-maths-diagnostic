@@ -75,10 +75,14 @@ function MathText({ children }: { children: string }) {
   )
 }
 
-function BriefingFigure({ figure }: { figure: Figure }) {
+/**
+ * A diagram in its own framed box, or — `bare` — one sitting inside a box
+ * that is already framed, where a second border would be a box in a box.
+ */
+function BriefingFigure({ figure, bare }: { figure: Figure; bare?: boolean }) {
   return (
     <span
-      style={styles.figure}
+      style={bare ? { ...styles.figure, ...styles.figureBare } : styles.figure}
       role="img"
       aria-label={figure.alt}
       dangerouslySetInnerHTML={{ __html: figure.svg }}
@@ -570,8 +574,18 @@ export default function SkillBriefingPage() {
           {g.recognise.map((r, i) => (
             <li key={i} style={styles.li}>
               {r.text}
-              {r.example && <span style={styles.specimen}>{r.example}</span>}
-              {r.figure && <BriefingFigure figure={r.figure} />}
+              {/* One container, because on the paper they are one question:
+                  the fragment names what to find and the diagram is what it
+                  is found from. Two stacked boxes read as a question and an
+                  unrelated illustration. */}
+              {r.example ? (
+                <span style={styles.specimen}>
+                  {r.example}
+                  {r.figure && <BriefingFigure figure={r.figure} bare />}
+                </span>
+              ) : (
+                r.figure && <BriefingFigure figure={r.figure} />
+              )}
             </li>
           ))}
         </ul>
@@ -797,29 +811,34 @@ export default function SkillBriefingPage() {
               </p>
             )}
             <div style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
-              <div style={styles.stepN}>{i + 1}</div>
+              {!(asking && options) && <div style={styles.stepN}>{i + 1}</div>}
               {asking && options ? (
                 // Three options rather than "show me the next step". The
                 // distractors are what a candidate actually does — usually
                 // this step's own `watch`, or the step after it — so picking
                 // one is a diagnosis rather than a guess.
-                <div style={styles.stepBody}>
-                  <div>
-                    <p style={styles.stepDo}>
-                      {i === 0 ? 'What is the first move?' : 'What is the next move?'}
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {options.map((o, k) => (
-                        <button
-                          key={k}
-                          onClick={() => pickMove(i, k, o.isCorrect)}
-                          style={styles.pairOption}
-                        >
-                          <MathText>{o.text}</MathText>
-                        </button>
-                      ))}
-                    </div>
+                <div style={styles.move}>
+                  <p style={styles.moveLabel}>
+                    {i === 0 ? 'Before step 1' : `Before step ${i + 1}`}
+                  </p>
+                  <p style={styles.moveQ}>
+                    {i === 0 ? 'What is the first move?' : 'What is the next move?'}
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {options.map((o, k) => (
+                      <button
+                        key={k}
+                        onClick={() => pickMove(i, k, o.isCorrect)}
+                        style={styles.moveOption}
+                      >
+                        <span style={styles.moveLetter}>{'ABC'[k]}</span>
+                        <span><MathText>{o.text}</MathText></span>
+                      </button>
+                    ))}
                   </div>
+                  <p style={styles.moveHint}>
+                    Pick the one you would write down. The step opens either way.
+                  </p>
                 </div>
               ) : (
               <div style={styles.stepBody}>
@@ -1270,6 +1289,14 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: radius.sm,
     color: colors.textPrimary,
   },
+
+  /** Inside a specimen box, which already supplies the frame and the tint. */
+  figureBare: {
+    border: 'none',
+    background: 'transparent',
+    padding: '2px 0 0',
+    margin: '8px auto 2px',
+  },
   specimen: {
     display: 'block',
     marginTop: '6px',
@@ -1328,6 +1355,65 @@ const styles: Record<string, React.CSSProperties> = {
   },
   // A full-width option rather than a labelled row: it has to read as
   // something to press, which a line of text beside a label never does.
+  /**
+   * The decision before a step opens. Deliberately not shaped like a step:
+   * drawn as one it sat directly under the previous step's body and read as
+   * more of it, with "What is the next move?" as its heading.
+   */
+  move: {
+    flex: 1,
+    background: '#f5f8ff',
+    border: '1px solid #dbe6ff',
+    borderRadius: radius.sm,
+    padding: '14px 16px',
+  },
+  moveLabel: {
+    margin: 0,
+    fontSize: font.sm,
+    fontWeight: '700',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: colors.primaryHover,
+  },
+  moveQ: {
+    margin: '2px 0 10px',
+    fontSize: font.md,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  moveHint: {
+    margin: '10px 0 0',
+    fontSize: font.sm,
+    color: colors.textSecondary,
+  },
+  /** An option to choose, lettered so it reads as a choice and not a list. */
+  moveOption: {
+    display: 'flex',
+    // Top, not centre: on a phone an option runs to three lines and a letter
+    // floating at its middle reads as punctuation rather than as a label.
+    alignItems: 'flex-start',
+    gap: '10px',
+    width: '100%',
+    textAlign: 'left',
+    padding: '10px 12px',
+    borderRadius: radius.sm,
+    border: `1px solid ${colors.borderStrong}`,
+    background: colors.card,
+    fontFamily: 'inherit',
+    fontSize: font.base,
+    color: colors.textPrimary,
+    cursor: 'pointer',
+  },
+  moveLetter: {
+    flex: 'none',
+    width: '22px', height: '22px',
+    borderRadius: '50%',
+    background: '#eff4ff',
+    color: colors.primaryHover,
+    fontSize: font.sm,
+    fontWeight: '700',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
   pairOption: {
     display: 'flex',
     flexDirection: 'column',
