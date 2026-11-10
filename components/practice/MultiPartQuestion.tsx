@@ -308,6 +308,7 @@ export default function MultiPartQuestion({
         answer_type: b.answer_type,
         tolerance: b.tolerance,
         requires_simplest: b.requires_simplest ?? false,
+        requires_fraction_form: b.requires_fraction_form,
         traps: renderedBlanks[i]?.traps ?? [],
         ecf: renderedBlanks[i]?.ecf,
       })))
@@ -337,6 +338,7 @@ export default function MultiPartQuestion({
         part.requires_simplest ?? false,
         part.answer_template,
         part.answer_subjects,
+        part.requires_fraction_form,
       )
       outcome = {
         answer, correct: result.correct, message: result.message,

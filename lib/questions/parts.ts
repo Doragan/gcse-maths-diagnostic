@@ -1,5 +1,6 @@
 import type { QuestionKind } from './kind'
-import type { PartAnswerType, ScalarAnswerType } from './answerTypes'
+import type { FractionForm, PartAnswerType, ScalarAnswerType } from './answerTypes'
+import { isFractionForm } from './answerTypes'
 
 /**
  * A single, independently-graded and independently-attributed part of a
@@ -53,6 +54,15 @@ export type Blank = {
   answer_type: ScalarAnswerType // never 'multi_blank' — no nesting
   tolerance: number | null // numeric only, like parts
   requires_simplest: boolean
+  /**
+   * The form a FRACTION answer must take, where the question insists on one:
+   * 'mixed' for "write 7/3 as a mixed number", 'improper' for the reverse.
+   *
+   * Absent — every part but the handful that assess the conversion — means
+   * either form is accepted, which is what the mark schemes say ("oe").
+   * Omitted from stored jsonb when unset, keeping it clean.
+   */
+  requires_fraction_form?: FractionForm
   traps: PartTrap[]
   marks: number // per-blank marks (exam partial credit)
   // Optional errors-carried-forward formula, mirroring the exam convention
@@ -137,6 +147,15 @@ export type QuestionPart = {
   tolerance: number | null
   // Whether the part demanded simplest form (drives the fraction/ratio nudge).
   requires_simplest: boolean
+  /**
+   * The form a FRACTION answer must take, where the question insists on one:
+   * 'mixed' for "write 7/3 as a mixed number", 'improper' for the reverse.
+   *
+   * Absent — every part but the handful that assess the conversion — means
+   * either form is accepted, which is what the mark schemes say ("oe").
+   * Omitted from stored jsonb when unset, keeping it clean.
+   */
+  requires_fraction_form?: FractionForm
   traps: PartTrap[]
   marks: number
   kind: QuestionKind
@@ -372,6 +391,8 @@ export type PartInput = {
   answer_type: QuestionPart['answer_type']
   tolerance: string | number | null
   requires_simplest: boolean
+  /** See QuestionPart.requires_fraction_form. */
+  requires_fraction_form?: FractionForm
   traps: PartTrap[]
   marks: string | number
   kind: QuestionKind
@@ -460,6 +481,9 @@ export function normalizeBlank(b: BlankInput): Blank {
       ? (b.tolerance === '' || b.tolerance == null ? 0 : Number(b.tolerance))
       : null,
     requires_simplest: b.requires_simplest ?? false,
+    // Omitted when unset, like answer_subjects: a blank that names no form
+    // accepts either, and an authoring round-trip must not invent one.
+    ...(isFractionForm(b.requires_fraction_form) ? { requires_fraction_form: b.requires_fraction_form } : {}),
     traps: b.traps.filter(t => t.answer_template.trim() !== ''),
     marks: b.marks === '' || b.marks == null ? 1 : Number(b.marks),
     // Omitted when empty, keeping stored jsonb clean — but preserved when set,
@@ -525,6 +549,9 @@ export function normalizePart(p: PartInput): QuestionPart {
     // Default false for legacy parts that predate this field (lenient: a missing
     // flag must never cause a correct answer to be rejected).
     requires_simplest: p.requires_simplest ?? false,
+    // Omitted when unset, like answer_subjects: a part that names no form
+    // accepts either, and an authoring round-trip must not invent one.
+    ...(isFractionForm(p.requires_fraction_form) ? { requires_fraction_form: p.requires_fraction_form } : {}),
     // Drop wholly-empty trap rows (no wrong-answer template).
     traps: p.traps.filter(t => t.answer_template.trim() !== ''),
     marks: p.marks === '' || p.marks == null ? 1 : Number(p.marks),

@@ -38,3 +38,33 @@ export const ANSWER_TYPE_LABELS: Record<PartAnswerType, string> = {
 export function isScalarAnswerType(t: string): t is ScalarAnswerType {
   return (SCALAR_ANSWER_TYPES as readonly string[]).includes(t)
 }
+
+/**
+ * The FORM a fraction answer must be written in, where the question insists on
+ * one. Lives beside the answer types because it qualifies 'fraction' the way
+ * `requires_simplest` does, and like it is a property of the question rather
+ * than of the answer.
+ *
+ * NULL / absent is the default and means EITHER form is accepted — "7/3" and
+ * "2 1/3" are the same number and nearly every mark scheme says so ("oe").
+ * Only a question whose assessed skill IS the conversion sets this.
+ *
+ *   mixed    — "write 7/3 as a mixed number": 2 1/3 only.
+ *   improper — "write 2 1/3 as an improper fraction": 7/3 only.
+ *
+ * Measured over the 86 coded papers: of the 16 mixed/improper parts whose gap
+ * note states which form the scheme credits, 15 demand the mixed form and 1
+ * the improper one. The improper value is here because that one part exists and
+ * the question cannot otherwise be authored — not for symmetry's sake.
+ */
+export const FRACTION_FORMS = ['mixed', 'improper'] as const
+export type FractionForm = typeof FRACTION_FORMS[number]
+
+export const FRACTION_FORM_LABELS: Record<FractionForm, string> = {
+  mixed: 'Mixed number (2 1/3)',
+  improper: 'Improper fraction (7/3)',
+}
+
+export function isFractionForm(t: unknown): t is FractionForm {
+  return typeof t === 'string' && (FRACTION_FORMS as readonly string[]).includes(t)
+}

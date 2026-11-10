@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { getStudentProfile, PENDING_PLACEMENT_KEY } from '../../../lib/auth'
 import { courseFor } from '../../../data/courses'
+import type { FractionForm } from '../../../lib/questions/answerTypes'
 import { getQualification } from '../../../lib/skills/qualificationPreference'
 import { skillsById, getPrerequisiteTree, getDependentTree } from '../../../lib/skills/skillGraph'
 import { studentMastery, placementGapIds, type AttemptKind } from '../../../lib/skills/masteryEngine'
@@ -45,6 +46,8 @@ type Question = {
   answer_type: 'exact' | 'numeric' | 'fraction' | 'expression' | 'ratio' | 'coordinate'
   tolerance: number | null
   requires_simplest?: boolean
+  /** See QuestionPart.requires_fraction_form — fraction answers only. */
+  requires_fraction_form?: FractionForm | null
   /** See QuestionPart.answer_subjects — expression answers only, feedback only. */
   answer_subjects?: string[] | null
   traps: { answer_template: string; response: string }[]
@@ -345,6 +348,7 @@ export default function StudentDiagnosticPage() {
       item.question.requires_simplest ?? false,
       item.question.answer_template,
       item.question.answer_subjects,
+      item.question.requires_fraction_form,
     )
 
     setAnswer(chosen)
