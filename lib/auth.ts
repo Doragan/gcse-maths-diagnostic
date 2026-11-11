@@ -394,3 +394,40 @@ export async function getCachedAccountRole(userId: string): Promise<AccountRole>
   }
   return role
 }
+
+/** Set once per browser tab, so a dashboard reload doesn't re-ask the server. */
+const SIGNUP_ALERT_PINGED_KEY = 'teacher_signup_alert_pinged'
+
+/**
+ * Ask the server to send the founder's "a teacher signed up" alert if it has
+ * not already been sent for this account (app/api/auth/teacher-signup-alert).
+ *
+ * Called from the teacher dashboard rather than from the signup form, because
+ * an email-and-password teacher's row is created by a DB trigger with no app
+ * code on the path — their first authenticated page load is the first moment
+ * server code can see them. Google teachers are alerted on at provisioning and
+ * so are already claimed by the time this runs; it is then a no-op.
+ *
+ * Deliberately silent and never awaited for anything: the alert is for the
+ * founder, and a teacher's dashboard must not be slower, noisier or breakable
+ * because an internal notice failed. The real guard against repeats is the
+ * server's single-shot claim; the sessionStorage flag below only stops the
+ * pointless extra request on every reload.
+ */
+export async function pingTeacherSignupAlert(): Promise<void> {
+  if (typeof window !== 'undefined') {
+    try {
+      if (sessionStorage.getItem(SIGNUP_ALERT_PINGED_KEY)) return
+      sessionStorage.setItem(SIGNUP_ALERT_PINGED_KEY, '1')
+    } catch { /* storage disabled — fall through and just ask */ }
+  }
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    await fetch('/api/auth/teacher-signup-alert', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+  } catch { /* offline, or the route is unreachable — nothing to do about it */ }
+}

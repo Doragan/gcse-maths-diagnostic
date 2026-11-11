@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSession, signOut } from '../../lib/auth'
+import { getSession, signOut, pingTeacherSignupAlert } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
 import { getTutorStudents } from '../../lib/tutorStudents'
 import { type StudentAnalytics } from '../../lib/teacherAnalytics'
@@ -81,6 +81,14 @@ export default function DashboardPage() {
 
       setIsPaid(!!(teacher.paid_until && new Date(teacher.paid_until) > new Date()))
       setIsAdmin(teacher.is_admin ?? false)
+
+      // Confirmed teacher, dashboard loading: the first moment server code can
+      // see an email-and-password signup, whose row is made by a DB trigger
+      // with no route on the path. Not awaited — the alert is internal mail to
+      // the founder and this page must not wait for it, or break if it fails.
+      // The server sends at most one per teacher, ever (lib/email/
+      // teacherSignupNotify.ts), so a returning teacher costs one no-op call.
+      void pingTeacherSignupAlert()
 
       // Both are best-effort: a landing page that fails to load one card should
       // still show the actions, which are the part that works with no data.
