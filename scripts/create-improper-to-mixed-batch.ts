@@ -233,10 +233,17 @@ const questions = [
     ...Q2,
   },
   {
-    skill_ids: ['irregular_and_improper_fractions', 'simplifying_fractions'],
+    skill_ids: ['irregular_and_improper_fractions'],
     // Mastery, not exam: simplifying_fractions is this skill's own prerequisite
     // in skills.ts, so the two are not independent and the synthesis bar is not
-    // met. Both are tagged because both are genuinely exercised.
+    // met.
+    //
+    // And SINGLE-tagged for the same reason. scripts/retag-scale-factor-questions.ts
+    // settled this: 'a mastery question tagged with both a skill and its own
+    // prerequisite claims credit twice for one piece of work'. Reducing the
+    // leftover is still exercised by the question; it just is not credited
+    // separately. verify-question.ts also warns that a single-part mastery
+    // question wants exactly one skill.
     kind: 'mastery', difficulty: 3, marks: 1, calculator: 'na',
     question_type: 'numeric', answer_type: 'fraction',
     // Here the wording DOES ask for it, and reducing the leftover is half the
