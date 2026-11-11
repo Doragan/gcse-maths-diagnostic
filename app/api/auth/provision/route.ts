@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { notifyTeacherSignup } from '../../../../lib/email/teacherSignupNotify'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Provision an account row (teachers | students) for an OAuth (Google) user.
@@ -144,6 +145,14 @@ export async function POST(req: Request) {
       user_metadata: { role: 'teacher' },
     })
     if (metaErr) console.error('teacher metadata update failed:', metaErr)
+
+    // Tell the founder, once. This is the only place a Google teacher signup is
+    // observable by server code — their row is created here, not by the
+    // `handle_new_user` trigger (see the header). Awaited rather than
+    // fire-and-forget: a serverless function can be frozen the moment it
+    // responds, which would drop the send. It cannot throw, and it cannot fail
+    // the signup — the account already exists by this point.
+    await notifyTeacherSignup(admin, user.id, 'google')
 
     return NextResponse.json({ ok: true, role: 'teacher' })
   } catch (err: any) {
