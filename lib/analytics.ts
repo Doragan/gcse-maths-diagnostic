@@ -178,7 +178,8 @@ export function trackEvent(
   // analytics — applies to EVERY event, not just page_view.
   const path = normalizePath(window.location.pathname)
 
-  // 1. Supabase — fire and forget (don't block the UI)
+  // Supabase — fire and forget (don't block the UI). The only destination:
+  // this was step "1." of two until Google Analytics was removed on 2026-10-12.
   supabase.from('analytics_events').insert({
     event:      name,
     path,
