@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { splitExpressions } from './mathPhrases'
 import { skillBriefings } from '../../data/skillBriefings'
+import { allSteps } from '../../data/skillBriefings/types'
 
 /** The text as the reader sees it — segments joined back together. */
 const rebuilt = (s: string) => splitExpressions(s).map(x => x.text).join(' ')
@@ -50,7 +51,7 @@ describe('splitExpressions', () => {
     for (const run of held(long)) expect(run.length).toBeLessThanOrEqual(20)
 
     for (const g of Object.values(skillBriefings)) {
-      for (const s of [...g.steps, ...(g.higher?.steps ?? [])]) {
+      for (const s of allSteps(g)) {
         for (const run of held(s.example ?? '')) expect(run.length, run).toBeLessThanOrEqual(20)
       }
     }
@@ -64,7 +65,7 @@ describe('splitExpressions', () => {
         g.summary,
         ...[...g.recognise, ...(g.higher?.recognise ?? [])].flatMap(c => [c.text, c.example ?? '']),
         ...[...g.examples, ...(g.higher?.examples ?? [])].flatMap(e => [e.stem, e.cue, ...(e.worked ?? [])]),
-        ...[...g.steps, ...(g.higher?.steps ?? [])].flatMap(s => [s.do, s.because, s.watch, s.example ?? '']),
+        ...allSteps(g).flatMap(s => [s.do, s.because, s.watch, s.example ?? '']),
         ...[...g.check, ...(g.higher?.check ?? [])],
       ].filter(Boolean)
       for (const s of strings) expect(rebuilt(s), `${g.skillId}: ${s.slice(0, 40)}`).toBe(s)

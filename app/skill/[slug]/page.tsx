@@ -6,6 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { skillsById } from '../../../lib/skills/skillGraph'
 import { slugToSkillId, investigatePath } from '../../../lib/skills/slug'
 import { getBriefing, resolveBriefing } from '../../../data/skillBriefings'
+import type { MethodStep } from '../../../data/skillBriefings'
 import { hasInvestigation } from '../../../data/investigations'
 import {
   getExamProfile, dressedFramings, bareClaim, chainClaim, calcClaim,
@@ -79,6 +80,35 @@ function MathText({ children }: { children: string }) {
  * A diagram in its own framed box, or — `bare` — one sitting inside a box
  * that is already framed, where a second border would be a box in a box.
  */
+/**
+ * One step: what to do, why, and what goes wrong, with the worked line for
+ * this step beside it.
+ *
+ * Shared by the single-method list and the routes, which differ in what
+ * surrounds a step and not in how a step is written.
+ */
+function MethodStepBody(
+  { step, verdict }: { step: MethodStep; verdict?: React.ReactNode },
+) {
+  return (
+    <div style={styles.stepBody}>
+      <div>
+        {verdict}
+        <p style={styles.stepDo}><MathText>{step.do}</MathText></p>
+        <p style={styles.stepSub}>
+          <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>
+          <MathText>{step.because}</MathText>
+        </p>
+        <p style={{ ...styles.stepSub, marginBottom: 0 }}>
+          <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>
+          <MathText>{step.watch}</MathText>
+        </p>
+      </div>
+      {step.example && <p style={styles.stepExample}><MathText>{step.example}</MathText></p>}
+    </div>
+  )
+}
+
 function BriefingFigure({ figure, bare }: { figure: Figure; bare?: boolean }) {
   return (
     <span
@@ -543,7 +573,9 @@ export default function SkillBriefingPage() {
           pointer is the fix for "a student may not realise there is more":
           every stage advertises the next one by name. */}
       <p style={styles.stageBlurb}>
-        {STAGES.find(s => s.id === stage)!.blurb}
+        {stage === 'do' && g.routes
+          ? 'The method for each kind of question'
+          : STAGES.find(s => s.id === stage)!.blurb}
       </p>
 
       {stage === 'spot' && g.higherNote && (
@@ -772,6 +804,60 @@ export default function SkillBriefingPage() {
       {stage === 'do' && (
       <section style={styles.card}>
         <p style={styles.h}>How to answer a question on {lowerName}</p>
+
+        {/* Some skills are asked from genuinely different starting points,
+            and one numbered list run through all of them keeps changing
+            subject. Those pages author routes instead: a method per kind of
+            question, picked by looking at what you have been given.
+
+            Routes are not gated. The gate hides the rest of a method until
+            the student commits to the next move, which works on one thread
+            and not on three — the answer to the first route is written out
+            in plain sight as the first step of the second. */}
+        {g.routes ? (
+          <>
+            <p style={{ ...styles.hint, marginBottom: '4px' }}>
+              {['', 'One kind', 'Two kinds', 'Three kinds', 'Four kinds'][g.routes.length]
+                ?? `${g.routes.length} kinds`} of question, each with its own first move. Work
+              out which one you have been given, then follow that method.
+            </p>
+            {g.routes.map((r, ri) => (
+              <div
+                key={r.name}
+                style={{
+                  ...styles.route,
+                  borderTop: ri === 0 ? 'none' : `1px solid ${colors.border}`,
+                }}
+              >
+                <p style={styles.routeName}>
+                  {r.higher && <span style={styles.routeHigher}>Higher</span>}
+                  {r.name}
+                </p>
+                <p style={styles.routeWhen}>{r.when}</p>
+                <div style={styles.methodRun}>
+                  <p style={{ margin: 0 }}>
+                    <span style={styles.methodRunLabel}>Worked on</span>
+                    <MathText>{r.example}</MathText>
+                  </p>
+                  {r.figure && <BriefingFigure figure={r.figure} bare />}
+                </div>
+                {r.steps.map((s, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      ...styles.step,
+                      borderTop: i === 0 ? 'none' : `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div style={styles.stepN}>{i + 1}</div>
+                    <MethodStepBody step={s} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
         <p style={{ ...styles.hint, marginBottom: g.methodExample ? 0 : 12 }}>
           {askingAt > -1
             ? 'Decide the next move before each step opens. Each step then says why it is there and where it goes wrong.'
@@ -841,36 +927,27 @@ export default function SkillBriefingPage() {
                   </p>
                 </div>
               ) : (
-              <div style={styles.stepBody}>
-                <div>
-                  {options && picked !== undefined && (
-                    // Their call, named plainly — the same way the judged
-                    // stems do it. The step below carries the teaching; this
-                    // line only says whether they had it.
-                    <p style={{
-                      ...styles.judgement,
-                      color: gotItRight ? colors.successText : colors.warningText,
-                    }}>
-                      {gotItRight ? '✓ That was the move' : '✗ Not the move — here it is'}
-                    </p>
-                  )}
-                  <p style={styles.stepDo}><MathText>{s.do}</MathText></p>
-                  <p style={styles.stepSub}>
-                    <span style={{ ...styles.lbl, color: colors.primary }}>Why</span>
-                    <MathText>{s.because}</MathText>
+              <MethodStepBody
+                step={s}
+                verdict={options && picked !== undefined && (
+                  // Their call, named plainly — the same way the judged
+                  // stems do it. The step below carries the teaching; this
+                  // line only says whether they had it.
+                  <p style={{
+                    ...styles.judgement,
+                    color: gotItRight ? colors.successText : colors.warningText,
+                  }}>
+                    {gotItRight ? '✓ That was the move' : '✗ Not the move — here it is'}
                   </p>
-                  <p style={{ ...styles.stepSub, marginBottom: 0 }}>
-                    <span style={{ ...styles.lbl, color: colors.warningText }}>Watch</span>
-                    <MathText>{s.watch}</MathText>
-                  </p>
-                </div>
-                {s.example && <p style={styles.stepExample}><MathText>{s.example}</MathText></p>}
-              </div>
+                )}
+              />
               )}
             </div>
           </div>
           )
         })}
+          </>
+        )}
       </section>
       )}
 
@@ -1506,6 +1583,34 @@ const styles: Record<string, React.CSSProperties> = {
   },
   workedLine: { paddingLeft: '2px', marginBottom: '2px' },
 
+  /** One kind of question, with its own method under it. */
+  route: {
+    marginTop: '16px',
+    paddingTop: '14px',
+  },
+  routeName: {
+    margin: 0,
+    fontSize: font.md,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  routeHigher: {
+    display: 'inline-block',
+    marginRight: '8px',
+    padding: '1px 7px',
+    borderRadius: radius.full,
+    background: '#eff4ff',
+    color: colors.primaryHover,
+    fontSize: font.sm,
+    fontWeight: '700',
+    verticalAlign: '2px',
+  },
+  routeWhen: {
+    margin: '3px 0 0',
+    fontSize: font.base,
+    color: colors.textSecondary,
+    lineHeight: 1.5,
+  },
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
   // Method on the left, the worked line on the right. One column on a
   // phone, where side-by-side would leave both halves too narrow to read.

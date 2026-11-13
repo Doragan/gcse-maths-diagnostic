@@ -14,14 +14,20 @@ import { lineGraph } from '../../lib/skills/briefingFigures'
 // The investigation teaches what m and c DO. This page does the other job:
 // recognising the question on a paper, and the places the marks go.
 //
-// Both tiers code `gradient_computed_upside_down`, and
-// `gradient_read_before_rearranging` recurs on Foundation and Higher alike.
-// That decides the order of the method: tidy the equation FIRST, because the
-// number in front of x is not the gradient until y stands alone, and only
-// then do the division — which is the step the gate asks about.
+// The method is in ROUTES, not one numbered list. This skill is asked from a
+// drawn line, from two coordinates and from an untidy equation, and the first
+// move is different in each; threaded through a single list the steps kept
+// changing subject, and a student could not tell which of them were for the
+// question in front of them. Each route is a question type, picked the same
+// way the rest of the page teaches — by looking at what you have been given.
 //
-// Higher adds one idea rather than a new method: the gradient arrives as a
-// description (parallel, perpendicular) instead of something to read off. The
+// Both tiers code `gradient_computed_upside_down`, which is the last step of
+// route 1 and the first of route 2, and `gradient_read_before_rearranging`,
+// which is the whole of route 3.
+//
+// Higher adds a fourth route rather than steps on the others: the gradient
+// arrives as a description (parallel, perpendicular) instead of something to
+// read off, which is a different first move again. The
 // negative-reciprocal traps are the biggest cluster there —
 // `forgot_negative_reciprocal`, `sign_error_on_the_negative_reciprocal`,
 // `product_of_gradients_not_-1` — and every one of them is half the operation
@@ -156,71 +162,115 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
     },
   ],
 
-  methodExample: 'A straight line passes through (1, 5) and (4, 17). Find its equation.',
-  steps: [
+  // The method is split by the question, not by difficulty. Threading all
+  // three through one numbered list made the steps change subject — tidying
+  // an equation above reading a grid — and a student could not tell which of
+  // them were for the question in front of them.
+  //
+  // No step here is gated. The gate asks what comes next and hides the rest
+  // of the method until it is answered, which works on one thread and not on
+  // three: the answer to route 1 is written out in plain sight as the first
+  // step of route 2.
+  routes: [
     {
-      do: 'If you have been handed an equation rather than a line, rearrange it so that y is on '
-        + 'its own before reading anything off it.',
-      because:
-        'Only when y stands alone does the number in front of x mean the gradient. Until then the '
-        + 'equation is describing 2y or 3y, not y.',
-      watch:
-        'Taking the gradient of 2y = 8x − 6 to be 8, or of 3x + y = 7 to be 3 when it is −3.',
-      example: 'Nothing to tidy here — but if it gave 2y = 8x − 6, halve it first: y = 4x − 3',
-    },
-    {
-      do: 'Get two points the line definitely passes through: the pair in the question, or two '
-        + 'places where the line cuts a corner of the grid.',
-      because:
-        'Two points is all the gradient of a straight line ever needs, and a corner is a point '
-        + 'you can read exactly. Anywhere else you are estimating, and the estimate is what '
-        + 'goes wrong.',
-      watch:
-        'Taking a point where the line crosses mid-square, and reading a value off the wrong axis.',
-      example: 'The question gives them: (1, 5) and (4, 17)',
-    },
-    {
-      do: 'Work out the gradient: the change in y divided by the change in x.',
-      because:
-        'The gradient says how far y moves for one step of x, so y is the one being divided. Up '
-        + 'over across, every time.',
-      watch:
-        'Dividing the wrong way round. Across over up gives 3 ÷ 12 here, which is the reciprocal '
-        + 'of the answer — the slip that turns up on both Foundation and Higher papers.',
-      example: 'm = (17 − 5) ÷ (4 − 1) = 12 ÷ 3 = 4',
-      nextMoveDistractors: [
-        'Count the squares between the two points and use that as the gradient.',
-        'Divide the change in x by the change in y to find the gradient.',
+      name: 'The line is drawn for you',
+      when: 'A line on a grid, and an answer line wanting an equation.',
+      example: 'The line below is drawn on a grid. Work out its equation.',
+      figure: lineGraph({
+        xRange: [-1, 5], yRange: [-3, 7], line: { m: 2, c: -1 },
+        points: [{ x: 0, y: -1 }, { x: 3, y: 5 }], step: true,
+        alt: 'A line on a numbered grid crossing the y-axis at −1 and passing through (3, 5), '
+          + 'with the step between those two points marked as 3 across and 6 up.',
+      }),
+      steps: [
+        {
+          do: 'Find where the line cuts the y-axis and read the value off. That is c.',
+          because:
+            'c is the value of y when x is zero, and the y-axis is exactly where x is zero. On a line you can see, c is read rather than worked out.',
+          watch:
+            'Reading where it cuts the across axis instead. c comes off the UP one.',
+          example: 'It cuts the y-axis at −1, so c = −1',
+        },
+        {
+          do: 'Pick two points where the line passes exactly through a corner of the grid, and count from one to the other: up, then across.',
+          because:
+            'A corner is a point you can read exactly. Anywhere else you are estimating, and an estimated gradient is a wrong gradient.',
+          watch:
+            'Counting SQUARES rather than reading the numbers. If the y-axis climbs in twos, one square up is 2, and every gradient comes out half what it should be.',
+          example: 'From (0, −1) to (3, 5): 6 up, 3 across',
+        },
+        {
+          do: 'Divide the up by the across to get m, then write it as y = mx + c.',
+          because:
+            'The gradient is how far y moves for one step of x, so y is the one being divided. Up over across, every time.',
+          watch:
+            'Dividing the wrong way round. Across over up gives 3 ÷ 6 here, the reciprocal of the answer — the slip that turns up on both Foundation and Higher papers.',
+          example: 'm = 6 ÷ 3 = 2, so y = 2x − 1',
+        },
       ],
     },
     {
-      do: 'Find c by putting one of your points back into y = mx + c, or read it off the graph '
-        + 'where the line crosses the y-axis.',
-      because:
-        'c is the value of y when x is zero. A point anywhere else only gives it to you after the '
-        + 'substitution.',
-      watch:
-        'Using the point as the intercept: (1, 5) does not make c = 5. Parallel questions lose the '
-        + 'same mark — the gradient gets copied across and the point is never used.',
-      example: '5 = 4 × 1 + c, so c = 1',
+      name: 'You are given two points',
+      when: 'Two coordinates and no picture at all.',
+      example: 'A straight line passes through (1, 5) and (4, 17). Work out its equation.',
+      steps: [
+        {
+          do: 'Work out the gradient: the change in y divided by the change in x.',
+          because:
+            'There is no y-axis to look at, so m has to come first — and two points is all the gradient of a straight line ever needs.',
+          watch:
+            'Subtracting in a different order top and bottom. Start at the same point for both, or the sign comes out wrong.',
+          example: 'm = (17 − 5) ÷ (4 − 1) = 12 ÷ 3 = 4',
+        },
+        {
+          do: 'Put either one of the points into y = mx + c, and solve for c.',
+          because:
+            'The point is on the line, so its x and y must fit the equation. That leaves c as the only thing you do not know.',
+          watch:
+            'Using the point AS the intercept: (1, 5) does not make c = 5.',
+          example: '5 = 4 × 1 + c, so c = 1',
+        },
+        {
+          do: 'Write the answer as an equation, starting y =, rather than as a single number.',
+          because:
+            'The last mark is for the equation. A gradient on its own answers a question that was not the one asked.',
+          watch:
+            'Answering "4", or stopping at "4x + 1".',
+          example: 'y = 4x + 1',
+        },
+      ],
     },
     {
-      do: 'Write the answer as an equation, starting y =, rather than as a single number.',
-      because:
-        'The last mark is for the equation. A gradient on its own answers a question that was not '
-        + 'the one asked.',
-      watch:
-        'Answering "4", or stopping at "4x + 1". And a line straight up the page is x = a, never y =.',
-      example: 'y = 4x + 1',
+      name: 'You are given an equation, but not in y = form',
+      when: 'Something like 3y = 12x − 9, and a question about its gradient or its intercept.',
+      example: 'A line has equation 3y = 12x − 9. Write down the gradient of the line.',
+      steps: [
+        {
+          do: 'Rearrange until y stands alone: divide every term by whatever is multiplying y.',
+          because:
+            'Only when y is on its own does the number in front of x mean the gradient. Until then the equation is describing 3y, not y.',
+          watch:
+            'Dividing only the x term. Every term goes, including the number on the end.',
+          example: 'Divide every term by 3: y = 4x − 3',
+        },
+        {
+          do: 'Now read them off: m is the number multiplying x, c is the number on its own.',
+          because:
+            'Once it is in y = mx + c there is nothing left to work out — the form IS the answer.',
+          watch:
+            'Taking the gradient of 3x + y = 7 to be 3. Move the 3x across first and it is −3.',
+          example: 'm = 4 — and c would be −3 if the intercept were asked for',
+        },
+      ],
     },
   ],
-
   check: [
     'Put one of your points back into your equation. Take (4, 17): putting x = 4 in should give '
       + 'y = 17. If it does not, the gradient or the intercept is wrong.',
     'Does the sign match the way the line leans? Up to the right is a positive gradient, down to '
       + 'the right is negative.',
     'Is your answer actually an equation? "4" and "4x + 1" are not — the mark is for y = 4x + 1.',
+    'A line straight up the page is x = a, never y = something. Only a line across the page is y = a.',
   ],
 
   higher: {
@@ -259,30 +309,41 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
       },
     ],
 
-    methodExample: 'Line L is perpendicular to y = 2x + 1 and goes through (4, 3). Find its equation.',
-    steps: [
+    // A fourth route rather than extra steps on the others: the gradient
+    // arrives by description here, which is a different first move again.
+    routes: [
       {
-        do: 'For perpendicular, turn the gradient upside down AND change its sign.',
-        because:
-          'Perpendicular gradients multiply to −1. Turning 2 over gives ½, and ½ × 2 is 1 — the '
-          + 'sign change is what makes it −1.',
-        watch:
-          'Doing one half of it and not the other. The perpendicular to y = 2x is neither y = −2x '
-          + 'nor y = ½x.',
-        example: 'Gradient 2 turns over to ½, then changes sign: m = −½',
-      },
-      {
-        do: 'For parallel, copy the gradient straight across and find a new c from the point.',
-        because:
-          'Parallel lines differ only in c. Copying the whole equation across gives back the line '
-          + 'you started with, which is not parallel to it — it is it.',
-        watch:
-          'Comparing the intercepts to decide whether two lines are parallel. It is the gradients '
-          + 'that decide it, and the intercepts that must differ.',
-        example: 'If it said parallel instead: m = 2, then 3 = 8 + c, so c = −5',
+        name: 'Parallel or perpendicular to a line you are given',
+        when: 'No gradient stated and no points to count — just another line to take it from.',
+        example: 'Line L is perpendicular to y = 2x + 1 and passes through (4, 3). Find its equation.',
+        steps: [
+          {
+            do: 'Get the gradient of the line you were given, rearranging first if y is not already on its own.',
+            because:
+              'Everything here is built off that one number, so it has to be the real gradient and not the number that happens to sit in front of x.',
+            watch:
+              'Taking it from an untidy equation. In 2y = 6x + 1 the gradient is 3, not 6.',
+            example: 'y = 2x + 1 is already tidy, so its gradient is 2',
+          },
+          {
+            do: 'Parallel keeps that gradient. Perpendicular turns it upside down AND changes its sign.',
+            because:
+              'Perpendicular gradients multiply to −1. Turning 2 over gives ½, and ½ × 2 is 1 — the sign change is what makes it −1.',
+            watch:
+              'Doing one half of it and not the other. The perpendicular to y = 2x is neither y = −2x nor y = ½x.',
+            example: 'Perpendicular: 2 turns over to ½, then changes sign, so m = −½',
+          },
+          {
+            do: 'Put the point you were given into y = mx + c to find c, exactly as you would from two points.',
+            because:
+              'The gradient fixes which direction the line runs; the point is what fixes WHICH of the parallel lines in that direction it is.',
+            watch:
+              'Leaving the point unused. Without it the answer is a direction, not a line — and a parallel answer with the same c is the original line written out again.',
+            example: '3 = −½ × 4 + c, so 3 = −2 + c and c = 5, giving y = −½x + 5',
+          },
+        ],
       },
     ],
-
     check: [
       'Multiply your gradient by the one you started from. Perpendicular lines must give exactly −1.',
       'A line parallel to another must have a DIFFERENT intercept. If c came out the same, you '
