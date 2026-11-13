@@ -343,6 +343,309 @@ function expressionMatch(a: string, b: string): boolean {
   return false
 }
 
+// ── Exact surd equivalence ───────────────────────────────────────────────────
+//
+// The 'exact' type was a normalised string comparison, which marked a student
+// wrong for writing the same number a different legal way. Measured against the
+// live grader on 2026-11-13, every one of these was REJECTED:
+//
+//   canonical √2/2  typed 1/√2        canonical √3   typed 3/√3
+//   canonical 1/√3  typed √3/3        canonical √3/2 typed 3/(2√3)
+//   canonical 4+2√5 typed 2√5+4   (the same number, terms the other way round)
+//
+// The gap cut both ways inside ONE question: exact_trig_values (5c6ddebf) was
+// just extended to 14 draws to cover the whole specification list, which put
+// both √2/2 and 1/√3 into its answer pool — so a student who rationalises is
+// wrong on one draw and a student who does not is wrong on another. Three bank
+// questions out of the 33 'exact' ones produce a surd answer at all: 5c6ddebf,
+// e9a09aa3 (surds_expanding_and_rationalising) and 75ebebaf (surds_simplifying).
+//
+// ── WHY A SYMBOLIC NORMAL FORM AND NOT A NUMERIC COMPARISON ─────────────────
+// The obvious cheap fix is to compare the two sides as floating-point numbers
+// at a tight tolerance. It was rejected: the whole point of the 'exact' type is
+// that a decimal is NOT an acceptable answer, and a numeric comparison makes
+// that property depend on how many digits the student happened to type. At
+// tolerance 1e-9 "0.707" fails but "0.7071067811865476" passes, and which side
+// of the line a decimal lands on is then an accident rather than a decision.
+//
+// So each side is parsed into a canonical map instead — radicand → rational
+// coefficient, every radicand reduced to a square-free integer, with 1 as the
+// key for the rational part:
+//
+//   √2/2    → {2: 1/2}        1/√2    → {2: 1/2}      equal
+//   1/√3    → {3: 1/3}        √3/3    → {3: 1/3}      equal
+//   √3/2    → {3: 1/2}        3/(2√3) → {3: 1/2}      equal
+//   4+2√5   → {1: 4, 5: 2}    2√5+4   → {1: 4, 5: 2}  equal
+//
+// Two properties fall out of that representation rather than being bolted on:
+//
+//  • A DECIMAL CANNOT ENTER IT. The parser reads integer literals only, so
+//    "0.707" fails to parse and the comparison never runs — a structural
+//    guarantee, not a tolerance that happens to be tight enough today. All the
+//    arithmetic is exact integer rational arithmetic; there is no float in here.
+//  • TERM ORDER IS FREE. A map has no order, so "2√5+4" needs no special case.
+//    expressionMatch's sortedTerms() was the alternative considered for that
+//    one row of the table, but it is a string sort that cannot see that 1/√2
+//    and √2/2 are the same number — it would have fixed the easiest case and
+//    left the four that actually prompted this.
+//
+// ── WHY IT IS GATED ON requireSimplest ──────────────────────────────────────
+// 75ebebaf asks the student to simplify √(a²b), and its first authored trap is
+// √(a²b) itself — the UNSIMPLIFIED form, which is numerically equal to the
+// correct answer. Accepting every equivalent form would accept √12 for 2√3 and
+// make that trap unreachable on the one question whose assessed skill IS the
+// form. `requireSimplest` already carries exactly that meaning elsewhere in
+// this file ("the simplification IS the assessed skill, so an unsimplified
+// equivalent is NOT accepted"), and 75ebebaf already has requires_simplest set
+// while the other two have it clear — so no new column is needed, and that
+// question keeps its authored trap, its wording and its method mark untouched.
+//
+// Deliberately narrow in two more ways, so that what cannot be proved right
+// fails closed to the old string comparison rather than guessing:
+//  • At least one side must contain a radical. Without that guard 'exact' would
+//    also start accepting "6/3" for "2" and "2/4" for "1/2", which is a change
+//    to rational answers that nothing here measured and that an exact-value
+//    question arguably should refuse anyway.
+//  • Anything the grammar does not cover returns null and the caller falls back:
+//    letters, π, '=', '^', nested radicals (√(1+√2)), and division by a sum
+//    (1/(1+√2) needs conjugate rationalisation, which no bank answer asks for).
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** A rational n/d in lowest terms, d > 0. */
+type Rat = { n: number; d: number }
+
+/**
+ * A surd expression in normal form: square-free radicand → rational
+ * coefficient. Key 1 holds the rational part (√1 = 1). A zero coefficient is
+ * never stored, so the empty map is the number zero and two equal values always
+ * have identical key sets.
+ */
+type Surd = Map<number, Rat>
+
+/**
+ * Radicands above this are refused. The largest the bank can produce is
+ * √252 = 6√7 (75ebebaf at a=6, b=7); the cap only exists so that a pathological
+ * typed answer cannot push splitSquare into a long trial-division loop.
+ */
+const RADICAND_LIMIT = 1_000_000
+
+
+/**
+ * Build a reduced rational, or null if the inputs are not safe integers — which
+ * is also the overflow guard: every caller computes n and d as integer products
+ * and sums, so a value that has drifted past 2^53 arrives here as a non-safe
+ * integer and the whole parse fails closed instead of comparing wrong numbers.
+ */
+function rat(n: number, d: number): Rat | null {
+  if (!Number.isSafeInteger(n) || !Number.isSafeInteger(d) || d === 0) return null
+  if (d < 0) { n = -n; d = -d }
+  const g = gcd(n, d) || 1
+  return { n: n / g, d: d / g }
+}
+
+const ratAdd = (a: Rat, b: Rat): Rat | null => rat(a.n * b.d + b.n * a.d, a.d * b.d)
+const ratMul = (a: Rat, b: Rat): Rat | null => rat(a.n * b.n, a.d * b.d)
+const ratDiv = (a: Rat, b: Rat): Rat | null => (b.n === 0 ? null : rat(a.n * b.d, a.d * b.n))
+
+/**
+ * Pull the largest square factor out of a positive integer: n = k²m with m
+ * square-free. √252 → {k: 6, m: 7}, √12 → {k: 2, m: 3}, √5 → {k: 1, m: 5}.
+ * This is what makes the normal form canonical — without it √12 and 2√3 would
+ * sit under different keys.
+ */
+function splitSquare(n: number): { k: number; m: number } | null {
+  if (!Number.isSafeInteger(n) || n < 1 || n > RADICAND_LIMIT) return null
+  let k = 1, m = n
+  for (let p = 2; p * p <= m; p++) {
+    while (m % (p * p) === 0) { m /= p * p; k *= p }
+  }
+  return { k, m }
+}
+
+/** Add coeff·√radicand into a Surd, reducing the radicand and dropping zeros. */
+function surdAddTerm(s: Surd, radicand: number, coeff: Rat): Surd | null {
+  if (coeff.n === 0) return s
+  const sq = splitSquare(radicand)
+  if (!sq) return null
+  const c = ratMul(coeff, { n: sq.k, d: 1 })
+  if (!c) return null
+  const prev = s.get(sq.m)
+  const sum = prev ? ratAdd(prev, c) : c
+  if (!sum) return null
+  if (sum.n === 0) s.delete(sq.m); else s.set(sq.m, sum)
+  return s
+}
+
+const surdRat = (r: Rat): Surd => (r.n === 0 ? new Map() : new Map([[1, r]]))
+
+function surdAdd(a: Surd, b: Surd): Surd | null {
+  let out: Surd | null = new Map(a)
+  for (const [rad, c] of b) {
+    out = surdAddTerm(out, rad, c)
+    if (!out) return null
+  }
+  return out
+}
+
+const surdNeg = (a: Surd): Surd =>
+  new Map([...a].map(([rad, c]) => [rad, { n: -c.n, d: c.d }]))
+
+/** √ra·√rb = √(ra·rb), so a product is a double loop over the terms. */
+function surdMul(a: Surd, b: Surd): Surd | null {
+  let out: Surd = new Map()
+  for (const [ra, ca] of a) {
+    for (const [rb, cb] of b) {
+      const c = ratMul(ca, cb)
+      if (!c || !Number.isSafeInteger(ra * rb)) return null
+      const next = surdAddTerm(out, ra * rb, c)
+      if (!next) return null
+      out = next
+    }
+  }
+  return out
+}
+
+/**
+ * Division, by rationalising: ca·√ra ÷ (cb·√rb) = (ca / (cb·rb))·√(ra·rb).
+ *
+ * The divisor must be a SINGLE term, which is what lets this stay exact and
+ * short. A sum in the denominator (1/(1+√2)) needs conjugate rationalisation,
+ * and no bank answer is written that way — e9a09aa3 asks for "p + q√n where p
+ * and q are integers", so an unrationalised quotient is not an answer in the
+ * form that question demanded — so it returns null and the caller falls back.
+ */
+function surdDiv(a: Surd, b: Surd): Surd | null {
+  if (b.size !== 1) return null
+  const [[rb, cb]] = [...b]
+  const denom = ratMul(cb, { n: rb, d: 1 })
+  if (!denom || denom.n === 0) return null
+  let out: Surd = new Map()
+  for (const [ra, ca] of a) {
+    const c = ratDiv(ca, denom)
+    if (!c || !Number.isSafeInteger(ra * rb)) return null
+    const next = surdAddTerm(out, ra * rb, c)
+    if (!next) return null
+    out = next
+  }
+  return out
+}
+
+/**
+ * √ of an already-parsed value. Only a non-negative RATIONAL has a root here:
+ * √(n/d) = √(n·d)/d. A radicand that still contains a radical (√(1+√2)) or is
+ * negative returns null.
+ */
+function surdRoot(a: Surd): Surd | null {
+  if (a.size === 0) return new Map()
+  if (a.size !== 1 || !a.has(1)) return null
+  const r = a.get(1)!
+  if (r.n < 0) return null
+  const coeff = rat(1, r.d)
+  if (!coeff || !Number.isSafeInteger(r.n * r.d)) return null
+  return surdAddTerm(new Map(), r.n * r.d, coeff)
+}
+
+/**
+ * Parse a normalised string into a Surd, or null if it is not an exact surd
+ * expression. Grammar (integers only — a decimal point cannot be read, which is
+ * how "0.707" is kept out):
+ *
+ *   expr    := term (('+' | '-') term)*
+ *   term    := factor (('*' | '/' | <implicit>) factor)*
+ *   factor  := ('-' | '+') factor | '√' primary | primary
+ *   primary := '(' expr ')' | integer
+ *
+ * '√' binds to the primary that follows, so "√2/2" is (√2)/2 — the conventional
+ * reading — and not √(2/2). Implicit multiplication covers "2√3" and "2(1+√3)",
+ * which is the notation normalise() leaves behind after collapsing "2*√3".
+ */
+function parseSurd(src: string): Surd | null {
+  let i = 0
+  const startsFactor = (c: string | undefined) =>
+    c !== undefined && (c === '(' || c === '√' || (c >= '0' && c <= '9'))
+
+  function primary(): Surd | null {
+    if (src[i] === '(') {
+      i++
+      const e = expr()
+      if (!e || src[i] !== ')') return null
+      i++
+      return e
+    }
+    const start = i
+    while (i < src.length && src[i] >= '0' && src[i] <= '9') i++
+    if (i === start) return null
+    const r = rat(Number(src.slice(start, i)), 1)
+    return r ? surdRat(r) : null
+  }
+
+  function factor(): Surd | null {
+    if (src[i] === '-') { i++; const f = factor(); return f ? surdNeg(f) : null }
+    if (src[i] === '+') { i++; return factor() }
+    if (src[i] === '√') { i++; const rad = primary(); return rad ? surdRoot(rad) : null }
+    return primary()
+  }
+
+  function term(): Surd | null {
+    let left = factor()
+    while (left) {
+      if (src[i] === '*') { i++; const r = factor(); left = r && surdMul(left, r) }
+      else if (src[i] === '/') { i++; const r = factor(); left = r && surdDiv(left, r) }
+      else if (startsFactor(src[i])) { const r = factor(); left = r && surdMul(left, r) }
+      else break
+    }
+    return left || null
+  }
+
+  function expr(): Surd | null {
+    let left = term()
+    while (left && (src[i] === '+' || src[i] === '-')) {
+      const op = src[i++]
+      const r = term()
+      left = r && surdAdd(left, op === '+' ? r : surdNeg(r))
+    }
+    return left || null
+  }
+
+  const out = expr()
+  // Only a parse that consumed the WHOLE string counts: a leftover character
+  // means the grammar did not understand the answer, and a partial read would
+  // silently compare "√2/2x" against "√2/2".
+  return out && i === src.length ? out : null
+}
+
+/**
+ * Do two normalised strings denote the same exact surd value? False whenever
+ * either side is not an exact surd expression, which is the fallback that keeps
+ * every other kind of 'exact' answer on the old string comparison.
+ */
+function surdMatch(a: string, b: string): boolean {
+  if (!a.includes('√') && !b.includes('√')) return false
+  const sa = parseSurd(a)
+  if (!sa) return false
+  const sb = parseSurd(b)
+  if (!sb) return false
+  if (sa.size !== sb.size) return false
+  for (const [rad, ca] of sa) {
+    const cb = sb.get(rad)
+    if (!cb || cb.n !== ca.n || cb.d !== ca.d) return false
+  }
+  return true
+}
+
+/**
+ * The 'exact' comparison: the normalised strings, or the same surd written
+ * another legal way. Used for the correct answer and for trap answers alike —
+ * on 5c6ddebf at tan 60° the canonical answer is √3 and the wrong-trig-ratio
+ * trap is 1/√3, so a student who writes √3/3 has made precisely the error that
+ * trap was authored for and should get its feedback rather than a bare "wrong".
+ */
+function exactMatch(a: string, b: string, requireSimplest: boolean): boolean {
+  if (a === b) return true
+  if (requireSimplest) return false
+  return surdMatch(a, b)
+}
+
 /**
  * Normalise an unordered list of values (e.g. factors of a number, or letter
  * codes for combinations). Splits on any combination of commas and whitespace,
@@ -1104,7 +1407,9 @@ export function checkAnswer(
       case 'fraction':
         return fractionMatch(normStudent, normCorrect, 0.001)
       case 'exact':
-        return normStudent === normCorrect
+        // Not a bare string comparison any more: the same surd written another
+        // legal way counts. See exactMatch / surdMatch.
+        return exactMatch(normStudent, normCorrect, requireSimplest)
       case 'expression':
         // Like 'exact' but also accepts commutatively-equivalent forms:
         // sorted additive terms, sorted multiplicative factors, sorted solutions.
@@ -1342,7 +1647,7 @@ export function checkAnswer(
         case 'expression':
           return expressionMatch(normStudentStripped, normCorrectStripped)
         case 'exact':
-          return normStudentStripped === normCorrectStripped
+          return exactMatch(normStudentStripped, normCorrectStripped, requireSimplest)
         default:
           return false
       }
@@ -1393,7 +1698,7 @@ export function checkAnswer(
         case 'fraction':
           return fractionMatch(normStudent, normTrap, 0.001)
         case 'exact':
-          return normStudent === normTrap
+          return exactMatch(normStudent, normTrap, requireSimplest)
         case 'expression':
           return expressionMatch(normStudent, normTrap)
         case 'set':
@@ -1431,7 +1736,7 @@ export function checkAnswer(
       const strippedMatch =
         answerType === 'fraction'   ? fractionMatch(sStripped, tStripped, 0.001)
         : answerType === 'expression' ? expressionMatch(sStripped, tStripped)
-        :                               sStripped === tStripped
+        :                               exactMatch(sStripped, tStripped, requireSimplest)
       if (strippedMatch) {
         return { correct: false, trap, message: trap.response }
       }

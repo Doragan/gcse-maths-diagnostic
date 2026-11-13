@@ -1038,3 +1038,176 @@ describe('mixed numbers: a question that demands one form', () => {
     }
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXACT SURD EQUIVALENCE — a surd can be written more than one way, so a
+// student who rationalises (or doesn't) is not marked wrong.
+//
+// Every "was REJECTED" note below is the live grader's verdict on 2026-11-13,
+// before the change. Three bank questions reach this: 5c6ddebf
+// (exact_trig_values), e9a09aa3 (surds_expanding_and_rationalising) and
+// 75ebebaf (surds_simplifying) — the last one is the requires_simplest case.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** An 'exact' check with requires_simplest CLEAR, which is what the live
+ *  surfaces pass for 5c6ddebf and e9a09aa3 (`row.requires_simplest ?? false`). */
+const exact = (
+  student: string,
+  correct: string,
+  traps: { answer: string; response: string }[] = [],
+) => checkAnswer(student, correct, 'exact', null, traps, false, correct)
+
+describe('exact: surd equivalence', () => {
+  // The two shapes that collide inside ONE question. 5c6ddebf now draws both
+  // √2/2 (cos 45°) and 1/√3 (tan 30°), so a fix that special-cased 1/√2 would
+  // have left the mirror case broken on the same question.
+  it('accepts 1/√2 for √2/2 (was REJECTED)', () => {
+    expect(exact('1/√2', '√2/2').correct).toBe(true)
+  })
+  it('accepts √3/3 for 1/√3 — the mirror case (was REJECTED)', () => {
+    expect(exact('√3/3', '1/√3').correct).toBe(true)
+  })
+  it('accepts 3/√3 for √3 (was REJECTED)', () => {
+    expect(exact('3/√3', '√3').correct).toBe(true)
+  })
+  it('accepts 3/(2√3) for √3/2 — bracketed denominator (was REJECTED)', () => {
+    expect(exact('3/(2√3)', '√3/2').correct).toBe(true)
+  })
+
+  // e9a09aa3 asks for "p + q√n"; a student may write the two terms either way
+  // round and has answered the question in both cases.
+  it('accepts 2√5+4 for 4+2√5 — term order (was REJECTED)', () => {
+    expect(exact('2√5+4', '4+2√5').correct).toBe(true)
+  })
+  it('accepts 3√3+5 for 5+3√3 — another draw of the same question', () => {
+    expect(exact('3√3+5', '5+3√3').correct).toBe(true)
+  })
+
+  // ── The property that makes this the 'exact' type ──────────────────────────
+  // A decimal is NOT an acceptable answer, and this must not depend on how many
+  // digits were typed. The parser reads integer literals only, so a decimal
+  // point fails the parse outright rather than slipping under a tolerance.
+  it('still REJECTS 0.707 for √2/2', () => {
+    expect(exact('0.707', '√2/2').correct).toBe(false)
+  })
+  it('still rejects an over-precise decimal for √2/2 (no tolerance to creep under)', () => {
+    expect(exact('0.7071067811865476', '√2/2').correct).toBe(false)
+    expect(exact('1.7320508075688772', '√3').correct).toBe(false)
+  })
+  it('rejects a decimal radicand (√0.5 for √2/2)', () => {
+    expect(exact('√0.5', '√2/2').correct).toBe(false)
+  })
+
+  // ── Still wrong is still wrong ─────────────────────────────────────────────
+  it('rejects a different radicand (√2/3 for √2/2, 4+2√3 for 4+2√5)', () => {
+    expect(exact('√2/3', '√2/2').correct).toBe(false)
+    expect(exact('4+2√3', '4+2√5').correct).toBe(false)
+  })
+  it('rejects a sign error (4-2√5 for 4+2√5)', () => {
+    expect(exact('4-2√5', '4+2√5').correct).toBe(false)
+  })
+
+  // ── No widening of RATIONAL exact answers ──────────────────────────────────
+  // surdMatch requires a radical on one side, so an exact-value question whose
+  // answer is rational compares exactly as it did before. 5c6ddebf draws 1/2,
+  // 0 and 1 as well, and none of these may start passing.
+  it('leaves rational exact answers alone (0.5 and 2/4 for 1/2, 6/3 for 2)', () => {
+    expect(exact('0.5', '1/2').correct).toBe(false)
+    expect(exact('2/4', '1/2').correct).toBe(false)
+    expect(exact('6/3', '2').correct).toBe(false)
+  })
+
+  // ── requires_simplest: the question whose skill IS the form ────────────────
+  // 75ebebaf asks the student to simplify √(a²b) and its first authored trap is
+  // √(a²b) itself — numerically equal to the correct answer. Accepting every
+  // equivalent form there would make that trap unreachable, so the existing
+  // requires_simplest flag (already set on that row, clear on the other two)
+  // gates surd equivalence off. No new column.
+  it('rejects √12 for 2√3 when simplest form is required, and keeps the authored trap', () => {
+    const trap = { answer: '√12', response: 'Look for a square factor inside the surd.' }
+    const r = checkAnswer('√12', '2√3', 'exact', null, [trap], true, '2√3')
+    expect(r.correct).toBe(false)
+    expect(r.trap?.response).toBe(trap.response)
+  })
+  it('accepts √12 for 2√3 when simplest form is NOT required', () => {
+    expect(exact('√12', '2√3').correct).toBe(true)
+  })
+  it('reduces the largest radicand the bank can draw (√252 for 6√7)', () => {
+    expect(exact('√252', '6√7').correct).toBe(true)
+  })
+
+  // ── Traps get the same equivalence ─────────────────────────────────────────
+  // On 5c6ddebf at tan 60° the answer is √3 and the wrong-trig-ratio trap is
+  // 1/√3 (tan 30°). A student who writes √3/3 has made exactly that error, so
+  // the trap's feedback is what they should see — not a bare "incorrect".
+  it('routes an equivalent WRONG answer to the trap it was authored for', () => {
+    const trap = { answer: '1/√3', response: 'That is the exact value of tan 30°.' }
+    const r = exact('√3/3', '√3', [trap])
+    expect(r.correct).toBe(false)
+    expect(r.trap?.response).toBe(trap.response)
+  })
+  it('does not let a trap steal an equivalent CORRECT answer', () => {
+    // The mirror draw: answer 1/√3, trap √3. "√3/3" is the ANSWER here, and the
+    // correct-answer comparison runs before the trap loop.
+    const r = exact('√3/3', '1/√3', [{ answer: '√3', response: 'That is tan 60°.' }])
+    expect(r.correct).toBe(true)
+    expect(r.trap).toBe(null)
+  })
+
+  // ── Units ──────────────────────────────────────────────────────────────────
+  it('accepts an equivalent surd with units added', () => {
+    expect(exact('1/√2 cm', '√2/2').correct).toBe(true)
+  })
+
+  // ── The normal form itself ────────────────────────────────────────────────
+  it('handles the shapes the normal form is built from', () => {
+    expect(exact('(√2)/2', '√2/2').correct).toBe(true)      // bracketed numerator
+    expect(exact('2(1+√3)', '2+2√3').correct).toBe(true)    // bracket expansion
+    expect(exact('-√2', '0-√2').correct).toBe(true)         // leading minus
+    expect(exact('√2-1', '-1+√2').correct).toBe(true)       // negative rational term
+    expect(exact('-1/√2', '-√2/2').correct).toBe(true)      // negative, rationalised
+    expect(exact('√2*√2', '2').correct).toBe(true)          // radicals multiply out
+    expect(exact('√2/√8', '1/2').correct).toBe(true)        // radical over radical
+    expect(exact('√2+√2', '2√2').correct).toBe(true)        // like terms collect
+    expect(exact('√2+√3', '√3+√2').correct).toBe(true)      // two distinct radicals
+    expect(exact('√2-√2', '0').correct).toBe(true)          // cancels to zero
+    expect(exact('√0', '0').correct).toBe(true)             // root of zero
+  })
+  it('refuses what it cannot evaluate exactly, rather than guessing', () => {
+    expect(exact('√-2', '√2').correct).toBe(false)          // negative radicand
+    expect(exact('√2/0', '√2').correct).toBe(false)         // division by zero
+    expect(exact('√(1+√2)', '√2').correct).toBe(false)      // nested radical
+    expect(exact('√2^2', '2').correct).toBe(false)          // '^' is not in the grammar
+  })
+  it('survives hostile input without throwing or hanging', () => {
+    // The parser recurses on brackets and on '√', so depth is worth a test.
+    const junk = ['√', '√√√√√2', '(((((√2', '√2)))', '1/√0', '√'.repeat(200),
+      '('.repeat(500) + '√2' + ')'.repeat(500), '1'.repeat(400), '√1000001',
+      '-', '+', '', '*', '/', '2√', '√2√3√5√7√11']
+    for (const j of junk) {
+      expect(() => exact(j, '√2')).not.toThrow()
+      expect(() => exact('√2', j)).not.toThrow()
+    }
+  })
+
+
+  // ── Fails closed ──────────────────────────────────────────────────────────
+  // What the grammar cannot prove equal falls back to the old string
+  // comparison rather than guessing. Division by a SUM needs conjugate
+  // rationalisation, which no bank answer asks for — e9a09aa3 demands
+  // "p + q√n where p and q are integers", so an unrationalised quotient is not
+  // an answer in the form the question asked for.
+  it('does not attempt conjugate rationalisation (1/(1+√2) stays rejected)', () => {
+    expect(exact('1/(1+√2)', '√2-1').correct).toBe(false)
+  })
+  it('refuses a partially-readable answer (√2/2x is not √2/2)', () => {
+    // A parse that stops short must fail, not compare what it managed to read.
+    expect(exact('√2/2x', '√2/2').correct).toBe(false)
+    expect(exact('√2/2=', '√2/2').correct).toBe(false)
+  })
+  it('leaves algebraic and π exact answers on the string comparison', () => {
+    expect(exact('x√2', 'x√2').correct).toBe(true)
+    expect(exact('2√3', 'x√2').correct).toBe(false)
+    expect(exact('√2π', '√2π').correct).toBe(true)
+  })
+})
