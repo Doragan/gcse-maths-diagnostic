@@ -181,6 +181,35 @@ export type SkillExample = {
   actuallySkillId?: string
 }
 
+/**
+ * One way INTO a skill, with the method for that way.
+ *
+ * Most skills have a single method and use `steps` on its own. A few are
+ * one skill reached from genuinely different starting points: understanding
+ * straight line graphs is asked from a drawn line, from two coordinates, and
+ * from an equation that is not in y = mx + c form yet, and the first move is
+ * different in each. Threading those through one numbered list produced a
+ * method whose steps kept changing subject — "rearrange the equation" above
+ * "read it off the grid" — and the student could not tell which steps were
+ * for the question in front of them.
+ *
+ * A route is not a difficulty level or an alternative method for the same
+ * question. It is a different QUESTION, and the student picks their route by
+ * looking at what they have been given, which is the same recognition the
+ * rest of the page teaches.
+ */
+export type MethodRoute = {
+  /** The question type, named as the student meets it on the paper. */
+  name: string
+  /** How to tell this is the route you are on, in a phrase. */
+  when: string
+  /** The question these steps are worked on. */
+  example: string
+  /** The diagram that question needs, where it is a question about a picture. */
+  figure?: Figure
+  steps: MethodStep[]
+}
+
 export type SkillBriefing = {
   skillId: string
   /** One line under the title: what this skill actually is. */
@@ -189,12 +218,18 @@ export type SkillBriefing = {
   confusableWith: ConfusableWith[]
   /** Stems to judge against the cues above, including at least one near-miss. */
   examples: SkillExample[]
-  steps: MethodStep[]
+  /**
+   * The method, as one numbered list. Exactly one of `steps` and `routes`:
+   * a page either has a single method or splits into routes, never both.
+   */
+  steps?: MethodStep[]
   /**
    * The question the step examples are worked on, stated once above them.
    * Required when any step carries an example, so the column has a subject.
    */
   methodExample?: string
+  /** The method, split by the kind of question being asked. See MethodRoute. */
+  routes?: MethodRoute[]
   /** Questions to ask before writing the answer down. The 'evaluate' phase. */
   check: string[]
   /**
@@ -210,9 +245,14 @@ export type SkillBriefing = {
     steps?: MethodStep[]
     /** The question the Higher step examples are worked on. */
     methodExample?: string
+    /** A route that only exists on Higher — appended after the shared ones. */
+    routes?: MethodRoute[]
     check?: string[]
   }
 }
+
+/** A route flattened for one tier, with whether it is Higher-only. */
+export type ResolvedRoute = MethodRoute & { higher: boolean }
 
 /** A guide flattened for one tier, ready to render. */
 export type ResolvedBriefing = {
@@ -222,6 +262,11 @@ export type ResolvedBriefing = {
   confusableWith: ConfusableWith[]
   examples: SkillExample[]
   steps: MethodStep[]
+  /**
+   * The same steps, grouped by the question they answer — null on a page
+   * with a single method, which is most of them.
+   */
+  routes: ResolvedRoute[] | null
   check: string[]
   higherNote: Cue | null
   /** How many of the steps came from the Higher block, for labelling. */
@@ -232,8 +277,32 @@ export type ResolvedBriefing = {
   higherMethodExample: string | null
 }
 
+/**
+ * Every authored step of a guide, both tiers, grouped or not.
+ *
+ * The guards care about steps wherever they live; only the page cares which
+ * route a step belongs to.
+ */
+export function allSteps(guide: SkillBriefing): MethodStep[] {
+  return [
+    ...(guide.steps ?? []),
+    ...(guide.routes ?? []).flatMap(r => r.steps),
+    ...(guide.higher?.steps ?? []),
+    ...(guide.higher?.routes ?? []).flatMap(r => r.steps),
+  ]
+}
+
 export function resolveBriefing(guide: SkillBriefing, tier: Tier): ResolvedBriefing {
   const h = tier === 'higher' ? guide.higher : undefined
+
+  // Routes carry their own worked question, so the shared methodExample and
+  // the Higher boundary label do not apply to them.
+  const routes: ResolvedRoute[] | null = guide.routes
+    ? [
+        ...guide.routes.map(r => ({ ...r, higher: false })),
+        ...(h?.routes ?? []).map(r => ({ ...r, higher: true })),
+      ]
+    : null
 
   return {
     skillId: guide.skillId,
@@ -241,7 +310,10 @@ export function resolveBriefing(guide: SkillBriefing, tier: Tier): ResolvedBrief
     recognise: [...guide.recognise, ...(h?.recognise ?? [])],
     confusableWith: [...guide.confusableWith, ...(h?.confusableWith ?? [])],
     examples: [...guide.examples, ...(h?.examples ?? [])],
-    steps: [...guide.steps, ...(h?.steps ?? [])],
+    steps: routes
+      ? routes.flatMap(r => r.steps)
+      : [...(guide.steps ?? []), ...(h?.steps ?? [])],
+    routes,
     check: [...guide.check, ...(h?.check ?? [])],
     higherNote: h?.note ?? null,
     higherStepCount: h?.steps?.length ?? 0,

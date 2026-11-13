@@ -3,6 +3,7 @@ import {
   judgedCorrectly, showThisOneFirst, orderedPair, methodOptions, firstUnansweredStep,
 } from './briefingQuiz'
 import { skillBriefings } from '../../data/skillBriefings'
+import { allSteps } from '../../data/skillBriefings/types'
 
 describe('judgedCorrectly', () => {
   it('agrees when the student says yes to the skill', () => {
@@ -93,7 +94,7 @@ describe('method step options', () => {
     // first, which is the one thing a gated reveal must not teach.
     const slots = new Set<number>()
     for (const g of Object.values(skillBriefings)) {
-      const steps = [...g.steps, ...(g.higher?.steps ?? [])]
+      const steps = allSteps(g)
       steps.forEach((s, i) => {
         const options = methodOptions(g.skillId, i, s)
         if (options) slots.add(options.findIndex(o => o.isCorrect))

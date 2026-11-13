@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getBriefing, hasBriefing, resolveBriefing, skillBriefings } from '../../data/skillBriefings'
+import { allSteps } from '../../data/skillBriefings/types'
 import { skillsById } from './skillGraph'
 import { skillIdToSlug, slugToSkillId } from './slug'
 
@@ -208,7 +209,7 @@ describe('house style', () => {
         walk(g.skillId, 'stem', e.stem); walk(g.skillId, 'cue', e.cue)
         walk(g.skillId, 'figure alt', e.figure?.alt)
       }
-      for (const s of [...g.steps, ...(g.higher?.steps ?? [])]) {
+      for (const s of allSteps(g)) {
         walk(g.skillId, 'step do', s.do); walk(g.skillId, 'step because', s.because)
         walk(g.skillId, 'step watch', s.watch)
       }
@@ -361,8 +362,13 @@ describe('method examples', () => {
   // reads as missing content, so a tier's steps carry an example each or none
   // at all — and a column with no stated question has no subject.
   const tiers = (g: (typeof skillBriefings)[string]) => [
-    { what: 'shared', steps: g.steps, run: g.methodExample },
+    { what: 'shared', steps: g.steps ?? [], run: g.methodExample },
     { what: 'higher', steps: g.higher?.steps ?? [], run: g.higher?.methodExample },
+    // Each route is a column of its own, with its own question at the top.
+    ...(g.routes ?? []).map(r => ({ what: `route "${r.name}"`, steps: r.steps, run: r.example })),
+    ...(g.higher?.routes ?? []).map(
+      r => ({ what: `higher route "${r.name}"`, steps: r.steps, run: r.example }),
+    ),
   ]
 
   it('fills a tier’s example column completely, or leaves it empty', () => {
@@ -419,16 +425,81 @@ describe('method examples', () => {
     // Every page should demonstrate its own method. Higher blocks are exempt:
     // where their steps are separate situations rather than one sequence, no
     // single question can carry them.
+    const shared = (g: (typeof skillBriefings)[string]) =>
+      [...(g.steps ?? []), ...(g.routes ?? []).flatMap(r => r.steps)]
     const bare = Object.values(skillBriefings)
-      .filter(g => !g.steps.some(s => s.example?.trim()))
+      .filter(g => !shared(g).some(s => s.example?.trim()))
       .map(g => g.skillId)
     expect(bare, 'pages whose method is never demonstrated').toEqual([])
   })
 })
 
+describe('method routes', () => {
+  const routed = () => Object.values(skillBriefings)
+    .filter(g => g.routes)
+    .flatMap(g => [...g.routes!, ...(g.higher?.routes ?? [])].map(r => ({ skillId: g.skillId, r })))
+
+  it('has one method or several, never both and never neither', () => {
+    // A page with `steps` AND `routes` would render its method twice, and
+    // one with neither renders a Do it stage with nothing in it.
+    const wrong: string[] = []
+    for (const g of Object.values(skillBriefings)) {
+      const hasSteps = (g.steps?.length ?? 0) > 0
+      const hasRoutes = (g.routes?.length ?? 0) > 0
+      if (hasSteps === hasRoutes) {
+        wrong.push(`${g.skillId}: ${hasSteps ? 'both steps and routes' : 'no method at all'}`)
+      }
+      // A Higher route with no shared routes has nothing to be appended to.
+      if (g.higher?.routes?.length && !hasRoutes) {
+        wrong.push(`${g.skillId}: Higher routes on a page with a single method`)
+      }
+      if (g.higher?.steps?.length && hasRoutes) {
+        wrong.push(`${g.skillId}: Higher steps on a page split into routes`)
+      }
+    }
+    expect(wrong, 'guides whose method shape is ambiguous').toEqual([])
+  })
+
+  it('names every route, and says when you are on it', () => {
+    // The name is what the student matches against the question in front
+    // of them. Without the `when`, two routes can read as two methods for
+    // the same question, which is the confusion routes exist to remove.
+    for (const { skillId, r } of routed()) {
+      expect(r.name?.trim(), `${skillId}: a route with no name`).toBeTruthy()
+      expect(r.when?.trim(), `${skillId}: route "${r.name}" never says when it applies`).toBeTruthy()
+      expect(r.example?.trim(), `${skillId}: route "${r.name}" works no question`).toBeTruthy()
+      expect(r.steps.length, `${skillId}: route "${r.name}" has ${r.steps.length} step(s)`)
+        .toBeGreaterThan(1)
+    }
+  })
+
+  it('never gives two routes the same name', () => {
+    for (const g of Object.values(skillBriefings)) {
+      if (!g.routes) continue
+      const names = [...g.routes, ...(g.higher?.routes ?? [])].map(r => r.name)
+      expect(new Set(names).size, `${g.skillId} repeats a route name`).toBe(names.length)
+    }
+  })
+
+  it('resolves routes in order, with the Higher ones last', () => {
+    for (const g of Object.values(skillBriefings)) {
+      if (!g.routes) continue
+      const f = resolveBriefing(g, 'foundation')
+      const h = resolveBriefing(g, 'higher')
+
+      expect(f.routes!.map(r => r.name)).toEqual(g.routes.map(r => r.name))
+      expect(f.routes!.every(r => !r.higher), `${g.skillId} shows Higher routes on Foundation`)
+        .toBe(true)
+      expect(h.routes!.slice(0, f.routes!.length)).toEqual(f.routes)
+      // The flat step list is still the whole method, in route order.
+      expect(h.steps).toEqual(h.routes!.flatMap(r => r.steps))
+    }
+  })
+})
+
 describe('gated method steps', () => {
   const gated = () => Object.values(skillBriefings).flatMap(g =>
-    [...g.steps, ...(g.higher?.steps ?? [])]
+    allSteps(g)
       .filter(s => s.nextMoveDistractors)
       .map(s => ({ skillId: g.skillId, step: s })))
 
@@ -473,7 +544,7 @@ describe('gated method steps', () => {
   it('gates at least one step, and leaves at least one ungated', () => {
     // The field is sparse by design: a briefing that gated every step would
     // make the section unreadable, and one that gated none is not the feature.
-    const all = Object.values(skillBriefings).flatMap(g => [...g.steps, ...(g.higher?.steps ?? [])])
+    const all = Object.values(skillBriefings).flatMap(g => allSteps(g))
     const withQuestion = all.filter(s => s.nextMoveDistractors)
     expect(withQuestion.length, 'nothing is gated').toBeGreaterThan(0)
     expect(withQuestion.length, 'every step is gated').toBeLessThan(all.length)
