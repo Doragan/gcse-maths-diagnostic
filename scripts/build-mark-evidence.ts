@@ -23,16 +23,34 @@ type Bucket = { marks: number[]; splits: Record<string, number> }
 /**
  * Method marks in one part's mark scheme, from its `mark_split` code.
  *
- * AQA schemes read like "M1 A1" or "M2 A1 ft": an M code is a METHOD mark,
- * awarded for a correct approach even when the final answer is wrong. That is
- * precisely the credit auto-grading cannot see, so counting M is how we size the
- * blind spot. B and A codes are answer marks and need the answer to be right.
+ * A METHOD mark is one a real scheme awards for a sound approach behind a WRONG
+ * final answer. That is precisely the credit auto-grading cannot see, so
+ * counting them is how we size the blind spot. A and B codes are answer marks
+ * and need the answer to be right.
+ *
+ * WHICH CODES COUNT. The boards do not share one vocabulary. AQA, OCR and
+ * Edexcel International label method M; Edexcel's GCSE (1MA1) schemes also use
+ * P for a PROCESS mark and C for a COMMUNICATION mark — 244 and 95 of the marks
+ * in the pool below. P is a method mark under another name: it pays for a step
+ * of a chain whatever the answer comes out as, so it counts here. C does not —
+ * it pays for stating the conclusion or giving the reason, and the corpus
+ * settles it: 1-mark parts coded C1 alone are commonplace ("say whether a
+ * larger coverage rate changes that conclusion"), so a C mark needs the
+ * statement to be right the way an A or B mark needs the answer to be right.
+ *
+ * WHY NO TRAILING WORD BOUNDARY. Codes carry continuation suffixes: M1dep (331
+ * of them here), M1ft, M1indep. They are still method marks — dep only means
+ * the mark depends on the one before. The /\bM(\d)\b/ this replaced dropped
+ * every one of them, and did so UNEVENLY: 17% of AQA's codes carry a suffix
+ * against 5% of Edexcel's and OCR's, so the board whose papers dominate the
+ * corpus was discounted hardest. Together with P, the two holes cost 576 of
+ * 1844 method marks — the pool's method share read 28% when it is 40%.
  *
  * Capped at the part's total — a handful of schemes list alternative routes
  * (e.g. "M1 A1 OR M2"), which would otherwise sum past the marks available.
  */
 function methodMarksOf(row: Row): number {
-  const m = [...(row.mark_split ?? '').matchAll(/\bM(\d)\b/g)]
+  const m = [...(row.mark_split ?? '').matchAll(/\b[MP](\d)/g)]
     .reduce((s, x) => s + Number(x[1]), 0)
   return Math.min(m, row.marks)
 }
@@ -188,7 +206,8 @@ export const OVERALL: MarkStats = ${JSON.stringify(overall, null, 1)}
  *
  * Method marks are what a real scheme awards for a sound approach behind a wrong
  * answer — the credit auto-grading is blind to. Note the 1-mark row: a one-mark
- * part never carries method marks, which is what makes the blind spot bounded.
+ * part is all but never method-marked (one coded part in 654, an OCR 'show that'
+ * worth a single M1), which is what makes the blind spot bounded.
  *
  * Only part sizes with at least ${MIN_PARTS_PER_SIZE} coded parts appear. Sizes above the
  * largest key are held at its rate by methodMarkShare(), so a thinly-sampled
