@@ -82,7 +82,7 @@ async function auditBank() {
   section(`② QUESTION BANK (${INCLUDE_DRAFTS ? 'published + drafts' : 'published'}, ${DRAWS} draws)`)
   const base = supabase
     .from('questions')
-    .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, traps, parts, is_published, difficulty, kind, marks')
+    .select('id, skill_ids, parameters, question_template, answer_template, answer_type, tolerance, requires_simplest, traps, parts, is_published, difficulty, kind, marks')
   const { data, error } = await (INCLUDE_DRAFTS ? base : base.eq('is_published', true))
   if (error || !data) { console.error(error); process.exit(1) }
 
@@ -127,12 +127,13 @@ async function auditBank() {
           : p.answer_type === 'multi_blank'
           ? (Array.isArray(p.blanks) ? p.blanks : []).map((b: any, bi: number) => ({
               ans: b.answer_template, type: b.answer_type ?? 'numeric', tol: b.tolerance ?? null,
+              rs: b.requires_simplest ?? false,
               traps: b.traps ?? [], label: `part ${'abcdefgh'[i]} blank ${b.label ?? bi + 1}`,
               text: `${q.question_template ?? ''} ${p.prompt ?? ''} ${b.prompt ?? ''}`,
             }))
-          : [{ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}`,
+          : [{ ans: p.answer_template, type: p.answer_type ?? 'numeric', tol: p.tolerance ?? null, rs: p.requires_simplest ?? false, traps: p.traps ?? [], label: `part ${'abcdefgh'[i]}`,
               text: `${q.question_template ?? ''} ${p.prompt ?? ''}` }])
-      : [{ ans: q.answer_template, type: q.answer_type, tol: q.tolerance, traps: q.traps ?? [], label: 'answer',
+      : [{ ans: q.answer_template, type: q.answer_type, tol: q.tolerance, rs: q.requires_simplest ?? false, traps: q.traps ?? [], label: 'answer',
           text: q.question_template ?? '' }]
 
     // Grid parts: per draw, every axis/element must evaluate finite + on-grid
@@ -189,7 +190,17 @@ async function auditBank() {
           try { ta = evaluateTemplate(t.answer_template ?? '', vals) } catch { continue }
           if (!ta.trim()) continue
           rec.total++
-          if (checkAnswer(ta, ans, u.type as any, u.tol, [], false).correct) rec.hits++
+          // The unit's own requires_simplest, NOT a hardcoded false: ask what the
+          // live surfaces ask (they all pass `row.requires_simplest ?? false`).
+          // The hardcoded false was harmless while every form-sensitive type was
+          // fraction or ratio, but 'exact' now accepts an equivalent surd, and on
+          // 75ebebaf (simplify √(a²b)) the first authored trap IS the unsimplified
+          // form — so the audit reported it as colliding with its own answer while
+          // the grader the student meets keeps the two apart. Measured over every
+          // published bank question with requires_simplest set, 25 seeded draws
+          // each: that trap is the ONLY (question, trap) pair whose verdict the two
+          // settings disagree on, so this changes nothing else on the bank.
+          if (checkAnswer(ta, ans, u.type as any, u.tol, [], u.rs).correct) rec.hits++
         }
       }
 
