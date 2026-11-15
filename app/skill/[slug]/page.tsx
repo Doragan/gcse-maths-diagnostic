@@ -179,6 +179,18 @@ export default function SkillBriefingPage() {
   const [methodPicks, setMethodPicks] = useState<Record<number, number>>({})
 
   /**
+   * Which routes are open, by route name.
+   *
+   * Closed to begin with, all of them. A routed page asks the student to
+   * decide which kind of question they have before reading any method, and
+   * four methods laid out end to end answers that for them — the one they
+   * want is somewhere in a page they have to scroll past three others to
+   * find. Closed, the headings and their "when" lines ARE that decision,
+   * and it fits on one screen.
+   */
+  const [openRoutes, setOpenRoutes] = useState<Record<string, boolean>>({})
+
+  /**
    * The page is three stages, not six sections, because grouping by SECTION
    * would split recognising the question from telling it apart from its
    * neighbours — and that pair is the whole argument for the page. Grouping by
@@ -295,6 +307,19 @@ export default function SkillBriefingPage() {
     trackEvent('skill_briefing_method_choice', {
       skill: skillId, tier, step: index, option, correct,
     })
+  }
+
+  /**
+   * Open or close one route.
+   *
+   * Tracked on OPEN only, and named: which kind of question a student came
+   * for is worth knowing, and it is not answerable from anything else the
+   * page records. Closing again says nothing, so it is not sent.
+   */
+  function toggleRoute(name: string) {
+    const opening = !openRoutes[name]
+    setOpenRoutes(prev => ({ ...prev, [name]: opening }))
+    if (opening) trackEvent('skill_briefing_route_open', { skill: skillId, tier, route: name })
   }
 
   /** The student's pick on one comparison pair, by the skill it compares with. */
@@ -818,10 +843,13 @@ export default function SkillBriefingPage() {
           <>
             <p style={{ ...styles.hint, marginBottom: '4px' }}>
               {['', 'One kind', 'Two kinds', 'Three kinds', 'Four kinds'][g.routes.length]
-                ?? `${g.routes.length} kinds`} of question, each with its own first move. Work
-              out which one you have been given, then follow that method.
+                ?? `${g.routes.length} kinds`} of question, each with its own first move. Open
+              the one you have been given.
             </p>
-            {g.routes.map((r, ri) => (
+            {g.routes.map((r, ri) => {
+              const open = !!openRoutes[r.name]
+              const panelId = `route-${ri}`
+              return (
               <div
                 key={r.name}
                 style={{
@@ -829,11 +857,33 @@ export default function SkillBriefingPage() {
                   borderTop: ri === 0 ? 'none' : `1px solid ${colors.border}`,
                 }}
               >
-                <p style={styles.routeName}>
-                  {r.higher && <span style={styles.routeHigher}>Higher</span>}
-                  {r.name}
-                </p>
-                <p style={styles.routeWhen}>{r.when}</p>
+                {/* The heading is the control. A student picking a route is
+                    choosing between these lines, so the line itself is what
+                    they should be able to press. */}
+                <button
+                  onClick={() => toggleRoute(r.name)}
+                  aria-expanded={open}
+                  aria-controls={panelId}
+                  style={styles.routeToggle}
+                >
+                  <span style={styles.routeChevron} aria-hidden="true">
+                    {open ? '▾' : '▸'}
+                  </span>
+                  <span>
+                    <span style={styles.routeName}>
+                      {r.higher && <span style={styles.routeHigher}>Higher</span>}
+                      {r.name}
+                    </span>
+                    <span style={styles.routeWhen}>{r.when}</span>
+                    {!open && (
+                      <span style={styles.routeCount}>
+                        {r.steps.length} steps, worked through
+                      </span>
+                    )}
+                  </span>
+                </button>
+                {open && (
+                <div id={panelId}>
                 <div style={styles.methodRun}>
                   <p style={{ margin: 0 }}>
                     <span style={styles.methodRunLabel}>Worked on</span>
@@ -853,8 +903,11 @@ export default function SkillBriefingPage() {
                     <MethodStepBody step={s} />
                   </div>
                 ))}
+                </div>
+                )}
               </div>
-            ))}
+              )
+            })}
           </>
         ) : (
           <>
@@ -1588,11 +1641,41 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '16px',
     paddingTop: '14px',
   },
+  /** The whole heading is the control, so it is a button that looks like one. */
+  routeToggle: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: '10px',
+    width: '100%',
+    textAlign: 'left',
+    padding: '2px 0',
+    border: 'none',
+    background: 'transparent',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+  },
+  routeChevron: {
+    flex: 'none',
+    // Fixed width: ▸ and ▾ are not the same width, so without it the heading
+    // shifts sideways every time a route is opened or closed.
+    width: '11px',
+    color: colors.primary,
+    fontSize: font.base,
+    lineHeight: '1.3',
+  },
   routeName: {
+    display: 'block',
     margin: 0,
     fontSize: font.md,
     fontWeight: '700',
     color: colors.textPrimary,
+  },
+  /** Only on a closed route: what opening it gets you. */
+  routeCount: {
+    display: 'block',
+    marginTop: '3px',
+    fontSize: font.sm,
+    color: colors.textHint,
   },
   routeHigher: {
     display: 'inline-block',
@@ -1606,6 +1689,7 @@ const styles: Record<string, React.CSSProperties> = {
     verticalAlign: '2px',
   },
   routeWhen: {
+    display: 'block',
     margin: '3px 0 0',
     fontSize: font.base,
     color: colors.textSecondary,
