@@ -520,10 +520,17 @@ function stageThree(p: Params): Stage {
 export const understandingStraightLineGraphsInvestigation: Investigation = {
   skillId: 'understanding_straight_line_graphs',
   title: 'Understanding Straight Line Graphs',
-  outcomes: 'Straight lines are written y = mx + c. By the end of this you will know what m '
-    + 'and c each do: you will be able to look at an equation and say where the line crosses the '
-    + 'y-axis and how steep it is, work out a gradient from two points, and go the other way — '
-    + 'from a line drawn on a grid back to its equation.',
+  outcomes: {
+    lead: 'Straight lines are written y = mx + c, and those two letters are the whole of it: '
+      + 'one decides where the line sits, the other how steep it is. Lines like these are how a '
+      + 'steady rate gets drawn — a phone tariff, a taxi fare, a tank filling up.',
+    points: [
+      'look at an equation and say where its line crosses the y-axis',
+      'say how steep a line is and which way it leans',
+      'work out a gradient from two points on the line',
+      'go the other way — from a line drawn on a grid back to its equation',
+    ],
+  },
   parameters: {
     values: {
       // Stage 1's target: positive and at least 2, so the new line is clear of

@@ -42,6 +42,18 @@ function dec(n: number): string {
 // idea its section built. Not authored here: a bank question brings its drawn
 // parameters, the verification harness and its authored traps.
 
+/**
+ * "Calculate a/b of c." (d1, numeric)
+ *
+ * On fractions_of_amounts — a prerequisite of this skill — because the bank
+ * has NO question asking for a percentage of an amount, at any difficulty.
+ * Checked across every published single-part question: the only two easy
+ * percentage questions in the whole bank are the increase and decrease below.
+ * A percentage is a fraction with 100 underneath, so this is the same
+ * operation and an honest check. A "find 15% of £60" question would be
+ * better, and wants authoring.
+ */
+const Q_FRACTION_OF = '463e9833-bc0a-40d9-bc40-941de561a0cc'
 /** "Increase £a by b%." (d2, numeric) — traps the increase-on-its-own. */
 const Q_INCREASE = '95790f96-a9fb-4ca0-ba1f-c9d9c80508aa'
 /** "Decrease £a by b%." (d2, numeric) — same shape, the other direction. */
@@ -65,14 +77,129 @@ const Q_COMPOUND = '5336bd5e-7fa8-4fa8-9a67-387b9b684d0a'
  */
 const Q_AREA = '7536046f-b58f-49f2-8461-b3725bd4a3a8'
 
-// ─── Stage 1: an increase is a multiplication ────────────────────────────────
+// ─── Stage 1: what a percentage of an amount even is ────────────────────────
+//
+// Added after the first version opened by asking for a multiplier, which
+// assumed the very thing it was about to teach. A lesson does not start at the
+// new idea; it starts at what the class can already do, in the context the new
+// idea will arrive in. So: here is a pay rise, and before anything else, how
+// much money is the rise itself? That is `fractions_of_amounts`, a
+// prerequisite of this skill, wearing the situation stage 2 then picks up with
+// the same numbers.
+//
+// The useful column is "1% of the pay", which is IDENTICAL in every row. A
+// student who notices that has found the unitary method on their own.
+
+function stagePercentOf(p: Params): Stage {
+  const start = p.start
+  const q = p.pUp
+  return {
+    ask: `You earn ${money(start)} a week, and you are given a ${q}% pay rise. Before working `
+      + 'out your new pay — how much money is the rise itself?',
+    predict: {
+      prompt: `${q}% of ${money(start)} is…`,
+      on: {
+        kind: 'choice',
+        options: [money(start * q / 100), money(q), money(start / 100)],
+        correct: 0,
+      },
+      right: `${money(start * q / 100)}. A percentage is a number of hundredths, so ${q}% of `
+        + `something is ${q} hundredths of it.`,
+      wrong: `It is ${money(start * q / 100)}. ${money(q)} is the percentage read as if it `
+        + `were pounds, and ${money(start / 100)} is one per cent rather than ${q} of them — a `
+        + 'percentage is not an amount of money at all until you say what it is a percentage '
+        + 'OF. Try a few of your own and watch the last two columns.',
+    },
+    control: {
+      name: 'rise',
+      prompt: `Try some other pay rises on ${money(start)}.`,
+      hint: 'Whole percentages from 5 to 50, in fives.',
+      domain: { min: 5, max: 50, step: 5 },
+      suggest: [10, 45],
+      label: v => `a rise of ${v}%`,
+      row: v => [
+        `${v}%`,
+        `${v} hundredths`,
+        money(start / 100),
+        `${v} × ${money(start / 100)} = ${money(start * v / 100)}`,
+      ],
+      coverage: drawn => (new Set(drawn).size < 2
+        ? 'Try a second percentage — one row shows you nothing about what stays the same.'
+        : null),
+    },
+    observe: {
+      headers: ['a rise of', 'which is', '1% of the pay', 'so the rise is'],
+    },
+    conclude: {
+      sentence: ['Per cent means ', ', so to find a percentage of an amount you ', '.'],
+      slots: [
+        {
+          options: ['out of a hundred', 'multiplied by a hundred'],
+          correct: 0,
+          diagnosis: [
+            '',
+            'The other way round. Cent is a hundred — as in century, or a cent being a '
+            + 'hundredth of a dollar — and per means "for each". 25% is 25 out of every 100, '
+            + 'which is a quarter, not 2500.',
+          ],
+          misconception: ['', ''],
+        },
+        {
+          options: [
+            'divide by 100, then multiply by the percentage',
+            'divide by the percentage, then multiply by 100',
+          ],
+          correct: 0,
+          diagnosis: [
+            '',
+            'Look at the third column. Dividing by 100 gives you 1%, and it is the same in '
+            + 'every row because it does not depend on the percentage at all. Then you take as '
+            + 'many of those hundredths as the percentage asks for.',
+          ],
+          misconception: ['', 'divided_the_wrong_way_round'],
+        },
+      ],
+      because: 'A percentage is a count of hundredths. Dividing by 100 gives one hundredth of '
+        + 'the amount — one per cent of it — and that single number serves every percentage you '
+        + 'might want, because you just take as many of them as you need. It is why finding 1% '
+        + 'first is such a useful move, and why 10% is worth knowing on sight.',
+      algebraLead: 'In symbols, with P for the percentage and A for the amount. The second line '
+        + 'is the one the table shows — find a hundredth, then take P of them:',
+      algebra: 'P% of A = (P ÷ 100) × A\n'
+        + '\u2003\u2003= P × (A ÷ 100)',
+    },
+    naming: {
+      term: 'per cent',
+      means: 'Per cent means "out of a hundred". A percentage is a number of hundredths, so it '
+        + 'is a fraction with 100 underneath: 25% is 25/100, which is a quarter.',
+      elsewhere: 'Cent is a hundred — a century, a centurion, a centimetre, a cent being a '
+        + 'hundredth of a dollar. Per means "for each", the same per as in miles per hour. So '
+        + 'per cent is literally "for each hundred", and the % sign is a worn-down way of '
+        + 'writing the two zeros of 100.',
+      onThePaper: 'Work out 35% of 240. / A jacket costs £60. Find 15% of £60.',
+    },
+    check: [
+      {
+        questionId: Q_FRACTION_OF,
+        because: 'A percentage IS a fraction with 100 underneath, so finding a percentage of an '
+          + 'amount and finding a fraction of one are the same operation. The bank has no '
+          + '"find P% of an amount" question at all, and this is the nearest true thing: the '
+          + 'prerequisite skill, in its own clothes.',
+      },
+    ],
+  }
+}
+
+// ─── Stage 2: an increase is a multiplication ────────────────────────────────
 
 function stageIncrease(p: Params): Stage {
   const start = p.start
   const q = p.pUp
   return {
-    ask: `${money(start)} goes up by ${q}%. Before working anything out — what single number `
-      + `would you multiply ${money(start)} by to land on the answer in one step?`,
+    ask: `The same pay rise: ${money(start)} going up by ${q}%. You already have the rise `
+      + `itself — ${money(start * q / 100)} — so the new pay is one addition away. But there `
+      + `is a quicker route. What single number would you multiply ${money(start)} by to land `
+      + `on the new pay in one step?`,
     predict: {
       prompt: 'Multiply by…',
       on: {
@@ -165,7 +292,7 @@ function stageIncrease(p: Params): Stage {
   }
 }
 
-// ─── Stage 2: a decrease is the same move, the other way ─────────────────────
+// ─── Stage 3: a decrease is the same move, the other way ─────────────────────
 
 function stageDecrease(p: Params): Stage {
   const start = p.start
@@ -259,7 +386,7 @@ function stageDecrease(p: Params): Stage {
   }
 }
 
-// ─── Stage 3: the one that surprises people ──────────────────────────────────
+// ─── Stage 4: the one that surprises people ──────────────────────────────────
 
 function stageBothWays(p: Params): Stage {
   const start = p.start
@@ -392,10 +519,21 @@ function stageBothWays(p: Params): Stage {
 export const percentageChangeInvestigation: Investigation = {
   skillId: 'percentage_change',
   title: 'What a Percentage Change Really Does',
-  outcomes: 'Every percentage change is one multiplication. By the end of this you will be able '
-    + 'to write down the multiplier for any increase or decrease, use it in one step instead of '
-    + 'two, and say what happens when changes follow one another — which is not what most '
-    + 'people expect.',
+  outcomes: {
+    // What the topic is FOR, not what it is made of. "Every percentage change
+    // is one multiplication" is the DESTINATION of section 2 — true, useful,
+    // and meaningless to someone who has not got there yet.
+    lead: 'A sale in a shop, a pay rise, interest on savings, VAT on a bill, a population '
+      + 'growing or a phone battery draining — these are all percentage changes. It is the '
+      + 'arithmetic you are most likely to meet outside a classroom, and the one most often '
+      + 'got wrong in ways that cost people money.',
+    points: [
+      'find a percentage of an amount, and say what "per cent" actually means',
+      'write down the single number that does an increase or a decrease in one step',
+      'use that number on any amount, for any percentage',
+      'work out where two changes in a row leave you — which is not where most people think',
+    ],
+  },
   underConstruction: 'This one is new and still being worked on. The maths is right, but the '
     + 'wording and the questions at the end of each section may still change.',
   parameters: {
@@ -418,7 +556,7 @@ export const percentageChangeInvestigation: Investigation = {
     // carry one section's arithmetic into the next instead of redoing it.
     valid: p => p.pUp !== p.pDown && p.pDown !== p.pBoth && p.pUp !== p.pBoth,
   },
-  build: p => [stageIncrease(p), stageDecrease(p), stageBothWays(p)],
+  build: p => [stagePercentOf(p), stageIncrease(p), stageDecrease(p), stageBothWays(p)],
   /**
    * The handover. Both are d4 and both wrap the multiplier in something else —
    * a ratio share, then a best-buy comparison — which is how the skill appears

@@ -286,14 +286,22 @@ export type Investigation = {
   skillId: string
   title: string
   /**
-   * What the student will be able to do by the end, said TO them.
+   * What this is and what they will be able to do, said TO them.
    *
-   * Shown under the title, so it is the second thing they read. It was once a
-   * note to the author about why the concept needs varying rather than
-   * telling — which meant the page opened by talking about "the student" to
-   * the student.
+   * The second thing on the page, so it is doing the work an opening does:
+   * `lead` says what the topic IS and where it turns up, and `points` are
+   * what they will be able to do, one per bullet. A paragraph of four
+   * outcomes run together reads as a wall and gets skipped — which is the
+   * same reason an exercise book has a list of objectives at the top.
+   *
+   * It was once a note to the author about why the concept needs varying
+   * rather than telling, which meant the page opened by talking about "the
+   * student" to the student.
    */
-  outcomes: string
+  outcomes: {
+    lead: string
+    points: readonly string[]
+  }
   /**
    * Shown as a banner at the top of the page, before anything else.
    *
