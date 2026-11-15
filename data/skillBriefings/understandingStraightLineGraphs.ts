@@ -49,8 +49,8 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
       example: 'Find the equation of line L.',
       figure: lineGraph({
         xRange: [0, 6], yRange: [0, 8], line: { m: 2, c: 1 }, lineLabel: 'L',
-        alt: 'A straight line drawn on a numbered grid, labelled L. It crosses the y-axis at 1 and '
-          + 'climbs 2 units for every 1 across, so its equation is y = 2x + 1.',
+        alt: 'A straight line drawn on a numbered grid, labelled L. It crosses the y-axis at 1 '
+          + 'and rises 2 units for each increase of 1 in x, so its equation is y = 2x + 1.',
       }),
     },
     {
@@ -64,8 +64,8 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
       example: 'A line has equation 2y = 6x − 8. Write down its gradient.',
     },
     {
-      text: 'Axes that do not climb in ones. Counting squares instead of reading the numbers puts '
-        + 'every gradient out by the same factor.',
+      text: 'Axes that do not climb in ones, or two axes on different scales. The gradient '
+        + 'comes from the numbers on them, not from counting squares.',
       example: 'Work out the gradient of the line.',
       figure: lineGraph({
         xRange: [0, 5], yRange: [0, 10], line: { m: 2, c: 0 },
@@ -113,11 +113,11 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
       isThisSkill: true,
       worked: [
         'It crosses the y-axis at −1, so c = −1',
-        'From (0, −1) to (3, 5) is 6 up for 3 across, so m = 6 ÷ 3 = 2',
+        'From (0, −1) to (3, 5), x increases by 3 and y by 6, so m = 6 ÷ 3 = 2',
         'y = 2x − 1',
       ],
       cue: 'The line is printed and the equation is missing. Read c where it crosses the y-axis, '
-        + 'then count one step along the line for m.',
+        + 'then take the change in y over the change in x between two corners.',
       figure: lineGraph({
         xRange: [-1, 5], yRange: [-3, 7], line: { m: 2, c: -1 }, lineLabel: 'L',
         alt: 'A straight line on a numbered grid from about (−1, −3) to (5, 7), crossing the '
@@ -275,8 +275,8 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
   check: [
     'Put one of your points back into your equation. Take (4, 17): putting x = 4 in should give '
       + 'y = 17. If it does not, the gradient or the intercept is wrong.',
-    'Does the sign match the way the line leans? Up to the right is a positive gradient, down to '
-      + 'the right is negative.',
+    'Does the sign match the way the line slopes? A line going up from left to right has a '
+      + 'positive gradient; one going down has a negative gradient.',
     'Is your answer actually an equation? "4" and "4x + 1" are not — the mark is for y = 4x + 1.',
     'A vertical line is x = a, never y = something. A horizontal line is the other way round: '
       + 'y = a.',
@@ -309,7 +309,7 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
           + 'Work out the equation of L.',
         isThisSkill: true,
         worked: [
-          'Perpendicular to gradient 2: turn it over to ½, then change the sign, so m = −½',
+          'The negative reciprocal of 2: turn it over to ½ and change the sign, so m = −½',
           'Put (4, 3) in: 3 = −½ × 4 + c, so 3 = −2 + c and c = 5',
           'y = −½x + 5',
         ],
