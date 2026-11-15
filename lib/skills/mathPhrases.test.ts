@@ -57,6 +57,31 @@ describe('splitExpressions', () => {
     }
   })
 
+  it('holds a bracketed group together, and breaks between groups', () => {
+    // Standard form is written as a pair of bracketed terms, which is longer
+    // than any run may be held. The break has to land on the operator BETWEEN
+    // the groups, never inside one of them.
+    const segs = splitExpressions('Work out (6 × 10⁵) × (4 × 10³), giving your answer in standard form.')
+    const held = segs.filter(s => s.nowrap).map(s => s.text)
+
+    expect(held).toContain('(6 × 10⁵)')
+    expect(held).toContain('(4 × 10³),')
+    for (const h of held) {
+      const opens = (h.match(/\(/g) ?? []).length
+      const closes = (h.match(/\)/g) ?? []).length
+      expect(opens, `"${h}" stops inside a bracket`).toBe(closes)
+    }
+  })
+
+  it('reads a power of any length as part of its operand', () => {
+    // The pattern knew ² ³ and ᵗ only, so 10⁵ was prose and nothing in a
+    // standard-form or index-law page was ever held together.
+    for (const s of ['10⁵ × 10³', '10⁻⁴ ÷ 10⁻², ', 'm¹¹ = m⁷ × m⁴', '2ˣ = 32']) {
+      const held = splitExpressions(s).filter(x => x.nowrap)
+      expect(held.length, `nothing held in "${s}"`).toBeGreaterThan(0)
+    }
+  })
+
   it('round-trips every string a briefing renders', () => {
     // Belt and braces over the real content: whatever the rule does, the text
     // the student reads must come back identical.

@@ -41,9 +41,9 @@ export const simplifyingIndicesBriefing: SkillBriefing = {
       example: 'Simplify a⁵ × a³',
     },
     {
-      text: 'Powers of the SAME base. Different bases never combine — a³ × b² is already as simple '
-        + 'as it gets.',
-      example: 'Simplify 5x² × 3x⁴',
+      text: 'Bases that do not match. Only powers of the SAME base combine, so the c and the d '
+        + 'here stay exactly as they are and only the numbers move.',
+      example: 'Simplify 4c³ × 3d²',
     },
     {
       text: 'A bracket with a power outside it, which puts a power onto everything inside.',
