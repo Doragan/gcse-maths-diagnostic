@@ -99,12 +99,31 @@ describe('every legal draw builds a usable investigation', () => {
     }
   })
 
+  it('carries axes on exactly the stages that draw on them', () => {
+    // `axes` went optional so a table-native investigation can exist at all.
+    // The risk that creates is the opposite one: a stage that DOES draw,
+    // silently missing its axes. Nothing else would catch that — the figure
+    // would simply not appear.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const where = `${inv.skillId} stage ${i + 1}`
+          const draws = !!stage.figure
+            || stage.predict.on.kind === 'grid'
+            || !!stage.control?.render
+            || !!stage.predict.reveal
+          if (draws) expect(stage.axes, `${where} draws but has no axes`).toBeTruthy()
+        })
+      }
+    }
+  })
+
   it('keeps every expected prediction point inside its own axes', () => {
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           const on = stage.predict.on
-          if (on.kind !== 'grid') return
+          if (on.kind !== 'grid' || !stage.axes) return
           for (const pt of on.expect) {
             const where = `${inv.skillId} stage ${i + 1}, ${JSON.stringify(p)}`
             expect(pt.x, where).toBeGreaterThanOrEqual(stage.axes.x.min)
@@ -130,7 +149,7 @@ describe('every legal draw builds a usable investigation', () => {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           const c = stage.control
-          if (!c) return
+          if (!c?.render) return
           for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) {
             const grid = c.render([v], 0)
             expect(grid.background, `${inv.skillId} stage ${i + 1}, ${c.name} = ${v} draws nothing`)
@@ -152,7 +171,8 @@ describe('every legal draw builds a usable investigation', () => {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           if (!stage.control?.pick) return
-          expect(stage.control.render([], 0).background, `${inv.skillId} stage ${i + 1} opens blank`)
+          expect(stage.control.render, `${inv.skillId} stage ${i + 1} taps on nothing`).toBeTruthy()
+          expect(stage.control.render!([], 0).background, `${inv.skillId} stage ${i + 1} opens blank`)
             .toContain('<line')
         })
       }
@@ -298,6 +318,24 @@ describe('authoring rules', () => {
   })
 })
 
+describe('a control that draws nothing', () => {
+  it('still gives the student something to observe', () => {
+    // The whole case for making `render` optional is that the TABLE is the
+    // observation. A control with neither a figure nor a table shows the
+    // student a number box and no consequence of using it.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const c = stage.control
+          if (!c || c.render) return
+          expect(stage.observe, `${inv.skillId} stage ${i + 1} varies something unobservably`)
+            .toBeTruthy()
+        })
+      }
+    }
+  })
+})
+
 describe('typed values', () => {
   const stage = () => investigations['understanding_straight_line_graphs']
     .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[0]
@@ -428,6 +466,7 @@ describe('figures are a shape that fits a screen', () => {
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
+          if (!stage.axes) return
           const across = (stage.axes.x.max - stage.axes.x.min) / stage.axes.x.step
           const up = (stage.axes.y.max - stage.axes.y.min) / stage.axes.y.step
           expect(up / across, `${inv.skillId} stage ${i + 1} is ${across} x ${up} cells`)
@@ -445,11 +484,14 @@ describe('figures are a shape that fits a screen', () => {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           const c = stage.control
-          if (!c) return
+          // A control that draws nothing has no axes to stay inside: a
+          // percentage running 5 to 50 is not a coordinate.
+          if (!c?.render || !stage.axes) return
+          const { x, y } = stage.axes
           for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) {
             const where = `${inv.skillId} stage ${i + 1}, ${c.name} = ${v}`
-            expect(v, where).toBeGreaterThanOrEqual(Math.min(stage.axes.y.min, stage.axes.x.min))
-            expect(v, where).toBeLessThanOrEqual(Math.max(stage.axes.y.max, stage.axes.x.max))
+            expect(v, where).toBeGreaterThanOrEqual(Math.min(y.min, x.min))
+            expect(v, where).toBeLessThanOrEqual(Math.max(y.max, x.max))
           }
         })
       }
@@ -476,7 +518,7 @@ describe('a grid prediction settles itself with a picture', () => {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           const on = stage.predict.on
-          if (on.kind !== 'grid' || !stage.predict.reveal) return
+          if (on.kind !== 'grid' || !stage.predict.reveal || !stage.axes) return
           const where = `${inv.skillId} stage ${i + 1}`
           const reveal = stage.predict.reveal
           expect(reveal.elements.map(e => `${e.x},${e.y}`), where)

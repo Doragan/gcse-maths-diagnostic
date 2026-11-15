@@ -235,6 +235,13 @@ export default function InvestigatePage() {
           ← Briefing
         </button>
 
+        {investigation.underConstruction && (
+          <div style={styles.construction} role="note">
+            <strong style={styles.constructionHead}>Under construction</strong>
+            {investigation.underConstruction}
+          </div>
+        )}
+
         <header>
           <p style={styles.eyebrow}>Investigation · {skill.topic}</p>
           <h1 style={styles.title}>{resolved.title}</h1>
@@ -384,7 +391,10 @@ export default function InvestigatePage() {
                   {/* 2 · change it */}
                   {st.predicted && stage.control && (
                     <>
-                      <p style={styles.phase}>{step.draw} · Draw your own</p>
+                      {/* A control with no figure is tried, not drawn. */}
+                      <p style={styles.phase}>
+                        {step.draw} · {stage.control.render ? 'Draw your own' : 'Try it yourself'}
+                      </p>
                       <p style={styles.prompt}>{stage.control.prompt}</p>
 
                       {stage.control.pick && (
@@ -393,7 +403,7 @@ export default function InvestigatePage() {
                           {st.entryError && <p role="alert" style={styles.error}>{st.entryError}</p>}
                           <figure style={styles.figure}>
                             <GridCanvas
-                              grid={stage.control.render(st.drawn, st.current)}
+                              grid={stage.control.render!(st.drawn, st.current)}
                               value={st.pickedPoints}
                               maxPoints={stage.control.pick.maxPoints}
                               onChange={pts => pickPoints(i, stage, pts)}
@@ -425,7 +435,7 @@ export default function InvestigatePage() {
                           style={{ ...primaryButton, width: 'auto' }}
                           onClick={() => draw(i, stage, st.typed)}
                         >
-                          Draw it
+                          {stage.control.render ? 'Draw it' : 'Try it'}
                         </button>
                       </div>
                       )}
@@ -453,7 +463,9 @@ export default function InvestigatePage() {
 
                       {st.drawn.length > 0 && (
                         <div style={styles.chips}>
-                          <span style={styles.chipLabel}>you have drawn</span>
+                          <span style={styles.chipLabel}>
+                            {stage.control.render ? 'you have drawn' : 'you have tried'}
+                          </span>
                           {st.drawn.map((v, k) => (
                             <button
                               key={v}
@@ -477,7 +489,9 @@ export default function InvestigatePage() {
                         <p style={styles.nudge}>{concludeGate(stage, st.drawn)}</p>
                       )}
 
-                      {!stage.control.pick && (
+                      {/* A table-native investigation draws nothing: the
+                          numbers in the table ARE the observation. */}
+                      {!stage.control.pick && stage.control.render && (
                         <figure style={styles.figure}>
                           <GridCanvas
                             grid={stage.control.render(st.drawn, st.current)}
@@ -505,7 +519,9 @@ export default function InvestigatePage() {
                                   <td style={styles.tdEmpty} colSpan={stage.observe.headers.length}>
                                     {stage.control!.pick
                                       ? 'Nothing yet — tap two points on the line above.'
-                                      : 'Nothing yet — type a value above and draw it.'}
+                                      : stage.control!.render
+                                        ? 'Nothing yet — type a value above and draw it.'
+                                        : 'Nothing yet — type a value above and try it.'}
                                   </td>
                                 </tr>
                               ) : (stage.control!.rows
@@ -740,6 +756,16 @@ export default function InvestigatePage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
+  construction: {
+    border: `1px solid ${colors.warningBorder}`,
+    background: colors.warningLight,
+    color: colors.warningText,
+    borderRadius: radius.sm,
+    padding: '12px 15px',
+    fontSize: font.base,
+    lineHeight: 1.55,
+  },
+  constructionHead: { display: 'block', marginBottom: '3px' },
   page: { minHeight: '100vh', background: colors.background, padding: '24px 16px 64px' },
   wrap: { maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '18px' },
   eyebrow: {

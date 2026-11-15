@@ -62,6 +62,9 @@ export function predictionCorrect(
 ): boolean {
   const on = stage.predict.on
   if (on.kind !== 'grid') return false
+  // A grid prediction is marked against the stage's own step sizes, so a
+  // stage carrying one must carry axes too.
+  if (!stage.axes) return false
   const result = checkGridDraw(
     [...placed],
     on.grid.elements,
