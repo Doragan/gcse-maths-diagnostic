@@ -19,6 +19,8 @@ import { anglesOnLinesAndCirclesBriefing } from './anglesOnLinesAndCircles'
 import { anglesInPolygonsBriefing } from './anglesInPolygons'
 import { pythagorasTheoremBriefing } from './pythagorasTheorem'
 import { understandingStraightLineGraphsBriefing } from './understandingStraightLineGraphs'
+import { simplifyingIndicesBriefing } from './simplifyingIndices'
+import { standardFormBriefing } from './standardForm'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored exam briefings.
@@ -79,6 +81,8 @@ export const skillBriefings: Record<string, SkillBriefing> = {
   [anglesInPolygonsBriefing.skillId]: anglesInPolygonsBriefing,
   [pythagorasTheoremBriefing.skillId]: pythagorasTheoremBriefing,
   [understandingStraightLineGraphsBriefing.skillId]: understandingStraightLineGraphsBriefing,
+  [simplifyingIndicesBriefing.skillId]: simplifyingIndicesBriefing,
+  [standardFormBriefing.skillId]: standardFormBriefing,
 }
 
 export const getBriefing = (skillId: string): SkillBriefing | null => skillBriefings[skillId] ?? null
