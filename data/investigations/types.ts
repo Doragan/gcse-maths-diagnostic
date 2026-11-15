@@ -93,8 +93,16 @@ export type Control = {
   domain: { min: number; max: number; step: number }
   /** Offered when nothing has been drawn yet. A nudge, never the path. */
   suggest?: readonly number[]
-  /** The figure for a history of drawn values, with one of them live. */
-  render: (drawn: readonly number[], current: number) => RenderedGrid
+  /**
+   * The figure for a history of drawn values, with one of them live.
+   *
+   * OPTIONAL, because not every concept is a picture. docs/audit/31 §5 says a
+   * skill whose behaviour shows up in a TABLE needs no figure at all, but the
+   * type demanded one anyway, so the whole table-native half of the candidate
+   * list — percentages, indices, proportion, sequences, the mean — could not
+   * be expressed. A control with no `render` is tabulated and not drawn.
+   */
+  render?: (drawn: readonly number[], current: number) => RenderedGrid
   /** How the equation reads at this value. */
   label: (v: number) => string
   /** This value's row in the observation table, one cell per header. */
@@ -198,8 +206,14 @@ export type Slot = {
 export type Stage = {
   /** What to notice. One sentence, above the figure. */
   ask: string
-  /** The axes every figure in this stage is drawn on. */
-  axes: { x: RenderedAxis; y: RenderedAxis }
+  /**
+   * The axes every figure in this stage is drawn on.
+   *
+   * Absent on a stage that draws nothing — there are no axes to put a table
+   * on. Required as soon as the stage has a figure, a grid prediction or a
+   * drawing control, and the test suite holds it to that.
+   */
+  axes?: { x: RenderedAxis; y: RenderedAxis }
   /**
    * A fixed figure for a stage with nothing to vary.
    *
@@ -280,6 +294,15 @@ export type Investigation = {
    * the student.
    */
   outcomes: string
+  /**
+   * Shown as a banner at the top of the page, before anything else.
+   *
+   * Per INVESTIGATION rather than per route, because the route is shared: the
+   * straight-line pilot is finished enough to show people, and a notice over
+   * it would undersell it. A new one being worked on says so in its own
+   * words, and deleting the line is how it stops being under construction.
+   */
+  underConstruction?: string
   parameters: ParameterSpec
   /** The stages for one draw. Called once per visit. */
   build: (p: Params) => readonly Stage[]
