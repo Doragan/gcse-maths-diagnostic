@@ -154,17 +154,72 @@ rather than enthusiasm.
 | **B — gated demonstration** | the briefing's existing worked example, with each step's reveal gated behind "what's the next move?" | one additive field + a renderer change | every briefed skill |
 | **C — briefing as it stands** | unchanged | nil | the rest |
 
-**Tier A is only for skills where the concept is a visible change in something
-the grid can draw** — or in a table, which needs no figure at all (§6.2).
-Verified ids from
-`data/skills.ts`: `understanding_straight_line_graphs`,
-`plotting_straight_line_graphs`, `perpendicular_gradients`, `quadratic_functions`,
-`gradient_of_a_curve`, `kinematic_graphs`, `scatter_graphs`, `enlargements`,
-`fractional_enlargements`, `reflections`, `rotations`, `translations`, `symmetry`,
-`sequences`, `finding_the_nth_term`, `nth_term_quadratic_sequences`,
-`direct_proportion`, `inverse_proportion`, `proportion_with_powers`, `trig_graphs`.
-A skill whose concept is a rule to apply rather than a behaviour to notice
-(`rounding`, `converting_measurements`) gets Tier B and loses nothing.
+**Tier A is only for skills where the concept is something to NOTICE rather
+than a rule to apply** — a visible change in something the grid can draw, or in
+a table, which needs no figure at all (§6.2). A skill whose concept is a
+procedure (`rounding`, `converting_measurements`) gets Tier B and loses nothing.
+
+> **Corrected 2026-11-15, after two were built.** The list that stood here was
+> wrong in a way worth recording, because the error is easy to repeat: it was
+> derived from the figure tooling outwards, so every one of its twenty entries
+> was a graph. Ranking all 164 skills that carry exam marks instead — marks
+> from `data/skillExamProfiles.json`, check-able questions meaning single-part
+> and scalar, which is all `BankQuestion` accepts — puts the pilot's own skill
+> **twelfth**.
+>
+> | skill | marks | check-able | briefed |
+> |---|---|---|---|
+> | ratio | 426 | 7 | yes |
+> | solving_linear_equations | 381 | 8 | yes |
+> | simple_arithmetic | 379 | 4 | — |
+> | compound_units | 279 | 11 | yes |
+> | proportion | 263 | 5 | yes |
+> | **percentage_change** | **231** | **5** | yes |
+> | fractions_of_amounts | 229 | 2 | yes |
+> | mean | 153 | 3 | yes |
+> | understanding_straight_line_graphs | 143 | 6 | — |
+> | indices + simplifying_indices | 236 | 9 | — |
+> | sequences + finding_the_nth_term | 152 | 4 | — |
+>
+> **64 non-graph skills already have 2+ check-able questions**, so the shortage
+> of section checks that bites hard on the graph skills barely applies off
+> them.
+>
+> Three cautions, each measured rather than guessed:
+>
+> - **`enlargements` is a poor candidate**, despite §9 having named it as the
+>   second build. 43 marks, exactly ONE check-able question, and its exam
+>   format is drawing — which `BankQuestion` refuses outright (no grid_draw,
+>   no multi-part). Its checks cannot exist until that component is extended.
+> - **`symmetry` looks good and is not.** Five check-able questions, more than
+>   any other graph candidate — but all five ask "how many lines of symmetry",
+>   which is recall, not the grid format symmetry takes on a paper. The checks
+>   would be checking the wrong thing. 29 marks.
+> - **173 marks sit behind AUTHORING, not behind this work**: `scatter_graphs`,
+>   `rotations`, `translations` and `trig_graphs` have no published questions
+>   at all, and `plotting_straight_line_graphs` and `gradient_of_a_curve` none
+>   that could serve as a check.
+>
+> And one thing that turned out cheaper than feared: **quadratics need no new
+> renderer.** There is no curve `GridDrawMode`, but investigation figures write
+> raw SVG into `background` — which is how `straightLineGrid` draws a line — so
+> a parabola is a dense polyline today. Only a *markable* curve would need new
+> machinery.
+
+**Three tools would each unlock a group**, which is a different and probably
+better bet than one more page, because each makes a class of skills authorable
+rather than a single investigation:
+
+| tool | unlocks | ≈ marks |
+|---|---|---|
+| **bar model** — a proportionally split, labelled bar | ratio, fractions of amounts, FDP, reverse percentage | 929 |
+| **area / array model** — a rectangle in labelled regions | areas, expanding double brackets, factorising quadratics, algebraic fractions | 406 |
+| **place-value strip** — digits shifting rather than arithmetic | standard form, converting measurements | 316 |
+
+The area model is the strongest per unit of work: the grid method *is* the
+explanation for all four of its skills, and it is mostly `cells` plus the
+labels layer. None of the three is a `RenderedGrid`, so each is a real build —
+see the standing risk named at the end of §6.2.
 
 **Tier B is what gets coverage**, and it is nearly free. `MethodStep` already
 carries `do`, `example`, `because`, `watch` and the page already runs one worked
@@ -215,8 +270,14 @@ export type Control = {
   domain: { min: number; max: number; step: number }
   /** Offered when nothing has been drawn yet. A nudge, not the path. */
   suggest?: number[]
-  /** The line (or shape) this value produces, as a RenderedGrid. */
-  render: (v: number) => RenderedGrid
+  /**
+   * The line (or shape) this value produces, as a RenderedGrid.
+   *
+   * OPTIONAL as of 2026-11-15. A table-native investigation draws nothing,
+   * and while this was required that whole half of the candidate list could
+   * not be expressed — see §6.2.
+   */
+  render?: (v: number) => RenderedGrid
   /** How the equation is written at this value. */
   label: (v: number) => string
   /** This value's row in the observation table, one cell per header. */
@@ -422,7 +483,9 @@ returns, it returns working.
 Everything in §6 except `Control.render` is subject-agnostic. The stage shell,
 the lock/unlock, the prediction, the coverage gate, the table, the naming step,
 the slot sentence, the registry, the route, the events — none of it knows what a
-line is. Only `render(v) => RenderedGrid` does.
+line is. Only `render(v) => RenderedGrid` does — **and since 2026-11-15 even
+that is optional**, along with `Stage.axes`, so an investigation can draw
+nothing at all.
 
 So the question for every later investigation is what its figure needs, and
 `RenderedGrid` carries **four independent layers**, verified in
@@ -441,11 +504,21 @@ with a line of best fit is the same shape of thing. The real constraint is that
 **only one layer is checkable**, which bites on the prediction step and nowhere
 else — and a prediction is a single gesture anyway.
 
-Two consequences for the format, both already in the types:
+Two consequences for the format. The first was NOT in the types until
+2026-11-15, which is the whole point of the note under it:
 
-- **A stage may have no figure at all.** `control` is optional and so is
-  `observe`; a sequences investigation is a control, a table and a conclusion,
-  and needs no grid. That case is cheaper than the pilot, not dearer.
+- **A stage may have no figure at all.** A table-native investigation is a
+  control, a table and a conclusion, and needs no grid; that case is cheaper
+  than the pilot, not dearer. **This paragraph was aspirational until
+  2026-11-15 and the types contradicted it**: `Control.render` was required and
+  had to return a `RenderedGrid`, so every arithmetic candidate was blocked by
+  a type nobody had noticed was load-bearing. The lesson is narrow and worth
+  keeping — a plan saying a case is supported is not the same as the case being
+  expressible, and the first table-native investigation is what found the
+  difference. The tests now hold the other side of it: a stage that DOES draw
+  must carry `axes`, and a control with no figure must have an `observe`
+  table, because a number box with no visible consequence is the failure this
+  opens the door to.
 - **A skill whose concept is not a visible change in a drawable figure is not
   Tier A.** "Why does dividing by a fraction multiply" wants an area or bar
   model, which is not a `RenderedGrid` and would be a genuinely new build. It
@@ -569,6 +642,11 @@ Increment 2 and goes through `verify-question.ts` as usual.
 
 Each is independently shippable and each ends with something the user can look at.
 
+**Status, 2026-11-15.** 1, 2 and 3 shipped, plus eleven rounds of fixes found
+by using the page rather than by the suite — which stayed green through every
+one of them. **Open the page.** Increment 4 shipped as `percentage_change`
+rather than `enlargements`; the reasoning is under 4 below. 5 is untouched.
+
 1. **Tier B gating** — `nextMoveDistractors` on `MethodStep`, the gated reveal in
    the method section, distractors authored for **one** briefing. Smallest
    possible test of "does a decision beat a reveal". No new route, no new file.
@@ -588,25 +666,56 @@ Each is independently shippable and each ends with something the user can look a
    figure stays on the axes and the labels stay legible.
 3. **Entry points + measurement** — wire both entries, ship the events, leave it
    alone for long enough to read §10.
-4. **Second investigation — chosen to stress the shell, not to be easy.** A
-   second line-shaped skill would prove nothing. Take `enlargements`: a
-   `polygon` figure, two shapes on the axes at once, a scale factor as the
-   control, and the concept is visibly the same kind of thing while every
-   detail of the figure differs. If the shell survives that with no changes
-   outside `data/investigations/`, it generalised; if it does not, Increment 2
-   was secretly a page about lines and this is where that is discovered —
-   cheaply, on the second one, rather than on the seventh.
+4. **Second investigation — chosen to stress the shell, not to be easy.**
+   ~~Take `enlargements`: a `polygon` figure, two shapes on the axes at
+   once.~~ **Shipped 2026-11-15 as `percentage_change` instead (PR #235).**
+
+   The principle held; the choice of skill was wrong, twice over. Stressing
+   the shell with a *different kind of figure* is the mild version of the
+   test. The hard version is a skill with **no figure at all** — and that is
+   what found the real defect, which no polygon would have: `Control.render`
+   was required and had to return a `RenderedGrid`, so every table-native
+   skill was unbuildable. A second drawing investigation would have sailed
+   past it and left the block to be discovered on the seventh, which is
+   precisely what this increment exists to prevent.
+
+   `enlargements` was also a weak target on the measurements (§5): 43 marks,
+   one check-able question, and a drawing-based exam format that
+   `BankQuestion` refuses, so its section checks could not have existed.
+   `percentage_change` has 231 marks and the better discovery — multipliers
+   compose, so up 20% then down 20% does not come back, which nobody believes
+   until they run it.
+
+   **The verdict on the shell: it generalised, with one type change.** Making
+   `render` and `axes` optional was the only edit needed outside
+   `data/investigations/`, apart from shell copy that said "Draw your own",
+   "Draw it" and "you have drawn" to a control that draws nothing.
 5. **Tier B at breadth** — distractors for the remaining 18 briefings, once
    Increment 1 has been measured. Authoring, no engineering.
+6. **A tool, not a page.** The three in §5 — bar model, area model,
+   place-value strip — each make a *class* of skills authorable, where a
+   fourth investigation makes one. The area model is the strongest per unit
+   of work. This is a genuinely new build in every case, so it wants its own
+   scope rather than being smuggled in under an investigation.
 
-Do **not** author investigations 3–20 before Increment 4 has reported whether
-the shell held. That is the mistake this document exists to prevent.
+Increment 4 has now reported: **the shell held.** The bar on authoring more is
+therefore lifted, but the next thing to read is §10 — two investigations are
+live and the events have been accumulating. Choose number three from what the
+measurements say, and from the ranking in §5, not from which skill is easiest
+to draw.
+
+The standing risk named in §6.2 is now the live one: with a shell that works,
+the temptation is to force a skill through the grid because the grid is there.
+A skill wanting a bar model should wait for increment 6 rather than be bent
+into a `RenderedGrid`.
 
 ---
 
 ## 10. How we will know
 
-Measured on the pilot skill, with the events from §8:
+Measured on every skill that has an investigation — two as of 2026-11-15,
+straight-line graphs and percentage change — with the events from §8. Reading
+these is the next thing to do, ahead of authoring a third:
 
 | question | read it from |
 |---|---|
