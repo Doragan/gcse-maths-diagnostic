@@ -222,9 +222,11 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
         {
           do: 'Work out the gradient: the change in y divided by the change in x.',
           because:
-            'There is no y-axis to look at, so m has to come first — and two points is all the gradient of a straight line ever needs.',
+            'There is no graph to read c off, so m has to come first — and two points is all '
+            + 'the gradient of a straight line ever needs.',
           watch:
-            'Subtracting in a different order top and bottom. Start at the same point for both, or the sign comes out wrong.',
+            'Take both differences in the same order: (17 − 5) above needs (4 − 1) below, not '
+            + '(1 − 4). Reversing one of them flips the sign of the gradient.',
           example: 'm = (17 − 5) ÷ (4 − 1) = 12 ÷ 3 = 4',
         },
         {
@@ -263,7 +265,8 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
           because:
             'Once it is in y = mx + c there is nothing left to work out — the form IS the answer.',
           watch:
-            'Taking the gradient of 3x + y = 7 to be 3. Move the 3x across first and it is −3.',
+            'Taking the gradient of 3x + y = 7 to be 3. Subtract 3x from both sides first and '
+            + 'it is −3.',
           example: 'm = 4 — and c would be −3 if the intercept were asked for',
         },
       ],
@@ -275,7 +278,8 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
     'Does the sign match the way the line leans? Up to the right is a positive gradient, down to '
       + 'the right is negative.',
     'Is your answer actually an equation? "4" and "4x + 1" are not — the mark is for y = 4x + 1.',
-    'A line straight up the page is x = a, never y = something. Only a line across the page is y = a.',
+    'A vertical line is x = a, never y = something. A horizontal line is the other way round: '
+      + 'y = a.',
   ],
 
   higher: {
@@ -331,12 +335,14 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
             example: 'y = 2x + 1 is already tidy, so its gradient is 2',
           },
           {
-            do: 'Parallel keeps that gradient. Perpendicular turns it upside down AND changes its sign.',
+            do: 'Parallel keeps that gradient. Perpendicular takes its negative reciprocal: '
+              + 'turn it over, then change the sign.',
             because:
-              'Perpendicular gradients multiply to −1. Turning 2 over gives ½, and ½ × 2 is 1 — the sign change is what makes it −1.',
+              'Perpendicular gradients multiply to −1. The reciprocal of 2 is ½, and ½ × 2 is '
+              + '1 — the sign change is what makes it −1.',
             watch:
               'Doing one half of it and not the other. The perpendicular to y = 2x is neither y = −2x nor y = ½x.',
-            example: 'Perpendicular: 2 turns over to ½, then changes sign, so m = −½',
+            example: 'The reciprocal of 2 is ½, then change the sign: m = −½',
           },
           {
             do: 'Put the point you were given into y = mx + c to find c, exactly as you would from two points.',
