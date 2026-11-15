@@ -188,23 +188,28 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
           because:
             'c is the value of y when x is zero, and the y-axis is exactly where x is zero. On a line you can see, c is read rather than worked out.',
           watch:
-            'Reading where it cuts the across axis instead. c comes off the UP one.',
+            'Reading where it cuts the x-axis instead. c is the value where it cuts the y-axis.',
           example: 'It cuts the y-axis at −1, so c = −1',
         },
         {
-          do: 'Pick two points where the line passes exactly through a corner of the grid, and count from one to the other: up, then across.',
+          do: 'Pick two points where the line passes exactly through a corner of the grid, and '
+            + 'count from one to the other: across first, then up.',
           because:
             'A corner is a point you can read exactly. Anywhere else you are estimating, and an estimated gradient is a wrong gradient.',
           watch:
-            'Counting SQUARES rather than reading the numbers. If the y-axis climbs in twos, one square up is 2, and every gradient comes out half what it should be.',
-          example: 'From (0, −1) to (3, 5): 6 up, 3 across',
+            'Make sure both axes are on the same scale before you count anything. Where they '
+            + 'are not, counting squares instead of reading the numbers puts the gradient out.',
+          example: 'From (0, −1) to (3, 5): 3 across, 6 up',
         },
         {
-          do: 'Divide the up by the across to get m, then write it as y = mx + c.',
+          do: 'Divide the change in y by the change in x to get m, then write it as y = mx + c.',
           because:
-            'The gradient is how far y moves for one step of x, so y is the one being divided. Up over across, every time.',
+            'The gradient is how much y changes for an increase of 1 in x, so the change in y '
+            + 'is the one being divided.',
           watch:
-            'Dividing the wrong way round. Across over up gives 3 ÷ 6 here, the reciprocal of the answer — the slip that turns up on both Foundation and Higher papers.',
+            'Dividing the wrong way round. The change in x over the change in y gives 3 ÷ 6 '
+            + 'here, the reciprocal of the answer — the slip that turns up on both Foundation '
+            + 'and Higher papers.',
           example: 'm = 6 ÷ 3 = 2, so y = 2x − 1',
         },
       ],
