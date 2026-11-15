@@ -693,9 +693,23 @@ describe('the handover', () => {
 describe('student-facing copy', () => {
   it('states outcomes to the student, not notes about them', () => {
     for (const inv of every()) {
-      expect(inv.outcomes, `${inv.skillId} talks about "the student"`)
-        .not.toMatch(/\bthe student\b/i)
-      expect(inv.outcomes.length).toBeGreaterThan(40)
+      const all = [inv.outcomes.lead, ...inv.outcomes.points].join(' ')
+      expect(all, `${inv.skillId} talks about "the student"`).not.toMatch(/\bthe student\b/i)
+      expect(inv.outcomes.lead.length, `${inv.skillId} has no opening`).toBeGreaterThan(40)
+    }
+  })
+
+  it('lists outcomes as things a student could actually do', () => {
+    // One bullet is a paragraph wearing a bullet's clothes, and an outcome
+    // that does not start with a verb is a description of the topic rather
+    // than something the student will be able to DO.
+    const startsWithAVerb = /^(find|work|say|use|look|go|write|read|explain|decide|turn|tell)\b/i
+    for (const inv of every()) {
+      expect(inv.outcomes.points.length, `${inv.skillId} lists too few outcomes`)
+        .toBeGreaterThanOrEqual(2)
+      for (const o of inv.outcomes.points) {
+        expect(o, `${inv.skillId}: "${o}" is not something to do`).toMatch(startsWithAVerb)
+      }
     }
   })
 

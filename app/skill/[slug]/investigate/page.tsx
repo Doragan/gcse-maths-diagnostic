@@ -245,7 +245,13 @@ export default function InvestigatePage() {
         <header>
           <p style={styles.eyebrow}>Investigation · {skill.topic}</p>
           <h1 style={styles.title}>{resolved.title}</h1>
-          <p style={styles.lede}>{investigation.outcomes}</p>
+          <p style={styles.lede}>{investigation.outcomes.lead}</p>
+          <p style={styles.outcomesHead}>By the end of this you will be able to:</p>
+          <ul style={styles.outcomes}>
+            {investigation.outcomes.points.map((o, i) => (
+              <li key={i} style={styles.outcome}>{o}</li>
+            ))}
+          </ul>
         </header>
 
         <nav style={styles.pips} aria-label="Progress">
@@ -756,6 +762,19 @@ export default function InvestigatePage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
+  outcomesHead: {
+    fontSize: font.base, color: colors.textSecondary, margin: '10px 0 4px',
+  },
+  // NOT a flex column: flex items are not list-items, so the bullet markers
+  // vanish and the list reads as four stray indented lines.
+  // listStyleType is set explicitly: the global reset clears it on every ul,
+  // so inheriting leaves four stray indented lines with no bullets.
+  outcomes: {
+    margin: 0, paddingLeft: '22px', listStyleType: 'disc',
+  },
+  outcome: {
+    fontSize: font.base, color: colors.textSecondary, lineHeight: 1.5, marginBottom: '3px',
+  },
   construction: {
     border: `1px solid ${colors.warningBorder}`,
     background: colors.warningLight,
