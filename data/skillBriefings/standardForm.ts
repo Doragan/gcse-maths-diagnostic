@@ -52,13 +52,10 @@ export const standardFormBriefing: SkillBriefing = {
     {
       text: 'Two numbers in standard form with an operation between them, and the answer wanted '
         + 'in standard form as well.',
-      example: '(6 × 10⁵) × (4 × 10³)',
+      // Not the numbers the drill below asks about.
+      example: '(5 × 10⁷) ÷ (2 × 10²)',
     },
-    {
-      text: 'Values in standard form to be put in order, where the power of ten decides first and '
-        + 'the front number only breaks ties.',
-      example: 'Write these in order of size, smallest first.',
-    },
+
   ],
 
   confusableWith: [
@@ -211,11 +208,12 @@ export const standardFormBriefing: SkillBriefing = {
           do: 'Take the two front numbers together, and the two powers of ten together.',
           because:
             'Multiplication can be done in any order, so (6 × 10⁵) × (4 × 10³) is (6 × 4) with '
-            + '(10⁵ × 10³) beside it. The powers then follow the ordinary index laws.',
+            + '(10⁵ × 10³) beside it. The powers then follow the ordinary index laws — '
+            + 'multiplying adds the indices, dividing subtracts them.',
           watch:
-            'Multiplying the indices. Multiplying powers of ten adds them: 10⁵ × 10³ is 10⁸, not '
-            + '10¹⁵.',
-          example: '6 × 4 = 24, and 10⁵ × 10³ = 10⁸',
+            'Doing to the indices whatever is being done to the numbers. Multiplying powers of '
+            + 'ten ADDS them: 10⁵ × 10³ is 10⁸, not 10¹⁵.',
+          example: '6 × 4 = 24, and 10⁵ × 10³ = 10⁸ — a division would give 10⁵ ÷ 10³ = 10²',
         },
         {
           do: 'Check the front number is still between 1 and 10, and fix it if it is not.',
@@ -245,7 +243,7 @@ export const standardFormBriefing: SkillBriefing = {
     'Is the front number between 1 and 10? 24 × 10⁸ and 0.4 × 10⁵ are both the right value in '
       + 'the wrong form, and both lose the mark.',
     'Does the sign of the index match the size of the number? Below 1 is negative, above 10 is '
-      + 'positive, every time.',
+      + 'positive, and a number already between 1 and 10 needs no power of ten at all.',
     'If the question asked for an ordinary number, is that what you have written? An answer left '
       + 'in standard form has not answered it.',
   ],
@@ -288,8 +286,8 @@ export const standardFormBriefing: SkillBriefing = {
 
     routes: [
       {
-        name: 'Dividing, or an index that changes sign',
-        when: 'A ÷ between the two values, or a negative index on one of them.',
+        name: 'One of the indices is negative',
+        when: 'A negative index in the question, where subtracting it turns into adding.',
         example: 'Work out (8 × 10⁵) ÷ (2 × 10⁻³), giving your answer in standard form.',
         steps: [
           {

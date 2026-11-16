@@ -24,11 +24,21 @@ export type Segment = { text: string; nowrap: boolean }
 const OPERATOR = /^[<>≤≥=+×÷]$/
 
 /**
- * An operand: a number or letter term, optionally signed, optionally carrying a
- * unit, a power or closing punctuation. Anything with no digit or single letter
- * in it is prose.
+ * An operand: a number or letter term, optionally bracketed, optionally signed,
+ * optionally carrying a unit, a power or closing punctuation. Anything with no
+ * digit or single letter in it is prose.
+ *
+ * The power runs to as many superscripts as it needs — 10⁻⁴ and m¹¹ are each
+ * one operand. It used to know only ² ³ and ᵗ, which was enough while the
+ * pages were about areas and inequalities; standard form and the index laws
+ * are written almost entirely in the ones it did not know, so "10⁵" was not an
+ * operand, no run formed, and the expressions broke wherever the column ended.
+ *
+ * The opening bracket matters for the same content: standard form comes in
+ * pairs of bracketed terms, and without it "(6" was prose and the group fell
+ * apart around it.
  */
-const OPERAND = /^[−-]?[\d.,]*[a-zA-Z]?[\d.,]*(?:²|³|ᵗ)?[%°)]?[,.;:]?$/
+const OPERAND = /^\(?[−-]?[\d.,]*[a-zA-Z]?[\d.,]*[⁰¹²³⁴⁵⁶⁷⁸⁹⁻ˣᵗ]*[%°)]?[,.;:]?$/
 
 /**
  * Longest run we will refuse to break. A column on a phone fits roughly this
@@ -72,6 +82,24 @@ export function splitExpressions(text: string): Segment[] {
         // read as ONE run across the semicolon and blew past the length cap.
         if (/[,.;:]$/.test(words[j])) break
       }
+    }
+
+    // Too long to hold whole, or stopping inside a bracket? Drop
+    // operand-operator pairs off the END until what is left both fits and
+    // closes everything it opened.
+    //
+    // Abandoning an over-long run entirely held the wrong half of it:
+    // "(6 × 10⁵) × (4 × 10³)" kept "10⁵) × (4 × 10³)" and left "(6 ×" to wrap
+    // alone. Backing off without the bracket test then stopped at
+    // "(6 × 10⁵) × (4", which breaks the second group instead of the first.
+    // Both are the break this rule exists to prevent.
+    const closed = (s: string) =>
+      (s.match(/\(/g)?.length ?? 0) === (s.match(/\)/g)?.length ?? 0)
+    while (pairs > 0) {
+      const sofar = words.slice(i, j + 1).join(' ')
+      if (sofar.length <= MAX_RUN && closed(sofar)) break
+      j -= 2
+      pairs--
     }
 
     const run = words.slice(i, j + 1).join(' ')
