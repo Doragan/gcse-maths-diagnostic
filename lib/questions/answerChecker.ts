@@ -1221,6 +1221,15 @@ function inequalityMatch(a: string, b: string): boolean {
 const UNITS_REMINDER =
   'Right value — but always write the units. An answer without them costs you the final mark in an exam.'
 
+/**
+ * A percentage answer without its % sign. Correct, and it costs no mark — a %
+ * is not a unit, and a GCSE percentage question prints it on the answer line —
+ * but where the line does not, the bare number reads as an amount rather than
+ * a percentage. So: a nudge, never a penalty.
+ */
+const PERCENT_REMINDER =
+  'Correct — but remember to write the % sign, so it is clear your answer is a percentage.'
+
 const SIMPLIFICATION_REMINDER =
   'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
 
@@ -1462,7 +1471,22 @@ export function checkAnswer(
   // would pass isCorrect against "25 cm²" without ever hitting the reminder.
   const correctHasUnits = containsUnits(correctAnswer)
   const studentHasUnits = containsUnits(studentAnswer)
-  const missingUnits    = correctHasUnits && !studentHasUnits   // expected units omitted
+  // A missing % is NOT a missing unit. A GCSE percentage question prints the %
+  // on the answer line ("........ %"), so "20" for "20%" loses nothing — yet it
+  // was told it "costs you the final mark", and the mini-exam took that mark
+  // off (gradeUnits keys on unitsIssue). The % is notation here, the same view
+  // unitToken already takes of it. Only the OMISSION is exempt: "20%" against
+  // "20%" and "20 cm" against "20 cm²" go through exactly as before.
+  //
+  // Two different jobs, so two flags. `omittedUnits` (anything left off, %
+  // included) still decides whether a non-numeric answer is compared again with
+  // units stripped — without it "35" against "35%" was marked WRONG. Only
+  // `missingUnits` (a unit that matters) drives the reminder and the lost mark.
+  const expectsMarkedUnit = containsUnits(correctAnswer.replace(/%/g, ''))
+  const omittedUnits    = correctHasUnits && !studentHasUnits
+  const missingUnits    = expectsMarkedUnit && !studentHasUnits   // expected units omitted
+  // The % on its own: worth a reminder, never a mark (see PERCENT_REMINDER).
+  const missingPercent  = correctAnswer.includes('%') && !studentAnswer.includes('%')
   const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
 
   // The student named a DIFFERENT quantity in front of a right expression:
@@ -1616,6 +1640,7 @@ export function checkAnswer(
       // one with a mark attached is the one worth the student's attention.
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
+              : missingPercent ? PERCENT_REMINDER
               : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
               : PLAIN_CORRECT,
     }
@@ -1663,7 +1688,7 @@ export function checkAnswer(
   // units, or ADDED units where the canonical answer carries none (e.g. a
   // unit-less "36π" answer vs a student's correct "36π cm²"). Retry with units
   // stripped from both sides so the value is what's assessed.
-  if ((missingUnits || extraUnits) && answerType !== 'numeric') {
+  if ((omittedUnits || extraUnits) && answerType !== 'numeric') {
     const normStudentStripped = normalise(stripUnits(studentAnswer))
     const normCorrectStripped = normalise(stripUnits(correctAnswer))
     const matchesWithoutUnits = (() => {
@@ -1705,6 +1730,7 @@ export function checkAnswer(
         ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
+               : missingPercent        ? PERCENT_REMINDER
                : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
                : PLAIN_CORRECT,
       }
