@@ -36,9 +36,30 @@ describe('a percentage written without its %', () => {
     expect(r.unitsIssue).toBe('missing')
   })
 
-  it('does not touch currency, which is a separate decision', () => {
-    // £ is still counted as a unit. It has the same answer-line argument as %,
-    // but it was not part of this change.
-    expect(check('20', '£20', 'numeric', 0.01).unitsIssue).toBe('missing')
+})
+
+// ── and a missing currency sign, for the same reason ─────────────────────────
+
+describe('an amount of money written without its £', () => {
+  it('is correct, with a reminder naming the sign — and nothing for an exam to take off', () => {
+    const r = check('102.30', '£102.30', 'numeric', 0.01)
+    expect(r.correct).toBe(true)
+    expect(r.unitsIssue).toBeUndefined()
+    expect(r.message).toMatch(/£ sign/)
+    expect(r.message).not.toMatch(/units|final mark/)
+  })
+
+  it('names whichever sign the answer uses', () => {
+    expect(check('20', '$20', 'numeric', 0.01).message).toMatch(/\$ sign/)
+    expect(check('20', '€20', 'numeric', 0.01).message).toMatch(/€ sign/)
+  })
+
+  it('says nothing about the sign when it is there', () => {
+    expect(check('£102.30', '£102.30', 'numeric', 0.01).message).toBe('Correct!')
+  })
+
+  it('still wants a real unit that comes with the money', () => {
+    // "£12 per kg": the £ is notation, the kg is not.
+    expect(check('12', '£12 per kg', 'numeric', 0.01).unitsIssue).toBe('missing')
   })
 })
