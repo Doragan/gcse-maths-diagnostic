@@ -68,8 +68,28 @@ const Q_POINT_ON_LINE = 'ccc88b02-19fb-48cd-8e78-382bf3258c8b'
 // nothing at all — and since a section waits for every check to be answered,
 // that section could never be left. It is in the handover instead, where the
 // ordinary practice page renders it properly.
-/** Find the equation of the line parallel to L through a point (d3, expression) */
+/**
+ * Find the equation of the line parallel to L through a point (d3,
+ * expression). Section 2's challenge, and nothing else: it was section 4's
+ * check too until a question fitting that section exactly was authored, and
+ * the same question twice in one investigation is the one thing a check list
+ * should never do.
+ */
 const Q_PARALLEL = '2279ed0d-53c9-4b2e-955c-58f170214459'
+/**
+ * "Write down the equation of the line shown." (d3, expression)
+ *
+ * Carries its own inline SVG grid in the stem — a 13 × 13 grid from −6 to 6,
+ * drawn at width:100% under a 340px cap, so it fits the check card without
+ * being measured against it.
+ *
+ * The only `expression` answer among either investigation's checks, which is
+ * worth knowing because the expression grader is fussy: it will not commute a
+ * product of letters and it does not normalise decimals. Nothing here needs
+ * either — the answer is a single y = mx + c with one letter on each side —
+ * and spacing is normalised, so y = 2x + 4 and y=2x+4 both pass.
+ */
+const Q_LINE_EQUATION = '0715c2f6-6955-4c46-a3f6-bcbb33995c26'
 
 function stageOne(p: Params): Stage {
   const c1 = p.c1
@@ -509,9 +529,14 @@ function stageThree(p: Params): Stage {
     },
     check: [
       {
-        questionId: Q_PARALLEL,
-        because: 'Same gradient, different intercept: the clearest test that the two are '
-          + 'held apart rather than merged.',
+        questionId: Q_LINE_EQUATION,
+        because: 'This section exactly, on a line it has not seen: read c off where the line '
+          + 'crosses the y-axis, read m off how far it climbs per 1 across, and write the '
+          + 'two of them as an equation. Its five traps are the ways the two numbers come '
+          + 'apart — swapped, m with the wrong sign, either one handed in on its own without '
+          + 'the other, and the x-intercept used as c — which is the same confusion the two '
+          + 'slots above are about. It replaces the parallel-lines question, which section 2 '
+          + 'already uses as its challenge.',
       },
     ],
   }
@@ -557,8 +582,8 @@ export const understandingStraightLineGraphsInvestigation: Investigation = {
    * progress.
    *
    * Both are a step up from the checks, because the bank has nothing gentler
-   * left: of the seven published questions on this skill, the only two at d1
-   * and d2 are already used as section checks and everything else is d3 or d4.
+   * left: of the published questions on this skill, the only two at d1 and d2
+   * are already used as section checks and everything else is d3 or d4.
    * Closing that gap needs new questions authored into the bank.
    */
   transferQuestionIds: [

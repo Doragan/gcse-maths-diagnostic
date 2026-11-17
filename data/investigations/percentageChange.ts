@@ -38,24 +38,41 @@ function dec(n: number): string {
 
 // ─── Section checks ──────────────────────────────────────────────────────────
 //
-// Published bank questions, one per section, each chosen for the half of the
-// idea its section built. Not authored here: a bank question brings its drawn
+// Published bank questions, chosen per section for the half of the idea that
+// section built. Not authored here: a bank question brings its drawn
 // parameters, the verification harness and its authored traps.
 
 /**
- * "Calculate a/b of c." (d1, numeric)
+ * "Work out b% of £a." (d2, numeric)
  *
- * On fractions_of_amounts — a prerequisite of this skill — because the bank
- * has NO question asking for a percentage of an amount, at any difficulty.
- * Checked across every published single-part question: the only two easy
- * percentage questions in the whole bank are the increase and decrease below.
- * A percentage is a fraction with 100 underneath, so this is the same
- * operation and an honest check. A "find 15% of £60" question would be
- * better, and wants authoring.
+ * On percentage_change itself, and authored for this section: it asks for
+ * exactly what section 1 builds, a percentage of an amount.
+ *
+ * Two things about its parameters are deliberate, and both are easy to undo
+ * by widening the range. b starts at 15 and never asks for 5% or 10%, because
+ * 5% and 10% are the question's OWN traps — the stepping stones a student
+ * works out and then stops on — so asking for one of them directly would hand
+ * full marks to the method the traps exist to catch. And a is capped at 180
+ * for the same reason on the other trap: at £200 the 10% stepping stone is
+ * £20, which is one of b's own values, so the read-the-percentage-as-pounds
+ * trap (£b) would render the same number and the second of the two would
+ * never fire.
  */
-const Q_FRACTION_OF = '463e9833-bc0a-40d9-bc40-941de561a0cc'
+const Q_PERCENT_OF = '64bb36f5-2267-4a77-9ebf-45c43cbe2ddf'
 /** "Increase £a by b%." (d2, numeric) — traps the increase-on-its-own. */
 const Q_INCREASE = '95790f96-a9fb-4ca0-ba1f-c9d9c80508aa'
+/**
+ * "A season ticket cost £a last year, £b this year. Work out the percentage
+ * increase." (d3, numeric)
+ *
+ * The same relationship as Q_INCREASE, read backwards: amount and percentage
+ * in becomes before and after in, percentage out. It belongs in section 2
+ * rather than in the handover because it needs no second skill — it is one
+ * link looked at from the other end — and its two sharpest traps are both
+ * wrong-base answers, which is the half of section 2 the second conclusion
+ * slot is about.
+ */
+const Q_INCREASE_BACKWARDS = '11fb8c8b-b53b-4d64-8c83-6a106fafeb66'
 /** "Decrease £a by b%." (d2, numeric) — same shape, the other direction. */
 const Q_DECREASE = '3a2a4da5-2798-45a2-9386-7449f4f7139a'
 /**
@@ -180,11 +197,11 @@ function stagePercentOf(p: Params): Stage {
     },
     check: [
       {
-        questionId: Q_FRACTION_OF,
-        because: 'A percentage IS a fraction with 100 underneath, so finding a percentage of an '
-          + 'amount and finding a fraction of one are the same operation. The bank has no '
-          + '"find P% of an amount" question at all, and this is the nearest true thing: the '
-          + 'prerequisite skill, in its own clothes.',
+        questionId: Q_PERCENT_OF,
+        because: 'A percentage of an amount, asked straight — the operation this section has '
+          + 'just built, with nothing else attached. Its traps are the stepping stones: 1%, '
+          + '10% and 5% of the amount, each of them a correct first move the student has '
+          + 'stopped on, plus the percentage read as if it were pounds.',
       },
     ],
   }
@@ -287,6 +304,17 @@ function stageIncrease(p: Params): Stage {
         because: 'The increase, straight. Its traps are exactly the two wrong answers this '
           + 'section rules out: giving the increase on its own, and adding the percentage as '
           + 'if it were pounds.',
+      },
+      {
+        questionId: Q_INCREASE_BACKWARDS,
+        because: 'This section’s relationship run the other way. Section 2 goes amount plus '
+          + 'percentage to new amount; this goes before and after to percentage. It is the '
+          + 'same single link read backwards rather than a second skill, which is why it is '
+          + 'an ordinary check at a step up in difficulty and not a challenge. Its two most '
+          + 'interesting traps are both wrong-base answers — the percentage decrease measured '
+          + 'from this year back to last, and the old price as a percentage of the new — which '
+          + 'is exactly the misconception the second slot above rules out: which amount the '
+          + 'percentage is taken FROM.',
       },
     ],
   }
