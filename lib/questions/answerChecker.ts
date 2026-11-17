@@ -1230,6 +1230,15 @@ const UNITS_REMINDER =
 const PERCENT_REMINDER =
   'Correct — but remember to write the % sign, so it is clear your answer is a percentage.'
 
+/**
+ * A money answer without its currency sign. The same reasoning as %: a GCSE
+ * money question prints the £ on the answer line ("£ ........"), so "102.30"
+ * for "£102.30" is the whole answer — a nudge, never a penalty. Covers $ and €
+ * too, which the units pattern counted alongside £.
+ */
+const CURRENCY_REMINDER = (sign: string) =>
+  `Correct — but remember to write the ${sign} sign, so it is clear your answer is an amount of money.`
+
 const SIMPLIFICATION_REMINDER =
   'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
 
@@ -1482,11 +1491,17 @@ export function checkAnswer(
   // included) still decides whether a non-numeric answer is compared again with
   // units stripped — without it "35" against "35%" was marked WRONG. Only
   // `missingUnits` (a unit that matters) drives the reminder and the lost mark.
-  const expectsMarkedUnit = containsUnits(correctAnswer.replace(/%/g, ''))
+  //
+  // A currency sign is treated the same way as %, for the same reason: the
+  // answer line prints it.
+  const expectsMarkedUnit = containsUnits(correctAnswer.replace(/[%£$€]/g, ''))
   const omittedUnits    = correctHasUnits && !studentHasUnits
   const missingUnits    = expectsMarkedUnit && !studentHasUnits   // expected units omitted
   // The % on its own: worth a reminder, never a mark (see PERCENT_REMINDER).
   const missingPercent  = correctAnswer.includes('%') && !studentAnswer.includes('%')
+  // Likewise a currency sign (see CURRENCY_REMINDER).
+  const currencySign    = correctAnswer.match(/[£$€]/)?.[0] ?? null
+  const missingCurrency = currencySign !== null && !/[£$€]/.test(studentAnswer)
   const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
 
   // The student named a DIFFERENT quantity in front of a right expression:
@@ -1641,6 +1656,7 @@ export function checkAnswer(
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
               : missingPercent ? PERCENT_REMINDER
+              : missingCurrency ? CURRENCY_REMINDER(currencySign!)
               : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
               : PLAIN_CORRECT,
     }
@@ -1731,6 +1747,7 @@ export function checkAnswer(
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
                : missingPercent        ? PERCENT_REMINDER
+               : missingCurrency       ? CURRENCY_REMINDER(currencySign!)
                : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
                : PLAIN_CORRECT,
       }

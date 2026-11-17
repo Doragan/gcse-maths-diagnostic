@@ -38,6 +38,13 @@ describe('units on a mini-exam', () => {
     expect(gradeUnits([item], { 'pct:0': '20%' }).earned).toBe(2)
   })
 
+  it('gives full marks to an amount of money written without its £', () => {
+    // Money questions print the £ on the answer line, as percentages print %.
+    const item = buildItem(row('gbp', '£{{a}}'), 1, DRAW)
+    expect(gradeUnits([item], { 'gbp:0': '20' }).earned).toBe(2)
+    expect(gradeUnits([item], { 'gbp:0': '£20' }).earned).toBe(2)
+  })
+
   it('still takes the accuracy mark for a real unit left off', () => {
     const item = buildItem(row('area', '{{a}} cm²'), 1, DRAW)
     expect(gradeUnits([item], { 'area:0': '20 cm²' }).earned).toBe(2)
