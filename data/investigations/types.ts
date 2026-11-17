@@ -198,6 +198,13 @@ export type Prediction = {
  * than the paper does.
  */
 export type Naming = {
+  /**
+   * The card's label. 'Definition' when omitted — set it when what the card
+   * holds is not a definition. Percentage change's last section names an idea
+   * worth carrying away ("changes in a row multiply"), not a term the exam
+   * uses, and labelling that a definition dressed up a phrase as vocabulary.
+   */
+  label?: string
   /** 'the gradient' */
   term: string
   /** What they have just built, pointing at their own table. */

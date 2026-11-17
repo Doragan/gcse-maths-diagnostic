@@ -79,16 +79,6 @@ const Q_INCREASE_BACKWARDS = '11fb8c8b-b53b-4d64-8c83-6a106fafeb66'
 /** "Decrease £a by b%." (d2, numeric) — same shape, the other direction. */
 const Q_DECREASE = '3a2a4da5-2798-45a2-9386-7449f4f7139a'
 /**
- * "£a at r% compound interest for n years." (d4, numeric)
- *
- * On growth_and_decay rather than percentage_change, deliberately: section 3
- * is about multipliers COMPOSING, and compound interest is that idea with
- * nothing else attached. Its two traps are both `simple_instead_of_compound`,
- * which is this misconception wearing a different hat — multiplying the
- * percentage by the years instead of the multiplier by itself.
- */
-const Q_COMPOUND = '5336bd5e-7fa8-4fa8-9a67-387b9b684d0a'
-/**
  * "The radius of a circle is increased by p%. Find the percentage increase in
  * the area." (d5, numeric)
  *
@@ -393,8 +383,11 @@ function stageDecrease(p: Params): Stage {
       name: 'decrease',
       prompt: `Pick a percentage to take off ${money(start)}, and watch the multiplier in the `
         + 'last column.',
-      hint: 'Whole percentages from 5 to 50, in fives.',
-      domain: { min: 5, max: 50, step: 5 },
+      // Any whole percentage, but stopping at 99: taking 100% off leaves £0 and
+      // a multiplier of 0, which breaks this section's own rule that a decrease
+      // multiplier is between 0 and 1.
+      hint: 'Any whole percentage from 1 to 99.',
+      domain: { min: 1, max: 99, step: 1 },
       suggest: [15, 40],
       label: v => `a decrease of ${v}%`,
       row: v => [
@@ -446,14 +439,8 @@ function stageDecrease(p: Params): Stage {
       algebra: 'new = old − {P/100} × old\n'
         + '  = old × (1 − {P/100})',
     },
-    naming: {
-      term: 'keeping, not losing',
-      means: 'It is worth reading a decrease multiplier as what you KEEP rather than what you '
-        + 'lose. A 35% discount has multiplier 0.65, and 0.65 is the 65% you still pay.',
-      elsewhere: 'A sale sign says 40% off, but the till multiplies by 0.6. The sign names the '
-        + 'part that goes; the arithmetic names the part that stays.',
-      onThePaper: 'Decrease 480 by 35%. / A coat costs £80 in a 15% sale. Find the sale price.',
-    },
+    // No definition card. "Keeping, not losing" was a way of reading the
+    // multiplier, not a term, and the section's conclusion already says it.
     check: [
       {
         questionId: Q_DECREASE,
@@ -493,21 +480,30 @@ function stageBothWays(p: Params): Stage {
       },
       right: `You end on ${money(back)}, below where you started — and most people say `
         + `${money(start)}.`,
-      // The working only. WHY more comes off than went on — the second percentage
-      // is taken from a bigger amount — is the second blank of the conclusion
-      // sentence, so saying it here would answer that for them.
+      // The working AND the reason, in this draw's money: the same percentage of
+      // a bigger amount is more. This is the conclusion's second blank in
+      // numbers — said here at the reviewer's request, because without it the
+      // working shows THAT you end lower and never why. The sentence still asks
+      // the student to state it in general.
       explain: [
-        `Up ${q}%: ${money(start)} × ${dec(1 + q / 100)} = ${money(start * (1 + q / 100))}.`,
-        `Down ${q}%: ${money(start * (1 + q / 100))} × ${dec(1 - q / 100)} = ${money(back)}.`,
-        `${money(back)} is ${money(start - back)} less than the ${money(start)} you started with.`,
+        `Up ${q}%: ${q}% of ${money(start)} is ${money(start * q / 100)}, so you go up to `
+          + `${money(start * (1 + q / 100))}.`,
+        `Down ${q}%: now it is ${q}% of ${money(start * (1 + q / 100))}, which is `
+          + `${money(start * (1 + q / 100) * q / 100)} — so you come down to ${money(back)}.`,
+        `${q}% of ${money(start * (1 + q / 100))} is bigger than ${q}% of ${money(start)}, because `
+          + `${money(start * (1 + q / 100))} is the bigger amount. More comes off than went on, so `
+          + `you end ${money(start - back)} below where you started.`,
       ],
     },
     control: {
       name: 'percentage',
       prompt: 'Pick a percentage. It goes up by that, then down by the same — does it ever '
         + 'come back to the start?',
-      hint: 'Whole percentages from 10 to 50, in tens.',
-      domain: { min: 10, max: 50, step: 10 },
+      // Any whole percentage up to 99, as in section 3 — down 100% is £0. Tens
+      // were never needed for tidiness: start × (1 − (P/100)²) is always exact
+      // to the penny for a start of 200, 400 or 500.
+      hint: 'Any whole percentage from 1 to 99.',
+      domain: { min: 1, max: 99, step: 1 },
       suggest: [10, 50],
       label: v => `up ${v}% then down ${v}%`,
       row: v => [
@@ -521,7 +517,7 @@ function stageBothWays(p: Params): Stage {
           return 'One row could be a fluke. Try another percentage.'
         }
         if (!drawn.some(v => v >= 40)) {
-          return 'Now try a big one — 40% or 50% — and see whether the gap stays small.'
+          return 'Now try a big one — 40% or more — and see whether the gap stays small.'
         }
         return null
       },
@@ -539,14 +535,20 @@ function stageBothWays(p: Params): Stage {
       ],
       slots: [
         {
-          options: ['less than you started with', 'exactly what you started with'],
+          options: [
+            'less than you started with',
+            'exactly what you started with',
+            'more than you started with',
+          ],
           correct: 0,
           diagnosis: [
             '',
             'The third column shows it: the two multipliers never multiply to 1. They come to '
             + 'just under it, every time, for every percentage you tried.',
+            'Every amount in your last column is BELOW where you started, never above. The rise '
+            + 'comes first, but the fall is the bigger of the two.',
           ],
-          misconception: ['', 'percentage_from_the_wrong_base'],
+          misconception: ['', 'percentage_from_the_wrong_base', 'percentage_from_the_wrong_base'],
         },
         {
           options: [
@@ -573,16 +575,21 @@ function stageBothWays(p: Params): Stage {
       algebra: '(1 + {P/100}) × (1 − {P/100})\n'
         + '  = 1 − ({P/100})²',
     },
+    // Not a definition — "multipliers compose" is nobody's vocabulary — but the
+    // idea is worth carrying away, so it keeps the card under another label.
+    // The old version also claimed a shop could mark up 50% and then sell at
+    // 50% off "without losing money"; it does lose: £100 → £150 → £75.
     naming: {
-      term: 'multipliers compose',
-      means: 'Changes one after another MULTIPLY — you do not add the percentages. Two changes '
-        + 'in a row mean two multipliers in a row, and the same multiplier applied n times is '
-        + 'that multiplier to the power n.',
-      elsewhere: 'This is why compound interest beats simple interest, why inflation of 3% a '
-        + 'year for five years is not 15%, and why a shop can mark up by 50% and then hold a '
-        + '"50% off" sale without losing money.',
+      label: 'Worth knowing',
+      term: 'changes in a row multiply',
+      means: `Two percentage changes one after the other are two multiplications. Up ${q}% `
+        + `then down ${q}% is × ${dec(1 + q / 100)} then × ${dec(1 - q / 100)}, which comes to `
+        + `× ${dec((1 + q / 100) * (1 - q / 100))} — not × 1.`,
+      elsewhere: 'A shop that marks a £100 item up by 50% and then sells it at "50% off" takes '
+        + '£75, not £100. And the same change repeated is how savings grow: 3% a year for five '
+        + 'years is × 1.03 five times over, which is more than adding 15%.',
       onThePaper: 'A price rises by 10% and then falls by 10%. Find the overall percentage '
-        + 'change. / £2000 at 3% compound interest for 4 years.',
+        + 'change.',
     },
     aside: {
       head: 'Does the order matter?',
@@ -590,13 +597,11 @@ function stageBothWays(p: Params): Stage {
         + 'because multiplication does not care which way round you do it. What matters is '
         + 'that the two percentages are of different amounts, not which one happens first.',
     },
+    // The compound-interest check is gone: this section barely touches
+    // compound interest, which belongs to growth_and_decay. A two-changes-in-a-
+    // row question to replace it, and a challenge that gives the radius, are
+    // drafted in the bank and wait on the reviewer publishing them.
     check: [
-      {
-        questionId: Q_COMPOUND,
-        because: 'Repeated multiplication with nothing else attached. Both of its traps are '
-          + 'simple interest — multiplying the percentage by the years instead of the '
-          + 'multiplier by itself, which is this section’s misconception exactly.',
-      },
       {
         questionId: Q_AREA,
         challenge: true,
