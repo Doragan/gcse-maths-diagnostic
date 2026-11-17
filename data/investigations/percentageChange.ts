@@ -173,7 +173,7 @@ function stagePercentOf(p: Params): Stage {
           diagnosis: [
             '',
             'The other way round. Cent is a hundred — as in century, or a cent being a '
-            + 'hundredth of a dollar — and per means "for each". 25% is 25 out of every 100, '
+            + 'hundredth of a dollar or a euro — and per means "for each". 25% is 25 out of every 100, '
             + 'which is a quarter, not 2500.',
           ],
           misconception: ['', ''],
@@ -200,15 +200,15 @@ function stagePercentOf(p: Params): Stage {
         + 'first is such a useful move, and why 10% is worth knowing on sight.',
       algebraLead: 'In symbols, with P for the percentage and A for the amount. The second line '
         + 'is the one the table shows — find a hundredth, then take P of them:',
-      algebra: 'P% of A = (P ÷ 100) × A\n'
-        + '\u2003\u2003= P × (A ÷ 100)',
+      algebra: 'P% of A = {P/100} × A\n'
+        + '\u2003\u2003= P × {A/100}',
     },
     naming: {
       term: 'per*cent*',
       means: 'Per*cent* means "out of a hundred". A percentage is a number of hundredths, so it '
-        + 'is a fraction with 100 underneath: 25% is 25/100, which is a quarter.',
+        + 'is a fraction with 100 underneath: 25% is {25/100}, which is a quarter.',
       elsewhere: 'Cent is a hundred — a century, a centurion, a centimetre, a cent being a '
-        + 'hundredth of a dollar. Per means "for each", the same per as in miles per hour. So '
+        + 'hundredth of a dollar or a euro. Per means "for each", the same per as in miles per hour. So '
         + 'per*cent* is literally "for each hundred", and the % sign is a worn-down way of '
         + 'writing the two zeros of 100.',
       onThePaper: 'Work out 35% of 240. / A jacket costs £60. Find 15% of £60.',
@@ -263,8 +263,10 @@ function stageIncrease(p: Params): Stage {
       name: 'increase',
       prompt: `Pick a percentage and see what ${money(start)} becomes — watch the multiplier in `
         + 'the last column.',
-      hint: 'Whole percentages from 5 to 50, in fives.',
-      domain: { min: 5, max: 50, step: 5 },
+      // Any whole percentage, as in section 1: the answer is money, and pence
+      // absorb anything.
+      hint: 'Any whole percentage from 1 to 100.',
+      domain: { min: 1, max: 100, step: 1 },
       suggest: [10, 45],
       label: v => `an increase of ${v}%`,
       row: v => [
@@ -279,7 +281,7 @@ function stageIncrease(p: Params): Stage {
     },
     observe: {
       headers: [
-        'increase of', 'the increase on its own', 'you end up with', 'end ÷ start',
+        'increase of', 'the increase on its own', 'you end up with', 'single multiplier',
       ],
     },
     conclude: {
@@ -317,13 +319,13 @@ function stageIncrease(p: Params): Stage {
         + 'the percentage on top — so one multiplication does both jobs at once.',
       algebraLead: 'In symbols, with P for the percentage. The 1 is the amount you keep, and the '
         + 'fraction is what gets added:',
-      algebra: 'new = old + (P ÷ 100) × old\n'
-        + '  = old × (1 + P ÷ 100)',
+      algebra: 'new = old + {P/100} × old\n'
+        + '  = old × (1 + {P/100})',
     },
     naming: {
       term: 'the multiplier',
       means: 'The multiplier is the single number a percentage change multiplies by. An '
-        + 'increase of P% has multiplier 1 + P ÷ 100, which is always more than 1.',
+        + 'increase of P% has multiplier 1 + {P/100}, which is always more than 1.',
       elsewhere: 'Shops and banks work in multipliers rather than percentages because they '
         + 'chain: a price marked up and then discounted is two multiplications in a row, and '
         + 'nobody wants to add and subtract their way through that twice.',
@@ -338,6 +340,11 @@ function stageIncrease(p: Params): Stage {
       },
       {
         questionId: Q_INCREASE_BACKWARDS,
+        // The section never shows how to go from two prices back to the
+        // percentage. That is fine to ask, but not without saying so.
+        note: 'This one runs the section backwards: you are given the old and new prices, and '
+          + 'asked for the percentage. We have not shown you how to do that yet, so have a go — '
+          + 'the explanation afterwards walks you through it.',
         because: 'This section’s relationship run the other way. Section 2 goes amount plus '
           + 'percentage to new amount; this goes before and after to percentage. It is the '
           + 'same single link read backwards rather than a second skill, which is why it is '
@@ -434,10 +441,10 @@ function stageDecrease(p: Params): Stage {
       ],
       because: 'A decrease is not a different operation from an increase — it is the same one '
         + 'with a smaller multiplier. Taking P% off means keeping (100 − P)% of what you had, '
-        + 'and that is what 1 − P ÷ 100 is: the fraction you keep.',
+        + 'and that is what 1 − {P/100} is: the fraction you keep.',
       algebraLead: 'The same line as before, with the fraction taken away instead of added:',
-      algebra: 'new = old − (P ÷ 100) × old\n'
-        + '  = old × (1 − P ÷ 100)',
+      algebra: 'new = old − {P/100} × old\n'
+        + '  = old × (1 − {P/100})',
     },
     naming: {
       term: 'keeping, not losing',
@@ -563,8 +570,8 @@ function stageBothWays(p: Params): Stage {
         + 'percentage the further under it they land.',
       algebraLead: 'Multiplying the two multipliers together is a difference of two squares, and '
         + 'it shows exactly how much you lose:',
-      algebra: '(1 + P ÷ 100) × (1 − P ÷ 100)\n'
-        + '  = 1 − (P ÷ 100)²',
+      algebra: '(1 + {P/100}) × (1 − {P/100})\n'
+        + '  = 1 − ({P/100})²',
     },
     naming: {
       term: 'multipliers compose',

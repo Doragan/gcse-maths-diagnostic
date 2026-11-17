@@ -18,18 +18,67 @@ import { trackEvent } from '../../../../lib/analytics'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../../../lib/styles'
 
 /**
- * The one piece of markup investigation prose gets: *word* renders in italics.
+ * The two pieces of markup investigation prose gets:
+ *
+ *   *word*     italics
+ *   {P/100}    a stacked fraction, P over 100
  *
  * Authored strings are plain text everywhere else, and should stay that way —
  * HTML in a data file is a door nobody needs open. But the copy sometimes has
  * to point at part of a word (the "cent" in percent is the whole lesson in that
- * word), and a sentence cannot do that without emphasis. Not applied to select
- * options or table cells, which cannot hold markup; a test keeps * out of those.
+ * word), and algebra reads far better as P over 100 than as "P ÷ 100". Neither
+ * is applied to select options or table cells, which cannot hold markup; a test
+ * keeps both out of those, and fails on a brace that is not a fraction.
  */
-function emph(text: string): ReactNode {
-  const parts = text.split(/\*([^*]+)\*/)
-  if (parts.length === 1) return text
-  return parts.map((part, i) => (i % 2 ? <em key={i}>{part}</em> : part))
+const MARKUP = /\*([^*]+)\*|\{([^{}/]+)\/([^{}/]+)\}/g
+
+/**
+ * What stays on the same line as a fraction. A browser may wrap just before a
+ * stacked fraction, which left "multiplier 1 +" at the end of one line and the
+ * fraction alone on the next. So the word and operator before it ("1 + ",
+ * "(1 − (") and any closing bracket or punctuation after it ("),", "²") are
+ * held together with it.
+ */
+const GLUE_BEFORE = /(?:\S+ )?(?:[+−×÷=-] )?\(?$/
+const GLUE_AFTER = /^[)²,.;:]*/
+
+function prose(text: string): ReactNode {
+  const out: ReactNode[] = []
+  let last = 0
+  for (const m of text.matchAll(MARKUP)) {
+    const at = m.index ?? 0
+    let end = at + m[0].length
+    let before = text.slice(last, at)
+    if (m[1] !== undefined) {
+      if (before) out.push(before)
+      out.push(<em key={at}>{m[1]}</em>)
+    } else {
+      const lead = before.match(GLUE_BEFORE)?.[0] ?? ''
+      const trail = text.slice(end).match(GLUE_AFTER)?.[0] ?? ''
+      before = before.slice(0, before.length - lead.length)
+      if (before) out.push(before)
+      out.push(
+        <span key={at} style={styles.nowrap}>
+          {lead}<Frac num={m[2].trim()} den={m[3].trim()} />{trail}
+        </span>,
+      )
+      end += trail.length
+    }
+    last = end
+  }
+  if (last === 0) return text
+  if (last < text.length) out.push(text.slice(last))
+  return out
+}
+
+/** A stacked fraction, the same shape as the bank's frac() helper draws. */
+function Frac({ num, den }: { num: string; den: string }) {
+  return (
+    <span style={styles.frac} role="math" aria-label={`${num} over ${den}`}>
+      <span style={styles.fracNum} aria-hidden="true">{num}</span>
+      <span style={styles.fracDen} aria-hidden="true">{den}</span>
+    </span>
+  )
 }
 
 /**
@@ -271,11 +320,11 @@ export default function InvestigatePage() {
         <header>
           <p style={styles.eyebrow}>Investigation · {skill.topic}</p>
           <h1 style={styles.title}>{resolved.title}</h1>
-          <p style={styles.lede}>{emph(investigation.outcomes.lead)}</p>
+          <p style={styles.lede}>{prose(investigation.outcomes.lead)}</p>
           <p style={styles.outcomesHead}>By the end of this you will be able to:</p>
           <ul style={styles.outcomes}>
             {investigation.outcomes.points.map((o, i) => (
-              <li key={i} style={styles.outcome}>{emph(o)}</li>
+              <li key={i} style={styles.outcome}>{prose(o)}</li>
             ))}
           </ul>
         </header>
@@ -321,7 +370,7 @@ export default function InvestigatePage() {
           return (
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
               <p style={styles.stageN}>Stage {i + 1}</p>
-              <p style={styles.ask}>{emph(stage.ask)}</p>
+              <p style={styles.ask}>{prose(stage.ask)}</p>
 
               {locked ? (
                 <p style={styles.hint}>
@@ -331,7 +380,7 @@ export default function InvestigatePage() {
                 <>
                   {/* 1 · predict */}
                   <p style={styles.phase}>{step.predict} · Predict</p>
-                  <p style={styles.prompt}>{emph(stage.predict.prompt)}</p>
+                  <p style={styles.prompt}>{prose(stage.predict.prompt)}</p>
 
                   {stage.predict.on.kind === 'grid' && !st.predicted && (
                     <>
@@ -401,7 +450,7 @@ export default function InvestigatePage() {
                             disabled={st.picked === null}
                             onClick={() => checkChoicePrediction(i, stage)}
                           >
-                            Lock it in
+                            Submit
                           </button>
                         </div>
                       )}
@@ -416,7 +465,7 @@ export default function InvestigatePage() {
                       borderColor: st.predictRight ? colors.successBorder : colors.border,
                     }}>
                       <strong>{st.predictRight ? 'Yes. ' : 'Not quite. '}</strong>
-                      {emph(st.predictRight ? stage.predict.right : wrongResponse(stage, st.picked))}
+                      {prose(st.predictRight ? stage.predict.right : wrongResponse(stage, st.picked))}
                     </p>
                   )}
 
@@ -428,7 +477,7 @@ export default function InvestigatePage() {
                     <div style={styles.explain}>
                       <p style={styles.explainHead}>How to work it out</p>
                       {stage.predict.explain.map((line, k) => (
-                        <p key={k} style={styles.explainLine}>{emph(line)}</p>
+                        <p key={k} style={styles.explainLine}>{prose(line)}</p>
                       ))}
                     </div>
                   )}
@@ -440,11 +489,11 @@ export default function InvestigatePage() {
                       <p style={styles.phase}>
                         {step.draw} · {stage.control.render ? 'Draw your own' : 'Try it yourself'}
                       </p>
-                      <p style={styles.prompt}>{emph(stage.control.prompt)}</p>
+                      <p style={styles.prompt}>{prose(stage.control.prompt)}</p>
 
                       {stage.control.pick && (
                         <>
-                          <p style={styles.hint}>{emph(stage.control.hint)}</p>
+                          <p style={styles.hint}>{prose(stage.control.hint)}</p>
                           {st.entryError && <p role="alert" style={styles.error}>{st.entryError}</p>}
                           <figure style={styles.figure}>
                             <GridCanvas
@@ -486,7 +535,7 @@ export default function InvestigatePage() {
                       )}
                       {!stage.control.pick && (
                         <>
-                          <p style={styles.hint}>{emph(stage.control.hint)}</p>
+                          <p style={styles.hint}>{prose(stage.control.hint)}</p>
                           {st.entryError && <p style={styles.error}>{st.entryError}</p>}
                         </>
                       )}
@@ -597,7 +646,7 @@ export default function InvestigatePage() {
                         <p style={styles.sentence}>
                           {stage.conclude.sentence.map((chunk, k) => (
                             <span key={k}>
-                              {emph(chunk)}
+                              {prose(chunk)}
                               {k < stage.conclude.slots.length && (
                                 <select
                                   value={st.slots[k] ?? ''}
@@ -630,7 +679,7 @@ export default function InvestigatePage() {
                             borderColor: colors.warningBorder,
                           }}>
                             <strong>Look again. </strong>
-                            {emph(stage.conclude.slots[state.firstWrong]
+                            {prose(stage.conclude.slots[state.firstWrong]
                               .diagnosis[st.slots[state.firstWrong]])}
                           </p>
                         )}
@@ -643,13 +692,13 @@ export default function InvestigatePage() {
                               background: colors.successLight,
                               borderColor: colors.successBorder,
                             }}>
-                              <strong>That is it. </strong>{emph(stage.conclude.because)}
+                              <strong>That is it. </strong>{prose(stage.conclude.because)}
                             </p>
                             {stage.conclude.algebraLead && (
-                              <p style={styles.algebraLead}>{emph(stage.conclude.algebraLead)}</p>
+                              <p style={styles.algebraLead}>{prose(stage.conclude.algebraLead)}</p>
                             )}
                             {stage.conclude.algebra && (
-                              <p style={styles.algebra}>{stage.conclude.algebra}</p>
+                              <p style={styles.algebra}>{prose(stage.conclude.algebra)}</p>
                             )}
 
                             {stage.naming && (
@@ -659,21 +708,21 @@ export default function InvestigatePage() {
                                   {/* One span: this row is a flex container, and
                                       without it "per" and an italic "cent"
                                       become two items with a gap between. */}
-                                  <span>{emph(stage.naming.term)}</span>
+                                  <span>{prose(stage.naming.term)}</span>
                                 </p>
-                                <p style={styles.namingMeans}>{emph(stage.naming.means)}</p>
-                                <p style={styles.namingElse}>{emph(stage.naming.elsewhere)}</p>
+                                <p style={styles.namingMeans}>{prose(stage.naming.means)}</p>
+                                <p style={styles.namingElse}>{prose(stage.naming.elsewhere)}</p>
                                 <p style={styles.namingPaper}>
                                   <span style={styles.namingPaperLabel}>On the paper</span>
-                                  {emph(stage.naming.onThePaper)}
+                                  {prose(stage.naming.onThePaper)}
                                 </p>
                               </div>
                             )}
 
                             {stage.aside && (
                               <div style={styles.aside}>
-                                <p style={styles.asideHead}>{emph(stage.aside.head)}</p>
-                                <p style={styles.asideBody}>{emph(stage.aside.body)}</p>
+                                <p style={styles.asideHead}>{prose(stage.aside.head)}</p>
+                                <p style={styles.asideBody}>{prose(stage.aside.body)}</p>
                               </div>
                             )}
 
@@ -695,6 +744,9 @@ export default function InvestigatePage() {
                                       <p style={styles.challenge}>
                                         Challenge — harder than this section needs
                                       </p>
+                                    )}
+                                    {check.note && (
+                                      <p style={styles.checkNote} role="note">{prose(check.note)}</p>
                                     )}
                                     <BankQuestion
                                       questionId={check.questionId}
@@ -978,6 +1030,22 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase',
     color: colors.warningText,
   },
+  // Said before the question, in the page's own voice — not a warning, so not
+  // in the warning colours; a quiet aside with a rule down its edge.
+  checkNote: {
+    margin: 0, padding: '8px 12px', fontSize: font.base, lineHeight: 1.55,
+    color: colors.textSecondary, background: colors.cardAlt,
+    borderLeft: `3px solid ${colors.primary}`, borderRadius: radius.sm,
+  },
+  // The same proportions as the bank's frac(): inline, centred on the line,
+  // slightly smaller, a rule under the numerator.
+  frac: {
+    display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+    verticalAlign: 'middle', margin: '0 3px', fontSize: '0.9em', lineHeight: 1.3,
+  },
+  fracNum: { borderBottom: '1px solid currentColor', padding: '0 4px', textAlign: 'center' },
+  fracDen: { padding: '0 4px', textAlign: 'center' },
+  nowrap: { whiteSpace: 'nowrap' },
   namingMeans: { fontSize: font.base, fontWeight: '600', margin: 0, color: colors.textPrimary },
   namingElse: { fontSize: font.base, margin: 0, color: colors.textSecondary, lineHeight: 1.55 },
   namingPaper: {

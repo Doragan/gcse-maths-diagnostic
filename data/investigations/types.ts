@@ -395,6 +395,16 @@ export type Check = {
    */
   challenge?: boolean
   /**
+   * Said to the student above the question, when the question asks for
+   * something the section has not shown them.
+   *
+   * Not the same as `challenge`. A challenge is harder than the section needs;
+   * this is a question the section's idea covers but whose method it never
+   * demonstrated — the same relationship read backwards, say. Asking it without
+   * saying so reads as "you should have known this", so the page says it first.
+   */
+  note?: string
+  /**
    * Why this question closes this section. Author-facing only: it is the note
    * that stops someone swapping in a question about the wrong half of the
    * skill, which is easy to do when one skill covers gradient AND intercept.
