@@ -747,8 +747,28 @@ describe('student-facing copy', () => {
     diagnosis: stage.conclude.slots.flatMap(s => s.diagnosis).join(' '),
     because: stage.conclude.because,
     algebraLead: stage.conclude.algebraLead ?? '',
+    algebra: stage.conclude.algebra ?? '',
     naming: Object.values(stage.naming ?? {}).join(' '),
     aside: Object.values(stage.aside ?? {}).join(' '),
+    'check notes': (stage.check ?? []).map(c => c.note ?? '').join(' '),
+  })
+
+  it('writes every brace in prose as a fraction the page can draw', () => {
+    // {P/100} draws as P over 100. Any other brace — unclosed, nested, or
+    // without exactly one slash — would reach the student as a literal brace.
+    // The pattern is the page's own: one slash, no braces or slashes inside.
+    const fraction = /[{][^{}/]+[/][^{}/]+[}]/g
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          for (const [field, text] of Object.entries(prose(stage))) {
+            const rest = text.replace(fraction, '')
+            expect(rest, `${inv.skillId} section ${i + 1} ${field}: a stray brace in "${text}"`)
+              .not.toMatch(/[{}]/)
+          }
+        })
+      }
+    }
   })
 
   it('never opens a diagnosis with the word the page already put in front of it', () => {
@@ -782,7 +802,7 @@ describe('student-facing copy', () => {
     }
   })
 
-  it('keeps * out of the places that cannot render it', () => {
+  it('keeps markup out of the places that cannot render it', () => {
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
@@ -803,7 +823,9 @@ describe('student-facing copy', () => {
               plain.push(...(c.row?.(v) ?? []), c.label?.(v) ?? '')
             }
           }
-          for (const text of plain) expect(text, `${where}: "${text}"`).not.toContain('*')
+          // A select option or a table cell is plain text: italics or a fraction
+          // there would show the student its raw markup.
+          for (const text of plain) expect(text, `${where}: "${text}"`).not.toMatch(/[*{}]/)
         })
       }
     }
