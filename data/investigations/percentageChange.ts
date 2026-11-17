@@ -125,11 +125,13 @@ function stagePercentOf(p: Params): Stage {
       },
       right: `${money(start * q / 100)}. A percentage is a number of hundredths, so ${q}% of `
         + `something is ${q} hundredths of it.`,
-      // The explanation first, then what each wrong option was. Answering only
-      // the distractors told a student what they did wrong but never how to
-      // get it right.
-      wrong: `It is ${money(start * q / 100)}. A percentage is a number of hundredths: 1% of `
-        + `${money(start)} is ${money(start / 100)}, so ${q}% is ${q} of those. `
+      // The working first, then what each wrong option was. Answering only the
+      // distractors told a student what they did wrong but never how to get it
+      // right — and stating "1% of £400 is £4" without the division still left
+      // out the one step they need to be able to do for themselves.
+      wrong: `It is ${money(start * q / 100)}. Find 1% first: a percentage is a number of `
+        + `hundredths, so divide by 100 — ${money(start)} ÷ 100 = ${money(start / 100)}. Then `
+        + `${q}% is ${q} of those: ${q} × ${money(start / 100)} = ${money(start * q / 100)}. `
         + `${money(q)} is the percentage read as if it were pounds, and ${money(start / 100)} is `
         + `one percent rather than ${q} of them — a percentage is not an amount of money at all `
         + 'until you say what it is a percentage OF. Try a few of your own and watch the last '
