@@ -1221,6 +1221,15 @@ function inequalityMatch(a: string, b: string): boolean {
 const UNITS_REMINDER =
   'Right value — but always write the units. An answer without them costs you the final mark in an exam.'
 
+/**
+ * A percentage answer without its % sign. Correct, and it costs no mark — a %
+ * is not a unit, and a GCSE percentage question prints it on the answer line —
+ * but where the line does not, the bare number reads as an amount rather than
+ * a percentage. So: a nudge, never a penalty.
+ */
+const PERCENT_REMINDER =
+  'Correct — but remember to write the % sign, so it is clear your answer is a percentage.'
+
 const SIMPLIFICATION_REMINDER =
   'Correct! Remember to simplify your answer fully — you may lose marks in an exam for leaving it unsimplified.'
 
@@ -1450,6 +1459,8 @@ export function checkAnswer(
   const expectsMarkedUnit = containsUnits(correctAnswer.replace(/%/g, ''))
   const omittedUnits    = correctHasUnits && !studentHasUnits
   const missingUnits    = expectsMarkedUnit && !studentHasUnits   // expected units omitted
+  // The % on its own: worth a reminder, never a mark (see PERCENT_REMINDER).
+  const missingPercent  = correctAnswer.includes('%') && !studentAnswer.includes('%')
   const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
 
   // The student named a DIFFERENT quantity in front of a right expression:
@@ -1604,6 +1615,7 @@ export function checkAnswer(
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
               : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
+              : missingPercent ? PERCENT_REMINDER
               : 'Correct!',
     }
   }
@@ -1693,6 +1705,7 @@ export function checkAnswer(
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
                : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
+               : missingPercent        ? PERCENT_REMINDER
                : 'Correct!',
       }
     }

@@ -7,11 +7,13 @@ const check = (student: string, correct: string, type: 'numeric' | 'exact', tol:
 // ── a missing % is notation, not a missing unit ──────────────────────────────
 
 describe('a percentage written without its %', () => {
-  it('is simply correct: no reminder, and nothing for an exam to take off', () => {
+  it('is correct, with a reminder about the % — and nothing for an exam to take off', () => {
     const r = check('20', '20%', 'numeric', 0.01)
     expect(r.correct).toBe(true)
     expect(r.unitsIssue).toBeUndefined()
-    expect(r.message).toBe('Correct!')
+    expect(r.message).toMatch(/% sign/)
+    // Not the units message, which threatens a lost mark this does not cost.
+    expect(r.message).not.toMatch(/units|final mark/)
   })
 
   it('is still correct on an exact answer, which compares again without the %', () => {
@@ -20,6 +22,12 @@ describe('a percentage written without its %', () => {
     const r = check('35', '35%', 'exact')
     expect(r.correct).toBe(true)
     expect(r.unitsIssue).toBeUndefined()
+    expect(r.message).toMatch(/% sign/)
+  })
+
+  it('says nothing about the % when it is there', () => {
+    expect(check('20%', '20%', 'numeric', 0.01).message).toBe('Correct!')
+    expect(check('35%', '35%', 'exact').message).toBe('Correct!')
   })
 
   it('leaves a real unit left off exactly as it was', () => {
