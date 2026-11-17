@@ -135,14 +135,38 @@ export type Prediction = {
    * The grid form is graded by checkGridDraw — the same function that marks a
    * grid_draw part — so a prediction is marked by the machinery that already
    * marks drawings, not by a comparison written for this page.
+   *
+   * `wrong` lives here because its shape depends on the kind. A choice has one
+   * response PER OPTION, aligned with `options` and '' at `correct` — the same
+   * convention as a conclusion slot's `diagnosis` — so the verdict talks about
+   * the answer the student actually picked, not every distractor at once. A
+   * grid placement can land anywhere, so it gets a single response.
+   *
+   * Never scolds: a wrong response says what the chosen answer actually was
+   * (the percentage read as pounds, one step short, the other direction). The
+   * working itself belongs in `explain`, not here.
    */
   on:
-    | { kind: 'grid'; grid: RenderedGrid; expect: readonly GridPoint[] }
-    | { kind: 'choice'; options: readonly string[]; correct: number }
-  /** Shown once they have committed, whether right or wrong. */
+    | { kind: 'grid'; grid: RenderedGrid; expect: readonly GridPoint[]; wrong: string }
+    | {
+        kind: 'choice'
+        options: readonly string[]
+        correct: number
+        wrong: readonly string[]
+      }
+  /** The verdict when they got it right: short, because `explain` follows. */
   right: string
-  /** Never scolds: it states what actually happens and points at the control. */
-  wrong: string
+  /**
+   * How to work it out, shown under the verdict whether they were right or
+   * wrong — a lucky guess needs the working as much as a miss does. One line
+   * per step, each rendered on its own line.
+   *
+   * In THIS draw's numbers, never the general rule. Stating the rule here
+   * would hand over the answer to the conclusion sentence two steps later,
+   * which is the student's to put into words. A teacher works an example on
+   * the board before asking the class what the rule is; this is the example.
+   */
+  explain: readonly string[]
   /**
    * The figure shown AFTER committing, with the answer on it.
    *

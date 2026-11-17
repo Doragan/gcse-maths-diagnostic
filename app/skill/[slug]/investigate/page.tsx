@@ -32,6 +32,16 @@ function emph(text: string): ReactNode {
   return parts.map((part, i) => (i % 2 ? <em key={i}>{part}</em> : part))
 }
 
+/**
+ * The response to the answer this student actually gave: the option they
+ * picked, or the single response a grid placement gets.
+ */
+function wrongResponse(stage: Stage, picked: number | null): string {
+  const on = stage.predict.on
+  if (on.kind === 'grid') return on.wrong
+  return picked === null ? '' : on.wrong[picked] ?? ''
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // An investigation — the concept layer (docs/audit/31).
 //
@@ -406,8 +416,21 @@ export default function InvestigatePage() {
                       borderColor: st.predictRight ? colors.successBorder : colors.border,
                     }}>
                       <strong>{st.predictRight ? 'Yes. ' : 'Not quite. '}</strong>
-                      {emph(st.predictRight ? stage.predict.right : stage.predict.wrong)}
+                      {emph(st.predictRight ? stage.predict.right : wrongResponse(stage, st.picked))}
                     </p>
+                  )}
+
+                  {/* The verdict says how they did; this says how to do it,
+                      for right and wrong alike. A separate box rather than more
+                      of the verdict, so the working is never buried in it and
+                      each step gets its own line. */}
+                  {st.predicted && (
+                    <div style={styles.explain}>
+                      <p style={styles.explainHead}>How to work it out</p>
+                      {stage.predict.explain.map((line, k) => (
+                        <p key={k} style={styles.explainLine}>{emph(line)}</p>
+                      ))}
+                    </div>
                   )}
 
                   {/* 2 · change it */}
@@ -880,6 +903,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: font.base, padding: '11px 13px', borderRadius: radius.sm,
     border: '1px solid', margin: 0, lineHeight: 1.5,
   },
+  // Matches the "Why" box under a bank question's verdict, so the two read as
+  // the same thing wherever a student meets them.
+  explain: {
+    border: `1px solid ${colors.border}`, borderRadius: radius.sm, padding: '12px 14px',
+    display: 'flex', flexDirection: 'column', gap: '4px',
+  },
+  explainHead: {
+    fontSize: font.sm, fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase',
+    color: colors.textHint, margin: '0 0 4px',
+  },
+  explainLine: { fontSize: font.base, color: colors.textSecondary, margin: 0, lineHeight: 1.6 },
   chips: { display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'baseline' },
   chipLabel: { fontSize: font.sm, color: colors.textHint },
   chip: {
