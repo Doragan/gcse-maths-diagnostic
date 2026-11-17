@@ -1614,8 +1614,8 @@ export function checkAnswer(
       // one with a mark attached is the one worth the student's attention.
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
-              : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
               : missingPercent ? PERCENT_REMINDER
+              : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
               : 'Correct!',
     }
   }
@@ -1704,8 +1704,8 @@ export function checkAnswer(
         ...(missingUnits ? { unitsIssue: 'missing' as const } : {}),
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
-               : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
                : missingPercent        ? PERCENT_REMINDER
+               : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
                : 'Correct!',
       }
     }
