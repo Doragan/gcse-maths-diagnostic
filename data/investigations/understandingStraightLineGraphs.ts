@@ -289,7 +289,7 @@ function stageTwo(p: Params): Stage {
         {
           options: ['down', 'up'],
           correct: 0,
-          diagnosis: ['', 'Look at your negative value again: as x goes right, y falls.'],
+          diagnosis: ['', 'Check what your negative value did: as x goes right, y falls.'],
           misconception: ['', ''],
         },
       ],

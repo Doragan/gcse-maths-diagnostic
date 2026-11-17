@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import GridCanvas from '../../../../components/practice/GridCanvas'
 import BankQuestion from '../../../../components/practice/BankQuestion'
@@ -15,6 +16,21 @@ import type { Stage, ResolvedInvestigation } from '../../../../data/investigatio
 import type { GridPoint } from '../../../../lib/questions/gridDraw'
 import { trackEvent } from '../../../../lib/analytics'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../../../lib/styles'
+
+/**
+ * The one piece of markup investigation prose gets: *word* renders in italics.
+ *
+ * Authored strings are plain text everywhere else, and should stay that way —
+ * HTML in a data file is a door nobody needs open. But the copy sometimes has
+ * to point at part of a word (the "cent" in percent is the whole lesson in that
+ * word), and a sentence cannot do that without emphasis. Not applied to select
+ * options or table cells, which cannot hold markup; a test keeps * out of those.
+ */
+function emph(text: string): ReactNode {
+  const parts = text.split(/\*([^*]+)\*/)
+  if (parts.length === 1) return text
+  return parts.map((part, i) => (i % 2 ? <em key={i}>{part}</em> : part))
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // An investigation — the concept layer (docs/audit/31).
@@ -245,11 +261,11 @@ export default function InvestigatePage() {
         <header>
           <p style={styles.eyebrow}>Investigation · {skill.topic}</p>
           <h1 style={styles.title}>{resolved.title}</h1>
-          <p style={styles.lede}>{investigation.outcomes.lead}</p>
+          <p style={styles.lede}>{emph(investigation.outcomes.lead)}</p>
           <p style={styles.outcomesHead}>By the end of this you will be able to:</p>
           <ul style={styles.outcomes}>
             {investigation.outcomes.points.map((o, i) => (
-              <li key={i} style={styles.outcome}>{o}</li>
+              <li key={i} style={styles.outcome}>{emph(o)}</li>
             ))}
           </ul>
         </header>
@@ -295,7 +311,7 @@ export default function InvestigatePage() {
           return (
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
               <p style={styles.stageN}>Stage {i + 1}</p>
-              <p style={styles.ask}>{stage.ask}</p>
+              <p style={styles.ask}>{emph(stage.ask)}</p>
 
               {locked ? (
                 <p style={styles.hint}>
@@ -305,7 +321,7 @@ export default function InvestigatePage() {
                 <>
                   {/* 1 · predict */}
                   <p style={styles.phase}>{step.predict} · Predict</p>
-                  <p style={styles.prompt}>{stage.predict.prompt}</p>
+                  <p style={styles.prompt}>{emph(stage.predict.prompt)}</p>
 
                   {stage.predict.on.kind === 'grid' && !st.predicted && (
                     <>
@@ -390,7 +406,7 @@ export default function InvestigatePage() {
                       borderColor: st.predictRight ? colors.successBorder : colors.border,
                     }}>
                       <strong>{st.predictRight ? 'Yes. ' : 'Not quite. '}</strong>
-                      {st.predictRight ? stage.predict.right : stage.predict.wrong}
+                      {emph(st.predictRight ? stage.predict.right : stage.predict.wrong)}
                     </p>
                   )}
 
@@ -401,11 +417,11 @@ export default function InvestigatePage() {
                       <p style={styles.phase}>
                         {step.draw} · {stage.control.render ? 'Draw your own' : 'Try it yourself'}
                       </p>
-                      <p style={styles.prompt}>{stage.control.prompt}</p>
+                      <p style={styles.prompt}>{emph(stage.control.prompt)}</p>
 
                       {stage.control.pick && (
                         <>
-                          <p style={styles.hint}>{stage.control.hint}</p>
+                          <p style={styles.hint}>{emph(stage.control.hint)}</p>
                           {st.entryError && <p role="alert" style={styles.error}>{st.entryError}</p>}
                           <figure style={styles.figure}>
                             <GridCanvas
@@ -447,7 +463,7 @@ export default function InvestigatePage() {
                       )}
                       {!stage.control.pick && (
                         <>
-                          <p style={styles.hint}>{stage.control.hint}</p>
+                          <p style={styles.hint}>{emph(stage.control.hint)}</p>
                           {st.entryError && <p style={styles.error}>{st.entryError}</p>}
                         </>
                       )}
@@ -558,7 +574,7 @@ export default function InvestigatePage() {
                         <p style={styles.sentence}>
                           {stage.conclude.sentence.map((chunk, k) => (
                             <span key={k}>
-                              {chunk}
+                              {emph(chunk)}
                               {k < stage.conclude.slots.length && (
                                 <select
                                   value={st.slots[k] ?? ''}
@@ -591,8 +607,8 @@ export default function InvestigatePage() {
                             borderColor: colors.warningBorder,
                           }}>
                             <strong>Look again. </strong>
-                            {stage.conclude.slots[state.firstWrong]
-                              .diagnosis[st.slots[state.firstWrong]]}
+                            {emph(stage.conclude.slots[state.firstWrong]
+                              .diagnosis[st.slots[state.firstWrong]])}
                           </p>
                         )}
 
@@ -604,10 +620,10 @@ export default function InvestigatePage() {
                               background: colors.successLight,
                               borderColor: colors.successBorder,
                             }}>
-                              <strong>That is it. </strong>{stage.conclude.because}
+                              <strong>That is it. </strong>{emph(stage.conclude.because)}
                             </p>
                             {stage.conclude.algebraLead && (
-                              <p style={styles.algebraLead}>{stage.conclude.algebraLead}</p>
+                              <p style={styles.algebraLead}>{emph(stage.conclude.algebraLead)}</p>
                             )}
                             {stage.conclude.algebra && (
                               <p style={styles.algebra}>{stage.conclude.algebra}</p>
@@ -617,21 +633,24 @@ export default function InvestigatePage() {
                               <div style={styles.naming}>
                                 <p style={styles.namingTerm}>
                                   <span style={styles.namingLabel}>Definition:</span>
-                                  {stage.naming.term}
+                                  {/* One span: this row is a flex container, and
+                                      without it "per" and an italic "cent"
+                                      become two items with a gap between. */}
+                                  <span>{emph(stage.naming.term)}</span>
                                 </p>
-                                <p style={styles.namingMeans}>{stage.naming.means}</p>
-                                <p style={styles.namingElse}>{stage.naming.elsewhere}</p>
+                                <p style={styles.namingMeans}>{emph(stage.naming.means)}</p>
+                                <p style={styles.namingElse}>{emph(stage.naming.elsewhere)}</p>
                                 <p style={styles.namingPaper}>
                                   <span style={styles.namingPaperLabel}>On the paper</span>
-                                  {stage.naming.onThePaper}
+                                  {emph(stage.naming.onThePaper)}
                                 </p>
                               </div>
                             )}
 
                             {stage.aside && (
                               <div style={styles.aside}>
-                                <p style={styles.asideHead}>{stage.aside.head}</p>
-                                <p style={styles.asideBody}>{stage.aside.body}</p>
+                                <p style={styles.asideHead}>{emph(stage.aside.head)}</p>
+                                <p style={styles.asideBody}>{emph(stage.aside.body)}</p>
                               </div>
                             )}
 
@@ -792,7 +811,9 @@ const styles: Record<string, React.CSSProperties> = {
     color: colors.textHint, margin: 0,
   },
   title: { fontSize: font.xl, fontWeight: '750', margin: '6px 0 0', color: colors.textPrimary },
-  lede: { fontSize: font.base, color: colors.textSecondary, margin: '8px 0 0', maxWidth: '36em' },
+  // No width cap of its own. It used to stop at 36em inside a 760px page, which
+  // wrapped the opening into twice the lines it needed above every stage.
+  lede: { fontSize: font.base, color: colors.textSecondary, margin: '8px 0 0' },
   card: {
     background: colors.card, border: `1px solid ${colors.border}`, borderRadius: radius.lg,
     padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px',
