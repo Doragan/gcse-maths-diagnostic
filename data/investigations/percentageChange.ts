@@ -28,7 +28,10 @@ import type { Investigation, Params, Stage } from './types'
 /** Money, with pence only when there are any. */
 function money(n: number): string {
   const r = Math.round(n * 100) / 100
-  return `£${Number.isInteger(r) ? r : r.toFixed(2)}`
+  // Grouped the British way, £12,500 not £12500 — the "multiply by the
+  // percentage" responses reach the thousands. Pence only when there are any.
+  const pence = Number.isInteger(r) ? 0 : 2
+  return `£${r.toLocaleString('en-GB', { minimumFractionDigits: pence, maximumFractionDigits: pence })}`
 }
 
 /** A decimal with no trailing zeros: 1.1, not 1.10. */
@@ -122,24 +125,27 @@ function stagePercentOf(p: Params): Stage {
         kind: 'choice',
         options: [money(start * q / 100), money(q), money(start / 100)],
         correct: 0,
+        wrong: [
+          '',
+          `${money(q)} is the percentage read as if it were pounds. ${q}% is ${q} hundredths `
+            + `of something — it is not an amount of money until you say what it is a `
+            + 'percentage OF.',
+          `${money(start / 100)} is 1% of ${money(start)}, which is exactly the right first `
+            + `step. You need ${q} of them, not one.`,
+        ],
       },
-      right: `${money(start * q / 100)}. A percentage is a number of hundredths, so ${q}% of `
-        + `something is ${q} hundredths of it.`,
-      // The working first, then what each wrong option was. Answering only the
-      // distractors told a student what they did wrong but never how to get it
-      // right — and stating "1% of £400 is £4" without the division still left
-      // out the one step they need to be able to do for themselves.
-      wrong: `It is ${money(start * q / 100)}. Find 1% first: a percentage is a number of `
-        + `hundredths, so divide by 100 — ${money(start)} ÷ 100 = ${money(start / 100)}. Then `
-        + `${q}% is ${q} of those: ${q} × ${money(start / 100)} = ${money(start * q / 100)}. `
-        + `${money(q)} is the percentage read as if it were pounds, and ${money(start / 100)} is `
-        + `one percent rather than ${q} of them — a percentage is not an amount of money at all `
-        + 'until you say what it is a percentage OF. Try a few of your own and watch the last '
-        + 'column.',
+      right: `${q}% of ${money(start)} is ${money(start * q / 100)}.`,
+      explain: [
+        `Find 1% first, by dividing by 100: ${money(start)} ÷ 100 = ${money(start / 100)}.`,
+        `${q}% is ${q} lots of that: ${q} × ${money(start / 100)} = ${money(start * q / 100)}.`,
+      ],
     },
     control: {
       name: 'rise',
-      prompt: `Try some other pay rises on ${money(start)}.`,
+      // What to watch now lives here rather than in the verdict, which used to
+      // say it — the working box sits between the two.
+      prompt: `Try some other pay rises on ${money(start)}, and watch the working in the last `
+        + 'column.',
       // Any whole percentage. Fives were there to keep answers tidy, but the
       // answer is money and pence absorb anything — and 1% of a start of 200,
       // 400 or 500 is whole pounds anyway.
@@ -235,15 +241,28 @@ function stageIncrease(p: Params): Stage {
         kind: 'choice',
         options: [dec(1 + q / 100), dec(q / 100), String(q)],
         correct: 0,
+        wrong: [
+          '',
+          `${money(start)} × ${dec(q / 100)} = ${money(start * q / 100)}, which is the rise on its `
+            + `own — the bit you would still have to add on. It is not the new pay.`,
+          `${money(start)} × ${q} = ${money(start * q)}: the pay ${q} times over. A ${q}% rise `
+            + 'is far smaller than that.',
+        ],
       },
-      right: `${money(start)} × ${dec(1 + q / 100)} = ${money(start * (1 + q / 100))}, in one `
-        + 'step. Now try some percentages of your own and watch that number.',
-      wrong: `It is ${dec(1 + q / 100)}. ${dec(q / 100)} gives you the ${q}% on its own — the bit `
-        + 'you would still have to add on. Try some percentages and watch the last column.',
+      right: `${dec(1 + q / 100)} — one multiplication, instead of working out the rise and `
+        + 'adding it on.',
+      explain: [
+        `After the rise you have all of your old pay, plus ${q}% more: 100% + ${q}% = `
+          + `${100 + q}% of it.`,
+        `${100 + q}% as a decimal is ${100 + q} ÷ 100 = ${dec(1 + q / 100)}.`,
+        `${money(start)} × ${dec(1 + q / 100)} = ${money(start * (1 + q / 100))} — the same as `
+          + `${money(start)} + ${money(start * q / 100)}, in one step.`,
+      ],
     },
     control: {
       name: 'increase',
-      prompt: `Pick a percentage and see what ${money(start)} becomes.`,
+      prompt: `Pick a percentage and see what ${money(start)} becomes — watch the multiplier in `
+        + 'the last column.',
       hint: 'Whole percentages from 5 to 50, in fives.',
       domain: { min: 5, max: 50, step: 5 },
       suggest: [10, 45],
@@ -346,15 +365,27 @@ function stageDecrease(p: Params): Stage {
         kind: 'choice',
         options: [dec(1 - q / 100), dec(q / 100), dec(1 + q / 100)],
         correct: 0,
+        wrong: [
+          '',
+          `${money(start)} × ${dec(q / 100)} = ${money(start * q / 100)}, which is the amount `
+            + 'that comes OFF — not what you are left with.',
+          `${dec(1 + q / 100)} is the multiplier for going UP by ${q}%. It would turn `
+            + `${money(start)} into ${money(start * (1 + q / 100))}.`,
+        ],
       },
-      right: `${money(start)} × ${dec(1 - q / 100)} = ${money(start * (1 - q / 100))}. It is `
-        + 'still a multiplication, and the multiplier is still built from a 1.',
-      wrong: `It is ${dec(1 - q / 100)}. You keep ${100 - q}% of what you had, and `
-        + `${100 - q}% is ${dec(1 - q / 100)}. Draw a few and watch the last column.`,
+      right: `${dec(1 - q / 100)} — one multiplication, instead of working out the decrease `
+        + 'and taking it off.',
+      explain: [
+        `Taking ${q}% off leaves you with 100% − ${q}% = ${100 - q}% of what you had.`,
+        `${100 - q}% as a decimal is ${100 - q} ÷ 100 = ${dec(1 - q / 100)}.`,
+        `${money(start)} × ${dec(1 - q / 100)} = ${money(start * (1 - q / 100))} — the same as `
+          + `${money(start)} − ${money(start * q / 100)}, in one step.`,
+      ],
     },
     control: {
       name: 'decrease',
-      prompt: `Pick a percentage to take off ${money(start)}.`,
+      prompt: `Pick a percentage to take off ${money(start)}, and watch the multiplier in the `
+        + 'last column.',
       hint: 'Whole percentages from 5 to 50, in fives.',
       domain: { min: 5, max: 50, step: 5 },
       suggest: [15, 40],
@@ -445,15 +476,29 @@ function stageBothWays(p: Params): Stage {
           `more than ${money(start)}`,
         ],
         correct: 0,
+        wrong: [
+          '',
+          'Almost everybody says that — it feels as if the percentage coming off should cancel '
+            + `the one that went on. It does not: you end on ${money(back)}.`,
+          `It goes up first, but you do not stay above ${money(start)}: you end on `
+            + `${money(back)}.`,
+        ],
       },
-      right: `And most people say ${money(start)}. You end on ${money(back)}. Work out a few `
-        + 'more and see whether it ever comes back to the start.',
-      wrong: `It is less: ${money(back)}. Almost everybody says ${money(start)}, which is why `
-        + 'this is worth doing rather than being told. Try some percentages of your own.',
+      right: `You end on ${money(back)}, below where you started — and most people say `
+        + `${money(start)}.`,
+      // The working only. WHY more comes off than went on — the second percentage
+      // is taken from a bigger amount — is the second blank of the conclusion
+      // sentence, so saying it here would answer that for them.
+      explain: [
+        `Up ${q}%: ${money(start)} × ${dec(1 + q / 100)} = ${money(start * (1 + q / 100))}.`,
+        `Down ${q}%: ${money(start * (1 + q / 100))} × ${dec(1 - q / 100)} = ${money(back)}.`,
+        `${money(back)} is ${money(start - back)} less than the ${money(start)} you started with.`,
+      ],
     },
     control: {
       name: 'percentage',
-      prompt: 'Pick a percentage. It goes up by that, then down by the same.',
+      prompt: 'Pick a percentage. It goes up by that, then down by the same — does it ever '
+        + 'come back to the start?',
       hint: 'Whole percentages from 10 to 50, in tens.',
       domain: { min: 10, max: 50, step: 10 },
       suggest: [10, 50],

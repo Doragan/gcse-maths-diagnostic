@@ -103,6 +103,7 @@ function stageOne(p: Params): Stage {
         kind: 'grid',
         grid: pointsGrid({ x: X, y: Y1, ghosts: [[1, 0]], expect: [{ x: 0, y: c1 }] }),
         expect: [{ x: 0, y: c1 }],
+        wrong: `It crosses at (0, ${c1}) — the labelled point on the graph.`,
       },
       // The same axes with the line they were predicting actually drawn on
       // them, so the answer is something they SEE rather than are told.
@@ -120,10 +121,14 @@ function stageOne(p: Params): Stage {
         }),
         labels: [{ x: 0, y: c1, text: `crosses at (0, ${fmt(c1)})`, dx: 62, dy: -8 }],
       },
-      right: `(0, ${c1}) is where it crosses — the + ${c1} lifted every point on the `
-        + `line up by ${c1}.`,
-      wrong: `It crosses at (0, ${c1}) — the labelled point on the graph. Now draw some `
-        + 'lines of your own and watch what c does.',
+      right: `It crosses at (0, ${c1}), right where you put it.`,
+      // Substitution, in numbers. "c is where it crosses" is the first blank of
+      // this section's conclusion, so it is shown here and never said.
+      explain: [
+        'Every point on the y-axis has x = 0.',
+        `Put x = 0 into ${lineEquation(1, c1)}: y = 0 + ${c1} = ${c1}.`,
+        `So the line crosses the y-axis at (0, ${c1}).`,
+      ],
     },
     control: {
       name: 'c',
@@ -234,13 +239,29 @@ function stageTwo(p: Params): Stage {
         kind: 'choice',
         options: ['steeper', 'less steep', 'the same steepness, but shifted up'],
         correct: 0,
+        wrong: [
+          '',
+          `The other way round. At x = 1, y = x has only reached 1, but ${lineEquation(m2, 0)} `
+            + `is already at ${m2} — it is climbing faster, not slower.`,
+          `Shifted up would mean it crosses the y-axis higher. But ${lineEquation(m2, 0)} goes `
+            + 'through (0, 0), the same as y = x — it is not shifted, it leans differently.',
+        ],
       },
-      right: 'Steeper. Draw a few of your own and watch which way they lean.',
-      wrong: 'It is steeper. Draw a few values of m and watch which way they lean.',
+      right: `Steeper — ${lineEquation(m2, 0)} climbs faster than y = x.`,
+      // Two x values, side by side. "Bigger m, steeper line" is the first blank
+      // of the conclusion, so the comparison is made here in numbers only.
+      explain: [
+        'Compare the two lines at the same values of x.',
+        `At x = 1: y = x gives 1, and ${lineEquation(m2, 0)} gives ${m2} × 1 = ${m2}.`,
+        `At x = 2: y = x gives 2, and ${lineEquation(m2, 0)} gives ${m2} × 2 = ${2 * m2}.`,
+        `For the same distance across, ${lineEquation(m2, 0)} climbs ${m2} times as far, so it `
+          + 'is steeper.',
+      ],
     },
     control: {
       name: 'm',
-      prompt: 'Type a value for m and draw it. Halves are allowed, and so are negatives.',
+      prompt: 'Type a value for m and draw it, and watch which way each line leans. Halves are '
+        + 'allowed, and so are negatives.',
       hint: 'Anything from −4 to 4, in steps of a half.',
       domain: { min: -4, max: 4, step: 0.5 },
       suggest: [2, 0.5, -1],
@@ -343,10 +364,27 @@ function stageMeasure(p: Params): Stage {
     figure: riseRunGrid({ ...axes, m, c: 0, from: 1, run: 1, label: 'none' }),
     predict: {
       prompt: 'Across 1, the line rises by…',
-      on: { kind: 'choice', options: [fmt(m), fmt(m + 1), fmt(1)], correct: 0 },
+      on: {
+        kind: 'choice',
+        options: [fmt(m), fmt(m + 1), fmt(1)],
+        correct: 0,
+        wrong: [
+          '',
+          'One too many. That counts the grid LINES up the dashed side, and the rise is the '
+            + 'number of squares between them.',
+          'That is how far the triangle goes ACROSS — the 1 in the question. The question is '
+            + 'how far it goes up.',
+        ],
+      },
       right: `Across 1, up ${fmt(m)} — which is exactly the number in front of x.`,
-      wrong: `Across 1 it goes up ${fmt(m)}. Count the squares up the dashed side of the `
-        + 'triangle.',
+      // A subtraction, because the table that follows does exactly this. The
+      // division that makes it a gradient is the conclusion's first blank.
+      explain: [
+        'The triangle goes 1 across, from x = 1 to x = 2.',
+        `At x = 1 the line is at y = ${fmt(m)}, and at x = 2 it is at y = ${fmt(2 * m)}.`,
+        `So it rises ${fmt(2 * m)} − ${fmt(m)} = ${fmt(m)}: count the squares up the dashed `
+          + 'side and you get the same.',
+      ],
     },
     control: {
       name: 'point',
@@ -480,7 +518,20 @@ function stageThree(p: Params): Stage {
   // hash because magnitudes alone put the answer in the last two slots twice as
   // often as the first two, measured over every legal draw.
   const shift = (Math.abs(m3) + Math.abs(c3) + (m3 < 0 ? 1 : 0) + (c3 < 0 ? 2 : 0)) % 4
-  const ordered = [...options.slice(shift), ...options.slice(0, shift)]
+  const rotate = <T,>(xs: readonly T[]): T[] => [...xs.slice(shift), ...xs.slice(0, shift)]
+  const ordered = rotate(options)
+  // One response per option, written against `options` and rotated the SAME
+  // way, so each stays beside the equation it is about.
+  const climbs = m3 > 0
+  const responses = rotate([
+    '',
+    `That has m and c swapped. ${fmt(c3)} is where the line crosses the y-axis, so it is the `
+      + `number on its own; ${fmt(m3)} is how steep it is, so it goes in front of x.`,
+    `The slope has the wrong sign. This line ${climbs ? 'climbs' : 'falls'} as you go right, `
+      + `so m is ${climbs ? 'positive' : 'negative'}.`,
+    `The crossing point has the wrong sign. The line crosses the y-axis ${c3 > 0 ? 'above' : 'below'} `
+      + `the origin, at (0, ${fmt(c3)}).`,
+  ])
 
   return {
     ask: 'Here is a line you have not seen before. What is its equation?',
@@ -489,11 +540,19 @@ function stageThree(p: Params): Stage {
     figure: straightLineGrid({ x: X3, y: Y2, ghosts: [], live: [m3, c3] }),
     predict: {
       prompt: 'Read it off the graph — crossing point first, then the slope.',
-      on: { kind: 'choice', options: ordered, correct: ordered.indexOf(options[0]) },
-      right: `It crosses at (0, ${fmt(c3)}) so c = ${fmt(c3)}, and it `
-        + `${m3 > 0 ? 'climbs' : 'falls'} ${Math.abs(m3)} for every 1 across, so m = ${fmt(m3)}.`,
-      wrong: `It is ${options[0]}. It crosses at (0, ${fmt(c3)}), which fixes c, and it `
-        + `${m3 > 0 ? 'climbs' : 'falls'} ${Math.abs(m3)} for every 1 across, which fixes m.`,
+      on: {
+        kind: 'choice',
+        options: ordered,
+        correct: ordered.indexOf(options[0]),
+        wrong: responses,
+      },
+      right: `${options[0]} — both numbers read off correctly.`,
+      explain: [
+        `It crosses the y-axis at (0, ${fmt(c3)}), so c = ${fmt(c3)}.`,
+        `From there, go 1 across: the line goes ${climbs ? 'up' : 'down'} ${Math.abs(m3)}, so `
+          + `m = ${fmt(m3)}.`,
+        `Put them together: ${options[0]}.`,
+      ],
     },
     // No control: there is nothing to vary here, which is the point. The
     // student reads a line rather than building one.

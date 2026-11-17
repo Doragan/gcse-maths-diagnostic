@@ -11,6 +11,12 @@ import type { Stage } from '../../data/investigations/types'
 
 const every = () => Object.values(investigations)
 
+/** Every wrong response a predict can show, whichever kind it is. */
+const wrongs = (stage: Stage): string[] => {
+  const on = stage.predict.on
+  return on.kind === 'grid' ? [on.wrong] : on.wrong.filter(w => w !== '')
+}
+
 describe('investigation registry', () => {
   it('only registers investigations for real skills', () => {
     for (const inv of every()) {
@@ -733,7 +739,8 @@ describe('student-facing copy', () => {
     ask: stage.ask,
     'predict.prompt': stage.predict.prompt,
     'predict.right': stage.predict.right,
-    'predict.wrong': stage.predict.wrong,
+    'predict.wrong': wrongs(stage).join(' '),
+    'predict.explain': stage.predict.explain.join(' '),
     'control.prompt': stage.control?.prompt ?? '',
     'control.hint': stage.control?.hint ?? '',
     sentence: stage.conclude.sentence.join(' '),
@@ -802,6 +809,85 @@ describe('student-facing copy', () => {
     }
   })
 
+  it('answers each wrong option on its own, and nothing for the right one', () => {
+    // One response per option, so the verdict is about the answer the student
+    // picked rather than every distractor at once. '' at the correct index,
+    // the same convention as a conclusion slot's diagnosis.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const where = `${inv.skillId} section ${i + 1}`
+          const on = stage.predict.on
+          if (on.kind === 'grid') {
+            expect(on.wrong.trim(), `${where}: no wrong response`).not.toBe('')
+            return
+          }
+          expect(on.wrong, `${where}: one response per option`).toHaveLength(on.options.length)
+          on.wrong.forEach((w, k) => {
+            if (k === on.correct) expect(w, `${where}: the right option has a wrong response`).toBe('')
+            else expect(w.trim(), `${where}: option ${k} has no response`).not.toBe('')
+          })
+        })
+      }
+    }
+  })
+
+  it('shows the working under every prediction, right or wrong', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const where = `${inv.skillId} section ${i + 1}`
+          expect(stage.predict.explain.length, `${where}: working is one line`)
+            .toBeGreaterThanOrEqual(2)
+          for (const line of stage.predict.explain) {
+            expect(line.trim(), `${where}: an empty line of working`).not.toBe('')
+          }
+        })
+      }
+    }
+  })
+
+  it('never writes a conclusion blank into the working', () => {
+    // The working is an example in this draw's numbers. If it contains the
+    // right answer to one of the conclusion's blanks word for word, it has
+    // told the student the rule they were about to state themselves.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const working = stage.predict.explain.join(' ').toLowerCase()
+          // A blank whose answer is also the prediction's own answer is
+          // exempt: the verdict has already said it ("Yes. Steeper…"), and the
+          // student generalises from exactly that instance.
+          const on = stage.predict.on
+          const predicted = on.kind === 'choice' ? on.options[on.correct].toLowerCase() : null
+          for (const slot of stage.conclude.slots) {
+            const answer = slot.options[slot.correct].toLowerCase()
+            if (answer === predicted) continue
+            expect(working, `${inv.skillId} section ${i + 1} gives away "${answer}"`)
+              .not.toContain(answer)
+          }
+        })
+      }
+    }
+  })
+
+  it('keeps each shuffled response beside the option it is about', () => {
+    // The last straight-line section rotates its options by the draw, and its
+    // responses are rotated with them. Checked on what each one is ABOUT, so a
+    // response that slid onto its neighbour fails here.
+    const inv = getInvestigation('understanding_straight_line_graphs')!
+    for (const p of allDraws(inv.parameters)) {
+      const stage = inv.build(p).at(-1)!
+      const on = stage.predict.on
+      if (on.kind !== 'choice') throw new Error('expected a choice')
+      const at = (eq: string) => on.wrong[on.options.indexOf(eq)]
+      expect(at(lineEquation(p.c3, p.m3))).toMatch(/swapped/)
+      expect(at(lineEquation(-p.m3, p.c3))).toMatch(/slope has the wrong sign/)
+      expect(at(lineEquation(p.m3, -p.c3))).toMatch(/crossing point has the wrong sign/)
+      expect(at(lineEquation(p.m3, p.c3))).toBe('')
+    }
+  })
+
   it('never tells a student to look for a colour', () => {
     // The reveal marks the right answer with a LABEL. Colour alone is no use
     // to a colourblind student, and little better for anyone on a phone.
@@ -811,7 +897,8 @@ describe('student-facing copy', () => {
         inv.build(p).forEach((stage, i) => {
           for (const [field, text] of Object.entries({
             right: stage.predict.right,
-            wrong: stage.predict.wrong,
+            wrong: wrongs(stage).join(' '),
+            explain: stage.predict.explain.join(' '),
             because: stage.conclude.because,
           })) {
             expect(text, `${inv.skillId} stage ${i + 1} ${field} names a colour`)
