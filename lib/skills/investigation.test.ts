@@ -710,6 +710,23 @@ describe('the handover', () => {
 })
 
 describe('student-facing copy', () => {
+  it('names every stage with a short heading of its own', () => {
+    // Shown as "Stage 4 · Up, then down" and on the section buttons, where
+    // the number alone said nothing. A heading, so short and no full stop;
+    // and distinct, or two buttons would offer the same place.
+    for (const inv of every()) {
+      const [p] = allDraws(inv.parameters)
+      const titles = inv.build(p).map(s => s.title)
+      titles.forEach((t, i) => {
+        const where = `${inv.skillId} section ${i + 1}`
+        expect(t.trim(), `${where} has no title`).not.toBe('')
+        expect(t.length, `${where}: "${t}" is too long for a heading`).toBeLessThanOrEqual(32)
+        expect(t, `${where}: "${t}" ends like a sentence`).not.toMatch(/[.!?]$/)
+      })
+      expect(new Set(titles).size, `${inv.skillId} repeats a stage title`).toBe(titles.length)
+    }
+  })
+
   it('states outcomes to the student, not notes about them', () => {
     for (const inv of every()) {
       const all = [inv.outcomes.lead, ...inv.outcomes.points].join(' ')

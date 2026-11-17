@@ -344,7 +344,10 @@ export default function InvestigatePage() {
                 disabled={!reachable}
                 onClick={() => { setCurrent(i); window.scrollTo({ top: 0 }) }}
                 aria-current={i === onScreen ? 'step' : undefined}
-                aria-label={`Section ${i + 1}${states[i]?.done ? ', done' : ''}`}
+                aria-label={`Section ${i + 1}: ${resolved.stages[i].title}${states[i]?.done ? ', done' : ''}`}
+                // The number alone says nothing about where it goes; the title
+                // does, on hover.
+                title={`${i + 1}. ${resolved.stages[i].title}`}
                 style={{
                   ...styles.pip,
                   ...(i === onScreen ? styles.pipNow : {}),
@@ -369,7 +372,8 @@ export default function InvestigatePage() {
           if (i !== onScreen) return null
           return (
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
-              <p style={styles.stageN}>Stage {i + 1}</p>
+              {/* A real heading, so a screen reader can move between stages. */}
+              <h2 style={styles.stageN}>Stage {i + 1} · {stage.title}</h2>
               <p style={styles.ask}>{prose(stage.ask)}</p>
 
               {locked ? (
