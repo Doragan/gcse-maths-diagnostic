@@ -1436,7 +1436,20 @@ export function checkAnswer(
   // would pass isCorrect against "25 cm²" without ever hitting the reminder.
   const correctHasUnits = containsUnits(correctAnswer)
   const studentHasUnits = containsUnits(studentAnswer)
-  const missingUnits    = correctHasUnits && !studentHasUnits   // expected units omitted
+  // A missing % is NOT a missing unit. A GCSE percentage question prints the %
+  // on the answer line ("........ %"), so "20" for "20%" loses nothing — yet it
+  // was told it "costs you the final mark", and the mini-exam took that mark
+  // off (gradeUnits keys on unitsIssue). The % is notation here, the same view
+  // unitToken already takes of it. Only the OMISSION is exempt: "20%" against
+  // "20%" and "20 cm" against "20 cm²" go through exactly as before.
+  //
+  // Two different jobs, so two flags. `omittedUnits` (anything left off, %
+  // included) still decides whether a non-numeric answer is compared again with
+  // units stripped — without it "35" against "35%" was marked WRONG. Only
+  // `missingUnits` (a unit that matters) drives the reminder and the lost mark.
+  const expectsMarkedUnit = containsUnits(correctAnswer.replace(/%/g, ''))
+  const omittedUnits    = correctHasUnits && !studentHasUnits
+  const missingUnits    = expectsMarkedUnit && !studentHasUnits   // expected units omitted
   const extraUnits      = !correctHasUnits && studentHasUnits   // units added where the answer carries none
 
   // The student named a DIFFERENT quantity in front of a right expression:
@@ -1637,7 +1650,7 @@ export function checkAnswer(
   // units, or ADDED units where the canonical answer carries none (e.g. a
   // unit-less "36π" answer vs a student's correct "36π cm²"). Retry with units
   // stripped from both sides so the value is what's assessed.
-  if ((missingUnits || extraUnits) && answerType !== 'numeric') {
+  if ((omittedUnits || extraUnits) && answerType !== 'numeric') {
     const normStudentStripped = normalise(stripUnits(studentAnswer))
     const normCorrectStripped = normalise(stripUnits(correctAnswer))
     const matchesWithoutUnits = (() => {
