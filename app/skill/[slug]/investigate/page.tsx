@@ -704,7 +704,9 @@ export default function InvestigatePage() {
                             {stage.naming && (
                               <div style={styles.naming}>
                                 <p style={styles.namingTerm}>
-                                  <span style={styles.namingLabel}>Definition:</span>
+                                  <span style={styles.namingLabel}>
+                                    {stage.naming.label ?? 'Definition'}:
+                                  </span>
                                   {/* One span: this row is a flex container, and
                                       without it "per" and an italic "cent"
                                       become two items with a gap between. */}
