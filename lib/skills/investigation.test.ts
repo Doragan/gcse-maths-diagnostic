@@ -726,6 +726,82 @@ describe('student-facing copy', () => {
     }
   })
 
+  // The page renders *word* in italics in prose, and nowhere else. An odd
+  // number of asterisks leaves a literal * on screen, and one in a select
+  // option or a table cell is always literal, since neither can hold markup.
+  const prose = (stage: Stage): Record<string, string> => ({
+    ask: stage.ask,
+    'predict.prompt': stage.predict.prompt,
+    'predict.right': stage.predict.right,
+    'predict.wrong': stage.predict.wrong,
+    'control.prompt': stage.control?.prompt ?? '',
+    'control.hint': stage.control?.hint ?? '',
+    sentence: stage.conclude.sentence.join(' '),
+    diagnosis: stage.conclude.slots.flatMap(s => s.diagnosis).join(' '),
+    because: stage.conclude.because,
+    algebraLead: stage.conclude.algebraLead ?? '',
+    naming: Object.values(stage.naming ?? {}).join(' '),
+    aside: Object.values(stage.aside ?? {}).join(' '),
+  })
+
+  it('never opens a diagnosis with the word the page already put in front of it', () => {
+    // The page prints "Look again." before every diagnosis, so one that starts
+    // "Look at…" reads "Look again. Look at…". Three had done it.
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          for (const d of stage.conclude.slots.flatMap(sl => sl.diagnosis)) {
+            expect(d, `${inv.skillId} section ${i + 1}: "${d}"`).not.toMatch(/^look\b/i)
+          }
+        })
+      }
+    }
+  })
+
+  it('balances every *emphasis* marker in prose', () => {
+    for (const inv of every()) {
+      for (const text of [inv.outcomes.lead, ...inv.outcomes.points]) {
+        // n markers split into n + 1 parts, so balanced means an ODD count.
+        expect(text.split('*').length % 2, `${inv.skillId} outcomes: "${text}"`).toBe(1)
+      }
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          for (const [field, text] of Object.entries(prose(stage))) {
+            expect(text.split('*').length % 2,
+              `${inv.skillId} section ${i + 1} ${field}: unbalanced * in "${text}"`).toBe(1)
+          }
+        })
+      }
+    }
+  })
+
+  it('keeps * out of the places that cannot render it', () => {
+    for (const inv of every()) {
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          const where = `${inv.skillId} section ${i + 1}`
+          const plain: string[] = [
+            ...(stage.predict.on.kind === 'choice' ? stage.predict.on.options : []),
+            ...stage.conclude.slots.flatMap(s => s.options),
+            ...(stage.observe?.headers ?? []),
+          ]
+          const c = stage.control
+          if (c?.domain) {
+            // The ends and the middle, not every value: a cell's wording is the
+            // same template whatever the value, and walking 1–100 on every draw
+            // ran past the suite's timeout.
+            const { min, max, step } = c.domain
+            const mid = min + Math.floor((max - min) / step / 2) * step
+            for (const v of [min, mid, max]) {
+              plain.push(...(c.row?.(v) ?? []), c.label?.(v) ?? '')
+            }
+          }
+          for (const text of plain) expect(text, `${where}: "${text}"`).not.toContain('*')
+        })
+      }
+    }
+  })
+
   it('never tells a student to look for a colour', () => {
     // The reveal marks the right answer with a LABEL. Colour alone is no use
     // to a colourblind student, and little better for anyone on a phone.
