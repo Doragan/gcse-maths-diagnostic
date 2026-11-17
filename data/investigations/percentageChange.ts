@@ -79,13 +79,28 @@ const Q_INCREASE_BACKWARDS = '11fb8c8b-b53b-4d64-8c83-6a106fafeb66'
 /** "Decrease £a by b%." (d2, numeric) — same shape, the other direction. */
 const Q_DECREASE = '3a2a4da5-2798-45a2-9386-7449f4f7139a'
 /**
- * "The radius of a circle is increased by p%. Find the percentage increase in
- * the area." (d5, numeric)
+ * "A jacket costs £a. In March it goes up by p%, in April down by p%. How much
+ * does it cost now?" (d3, numeric, percentage_change only)
  *
- * The challenge, and it needs a second skill (area scales by the square of the
- * length multiplier), which is why it is not the ordinary check.
+ * Exactly this section's situation, and nothing else. It replaced a compound-
+ * interest question, which belongs to growth_and_decay and which this section
+ * barely touches. Its four traps are the four ways to get it wrong here: back
+ * to £a (the fall cancels the rise), the March price, the amount taken off in
+ * April, and April's percentage taken off the ORIGINAL price.
  */
-const Q_AREA = '7536046f-b58f-49f2-8461-b3725bd4a3a8'
+const Q_UP_THEN_DOWN = '14f34689-7672-4d82-a8d2-ca8fdb7b9c33'
+/**
+ * "A circular pond has a radius of r m. Its radius increases by p%. Work out
+ * the percentage increase in the area." (d4, numeric, exam)
+ *
+ * The challenge: it needs a second skill (area of a circle), which is why it
+ * is not the ordinary check. It replaced a radius-free version of the same
+ * question, which gave a student nothing concrete to work with. With the radius
+ * given, the area can be worked out before and after, and the multiplier route
+ * becomes the shortcut rather than the only way in. That also makes possible
+ * a trap for the increase in square metres, never turned into a percentage.
+ */
+const Q_POND = '8f7e2d30-a51a-4915-9aa2-351a4049231e'
 
 // ─── Stage 1: what a percentage of an amount even is ────────────────────────
 //
@@ -601,17 +616,19 @@ function stageBothWays(p: Params): Stage {
         + 'because multiplication does not care which way round you do it. What matters is '
         + 'that the two percentages are of different amounts, not which one happens first.',
     },
-    // The compound-interest check is gone: this section barely touches
-    // compound interest, which belongs to growth_and_decay. A two-changes-in-a-
-    // row question to replace it, and a challenge that gives the radius, are
-    // drafted in the bank and wait on the reviewer publishing them.
     check: [
       {
-        questionId: Q_AREA,
+        questionId: Q_UP_THEN_DOWN,
+        because: 'This section exactly: up by a percentage, then down by the same one. Each of '
+          + 'its traps is one of the ways to get it wrong here, and the first is the one '
+          + 'almost everybody makes: assuming the fall cancels the rise.',
+      },
+      {
+        questionId: Q_POND,
         challenge: true,
-        because: 'The same multiplier applied twice, hidden inside a circle: scale the radius '
-          + 'by 1.2 and the area scales by 1.2². It needs area as well, which is why it is '
-          + 'the challenge rather than the check.',
+        because: 'The same multiplier applied twice, inside a circle: scale the radius by 1.2 '
+          + 'and the area scales by 1.2². It needs the area of a circle as well, which is why '
+          + 'it is the challenge rather than the check.',
       },
     ],
   }
