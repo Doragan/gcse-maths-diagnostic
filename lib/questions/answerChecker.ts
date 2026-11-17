@@ -1248,6 +1248,32 @@ const NOT_SIMPLEST =
   'Almost — that’s the right value, but give your answer in its simplest form.'
 
 /**
+ * The two messages that say nothing beyond right or wrong. Every OTHER message
+ * this checker returns is advice: a unit, a rounding, a form, a π estimate, a
+ * missing ^ — the reason the practice page shows `message` at all.
+ */
+const PLAIN_CORRECT = 'Correct!'
+const PLAIN_WRONG = (correctAnswer: string) => `Not quite. The correct answer is ${correctAnswer}.`
+
+/**
+ * The checker's own advice on an answer, or null when it has none.
+ *
+ * Null for an authored trap too, whose response the caller shows as the
+ * trap's words, and null for the two plain verdicts above. A surface that
+ * draws its own "Correct." / "Not quite." and explanation — the investigation's
+ * section checks — used to drop `message` wholesale, and with it every one of
+ * these: a right value in the wrong unit there said only "Correct.". Every
+ * advice message opens with its own verdict ("Correct — but…", "Right value —
+ * but…", "Not quite — …"), so it stands in for the caller's rather than
+ * following it.
+ */
+export function checkerAdvice(result: CheckResult, correctAnswer: string): string | null {
+  if (result.trap) return null
+  if (result.message === PLAIN_CORRECT || result.message === PLAIN_WRONG(correctAnswer)) return null
+  return result.message || null
+}
+
+/**
  * Anything in a ratio that is not part of a plain number — a π, a unit, an
  * algebraic letter. `normalise` has already stripped whitespace and currency.
  */
@@ -1591,7 +1617,7 @@ export function checkAnswer(
       message: isUnsimplified ? SIMPLIFICATION_REMINDER
               : missingUnits   ? UNITS_REMINDER
               : subjectIssue   ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
-              : 'Correct!',
+              : PLAIN_CORRECT,
     }
   }
 
@@ -1680,7 +1706,7 @@ export function checkAnswer(
         message: notSimplifiedStripped ? SIMPLIFICATION_REMINDER
                : missingUnits          ? UNITS_REMINDER
                : subjectIssue          ? SUBJECT_REMINDER(subjectIssue.wrote, subjectIssue.expected)
-               : 'Correct!',
+               : PLAIN_CORRECT,
       }
     }
   }
@@ -1843,6 +1869,6 @@ export function checkAnswer(
   return {
     correct: false,
     trap:    null,
-    message: `Not quite. The correct answer is ${correctAnswer}.`,
+    message: PLAIN_WRONG(correctAnswer),
   }
 }

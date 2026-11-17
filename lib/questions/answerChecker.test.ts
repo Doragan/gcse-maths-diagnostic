@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { checkAnswer, normalise } from './answerChecker'
+import { checkAnswer, checkerAdvice, normalise } from './answerChecker'
 
 // Convenience: most calls have no traps.
 const check = (
@@ -1209,5 +1209,45 @@ describe('exact: surd equivalence', () => {
     expect(exact('x√2', 'x√2').correct).toBe(true)
     expect(exact('2√3', 'x√2').correct).toBe(false)
     expect(exact('√2π', '√2π').correct).toBe(true)
+  })
+})
+
+// ── checkerAdvice: what a surface with its own verdict still has to show ─────
+
+describe('checkerAdvice', () => {
+  const advice = (student: string, correct: string, type: 'numeric' | 'expression',
+    tol: number | null, traps: { answer: string; response: string }[] = []) =>
+    checkerAdvice(checkAnswer(student, correct, type, tol, traps), correct)
+
+  it('has nothing to add to a plain right or wrong answer', () => {
+    expect(advice('5', '5', 'numeric', 0.01)).toBeNull()
+    expect(advice('4', '5', 'numeric', 0.01)).toBeNull()
+  })
+
+  it('leaves an authored trap to the caller, who shows its response', () => {
+    expect(advice('4', '5', 'numeric', 0.01, [{ answer: '4', response: 'That is the rise.' }]))
+      .toBeNull()
+  })
+
+  it('passes on a unit that is missing or wrong, on an answer still marked correct', () => {
+    expect(advice('400', '400 litres', 'numeric', 0.01)).toMatch(/units/)
+    expect(advice('400 cm³', '400 litres', 'numeric', 0.01)).toMatch(/litres/)
+  })
+
+  it('passes on the near misses a bare "Not quite" would waste', () => {
+    expect(advice('12.36', '12.35', 'numeric', 0.005)).toMatch(/last decimal place/)
+    expect(advice('x2', 'x^2', 'expression', null)).toMatch(/\^/)
+  })
+
+  it('opens every piece of advice with its own verdict, so it can stand alone', () => {
+    // The investigation check drops its "Correct." / "Not quite." when there is
+    // advice; that only reads right if the advice says how the student did.
+    for (const a of [
+      advice('400', '400 litres', 'numeric', 0.01),
+      advice('400 cm³', '400 litres', 'numeric', 0.01),
+      advice('12.36', '12.35', 'numeric', 0.005),
+    ]) {
+      expect(a).toMatch(/^(Correct|Right value|Not quite|Almost)/)
+    }
   })
 })

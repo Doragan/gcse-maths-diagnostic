@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import {
   renderQuestion, type Parameters, type RenderedQuestion, type TrapTemplate,
 } from '../../lib/questions/paramEngine'
-import { checkAnswer } from '../../lib/questions/answerChecker'
+import { checkAnswer, checkerAdvice } from '../../lib/questions/answerChecker'
 import { isScalarAnswerType, type FractionForm, type ScalarAnswerType } from '../../lib/questions/answerTypes'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../lib/styles'
 
@@ -81,7 +81,14 @@ export default function BankQuestion({
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
   const [typed, setTyped] = useState('')
   const [verdict, setVerdict] = useState<
-    { correct: boolean; answer: string; response: string | null; explanation: string } | null
+    {
+      correct: boolean
+      answer: string
+      response: string | null
+      /** The checker's own advice — a unit, a rounding, a form — when it has any. */
+      advice: string | null
+      explanation: string
+    } | null
   >(null)
 
   /**
@@ -157,6 +164,10 @@ export default function BankQuestion({
       // The authored trap's own words where one matched — the reason to use a
       // bank question here at all.
       response: result.trap?.response ?? null,
+      // What the practice page shows and this component used to throw away: a
+      // right value in the wrong unit, an unrounded answer, a decimal where a
+      // fraction was asked for. Null when the checker only said right or wrong.
+      advice: checkerAdvice(result, rendered.answer),
       // Taken from THIS roll: "Try another" re-rolls the parameters, and an
       // explanation left over from the previous one would be worked through
       // with numbers that are no longer on screen.
@@ -206,21 +217,23 @@ export default function BankQuestion({
           background: verdict.correct ? colors.successLight : colors.warningLight,
           borderColor: verdict.correct ? colors.successBorder : colors.warningBorder,
         }}>
-          <strong>{verdict.correct ? 'Correct. ' : 'Not quite. '}</strong>
+          {/* Advice opens with its own verdict ("Correct — but remember to
+              round…"), so it replaces this lead rather than following it. */}
+          {!verdict.advice && <strong>{verdict.correct ? 'Correct. ' : 'Not quite. '}</strong>}
           {/* As HTML, which is what a trap response is: every other surface
               showing one renders it that way — the practice page, the
               multi-part page and the admin preview. The straight-line check's
               x-intercept trap puts <strong>x</strong> mid-sentence to tell the
               two axes apart, and as plain text it reached the student with the
               tags showing. */}
-          <span dangerouslySetInnerHTML={{ __html: verdict.correct
+          <span dangerouslySetInnerHTML={{ __html: verdict.advice ?? (verdict.correct
             ? 'That is the one.'
             // The trap's words when the wrong answer is one the author
             // anticipated. Otherwise the explanation below carries both the
             // answer and the reason, and stating the answer here as well put
             // the same number twice in three lines; only a question with no
             // explanation at all still needs it said outright.
-            : verdict.response ?? (verdict.explanation ? '' : `The answer is ${verdict.answer}.`) }} />
+            : verdict.response ?? (verdict.explanation ? '' : `The answer is ${verdict.answer}.`)) }} />
         </div>
       )}
 
