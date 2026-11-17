@@ -107,6 +107,7 @@ function stagePercentOf(p: Params): Stage {
   const start = p.start
   const q = p.pUp
   return {
+    title: 'A percentage of an amount',
     ask: `You earn ${money(start)} a week, and you are given a ${q}% pay rise. Before working `
       + 'out your new pay — how much money is the rise itself?',
     predict: {
@@ -221,6 +222,7 @@ function stageIncrease(p: Params): Stage {
   const start = p.start
   const q = p.pUp
   return {
+    title: 'An increase in one step',
     ask: `We now know that a rise of ${q}% on your pay of ${money(start)} is `
       + `${money(start * q / 100)}, and we could add those together to calculate your new pay. `
       + `But there is a quicker route. What single number could you multiply ${money(start)} `
@@ -354,6 +356,7 @@ function stageDecrease(p: Params): Stage {
   const start = p.start
   const q = p.pDown
   return {
+    title: 'A decrease in one step',
     ask: `Now the other way. ${money(start)} goes DOWN by ${q}%. What is the single number to `
       + 'multiply by this time?',
     predict: {
@@ -458,6 +461,7 @@ function stageBothWays(p: Params): Stage {
   const q = p.pBoth
   const back = start * (1 + q / 100) * (1 - q / 100)
   return {
+    title: 'Up, then down',
     ask: `${money(start)} goes up by ${q}%. Then that new amount goes down by ${q}% — the same `
       + 'percentage, straight back off. Where do you end up?',
     predict: {

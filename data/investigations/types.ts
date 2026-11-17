@@ -235,6 +235,13 @@ export type Slot = {
 }
 
 export type Stage = {
+  /**
+   * A few words naming what this stage is about — "Up, then down". Shown after
+   * the stage number ("Stage 4 · Up, then down") and on the numbered section
+   * buttons, which otherwise said only "4". Short, and no full stop: it is a
+   * heading, not a sentence.
+   */
+  title: string
   /** What to notice. One sentence, above the figure. */
   ask: string
   /**

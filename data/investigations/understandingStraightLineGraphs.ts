@@ -94,6 +94,7 @@ const Q_LINE_EQUATION = '0715c2f6-6955-4c46-a3f6-bcbb33995c26'
 function stageOne(p: Params): Stage {
   const c1 = p.c1
   return {
+    title: 'Where the line crosses',
     ask: `This is y = x. Before you change anything — where will ${lineEquation(1, c1)} `
       + 'cross the y-axis?',
     axes: { x: X, y: Y1 },
@@ -230,6 +231,7 @@ function stageOne(p: Params): Stage {
 function stageTwo(p: Params): Stage {
   const m2 = p.m2
   return {
+    title: 'How steep, and which way',
     ask: 'Now c stays at 0, so every line goes through the origin. What changes when the '
       + 'number in front of x changes?',
     axes: { x: X, y: Y2 },
@@ -355,6 +357,7 @@ function stageMeasure(p: Params): Stage {
   const at = (x: number) => m * x
 
   return {
+    title: 'Measuring the gradient',
     ask: `This is ${line}. You know which way it leans — now put a number on it. How much `
       + 'does y go up for each 1 that x goes across?',
     axes,
@@ -534,6 +537,7 @@ function stageThree(p: Params): Stage {
   ])
 
   return {
+    title: 'Reading off the equation',
     ask: 'Here is a line you have not seen before. What is its equation?',
     axes: { x: X3, y: Y2 },
     // Nothing varies here, so the figure is fixed: the line to be read.
