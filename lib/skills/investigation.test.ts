@@ -590,6 +590,19 @@ describe('section checks', () => {
     }
   })
 
+  it('never asks the same question twice anywhere in one investigation', () => {
+    // Stronger than the per-section rule above, and it is what caught the real
+    // bug: the parallel-lines question was section 2's challenge AND section
+    // 4's check, so a student who met it early met it again at the end instead
+    // of the question that section was actually about.
+    for (const inv of every()) {
+      const ids = inv.build(allDraws(inv.parameters)[0])
+        .flatMap(stage => (stage.check ?? []).map(c => c.questionId))
+      const twice = ids.filter((id, i) => ids.indexOf(id) !== i)
+      expect(twice, `${inv.skillId} uses a question as a check twice`).toEqual([])
+    }
+  })
+
   it('never reuses a question the investigation already hands over at the end', () => {
     // The transfer is what counts towards mastery; a question already seen
     // inside the teaching is not evidence of independent recall.

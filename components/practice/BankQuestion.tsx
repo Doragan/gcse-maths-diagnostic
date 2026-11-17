@@ -207,14 +207,20 @@ export default function BankQuestion({
           borderColor: verdict.correct ? colors.successBorder : colors.warningBorder,
         }}>
           <strong>{verdict.correct ? 'Correct. ' : 'Not quite. '}</strong>
-          {verdict.correct
+          {/* As HTML, which is what a trap response is: every other surface
+              showing one renders it that way — the practice page, the
+              multi-part page and the admin preview. The straight-line check's
+              x-intercept trap puts <strong>x</strong> mid-sentence to tell the
+              two axes apart, and as plain text it reached the student with the
+              tags showing. */}
+          <span dangerouslySetInnerHTML={{ __html: verdict.correct
             ? 'That is the one.'
             // The trap's words when the wrong answer is one the author
             // anticipated. Otherwise the explanation below carries both the
             // answer and the reason, and stating the answer here as well put
             // the same number twice in three lines; only a question with no
             // explanation at all still needs it said outright.
-            : verdict.response ?? (verdict.explanation ? '' : `The answer is ${verdict.answer}.`)}
+            : verdict.response ?? (verdict.explanation ? '' : `The answer is ${verdict.answer}.`) }} />
         </div>
       )}
 
