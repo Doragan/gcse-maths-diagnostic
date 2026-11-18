@@ -378,7 +378,10 @@ export function barModelGrid(opts: {
   for (const bar of bars) {
     for (const p of bar.pieces) {
       const w = p.to - p.from
-      if (w <= 1e-9) continue
+      // An empty piece is skipped — unless it is animating, like what is left
+      // after a 100% decrease, which shrinks all the way to nothing rather
+      // than vanishing before it has moved.
+      if (w <= 1e-9 && !p.grow) continue
       const anims: string[] = []
       if (p.grow) {
         const { from, start, end } = p.grow

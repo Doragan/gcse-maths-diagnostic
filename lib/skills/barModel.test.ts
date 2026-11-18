@@ -93,8 +93,10 @@ describe('percentage change bar models', () => {
       const rects = [...grid.background.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)]
         .map(m => ({ x: +m[1], y: +m[2], w: +m[3] }))
       const added = rects.find(r => r.y === 80 && r.x === 100)!
-      const kept = rects.find(r => r.y === 20 && r.x === 0)!
-      const removed = rects.find(r => r.y === 20 && r.x > 0)!
+      // The lower bar's two pieces, in the order the layout draws them: what is
+      // kept, then what is taken off. Not by position — after a 100% fall the
+      // kept piece is empty and the removed one starts at 0 too.
+      const [kept, removed] = rects.filter(r => r.y === 20)
       expect(added.w, where).toBeCloseTo(v, 6)
       expect(removed.w, `${where}: no more comes off than went on`).toBeGreaterThan(added.w)
       expect(kept.w, `${where}: the lower bar reaches the start`).toBeLessThan(100)
