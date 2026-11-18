@@ -846,8 +846,6 @@ export const percentageChangeInvestigation: Investigation = {
       'work out where two changes in a row leave you — which is not where most people think',
     ],
   },
-  underConstruction: 'This one is new and still being worked on. The maths is right, but the '
-    + 'wording and the questions at the end of each section may still change.',
   parameters: {
     values: {
       // Round amounts only: the arithmetic is not the point here, and pence in
