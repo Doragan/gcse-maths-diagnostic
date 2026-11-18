@@ -534,8 +534,8 @@ function stageIncrease(p: Params): Stage {
       body: 'An increase can. A 100% increase doubles the amount, and a 150% increase '
         + 'multiplies it by 1 + {150/100} = 2.5 — a price going from £40 to £100 has gone up by '
         + '150%. This page stops at 100% so the bar fits on the screen, but the rule works the '
-        + 'same way past it. A decrease cannot: taking away 100% of something leaves nothing, '
-        + 'and there is nothing left to take more from.',
+        + 'same way past it. A decrease in an amount cannot: taking away 100% of it leaves '
+        + 'nothing, so there is nothing left to take more from.',
     },
     check: [
       {
@@ -604,11 +604,12 @@ function stageDecrease(p: Params): Stage {
       render: (drawn, current) => decreaseBar(start, drawn[current]),
       prompt: `Pick a percentage to take off ${money(start)}, and watch the multiplier under `
         + 'the bar.',
-      // Any whole percentage, but stopping at 99: taking 100% off leaves £0 and
-      // a multiplier of 0, which breaks this section's own rule that a decrease
-      // multiplier is between 0 and 1.
-      hint: 'Any whole percentage from 1 to 99.',
-      domain: { min: 1, max: 99, step: 1 },
+      // Any whole percentage up to 100, as in sections 1 and 2. It used to stop
+      // at 99, because 100% off gives a multiplier of 0 and the rule then said
+      // "between 0 and 1". The rule now says "less than 1", which 0 is — and
+      // taking 100% off, leaving nothing, is worth seeing.
+      hint: 'Any whole percentage from 1 to 100.',
+      domain: { min: 1, max: 100, step: 1 },
       suggest: [15, 40],
       label: v => `a decrease of ${v}%`,
       coverage: drawn => (new Set(drawn).size < 2
@@ -634,7 +635,11 @@ function stageDecrease(p: Params): Stage {
           misconception: ['', 'sign_error'],
         },
         {
-          options: ['between 0 and 1', 'more than 1'],
+          // "Less than 1", not "between 0 and 1": true of EVERY decrease. A 100%
+          // decrease has multiplier 0, and one past 100% — a £10,000 profit
+          // becoming a £5,000 loss — has a negative one. It also mirrors
+          // section 2's "always more than 1".
+          options: ['less than 1', 'more than 1'],
           correct: 0,
           diagnosis: [
             '',
@@ -646,7 +651,8 @@ function stageDecrease(p: Params): Stage {
       ],
       because: 'A decrease is not a different operation from an increase — it is the same one '
         + 'with a smaller multiplier. Taking P% off means keeping (100 − P)% of what you had, '
-        + 'and that is what 1 − {P/100} is: the fraction you keep.',
+        + 'and that is what 1 − {P/100} is: the fraction you keep. Whatever the percentage, that '
+        + 'is less than 1 — and at exactly 100% it is 0: take all of it away and nothing is left.',
       algebraLead: 'The same line as before, with the fraction taken away instead of added:',
       algebra: 'new = old − {P/100} × old\n'
         + '  = old × (1 − {P/100})',
@@ -716,11 +722,12 @@ function stageBothWays(p: Params): Stage {
       render: (drawn, current) => upThenDownBars(start, drawn[current]),
       prompt: 'Pick a percentage. It goes up by that, then down by the same — does it ever '
         + 'come back to the start?',
-      // Any whole percentage up to 99, as in section 3 — down 100% is £0. Tens
-      // were never needed for tidiness: start × (1 − (P/100)²) is always exact
-      // to the penny for a start of 200, 400 or 500.
-      hint: 'Any whole percentage from 1 to 99.',
-      domain: { min: 1, max: 99, step: 1 },
+      // Any whole percentage up to 100, as everywhere else. Up 100% then down
+      // 100% leaves nothing at all — the extreme case of the point this section
+      // makes. Tens were never needed for tidiness: start × (1 − (P/100)²) is
+      // always exact to the penny for a start of 200, 400 or 500.
+      hint: 'Any whole percentage from 1 to 100.',
+      domain: { min: 1, max: 100, step: 1 },
       suggest: [10, 50],
       label: v => `up ${v}% then down ${v}%`,
       coverage: drawn => {
