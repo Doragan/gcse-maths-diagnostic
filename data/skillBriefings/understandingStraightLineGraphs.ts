@@ -175,7 +175,10 @@ export const understandingStraightLineGraphsBriefing: SkillBriefing = {
     {
       name: 'The line is drawn for you',
       when: 'A line on a grid, and an answer line wanting an equation.',
-      example: 'The line below is drawn on a grid. Work out its equation.',
+      // Stands on its own, because the route's question is now read before
+      // the route is opened and its diagram is still inside: "the line below"
+      // pointed at nothing from the closed state.
+      example: 'A straight line is drawn on a grid. Work out its equation.',
       figure: lineGraph({
         xRange: [-1, 5], yRange: [-3, 7], line: { m: 2, c: -1 },
         points: [{ x: 0, y: -1 }, { x: 3, y: 5 }], step: true,
