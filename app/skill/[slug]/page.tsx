@@ -857,46 +857,56 @@ export default function SkillBriefingPage() {
                   borderTop: ri === 0 ? 'none' : `1px solid ${colors.border}`,
                 }}
               >
-                {/* The heading is the control. A student picking a route is
-                    choosing between these lines, so the line itself is what
-                    they should be able to press. */}
+                {/* The heading is a control as well as a title — a student
+                    picking a route is choosing between these lines, so the
+                    line itself can be pressed. It is not the ONLY control:
+                    a heading that happens to be clickable is not a thing
+                    anyone can see, which is what the button below is for. */}
                 <button
                   onClick={() => toggleRoute(r.name)}
                   aria-expanded={open}
                   aria-controls={panelId}
                   style={styles.routeToggle}
                 >
-                  <span style={styles.routeChevron} aria-hidden="true">
-                    {open ? '▾' : '▸'}
+                  <span style={styles.routeName}>
+                    {r.higher && <span style={styles.routeHigher}>Higher</span>}
+                    {r.name}
                   </span>
-                  <span>
-                    <span style={styles.routeName}>
-                      {r.higher && <span style={styles.routeHigher}>Higher</span>}
-                      {r.name}
-                    </span>
-                    <span style={styles.routeWhen}>{r.when}</span>
-                  </span>
+                  <span style={styles.routeWhen}>{r.when}</span>
                 </button>
 
-                {/* The worked question stays out of the collapsible part. A
-                    student choosing a route is matching the question in front
-                    of them against these, and `when` describes the type where
-                    this shows one — the same argument as the fragment beside a
-                    recognition cue.
+                {/* The question stays out of the collapsible part. A student
+                    choosing a route is matching the question in front of them
+                    against these, and `when` describes the type where this
+                    shows one — the same argument as the fragment beside a
+                    recognition cue, and it is drawn the same way, because it
+                    is the same thing: a line from a paper.
+                    It carried a "Worked on" label for a while. That label
+                    belongs to the single-method pages, where one banner at the
+                    top says which question the right-hand column is working;
+                    above a closed route it labelled nothing.
                     The diagram belongs to the method rather than to the
                     choice, so it waits for the route to open — but inside this
                     same box, because a question and its diagram are one thing
                     on the paper and two boxes read as two. */}
-                <div style={styles.methodRun}>
-                  <p style={{ margin: 0 }}>
-                    <span style={styles.methodRunLabel}>Worked on</span>
-                    <MathText>{r.example}</MathText>
-                  </p>
+                <div style={styles.routeExample}>
+                  <p style={{ margin: 0 }}><MathText>{r.example}</MathText></p>
                   {open && r.figure && <BriefingFigure figure={r.figure} bare />}
                 </div>
-                {!open && (
-                  <p style={styles.routeCount}>{r.steps.length} steps, worked through</p>
-                )}
+
+                {/* The visible control. The heading above toggles too, but
+                    nothing about a heading says so. */}
+                <button
+                  onClick={() => toggleRoute(r.name)}
+                  aria-expanded={open}
+                  aria-controls={panelId}
+                  style={styles.routeAction}
+                >
+                  <span style={styles.routeChevron} aria-hidden="true">
+                    {open ? '▾' : '▸'}
+                  </span>
+                  {open ? 'Hide the method' : `Show the method · ${r.steps.length} steps`}
+                </button>
 
                 {open && (
                 <div id={panelId}>
@@ -1650,16 +1660,34 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '16px',
     paddingTop: '14px',
   },
-  /** The whole heading is the control, so it is a button that looks like one. */
+  /** The heading. Pressable, but the button below is what says so. */
   routeToggle: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: '10px',
+    display: 'block',
     width: '100%',
     textAlign: 'left',
     padding: '2px 0',
     border: 'none',
     background: 'transparent',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+  },
+  /**
+   * The control that can be seen. Drawn as a button rather than as a line of
+   * text with a chevron on it: the chevron alone asked the student to know
+   * that the heading did something.
+   */
+  routeAction: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '8px',
+    padding: '7px 14px',
+    borderRadius: radius.full,
+    border: `1px solid ${colors.primary}`,
+    background: '#f5f8ff',
+    color: colors.primaryHover,
+    fontSize: font.sm,
+    fontWeight: '700',
     fontFamily: 'inherit',
     cursor: 'pointer',
   },
@@ -1679,13 +1707,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '700',
     color: colors.textPrimary,
   },
-  /** Only on a closed route: what opening it gets you. */
-  /** Only on a closed route: what opening it gets you, under the question. */
-  routeCount: {
-    margin: '6px 0 0',
-    fontSize: font.sm,
-    color: colors.textHint,
-  },
   routeHigher: {
     display: 'inline-block',
     marginRight: '8px',
@@ -1702,6 +1723,22 @@ const styles: Record<string, React.CSSProperties> = {
     margin: '3px 0 0',
     fontSize: font.base,
     color: colors.textSecondary,
+    lineHeight: 1.5,
+  },
+  /**
+   * The route's question. The specimen styling from the recognition cues,
+   * because it is the same kind of thing — a line as a paper would print it —
+   * and a student should read it as one.
+   */
+  routeExample: {
+    margin: '8px 0 0',
+    padding: '8px 12px',
+    background: colors.cardAlt,
+    borderLeft: `3px solid ${colors.borderStrong}`,
+    borderRadius: `0 ${radius.sm} ${radius.sm} 0`,
+    fontSize: font.base,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
     lineHeight: 1.5,
   },
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
