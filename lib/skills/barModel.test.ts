@@ -3,6 +3,7 @@ import { barModelGrid, labelHalfWidth } from './investigationFigures'
 import { gridGeometry } from '../questions/gridSvg'
 import { percentageChangeInvestigation as inv } from '../../data/investigations/percentageChange'
 import { allDraws } from './investigation'
+import { investigations } from '../../data/investigations'
 import type { RenderedGrid } from '../questions/gridDraw'
 
 /**
@@ -39,6 +40,52 @@ const box = (grid: RenderedGrid, l: NonNullable<RenderedGrid['labels']>[number])
   const base = geo.py(l.y) + (l.dy ?? 0)
   return { x0: cx - labelHalfWidth(l.text), x1: cx + labelHalfWidth(l.text), y0: base - 9, y1: base + 2, W: geo.W, H: geo.H }
 }
+
+describe('every investigation’s bar models', () => {
+  // The layout rules above, for EVERY investigation that draws on plain paper,
+  // not just the one they were found on. Each control's whole domain where it
+  // is short, its ends and every tenth where it is long.
+  const allBars = () => {
+    const out: { where: string; grid: RenderedGrid }[] = []
+    for (const one of Object.values(investigations)) {
+      for (const p of allDraws(one.parameters)) {
+        one.build(p).forEach((stage, i) => {
+          const c = stage.control
+          if (!c?.render) return
+          const { min, max, step } = c.domain
+          const all: number[] = []
+          for (let v = min; v <= max + 1e-9; v += step) all.push(+v.toFixed(6))
+          const values = all.length <= 25 ? all : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
+          for (const v of values) {
+            const grid = c.render([v], 0)
+            if (grid.showGrid !== false) continue
+            out.push({ where: `${one.skillId} section ${i + 1}, ${JSON.stringify(p)}, ${c.name} = ${v}`, grid })
+          }
+        })
+      }
+    }
+    return out
+  }
+
+  it('keeps every label on the figure, and never on top of another', () => {
+    for (const { where, grid } of allBars()) {
+      const ls = grid.labels ?? []
+      for (const l of ls) {
+        const b = box(grid, l)
+        expect(b.x0 >= 0 && b.x1 <= b.W && b.y0 >= 0 && b.y1 <= b.H, `${where}: "${l.text}" is off the figure`)
+          .toBe(true)
+      }
+      for (let a = 0; a < ls.length; a++) {
+        for (let b = a + 1; b < ls.length; b++) {
+          const p = box(grid, ls[a])
+          const q = box(grid, ls[b])
+          const overlap = p.x0 < q.x1 && q.x0 < p.x1 && p.y0 < q.y1 && q.y0 < p.y1
+          expect(overlap, `${where}: "${ls[a].text}" overlaps "${ls[b].text}"`).toBe(false)
+        }
+      }
+    }
+  })
+})
 
 describe('percentage change bar models', () => {
   it('draws a bar on every "try it" section', () => {
