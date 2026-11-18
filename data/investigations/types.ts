@@ -115,8 +115,16 @@ export type Control = {
   verb?: 'draw' | 'try'
   /** How the equation reads at this value. */
   label: (v: number) => string
-  /** This value's row in the observation table, one cell per header. */
-  row: (v: number) => readonly string[]
+  /**
+   * This value's row in the observation table, one cell per header.
+   *
+   * Optional, because a stage can observe through its figure instead: the
+   * percentage-change bar models carry the numbers in their labels, and the
+   * table beside them was dropped as repetition. A stage with `observe` needs
+   * this or `rows`; a test holds that, and a stage with neither a table nor a
+   * figure is refused.
+   */
+  row?: (v: number) => readonly string[]
   /**
    * The whole table at once, when a row is about a RELATIONSHIP between
    * values rather than about one value.

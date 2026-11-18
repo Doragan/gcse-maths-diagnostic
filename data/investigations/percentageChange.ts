@@ -61,6 +61,14 @@ const AX_GROW = { min: 0, max: 200, step: 20, label: '' }
 const AY_GROW = { min: 0, max: 60, step: 20, label: '' }
 const AY_TWICE = { min: 0, max: 120, step: 20, label: '' }
 
+/**
+ * How the bars move: GROW seconds for a bar to grow or shrink, PAUSE between
+ * steps. Short enough not to hold anyone up, long enough to watch. A student
+ * who has asked for less motion sees the finished bar (see the page).
+ */
+const GROW = 0.7
+const PAUSE = 0.2
+
 /** Tenths of a bar of the given length, for its dividers. */
 const tenths = (length: number) => Array.from({ length: 11 }, (_, k) => (k * length) / 10)
 
@@ -75,17 +83,26 @@ const below = (x: number, y: number, text: string, axis: RenderedAxis, line = 1)
 function percentOfBar(start: number, v: number | undefined): RenderedGrid {
   const top = `100% = ${money(start)}`
   const labels = [above(50, 20, top, AX_WHOLE)]
-  // Not at 100%, where it would only repeat the label above.
-  if (v !== undefined && v < 100) labels.push(below(v / 2, 10, `${v}% = ${money(start * v / 100)}`, AX_WHOLE))
+  // With the working in it, now that there is no table: 1% is the same on
+  // every try, and the percentage is how many of them you take. Not at 100%,
+  // where it would only repeat the label above.
+  if (v !== undefined && v < 100) {
+    labels.push(below(v / 2, 10, `${v}% = ${v} × ${money(start / 100)} = ${money(start * v / 100)}`, AX_WHOLE))
+  }
   return barModelGrid({
     x: AX_WHOLE,
     y: AY_WHOLE,
     bars: [{
       y: 10,
       height: 10,
+      // The whole bar first, then the shading laid over it and filling from
+      // the left — so the tenths are there before the shading reaches them.
       pieces: v === undefined
         ? [{ from: 0, to: 100, fill: 'empty' }]
-        : [{ from: 0, to: v, fill: 'shaded' }, { from: v, to: 100, fill: 'empty' }],
+        : [
+          { from: 0, to: 100, fill: 'empty' },
+          { from: 0, to: v, fill: 'shaded', grow: { from: 0, start: 0, end: GROW } },
+        ],
       dividers: tenths(100),
     }],
     labels,
@@ -97,10 +114,21 @@ function increaseBar(start: number, v: number | undefined): RenderedGrid {
   const labels = [above(50, 40, `100% = ${money(start)}`, AX_GROW)]
   const pieces: BarModel['pieces'] = v === undefined
     ? [{ from: 0, to: 100, fill: 'light' }]
-    : [{ from: 0, to: 100, fill: 'light' }, { from: 100, to: 100 + v, fill: 'shaded' }]
+    : [
+      { from: 0, to: 100, fill: 'light' },
+      // The increase grows on to the end of the bar.
+      { from: 100, to: 100 + v, fill: 'shaded', grow: { from: 0, start: 0, end: GROW } },
+    ]
   if (v !== undefined) {
-    labels.push(below(100 + v / 2, 20, `+${v}% = ${money(start * v / 100)}`, AX_GROW))
-    labels.push(below((100 + v) / 2, 20, `${100 + v}% = ${money(start * (1 + v / 100))}`, AX_GROW, 2))
+    // Above the bar, beside the 100%: the part added and what it is worth.
+    labels.push(above(100 + v / 2, 40, `+${v}% = ${money(start * v / 100)}`, AX_GROW))
+    // Below it, the whole — with the multiplier this section is about, which
+    // the table's last column used to carry.
+    labels.push(below(
+      (100 + v) / 2, 20,
+      `${100 + v}% = ${dec(1 + v / 100)} × ${money(start)} = ${money(start * (1 + v / 100))}`,
+      AX_GROW,
+    ))
   }
   return barModelGrid({
     x: AX_GROW,
@@ -117,10 +145,18 @@ function decreaseBar(start: number, v: number | undefined): RenderedGrid {
   const labels = [above(50, 20, `100% = ${money(start)}`, AX_WHOLE)]
   const pieces: BarModel['pieces'] = v === undefined
     ? [{ from: 0, to: 100, fill: 'empty' }]
-    : [{ from: 0, to: 100 - v, fill: 'shaded' }, { from: 100 - v, to: 100, fill: 'removed' }]
+    : [
+      // The whole bar shrinks back to what is left, then the part taken off
+      // shows where it was.
+      { from: 0, to: 100 - v, fill: 'shaded', grow: { from: 100, start: PAUSE, end: PAUSE + GROW } },
+      { from: 100 - v, to: 100, fill: 'removed', appear: PAUSE + GROW },
+    ]
   if (v !== undefined) {
     labels.push(below((100 - v) / 2, 10, `${100 - v}% left = ${money(start * (1 - v / 100))}`, AX_WHOLE))
     labels.push(below(100 - v / 2, 10, `−${v}% = ${money(start * v / 100)}`, AX_WHOLE))
+    // The multiplier, on a second line under what is left: the evidence this
+    // section's rule rests on, which the table used to carry.
+    labels.push(below((100 - v) / 2, 10, `= ${dec(1 - v / 100)} × ${money(start)}`, AX_WHOLE, 2))
   }
   return barModelGrid({
     x: AX_WHOLE,
@@ -166,13 +202,25 @@ function upThenDownBars(start: number, v: number | undefined): RenderedGrid {
       {
         y: 80,
         height: 20,
-        pieces: [{ from: 0, to: 100, fill: 'light' }, { from: 100, to: up, fill: 'shaded' }],
+        pieces: [
+          { from: 0, to: 100, fill: 'light' },
+          { from: 100, to: up, fill: 'shaded', grow: { from: 0, start: 0, end: GROW } },
+        ],
         dividers: Array.from({ length: 20 }, (_, k) => k * 10),
       },
       {
+        // In order: the top bar grows, THEN this one appears at its new
+        // length and shrinks — one change after the other, as in the question.
         y: 20,
         height: 20,
-        pieces: [{ from: 0, to: kept, fill: 'shaded' }, { from: kept, to: up, fill: 'removed' }],
+        appear: GROW + PAUSE,
+        pieces: [
+          {
+            from: 0, to: kept, fill: 'shaded',
+            grow: { from: up, start: GROW + 2 * PAUSE + 0.25, end: 2 * GROW + 2 * PAUSE + 0.25 },
+          },
+          { from: kept, to: up, fill: 'removed', appear: 2 * GROW + 2 * PAUSE + 0.25 },
+        ],
         dividers: tenths(up),
       },
     ],
@@ -306,8 +354,8 @@ function stagePercentOf(p: Params): Stage {
       render: (drawn, current) => percentOfBar(start, drawn[current]),
       // What to watch now lives here rather than in the verdict, which used to
       // say it — the working box sits between the two.
-      prompt: `Try some other pay rises on ${money(start)}, and watch the working in the last `
-        + 'column.',
+      prompt: `Try some other pay rises on ${money(start)}, and watch the working under the `
+        + 'bar.',
       // Any whole percentage. Fives were there to keep answers tidy, but the
       // answer is money and pence absorb anything — and 1% of a start of 200,
       // 400 or 500 is whole pounds anyway.
@@ -315,16 +363,9 @@ function stagePercentOf(p: Params): Stage {
       domain: { min: 1, max: 100, step: 1 },
       suggest: [10, 45],
       label: v => `a rise of ${v}%`,
-      row: v => [
-        `${v}%`,
-        `${v} × ${money(start / 100)} = ${money(start * v / 100)}`,
-      ],
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Try a second percentage — one row shows you nothing about what stays the same.'
+        ? 'Try a second percentage — one bar shows you nothing about what stays the same.'
         : null),
-    },
-    observe: {
-      headers: ['a rise of', 'so the rise is'],
     },
     conclude: {
       sentence: ['Per*cent* means ', ', so to find a percentage of an amount you ', '.'],
@@ -349,8 +390,8 @@ function stagePercentOf(p: Params): Stage {
           diagnosis: [
             '',
             // The page prefixes "Look again.", so this must not open with "Look".
-            `The working in the table shows it: dividing by 100 gives you 1% — ${money(start / 100)} `
-            + 'here, and the same on every row because it does not depend on the percentage at '
+            `The working under the bar shows it: dividing by 100 gives you 1% — ${money(start / 100)} `
+            + 'here, and the same for every percentage you try, because it does not depend on the percentage at '
             + 'all. Then you take as many of those hundredths as the percentage asks for.',
           ],
           misconception: ['', 'divided_the_wrong_way_round'],
@@ -361,7 +402,7 @@ function stagePercentOf(p: Params): Stage {
         + 'might want, because you just take as many of them as you need. It is why finding 1% '
         + 'first is such a useful move, and why 10% is worth knowing on sight.',
       algebraLead: 'In symbols, with P for the percentage and A for the amount. The second line '
-        + 'is the one the table shows — find a hundredth, then take P of them:',
+        + 'is the working under the bar — find a hundredth, then take P of them:',
       algebra: 'P% of A = {P/100} × A\n'
         + '\u2003\u2003= P × {A/100}',
     },
@@ -428,28 +469,17 @@ function stageIncrease(p: Params): Stage {
       // The page pictures the value tried; the student is not drawing.
       verb: 'try',
       render: (drawn, current) => increaseBar(start, drawn[current]),
-      prompt: `Pick a percentage and see what ${money(start)} becomes — watch the multiplier in `
-        + 'the last column.',
+      prompt: `Pick a percentage and see what ${money(start)} becomes — watch the multiplier `
+        + 'under the bar.',
       // Any whole percentage, as in section 1: the answer is money, and pence
       // absorb anything.
       hint: 'Any whole percentage from 1 to 100.',
       domain: { min: 1, max: 100, step: 1 },
       suggest: [10, 45],
       label: v => `an increase of ${v}%`,
-      row: v => [
-        `${v}%`,
-        money(start * v / 100),
-        money(start * (1 + v / 100)),
-        dec(1 + v / 100),
-      ],
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Try a second percentage — one row cannot show you what changes and what does not.'
+        ? 'Try a second percentage — one bar cannot show you what changes and what does not.'
         : null),
-    },
-    observe: {
-      headers: [
-        'increase of', 'the increase on its own', 'you end up with', 'single multiplier',
-      ],
     },
     conclude: {
       sentence: [
@@ -463,8 +493,8 @@ function stageIncrease(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'That is the middle column — the increase on its own, which you would still have to '
-            + 'add on. The last column is what multiplies the original in one go, and it is '
+            'That is the piece added on — the increase on its own, which you would still have to '
+            + 'add on. The number under the bar is what multiplies the original in one go, and it is '
             + 'always bigger than 1.',
           ],
           misconception: ['', 'omitted_a_final_step'],
@@ -474,7 +504,7 @@ function stageIncrease(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'Check a row: the increase in the middle column is the percentage of the STARTING '
+            'Check a bar: the piece added on is the percentage of the STARTING '
             + 'amount, not of the total you reach. Which amount a percentage is taken from is '
             + 'the thing to keep hold of — section 3 is entirely about it.',
           ],
@@ -497,6 +527,15 @@ function stageIncrease(p: Params): Stage {
         + 'chain: a price marked up and then discounted is two multiplications in a row, and '
         + 'nobody wants to add and subtract their way through that twice.',
       onThePaper: 'Increase £240 by 15%. / Write down the multiplier for an increase of 15%.',
+    },
+    // The page stops at 100% so the bar fits; the mathematics does not.
+    aside: {
+      head: 'Can a percentage be more than 100?',
+      body: 'An increase can. A 100% increase doubles the amount, and a 150% increase '
+        + 'multiplies it by 1 + {150/100} = 2.5 — a price going from £40 to £100 has gone up by '
+        + '150%. This page stops at 100% so the bar fits on the screen, but the rule works the '
+        + 'same way past it. A decrease cannot: taking away 100% of something leaves nothing, '
+        + 'and there is nothing left to take more from.',
     },
     check: [
       {
@@ -563,8 +602,8 @@ function stageDecrease(p: Params): Stage {
       // The page pictures the value tried; the student is not drawing.
       verb: 'try',
       render: (drawn, current) => decreaseBar(start, drawn[current]),
-      prompt: `Pick a percentage to take off ${money(start)}, and watch the multiplier in the `
-        + 'last column.',
+      prompt: `Pick a percentage to take off ${money(start)}, and watch the multiplier under `
+        + 'the bar.',
       // Any whole percentage, but stopping at 99: taking 100% off leaves £0 and
       // a multiplier of 0, which breaks this section's own rule that a decrease
       // multiplier is between 0 and 1.
@@ -572,18 +611,9 @@ function stageDecrease(p: Params): Stage {
       domain: { min: 1, max: 99, step: 1 },
       suggest: [15, 40],
       label: v => `a decrease of ${v}%`,
-      row: v => [
-        `${v}%`,
-        `${100 - v}%`,
-        money(start * (1 - v / 100)),
-        dec(1 - v / 100),
-      ],
       coverage: drawn => (new Set(drawn).size < 2
         ? 'Try a second percentage, so you can see which part of the multiplier moves.'
         : null),
-    },
-    observe: {
-      headers: ['decrease of', 'so you keep', 'you end up with', 'end ÷ start'],
     },
     conclude: {
       sentence: [
@@ -598,7 +628,7 @@ function stageDecrease(p: Params): Stage {
           diagnosis: [
             '',
             'A multiplier is never negative here — multiplying money by a negative number would '
-            + 'leave you owing it. Read the "so you keep" column: taking 30% off means keeping '
+            + 'leave you owing it. Read what is left under the bar: taking 30% off means keeping '
             + '70%, and 70% is 0.7.',
           ],
           misconception: ['', 'sign_error'],
@@ -608,7 +638,7 @@ function stageDecrease(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'Only an increase multiplies by more than 1. Every multiplier in the last column is '
+            'Only an increase multiplies by more than 1. Every multiplier under your bars is '
             + 'smaller than 1, which is what makes the amount shrink.',
           ],
           misconception: ['', ''],
@@ -693,26 +723,15 @@ function stageBothWays(p: Params): Stage {
       domain: { min: 1, max: 99, step: 1 },
       suggest: [10, 50],
       label: v => `up ${v}% then down ${v}%`,
-      row: v => [
-        `${v}%`,
-        `${dec(1 + v / 100)} × ${dec(1 - v / 100)}`,
-        dec((1 + v / 100) * (1 - v / 100)),
-        money(start * (1 + v / 100) * (1 - v / 100)),
-      ],
       coverage: drawn => {
         if (new Set(drawn).size < 2) {
-          return 'One row could be a fluke. Try another percentage.'
+          return 'One bar could be a fluke. Try another percentage.'
         }
         if (!drawn.some(v => v >= 40)) {
           return 'Now try a big one — 40% or more — and see whether the gap stays small.'
         }
         return null
       },
-    },
-    observe: {
-      headers: [
-        'up then down by', 'the two multipliers', 'multiplied together', 'you end with',
-      ],
     },
     conclude: {
       sentence: [
@@ -730,9 +749,9 @@ function stageBothWays(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'The third column shows it: the two multipliers never multiply to 1. They come to '
-            + 'just under it, every time, for every percentage you tried.',
-            'Every amount in your last column is BELOW where you started, never above. The rise '
+            'The lower bar shows it: it stops short of the dashed start line, every time, for '
+            + 'every percentage you tried. The fall never quite undoes the rise.',
+            'Every lower bar you made stops short of the start line, never past it. The rise '
             + 'comes first, but the fall is the bigger of the two.',
           ],
           misconception: ['', 'percentage_from_the_wrong_base', 'percentage_from_the_wrong_base'],

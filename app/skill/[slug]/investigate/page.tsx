@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import GridCanvas from '../../../../components/practice/GridCanvas'
@@ -13,7 +13,7 @@ import {
   sentenceState, stageComplete, stepNumbers,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
-import type { GridPoint } from '../../../../lib/questions/gridDraw'
+import type { GridPoint, RenderedGrid } from '../../../../lib/questions/gridDraw'
 import { trackEvent } from '../../../../lib/analytics'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../../../lib/styles'
 
@@ -89,6 +89,15 @@ function wrongResponse(stage: Stage, picked: number | null): string {
   const on = stage.predict.on
   if (on.kind === 'grid') return on.wrong
   return picked === null ? '' : on.wrong[picked] ?? ''
+}
+
+/**
+ * A figure with its animations taken out, leaving it in its finished state —
+ * for a student who has asked their device for less motion. The finished state
+ * is the elements' own attributes; the animations only lead up to it.
+ */
+function still(grid: RenderedGrid): RenderedGrid {
+  return { ...grid, background: grid.background.replace(/<animate\b[^>]*\/>/g, '') }
 }
 
 /**
@@ -168,6 +177,20 @@ export default function InvestigatePage() {
   const [states, setStates] = useState<StageState[]>([])
   /** Which section is on screen. */
   const [current, setCurrent] = useState(0)
+  /** The closing card, which "Finish" on the last section scrolls to. */
+  const finishRef = useRef<HTMLElement>(null)
+  /**
+   * A student who has asked their device for less motion gets each figure in
+   * its finished state, without the bar growing or shrinking into place.
+   */
+  const [reduceMotion, setReduceMotion] = useState(false)
+  useEffect(() => {
+    const q = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const sync = () => setReduceMotion(q.matches)
+    sync()
+    q.addEventListener('change', sync)
+    return () => q.removeEventListener('change', sync)
+  }, [])
 
   useEffect(() => {
     if (!investigation) return
@@ -601,7 +624,14 @@ export default function InvestigatePage() {
                       {!stage.control.pick && stage.control.render && (
                         <figure style={styles.figure}>
                           <GridCanvas
-                            grid={stage.control.render(st.drawn, st.current)}
+                            // A fresh canvas for each value shown. A figure's
+                            // animations run on its own clock, which starts
+                            // when the canvas is created — so without this, a
+                            // bar tried second would already be finished.
+                            key={`${i}:${st.current}:${st.drawn[st.current] ?? '-'}`}
+                            grid={reduceMotion
+                              ? still(stage.control.render(st.drawn, st.current))
+                              : stage.control.render(st.drawn, st.current)}
                             value={[]}
                             readOnly
                           />
@@ -633,7 +663,7 @@ export default function InvestigatePage() {
                                 </tr>
                               ) : (stage.control!.rows
                                 ? stage.control!.rows(st.drawn)
-                                : st.drawn.map(v => stage.control!.row(v))
+                                : st.drawn.map(v => stage.control!.row?.(v) ?? [])
                               ).map((cells, r) => (
                                 <tr key={r}>
                                   {cells.map((cell, c) => (
@@ -799,8 +829,13 @@ export default function InvestigatePage() {
                   >
                     ← Back
                   </button>
-                  {onScreen < resolved.stages.length - 1 && (() => {
+                  {/* On EVERY section, the last included. It used to stop at the
+                      second-to-last, which left "Back" as the only button at
+                      the foot of the last section — the button a student
+                      finishing up was most likely to click next. */}
+                  {(() => {
                     const ready = stageComplete(stage, st.done, answeredMap(st))
+                    const last = onScreen === resolved.stages.length - 1
                     return (
                     <button
                       // A disabled control that looks enabled reads as a
@@ -814,14 +849,17 @@ export default function InvestigatePage() {
                       title={ready ? undefined : 'Finish the rule and have a go at the check first'}
                       disabled={!ready}
                       onClick={() => {
-                        setCurrent(onScreen + 1)
-                        window.scrollTo({ top: 0 })
+                        if (last) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                        else {
+                          setCurrent(onScreen + 1)
+                          window.scrollTo({ top: 0 })
+                        }
                         trackEvent('investigation_section_done', {
                           skill: resolved.skillId, stage: i + 1,
                         })
                       }}
                     >
-                      Next section →
+                      {last ? 'Finish →' : 'Next section →'}
                     </button>
                     )
                   })()}
@@ -832,7 +870,7 @@ export default function InvestigatePage() {
         })}
 
         {allDone && (
-          <section style={{ ...styles.card, borderColor: colors.primary }}>
+          <section ref={finishRef} style={{ ...styles.card, borderColor: colors.primary }}>
             <p style={styles.h}>Now try it on real questions</p>
             <p style={styles.prompt}>
               Nothing above this point counted towards your progress. These do — they are

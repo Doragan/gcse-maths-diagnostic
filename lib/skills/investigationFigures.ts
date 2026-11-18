@@ -278,17 +278,52 @@ export type BarFill =
   /** Dashed outline, no fill: taken away. */
   | 'removed'
 
+export type BarPiece = {
+  from: number
+  to: number
+  fill: BarFill
+  /**
+   * Act out the change when the figure appears: the piece's width runs from
+   * `from` to its own between `start` and `end` seconds — up for a bar that
+   * grows, down for one that shrinks. Its left edge stays put.
+   */
+  grow?: { from: number; start: number; end: number }
+  /** Fade in at this many seconds: a piece that only makes sense once the rest has moved. */
+  appear?: number
+}
+
 export type BarModel = {
   /** Bottom edge and height, in axis units. */
   y: number
   height: number
-  pieces: readonly { from: number; to: number; fill: BarFill }[]
+  pieces: readonly BarPiece[]
   /**
    * Thin dividers across the bar, at these x values — every 10%, so the parts
    * can be counted. Only those strictly inside the bar are drawn.
    */
   dividers?: readonly number[]
+  /** Fade the whole bar in at this many seconds, for a bar that follows another. */
+  appear?: number
 }
+
+/**
+ * One SMIL animation, every one starting at 0 with any wait written into its
+ * key times. A delayed `begin` would leave the element in its FINISHED state
+ * until the wait was over, so the end of the change would flash up first.
+ *
+ * The element's own attributes stay its finished state, which is what anything
+ * that does not run animations — the PNG harness, a print, a student who has
+ * asked for less motion — sees.
+ */
+function animate(attr: string, frames: readonly [number, number][]): string {
+  const total = frames[frames.length - 1][0]
+  return `<animate attributeName="${attr}" dur="${+total.toFixed(4)}s" fill="freeze" `
+    + `values="${frames.map(f => +f[1].toFixed(4)).join(';')}" `
+    + `keyTimes="${frames.map(f => +(f[0] / total).toFixed(4)).join(';')}"/>`
+}
+
+/** Opacity 0 until `at`, then a quick fade to 1. */
+const fadeIn = (at: number) => animate('opacity', at > 0 ? [[0, 0], [at, 0], [at + 0.25, 1]] : [[0, 0], [0.25, 1]])
 
 /** Average width of a label character at the canvas's font size, in viewBox units. */
 const LABEL_CHAR = 6.2
@@ -342,20 +377,45 @@ export function barModelGrid(opts: {
   const parts: string[] = []
   for (const bar of bars) {
     for (const p of bar.pieces) {
-      if (p.to - p.from <= 1e-9) continue
-      parts.push(
-        `<rect x="${p.from}" y="${bar.y}" width="${+(p.to - p.from).toFixed(4)}" `
-        + `height="${bar.height}" ${fills[p.fill]}/>`,
-      )
+      const w = p.to - p.from
+      if (w <= 1e-9) continue
+      const anims: string[] = []
+      if (p.grow) {
+        const { from, start, end } = p.grow
+        anims.push(animate('width', start > 0
+          ? [[0, from], [start, from], [end, w]]
+          : [[0, from], [end, w]]))
+      }
+      const at = Math.max(bar.appear ?? -1, p.appear ?? -1)
+      if (at >= 0) anims.push(fadeIn(at))
+      const open = `<rect x="${p.from}" y="${bar.y}" width="${+w.toFixed(4)}" `
+        + `height="${bar.height}" ${fills[p.fill]}`
+      parts.push(anims.length ? `${open}>${anims.join('')}</rect>` : `${open}/>`)
     }
     const lo = Math.min(...bar.pieces.map(p => p.from))
     const hi = Math.max(...bar.pieces.map(p => p.to))
     for (const d of bar.dividers ?? []) {
       if (d <= lo + 1e-9 || d >= hi - 1e-9) continue
-      parts.push(
-        `<line x1="${+d.toFixed(4)}" y1="${bar.y}" x2="${+d.toFixed(4)}" y2="${bar.y + bar.height}" `
-        + `stroke="currentColor" stroke-opacity="0.3" stroke-width="${u(0.8)}"/>`,
-      )
+      // A divider inside a piece that is still growing turns up as the edge
+      // passes it, not before: tenths floating beyond the end of the bar read
+      // as the bar being longer than it is.
+      // Unless a piece that does NOT move already shows it — section 1's shading
+      // grows over a bar whose tenths are there from the start.
+      const covered = bar.pieces.some(p => !p.grow && p.appear === undefined
+        && d > p.from + 1e-9 && d < p.to - 1e-9)
+      const growing = covered ? undefined : bar.pieces.find(p => p.grow && p.grow.from < p.to - p.from
+        && d > p.from + p.grow.from + 1e-9 && d < p.to - 1e-9)
+      let anim = ''
+      if (growing?.grow) {
+        const { from, start, end } = growing.grow
+        const t = start + ((end - start) * (d - growing.from - from)) / (growing.to - growing.from - from)
+        anim = animate('opacity', [[0, 0], [t, 0], [t + 0.05, 1]])
+      } else if (bar.appear !== undefined) {
+        anim = fadeIn(bar.appear)
+      }
+      const open = `<line x1="${+d.toFixed(4)}" y1="${bar.y}" x2="${+d.toFixed(4)}" `
+        + `y2="${bar.y + bar.height}" stroke="currentColor" stroke-opacity="0.3" stroke-width="${u(0.8)}"`
+      parts.push(anim ? `${open}>${anim}</line>` : `${open}/>`)
     }
   }
   for (const g of opts.guides ?? []) {

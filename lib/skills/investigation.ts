@@ -43,13 +43,80 @@ export function resolveInvestigation(
   random: () => number = Math.random,
 ): ResolvedInvestigation {
   const params = drawParams(inv.parameters, random)
+  const seed = `${inv.skillId}|${JSON.stringify(params)}`
   return {
     skillId: inv.skillId,
     title: inv.title,
     params,
-    stages: inv.build(params),
+    stages: inv.build(params).map((stage, i) => shuffleChoices(stage, `${seed}|${i}`)),
     transferQuestionIds: inv.transferQuestionIds,
   }
+}
+
+/**
+ * A fixed shuffle of 0…n−1 for this seed: the same draw always gets the same
+ * order, so options never move under a student mid-visit, while different
+ * draws get different orders.
+ */
+export function seededOrder(n: number, seed: string): number[] {
+  // FNV-1a for the seed, then xorshift for the stream.
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  h = h || 1
+  const next = () => {
+    h ^= h << 13
+    h ^= h >>> 17
+    h ^= h << 5
+    return (h >>> 0) / 4294967296
+  }
+  const order = Array.from({ length: n }, (_, i) => i)
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(next() * (i + 1))
+    ;[order[i], order[j]] = [order[j], order[i]]
+  }
+  return order
+}
+
+/**
+ * The stage as a student sees it: every set of options in a fixed shuffle.
+ *
+ * Both investigations are AUTHORED with the right answer first — every choice
+ * prediction and almost every rule blank — and a reviewer noticed the pattern:
+ * the answer to every selection was the first option. Shuffled here, once per
+ * draw, so authoring keeps its readable convention and no student meets it.
+ *
+ * Everything indexed by option moves with it: a prediction's per-option wrong
+ * responses, and a slot's diagnoses and misconception ids.
+ */
+export function shuffleChoices(stage: Stage, seed: string): Stage {
+  const on = stage.predict.on
+  let predict = stage.predict
+  if (on.kind === 'choice') {
+    const o = seededOrder(on.options.length, `${seed}|predict`)
+    predict = {
+      ...stage.predict,
+      on: {
+        ...on,
+        options: o.map(k => on.options[k]),
+        correct: o.indexOf(on.correct),
+        wrong: o.map(k => on.wrong[k]),
+      },
+    }
+  }
+  const slots = stage.conclude.slots.map((slot, s) => {
+    const o = seededOrder(slot.options.length, `${seed}|slot${s}`)
+    return {
+      ...slot,
+      options: o.map(k => slot.options[k]),
+      correct: o.indexOf(slot.correct),
+      diagnosis: o.map(k => slot.diagnosis[k]),
+      misconception: o.map(k => slot.misconception[k]),
+    }
+  })
+  return { ...stage, predict, conclude: { ...stage.conclude, slots } }
 }
 
 /**

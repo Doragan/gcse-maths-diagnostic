@@ -102,6 +102,49 @@ describe('percentage change bar models', () => {
   })
 })
 
+describe('bar model animation', () => {
+  const X = { min: 0, max: 200, step: 20, label: '' }
+  const Y = { min: 0, max: 60, step: 20, label: '' }
+  const grown = barModelGrid({
+    x: X,
+    y: Y,
+    bars: [{
+      y: 20,
+      height: 20,
+      pieces: [
+        { from: 0, to: 100, fill: 'light' },
+        { from: 100, to: 130, fill: 'shaded', grow: { from: 0, start: 0, end: 0.7 } },
+      ],
+      dividers: Array.from({ length: 20 }, (_, k) => k * 10),
+    }],
+  })
+
+  it('grows a piece from its starting width to its own', () => {
+    expect(grown.background).toMatch(/<animate attributeName="width" dur="0\.7s" fill="freeze" values="0;30"/)
+  })
+
+  it('leaves the finished picture in place once the animation is taken out', () => {
+    // What a print, the PNG harness, and a student who asked for less motion
+    // all see: the shapes' own attributes, never the animation's first frame.
+    const still = grown.background.replace(/<animate\b[^>]*\/>/g, '')
+    expect(still).not.toContain('<animate')
+    expect(still).toMatch(/<rect x="100" y="20" width="30"/)
+  })
+
+  it('shows the tenths of a growing piece only as its edge reaches them', () => {
+    // One line element: self-closing, or holding its own animations — never
+    // running on into the next line.
+    const line = (d: number) => grown.background
+      .match(new RegExp(`<line x1="${d}"[^>]*?(?:/>|>(?:<animate[^>]*/>)+</line>)`))?.[0] ?? ''
+    // Inside the original bar: there from the start.
+    expect(line(50)).not.toContain('<animate')
+    // On the part being added: hidden until the edge passes, later the further out.
+    expect(line(110)).toContain('attributeName="opacity"')
+    const at = (d: number) => Number(line(d).match(/dur="([\d.]+)s"/)![1])
+    expect(at(120)).toBeGreaterThan(at(110))
+  })
+})
+
 describe('barModelGrid', () => {
   it('refuses unequal steps, which would draw edges at different thicknesses', () => {
     expect(() => barModelGrid({
