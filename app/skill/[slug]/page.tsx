@@ -875,22 +875,31 @@ export default function SkillBriefingPage() {
                       {r.name}
                     </span>
                     <span style={styles.routeWhen}>{r.when}</span>
-                    {!open && (
-                      <span style={styles.routeCount}>
-                        {r.steps.length} steps, worked through
-                      </span>
-                    )}
                   </span>
                 </button>
-                {open && (
-                <div id={panelId}>
+
+                {/* The worked question stays out of the collapsible part. A
+                    student choosing a route is matching the question in front
+                    of them against these, and `when` describes the type where
+                    this shows one — the same argument as the fragment beside a
+                    recognition cue.
+                    The diagram belongs to the method rather than to the
+                    choice, so it waits for the route to open — but inside this
+                    same box, because a question and its diagram are one thing
+                    on the paper and two boxes read as two. */}
                 <div style={styles.methodRun}>
                   <p style={{ margin: 0 }}>
                     <span style={styles.methodRunLabel}>Worked on</span>
                     <MathText>{r.example}</MathText>
                   </p>
-                  {r.figure && <BriefingFigure figure={r.figure} bare />}
+                  {open && r.figure && <BriefingFigure figure={r.figure} bare />}
                 </div>
+                {!open && (
+                  <p style={styles.routeCount}>{r.steps.length} steps, worked through</p>
+                )}
+
+                {open && (
+                <div id={panelId}>
                 {r.steps.map((s, i) => (
                   <div
                     key={i}
@@ -1671,9 +1680,9 @@ const styles: Record<string, React.CSSProperties> = {
     color: colors.textPrimary,
   },
   /** Only on a closed route: what opening it gets you. */
+  /** Only on a closed route: what opening it gets you, under the question. */
   routeCount: {
-    display: 'block',
-    marginTop: '3px',
+    margin: '6px 0 0',
     fontSize: font.sm,
     color: colors.textHint,
   },
