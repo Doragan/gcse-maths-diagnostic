@@ -156,7 +156,16 @@ describe('every legal draw builds a usable investigation', () => {
         inv.build(p).forEach((stage, i) => {
           const c = stage.control
           if (!c?.render) return
-          for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) {
+          // Every value of a short domain; for a long one (1–100%, on every
+          // draw) the ends, their neighbours, and every tenth — walking all of
+          // it ran past the suite's timeout once percentage change drew bars.
+          const { min, max, step } = c.domain
+          const all: number[] = []
+          for (let v = min; v <= max + 1e-9; v += step) all.push(+v.toFixed(6))
+          const values = all.length <= 25
+            ? all
+            : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
+          for (const v of values) {
             const grid = c.render([v], 0)
             expect(grid.background, `${inv.skillId} stage ${i + 1}, ${c.name} = ${v} draws nothing`)
               .toContain('<line')

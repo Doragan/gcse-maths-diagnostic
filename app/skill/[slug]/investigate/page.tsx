@@ -91,6 +91,15 @@ function wrongResponse(stage: Stage, picked: number | null): string {
   return picked === null ? '' : on.wrong[picked] ?? ''
 }
 
+/**
+ * Whether the student DRAWS here ("Draw your own", "Draw it") or tries a value
+ * the page then pictures ("Try it yourself", "Try it"). A figure alone used to
+ * decide it, which would have told a student typing a percentage to draw.
+ */
+function drawsIt(stage: Stage): boolean {
+  return !!stage.control?.render && (stage.control.verb ?? 'draw') === 'draw'
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // An investigation — the concept layer (docs/audit/31).
 //
@@ -491,7 +500,7 @@ export default function InvestigatePage() {
                     <>
                       {/* A control with no figure is tried, not drawn. */}
                       <p style={styles.phase}>
-                        {step.draw} · {stage.control.render ? 'Draw your own' : 'Try it yourself'}
+                        {step.draw} · {drawsIt(stage) ? 'Draw your own' : 'Try it yourself'}
                       </p>
                       <p style={styles.prompt}>{prose(stage.control.prompt)}</p>
 
@@ -533,7 +542,7 @@ export default function InvestigatePage() {
                           style={{ ...primaryButton, width: 'auto' }}
                           onClick={() => draw(i, stage, st.typed)}
                         >
-                          {stage.control.render ? 'Draw it' : 'Try it'}
+                          {drawsIt(stage) ? 'Draw it' : 'Try it'}
                         </button>
                       </div>
                       )}
@@ -562,7 +571,7 @@ export default function InvestigatePage() {
                       {st.drawn.length > 0 && (
                         <div style={styles.chips}>
                           <span style={styles.chipLabel}>
-                            {stage.control.render ? 'you have drawn' : 'you have tried'}
+                            {drawsIt(stage) ? 'you have drawn' : 'you have tried'}
                           </span>
                           {st.drawn.map((v, k) => (
                             <button

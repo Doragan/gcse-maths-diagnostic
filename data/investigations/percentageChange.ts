@@ -1,4 +1,9 @@
 import type { Investigation, Params, Stage } from './types'
+import type { GridLabel, RenderedAxis, RenderedGrid } from '../../lib/questions/gridDraw'
+import { CELL } from '../../lib/questions/gridSvg'
+import {
+  barModelGrid, fitLabel, labelHalfWidth, type BarModel,
+} from '../../lib/skills/investigationFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // What a percentage change really does — the second investigation.
@@ -37,6 +42,153 @@ function money(n: number): string {
 /** A decimal with no trailing zeros: 1.1, not 1.10. */
 function dec(n: number): string {
   return String(Math.round(n * 10000) / 10000)
+}
+
+// ─── Bar models for the "try it" sections ────────────────────────────────────
+//
+// The picture a GCSE percentage question is drawn as: one bar for the whole
+// amount, 100% of it, cut into tenths. Each section draws the value the student
+// has just tried, to scale. The table still carries the numbers; the bar is
+// what makes them visible — and in section 4 it is the argument itself, since
+// the second bar's tenths are visibly longer than the first's.
+//
+// Steps match on both axes (see barModelGrid). 0–100 in tens for one bar of
+// the whole; 0–200 in twenties where the bar has to grow past 100%.
+
+const AX_WHOLE = { min: 0, max: 100, step: 10, label: '' }
+const AY_WHOLE = { min: 0, max: 30, step: 10, label: '' }
+const AX_GROW = { min: 0, max: 200, step: 20, label: '' }
+const AY_GROW = { min: 0, max: 60, step: 20, label: '' }
+const AY_TWICE = { min: 0, max: 120, step: 20, label: '' }
+
+/** Tenths of a bar of the given length, for its dividers. */
+const tenths = (length: number) => Array.from({ length: 11 }, (_, k) => (k * length) / 10)
+
+/** A label above a bar whose top is at `y`, clamped to stay on the figure. */
+const above = (x: number, y: number, text: string, axis: RenderedAxis): GridLabel =>
+  ({ x: fitLabel(x, text, axis), y, text, dy: -7 })
+/** A label under a bar whose bottom is at `y`; `line` 2 sits beneath line 1. */
+const below = (x: number, y: number, text: string, axis: RenderedAxis, line = 1): GridLabel =>
+  ({ x: fitLabel(x, text, axis), y, text, dy: line === 1 ? 15 : 29 })
+
+/** Section 1: the whole amount, with the percentage tried shaded. */
+function percentOfBar(start: number, v: number | undefined): RenderedGrid {
+  const top = `100% = ${money(start)}`
+  const labels = [above(50, 20, top, AX_WHOLE)]
+  // Not at 100%, where it would only repeat the label above.
+  if (v !== undefined && v < 100) labels.push(below(v / 2, 10, `${v}% = ${money(start * v / 100)}`, AX_WHOLE))
+  return barModelGrid({
+    x: AX_WHOLE,
+    y: AY_WHOLE,
+    bars: [{
+      y: 10,
+      height: 10,
+      pieces: v === undefined
+        ? [{ from: 0, to: 100, fill: 'empty' }]
+        : [{ from: 0, to: v, fill: 'shaded' }, { from: v, to: 100, fill: 'empty' }],
+      dividers: tenths(100),
+    }],
+    labels,
+  })
+}
+
+/** Section 2: the whole amount with the increase added on the end. */
+function increaseBar(start: number, v: number | undefined): RenderedGrid {
+  const labels = [above(50, 40, `100% = ${money(start)}`, AX_GROW)]
+  const pieces: BarModel['pieces'] = v === undefined
+    ? [{ from: 0, to: 100, fill: 'light' }]
+    : [{ from: 0, to: 100, fill: 'light' }, { from: 100, to: 100 + v, fill: 'shaded' }]
+  if (v !== undefined) {
+    labels.push(below(100 + v / 2, 20, `+${v}% = ${money(start * v / 100)}`, AX_GROW))
+    labels.push(below((100 + v) / 2, 20, `${100 + v}% = ${money(start * (1 + v / 100))}`, AX_GROW, 2))
+  }
+  return barModelGrid({
+    x: AX_GROW,
+    y: AY_GROW,
+    // Tenths of the ORIGINAL amount, carried on into the part added: a 30%
+    // increase is three more of the same tenths.
+    bars: [{ y: 20, height: 20, pieces, dividers: Array.from({ length: 20 }, (_, k) => k * 10) }],
+    labels,
+  })
+}
+
+/** Section 3: the whole amount with the decrease cut off the end. */
+function decreaseBar(start: number, v: number | undefined): RenderedGrid {
+  const labels = [above(50, 20, `100% = ${money(start)}`, AX_WHOLE)]
+  const pieces: BarModel['pieces'] = v === undefined
+    ? [{ from: 0, to: 100, fill: 'empty' }]
+    : [{ from: 0, to: 100 - v, fill: 'shaded' }, { from: 100 - v, to: 100, fill: 'removed' }]
+  if (v !== undefined) {
+    labels.push(below((100 - v) / 2, 10, `${100 - v}% left = ${money(start * (1 - v / 100))}`, AX_WHOLE))
+    labels.push(below(100 - v / 2, 10, `−${v}% = ${money(start * v / 100)}`, AX_WHOLE))
+  }
+  return barModelGrid({
+    x: AX_WHOLE,
+    y: AY_WHOLE,
+    bars: [{ y: 10, height: 10, pieces, dividers: tenths(100) }],
+    labels,
+  })
+}
+
+/**
+ * Section 4: up by v%, then down by v% of the NEW amount.
+ *
+ * Two bars on one scale. The top one is the start plus the rise. The bottom
+ * one is that new amount with v% of IT taken off — and its tenths are tenths
+ * of the bigger amount, so they are visibly longer than the top bar's. The
+ * dashed line marks where the start was, and the bottom bar stops short of it.
+ */
+function upThenDownBars(start: number, v: number | undefined): RenderedGrid {
+  /**
+   * A label moved right until all of it is clear of the dashed line at 100.
+   * Centred on its piece it straddled the line for small percentages, and the
+   * line cut through the first character.
+   */
+  const rightOfStart = (l: GridLabel): GridLabel => {
+    const clear = 100 + ((labelHalfWidth(l.text) + 6) * AX_GROW.step) / CELL
+    return { ...l, x: Math.max(l.x, clear) }
+  }
+  if (v === undefined) {
+    return barModelGrid({
+      x: AX_GROW,
+      y: AY_TWICE,
+      bars: [{ y: 80, height: 20, pieces: [{ from: 0, to: 100, fill: 'light' }], dividers: tenths(100) }],
+      labels: [above(50, 100, `100% = ${money(start)}`, AX_GROW)],
+    })
+  }
+  const up = 100 + v
+  const kept = (up * (100 - v)) / 100
+  const startText = `start: ${money(start)}`
+  return barModelGrid({
+    x: AX_GROW,
+    y: AY_TWICE,
+    bars: [
+      {
+        y: 80,
+        height: 20,
+        pieces: [{ from: 0, to: 100, fill: 'light' }, { from: 100, to: up, fill: 'shaded' }],
+        dividers: Array.from({ length: 20 }, (_, k) => k * 10),
+      },
+      {
+        y: 20,
+        height: 20,
+        pieces: [{ from: 0, to: kept, fill: 'shaded' }, { from: kept, to: up, fill: 'removed' }],
+        dividers: tenths(up),
+      },
+    ],
+    // From the bottom of the lower bar to the top of the upper one: no higher
+    // or lower, or it runs through the labels above and below.
+    guides: [{ x: 100, from: 20, to: 100 }],
+    labels: [
+      above(up / 2, 100, `up ${v}%: ${money(start)} → ${money(start * up / 100)}`, AX_GROW),
+      rightOfStart(below(100 + v / 2, 80, `+${money(start * v / 100)}`, AX_GROW)),
+      // Left of the dashed line, in the gap between the bars, clear of the
+      // two amounts that sit to its right.
+      { x: 100, y: 60, text: startText, dx: -(labelHalfWidth(startText) + 8), dy: 4 },
+      rightOfStart(above((kept + up) / 2, 40, `−${money(start * up * v / 10000)}`, AX_GROW)),
+      below(kept / 2, 20, `down ${v}%: ${money(start * up / 100)} → ${money(start * kept / 100)}`, AX_GROW),
+    ],
+  })
 }
 
 // ─── Section checks ──────────────────────────────────────────────────────────
@@ -146,8 +298,12 @@ function stagePercentOf(p: Params): Stage {
         `${q}% is ${q} lots of that: ${q} × ${money(start / 100)} = ${money(start * q / 100)}.`,
       ],
     },
+    axes: { x: AX_WHOLE, y: AY_WHOLE },
     control: {
       name: 'rise',
+      // The page pictures the value tried; the student is not drawing.
+      verb: 'try',
+      render: (drawn, current) => percentOfBar(start, drawn[current]),
       // What to watch now lives here rather than in the verdict, which used to
       // say it — the working box sits between the two.
       prompt: `Try some other pay rises on ${money(start)}, and watch the working in the last `
@@ -266,8 +422,12 @@ function stageIncrease(p: Params): Stage {
           + `${money(start)} + ${money(start * q / 100)}, in one step.`,
       ],
     },
+    axes: { x: AX_GROW, y: AY_GROW },
     control: {
       name: 'increase',
+      // The page pictures the value tried; the student is not drawing.
+      verb: 'try',
+      render: (drawn, current) => increaseBar(start, drawn[current]),
       prompt: `Pick a percentage and see what ${money(start)} becomes — watch the multiplier in `
         + 'the last column.',
       // Any whole percentage, as in section 1: the answer is money, and pence
@@ -397,8 +557,12 @@ function stageDecrease(p: Params): Stage {
           + `${money(start)} − ${money(start * q / 100)}, in one step.`,
       ],
     },
+    axes: { x: AX_WHOLE, y: AY_WHOLE },
     control: {
       name: 'decrease',
+      // The page pictures the value tried; the student is not drawing.
+      verb: 'try',
+      render: (drawn, current) => decreaseBar(start, drawn[current]),
       prompt: `Pick a percentage to take off ${money(start)}, and watch the multiplier in the `
         + 'last column.',
       // Any whole percentage, but stopping at 99: taking 100% off leaves £0 and
@@ -514,8 +678,12 @@ function stageBothWays(p: Params): Stage {
           + `you end ${money(start - back)} below where you started.`,
       ],
     },
+    axes: { x: AX_GROW, y: AY_TWICE },
     control: {
       name: 'percentage',
+      // The page pictures the value tried; the student is not drawing.
+      verb: 'try',
+      render: (drawn, current) => upThenDownBars(start, drawn[current]),
       prompt: 'Pick a percentage. It goes up by that, then down by the same — does it ever '
         + 'come back to the start?',
       // Any whole percentage up to 99, as in section 3 — down 100% is £0. Tens

@@ -103,6 +103,16 @@ export type Control = {
    * be expressed. A control with no `render` is tabulated and not drawn.
    */
   render?: (drawn: readonly number[], current: number) => RenderedGrid
+  /**
+   * What the student is doing, for the page's wording.
+   *
+   * 'draw' — the default when there is a `render` — is plotting lines that
+   * stay on the axes: "Draw your own", "Draw it". 'try' is for a figure that
+   * only pictures the value just typed, like percentage change's bar models:
+   * the student is trying a percentage and the page draws it, so the page
+   * keeps "Try it yourself".
+   */
+  verb?: 'draw' | 'try'
   /** How the equation reads at this value. */
   label: (v: number) => string
   /** This value's row in the observation table, one cell per header. */
