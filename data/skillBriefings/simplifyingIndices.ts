@@ -41,18 +41,22 @@ export const simplifyingIndicesBriefing: SkillBriefing = {
       example: 'Simplify a⁵ × a³',
     },
     {
-      text: 'Bases that do not match. Only powers of the SAME base combine, so the c and the d '
-        + 'here stay exactly as they are and only the numbers move.',
-      example: 'Simplify 4c³ × 3d²',
-    },
-    {
       text: 'A bracket with a power outside it, which puts a power onto everything inside.',
       example: 'Simplify (2m³)⁴',
     },
     {
-      text: 'A number in front as well as the letter. The number and the index are handled '
-        + 'separately, and never meet.',
+      text: 'A number in front as well as the letter. The numbers multiply or divide as ordinary '
+        + 'numbers; only the indices follow an index law.',
       example: 'Simplify 12y⁷ ÷ 4y³',
+    },
+    {
+      // Last, and framed as the exception it is. Sitting second in the list it
+      // read as one more way the skill turns up, when it is the opposite: the
+      // case where the index laws have nothing to do.
+      text: 'And the one that does NOT combine: different bases. There is no index law between '
+        + 'c³ and d², so they stay exactly as they are and only the numbers multiply. '
+        + '4c³ × 3d² is 12c³d², and that is finished.',
+      example: 'Simplify 4c³ × 3d²',
     },
   ],
 
@@ -132,13 +136,14 @@ export const simplifyingIndicesBriefing: SkillBriefing = {
   methodExample: 'Simplify 6a⁵ × 4a³.',
   steps: [
     {
-      do: 'Split the number in front from the letter, and deal with them separately.',
+      do: 'Group the numbers in front with each other, and the powers with each other.',
       because:
-        'The number is multiplied or divided like any other number. Only the index follows an '
-        + 'index law, and keeping the two apart is what stops one turning into the other.',
+        'Multiplication can be done in any order, so 6a⁵ × 4a³ can be read as (6 × 4) × (a⁵ × a³). '
+        + 'Nothing is being taken apart — the number and the power are still multiplied together '
+        + 'at the end. Grouping them is just what lets each follow its own rule.',
       watch:
         'Letting the number reach the index. 6a⁵ × 4a³ is not 24a¹⁵, and not 10a⁸ either.',
-      example: '6 × 4 = 24, and the a parts wait their turn',
+      example: '6a⁵ × 4a³ = (6 × 4) × (a⁵ × a³)',
     },
     {
       do: 'Look at what is being done to the powers, and apply the matching index law.',
