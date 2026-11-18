@@ -294,12 +294,18 @@ describe('authoring rules', () => {
     }
   })
 
-  it('gives a control both an observation table and a coverage rule', () => {
+  it('gives a control something to observe, and a table that lines up', () => {
     for (const { skillId, stage, i } of stagesOfEvery()) {
       if (!stage.control) continue
       const where = `${skillId} stage ${i + 1}`
-      expect(stage.observe, `${where} varies something but tabulates nothing`).toBeTruthy()
-      const width = stage.observe!.headers.length
+      // A table, a figure, or both. Percentage change dropped its tables once
+      // the bar models carried the same numbers in their labels.
+      expect(stage.observe || stage.control.render, `${where} varies something unobservably`)
+        .toBeTruthy()
+      if (!stage.observe) continue
+      const width = stage.observe.headers.length
+      expect(stage.control.rows || stage.control.row, `${where} has a table and no rows for it`)
+        .toBeTruthy()
       if (stage.control.rows) {
         // A table about PAIRS: rows appear only once there are two values, and
         // every one of them still has to line up with the headers.
@@ -307,7 +313,7 @@ describe('authoring rules', () => {
         expect(stage.control.rows([sample[0]]), `${where} tabulates a lone value`).toHaveLength(0)
         for (const row of stage.control.rows(sample)) expect(row, where).toHaveLength(width)
       } else {
-        expect(stage.control.row(stage.control.domain.min), where).toHaveLength(width)
+        expect(stage.control.row!(stage.control.domain.min), where).toHaveLength(width)
       }
     }
   })
@@ -467,6 +473,71 @@ describe('resolveInvestigation', () => {
     // what c does, which way m leans, measuring m, reading both back
     expect(r.stages).toHaveLength(4)
     expect(r.stages[0].ask).toContain(String(r.params.c1))
+  })
+
+  // Both investigations are authored with the right answer FIRST, and a
+  // reviewer noticed every selection's answer was the first option. The shuffle
+  // happens here, once per draw.
+  const resolvedAt = (inv: (typeof investigations)[string], k: number) => {
+    const n = allDraws(inv.parameters).length
+    return resolveInvestigation(inv, () => (k + 0.5) / n)
+  }
+
+  it('does not put the right answer first every time', () => {
+    for (const inv of every()) {
+      const n = allDraws(inv.parameters).length
+      const firsts: boolean[] = []
+      for (let k = 0; k < n; k++) {
+        for (const stage of resolvedAt(inv, k).stages) {
+          if (stage.predict.on.kind === 'choice') firsts.push(stage.predict.on.correct === 0)
+          for (const slot of stage.conclude.slots) firsts.push(slot.correct === 0)
+        }
+      }
+      const share = firsts.filter(Boolean).length / firsts.length
+      // About a third to a half by chance, with 2- and 3-option sets mixed.
+      expect(share, `${inv.skillId}: the answer is first ${Math.round(share * 100)}% of the time`)
+        .toBeLessThan(0.65)
+    }
+  })
+
+  it('moves every response with the option it belongs to', () => {
+    for (const inv of every()) {
+      const n = allDraws(inv.parameters).length
+      for (let k = 0; k < n; k++) {
+        const r = resolvedAt(inv, k)
+        const authored = inv.build(r.params)
+        r.stages.forEach((stage, i) => {
+          const a = authored[i]
+          const where = `${inv.skillId} section ${i + 1}, draw ${k}`
+          const on = stage.predict.on
+          const ao = a.predict.on
+          if (on.kind === 'choice' && ao.kind === 'choice') {
+            expect(on.options[on.correct], where).toBe(ao.options[ao.correct])
+            on.options.forEach((opt, j) => {
+              expect(on.wrong[j], `${where}: "${opt}"`).toBe(ao.wrong[ao.options.indexOf(opt)])
+            })
+          }
+          stage.conclude.slots.forEach((slot, s) => {
+            const as = a.conclude.slots[s]
+            expect(slot.options[slot.correct], `${where} slot ${s}`).toBe(as.options[as.correct])
+            slot.options.forEach((opt, j) => {
+              const o = as.options.indexOf(opt)
+              expect(slot.diagnosis[j], `${where} slot ${s}: "${opt}"`).toBe(as.diagnosis[o])
+              expect(slot.misconception[j], `${where} slot ${s}: "${opt}"`).toBe(as.misconception[o])
+            })
+          })
+        })
+      }
+    }
+  })
+
+  it('gives the same draw the same order every time, so nothing moves mid-visit', () => {
+    for (const inv of every()) {
+      const a = resolvedAt(inv, 0)
+      const b = resolvedAt(inv, 0)
+      expect(a.stages.map(s => s.conclude.slots.map(sl => sl.options)))
+        .toEqual(b.stages.map(s => s.conclude.slots.map(sl => sl.options)))
+    }
   })
 })
 
