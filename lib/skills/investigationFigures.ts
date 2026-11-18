@@ -1,4 +1,6 @@
-import type { RenderedGrid, RenderedAxis } from '../questions/gridDraw'
+import type { RenderedGrid, RenderedAxis, GridLabel } from '../questions/gridDraw'
+import { CELL, PAD } from '../questions/gridSvg'
+import { colors } from '../styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Figure builders for investigations.
@@ -250,5 +252,130 @@ export function riseRunGrid(opts: {
     elements: [],
     tolerance: 0.25,
     ...(labels ? { labels } : {}),
+  }
+}
+
+// ─── Bar models ──────────────────────────────────────────────────────────────
+//
+// The picture GCSE uses for percentages, fractions and ratio: one long bar for
+// the whole amount, cut into parts. A RenderedGrid on plain paper — no axes, no
+// squares — so it rides the same canvas, harness and layering as every other
+// figure here, with its shapes in `background` and its words in `labels`.
+//
+// One rule the shapes depend on: a bar model's x and y steps must MATCH. The
+// canvas scales each axis by cells-per-step, and stroke widths are given in
+// axis units, so with unequal steps every vertical edge would come out a
+// different thickness from every horizontal one.
+
+/** How a piece of a bar is drawn. Each is named by a label, never by colour alone. */
+export type BarFill =
+  /** Outlined only: part of the whole, not yet the part being talked about. */
+  | 'empty'
+  /** Lightly filled: the amount you started with, under what happens to it. */
+  | 'light'
+  /** Filled: the part the question is about. */
+  | 'shaded'
+  /** Dashed outline, no fill: taken away. */
+  | 'removed'
+
+export type BarModel = {
+  /** Bottom edge and height, in axis units. */
+  y: number
+  height: number
+  pieces: readonly { from: number; to: number; fill: BarFill }[]
+  /**
+   * Thin dividers across the bar, at these x values — every 10%, so the parts
+   * can be counted. Only those strictly inside the bar are drawn.
+   */
+  dividers?: readonly number[]
+}
+
+/** Average width of a label character at the canvas's font size, in viewBox units. */
+const LABEL_CHAR = 6.2
+
+/**
+ * An x for a centred label that keeps every character on the figure.
+ *
+ * A label is drawn centred on its x, so one naming a sliver at the end of a
+ * bar — 1%, or 99% — would hang half off the edge. Clamped instead, using the
+ * canvas's own padding as room, since a bar model has no tick numerals there.
+ */
+export function fitLabel(x: number, text: string, axis: RenderedAxis): number {
+  const k = axis.step / CELL
+  const half = (text.length * LABEL_CHAR / 2) * k
+  const lo = axis.min - (PAD.left - 4) * k + half
+  const hi = axis.max + (PAD.right - 4) * k - half
+  return Math.min(Math.max(x, lo), hi)
+}
+
+/** Half a label's width in viewBox units, for tests and for placing one beside a line. */
+export function labelHalfWidth(text: string): number {
+  return text.length * LABEL_CHAR / 2
+}
+
+export function barModelGrid(opts: {
+  x: RenderedAxis
+  y: RenderedAxis
+  bars: readonly BarModel[]
+  /**
+   * Dashed vertical guides — "where you started" — from `from` to `to` in y.
+   * Not the full height: a guide running through the labels above and below
+   * the bars cut straight through their words.
+   */
+  guides?: readonly { x: number; from: number; to: number }[]
+  labels?: GridLabel[]
+}): RenderedGrid {
+  const { x, y, bars } = opts
+  if (x.step !== y.step) {
+    throw new Error(`a bar model needs matching steps, got x ${x.step} and y ${y.step}`)
+  }
+  /** viewBox units → axis units, so every stroke is the same thickness on screen. */
+  const u = (vb: number) => +(vb * x.step / CELL).toFixed(4)
+  const ink = `stroke="currentColor" stroke-width="${u(1.3)}"`
+  const fills: Record<BarFill, string> = {
+    empty: `fill="none" ${ink} stroke-opacity="0.85"`,
+    light: `fill="${colors.primary}" fill-opacity="0.14" ${ink} stroke-opacity="0.85"`,
+    shaded: `fill="${colors.primary}" fill-opacity="0.5" ${ink} stroke-opacity="0.9"`,
+    removed: `fill="none" ${ink} stroke-opacity="0.55" stroke-dasharray="${u(4)} ${u(3)}"`,
+  }
+
+  const parts: string[] = []
+  for (const bar of bars) {
+    for (const p of bar.pieces) {
+      if (p.to - p.from <= 1e-9) continue
+      parts.push(
+        `<rect x="${p.from}" y="${bar.y}" width="${+(p.to - p.from).toFixed(4)}" `
+        + `height="${bar.height}" ${fills[p.fill]}/>`,
+      )
+    }
+    const lo = Math.min(...bar.pieces.map(p => p.from))
+    const hi = Math.max(...bar.pieces.map(p => p.to))
+    for (const d of bar.dividers ?? []) {
+      if (d <= lo + 1e-9 || d >= hi - 1e-9) continue
+      parts.push(
+        `<line x1="${+d.toFixed(4)}" y1="${bar.y}" x2="${+d.toFixed(4)}" y2="${bar.y + bar.height}" `
+        + `stroke="currentColor" stroke-opacity="0.3" stroke-width="${u(0.8)}"/>`,
+      )
+    }
+  }
+  for (const g of opts.guides ?? []) {
+    parts.push(
+      `<line x1="${g.x}" y1="${g.from}" x2="${g.x}" y2="${g.to}" stroke="currentColor" `
+      + `stroke-opacity="0.6" stroke-width="${u(1.1)}" stroke-dasharray="${u(5)} ${u(4)}"/>`,
+    )
+  }
+
+  return {
+    mode: 'points',
+    x,
+    y,
+    background: parts.join(''),
+    labels: opts.labels ?? [],
+    // Plain paper: a bar model is not a coordinate diagram, and squares behind
+    // it would read as a grid to count on.
+    showAxes: false,
+    showGrid: false,
+    elements: [],
+    tolerance: 0.25,
   }
 }
