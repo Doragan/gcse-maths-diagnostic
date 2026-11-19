@@ -47,6 +47,17 @@ const Q_TIME = '1785da89-1ef2-4b5d-99b8-3a688b566a3e'
  * turning the minutes into hours, which is exactly section 3.
  */
 const Q_MINUTES = 'bf2216ef-41cf-4377-969a-c6d33a7b9299'
+/**
+ * "A van drives d km from A to B at a km/h, and back at b km/h. Average speed
+ * for the whole journey?" (d3, numeric)
+ *
+ * Written for section 4: the bank's only other question on a round trip is
+ * multi-part, which a section check cannot show. Its first trap is the
+ * average of the two speeds — the answer almost everybody gives — and the
+ * others are the speeds added, one leg's distance over the total time, and
+ * the total time itself.
+ */
+const Q_ROUND_TRIP = 'e82eda35-0dae-443f-a01e-4043c60506dc'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -522,11 +533,8 @@ function stageMinutes(p: Params): Stage {
 // distance each way, so the slow half takes longer and pulls the average
 // towards it. Out at 60 and back at 30 averages 40, not 45.
 //
-// No published single-part question checks this yet — the one that does is
-// multi-part, which a section check cannot show. One is drafted for review:
-// e82eda35-0dae-443f-a01e-4043c60506dc (scripts/draft-compound-units.ts), the
-// round trip's average speed, with the average of the two speeds as its first
-// trap. Wire it in as this section's check once it is published.
+// Checked by a question written for it (Q_ROUND_TRIP): the bank's only other
+// round-trip question is multi-part, which a section check cannot show.
 
 /** The trip each way, in km. Every speed below divides it. */
 const EACH = 120
@@ -635,6 +643,14 @@ function stageThereAndBack(p: Params): Stage {
       onThePaper: 'A car travels 60 km at 60 km/h, then 60 km at 30 km/h. Work out its average '
         + 'speed for the whole journey.',
     },
+    check: [
+      {
+        questionId: Q_ROUND_TRIP,
+        because: 'This section exactly: the same distance each way at two speeds, and the '
+          + 'average for the whole trip. Its first trap is the average of the two speeds, which '
+          + 'is the answer this section exists to talk students out of.',
+      },
+    ],
   }
 }
 
