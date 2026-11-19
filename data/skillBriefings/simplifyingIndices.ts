@@ -136,14 +136,16 @@ export const simplifyingIndicesBriefing: SkillBriefing = {
   methodExample: 'Simplify 6a⁵ × 4a³.',
   steps: [
     {
-      do: 'Group the numbers in front with each other, and the powers with each other.',
+      do: 'Group the numbers in front with each other and the powers with each other, then work '
+        + 'the numbers out.',
       because:
         'Multiplication can be done in any order, so 6a⁵ × 4a³ can be read as (6 × 4) × (a⁵ × a³). '
         + 'Nothing is being taken apart — the number and the power are still multiplied together '
-        + 'at the end. Grouping them is just what lets each follow its own rule.',
+        + 'at the end. Grouped like that, the numbers are ordinary arithmetic, and only the powers '
+        + 'need a law.',
       watch:
         'Letting the number reach the index. 6a⁵ × 4a³ is not 24a¹⁵, and not 10a⁸ either.',
-      example: '6a⁵ × 4a³ = (6 × 4) × (a⁵ × a³)',
+      example: '(6 × 4) × (a⁵ × a³) = 24 × (a⁵ × a³)',
     },
     {
       do: 'Look at what is being done to the powers, and apply the matching index law.',
@@ -154,7 +156,7 @@ export const simplifyingIndicesBriefing: SkillBriefing = {
       watch:
         'Doing to the indices whatever is being done to the terms. Multiplying the terms does not '
         + 'multiply the indices, and dividing them does not divide the indices.',
-      example: 'Multiplying, so the indices add: 5 + 3 = 8',
+      example: 'Multiplying, so the indices add: 5 + 3 = 8, giving a⁸',
       nextMoveDistractors: [
         'Multiply the indices together, because the terms are being multiplied.',
         'Add the indices to the numbers in front before simplifying.',
