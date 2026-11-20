@@ -388,6 +388,31 @@ describe('pi word form ("pi" → π)', () => {
   })
 })
 
+describe('h for hours', () => {
+  // Section 2 of the compound units investigation checks with "How long does
+  // the journey take?", answer "{{a}} hours". A student who wrote "3 h" was
+  // told to "always write the units" and lost the units mark.
+  it('accepts "3 h" and "3h" for 3 hours, with no units reminder', () => {
+    for (const s of ['3 h', '3h', '1.5 h']) {
+      const r = check(s, s.startsWith('1.5') ? '1.5 hours' : '3 hours', 'numeric', 0)
+      expect(r.correct, s).toBe(true)
+      expect(r.unitsIssue, s).toBeUndefined()
+      expect(r.message, s).toBe('Correct!')
+    }
+  })
+  it('still marks a wrong number of hours wrong', () => {
+    expect(check('2 h', '3 hours', 'numeric', 0).correct).toBe(false)
+  })
+  it('still says when h is the wrong unit', () => {
+    expect(check('3 h', '3 minutes', 'numeric', 0).unitsIssue).toBe('wrong')
+  })
+  it('leaves km/h alone', () => {
+    const r = check('50 km/h', '50 km/h', 'numeric', 0)
+    expect(r.correct).toBe(true)
+    expect(r.unitsIssue).toBeUndefined()
+  })
+})
+
 describe('units handling (exact / expression)', () => {
   it('accepts a unit-less exact answer with correct units added (36π cm² for 36π)', () => {
     const r = check('36π cm²', '36π', 'exact')

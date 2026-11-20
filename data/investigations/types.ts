@@ -245,6 +245,11 @@ export type Naming = {
   elsewhere: string
   /** How the paper words it, so the term is recognisable in an exam. */
   onThePaper: string
+  /**
+   * A formula triangle drawn under `means`: `top` over `left` and `right`,
+   * with the three ways of covering one letter and the formula each gives.
+   */
+  triangle?: { top: string; left: string; right: string }
 }
 
 /** One slot in the conclusion sentence. */

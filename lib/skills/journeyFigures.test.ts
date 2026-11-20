@@ -66,9 +66,14 @@ function clock(svg: string, marker: string, attr: string) {
 }
 
 describe('the road and the graph run on one clock', () => {
-  it('has a scene above the graph on every section', () => {
+  it('has a scene above the graph on every journey, and bars alone on section 3', () => {
+    // Section 3 is a fraction of an amount, not a journey: no road, no graph.
     const [p] = allDraws(inv.parameters)
-    expect(inv.build(p).filter(s => s.control?.scene && s.control.render)).toHaveLength(4)
+    const stages = inv.build(p)
+    expect(stages.map((s, i) => (s.control?.scene && s.control.render ? i : -1)).filter(i => i >= 0))
+      .toEqual([0, 1, 3])
+    expect(stages[2].control?.render).toBeDefined()
+    expect(stages[2].control?.scene).toBeUndefined()
   })
 
   it('gets the vehicle and the dot to every turn at the same moment', () => {
@@ -86,11 +91,11 @@ describe('the road and the graph run on one clock', () => {
   })
 
   it('gets the faint vehicle home with its dashed line', () => {
-    // Sections 3 and 4: the whole hour, and the steady van at the average.
+    // Section 4: the steady van at the average.
     let checked = 0
     for (const { where, scene, graph, section, drawn } of journeys()) {
-      if (section < 2 || drawn.length === 0) continue
-      const ghost = clock(scene.background, 'data-drive="ghost"', section === 2 ? 'cx' : 'x')
+      if (section !== 3 || drawn.length === 0) continue
+      const ghost = clock(scene.background, 'data-drive="ghost"', 'x')
       const dashed = clock(graph.background, 'data-dot="dashed"', 'cx')
       expect(ghost, `${where}: the faint vehicle and the dashed line keep different times`).toEqual(dashed)
       checked++
@@ -98,7 +103,7 @@ describe('the road and the graph run on one clock', () => {
     expect(checked).toBeGreaterThan(20)
   })
 
-  it('gets the faint coach in section 1 home with its faint line', () => {
+  it('gets the faint car in section 1 home with its faint line', () => {
     // The try looked at before this one: driving again in the lane above, and
     // drawing itself again on the graph, on the same clock.
     let checked = 0
@@ -106,18 +111,18 @@ describe('the road and the graph run on one clock', () => {
       if (section !== 0 || drawn.length < 2) continue
       const ghost = clock(scene.background, 'data-drive="ghost"', 'x')
       const line = clock(graph.background, 'data-dot="ghost"', 'cx')
-      expect(ghost, `${where}: the faint coach does not move`).not.toBeNull()
-      expect(ghost, `${where}: the faint coach and its line keep different times`).toEqual(line)
+      expect(ghost, `${where}: the faint car does not move`).not.toBeNull()
+      expect(ghost, `${where}: the faint car and its line keep different times`).toEqual(line)
       checked++
     }
     expect(checked).toBeGreaterThan(10)
   })
 
   it('puts the vehicle as far along the road as the graph says it went', () => {
-    // Sections 1–3 draw the road to the top of the graph's distance axis, so
-    // the fraction of the road covered is the fraction of the axis climbed.
+    // Sections 1 and 2 draw the road to the top of the graph's distance axis,
+    // so the fraction of the road covered is the fraction of the axis climbed.
     for (const { where, scene, graph, section, drawn } of journeys()) {
-      if (section > 2 || drawn.length === 0) continue
+      if (section > 1 || drawn.length === 0) continue
       const road = scene.background.match(/<line x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)"/)!
       const from = Number(road[1])
       const to = Number(road[3])
@@ -259,6 +264,52 @@ describe('the words on both figures', () => {
           }
         }
       }
+    }
+  })
+})
+
+describe('section 3: a fraction of the hour is that fraction of the distance', () => {
+  const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
+  const bars = () => {
+    const seen = new Set<string>()
+    const out: { where: string; speed: number; m: number; grid: RenderedGrid }[] = []
+    for (const p of allDraws(inv.parameters)) {
+      const stage = inv.build(p)[2]
+      if (seen.has(stage.ask)) continue
+      seen.add(stage.ask)
+      const speed = Number(stage.ask.match(/(\d+) km\/h/)![1])
+      const c = stage.control!
+      for (let m = c.domain.min; m <= c.domain.max; m += c.domain.step) {
+        out.push({ where: `${speed} km/h for ${m} minutes`, speed, m, grid: c.render!([m], 0) })
+      }
+    }
+    return out
+  }
+
+  it('shades the same share of both bars: the minutes out of 60', () => {
+    const all = bars()
+    expect(all.length).toBeGreaterThan(40)
+    for (const { where, m, grid } of all) {
+      const shaded = [...grid.background.matchAll(/<rect x="0" y="([\d.]+)" width="([\d.]+)"[^>]*fill-opacity="0.5"/g)]
+      expect(shaded.map(r => Number(r[2])), where).toEqual([m, m])
+    }
+  })
+
+  it('cuts both bars into the fraction’s parts, in lowest terms', () => {
+    for (const { where, m, grid } of bars()) {
+      const parts = 60 / gcd(m, 60)
+      const cuts = [...grid.background.matchAll(/<line x1="([\d.]+)" y1="[\d.]+" x2="\1"/g)]
+      expect(cuts.length, where).toBe(2 * (parts - 1))
+    }
+  })
+
+  it('writes one part of the distance in each part, and the answer under it', () => {
+    for (const { where, speed, m, grid } of bars()) {
+      const parts = 60 / gcd(m, 60)
+      const words = (grid.labels ?? []).map(l => l.text)
+      expect(words.filter(t => t === String(speed / parts)).length, where).toBeGreaterThanOrEqual(parts)
+      const d = (speed * m) / 60
+      expect(words.join(' | '), where).toMatch(m === 60 ? `the whole ${speed} km` : `= ${d} km`)
     }
   })
 })

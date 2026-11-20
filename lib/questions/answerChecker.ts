@@ -737,13 +737,17 @@ function stripUnits(text: string): string {
     .replace(/(\d+(\.\d+)?)\s*m\b/gi, '$1')
     .replace(/(\d+(\.\d+)?)\s*g\b/gi, '$1')
     .replace(/(\d+(\.\d+)?)\s*s\b/gi, '$1')
+    // "3 h" is 3 hours. Only straight after a number, like m/g/s above, so
+    // "km/h" and an algebraic h elsewhere are left alone. (No answer or trap in
+    // the bank had a number followed by a lone h when this was added.)
+    .replace(/(\d+(\.\d+)?)\s*h\b/gi, '$1')
 }
 
 // Pattern for detecting the presence of any unit.
 // NOTE: do NOT use the `g` flag here — a module-level regex with `g` advances
 // lastIndex on each `.test()` call, making every other call return the wrong result.
 const UNIT_PATTERN =
-  /(mph|km\/h|m\/s|kg|km|cm|mm|ml|mg|hrs|hr|mins|min|secs|sec|hours|minutes|seconds|miles|mile|metres|metre|meters|meter|grams|gram|litres|litre|liters|liter)|g\/cm[³3]|g\/ml|cm[²³]|m[²³]|mm[²³]|km[²³]|£|\$|€|%|(\d+(\.\d+)?)\s*(m|g|s)\b/i
+  /(mph|km\/h|m\/s|kg|km|cm|mm|ml|mg|hrs|hr|mins|min|secs|sec|hours|minutes|seconds|miles|mile|metres|metre|meters|meter|grams|gram|litres|litre|liters|liter)|g\/cm[³3]|g\/ml|cm[²³]|m[²³]|mm[²³]|km[²³]|£|\$|€|%|(\d+(\.\d+)?)\s*(m|g|s|h)\b/i
 
 function containsUnits(text: string): boolean {
   return UNIT_PATTERN.test(stripHtmlForUnits(text))
@@ -769,7 +773,7 @@ function unitToken(text: string): string | null {
   // mismatch between two ways of writing the same correct answer.
   // Compound and squared/cubed forms first, so "cm3" never matches as "cm".
   const matches = flat.match(
-    /g\/cm3|g\/ml|km\/h|m\/s|mph|cm[23]|mm[23]|km[23]|m[23]|kg|mg|ml|cm|mm|km|litres?|liters?|metres?|meters?|grams?|miles?|hours?|hrs?|minutes?|mins?|seconds?|secs?|\b[mgs]\b/g,
+    /g\/cm3|g\/ml|km\/h|m\/s|mph|cm[23]|mm[23]|km[23]|m[23]|kg|mg|ml|cm|mm|km|litres?|liters?|metres?|meters?|grams?|miles?|hours?|hrs?|minutes?|mins?|seconds?|secs?|\b[mgsh]\b/g,
   )
   // The unit trails the value, so the last token is the one being claimed.
   return matches ? matches[matches.length - 1] : null
@@ -786,7 +790,7 @@ function unitOf(text: string): string | null {
     grams: 'g', gram: 'g',
     seconds: 's', second: 's', secs: 's', sec: 's',
     minutes: 'min', minute: 'min', mins: 'min',
-    hours: 'hr', hour: 'hr', hrs: 'hr',
+    hours: 'hr', hour: 'hr', hrs: 'hr', h: 'hr',
     miles: 'mile',
   }
   return SYNONYMS[cleaned] ?? cleaned

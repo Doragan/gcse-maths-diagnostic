@@ -456,7 +456,7 @@ export function barModelGrid(opts: {
 // animation here starts at 0 with its waits written into its key times (see
 // `animate`), and the page mounts both canvases in the same render.
 
-/** What drives along the road. A coach, a lorry and a van are all a car here. */
+/** What drives along the road. A lorry and a van are drawn as a car here. */
 export type Vehicle = 'car' | 'bike'
 
 export type Drive = {
