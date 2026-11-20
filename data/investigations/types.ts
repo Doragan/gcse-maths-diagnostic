@@ -350,6 +350,12 @@ export type Investigation = {
    * outcomes run together reads as a wall and gets skipped — which is the
    * same reason an exercise book has a list of objectives at the top.
    *
+   * Each point opens with ONE measurable verb from Bloom's taxonomy
+   * (lib/skills/bloom.ts) — "calculate", "explain", "deduce", never "understand"
+   * or "look at… and say" — and the list as a whole reaches past procedure:
+   * every section ends with the student stating a rule, which is
+   * understanding, and the outcomes should say so. Tests hold all three.
+   *
    * It was once a note to the author about why the concept needs varying
    * rather than telling, which meant the page opened by talking about "the
    * student" to the student.

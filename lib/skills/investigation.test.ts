@@ -4,6 +4,7 @@ import {
   rejectValue, addValue, sentenceState, checksAttempted, stageComplete, stepNumbers,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
+import { BLOOM_VERBS, NOT_MEASURABLE, bloomLevel } from './bloom'
 import { investigations, getInvestigation, hasInvestigation } from '../../data/investigations'
 import { skillsById } from './skillGraph'
 import { misconceptions } from '../../data/misconceptions'
@@ -825,17 +826,41 @@ describe('student-facing copy', () => {
     }
   })
 
-  it('lists outcomes as things a student could actually do', () => {
-    // One bullet is a paragraph wearing a bullet's clothes, and an outcome
-    // that does not start with a verb is a description of the topic rather
-    // than something the student will be able to DO.
-    const startsWithAVerb = /^(find|work|say|use|look|go|write|read|explain|decide|turn|tell)\b/i
+  it('opens every outcome with a measurable verb from Bloom’s taxonomy', () => {
+    // An outcome is something a teacher could watch a student do, or mark.
+    // "Look at an equation and say…" and "go the other way" were not; nor is
+    // "understand". One bullet is a paragraph wearing a bullet's clothes, so
+    // there are at least two.
     for (const inv of every()) {
       expect(inv.outcomes.points.length, `${inv.skillId} lists too few outcomes`)
         .toBeGreaterThanOrEqual(2)
       for (const o of inv.outcomes.points) {
-        expect(o, `${inv.skillId}: "${o}" is not something to do`).toMatch(startsWithAVerb)
+        expect(bloomLevel(o), `${inv.skillId}: "${o}" does not open with a Bloom verb`).not.toBeNull()
       }
+    }
+  })
+
+  it('gives each outcome one verb, not two outcomes joined by "and"', () => {
+    // "find a percentage… and say what percent means" was two outcomes. A
+    // student who can do one and not the other has met half a bullet.
+    for (const inv of every()) {
+      for (const o of inv.outcomes.points) {
+        const second = [...BLOOM_VERBS, ...NOT_MEASURABLE]
+          .find(v => new RegExp(`\\band ${v}\\b`, 'i').test(o))
+        expect(second, `${inv.skillId}: "${o}" joins a second outcome with "and ${second}"`)
+          .toBeUndefined()
+      }
+    }
+  })
+
+  it('asks for more than procedure: outcomes on at least two Bloom levels', () => {
+    // Every section ends with the student stating a rule and reading why it
+    // holds, which is understanding. An outcome list of nothing but "work out"
+    // undersells that, and hides it from a teacher reading the page.
+    for (const inv of every()) {
+      const levels = new Set(inv.outcomes.points.map(bloomLevel))
+      expect(levels.size, `${inv.skillId}: every outcome is ${[...levels].join(', ')}`)
+        .toBeGreaterThanOrEqual(2)
     }
   })
 

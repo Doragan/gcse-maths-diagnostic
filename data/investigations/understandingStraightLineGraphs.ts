@@ -612,11 +612,13 @@ export const understandingStraightLineGraphsInvestigation: Investigation = {
     lead: 'Straight lines are written y = mx + c, and those two letters are the whole of it: '
       + 'one decides where the line sits, the other how steep it is. Lines like these are how a '
       + 'steady rate gets drawn — a phone tariff, a taxi fare, a tank filling up.',
+    // One measurable verb each, climbing Bloom's taxonomy section by section
+    // (lib/skills/bloom.ts): remember, understand, apply, analyse.
     points: [
-      'look at an equation and say where its line crosses the y-axis',
-      'say how steep a line is and which way it leans',
-      'work out a gradient from two points on the line',
-      'go the other way — from a line drawn on a grid back to its equation',
+      'identify where a line crosses the y-axis from its equation',
+      'explain how the number in front of x changes how steep a line is, and which way it slopes',
+      'calculate the gradient of a line from any two points on it',
+      'deduce the equation of a straight line from its graph',
     ],
   },
   parameters: {

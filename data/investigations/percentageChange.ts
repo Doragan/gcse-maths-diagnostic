@@ -839,11 +839,14 @@ export const percentageChangeInvestigation: Investigation = {
       + 'growing or a phone battery draining — these are all percentage changes. It is the '
       + 'arithmetic you are most likely to meet outside a classroom, and the one most often '
       + 'got wrong in ways that cost people money.',
+    // One measurable verb each (lib/skills/bloom.ts): apply, understand,
+    // apply, understand. The two "explain" outcomes are the rules sections 2
+    // and 4 have the student put into words.
     points: [
-      'find a percentage of an amount, and say what "per*cent*" actually means',
-      'write down the single number that does an increase or a decrease in one step',
-      'use that number on any amount, for any percentage',
-      'work out where two changes in a row leave you — which is not where most people think',
+      'calculate a percentage of any amount, by finding 1% first',
+      'explain why a percentage increase or decrease can be done with a single multiplication',
+      'use a multiplier to increase or decrease any amount in one step',
+      'explain why going up and then down by the same percentage leaves less than you started with',
     ],
   },
   parameters: {
