@@ -661,11 +661,14 @@ export const compoundUnitsInvestigation: Investigation = {
     lead: 'Speed, density, a price per kilogram: each is one quantity per another, and the '
       + 'word "per" does all the work. These are compound units, and the one everybody meets '
       + 'first is speed — the distance you go in each hour.',
+    // One measurable verb each (lib/skills/bloom.ts): apply, apply, apply,
+    // understand. The last is the rule section 4 has the student put into
+    // words.
     points: [
-      'work out a speed from a distance and a time',
-      'go the other way, from a speed to a distance or a time',
-      'turn minutes into hours without falling for 20 minutes = 0.2',
-      'find the average speed of a journey — which is not the average of the speeds',
+      'calculate a speed from a distance and a time',
+      'rearrange the speed formula to find a distance or a time',
+      'convert a time in minutes into hours, as a fraction of an hour',
+      'explain why the average speed of a round trip is not the average of its two speeds',
     ],
   },
   underConstruction: 'This one is new and still being worked on. The maths is right, but the '
