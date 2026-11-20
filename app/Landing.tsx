@@ -862,6 +862,7 @@ export default function Landing({ demoPool, demoQuestion }: {
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const, justifyContent: 'center' }}>
             {[
               { label: 'Free diagnostic', href: '/student/diagnostic' },
+              { label: 'Skills & exam briefings', href: '/skills' },
               { label: 'Student login', href: '/student' },
               { label: 'For teachers', href: '/for-teachers' },
               { label: 'Privacy', href: '/privacy' },
