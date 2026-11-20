@@ -615,7 +615,11 @@ export default function InvestigatePage() {
                       {/* Above the figure, not under the table: it is an
                           instruction about what to draw NEXT, and under the
                           table it was read after the drawing was done. */}
-                      {concludeGate(stage, st.drawn) && (
+                      {/* Not before the first value: every rule's first message
+                          asks for "a second" something, which reads as nonsense
+                          to a student who has not tried one yet. The rule stays
+                          shut either way — that is concludeGate's other job. */}
+                      {st.drawn.length > 0 && concludeGate(stage, st.drawn) && (
                         <p style={styles.nudge}>{concludeGate(stage, st.drawn)}</p>
                       )}
 
