@@ -36,12 +36,14 @@ function build() {
       const histories = [[], ...values.map(v => [v]), ...values.map(v => [values[0] === v ? values[1] : values[0], v])]
       for (const drawn of histories) {
         const cur = Math.max(drawn.length - 1, 0)
+        // Looking at the first try just before this one, as on the page.
+        const before = drawn.length > 1 ? 0 : undefined
         out.push({
           where: `section ${i + 1}, ${JSON.stringify(p)}, tried ${JSON.stringify(drawn)}`,
           section: i,
           drawn,
-          scene: c.scene(drawn, cur),
-          graph: c.render(drawn, cur),
+          scene: c.scene(drawn, cur, before),
+          graph: c.render(drawn, cur, before),
         })
       }
     })
@@ -96,6 +98,21 @@ describe('the road and the graph run on one clock', () => {
     expect(checked).toBeGreaterThan(20)
   })
 
+  it('gets the faint coach in section 1 home with its faint line', () => {
+    // The try looked at before this one: driving again in the lane above, and
+    // drawing itself again on the graph, on the same clock.
+    let checked = 0
+    for (const { where, scene, graph, section, drawn } of journeys()) {
+      if (section !== 0 || drawn.length < 2) continue
+      const ghost = clock(scene.background, 'data-drive="ghost"', 'x')
+      const line = clock(graph.background, 'data-dot="ghost"', 'cx')
+      expect(ghost, `${where}: the faint coach does not move`).not.toBeNull()
+      expect(ghost, `${where}: the faint coach and its line keep different times`).toEqual(line)
+      checked++
+    }
+    expect(checked).toBeGreaterThan(10)
+  })
+
   it('puts the vehicle as far along the road as the graph says it went', () => {
     // Sections 1–3 draw the road to the top of the graph's distance axis, so
     // the fraction of the road covered is the fraction of the axis climbed.
@@ -137,6 +154,51 @@ describe('the road and the graph run on one clock', () => {
     for (const { where, scene, graph } of journeys()) {
       expect(still(scene.background), where).not.toMatch(/<animate/)
       expect(still(graph.background), where).not.toMatch(/<animate/)
+    }
+  })
+})
+
+describe('the clock under the road', () => {
+  it('keeps the same time as the "now" line on the graph', () => {
+    let checked = 0
+    for (const { where, scene, graph, drawn } of journeys()) {
+      if (drawn.length === 0) continue
+      const strip = clock(scene.background, 'data-clock="dot"', 'cx')
+      const now = clock(graph.background, 'data-now', 'x1')
+      expect(strip, `${where}: the clock does not run`).not.toBeNull()
+      expect(strip, `${where}: the clock and the graph keep different times`).toEqual(now)
+      checked++
+    }
+    expect(checked).toBeGreaterThan(50)
+  })
+
+  it('stops at the time the graph stops at, ruled like its time axis', () => {
+    // The strip IS the time axis, drawn under the road: as far along the strip
+    // as the "now" line is along the axis, and ruled at the axis's steps.
+    for (const { where, scene, graph, drawn } of journeys()) {
+      if (drawn.length === 0) continue
+      const strip = scene.background.match(/data-clock="strip" x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)"/)!
+      const from = Number(strip[1])
+      const level = Number(strip[2])
+      const to = Number(strip[3])
+      const dot = Number(scene.background.match(/data-clock="dot" cx="([\d.]+)"/)![1])
+      const now = Number(graph.background.match(/data-now="" x1="([\d.]+)"/)![1])
+      expect((dot - from) / (to - from), where).toBeCloseTo(now / graph.x.max, 3)
+      // Ticks: short uprights centred on the strip.
+      const ticks = [...scene.background.matchAll(/<line x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/g)]
+        .filter(m => m[1] === m[3] && Math.abs((Number(m[2]) + Number(m[4])) / 2 - level) < 1e-3)
+      expect(ticks.length, `${where}: the strip is not ruled like the axis`)
+        .toBe(Math.round(graph.x.max / graph.x.step) + 1)
+    }
+  })
+
+  it('runs until the last vehicle stops, faint ones too', () => {
+    for (const { where, scene, drawn } of journeys()) {
+      if (drawn.length === 0) continue
+      const durs = [...scene.background.matchAll(/data-drive="[^"]*"[^>]*>((?:<animate [^>]*\/>)+)/g)]
+        .flatMap(m => [...m[1].matchAll(/dur="([\d.]+)s"/g)].map(d => Number(d[1])))
+      const runs = clock(scene.background, 'data-clock="dot"', 'cx')!
+      expect(runs.at(-1), where).toBeCloseTo(Math.max(...durs), 3)
     }
   })
 })

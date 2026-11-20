@@ -1,7 +1,7 @@
 import type { Investigation, Params, Stage } from './types'
 import type { GridLabel, RenderedAxis, RenderedGrid } from '../../lib/questions/gridDraw'
 import { distanceTimeGrid, fitLabel, journeyScene, labelHalfWidth } from '../../lib/skills/investigationFigures'
-import type { Drive, MeasureLeg, Road, Trace } from '../../lib/skills/investigationFigures'
+import type { Clock, Drive, MeasureLeg, Road, Trace } from '../../lib/skills/investigationFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Compound units, through speed — the third investigation.
@@ -101,16 +101,48 @@ const SEC_PER_HOUR_TRIP = 0.4
 
 /** The road: plain paper, 0–60 across, with room for a vehicle at either end. */
 const AX_ROAD: RenderedAxis = { min: 0, max: 60, step: 6, label: '' }
-const AY_TWO_LANES: RenderedAxis = { min: 0, max: 24, step: 6, label: '' }
-const AY_ONE_LANE: RenderedAxis = { min: 0, max: 12, step: 6, label: '' }
+const AY_TWO_LANES: RenderedAxis = { min: 0, max: 30, step: 6, label: '' }
+const AY_ONE_LANE: RenderedAxis = { min: 0, max: 18, step: 6, label: '' }
 const ROAD_FROM = 4
 const ROAD_TO = 56
-/** The two lanes: the one being tried, and the faint one above it to compare with. */
-const LANE = 4
-const UPPER = 14
+/**
+ * Bottom to top: the clock, the lane being tried, and the faint lane above it
+ * to compare with. The clock is under the road it times, with room between
+ * for the words under that road.
+ */
+const CLOCK = 3
+const LANE = 10
+const UPPER = 20
 
 /** Where a distance lands on a road drawn for `full` km. */
 const along = (km: number, full: number) => ROAD_FROM + ((ROAD_TO - ROAD_FROM) * km) / full
+/** Where a time lands on the clock strip, which is the graph's time axis drawn under the road. */
+const onClock = (t: number, axis: RenderedAxis) => ROAD_FROM + ((ROAD_TO - ROAD_FROM) * t) / axis.max
+
+/**
+ * The clock for a graph's time axis: ruled at the axis's steps, numbered
+ * every `every` with the unit on the last number, and run from 0 to `until`
+ * at `perUnit` seconds per unit — the graph's own pace, so the dot on the
+ * strip and the "now" line on the graph are at the same time throughout.
+ *
+ * `until` is when the LAST vehicle stops, not the one being tried: time
+ * cannot stand still while the faint one is still driving.
+ */
+function clockFor(axis: RenderedAxis, every: number, unit: string, until: number | undefined, perUnit: number) {
+  const ticks = Array.from({ length: Math.round(axis.max / axis.step) + 1 }, (_, k) => onClock(k * axis.step, axis))
+  const numbered = Array.from({ length: Math.floor(axis.max / every + 1e-9) + 1 }, (_, k) => k * every)
+  const labels: GridLabel[] = numbered.map((t, k) => {
+    const text = k === numbered.length - 1 ? `${t} ${unit}` : String(t)
+    return { x: fitLabel(onClock(t, axis), text, AX_ROAD), y: CLOCK, text, dy: 15 }
+  })
+  const run: [number, number][] = until === undefined || until === 0
+    ? [[0, ROAD_FROM]]
+    : [[0, ROAD_FROM], [until * perUnit, onClock(until, axis)]]
+  const now: [number, number][] | undefined = until === undefined || until === 0
+    ? undefined
+    : [[0, 0], [until * perUnit, until]]
+  return { clock: { y: CLOCK, from: ROAD_FROM, to: ROAD_TO, ticks, run } as Clock, labels, now }
+}
 
 /** A line of words above a lane, clear of the roof of the vehicle on it. */
 const caption = (lane: number, text: string): GridLabel =>
@@ -119,12 +151,15 @@ const caption = (lane: number, text: string): GridLabel =>
 const under = (x: number, lane: number, text: string): GridLabel =>
   ({ x: fitLabel(x, text, AX_ROAD), y: lane, text, dy: 15 })
 
-/** The value tried most recently that differs from the one shown, if any. */
-function previous(drawn: readonly number[], current: number): number | undefined {
-  for (let k = drawn.length - 1; k >= 0; k--) {
-    if (k !== current && drawn[k] !== drawn[current]) return drawn[k]
-  }
-  return undefined
+/**
+ * The try the student was looking at before this one, if it was a different
+ * value — NOT the one typed last, which is a different try as soon as they go
+ * back to an earlier one (see showTry).
+ */
+function lastTry(drawn: readonly number[], current: number, before: number | undefined): number | undefined {
+  if (before === undefined) return undefined
+  const w = drawn[before]
+  return w === drawn[current] ? undefined : w
 }
 /** A stage's axes are its graph's. */
 const axesOf = (g: RenderedGrid) => ({ x: g.x, y: g.y })
@@ -138,24 +173,31 @@ const hoursAxis = (max: number, step = 0.5): RenderedAxis => ({ min: 0, max, ste
 const kmAxis = (max: number, label = 'distance (km)'): RenderedAxis =>
   ({ min: 0, max, step: max / 6, label })
 
+/** Section 1's time axis, on the graph and on the clock under the road. */
+const COACH_HOURS = hoursAxis(6)
+
 /**
  * Section 1: the coach drives the same road in however many hours were tried,
  * dropping a marker at the end of every hour — so the road is cut into equal
- * shares — with the try before it racing alongside, faint, in the lane above.
+ * shares — with the try before it racing alongside, faint, in the lane above,
+ * and the clock under the road counting the hours as they go.
  */
-function coachScene(distance: number, drawn: readonly number[], current: number): RenderedGrid {
+function coachScene(distance: number, drawn: readonly number[], current: number, before?: number): RenderedGrid {
   const v = drawn[current]
   if (v === undefined) {
+    const time = clockFor(COACH_HOURS, 1, 'hours', undefined, SEC_PER_HOUR)
     return journeyScene({
       x: AX_ROAD,
       y: AY_TWO_LANES,
       roads: [{ y: LANE, from: ROAD_FROM, to: ROAD_TO }],
       drives: [{ road: LANE, frames: [[0, ROAD_FROM]] }],
-      labels: [caption(LANE, `${distance} km to go`)],
+      clock: time.clock,
+      labels: [caption(LANE, `${distance} km to go`), ...time.labels],
     })
   }
   const share = distance / v
-  const w = previous(drawn, current)
+  const w = lastTry(drawn, current, before)
+  const time = clockFor(COACH_HOURS, 1, 'hours', Math.max(v, w ?? 0), SEC_PER_HOUR)
   const roads: Road[] = [{
     y: LANE,
     from: ROAD_FROM,
@@ -166,6 +208,7 @@ function coachScene(distance: number, drawn: readonly number[], current: number)
   const labels: GridLabel[] = [
     caption(LANE, `${distance} km in ${hours(v)}: ${share} km each hour`),
     ...Array.from({ length: v }, (_, k) => under(along((k + 0.5) * share, distance), LANE, `${share} km`)),
+    ...time.labels,
   ]
   if (w !== undefined) {
     roads.push({
@@ -177,27 +220,34 @@ function coachScene(distance: number, drawn: readonly number[], current: number)
     drives.push({ road: UPPER, frames: [[0, ROAD_FROM], [w * SEC_PER_HOUR, ROAD_TO]], ghost: true })
     labels.push(caption(UPPER, `last try: ${hours(w)}, ${distance / w} km each hour`))
   }
-  return journeyScene({ x: AX_ROAD, y: AY_TWO_LANES, roads, drives, labels })
+  return journeyScene({ x: AX_ROAD, y: AY_TWO_LANES, roads, drives, clock: time.clock, labels })
 }
 
 /**
  * Section 1's graph: every try a line from the start to the same distance,
  * later for more hours — so flatter. Where the line is after one hour is read
- * off with dashed legs, and that reading is the speed.
+ * off with dashed legs, and that reading is the speed. The last try is drawn
+ * again alongside the faint coach, and the "now" line sweeps across with the
+ * clock under the road.
  */
-function coachGraph(distance: number, drawn: readonly number[], current: number): RenderedGrid {
-  const x = hoursAxis(6)
+function coachGraph(distance: number, drawn: readonly number[], current: number, before?: number): RenderedGrid {
+  const x = COACH_HOURS
   const y = kmAxis(distance)
   const v = drawn[current]
-  const traces: Trace[] = others(drawn, current).map(w => ({ points: [[0, 0], [w, distance]], style: 'ghost' }))
+  const w = lastTry(drawn, current, before)
+  const traces: Trace[] = others(drawn, current).map(o => (o === w
+    ? { points: [[0, 0], [o, distance]], times: [0, o * SEC_PER_HOUR], style: 'ghost' }
+    : { points: [[0, 0], [o, distance]], style: 'ghost' }))
   if (v === undefined) return distanceTimeGrid({ x, y, traces })
   const share = distance / v
+  const time = clockFor(COACH_HOURS, 1, 'hours', Math.max(v, w ?? 0), SEC_PER_HOUR)
   traces.push({ points: [[0, 0], [v, distance]], times: [0, v * SEC_PER_HOUR], style: 'live' })
   const text = `${share} km after 1 hour`
   return distanceTimeGrid({
     x,
     y,
     traces,
+    now: time.now,
     legs: [
       { from: [1, 0], to: [1, share], appear: SEC_PER_HOUR },
       { from: [0, share], to: [1, share], appear: SEC_PER_HOUR },
@@ -213,6 +263,7 @@ function coachGraph(distance: number, drawn: readonly number[], current: number)
  */
 function lorryScene(speed: number, v: number | undefined): RenderedGrid {
   const full = 6 * speed
+  const time = clockFor(COACH_HOURS, 1, 'hours', v, SEC_PER_HOUR)
   const ruler = Array.from({ length: 7 }, (_, k) =>
     under(along(k * speed, full), LANE, k === 6 ? `${k * speed} km` : String(k * speed)))
   const road: Road = {
@@ -227,7 +278,8 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
       y: AY_ONE_LANE,
       roads: [road],
       drives: [{ road: LANE, frames: [[0, ROAD_FROM]] }],
-      labels: [caption(LANE, `${speed} km/h`), ...ruler],
+      clock: time.clock,
+      labels: [caption(LANE, `${speed} km/h`), ...ruler, ...time.labels],
     })
   }
   return journeyScene({
@@ -238,13 +290,14 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
       marks: Array.from({ length: v }, (_, k) => ({ x: along((k + 1) * speed, full), appear: (k + 1) * SEC_PER_HOUR })),
     }],
     drives: [{ road: LANE, frames: [[0, ROAD_FROM], [v * SEC_PER_HOUR, along(v * speed, full)]] }],
-    labels: [caption(LANE, `${hours(v)} at ${speed} km/h: ${v} × ${speed} = ${v * speed} km`), ...ruler],
+    clock: time.clock,
+    labels: [caption(LANE, `${hours(v)} at ${speed} km/h: ${v} × ${speed} = ${v * speed} km`), ...ruler, ...time.labels],
   })
 }
 
 /** Section 2's graph: one steepness, drawn a step at a time — each hour adds the same climb. */
 function lorryGraph(speed: number, drawn: readonly number[], current: number): RenderedGrid {
-  const x = hoursAxis(6)
+  const x = COACH_HOURS
   const y = kmAxis(6 * speed)
   const v = drawn[current]
   const traces: Trace[] = others(drawn, current).map(w => ({ points: [[0, 0], [w, w * speed]], style: 'ghost' }))
@@ -262,6 +315,7 @@ function lorryGraph(speed: number, drawn: readonly number[], current: number): R
     y,
     traces,
     legs,
+    now: clockFor(x, 1, 'hours', v, SEC_PER_HOUR).now,
     // Beside the first hour's climb, below the line, which is already higher there.
     labels: [{ x: 1, y: speed / 2, text, dx: labelHalfWidth(text) + 6, dy: 4 }],
   })
@@ -274,7 +328,10 @@ function lorryGraph(speed: number, drawn: readonly number[], current: number): R
  */
 function rideScene(speed: number, m: number | undefined): RenderedGrid {
   const fives = Array.from({ length: 11 }, (_, k) => along(((k + 1) * speed) / 12, speed))
-  const quarters = [15, 30, 45, 60].map(q => under(along((q * speed) / 60, speed), LANE, `${q} min`))
+  // The faint rider takes the whole hour, so the clock always runs to 60. Its
+  // numbers stand where the road's quarter-hour labels used to, which said
+  // the same thing less directly.
+  const time = clockFor(RIDE_MINUTES, 15, 'minutes', m === undefined ? undefined : 60, SEC_PER_MINUTE)
   const roads: Road[] = [
     { y: LANE, from: ROAD_FROM, to: ROAD_TO, faint: fives },
     { y: UPPER, from: ROAD_FROM, to: ROAD_TO, faint: fives },
@@ -289,7 +346,8 @@ function rideScene(speed: number, m: number | undefined): RenderedGrid {
         { road: LANE, frames: [[0, ROAD_FROM]], vehicle: 'bike' },
         { road: UPPER, frames: [[0, ROAD_FROM]], vehicle: 'bike', ghost: true },
       ],
-      labels: [hourLabel, ...quarters],
+      clock: time.clock,
+      labels: [hourLabel, ...time.labels],
     })
   }
   const d = (speed * m) / 60
@@ -306,8 +364,9 @@ function rideScene(speed: number, m: number | undefined): RenderedGrid {
       caption(LANE, m === 60
         ? `60 minutes = 1 hour: ${speed} km`
         : `${m} minutes = ${fracText(m, 60)} of an hour: ${one(d)} km`),
-      ...quarters,
+      ...time.labels,
     ],
+    clock: time.clock,
   })
 }
 
@@ -315,8 +374,11 @@ function rideScene(speed: number, m: number | undefined): RenderedGrid {
  * Section 3's graph, in MINUTES: the hour's line dashed, and the ride drawn
  * along it until it stops — read off both axes where it does.
  */
+/** Section 3's time axis, in minutes, on the graph and on the clock. */
+const RIDE_MINUTES: RenderedAxis = { min: 0, max: 60, step: 5, label: 'time (minutes)' }
+
 function rideGraph(speed: number, m: number | undefined): RenderedGrid {
-  const x: RenderedAxis = { min: 0, max: 60, step: 5, label: 'time (minutes)' }
+  const x = RIDE_MINUTES
   const y = kmAxis(speed)
   if (m === undefined) {
     return distanceTimeGrid({ x, y, traces: [{ points: [[0, 0], [60, speed]], style: 'dashed' }] })
@@ -334,6 +396,7 @@ function rideGraph(speed: number, m: number | undefined): RenderedGrid {
       { from: [m, 0], to: [m, d], appear: stop },
       { from: [0, d], to: [m, d], appear: stop },
     ],
+    now: clockFor(x, 15, 'minutes', 60, SEC_PER_MINUTE).now,
   })
 }
 
@@ -342,8 +405,12 @@ function rideGraph(speed: number, m: number | undefined): RenderedGrid {
  * whole trip at the AVERAGE speed in the lane above. They set off together and
  * get home together — which is what an average speed is.
  */
+/** Section 4's time axis: long enough for the slowest way home. */
+const tripHours = (each: number, out: number) => hoursAxis(each / out + each / 20, 1)
+
 function tripScene(each: number, out: number, back: number | undefined): RenderedGrid {
   const t1 = each / out
+  const time = clockFor(tripHours(each, out), 1, 'hours', back === undefined ? t1 : t1 + each / back, SEC_PER_HOUR_TRIP)
   const ends = [under(ROAD_FROM, LANE, 'home'), under(ROAD_TO, LANE, `town, ${each} km`)]
   const road: Road = { y: LANE, from: ROAD_FROM, to: ROAD_TO }
   if (back === undefined) {
@@ -352,7 +419,8 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
       y: AY_TWO_LANES,
       roads: [road],
       drives: [{ road: LANE, frames: [[0, ROAD_FROM], [t1 * SEC_PER_HOUR_TRIP, ROAD_TO]] }],
-      labels: [caption(LANE, `out at ${out} km/h`), ...ends],
+      clock: time.clock,
+      labels: [caption(LANE, `out at ${out} km/h`), ...ends, ...time.labels],
     })
   }
   const total = t1 + each / back
@@ -370,7 +438,9 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
       caption(LANE, `out at ${out} km/h, back at ${back} km/h`),
       caption(UPPER, `steady ${one(avg)} km/h (the dashed line)`),
       ...ends,
+      ...time.labels,
     ],
+    clock: time.clock,
   })
 }
 
@@ -381,7 +451,7 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
  */
 function tripGraph(each: number, out: number, drawn: readonly number[], current: number): RenderedGrid {
   const t1 = each / out
-  const x = hoursAxis(t1 + each / 20, 1)
+  const x = tripHours(each, out)
   const y = kmAxis(2 * each, 'distance driven (km)')
   const s = SEC_PER_HOUR_TRIP
   const back = drawn[current]
@@ -389,7 +459,7 @@ function tripGraph(each: number, out: number, drawn: readonly number[], current:
     .map(w => ({ points: [[0, 0], [t1, each], [t1 + each / w, 2 * each]], style: 'ghost' }))
   if (back === undefined) {
     traces.push({ points: [[0, 0], [t1, each]], times: [0, t1 * s], style: 'live' })
-    return distanceTimeGrid({ x, y, traces })
+    return distanceTimeGrid({ x, y, traces, now: clockFor(x, 1, 'hours', t1, s).now })
   }
   const total = t1 + each / back
   // Through the half-way point too, where the steady van turns at the town:
@@ -400,7 +470,7 @@ function tripGraph(each: number, out: number, drawn: readonly number[], current:
     style: 'dashed',
   })
   traces.push({ points: [[0, 0], [t1, each], [total, 2 * each]], times: [0, t1 * s, total * s], style: 'live' })
-  return distanceTimeGrid({ x, y, traces })
+  return distanceTimeGrid({ x, y, traces, now: clockFor(x, 1, 'hours', total, s).now })
 }
 
 // ─── Stage 1: distance in each hour ──────────────────────────────────────────
@@ -445,10 +515,11 @@ function stageEachHour(p: Params): Stage {
     control: {
       name: 'hours',
       verb: 'try',
-      scene: (drawn, current) => coachScene(distance, drawn, current),
-      render: (drawn, current) => coachGraph(distance, drawn, current),
-      prompt: `Keep the same ${distance} km, but take a different number of hours. Watch the `
-        + 'coach on the road, and how steep its line on the graph is.',
+      scene: (drawn, current, before) => coachScene(distance, drawn, current, before),
+      render: (drawn, current, before) => coachGraph(distance, drawn, current, before),
+      prompt: `Looking at that ${distance} km journey, what happens to the speed of the coach if `
+        + 'it takes different amounts of time? Try different values for the hours the journey '
+        + 'takes and watch the speed of the coach, and how steep its line on the graph is.',
       hint: 'Any whole number of hours from 1 to 6.',
       domain: { min: 1, max: 6, step: 1 },
       suggest: [2, 6],

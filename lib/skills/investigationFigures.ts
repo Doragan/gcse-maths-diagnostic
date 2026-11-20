@@ -483,6 +483,26 @@ export type Road = {
 }
 
 /**
+ * A strip under the road that keeps the time, ruled like the graph's time
+ * axis: a dot runs along it, filling it in behind, at the same steady rate the
+ * graph's time axis is crossed. The road shows how FAR, the strip how LONG —
+ * the two things the graph puts on its two axes — so the student can read the
+ * horizontal axis of the graph off the picture as well as the vertical one.
+ */
+export type Clock = {
+  y: number
+  from: number
+  to: number
+  /** Where to rule it, in axis x — the graph's time ticks, carried across. */
+  ticks: readonly number[]
+  /**
+   * [seconds, x] keyframes for the dot, the first at 0. Time does not stop
+   * while anything is still moving, so it runs until the last vehicle stops.
+   */
+  run: Drive['frames']
+}
+
+/**
  * The shapes of a vehicle, as offsets in VIEWBOX units from the centre of its
  * wheelbase at road level. Upward is positive: the group they land in is
  * flipped so axis y grows upward.
@@ -531,6 +551,7 @@ export function journeyScene(opts: {
   y: RenderedAxis
   roads: readonly Road[]
   drives: readonly Drive[]
+  clock?: Clock
   labels?: GridLabel[]
 }): RenderedGrid {
   const { x, y } = opts
@@ -558,6 +579,24 @@ export function journeyScene(opts: {
         + `stroke="${colors.primary}" stroke-opacity="0.9" stroke-width="${u(1.6)}"`
       parts.push(m.appear && m.appear > 0 ? `${open}>${fadeIn(m.appear)}</line>` : `${open}/>`)
     }
+  }
+
+  // After the roads: a reader of the first <line> finds a road, not the clock.
+  const c = opts.clock
+  if (c) {
+    parts.push(`<line data-clock="strip" x1="${n(c.from)}" y1="${c.y}" x2="${n(c.to)}" y2="${c.y}" `
+      + `stroke="currentColor" stroke-opacity="0.2" stroke-width="${u(2.5)}" stroke-linecap="round"/>`)
+    for (const t of c.ticks) {
+      parts.push(`<line x1="${n(t)}" y1="${n(c.y - u(3))}" x2="${n(t)}" y2="${n(c.y + u(3))}" `
+        + `stroke="currentColor" stroke-opacity="0.45" stroke-width="${u(1)}"/>`)
+    }
+    const [, at] = c.run[c.run.length - 1]
+    const go = moves(c.run)
+    const fill = `<line data-clock="fill" x1="${n(c.from)}" y1="${c.y}" x2="${n(at)}" y2="${c.y}" `
+      + `stroke="${colors.primary}" stroke-opacity="0.55" stroke-width="${u(2.5)}" stroke-linecap="round"`
+    parts.push(go ? `${fill}>${animate('x2', shifted(c.run, 0))}</line>` : `${fill}/>`)
+    const dot = `<circle data-clock="dot" cx="${n(at)}" cy="${c.y}" r="${u(4)}" fill="${colors.primary}"`
+    parts.push(go ? `${dot}>${animate('cx', shifted(c.run, 0))}</circle>` : `${dot}/>`)
   }
 
   for (const d of opts.drives) {
@@ -636,6 +675,12 @@ export function distanceTimeGrid(opts: {
   y: RenderedAxis
   traces: readonly Trace[]
   legs?: readonly MeasureLeg[]
+  /**
+   * [seconds, time] keyframes for a line standing up from the time axis at
+   * "now" — the scene's clock, on the graph. Where it crosses a line is where
+   * that journey is at that moment, faint ones included.
+   */
+  now?: readonly (readonly [number, number])[]
   labels?: GridLabel[]
 }): RenderedGrid {
   const { x, y } = opts
@@ -652,6 +697,16 @@ export function distanceTimeGrid(opts: {
     const open = `<line x1="${n(leg.from[0])}" y1="${n(leg.from[1])}" x2="${n(leg.to[0])}" y2="${n(leg.to[1])}" `
       + `stroke="currentColor" stroke-opacity="0.8" stroke-width="1.3" stroke-dasharray="3 2.5" ${NS}`
     parts.push(leg.appear && leg.appear > 0 ? `${open}>${fadeIn(leg.appear)}</line>` : `${open}/>`)
+  }
+
+  if (opts.now && opts.now.length > 0) {
+    const run = opts.now
+    const [, at] = run[run.length - 1]
+    const open = `<line data-now="" x1="${n(at)}" y1="${n(y.min)}" x2="${n(at)}" y2="${n(y.max)}" `
+      + `stroke="${colors.primary}" stroke-opacity="0.4" stroke-width="1.2" ${NS}`
+    parts.push(moves(run)
+      ? `${open}>${animate('x1', shifted(run, 0))}${animate('x2', shifted(run, 0))}</line>`
+      : `${open}/>`)
   }
 
   // Ghosts first, so the live line is drawn over them.

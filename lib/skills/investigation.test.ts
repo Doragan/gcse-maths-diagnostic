@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   allDraws, drawParams, resolveInvestigation, predictionCorrect, concludeGate,
-  rejectValue, addValue, sentenceState, checksAttempted, stageComplete, stepNumbers,
+  rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
 import { BLOOM_VERBS, NOT_MEASURABLE, bloomLevel } from './bloom'
@@ -396,6 +396,35 @@ describe('the drawn history', () => {
     // Otherwise the table shows a duplicate row and the coverage rule counts
     // a value it has already seen.
     expect(addValue([3, -2], 3)).toEqual({ drawn: [3, -2], current: 0 })
+  })
+
+  it('remembers the try LOOKED AT before this one, not the one typed last', () => {
+    // Tried 2, 6 and 4; went back to 2 (index 0), then on to 6 (index 1). The
+    // faint lane has to show 2 — reading "last" off the typing order showed 4.
+    const back = showTry([2, 6, 4], 2, 1, 0)
+    expect(back).toEqual({ current: 0, before: 2 })
+    expect(showTry([2, 6, 4], back.current, back.before, 1)).toEqual({ current: 1, before: 0 })
+  })
+
+  it('keeps what came before when nothing on screen changes', () => {
+    expect(showTry([2, 6], 1, 0, 1)).toEqual({ current: 1, before: 0 })
+  })
+
+  it('has nothing before the first try', () => {
+    expect(showTry([], 0, undefined, 0)).toEqual({ current: 0, before: undefined })
+  })
+
+  it('compares a new try with the one on screen when it was typed', () => {
+    // A new value is appended, so its index is past the end of the old history.
+    expect(showTry([2, 6, 4], 0, 2, 3)).toEqual({ current: 3, before: 0 })
+  })
+
+  it('shows the faint coach for the try looked at, in compound units', () => {
+    const [p] = allDraws(getInvestigation('compound_units')!.parameters)
+    const c = getInvestigation('compound_units')!.build(p)[0].control!
+    const words = (before: number) => (c.scene!([2, 6, 4], 1, before).labels ?? []).map(l => l.text).join(' | ')
+    expect(words(0)).toMatch(/last try: 2 hours/)
+    expect(words(2)).toMatch(/last try: 4 hours/)
   })
 })
 

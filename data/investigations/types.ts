@@ -102,7 +102,7 @@ export type Control = {
    * list — percentages, indices, proportion, sequences, the mean — could not
    * be expressed. A control with no `render` is tabulated and not drawn.
    */
-  render?: (drawn: readonly number[], current: number) => RenderedGrid
+  render?: (drawn: readonly number[], current: number, before?: number) => RenderedGrid
   /**
    * A second figure drawn ABOVE `render`, of the same value: the real thing
    * the graph is a record of — a car on a road above its distance–time graph.
@@ -111,8 +111,12 @@ export type Control = {
    * scene is only worth having when they do: a car that moves while the line
    * draws is the argument that the line's steepness IS the speed. A scene that
    * merely decorates belongs nowhere. Needs `render`.
+   *
+   * `before` (on both) is the index of the try shown just before this one —
+   * the one the student was looking at, which is not the same thing as the one
+   * typed last once they go back to an earlier try. Absent before a second.
    */
-  scene?: (drawn: readonly number[], current: number) => RenderedGrid
+  scene?: (drawn: readonly number[], current: number, before?: number) => RenderedGrid
   /**
    * What the student is doing, for the page's wording.
    *
