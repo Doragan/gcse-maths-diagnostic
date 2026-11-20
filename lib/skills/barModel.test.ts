@@ -18,7 +18,28 @@ import type { RenderedGrid } from '../questions/gridDraw'
 /** Every value worth drawing: the ends, the middle, and a few awkward ones. */
 const SAMPLE = [1, 2, 7, 10, 25, 33, 50, 67, 75, 90, 99, 100]
 
-const figures = () => {
+/**
+ * Rendered once, on first use, and shared by every test that reads it.
+ *
+ * Rendering is most of this file's time (~0.36ms a percentage change bar
+ * model, ~1,700 of them), and it is deterministic, so four tests each
+ * re-rendering the same figures bought nothing: each paid 0.75–1.2s alone.
+ * Same for the checks: an expect() costs ~20µs, so the loops collect problems
+ * and assert once (expectNone). Nothing is checked more thinly than before.
+ */
+const once = <T>(make: () => T) => {
+  let made: T | undefined
+  return () => (made ??= make())
+}
+
+const expectNone = (problems: string[]) => {
+  const cap = 40
+  expect(problems.length > cap
+    ? [...problems.slice(0, cap), `…and ${problems.length - cap} more`]
+    : problems).toEqual([])
+}
+
+const figures = once(() => {
   const out: { where: string; v: number; grid: RenderedGrid; stage: number }[] = []
   for (const p of allDraws(inv.parameters)) {
     inv.build(p).forEach((stage, i) => {
@@ -31,7 +52,7 @@ const figures = () => {
     })
   }
   return out
-}
+})
 
 /** A label's box in viewBox units, estimated the way the layout code places it. */
 const box = (grid: RenderedGrid, l: NonNullable<RenderedGrid['labels']>[number]) => {
@@ -41,11 +62,28 @@ const box = (grid: RenderedGrid, l: NonNullable<RenderedGrid['labels']>[number])
   return { x0: cx - labelHalfWidth(l.text), x1: cx + labelHalfWidth(l.text), y0: base - 9, y1: base + 2, W: geo.W, H: geo.H }
 }
 
+/** Every pair of labels whose boxes overlap, each box worked out once. */
+const overlaps = (where: string, grid: RenderedGrid): string[] => {
+  const ls = grid.labels ?? []
+  const bs = ls.map(l => box(grid, l))
+  const out: string[] = []
+  for (let a = 0; a < ls.length; a++) {
+    for (let b = a + 1; b < ls.length; b++) {
+      const p = bs[a]
+      const q = bs[b]
+      if (p.x0 < q.x1 && q.x0 < p.x1 && p.y0 < q.y1 && q.y0 < p.y1) {
+        out.push(`${where}: "${ls[a].text}" overlaps "${ls[b].text}"`)
+      }
+    }
+  }
+  return out
+}
+
 describe('every investigation’s bar models', () => {
   // The layout rules above, for EVERY investigation that draws on plain paper,
   // not just the one they were found on. Each control's whole domain where it
   // is short, its ends and every tenth where it is long.
-  const allBars = () => {
+  const allBars = once(() => {
     const out: { where: string; grid: RenderedGrid }[] = []
     // A section's figure is drawn from the numbers its question and prompt
     // show, so once per distinct pair: compound units reads one parameter per
@@ -73,25 +111,20 @@ describe('every investigation’s bar models', () => {
       }
     }
     return out
-  }
+  })
 
   it('keeps every label on the figure, and never on top of another', () => {
+    const problems: string[] = []
     for (const { where, grid } of allBars()) {
-      const ls = grid.labels ?? []
-      for (const l of ls) {
+      for (const l of grid.labels ?? []) {
         const b = box(grid, l)
-        expect(b.x0 >= 0 && b.x1 <= b.W && b.y0 >= 0 && b.y1 <= b.H, `${where}: "${l.text}" is off the figure`)
-          .toBe(true)
-      }
-      for (let a = 0; a < ls.length; a++) {
-        for (let b = a + 1; b < ls.length; b++) {
-          const p = box(grid, ls[a])
-          const q = box(grid, ls[b])
-          const overlap = p.x0 < q.x1 && q.x0 < p.x1 && p.y0 < q.y1 && q.y0 < p.y1
-          expect(overlap, `${where}: "${ls[a].text}" overlaps "${ls[b].text}"`).toBe(false)
+        if (!(b.x0 >= 0 && b.x1 <= b.W && b.y0 >= 0 && b.y1 <= b.H)) {
+          problems.push(`${where}: "${l.text}" is off the figure`)
         }
       }
+      problems.push(...overlaps(where, grid))
     }
+    expectNone(problems)
   })
 })
 
@@ -102,60 +135,61 @@ describe('percentage change bar models', () => {
   })
 
   it('keeps every label on the figure', () => {
+    const problems: string[] = []
     for (const { where, grid } of figures()) {
       for (const l of grid.labels ?? []) {
         const b = box(grid, l)
-        expect(b.x0, `${where}: "${l.text}" hangs off the left`).toBeGreaterThanOrEqual(0)
-        expect(b.x1, `${where}: "${l.text}" hangs off the right`).toBeLessThanOrEqual(b.W)
-        expect(b.y0, `${where}: "${l.text}" is above the figure`).toBeGreaterThanOrEqual(0)
-        expect(b.y1, `${where}: "${l.text}" is below the figure`).toBeLessThanOrEqual(b.H)
+        if (!(b.x0 >= 0)) problems.push(`${where}: "${l.text}" hangs off the left`)
+        if (!(b.x1 <= b.W)) problems.push(`${where}: "${l.text}" hangs off the right`)
+        if (!(b.y0 >= 0)) problems.push(`${where}: "${l.text}" is above the figure`)
+        if (!(b.y1 <= b.H)) problems.push(`${where}: "${l.text}" is below the figure`)
       }
     }
+    expectNone(problems)
   })
 
   it('never puts one label on top of another', () => {
-    for (const { where, grid } of figures()) {
-      const ls = grid.labels ?? []
-      for (let a = 0; a < ls.length; a++) {
-        for (let b = a + 1; b < ls.length; b++) {
-          const p = box(grid, ls[a])
-          const q = box(grid, ls[b])
-          const overlap = p.x0 < q.x1 && q.x0 < p.x1 && p.y0 < q.y1 && q.y0 < p.y1
-          expect(overlap, `${where}: "${ls[a].text}" overlaps "${ls[b].text}"`).toBe(false)
-        }
-      }
-    }
+    expectNone(figures().flatMap(({ where, grid }) => overlaps(where, grid)))
   })
 
   it('keeps the section 4 amounts clear of the dashed start line', () => {
+    const problems: string[] = []
     for (const { where, grid, stage } of figures()) {
       if (stage !== 3) continue
       const geo = gridGeometry(grid.x, grid.y)
       const line = geo.px(100)
       for (const l of grid.labels ?? []) {
         if (!/^[+−]£/.test(l.text)) continue
-        expect(box(grid, l).x0, `${where}: "${l.text}" crosses the line`).toBeGreaterThan(line)
+        if (!(box(grid, l).x0 > line)) problems.push(`${where}: "${l.text}" crosses the line`)
       }
     }
+    expectNone(problems)
   })
 
   it('shows more coming off than went on, to scale', () => {
     // The last section's whole argument, on the shapes: the piece removed from
     // the lower bar is longer than the piece added to the upper one, and the
     // lower bar ends short of where the upper one started.
+    const problems: string[] = []
     for (const { where, v, grid, stage } of figures()) {
       if (stage !== 3) continue
       const rects = [...grid.background.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)]
         .map(m => ({ x: +m[1], y: +m[2], w: +m[3] }))
-      const added = rects.find(r => r.y === 80 && r.x === 100)!
+      const added = rects.find(r => r.y === 80 && r.x === 100)
       // The lower bar's two pieces, in the order the layout draws them: what is
       // kept, then what is taken off. Not by position — after a 100% fall the
       // kept piece is empty and the removed one starts at 0 too.
       const [kept, removed] = rects.filter(r => r.y === 20)
-      expect(added.w, where).toBeCloseTo(v, 6)
-      expect(removed.w, `${where}: no more comes off than went on`).toBeGreaterThan(added.w)
-      expect(kept.w, `${where}: the lower bar reaches the start`).toBeLessThan(100)
+      if (!added || !kept || !removed) {
+        problems.push(`${where}: the added piece or a lower-bar piece is missing`)
+        continue
+      }
+      // toBeCloseTo(v, 6), as it was: within half of 10⁻⁶.
+      if (!(Math.abs(added.w - v) < 5e-7)) problems.push(`${where}: adds ${added.w}, not ${v}`)
+      if (!(removed.w > added.w)) problems.push(`${where}: no more comes off than went on`)
+      if (!(kept.w < 100)) problems.push(`${where}: the lower bar reaches the start`)
     }
+    expectNone(problems)
   })
 })
 

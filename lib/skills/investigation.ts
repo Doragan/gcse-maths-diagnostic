@@ -42,7 +42,19 @@ export function resolveInvestigation(
   inv: Investigation,
   random: () => number = Math.random,
 ): ResolvedInvestigation {
-  const params = drawParams(inv.parameters, random)
+  return resolveAt(inv, drawParams(inv.parameters, random))
+}
+
+/**
+ * The investigation at one draw already chosen: everything resolveInvestigation
+ * does after picking the numbers.
+ *
+ * Split out so the tests can walk every draw from one allDraws list. Reaching
+ * draw k through resolveInvestigation re-enumerates the whole space for each
+ * draw (drawParams calls allDraws), which made those walks quadratic: 720
+ * straight-line draws cost ~0.75s of enumeration alone.
+ */
+export function resolveAt(inv: Investigation, params: Params): ResolvedInvestigation {
   const seed = `${inv.skillId}|${JSON.stringify(params)}`
   return {
     skillId: inv.skillId,
