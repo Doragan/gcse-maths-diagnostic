@@ -2896,7 +2896,8 @@ export const OVERALL: MarkStats = {
  *
  * Method marks are what a real scheme awards for a sound approach behind a wrong
  * answer — the credit auto-grading is blind to. Note the 1-mark row: a one-mark
- * part never carries method marks, which is what makes the blind spot bounded.
+ * part is all but never method-marked (one coded part in 654, an OCR 'show that'
+ * worth a single M1), which is what makes the blind spot bounded.
  *
  * Only part sizes with at least 12 coded parts appear. Sizes above the
  * largest key are held at its rate by methodMarkShare(), so a thinly-sampled
@@ -2904,9 +2905,9 @@ export const OVERALL: MarkStats = {
  */
 export const METHOD_SHARE_BY_MARKS: Record<number, number> = {
  "1": 0,
- "2": 0.54,
- "3": 1,
- "4": 1.3,
- "5": 1.97,
- "6": 3.77
+ "2": 0.55,
+ "3": 1.48,
+ "4": 2.39,
+ "5": 3.38,
+ "6": 4.23
 }
