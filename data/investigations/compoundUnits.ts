@@ -298,13 +298,16 @@ function stageEachHour(p: Params): Stage {
       algebraLead: 'In symbols:',
       algebra: 'speed = {distance/time}',
     },
+    // A hint, not a definition: the unit IS the formula, which is the most
+    // useful thing to carry into an exam where the formula is not given.
     naming: {
-      term: 'km/h',
-      means: 'km/h is read "kilometres per hour". The slash is the per: how many kilometres '
-        + 'for each hour. A unit made from two others like this is a compound unit.',
-      elsewhere: 'Other compound units work the same way. A density in g/cm³ is grams for each '
-        + 'cubic centimetre, a price in £/kg is pounds for each kilogram, and a typing speed is '
-        + 'words per minute.',
+      label: 'Hint',
+      term: 'the unit tells you the formula',
+      means: 'km/h means kilometres ÷ hours — a distance divided by a time. So a speed in km/h '
+        + 'is distance ÷ time. If you forget the formula, read it off the unit.',
+      elsewhere: 'It works for every compound unit. Density in g/cm³ is grams ÷ cm³, so density '
+        + '= mass ÷ volume. A price in £/kg is pounds ÷ kilograms. And it works backwards to '
+        + 'check an answer: km/h × hours leaves km, so speed × time gives a distance.',
       onThePaper: 'A car travels 150 miles in 3 hours. Work out its average speed in miles per '
         + 'hour.',
     },
