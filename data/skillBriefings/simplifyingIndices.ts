@@ -163,22 +163,25 @@ export const simplifyingIndicesBriefing: SkillBriefing = {
       ],
     },
     {
-      do: 'Write it as one term: the number in front, the letter, and a single index.',
+      do: 'Write the answer with the number in front, then each base once with its own index.',
       because:
-        'The mark is for a simplified expression. Two terms still joined by a × sign is the '
+        'The mark is for a simplified expression. A base that still appears twice is the '
         + 'question copied out again.',
       watch:
-        'Stopping part way — 24 × a⁸ rather than 24a⁸, or leaving a⁵ × a³ untouched beside a '
-        + 'tidied number.',
+        'Stopping part way — leaving a⁵ × a³ untouched beside a tidied 24, or writing a base '
+        + 'twice, as in 24a⁵a³.',
       example: '24a⁸',
     },
   ],
 
   check: [
-    'Is the base in your answer the one you started with? The index changes; a stays a.',
-    'Try it on a tiny case. a² × a³ should give a⁵ — five a\'s written out. If your rule gives '
-      + 'a⁶, it is the rule that is wrong, not the case.',
-    'Is it one term, fully simplified? 24a⁸, not 24 × a⁸ and not 24a⁵a³.',
+    'Is the base in your answer the one you started with? The index (power) changes; a stays a.',
+    // A way to settle add-or-multiply when memory fails: write a small one out.
+    'Not sure whether the indices add or multiply? Write a small one out in full. a² × a³ is '
+      + '(a × a) × (a × a × a), which is five a\'s — a⁵, so the indices added.',
+    // Not "one term": 4c³ × 3d² finishes as 12c³d², which has two indices.
+    'Does each base appear only once, with its own index? 24a⁵a³ is not finished — the a\'s '
+      + 'still combine. 12c³d² is: c and d are different bases.',
   ],
 
   higher: {

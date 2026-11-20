@@ -947,8 +947,12 @@ export default function SkillBriefingPage() {
           </p>
         )}
         {g.steps.map((s, i) => {
-          const firstHigherStep = g.higherStepCount > 0
-            && i === g.steps.length - g.higherStepCount
+          const sharedCount = g.steps.length - g.higherStepCount
+          const firstHigherStep = g.higherStepCount > 0 && i === sharedCount
+          // Numbered within its own block. The Higher steps work a different
+          // question, and numbering them 4 and 5 after the Foundation 1–3 read
+          // as the same worked example carrying on.
+          const n = i < sharedCount ? i + 1 : i - sharedCount + 1
 
           // The section reveals in order: steps past the first unanswered
           // question are not rendered, because a method whose later steps are
@@ -962,14 +966,28 @@ export default function SkillBriefingPage() {
 
           return (
           <div key={i}>
-            {firstHigherStep && g.higherMethodExample && (
-              <p style={{ ...styles.methodRun, marginTop: 14 }}>
-                <span style={styles.methodRunLabel}>On Higher</span>
-                {g.higherMethodExample}
-              </p>
+            {firstHigherStep && (
+              // A break, not a banner in the middle of the list: a heading of
+              // its own, then the question this block works on.
+              <div style={styles.higherBreak}>
+                {/* Neutral on purpose. Most Higher blocks work a second
+                    question, but compound units and growth and decay add
+                    separate situations with no single question to carry
+                    them, and "a second kind of question" would be untrue. */}
+                <p style={styles.higherBreakTitle}>Also on Higher</p>
+                {g.higherMethodExample && (
+                  <p style={styles.methodRun}>
+                    <span style={styles.methodRunLabel}>Worked on</span>
+                    {g.higherMethodExample}
+                  </p>
+                )}
+              </div>
             )}
-            <div style={{ ...styles.step, borderTop: i === 0 ? 'none' : `1px solid ${colors.border}` }}>
-              {!(asking && options) && <div style={styles.stepN}>{i + 1}</div>}
+            <div style={{
+              ...styles.step,
+              borderTop: i === 0 || firstHigherStep ? 'none' : `1px solid ${colors.border}`,
+            }}>
+              {!(asking && options) && <div style={styles.stepN}>{n}</div>}
               {asking && options ? (
                 // Three options rather than "show me the next step". The
                 // distractors are what a candidate actually does — usually
@@ -977,10 +995,10 @@ export default function SkillBriefingPage() {
                 // one is a diagnosis rather than a guess.
                 <div style={styles.move}>
                   <p style={styles.moveLabel}>
-                    {i === 0 ? 'Before step 1' : `Before step ${i + 1}`}
+                    {`Before step ${n}`}
                   </p>
                   <p style={styles.moveQ}>
-                    {i === 0 ? 'What is the first move?' : 'What is the next move?'}
+                    {n === 1 ? 'What is the first move?' : 'What is the next move?'}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {options.map((o, k) => (
@@ -1740,6 +1758,18 @@ const styles: Record<string, React.CSSProperties> = {
     color: colors.textSecondary,
     fontStyle: 'italic',
     lineHeight: 1.5,
+  },
+  /** Where a single-method page's Higher steps begin: a section, not a banner. */
+  higherBreak: {
+    marginTop: '10px',
+    paddingTop: '16px',
+    borderTop: `2px solid ${colors.border}`,
+  },
+  higherBreakTitle: {
+    margin: 0,
+    fontSize: font.md,
+    fontWeight: '700',
+    color: colors.textPrimary,
   },
   step: { display: 'flex', gap: '12px', padding: '14px 0' },
   // Method on the left, the worked line on the right. One column on a
