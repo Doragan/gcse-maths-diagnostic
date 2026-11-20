@@ -456,8 +456,8 @@ export function barModelGrid(opts: {
 // animation here starts at 0 with its waits written into its key times (see
 // `animate`), and the page mounts both canvases in the same render.
 
-/** What drives along the road. A lorry and a van are drawn as a car here. */
-export type Vehicle = 'car' | 'bike'
+/** What drives along the road, drawn as what the words call it. */
+export type Vehicle = 'car' | 'lorry' | 'van' | 'bike'
 
 export type Drive = {
   /** The road it drives on: the y of the bottom of its wheels, in axis units. */
@@ -503,12 +503,14 @@ export type Clock = {
 }
 
 /**
- * The shapes of a vehicle, as offsets in VIEWBOX units from the centre of its
- * wheelbase at road level. Upward is positive: the group they land in is
- * flipped so axis y grows upward.
+ * The shapes of a vehicle FACING RIGHT, as offsets in VIEWBOX units from the
+ * centre of its wheelbase at road level — its first two wheels sit either side
+ * of 0. Upward is positive: the group they land in is flipped so axis y grows
+ * upward.
  *
- * Symmetric front to back on purpose, so one that drives out and comes home
- * again does not reverse into town.
+ * A lorry and a van have a front, so one that drives back the other way is
+ * drawn mirrored for that part of the journey (see `facings`): a van coming
+ * home from town does not reverse all the way.
  */
 type Part =
   | { kind: 'rect'; dx: number; y: number; w: number; h: number; style: 'body' | 'cabin' }
@@ -521,6 +523,23 @@ const VEHICLES: Record<Vehicle, readonly Part[]> = {
     { kind: 'rect', dx: -8, y: 9.5, w: 16, h: 6, style: 'cabin' },
     { kind: 'wheel', dx: -8, r: 3.2 },
     { kind: 'wheel', dx: 8, r: 3.2 },
+  ],
+  // A tall box at the back and a lower cab with a window at the front.
+  lorry: [
+    { kind: 'rect', dx: -17, y: 3.5, w: 23, h: 14, style: 'body' },
+    { kind: 'rect', dx: 7, y: 3.5, w: 10, h: 10, style: 'body' },
+    { kind: 'rect', dx: 11.5, y: 8.5, w: 4, h: 3.5, style: 'cabin' },
+    { kind: 'wheel', dx: -11, r: 3.2 },
+    { kind: 'wheel', dx: 11, r: 3.2 },
+    { kind: 'wheel', dx: -4.5, r: 3.2 },
+  ],
+  // One tall body with a short bonnet, and a window over the front wheel.
+  van: [
+    { kind: 'rect', dx: -15, y: 3, w: 25, h: 12, style: 'body' },
+    { kind: 'rect', dx: 8, y: 3, w: 8, h: 6.5, style: 'body' },
+    { kind: 'rect', dx: 3.5, y: 9, w: 5.5, h: 4.5, style: 'cabin' },
+    { kind: 'wheel', dx: -9, r: 3.2 },
+    { kind: 'wheel', dx: 9, r: 3.2 },
   ],
   bike: [
     { kind: 'wheel', dx: -8, r: 5, hollow: true },
@@ -537,7 +556,47 @@ const VEHICLES: Record<Vehicle, readonly Part[]> = {
 }
 
 /** Half a vehicle's length in viewBox units — for keeping one on the figure. */
-export const VEHICLE_HALF = 14
+export const VEHICLE_HALF = 17
+
+/** The ones with a front: drawn mirrored while they drive to the left. */
+const HAS_FRONT: Record<Vehicle, boolean> = { car: false, lorry: true, van: true, bike: false }
+
+/** A part facing left: the same shape, reflected through the wheelbase's centre. */
+function mirrored(p: Part): Part {
+  if (p.kind === 'rect') return { ...p, dx: -(p.dx + p.w) }
+  if (p.kind === 'wheel') return { ...p, dx: -p.dx }
+  return { ...p, x1: -p.x1, x2: -p.x2 }
+}
+
+/**
+ * Which way the vehicle faces, as one copy per direction it drives, each with
+ * the opacity keyframes that show it only while it is going that way. A
+ * vehicle that only ever goes one way is one copy, and nothing is animated.
+ *
+ * Every copy runs the same position keyframes, so whichever is showing is
+ * where the vehicle is; the switch is at the moment it turns.
+ */
+function facings(frames: Drive['frames'], hasFront: boolean): { dir: 1 | -1; show?: [number, number][] }[] {
+  const dirs: { at: number; dir: 1 | -1 }[] = []
+  for (let k = 0; k + 1 < frames.length; k++) {
+    const step = frames[k + 1][1] - frames[k][1]
+    if (Math.abs(step) < 1e-9) continue
+    const dir = step > 0 ? 1 : -1
+    if (dirs.length === 0 || dirs[dirs.length - 1].dir !== dir) dirs.push({ at: frames[k][0], dir })
+  }
+  if (!hasFront || dirs.length <= 1) return [{ dir: hasFront && dirs[0]?.dir === -1 ? -1 : 1 }]
+  const turns = dirs.slice(1)
+  return ([1, -1] as const).map(dir => {
+    const show: [number, number][] = [[0, dirs[0].dir === dir ? 1 : 0]]
+    let was = show[0][1]
+    for (const t of turns) {
+      const now = t.dir === dir ? 1 : 0
+      show.push([t.at, was], [t.at + 0.01, now])
+      was = now
+    }
+    return { dir, show }
+  })
+}
 
 /** The x keyframes shifted by an offset, as `animate` takes them. */
 const shifted = (frames: Drive['frames'], dx: number): [number, number][] =>
@@ -607,24 +666,32 @@ export function journeyScene(opts: {
     const cabinOp = d.ghost ? 0.15 : 0.45
     const dash = d.ghost ? ` stroke-dasharray="${u(2.5)} ${u(2)}"` : ''
     const ink = `stroke="currentColor" stroke-opacity="${d.ghost ? 0.6 : 0.9}" stroke-width="${u(1.2)}"${dash}`
-    for (const p of VEHICLES[d.vehicle ?? 'car']) {
-      if (p.kind === 'rect') {
-        const op = p.style === 'body' ? fillOp : cabinOp
-        const open = `<rect data-drive="${who}" x="${n(end + u(p.dx))}" `
-          + `y="${n(d.road + u(p.y))}" width="${u(p.w)}" height="${u(p.h)}" rx="${u(2)}" `
-          + `fill="${colors.primary}" fill-opacity="${op}" ${ink}`
-        parts.push(go ? `${open}>${animate('x', shifted(d.frames, u(p.dx)))}</rect>` : `${open}/>`)
-      } else if (p.kind === 'wheel') {
-        const fill = p.hollow ? 'fill="none"' : `fill="currentColor" fill-opacity="${d.ghost ? 0.3 : 0.85}"`
-        const open = `<circle data-drive="${who}" cx="${n(end + u(p.dx))}" cy="${n(d.road + u(p.r))}" r="${u(p.r)}" ${fill} ${ink}`
-        parts.push(go ? `${open}>${animate('cx', shifted(d.frames, u(p.dx)))}</circle>` : `${open}/>`)
-      } else {
-        const open = `<line data-drive="${who}" x1="${n(end + u(p.x1))}" y1="${n(d.road + u(p.y1))}" `
-          + `x2="${n(end + u(p.x2))}" y2="${n(d.road + u(p.y2))}" stroke="${colors.primary}" `
-          + `stroke-opacity="${d.ghost ? 0.55 : 0.95}" stroke-width="${u(1.6)}" stroke-linecap="round"${dash}`
-        parts.push(go
-          ? `${open}>${animate('x1', shifted(d.frames, u(p.x1)))}${animate('x2', shifted(d.frames, u(p.x2)))}</line>`
-          : `${open}/>`)
+    const kind = d.vehicle ?? 'car'
+    for (const copy of facings(d.frames, HAS_FRONT[kind])) {
+      // Shown only while it drives this way. The attribute is where it ENDS,
+      // like every other here, so the still picture faces the last way it went.
+      const shown = copy.show ? copy.show[copy.show.length - 1][1] : 1
+      const hide = shown === 0 ? ' opacity="0"' : ''
+      const flip = copy.show ? animate('opacity', copy.show) : ''
+      for (const p of VEHICLES[kind].map(q => (copy.dir === 1 ? q : mirrored(q)))) {
+        if (p.kind === 'rect') {
+          const op = p.style === 'body' ? fillOp : cabinOp
+          const open = `<rect data-drive="${who}" x="${n(end + u(p.dx))}" `
+            + `y="${n(d.road + u(p.y))}" width="${u(p.w)}" height="${u(p.h)}" rx="${u(2)}" `
+            + `fill="${colors.primary}" fill-opacity="${op}" ${ink}${hide}`
+          parts.push(go ? `${open}>${animate('x', shifted(d.frames, u(p.dx)))}${flip}</rect>` : `${open}/>`)
+        } else if (p.kind === 'wheel') {
+          const fill = p.hollow ? 'fill="none"' : `fill="currentColor" fill-opacity="${d.ghost ? 0.3 : 0.85}"`
+          const open = `<circle data-drive="${who}" cx="${n(end + u(p.dx))}" cy="${n(d.road + u(p.r))}" r="${u(p.r)}" ${fill} ${ink}${hide}`
+          parts.push(go ? `${open}>${animate('cx', shifted(d.frames, u(p.dx)))}${flip}</circle>` : `${open}/>`)
+        } else {
+          const open = `<line data-drive="${who}" x1="${n(end + u(p.x1))}" y1="${n(d.road + u(p.y1))}" `
+            + `x2="${n(end + u(p.x2))}" y2="${n(d.road + u(p.y2))}" stroke="${colors.primary}" `
+            + `stroke-opacity="${d.ghost ? 0.55 : 0.95}" stroke-width="${u(1.6)}" stroke-linecap="round"${dash}${hide}`
+          parts.push(go
+            ? `${open}>${animate('x1', shifted(d.frames, u(p.x1)))}${animate('x2', shifted(d.frames, u(p.x2)))}${flip}</line>`
+            : `${open}/>`)
+        }
       }
     }
   }

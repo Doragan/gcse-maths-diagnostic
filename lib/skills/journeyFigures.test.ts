@@ -143,7 +143,14 @@ describe('the road and the graph run on one clock', () => {
           for (const a of el[3].matchAll(/<animate attributeName="(\w+)"[^>]*values="([^"]+)"/g)) {
             const [, attr, values] = a
             const last = Number(values.split(';').at(-1))
-            if (attr === 'opacity') { expect(last, where).toBe(1); continue }
+            if (attr === 'opacity') {
+              // Most fade IN and end visible; a vehicle's outward-facing copy
+              // ends hidden once it has turned for home, and says so. Not
+              // \bopacity: that would find fill-opacity.
+              const own = el[2].match(/(?:^|\s)opacity="([^"]+)"/)
+              expect(last, `${where}: <${el[1]}> ends at opacity ${last}`).toBe(own ? Number(own[1]) : 1)
+              continue
+            }
             const own = el[2].match(new RegExp(`\\b${attr}="([^"]+)"`))
             expect(own, `${where}: <${el[1]}> animates ${attr} it does not have`).not.toBeNull()
             expect(Number(own![1]), `${where}: <${el[1]}> ${attr} ends somewhere else`).toBeCloseTo(last, 3)
@@ -311,6 +318,48 @@ describe('section 3: a fraction of the hour is that fraction of the distance', (
       const d = (speed * m) / 60
       expect(words.join(' | '), where).toMatch(m === 60 ? `the whole ${speed} km` : `= ${d} km`)
     }
+  })
+})
+
+describe('which way a vehicle faces', () => {
+  const AX = { min: 0, max: 60, step: 6, label: '' }
+  const AY = { min: 0, max: 12, step: 6, label: '' }
+  const out = [[0, 4], [1, 56], [2, 4]] as const
+
+  it('turns a van round at the town, so it does not reverse home', () => {
+    const g = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: out, vehicle: 'van' }] })
+    // Two copies of every part: one facing out, one facing home.
+    const bodies = [...g.background.matchAll(/<rect data-drive="live"[^>]*>(.*?)<\/rect>/g)]
+    expect(bodies).toHaveLength(6)
+    const shows = bodies.map(b => b[1].match(/attributeName="opacity"[^>]*values="([^"]+)"[^>]*keyTimes="([^"]+)"/)!)
+    // Facing out until the turn at 1 s, then facing home; never both at once.
+    const out1 = shows.filter(s => s[1] === '1;1;0')
+    const home = shows.filter(s => s[1] === '0;0;1')
+    expect(out1).toHaveLength(3)
+    expect(home).toHaveLength(3)
+    for (const s of shows) expect(Number(s[2].split(';')[1]) * 1.01).toBeCloseTo(1, 3)
+  })
+
+  it('draws the copy facing home as the mirror of the one facing out', () => {
+    const g = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: out, vehicle: 'van' }] })
+    const wheels = [...g.background.matchAll(/<circle data-drive="live" cx="([\d.]+)"/g)].map(m => Number(m[1]))
+    // Both copies end at home (x = 4), with their wheels either side of it.
+    expect(wheels.slice(0, 2).map(w => +(w - 4).toFixed(3)).sort()).toEqual(wheels.slice(2).map(w => +(w - 4).toFixed(3)).sort())
+    // The van's front is its bonnet: right of the wheelbase going out, left coming home.
+    const xs = [...g.background.matchAll(/<rect data-drive="live" x="([\d.-]+)" y="[\d.-]+" width="([\d.]+)"/g)]
+      .map(m => [Number(m[1]) - 4, Number(m[2])])
+    const reach = (r: number[][]) => [Math.min(...r.map(([x]) => x)), Math.max(...r.map(([x, w]) => x + w))]
+    const [lo1, hi1] = reach(xs.slice(0, 3))
+    const [lo2, hi2] = reach(xs.slice(3))
+    expect(lo2).toBeCloseTo(-hi1, 3)
+    expect(hi2).toBeCloseTo(-lo1, 3)
+  })
+
+  it('leaves a lorry going one way, and a car either way, as one copy', () => {
+    const lorry = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: [[0, 4], [1, 56]], vehicle: 'lorry' }] })
+    expect(lorry.background).not.toMatch(/attributeName="opacity"/)
+    const car = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: out }] })
+    expect(car.background).not.toMatch(/attributeName="opacity"/)
   })
 })
 

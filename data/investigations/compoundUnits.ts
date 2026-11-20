@@ -277,7 +277,7 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
       x: AX_ROAD,
       y: AY_ONE_LANE,
       roads: [road],
-      drives: [{ road: LANE, frames: [[0, ROAD_FROM]] }],
+      drives: [{ road: LANE, frames: [[0, ROAD_FROM]], vehicle: 'lorry' }],
       clock: time.clock,
       labels: [caption(LANE, `${speed} km/h`), ...ruler, ...time.labels],
     })
@@ -289,7 +289,7 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
       ...road,
       marks: Array.from({ length: v }, (_, k) => ({ x: along((k + 1) * speed, full), appear: (k + 1) * SEC_PER_HOUR })),
     }],
-    drives: [{ road: LANE, frames: [[0, ROAD_FROM], [v * SEC_PER_HOUR, along(v * speed, full)]] }],
+    drives: [{ road: LANE, frames: [[0, ROAD_FROM], [v * SEC_PER_HOUR, along(v * speed, full)]], vehicle: 'lorry' }],
     clock: time.clock,
     labels: [caption(LANE, `${hours(v)} at ${speed} km/h: ${v} × ${speed} = ${v * speed} km`), ...ruler, ...time.labels],
   })
@@ -396,7 +396,7 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
       x: AX_ROAD,
       y: AY_TWO_LANES,
       roads: [road],
-      drives: [{ road: LANE, frames: [[0, ROAD_FROM], [t1 * SEC_PER_HOUR_TRIP, ROAD_TO]] }],
+      drives: [{ road: LANE, frames: [[0, ROAD_FROM], [t1 * SEC_PER_HOUR_TRIP, ROAD_TO]], vehicle: 'van' }],
       clock: time.clock,
       labels: [caption(LANE, `out at ${out} km/h`), ...ends, ...time.labels],
     })
@@ -409,8 +409,8 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
     y: AY_TWO_LANES,
     roads: [road, { y: UPPER, from: ROAD_FROM, to: ROAD_TO }],
     drives: [
-      { road: LANE, frames: [[0, ROAD_FROM], [t1 * s, ROAD_TO], [total * s, ROAD_FROM]] },
-      { road: UPPER, frames: [[0, ROAD_FROM], [(total / 2) * s, ROAD_TO], [total * s, ROAD_FROM]], ghost: true },
+      { road: LANE, frames: [[0, ROAD_FROM], [t1 * s, ROAD_TO], [total * s, ROAD_FROM]], vehicle: 'van' },
+      { road: UPPER, frames: [[0, ROAD_FROM], [(total / 2) * s, ROAD_TO], [total * s, ROAD_FROM]], vehicle: 'van', ghost: true },
     ],
     labels: [
       caption(LANE, `out at ${out} km/h, back at ${back} km/h`),
