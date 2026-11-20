@@ -104,6 +104,16 @@ export type Control = {
    */
   render?: (drawn: readonly number[], current: number) => RenderedGrid
   /**
+   * A second figure drawn ABOVE `render`, of the same value: the real thing
+   * the graph is a record of — a car on a road above its distance–time graph.
+   *
+   * The two are mounted together, so their animations share a clock, and the
+   * scene is only worth having when they do: a car that moves while the line
+   * draws is the argument that the line's steepness IS the speed. A scene that
+   * merely decorates belongs nowhere. Needs `render`.
+   */
+  scene?: (drawn: readonly number[], current: number) => RenderedGrid
+  /**
    * What the student is doing, for the page's wording.
    *
    * 'draw' — the default when there is a `render` — is plotting lines that

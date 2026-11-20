@@ -621,6 +621,22 @@ export default function InvestigatePage() {
 
                       {/* A table-native investigation draws nothing: the
                           numbers in the table ARE the observation. */}
+                      {/* The scene and its graph, keyed alike so they are
+                          mounted in the same render: every animation starts
+                          at 0, so mounting together is what keeps the car on
+                          the road and the dot on the line in step. */}
+                      {!stage.control.pick && stage.control.render && stage.control.scene && (
+                        <figure style={styles.figure}>
+                          <GridCanvas
+                            key={`scene:${i}:${st.current}:${st.drawn[st.current] ?? '-'}`}
+                            grid={reduceMotion
+                              ? still(stage.control.scene(st.drawn, st.current))
+                              : stage.control.scene(st.drawn, st.current)}
+                            value={[]}
+                            readOnly
+                          />
+                        </figure>
+                      )}
                       {!stage.control.pick && stage.control.render && (
                         <figure style={styles.figure}>
                           <GridCanvas

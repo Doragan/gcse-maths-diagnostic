@@ -442,3 +442,262 @@ export function barModelGrid(opts: {
     tolerance: 0.25,
   }
 }
+
+// ─── Journeys: a road with a vehicle on it, and its distance–time graph ─────
+//
+// Two figures for one journey, run on ONE clock: a vehicle driving along a
+// road, and a dot drawing that journey's line on a distance–time graph. Every
+// keyframe of the vehicle has a matching keyframe on the graph, so the car
+// pulling away and the line climbing steeply are visibly the same event — the
+// graph stops being a picture about speed and becomes a recording of one.
+//
+// The two are separate RenderedGrids, drawn by separate canvases, because the
+// road is plain paper and the graph is not. They stay in step because every
+// animation here starts at 0 with its waits written into its key times (see
+// `animate`), and the page mounts both canvases in the same render.
+
+/** What drives along the road. A coach, a lorry and a van are all a car here. */
+export type Vehicle = 'car' | 'bike'
+
+export type Drive = {
+  /** The road it drives on: the y of the bottom of its wheels, in axis units. */
+  road: number
+  /**
+   * [seconds, x] keyframes, the first at 0 seconds. The vehicle's centre moves
+   * in straight lines between them, and stays at the last.
+   */
+  frames: readonly (readonly [number, number])[]
+  vehicle?: Vehicle
+  /** Faded and dashed: something to compare with, not the one being tried. */
+  ghost?: boolean
+}
+
+export type Road = {
+  y: number
+  from: number
+  to: number
+  /** Marks dropped onto the road, each fading in when `appear` comes round. */
+  marks?: readonly { x: number; appear?: number }[]
+  /** Faint marks that are there from the start: a scale to read against. */
+  faint?: readonly number[]
+}
+
+/**
+ * The shapes of a vehicle, as offsets in VIEWBOX units from the centre of its
+ * wheelbase at road level. Upward is positive: the group they land in is
+ * flipped so axis y grows upward.
+ *
+ * Symmetric front to back on purpose, so one that drives out and comes home
+ * again does not reverse into town.
+ */
+type Part =
+  | { kind: 'rect'; dx: number; y: number; w: number; h: number; style: 'body' | 'cabin' }
+  | { kind: 'wheel'; dx: number; r: number; hollow?: boolean }
+  | { kind: 'bar'; x1: number; y1: number; x2: number; y2: number }
+
+const VEHICLES: Record<Vehicle, readonly Part[]> = {
+  car: [
+    { kind: 'rect', dx: -14, y: 3, w: 28, h: 7.5, style: 'body' },
+    { kind: 'rect', dx: -8, y: 9.5, w: 16, h: 6, style: 'cabin' },
+    { kind: 'wheel', dx: -8, r: 3.2 },
+    { kind: 'wheel', dx: 8, r: 3.2 },
+  ],
+  bike: [
+    { kind: 'wheel', dx: -8, r: 5, hollow: true },
+    { kind: 'wheel', dx: 8, r: 5, hollow: true },
+    { kind: 'bar', x1: -8, y1: 5, x2: 0, y2: 5 },
+    { kind: 'bar', x1: 0, y1: 5, x2: 5, y2: 11 },
+    { kind: 'bar', x1: -8, y1: 5, x2: -2, y2: 11 },
+    { kind: 'bar', x1: -2, y1: 11, x2: 5, y2: 11 },
+    { kind: 'bar', x1: 0, y1: 5, x2: -2, y2: 11 },
+    { kind: 'bar', x1: 5, y1: 11, x2: 8, y2: 5 },
+    { kind: 'bar', x1: 5, y1: 11, x2: 6, y2: 15 },
+    { kind: 'bar', x1: -4, y1: 12.5, x2: 0, y2: 12.5 },
+  ],
+}
+
+/** Half a vehicle's length in viewBox units — for keeping one on the figure. */
+export const VEHICLE_HALF = 14
+
+/** The x keyframes shifted by an offset, as `animate` takes them. */
+const shifted = (frames: Drive['frames'], dx: number): [number, number][] =>
+  frames.map(([t, x]) => [t, x + dx])
+
+/** A frame list that actually moves — `animate` divides by its last time. */
+const moves = (frames: Drive['frames']) => frames.length > 1 && frames[frames.length - 1][0] > 0
+
+export function journeyScene(opts: {
+  x: RenderedAxis
+  y: RenderedAxis
+  roads: readonly Road[]
+  drives: readonly Drive[]
+  labels?: GridLabel[]
+}): RenderedGrid {
+  const { x, y } = opts
+  if (x.step !== y.step) {
+    throw new Error(`a journey scene needs matching steps, got x ${x.step} and y ${y.step}`)
+  }
+  const u = (vb: number) => +(vb * x.step / CELL).toFixed(4)
+  const n = (v: number) => +v.toFixed(4)
+  const parts: string[] = []
+
+  for (const r of opts.roads) {
+    parts.push(`<line x1="${n(r.from)}" y1="${r.y}" x2="${n(r.to)}" y2="${r.y}" stroke="currentColor" `
+      + `stroke-opacity="0.3" stroke-width="${u(3)}" stroke-linecap="round"/>`)
+    // A post at each end: where it sets off and where it is going.
+    for (const end of [r.from, r.to]) {
+      parts.push(`<line x1="${n(end)}" y1="${n(r.y - u(4))}" x2="${n(end)}" y2="${n(r.y + u(4))}" `
+        + `stroke="currentColor" stroke-opacity="0.7" stroke-width="${u(1.4)}"/>`)
+    }
+    for (const f of r.faint ?? []) {
+      parts.push(`<line x1="${n(f)}" y1="${n(r.y - u(2.5))}" x2="${n(f)}" y2="${n(r.y + u(2.5))}" `
+        + `stroke="currentColor" stroke-opacity="0.3" stroke-width="${u(1)}"/>`)
+    }
+    for (const m of r.marks ?? []) {
+      const open = `<line x1="${n(m.x)}" y1="${n(r.y - u(5))}" x2="${n(m.x)}" y2="${n(r.y + u(5))}" `
+        + `stroke="${colors.primary}" stroke-opacity="0.9" stroke-width="${u(1.6)}"`
+      parts.push(m.appear && m.appear > 0 ? `${open}>${fadeIn(m.appear)}</line>` : `${open}/>`)
+    }
+  }
+
+  for (const d of opts.drives) {
+    const [, end] = d.frames[d.frames.length - 1]
+    const go = moves(d.frames)
+    const who = d.ghost ? 'ghost' : 'live'
+    const fillOp = d.ghost ? 0.25 : 0.85
+    const cabinOp = d.ghost ? 0.15 : 0.45
+    const dash = d.ghost ? ` stroke-dasharray="${u(2.5)} ${u(2)}"` : ''
+    const ink = `stroke="currentColor" stroke-opacity="${d.ghost ? 0.6 : 0.9}" stroke-width="${u(1.2)}"${dash}`
+    for (const p of VEHICLES[d.vehicle ?? 'car']) {
+      if (p.kind === 'rect') {
+        const op = p.style === 'body' ? fillOp : cabinOp
+        const open = `<rect data-drive="${who}" x="${n(end + u(p.dx))}" `
+          + `y="${n(d.road + u(p.y))}" width="${u(p.w)}" height="${u(p.h)}" rx="${u(2)}" `
+          + `fill="${colors.primary}" fill-opacity="${op}" ${ink}`
+        parts.push(go ? `${open}>${animate('x', shifted(d.frames, u(p.dx)))}</rect>` : `${open}/>`)
+      } else if (p.kind === 'wheel') {
+        const fill = p.hollow ? 'fill="none"' : `fill="currentColor" fill-opacity="${d.ghost ? 0.3 : 0.85}"`
+        const open = `<circle data-drive="${who}" cx="${n(end + u(p.dx))}" cy="${n(d.road + u(p.r))}" r="${u(p.r)}" ${fill} ${ink}`
+        parts.push(go ? `${open}>${animate('cx', shifted(d.frames, u(p.dx)))}</circle>` : `${open}/>`)
+      } else {
+        const open = `<line data-drive="${who}" x1="${n(end + u(p.x1))}" y1="${n(d.road + u(p.y1))}" `
+          + `x2="${n(end + u(p.x2))}" y2="${n(d.road + u(p.y2))}" stroke="${colors.primary}" `
+          + `stroke-opacity="${d.ghost ? 0.55 : 0.95}" stroke-width="${u(1.6)}" stroke-linecap="round"${dash}`
+        parts.push(go
+          ? `${open}>${animate('x1', shifted(d.frames, u(p.x1)))}${animate('x2', shifted(d.frames, u(p.x2)))}</line>`
+          : `${open}/>`)
+      }
+    }
+  }
+
+  return {
+    mode: 'points',
+    x,
+    y,
+    background: parts.join(''),
+    labels: opts.labels ?? [],
+    showAxes: false,
+    showGrid: false,
+    elements: [],
+    tolerance: 0.25,
+  }
+}
+
+/** One line on a distance–time graph. */
+export type Trace = {
+  points: readonly (readonly [number, number])[]
+  /**
+   * Seconds at which the journey reaches each point. Given, the line is drawn
+   * AS the journey happens — on the same clock as the vehicle on the road —
+   * with a dot at its leading end. Absent, the line is simply there.
+   */
+  times?: readonly number[]
+  /** live: the journey being tried. ghost: one tried earlier. dashed: a comparison. */
+  style: 'live' | 'ghost' | 'dashed'
+}
+
+/** A dashed measuring leg — "1 hour across, 40 km up" — fading in when its time comes. */
+export type MeasureLeg = {
+  from: readonly [number, number]
+  to: readonly [number, number]
+  appear?: number
+}
+
+/**
+ * A distance–time graph, ruled and numbered.
+ *
+ * Its axes have different steps (hours against kilometres), so nothing here
+ * can be drawn with widths in axis units the way the bar models are: every
+ * stroke is `non-scaling-stroke` in viewBox units, and the dot is an ellipse
+ * whose radii undo the two scales so it lands on screen as a circle.
+ */
+export function distanceTimeGrid(opts: {
+  x: RenderedAxis
+  y: RenderedAxis
+  traces: readonly Trace[]
+  legs?: readonly MeasureLeg[]
+  labels?: GridLabel[]
+}): RenderedGrid {
+  const { x, y } = opts
+  const n = (v: number) => +v.toFixed(4)
+  const NS = 'vector-effect="non-scaling-stroke"'
+  const STYLE: Record<Trace['style'], string> = {
+    live: `stroke="${colors.primary}" stroke-width="2.5" stroke-linecap="round" fill="none" ${NS}`,
+    ghost: `stroke="currentColor" stroke-opacity="0.3" stroke-width="1.5" fill="none" ${NS}`,
+    dashed: `stroke="currentColor" stroke-opacity="0.6" stroke-width="1.5" stroke-dasharray="5 4" fill="none" ${NS}`,
+  }
+  const parts: string[] = []
+
+  for (const leg of opts.legs ?? []) {
+    const open = `<line x1="${n(leg.from[0])}" y1="${n(leg.from[1])}" x2="${n(leg.to[0])}" y2="${n(leg.to[1])}" `
+      + `stroke="currentColor" stroke-opacity="0.8" stroke-width="1.3" stroke-dasharray="3 2.5" ${NS}`
+    parts.push(leg.appear && leg.appear > 0 ? `${open}>${fadeIn(leg.appear)}</line>` : `${open}/>`)
+  }
+
+  // Ghosts first, so the live line is drawn over them.
+  const order = { ghost: 0, dashed: 1, live: 2 } as const
+  const dots: string[] = []
+  for (const tr of [...opts.traces].sort((a, b) => order[a.style] - order[b.style])) {
+    const pts = tr.points
+    const times = tr.times
+    for (let k = 0; k + 1 < pts.length; k++) {
+      const [x1, y1] = pts[k]
+      const [x2, y2] = pts[k + 1]
+      const open = `<line data-trace="${tr.style}" x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" ${STYLE[tr.style]}`
+      if (!times) { parts.push(`${open}/>`); continue }
+      const t0 = times[k]
+      const t1 = times[k + 1]
+      // Zero length until the journey gets here, then growing with it. A later
+      // segment is also hidden until then: a round cap on a zero-length line
+      // is a dot, which would mark the turning point before the van got there.
+      const grow = (a: number, b: number): [number, number][] => (t0 > 0 ? [[0, a], [t0, a], [t1, b]] : [[0, a], [t1, b]])
+      const anims = [animate('x2', grow(x1, x2)), animate('y2', grow(y1, y2))]
+      if (t0 > 0) anims.push(animate('opacity', [[0, 0], [t0, 0], [t0 + 0.01, 1]]))
+      parts.push(`${open}>${anims.join('')}</line>`)
+    }
+    if (times) {
+      const R = 4.5
+      const rx = n(R * x.step / CELL)
+      const ry = n(R * y.step / CELL)
+      const [ex, ey] = pts[pts.length - 1]
+      const keys = (i: 0 | 1): [number, number][] => pts.map((p, k) => [times[k], p[i]])
+      const fill = tr.style === 'live'
+        ? `fill="${colors.primary}"`
+        : 'fill="currentColor" fill-opacity="0.45"'
+      dots.push(`<ellipse data-dot="${tr.style}" cx="${n(ex)}" cy="${n(ey)}" rx="${rx}" ry="${ry}" ${fill}>`
+        + `${animate('cx', keys(0))}${animate('cy', keys(1))}</ellipse>`)
+    }
+  }
+  // Dots last, over every line; the live one last of all.
+  parts.push(...dots)
+
+  return {
+    mode: 'points',
+    x,
+    y,
+    background: parts.join(''),
+    labels: opts.labels ?? [],
+    elements: [],
+    tolerance: 0.25,
+  }
+}
