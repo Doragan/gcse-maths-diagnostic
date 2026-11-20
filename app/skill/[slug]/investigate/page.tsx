@@ -9,7 +9,7 @@ import { skillsById } from '../../../../lib/skills/skillGraph'
 import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
-  resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue,
+  resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry,
   sentenceState, stageComplete, stepNumbers,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
@@ -130,6 +130,8 @@ type StageState = {
   /** What is on the grid, for a control the student taps rather than types. */
   pickedPoints: GridPoint[]
   current: number
+  /** The try shown before `current`, for a figure that compares with it (showTry). */
+  before?: number
   entryError: string
   typed: string
   slots: Record<number, number>
@@ -273,6 +275,7 @@ export default function InvestigatePage() {
       pickedPoints: onLine,
       drawn: onLine.map(pt => pt.x),
       current: Math.max(0, onLine.length - 1),
+      before: undefined,
       entryError: missed ? pick.offLine : '',
     })
     if (!missed && onLine.length > st(i).drawn.length) {
@@ -292,7 +295,7 @@ export default function InvestigatePage() {
     const st = states[i]
     const next = addValue(st.drawn, v)
     const isNew = next.drawn.length > st.drawn.length
-    update(i, { ...next, entryError: '', typed: '' })
+    update(i, { ...next, ...showTry(st.drawn, st.current, st.before, next.current), entryError: '', typed: '' })
     if (isNew) {
       trackEvent('investigation_draw', {
         skill: resolved!.skillId, stage: i + 1, control: stage.control?.name, value: v,
@@ -604,7 +607,7 @@ export default function InvestigatePage() {
                                 borderColor: k === st.current ? colors.primary : colors.border,
                                 color: k === st.current ? colors.primary : colors.textSecondary,
                               }}
-                              onClick={() => update(i, { current: k })}
+                              onClick={() => update(i, showTry(st.drawn, st.current, st.before, k))}
                             >
                               {stage.control!.label(v)}
                             </button>
@@ -632,10 +635,10 @@ export default function InvestigatePage() {
                       {!stage.control.pick && stage.control.render && stage.control.scene && (
                         <figure style={styles.figure}>
                           <GridCanvas
-                            key={`scene:${i}:${st.current}:${st.drawn[st.current] ?? '-'}`}
+                            key={`scene:${i}:${st.current}:${st.before ?? '-'}:${st.drawn[st.current] ?? '-'}`}
                             grid={reduceMotion
-                              ? still(stage.control.scene(st.drawn, st.current))
-                              : stage.control.scene(st.drawn, st.current)}
+                              ? still(stage.control.scene(st.drawn, st.current, st.before))
+                              : stage.control.scene(st.drawn, st.current, st.before)}
                             value={[]}
                             readOnly
                           />
@@ -648,10 +651,10 @@ export default function InvestigatePage() {
                             // animations run on its own clock, which starts
                             // when the canvas is created — so without this, a
                             // bar tried second would already be finished.
-                            key={`${i}:${st.current}:${st.drawn[st.current] ?? '-'}`}
+                            key={`${i}:${st.current}:${st.before ?? '-'}:${st.drawn[st.current] ?? '-'}`}
                             grid={reduceMotion
-                              ? still(stage.control.render(st.drawn, st.current))
-                              : stage.control.render(st.drawn, st.current)}
+                              ? still(stage.control.render(st.drawn, st.current, st.before))
+                              : stage.control.render(st.drawn, st.current, st.before)}
                             value={[]}
                             readOnly
                           />

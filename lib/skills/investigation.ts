@@ -197,6 +197,26 @@ export function addValue(drawn: readonly number[], v: number): { drawn: number[]
   return { drawn: [...drawn, v], current: drawn.length }
 }
 
+/**
+ * Moving the figure to try `k`: the try on screen until now becomes the one
+ * shown before it — unless it is the same value, when nothing has changed.
+ *
+ * The figure compares with the try the student was LOOKING AT, not the one
+ * typed last: after trying 2, 6 and 4, going back to 2 and then to 6 has to
+ * compare 6 with 2. Reading "last" off the order typed compared it with 4.
+ * Indices into the history are stable: `addValue` only ever appends.
+ */
+export function showTry(
+  drawn: readonly number[],
+  current: number,
+  before: number | undefined,
+  k: number,
+): { current: number; before: number | undefined } {
+  const shown = drawn[current]
+  if (shown === undefined || shown === drawn[k]) return { current: k, before }
+  return { current: k, before: current }
+}
+
 /** Which slots are answered, and whether the sentence is complete and right. */
 export function sentenceState(
   stage: Stage,
