@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  allDraws, drawParams, resolveInvestigation, predictionCorrect, concludeGate,
+  allDraws, drawParams, resolveInvestigation, resolveAt, predictionCorrect, concludeGate,
   rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
@@ -11,6 +11,24 @@ import { misconceptions } from '../../data/misconceptions'
 import type { Stage } from '../../data/investigations/types'
 
 const every = () => Object.values(investigations)
+
+/**
+ * Assert, ONCE, that an exhaustive walk found nothing wrong.
+ *
+ * The walks below visit every draw of every investigation (948 at the time of
+ * writing) and make tens of thousands of comparisons. An expect() costs ~20µs
+ * against ~0.1µs for the comparison itself, so one expect per comparison ran
+ * these tests to 1.5–2.5s alone and past vitest's 5s timeout on a loaded
+ * machine. Collecting problems and asserting once checks exactly the same
+ * things — no draw is skipped — and reports every failure rather than the
+ * first. Capped so a systematic break does not print thousands of lines.
+ */
+const expectNone = (problems: string[]) => {
+  const cap = 40
+  expect(problems.length > cap
+    ? [...problems.slice(0, cap), `…and ${problems.length - cap} more`]
+    : problems).toEqual([])
+}
 
 /** Every wrong response a predict can show, whichever kind it is. */
 const wrongs = (stage: Stage): string[] => {
@@ -156,6 +174,7 @@ describe('every legal draw builds a usable investigation', () => {
     // question and prompt show, and compound units' other draws only built
     // the same figures again — past the suite's timeout.
     const seen = new Set<string>()
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
@@ -177,12 +196,14 @@ describe('every legal draw builds a usable investigation', () => {
             const grid = c.render([v], 0)
             // A line on a graph, or a piece of bar: a one-hour journey bar has
             // no dividers inside it, and is still a picture.
-            expect(grid.background, `${inv.skillId} stage ${i + 1}, ${c.name} = ${v} draws nothing`)
-              .toMatch(/<line|<rect/)
+            if (!/<line|<rect/.test(grid.background ?? '')) {
+              problems.push(`${inv.skillId} stage ${i + 1}, ${JSON.stringify(p)}, ${c.name} = ${v} draws nothing`)
+            }
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('shows a tapped control its line before anything is tapped', () => {
@@ -517,17 +538,33 @@ describe('resolveInvestigation', () => {
   // Both investigations are authored with the right answer FIRST, and a
   // reviewer noticed every selection's answer was the first option. The shuffle
   // happens here, once per draw.
-  const resolvedAt = (inv: (typeof investigations)[string], k: number) => {
-    const n = allDraws(inv.parameters).length
-    return resolveInvestigation(inv, () => (k + 0.5) / n)
-  }
+  //
+  // The walks below resolve every draw straight from one allDraws list with
+  // resolveAt. Reaching draw k through resolveInvestigation(inv, () => (k + ½)/n)
+  // re-enumerates the space on every call, which made each walk quadratic; the
+  // first test pins the two routes together so skipping drawParams loses nothing.
+  const orders = (r: ReturnType<typeof resolveAt>) => r.stages.map(s => ({
+    predict: s.predict.on.kind === 'choice' ? s.predict.on.options : null,
+    slots: s.conclude.slots.map(sl => sl.options),
+  }))
+
+  it('reaches the same draw, in the same order, through the random number the page uses', () => {
+    for (const inv of every()) {
+      const draws = allDraws(inv.parameters)
+      const n = draws.length
+      for (const k of [0, 1, Math.floor(n / 2), n - 1]) {
+        const viaRandom = resolveInvestigation(inv, () => (k + 0.5) / n)
+        expect(viaRandom.params, `${inv.skillId} draw ${k}`).toEqual(draws[k])
+        expect(orders(viaRandom), `${inv.skillId} draw ${k}`).toEqual(orders(resolveAt(inv, draws[k])))
+      }
+    }
+  })
 
   it('does not put the right answer first every time', () => {
     for (const inv of every()) {
-      const n = allDraws(inv.parameters).length
       const firsts: boolean[] = []
-      for (let k = 0; k < n; k++) {
-        for (const stage of resolvedAt(inv, k).stages) {
+      for (const p of allDraws(inv.parameters)) {
+        for (const stage of resolveAt(inv, p).stages) {
           if (stage.predict.on.kind === 'choice') firsts.push(stage.predict.on.correct === 0)
           for (const slot of stage.conclude.slots) firsts.push(slot.correct === 0)
         }
@@ -540,40 +577,47 @@ describe('resolveInvestigation', () => {
   })
 
   it('moves every response with the option it belongs to', () => {
+    // Exhaustive by design: every draw, every option, every slot.
+    const problems: string[] = []
+    const same = (got: unknown, authored: unknown, where: string) => {
+      if (!Object.is(got, authored)) {
+        problems.push(`${where}: shows ${JSON.stringify(got)}, authored ${JSON.stringify(authored)}`)
+      }
+    }
     for (const inv of every()) {
-      const n = allDraws(inv.parameters).length
-      for (let k = 0; k < n; k++) {
-        const r = resolvedAt(inv, k)
-        const authored = inv.build(r.params)
+      allDraws(inv.parameters).forEach((params, k) => {
+        const r = resolveAt(inv, params)
+        const authored = inv.build(params)
         r.stages.forEach((stage, i) => {
           const a = authored[i]
           const where = `${inv.skillId} section ${i + 1}, draw ${k}`
           const on = stage.predict.on
           const ao = a.predict.on
           if (on.kind === 'choice' && ao.kind === 'choice') {
-            expect(on.options[on.correct], where).toBe(ao.options[ao.correct])
+            same(on.options[on.correct], ao.options[ao.correct], `${where} answer`)
             on.options.forEach((opt, j) => {
-              expect(on.wrong[j], `${where}: "${opt}"`).toBe(ao.wrong[ao.options.indexOf(opt)])
+              same(on.wrong[j], ao.wrong[ao.options.indexOf(opt)], `${where}: "${opt}"`)
             })
           }
           stage.conclude.slots.forEach((slot, s) => {
             const as = a.conclude.slots[s]
-            expect(slot.options[slot.correct], `${where} slot ${s}`).toBe(as.options[as.correct])
+            same(slot.options[slot.correct], as.options[as.correct], `${where} slot ${s} answer`)
             slot.options.forEach((opt, j) => {
               const o = as.options.indexOf(opt)
-              expect(slot.diagnosis[j], `${where} slot ${s}: "${opt}"`).toBe(as.diagnosis[o])
-              expect(slot.misconception[j], `${where} slot ${s}: "${opt}"`).toBe(as.misconception[o])
+              same(slot.diagnosis[j], as.diagnosis[o], `${where} slot ${s}: "${opt}" diagnosis`)
+              same(slot.misconception[j], as.misconception[o], `${where} slot ${s}: "${opt}" misconception`)
             })
           })
         })
-      }
+      })
     }
+    expectNone(problems)
   })
 
   it('gives the same draw the same order every time, so nothing moves mid-visit', () => {
     for (const inv of every()) {
-      const a = resolvedAt(inv, 0)
-      const b = resolvedAt(inv, 0)
+      const a = resolveInvestigation(inv, () => 0)
+      const b = resolveInvestigation(inv, () => 0)
       expect(a.stages.map(s => s.conclude.slots.map(sl => sl.options)))
         .toEqual(b.stages.map(s => s.conclude.slots.map(sl => sl.options)))
     }
@@ -605,6 +649,7 @@ describe('figures are a shape that fits a screen', () => {
     // The axes were trimmed to fit the screen; the domain has to be trimmed
     // with them, or a student types a legal value whose crossing point is off
     // the top of the picture.
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
@@ -616,14 +661,17 @@ describe('figures are a shape that fits a screen', () => {
           if (!c?.render || !stage.axes) return
           if (c.render([c.domain.min], 0).showAxes === false) return
           const { x, y } = stage.axes
+          const lo = Math.min(y.min, x.min)
+          const hi = Math.max(y.max, x.max)
           for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) {
-            const where = `${inv.skillId} stage ${i + 1}, ${c.name} = ${v}`
-            expect(v, where).toBeGreaterThanOrEqual(Math.min(y.min, x.min))
-            expect(v, where).toBeLessThanOrEqual(Math.max(y.max, x.max))
+            if (!(v >= lo && v <= hi)) {
+              problems.push(`${inv.skillId} stage ${i + 1}, ${JSON.stringify(p)}, ${c.name} = ${v} is outside ${lo}…${hi}`)
+            }
           }
         })
       }
     }
+    expectNone(problems)
   })
 })
 
@@ -926,34 +974,39 @@ describe('student-facing copy', () => {
     // without exactly one slash — would reach the student as a literal brace.
     // The pattern is the page's own: one slash, no braces or slashes inside.
     const fraction = /[{][^{}/]+[/][^{}/]+[}]/g
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           for (const [field, text] of Object.entries(prose(stage))) {
-            const rest = text.replace(fraction, '')
-            expect(rest, `${inv.skillId} section ${i + 1} ${field}: a stray brace in "${text}"`)
-              .not.toMatch(/[{}]/)
+            if (/[{}]/.test(text.replace(fraction, ''))) {
+              problems.push(`${inv.skillId} section ${i + 1} ${field}: a stray brace in "${text}"`)
+            }
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('never opens a diagnosis with the word the page already put in front of it', () => {
     // The page prints "Look again." before every diagnosis, so one that starts
     // "Look at…" reads "Look again. Look at…". Three had done it.
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           for (const d of stage.conclude.slots.flatMap(sl => sl.diagnosis)) {
-            expect(d, `${inv.skillId} section ${i + 1}: "${d}"`).not.toMatch(/^look\b/i)
+            if (/^look\b/i.test(d)) problems.push(`${inv.skillId} section ${i + 1}: "${d}"`)
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('balances every *emphasis* marker in prose', () => {
+    const problems: string[] = []
     for (const inv of every()) {
       for (const text of [inv.outcomes.lead, ...inv.outcomes.points]) {
         // n markers split into n + 1 parts, so balanced means an ODD count.
@@ -962,15 +1015,18 @@ describe('student-facing copy', () => {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           for (const [field, text] of Object.entries(prose(stage))) {
-            expect(text.split('*').length % 2,
-              `${inv.skillId} section ${i + 1} ${field}: unbalanced * in "${text}"`).toBe(1)
+            if (text.split('*').length % 2 !== 1) {
+              problems.push(`${inv.skillId} section ${i + 1} ${field}: unbalanced * in "${text}"`)
+            }
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('keeps markup out of the places that cannot render it', () => {
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
@@ -993,54 +1049,64 @@ describe('student-facing copy', () => {
           }
           // A select option or a table cell is plain text: italics or a fraction
           // there would show the student its raw markup.
-          for (const text of plain) expect(text, `${where}: "${text}"`).not.toMatch(/[*{}]/)
+          for (const text of plain) {
+            if (/[*{}]/.test(text)) problems.push(`${where}: "${text}"`)
+          }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('answers each wrong option on its own, and nothing for the right one', () => {
     // One response per option, so the verdict is about the answer the student
     // picked rather than every distractor at once. '' at the correct index,
     // the same convention as a conclusion slot's diagnosis.
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
-          const where = `${inv.skillId} section ${i + 1}`
+          const where = `${inv.skillId} section ${i + 1}, ${JSON.stringify(p)}`
           const on = stage.predict.on
           if (on.kind === 'grid') {
-            expect(on.wrong.trim(), `${where}: no wrong response`).not.toBe('')
+            if (on.wrong.trim() === '') problems.push(`${where}: no wrong response`)
             return
           }
-          expect(on.wrong, `${where}: one response per option`).toHaveLength(on.options.length)
+          if (on.wrong.length !== on.options.length) {
+            problems.push(`${where}: ${on.wrong.length} responses for ${on.options.length} options`)
+          }
           on.wrong.forEach((w, k) => {
-            if (k === on.correct) expect(w, `${where}: the right option has a wrong response`).toBe('')
-            else expect(w.trim(), `${where}: option ${k} has no response`).not.toBe('')
+            if (k === on.correct) {
+              if (w !== '') problems.push(`${where}: the right option has a wrong response`)
+            } else if (w.trim() === '') problems.push(`${where}: option ${k} has no response`)
           })
         })
       }
     }
+    expectNone(problems)
   })
 
   it('shows the working under every prediction, right or wrong', () => {
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
-          const where = `${inv.skillId} section ${i + 1}`
-          expect(stage.predict.explain.length, `${where}: working is one line`)
-            .toBeGreaterThanOrEqual(2)
+          const where = `${inv.skillId} section ${i + 1}, ${JSON.stringify(p)}`
+          if (stage.predict.explain.length < 2) problems.push(`${where}: working is one line`)
           for (const line of stage.predict.explain) {
-            expect(line.trim(), `${where}: an empty line of working`).not.toBe('')
+            if (line.trim() === '') problems.push(`${where}: an empty line of working`)
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('never writes a conclusion blank into the working', () => {
     // The working is an example in this draw's numbers. If it contains the
     // right answer to one of the conclusion's blanks word for word, it has
     // told the student the rule they were about to state themselves.
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
@@ -1053,12 +1119,14 @@ describe('student-facing copy', () => {
           for (const slot of stage.conclude.slots) {
             const answer = slot.options[slot.correct].toLowerCase()
             if (answer === predicted) continue
-            expect(working, `${inv.skillId} section ${i + 1} gives away "${answer}"`)
-              .not.toContain(answer)
+            if (working.includes(answer)) {
+              problems.push(`${inv.skillId} section ${i + 1}, ${JSON.stringify(p)} gives away "${answer}"`)
+            }
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('keeps each shuffled response beside the option it is about', () => {
@@ -1082,6 +1150,7 @@ describe('student-facing copy', () => {
     // The reveal marks the right answer with a LABEL. Colour alone is no use
     // to a colourblind student, and little better for anyone on a phone.
     const colours = /\b(green|blue|red|yellow|orange|purple)\b/i
+    const problems: string[] = []
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
@@ -1091,12 +1160,14 @@ describe('student-facing copy', () => {
             explain: stage.predict.explain.join(' '),
             because: stage.conclude.because,
           })) {
-            expect(text, `${inv.skillId} stage ${i + 1} ${field} names a colour`)
-              .not.toMatch(colours)
+            if (colours.test(text)) {
+              problems.push(`${inv.skillId} stage ${i + 1} ${field} names a colour: "${text}"`)
+            }
           }
         })
       }
     }
+    expectNone(problems)
   })
 
   it('labels the reveal so the answer can be read without colour', () => {
