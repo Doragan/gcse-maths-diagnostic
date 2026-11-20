@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   numberLine, probabilityTree, anglesAtAPoint, rightTriangle, regularPolygon, lineGraph,
+  rectilinear, circle, prism,
   type Figure,
 } from './briefingFigures'
 import { skillBriefings } from '../../data/skillBriefings'
@@ -23,6 +24,11 @@ const authoredFigures = (): { where: string; figure: Figure }[] => {
     cues.forEach((c, i) => c.figure && out.push({ where: `${g.skillId} cue ${i}`, figure: c.figure }))
     const examples = [...g.examples, ...(g.higher?.examples ?? [])]
     examples.forEach((e, i) => e.figure && out.push({ where: `${g.skillId} example ${i}`, figure: e.figure }))
+    // Route figures render as raw markup exactly as the others do. They were
+    // added after this list was written and went unchecked until the
+    // mensuration pages put three more of them on the site.
+    const routes = [...(g.routes ?? []), ...(g.higher?.routes ?? [])]
+    routes.forEach(r => r.figure && out.push({ where: `${g.skillId} route "${r.name}"`, figure: r.figure }))
   }
   return out
 }
@@ -411,5 +417,60 @@ describe('lineGraph', () => {
     const labels = texts(f.svg).map(t => t.text)
     expect(labels).toContain('3 across')
     expect(labels).toContain('6 up')
+  })
+})
+
+describe('rectilinear', () => {
+  const L = [[0, 0], [10, 0], [10, 4], [4, 4], [4, 9], [0, 9]] as [number, number][]
+
+  it('puts the label on an inside edge outside the shape, not in the notch', () => {
+    // Regression: "outside" was measured from the centre of the shape, so the
+    // inside edge of an L — which faces away from the centre — had its label
+    // drawn on the shape itself. Edge 3 runs up the inside corner at x = 4;
+    // the open notch is to its RIGHT.
+    const f = rectilinear({ points: L, sides: { 3: '5 m' }, alt: 'An L-shape.' })
+    const tag = f.svg.match(/<text[^>]*>5 m<\/text>/)![0]
+    expect(tag).toContain('text-anchor="start"')
+  })
+
+  it('shades the region with the inner piece left as a hole', () => {
+    // One path, even-odd: the cut-out is a hole rather than something painted
+    // over in a background colour the figure is not allowed to know.
+    const f = rectilinear({
+      points: [[0, 0], [12, 0], [12, 8], [0, 8]],
+      inner: { x: 3, y: 2, w: 6, h: 4 }, shadeOuter: true,
+      alt: 'A shaded frame.',
+    })
+    expect(f.svg).toMatch(/<path[^>]*fill-rule="evenodd"/)
+  })
+})
+
+describe('circle', () => {
+  it('draws the diameter across a whole circle, and not again on a semicircle', () => {
+    // On a semicircle the diameter IS the flat edge; a second line on top of it
+    // would be drawn twice.
+    const whole = circle({ show: 'diameter', label: '10 cm', alt: 'A circle.' })
+    const half = circle({ show: 'diameter', label: '10 cm', part: 0.5, alt: 'A semicircle.' })
+    expect(whole.svg.match(/<line /g)?.length).toBe(1)
+    expect(half.svg.match(/<line /g)).toBeNull()
+  })
+})
+
+describe('prism', () => {
+  it('dashes only the perpendicular height on a triangular prism', () => {
+    // Regression: the hidden back edges were dashed too, and the back corner
+    // landed on the height line, so two dashed systems crossed at the one
+    // label the figure exists to show.
+    const f = prism({ kind: 'triangular', labels: ['10 cm', '6 cm', '7.8 cm', '15 cm'], alt: 'p' })
+    expect(f.svg.match(/stroke-dasharray/g)?.length).toBe(1)
+  })
+})
+
+describe('figure text', () => {
+  it('is upright unless a label asks to be italic', () => {
+    // Figures sit inside the italic specimen box. "8 cm" in italics is not how
+    // a paper labels a diagram, so the root resets it.
+    const f = rectilinear({ points: [[0, 0], [8, 0], [8, 5], [0, 5]], alt: 'A rectangle.' })
+    expect(f.svg).toMatch(/^<svg [^>]*font-style="normal"/)
   })
 })

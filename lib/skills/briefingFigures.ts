@@ -33,9 +33,14 @@ export type Figure = {
 }
 
 /** Shared attributes: scales to the column, inherits the text colour. */
+// font-style is reset because a figure usually sits inside a specimen box,
+// which is italic, and a length such as "8 cm" printed in italics is not how a
+// paper labels a diagram. Labels meant to be italic — a line's name, the axis
+// letters — say so themselves.
 const OPEN = (viewBox: string) =>
   `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" fill="none" `
-  + `stroke="currentColor" stroke-width="1.5" font-size="12" font-family="inherit">`
+  + `stroke="currentColor" stroke-width="1.5" font-size="12" font-family="inherit" `
+  + `font-style="normal">`
 
 /**
  * A number line with one marked boundary — the inequalities diagram.
@@ -570,4 +575,241 @@ export function lineGraph(opts: {
   }
 
   return { svg: OPEN(`0 0 ${W} ${n(H)}`) + parts.join('') + `</svg>`, alt }
+}
+
+/** Text at a point, upright, in the figure's own colour. */
+const label = (x: number, y: number, t: string, anchor: 'start' | 'middle' | 'end' = 'middle') =>
+  `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" stroke="none" `
+  + `fill="currentColor">${t}</text>`
+
+/**
+ * A straight-sided shape with its sides labelled — a rectangle, or the
+ * L-shapes and steps that areas of rectangles are set on.
+ *
+ * Drawn to the proportions of the corners given, because on these questions
+ * the SHAPE is the information: which sides to split along, and which length
+ * is missing. `inner` is a rectangle cut out of the shape, and `shadeOuter`
+ * shades what is left — the "find the shaded area" question, where the trap
+ * is working out the area of the wrong region.
+ */
+export function rectilinear(opts: {
+  /** Corners in the shape's own units, in order round the outline. */
+  points: [number, number][]
+  /** Label for the side running from corner i to corner i + 1. */
+  sides?: Record<number, string>
+  /** A rectangle inside the shape, with its own side labels. */
+  inner?: { x: number; y: number; w: number; h: number; across?: string; down?: string }
+  /** Shade the shape with the inner rectangle cut out of it. */
+  shadeOuter?: boolean
+  alt: string
+}): Figure {
+  const { points, sides = {}, inner, shadeOuter, alt } = opts
+  const W = 300
+  const PAD = 34
+  const maxX = Math.max(...points.map(p => p[0]))
+  const maxY = Math.max(...points.map(p => p[1]))
+  const k = Math.min((W - 2 * PAD) / maxX, 160 / maxY)
+  const H = maxY * k + 2 * PAD
+  // y grows UP in the shape's units and DOWN on screen.
+  const px = (x: number) => PAD + x * k
+  const py = (y: number) => H - PAD - y * k
+  const outline = points.map(([x, y]) => `${px(x).toFixed(1)},${py(y).toFixed(1)}`).join(' ')
+
+  const parts: string[] = []
+
+  if (inner && shadeOuter) {
+    // One path, two loops, even-odd fill: the inner rectangle becomes a hole
+    // without needing a background colour to paint over it.
+    const o = points.map(([x, y], i) => `${i ? 'L' : 'M'}${px(x).toFixed(1)},${py(y).toFixed(1)}`).join(' ')
+    const [ix, iy, iw, ih] = [px(inner.x), py(inner.y + inner.h), inner.w * k, inner.h * k]
+    parts.push(
+      `<path d="${o} Z M${ix.toFixed(1)},${iy.toFixed(1)} h${iw.toFixed(1)} v${ih.toFixed(1)} `
+      + `h${(-iw).toFixed(1)} Z" fill="currentColor" fill-opacity="0.16" fill-rule="evenodd" stroke="none" />`,
+    )
+  }
+
+  parts.push(`<polygon points="${outline}" />`)
+
+  // Side labels sit just outside the middle of each side. "Outside" comes
+  // from the direction the outline is drawn in, not from the centre of the
+  // shape: measured from the centre, the inside edges of an L's notch point
+  // the wrong way and their labels land in the notch, on the shape.
+  const area2 = points.reduce((s, [x, y], i) => {
+    const [x2, y2] = points[(i + 1) % points.length]
+    return s + x * y2 - x2 * y
+  }, 0)
+  const ccw = area2 > 0   // in the shape's own units, y up
+  for (const [i, t] of Object.entries(sides)) {
+    const a = points[Number(i)]
+    const b = points[(Number(i) + 1) % points.length]
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2
+    // Going round anticlockwise the inside is on the left, so outside is the
+    // right-hand normal (dy, −dx); clockwise, the other way.
+    const sx = Math.sign(b[1] - a[1]) * (ccw ? 1 : -1)
+    const sy = Math.sign(a[0] - b[0]) * (ccw ? 1 : -1)
+    if (a[1] === b[1]) {
+      // Horizontal: outside is below (sy < 0) or above, in the shape's y-up.
+      parts.push(label(px(mx), py(my) + (sy < 0 ? 18 : -8), t))
+    } else {
+      parts.push(label(px(mx) + (sx > 0 ? 7 : -7), py(my) + 4, t, sx > 0 ? 'start' : 'end'))
+    }
+  }
+
+  if (inner) {
+    const x0 = px(inner.x), y0 = py(inner.y + inner.h)
+    parts.push(
+      `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(inner.w * k).toFixed(1)}" `
+      + `height="${(inner.h * k).toFixed(1)}" />`,
+    )
+    if (inner.across) parts.push(label(x0 + (inner.w * k) / 2, y0 + 15, inner.across))
+    if (inner.down) parts.push(label(x0 + 6, y0 + (inner.h * k) / 2 + 4, inner.down, 'start'))
+  }
+
+  return { svg: OPEN(`0 0 ${W} ${H.toFixed(1)}`) + parts.join('') + `</svg>`, alt }
+}
+
+/**
+ * A circle with its radius or its diameter drawn and labelled — or a
+ * semicircle or quarter circle, which are set on the same skill.
+ *
+ * The labelled line is the whole point. `use_diameter_for_radius` is the trap
+ * on both tiers, and the only defence is seeing which length you have been
+ * given: a line from the centre to the edge, or one right across.
+ */
+export function circle(opts: {
+  /** The length drawn: centre to edge, or edge to edge through the centre. */
+  show: 'radius' | 'diameter'
+  /** What the drawn length is labelled, e.g. '7 cm'. */
+  label: string
+  /** How much of the circle: all of it, half, or a quarter. Default 1. */
+  part?: 1 | 0.5 | 0.25
+  alt: string
+}): Figure {
+  const { show, part = 1, alt } = opts
+  const W = 260
+  const R = 70
+  const parts: string[] = []
+  let H: number, cx: number, cy: number
+
+  if (part === 1) {
+    H = 2 * R + 30; cx = W / 2; cy = R + 14
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${R}" />`)
+  } else if (part === 0.5) {
+    // Flat side at the bottom: the diameter IS an edge of the shape.
+    H = R + 44; cx = W / 2; cy = R + 14
+    parts.push(`<path d="M${cx - R},${cy} A${R},${R} 0 0 1 ${cx + R},${cy} Z" />`)
+  } else {
+    // The right angle at the bottom left, both straight sides radii.
+    H = R + 44; cx = W / 2 - R / 2; cy = R + 14
+    parts.push(`<path d="M${cx},${cy} L${cx + R},${cy} A${R},${R} 0 0 0 ${cx},${cy - R} Z" />`)
+    parts.push(`<polyline points="${cx + 11},${cy} ${cx + 11},${cy - 11} ${cx},${cy - 11}" />`)
+  }
+
+  parts.push(`<circle cx="${cx}" cy="${cy}" r="2.5" fill="currentColor" stroke="none" />`)
+
+  if (show === 'diameter') {
+    // On a semicircle the diameter is already drawn as the flat edge.
+    if (part === 1) parts.push(`<line x1="${cx - R}" y1="${cy}" x2="${cx + R}" y2="${cy}" />`)
+    parts.push(label(cx, cy + (part === 1 ? -8 : 20), opts.label))
+  } else if (part === 1) {
+    parts.push(`<line x1="${cx}" y1="${cy}" x2="${cx + R}" y2="${cy}" />`)
+    parts.push(label(cx + R / 2, cy - 8, opts.label))
+  } else {
+    // A semicircle or quarter's radius is its straight edge from the centre.
+    parts.push(label(cx + R / 2, cy + 20, opts.label))
+  }
+
+  return { svg: OPEN(`0 0 ${W} ${H}`) + parts.join('') + `</svg>`, alt }
+}
+
+/**
+ * A prism drawn the way the paper draws one: the cross-section face on, and
+ * its length running back at an angle, hidden edges dashed.
+ *
+ * `assume_the_solid_is_a_full_cuboid` and `use_the_slant_edge_as_a_height`
+ * are traps you can only fall into looking at a picture, so the triangular
+ * prism shows BOTH the slanted edge and the dashed perpendicular height,
+ * labelled, and leaves the student to pick.
+ */
+export function prism(opts: {
+  kind: 'cuboid' | 'triangular' | 'cylinder'
+  /**
+   * cuboid: [across, up, back]. triangular: [base, perpendicular height,
+   * slant edge, length]. cylinder: [radius, height].
+   */
+  labels: string[]
+  alt: string
+}): Figure {
+  const { kind, labels, alt } = opts
+  const W = 300
+  const parts: string[] = []
+  const dash = ' stroke-dasharray="4 3"'
+  const line = (x1: number, y1: number, x2: number, y2: number, hidden = false) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${hidden ? dash : ''} />`
+
+  if (kind === 'cylinder') {
+    // Standing up: an ellipse on top, its back half of the base hidden.
+    const cx = 130, top = 34, bot = 156, rx = 62, ry = 18
+    const H = 196
+    parts.push(`<ellipse cx="${cx}" cy="${top}" rx="${rx}" ry="${ry}" />`)
+    parts.push(`<path d="M${cx - rx},${bot} A${rx},${ry} 0 0 0 ${cx + rx},${bot}" />`)
+    parts.push(`<path d="M${cx - rx},${bot} A${rx},${ry} 0 0 1 ${cx + rx},${bot}"${dash} />`)
+    parts.push(line(cx - rx, top, cx - rx, bot), line(cx + rx, top, cx + rx, bot))
+    parts.push(`<circle cx="${cx}" cy="${top}" r="2.5" fill="currentColor" stroke="none" />`)
+    parts.push(line(cx, top, cx + rx, top))
+    // Under the radius, inside the top face: above it the label sat on the rim.
+    parts.push(label(cx + rx / 2, top + 13, labels[0] ?? ''))
+    parts.push(label(cx + rx + 8, (top + bot) / 2 + 4, labels[1] ?? '', 'start'))
+    return { svg: OPEN(`0 0 ${W} ${H}`) + parts.join('') + `</svg>`, alt }
+  }
+
+  // The length runs back and up to the right.
+  const dx = 70, dy = -38
+  const H = 200
+
+  if (kind === 'cuboid') {
+    // Room on the left for the height label, which ran off the edge at 30.
+    const x0 = 50, y0 = 170, w = 150, h = 92
+    // Front face, then the back face where it shows, then the joining edges.
+    parts.push(`<rect x="${x0}" y="${y0 - h}" width="${w}" height="${h}" />`)
+    parts.push(
+      line(x0, y0 - h, x0 + dx, y0 - h + dy),
+      line(x0 + w, y0 - h, x0 + w + dx, y0 - h + dy),
+      line(x0 + w, y0, x0 + w + dx, y0 + dy),
+      line(x0 + dx, y0 - h + dy, x0 + w + dx, y0 - h + dy),
+      line(x0 + w + dx, y0 - h + dy, x0 + w + dx, y0 + dy),
+      line(x0, y0, x0 + dx, y0 + dy, true),
+      line(x0 + dx, y0 + dy, x0 + w + dx, y0 + dy, true),
+      line(x0 + dx, y0 + dy, x0 + dx, y0 - h + dy, true),
+    )
+    parts.push(label(x0 + w / 2, y0 + 18, labels[0] ?? ''))
+    parts.push(label(x0 - 7, y0 - h / 2 + 4, labels[1] ?? '', 'end'))
+    parts.push(label(x0 + w + dx / 2 + 10, y0 + dy / 2 + 14, labels[2] ?? '', 'start'))
+    return { svg: OPEN(`0 0 ${W} ${H}`) + parts.join('') + `</svg>`, alt }
+  }
+
+  // Triangular: an isosceles triangle face on, apex up. The perpendicular
+  // height is drawn dashed down the middle, and one slanted side labelled, so
+  // the figure carries both the length the student needs and the one they
+  // are tempted by.
+  //
+  // No hidden edges on this one. They are dashed too, and the back corner of
+  // the base falls exactly on the height line, so the two dashed systems
+  // crossed at the one label the figure exists to show.
+  const x0 = 30, y0 = 172, b = 140, h = 100
+  const apex: [number, number] = [x0 + b / 2, y0 - h]
+  parts.push(`<polygon points="${x0},${y0} ${x0 + b},${y0} ${apex[0]},${apex[1]}" />`)
+  parts.push(
+    line(apex[0], apex[1], apex[0] + dx, apex[1] + dy),
+    line(x0 + b, y0, x0 + b + dx, y0 + dy),
+    line(apex[0] + dx, apex[1] + dy, x0 + b + dx, y0 + dy),
+    // The perpendicular height, with its right angle at the foot.
+    line(apex[0], apex[1], apex[0], y0, true),
+    `<polyline points="${apex[0]},${y0 - 9} ${apex[0] + 9},${y0 - 9} ${apex[0] + 9},${y0}" />`,
+  )
+  parts.push(label(x0 + b / 2, y0 + 18, labels[0] ?? ''))
+  parts.push(label(apex[0] + 6, y0 - h / 2 + 10, labels[1] ?? '', 'start'))
+  parts.push(label(x0 + b / 4 - 8, y0 - h / 2 - 2, labels[2] ?? '', 'end'))
+  parts.push(label(x0 + b + dx / 2 + 10, y0 + dy / 2 + 14, labels[3] ?? '', 'start'))
+  return { svg: OPEN(`0 0 ${W} ${H}`) + parts.join('') + `</svg>`, alt }
 }

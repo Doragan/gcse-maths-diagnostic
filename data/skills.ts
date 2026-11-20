@@ -583,7 +583,7 @@ export const skills: Skill[] = [
   },
   {
     "id": "circumfrence_of_a_circle",
-    "name": "Circumfrence of a Circle",
+    "name": "Circumference of a Circle",
     "topic": "Shape and Space",
     "prerequisites": [
       "simple_arithmetic",
