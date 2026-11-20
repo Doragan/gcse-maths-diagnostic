@@ -197,8 +197,11 @@ export const compoundUnitsBriefing: SkillBriefing = {
 
     steps: [
       {
-        do: 'If the rate comes from a graph, read it as the change up divided by the change across, '
-          + 'and carry the units through.',
+        // Named by quantity, not "y over x": these axes are time and distance,
+        // and "up over across" was the loose wording taken out of straight
+        // line graphs in #236–#239.
+        do: 'If the rate comes from a graph, divide the change in the quantity on the vertical axis '
+          + 'by the change in the quantity on the horizontal axis, and carry the units through.',
         because:
           'The gradient of a distance–time graph is a speed; of a velocity–time graph, an acceleration. '
           + 'Naming the units as you read stops the two being confused.',
