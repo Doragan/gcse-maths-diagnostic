@@ -152,11 +152,18 @@ describe('every legal draw builds a usable investigation', () => {
     // ghosts appeared and the live line did not. Checking the field the
     // renderer ignores is worse than not checking at all — it reports success
     // for a blank figure.
+    // Once per distinct section: its figure is drawn from the numbers its
+    // question and prompt show, and compound units' other draws only built
+    // the same figures again — past the suite's timeout.
+    const seen = new Set<string>()
     for (const inv of every()) {
       for (const p of allDraws(inv.parameters)) {
         inv.build(p).forEach((stage, i) => {
           const c = stage.control
           if (!c?.render) return
+          const key = `${inv.skillId}:${i}:${stage.ask}:${c.prompt}`
+          if (seen.has(key)) return
+          seen.add(key)
           // Every value of a short domain; for a long one (1–100%, on every
           // draw) the ends, their neighbours, and every tenth — walking all of
           // it ran past the suite's timeout once percentage change drew bars.
@@ -419,7 +426,7 @@ describe('the drawn history', () => {
     expect(showTry([2, 6, 4], 0, 2, 3)).toEqual({ current: 3, before: 0 })
   })
 
-  it('shows the faint coach for the try looked at, in compound units', () => {
+  it('shows the faint car for the try looked at, in compound units', () => {
     const [p] = allDraws(getInvestigation('compound_units')!.parameters)
     const c = getInvestigation('compound_units')!.build(p)[0].control!
     const words = (before: number) => (c.scene!([2, 6, 4], 1, before).labels ?? []).map(l => l.text).join(' | ')

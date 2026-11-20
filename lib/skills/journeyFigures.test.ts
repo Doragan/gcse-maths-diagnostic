@@ -66,9 +66,14 @@ function clock(svg: string, marker: string, attr: string) {
 }
 
 describe('the road and the graph run on one clock', () => {
-  it('has a scene above the graph on every section', () => {
+  it('has a scene above the graph on every journey, and bars alone on section 3', () => {
+    // Section 3 is a fraction of an amount, not a journey: no road, no graph.
     const [p] = allDraws(inv.parameters)
-    expect(inv.build(p).filter(s => s.control?.scene && s.control.render)).toHaveLength(4)
+    const stages = inv.build(p)
+    expect(stages.map((s, i) => (s.control?.scene && s.control.render ? i : -1)).filter(i => i >= 0))
+      .toEqual([0, 1, 3])
+    expect(stages[2].control?.render).toBeDefined()
+    expect(stages[2].control?.scene).toBeUndefined()
   })
 
   it('gets the vehicle and the dot to every turn at the same moment', () => {
@@ -86,11 +91,11 @@ describe('the road and the graph run on one clock', () => {
   })
 
   it('gets the faint vehicle home with its dashed line', () => {
-    // Sections 3 and 4: the whole hour, and the steady van at the average.
+    // Section 4: the steady van at the average.
     let checked = 0
     for (const { where, scene, graph, section, drawn } of journeys()) {
-      if (section < 2 || drawn.length === 0) continue
-      const ghost = clock(scene.background, 'data-drive="ghost"', section === 2 ? 'cx' : 'x')
+      if (section !== 3 || drawn.length === 0) continue
+      const ghost = clock(scene.background, 'data-drive="ghost"', 'x')
       const dashed = clock(graph.background, 'data-dot="dashed"', 'cx')
       expect(ghost, `${where}: the faint vehicle and the dashed line keep different times`).toEqual(dashed)
       checked++
@@ -98,7 +103,7 @@ describe('the road and the graph run on one clock', () => {
     expect(checked).toBeGreaterThan(20)
   })
 
-  it('gets the faint coach in section 1 home with its faint line', () => {
+  it('gets the faint car in section 1 home with its faint line', () => {
     // The try looked at before this one: driving again in the lane above, and
     // drawing itself again on the graph, on the same clock.
     let checked = 0
@@ -106,18 +111,18 @@ describe('the road and the graph run on one clock', () => {
       if (section !== 0 || drawn.length < 2) continue
       const ghost = clock(scene.background, 'data-drive="ghost"', 'x')
       const line = clock(graph.background, 'data-dot="ghost"', 'cx')
-      expect(ghost, `${where}: the faint coach does not move`).not.toBeNull()
-      expect(ghost, `${where}: the faint coach and its line keep different times`).toEqual(line)
+      expect(ghost, `${where}: the faint car does not move`).not.toBeNull()
+      expect(ghost, `${where}: the faint car and its line keep different times`).toEqual(line)
       checked++
     }
     expect(checked).toBeGreaterThan(10)
   })
 
   it('puts the vehicle as far along the road as the graph says it went', () => {
-    // Sections 1–3 draw the road to the top of the graph's distance axis, so
-    // the fraction of the road covered is the fraction of the axis climbed.
+    // Sections 1 and 2 draw the road to the top of the graph's distance axis,
+    // so the fraction of the road covered is the fraction of the axis climbed.
     for (const { where, scene, graph, section, drawn } of journeys()) {
-      if (section > 2 || drawn.length === 0) continue
+      if (section > 1 || drawn.length === 0) continue
       const road = scene.background.match(/<line x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)"/)!
       const from = Number(road[1])
       const to = Number(road[3])
@@ -138,7 +143,14 @@ describe('the road and the graph run on one clock', () => {
           for (const a of el[3].matchAll(/<animate attributeName="(\w+)"[^>]*values="([^"]+)"/g)) {
             const [, attr, values] = a
             const last = Number(values.split(';').at(-1))
-            if (attr === 'opacity') { expect(last, where).toBe(1); continue }
+            if (attr === 'opacity') {
+              // Most fade IN and end visible; a vehicle's outward-facing copy
+              // ends hidden once it has turned for home, and says so. Not
+              // \bopacity: that would find fill-opacity.
+              const own = el[2].match(/(?:^|\s)opacity="([^"]+)"/)
+              expect(last, `${where}: <${el[1]}> ends at opacity ${last}`).toBe(own ? Number(own[1]) : 1)
+              continue
+            }
             const own = el[2].match(new RegExp(`\\b${attr}="([^"]+)"`))
             expect(own, `${where}: <${el[1]}> animates ${attr} it does not have`).not.toBeNull()
             expect(Number(own![1]), `${where}: <${el[1]}> ${attr} ends somewhere else`).toBeCloseTo(last, 3)
@@ -260,6 +272,94 @@ describe('the words on both figures', () => {
         }
       }
     }
+  })
+})
+
+describe('section 3: a fraction of the hour is that fraction of the distance', () => {
+  const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
+  const bars = () => {
+    const seen = new Set<string>()
+    const out: { where: string; speed: number; m: number; grid: RenderedGrid }[] = []
+    for (const p of allDraws(inv.parameters)) {
+      const stage = inv.build(p)[2]
+      if (seen.has(stage.ask)) continue
+      seen.add(stage.ask)
+      const speed = Number(stage.ask.match(/(\d+) km\/h/)![1])
+      const c = stage.control!
+      for (let m = c.domain.min; m <= c.domain.max; m += c.domain.step) {
+        out.push({ where: `${speed} km/h for ${m} minutes`, speed, m, grid: c.render!([m], 0) })
+      }
+    }
+    return out
+  }
+
+  it('shades the same share of both bars: the minutes out of 60', () => {
+    const all = bars()
+    expect(all.length).toBeGreaterThan(40)
+    for (const { where, m, grid } of all) {
+      const shaded = [...grid.background.matchAll(/<rect x="0" y="([\d.]+)" width="([\d.]+)"[^>]*fill-opacity="0.5"/g)]
+      expect(shaded.map(r => Number(r[2])), where).toEqual([m, m])
+    }
+  })
+
+  it('cuts both bars into the fraction’s parts, in lowest terms', () => {
+    for (const { where, m, grid } of bars()) {
+      const parts = 60 / gcd(m, 60)
+      const cuts = [...grid.background.matchAll(/<line x1="([\d.]+)" y1="[\d.]+" x2="\1"/g)]
+      expect(cuts.length, where).toBe(2 * (parts - 1))
+    }
+  })
+
+  it('writes one part of the distance in each part, and the answer under it', () => {
+    for (const { where, speed, m, grid } of bars()) {
+      const parts = 60 / gcd(m, 60)
+      const words = (grid.labels ?? []).map(l => l.text)
+      expect(words.filter(t => t === String(speed / parts)).length, where).toBeGreaterThanOrEqual(parts)
+      const d = (speed * m) / 60
+      expect(words.join(' | '), where).toMatch(m === 60 ? `the whole ${speed} km` : `= ${d} km`)
+    }
+  })
+})
+
+describe('which way a vehicle faces', () => {
+  const AX = { min: 0, max: 60, step: 6, label: '' }
+  const AY = { min: 0, max: 12, step: 6, label: '' }
+  const out = [[0, 4], [1, 56], [2, 4]] as const
+
+  it('turns a van round at the town, so it does not reverse home', () => {
+    const g = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: out, vehicle: 'van' }] })
+    // Two copies of every part: one facing out, one facing home.
+    const bodies = [...g.background.matchAll(/<rect data-drive="live"[^>]*>(.*?)<\/rect>/g)]
+    expect(bodies).toHaveLength(6)
+    const shows = bodies.map(b => b[1].match(/attributeName="opacity"[^>]*values="([^"]+)"[^>]*keyTimes="([^"]+)"/)!)
+    // Facing out until the turn at 1 s, then facing home; never both at once.
+    const out1 = shows.filter(s => s[1] === '1;1;0')
+    const home = shows.filter(s => s[1] === '0;0;1')
+    expect(out1).toHaveLength(3)
+    expect(home).toHaveLength(3)
+    for (const s of shows) expect(Number(s[2].split(';')[1]) * 1.01).toBeCloseTo(1, 3)
+  })
+
+  it('draws the copy facing home as the mirror of the one facing out', () => {
+    const g = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: out, vehicle: 'van' }] })
+    const wheels = [...g.background.matchAll(/<circle data-drive="live" cx="([\d.]+)"/g)].map(m => Number(m[1]))
+    // Both copies end at home (x = 4), with their wheels either side of it.
+    expect(wheels.slice(0, 2).map(w => +(w - 4).toFixed(3)).sort()).toEqual(wheels.slice(2).map(w => +(w - 4).toFixed(3)).sort())
+    // The van's front is its bonnet: right of the wheelbase going out, left coming home.
+    const xs = [...g.background.matchAll(/<rect data-drive="live" x="([\d.-]+)" y="[\d.-]+" width="([\d.]+)"/g)]
+      .map(m => [Number(m[1]) - 4, Number(m[2])])
+    const reach = (r: number[][]) => [Math.min(...r.map(([x]) => x)), Math.max(...r.map(([x, w]) => x + w))]
+    const [lo1, hi1] = reach(xs.slice(0, 3))
+    const [lo2, hi2] = reach(xs.slice(3))
+    expect(lo2).toBeCloseTo(-hi1, 3)
+    expect(hi2).toBeCloseTo(-lo1, 3)
+  })
+
+  it('leaves a lorry going one way, and a car either way, as one copy', () => {
+    const lorry = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: [[0, 4], [1, 56]], vehicle: 'lorry' }] })
+    expect(lorry.background).not.toMatch(/attributeName="opacity"/)
+    const car = journeyScene({ x: AX, y: AY, roads: [], drives: [{ road: 4, frames: out }] })
+    expect(car.background).not.toMatch(/attributeName="opacity"/)
   })
 })
 

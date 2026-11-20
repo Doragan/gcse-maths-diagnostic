@@ -1,7 +1,7 @@
 import type { Investigation, Params, Stage } from './types'
 import type { GridLabel, RenderedAxis, RenderedGrid } from '../../lib/questions/gridDraw'
-import { distanceTimeGrid, fitLabel, journeyScene, labelHalfWidth } from '../../lib/skills/investigationFigures'
-import type { Clock, Drive, MeasureLeg, Road, Trace } from '../../lib/skills/investigationFigures'
+import { barModelGrid, distanceTimeGrid, fitLabel, journeyScene, labelHalfWidth } from '../../lib/skills/investigationFigures'
+import type { BarModel, Clock, Drive, MeasureLeg, Road, Trace } from '../../lib/skills/investigationFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Compound units, through speed — the third investigation.
@@ -10,7 +10,7 @@ import type { Clock, Drive, MeasureLeg, Road, Trace } from '../../lib/skills/inv
 // review of 2026-11-17): 279 marks across the corpus, and the most
 // single-part questions of any candidate.
 //
-// Every section shows its journey twice, moving together: a vehicle on a road,
+// Sections 1, 2 and 4 show their journey twice, moving together: a vehicle on a road,
 // and the same journey drawing itself on a distance–time graph. Bar models
 // came first and were right for percentages, but a bar cannot MOVE, and speed
 // is about moving; the graph is also where speed turns up on the paper.
@@ -21,8 +21,10 @@ import type { Clock, Drive, MeasureLeg, Road, Trace } from '../../lib/skills/inv
 //      That share IS the speed.
 //   2. From a speed to a distance — one steepness, driven for longer, a step
 //      at a time; and the time found by going back the other way.
-//   3. Minutes are not decimals — the error that costs the most marks on
-//      paper: 20 minutes is a third of an hour, never 0.2.
+//   3. Minutes are a fraction of an hour — a fraction of an amount, not a
+//      journey: 20 minutes is a third of the hour, so the ride goes a third of
+//      the hour's distance. Never 0.2 of it, the error that costs the most
+//      marks on paper.
 //   4. There and back — out at 60, back at 30, and the average is 40, not 45.
 //      A steady van driving at the average gets home at the same moment.
 //
@@ -83,7 +85,7 @@ const hours = (n: number) => `${one(n)} hour${n === 1 ? '' : 's'}`
 
 // ─── Figures ─────────────────────────────────────────────────────────────────
 //
-// Every section draws the journey twice, on one clock: a vehicle on a road,
+// Sections 1, 2 and 4 draw the journey twice, on one clock: a vehicle on a road,
 // and the same journey drawn as it happens on a distance–time graph
 // (lib/skills/investigationFigures.ts). The road is the real thing; the graph
 // is its record, and watching them move together is what makes "steeper means
@@ -94,8 +96,6 @@ const hours = (n: number) => `${one(n)} hour${n === 1 ? '' : 's'}`
 
 /** Hours to seconds, sections 1 and 2: six hours in 3.6 seconds. */
 const SEC_PER_HOUR = 0.6
-/** Minutes to seconds, section 3: an hour in 3 seconds. */
-const SEC_PER_MINUTE = 0.05
 /** Hours to seconds, section 4, whose longest trip is nine hours. */
 const SEC_PER_HOUR_TRIP = 0.4
 
@@ -174,18 +174,18 @@ const kmAxis = (max: number, label = 'distance (km)'): RenderedAxis =>
   ({ min: 0, max, step: max / 6, label })
 
 /** Section 1's time axis, on the graph and on the clock under the road. */
-const COACH_HOURS = hoursAxis(6)
+const SIX_HOURS = hoursAxis(6)
 
 /**
- * Section 1: the coach drives the same road in however many hours were tried,
+ * Section 1: the car drives the same road in however many hours were tried,
  * dropping a marker at the end of every hour — so the road is cut into equal
  * shares — with the try before it racing alongside, faint, in the lane above,
  * and the clock under the road counting the hours as they go.
  */
-function coachScene(distance: number, drawn: readonly number[], current: number, before?: number): RenderedGrid {
+function carScene(distance: number, drawn: readonly number[], current: number, before?: number): RenderedGrid {
   const v = drawn[current]
   if (v === undefined) {
-    const time = clockFor(COACH_HOURS, 1, 'hours', undefined, SEC_PER_HOUR)
+    const time = clockFor(SIX_HOURS, 1, 'hours', undefined, SEC_PER_HOUR)
     return journeyScene({
       x: AX_ROAD,
       y: AY_TWO_LANES,
@@ -197,7 +197,7 @@ function coachScene(distance: number, drawn: readonly number[], current: number,
   }
   const share = distance / v
   const w = lastTry(drawn, current, before)
-  const time = clockFor(COACH_HOURS, 1, 'hours', Math.max(v, w ?? 0), SEC_PER_HOUR)
+  const time = clockFor(SIX_HOURS, 1, 'hours', Math.max(v, w ?? 0), SEC_PER_HOUR)
   const roads: Road[] = [{
     y: LANE,
     from: ROAD_FROM,
@@ -227,11 +227,11 @@ function coachScene(distance: number, drawn: readonly number[], current: number,
  * Section 1's graph: every try a line from the start to the same distance,
  * later for more hours — so flatter. Where the line is after one hour is read
  * off with dashed legs, and that reading is the speed. The last try is drawn
- * again alongside the faint coach, and the "now" line sweeps across with the
+ * again alongside the faint car, and the "now" line sweeps across with the
  * clock under the road.
  */
-function coachGraph(distance: number, drawn: readonly number[], current: number, before?: number): RenderedGrid {
-  const x = COACH_HOURS
+function carGraph(distance: number, drawn: readonly number[], current: number, before?: number): RenderedGrid {
+  const x = SIX_HOURS
   const y = kmAxis(distance)
   const v = drawn[current]
   const w = lastTry(drawn, current, before)
@@ -240,7 +240,7 @@ function coachGraph(distance: number, drawn: readonly number[], current: number,
     : { points: [[0, 0], [o, distance]], style: 'ghost' }))
   if (v === undefined) return distanceTimeGrid({ x, y, traces })
   const share = distance / v
-  const time = clockFor(COACH_HOURS, 1, 'hours', Math.max(v, w ?? 0), SEC_PER_HOUR)
+  const time = clockFor(SIX_HOURS, 1, 'hours', Math.max(v, w ?? 0), SEC_PER_HOUR)
   traces.push({ points: [[0, 0], [v, distance]], times: [0, v * SEC_PER_HOUR], style: 'live' })
   const text = `${share} km after 1 hour`
   return distanceTimeGrid({
@@ -263,7 +263,7 @@ function coachGraph(distance: number, drawn: readonly number[], current: number,
  */
 function lorryScene(speed: number, v: number | undefined): RenderedGrid {
   const full = 6 * speed
-  const time = clockFor(COACH_HOURS, 1, 'hours', v, SEC_PER_HOUR)
+  const time = clockFor(SIX_HOURS, 1, 'hours', v, SEC_PER_HOUR)
   const ruler = Array.from({ length: 7 }, (_, k) =>
     under(along(k * speed, full), LANE, k === 6 ? `${k * speed} km` : String(k * speed)))
   const road: Road = {
@@ -277,7 +277,7 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
       x: AX_ROAD,
       y: AY_ONE_LANE,
       roads: [road],
-      drives: [{ road: LANE, frames: [[0, ROAD_FROM]] }],
+      drives: [{ road: LANE, frames: [[0, ROAD_FROM]], vehicle: 'lorry' }],
       clock: time.clock,
       labels: [caption(LANE, `${speed} km/h`), ...ruler, ...time.labels],
     })
@@ -289,7 +289,7 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
       ...road,
       marks: Array.from({ length: v }, (_, k) => ({ x: along((k + 1) * speed, full), appear: (k + 1) * SEC_PER_HOUR })),
     }],
-    drives: [{ road: LANE, frames: [[0, ROAD_FROM], [v * SEC_PER_HOUR, along(v * speed, full)]] }],
+    drives: [{ road: LANE, frames: [[0, ROAD_FROM], [v * SEC_PER_HOUR, along(v * speed, full)]], vehicle: 'lorry' }],
     clock: time.clock,
     labels: [caption(LANE, `${hours(v)} at ${speed} km/h: ${v} × ${speed} = ${v * speed} km`), ...ruler, ...time.labels],
   })
@@ -297,7 +297,7 @@ function lorryScene(speed: number, v: number | undefined): RenderedGrid {
 
 /** Section 2's graph: one steepness, drawn a step at a time — each hour adds the same climb. */
 function lorryGraph(speed: number, drawn: readonly number[], current: number): RenderedGrid {
-  const x = COACH_HOURS
+  const x = SIX_HOURS
   const y = kmAxis(6 * speed)
   const v = drawn[current]
   const traces: Trace[] = others(drawn, current).map(w => ({ points: [[0, 0], [w, w * speed]], style: 'ghost' }))
@@ -322,89 +322,67 @@ function lorryGraph(speed: number, drawn: readonly number[], current: number): R
 }
 
 /**
- * Section 3: the cyclist rides for the minutes tried while a faint one rides
- * for the whole hour beside them. Where the first stops is the fraction of the
- * hour — and of the hour's distance.
+ * Section 3 is a fraction of an amount, not a journey: the minutes are a
+ * fraction of the hour, and the distance is the same fraction of the hour's
+ * distance. So no road and no graph — two bars the same length, one the
+ * hour's 60 minutes and one the hour's kilometres, cut into the same equal
+ * parts, with the same parts shaded. It is the bar model students already
+ * use for "find 2/3 of 24": divide into the parts, then take the ones you need.
+ *
+ * The parts are the fraction in its LOWEST terms — 20 minutes cuts the hour
+ * into thirds, not sixtieths — so the picture is the sum a student would do.
  */
-function rideScene(speed: number, m: number | undefined): RenderedGrid {
-  const fives = Array.from({ length: 11 }, (_, k) => along(((k + 1) * speed) / 12, speed))
-  // The faint rider takes the whole hour, so the clock always runs to 60. Its
-  // numbers stand where the road's quarter-hour labels used to, which said
-  // the same thing less directly.
-  const time = clockFor(RIDE_MINUTES, 15, 'minutes', m === undefined ? undefined : 60, SEC_PER_MINUTE)
-  const roads: Road[] = [
-    { y: LANE, from: ROAD_FROM, to: ROAD_TO, faint: fives },
-    { y: UPPER, from: ROAD_FROM, to: ROAD_TO, faint: fives },
-  ]
-  const hourLabel = caption(UPPER, `a whole hour (the dashed line): ${speed} km`)
+const AY_BARS: RenderedAxis = { min: 0, max: 24, step: 6, label: '' }
+const HOUR_BAR = 14
+const KM_BAR = 2
+const BAR_HEIGHT = 6
+/** Seconds: the hour's share shades in first, then the same share of the distance. */
+const SHADE_HOUR = [0.2, 1.2] as const
+const SHADE_KM = [1.6, 2.6] as const
+
+function hourBars(speed: number, m: number | undefined): RenderedGrid {
+  const parts = m === undefined ? 12 : 60 / gcd(m, 60)
+  const each = 60 / parts
+  const cuts = Array.from({ length: parts - 1 }, (_, k) => (k + 1) * each)
+  const bar = (y: number, [start, end]: readonly [number, number]): BarModel => ({
+    y,
+    height: BAR_HEIGHT,
+    dividers: cuts,
+    pieces: m === undefined
+      ? [{ from: 0, to: 60, fill: 'empty' }]
+      : [{ from: 0, to: 60, fill: 'empty' }, { from: 0, to: m, fill: 'shaded', grow: { from: 0, start, end } }],
+  })
+  /** Each part's share, written inside it: what one part of the hour, or of the distance, is. */
+  const inside = (y: number, value: string): GridLabel[] =>
+    Array.from({ length: parts }, (_, k) => ({ x: (k + 0.5) * each, y: y + BAR_HEIGHT / 2, text: value, dy: 4 }))
+  const above = (y: number, text: string): GridLabel => ({ x: fitLabel(30, text, AX_ROAD), y: y + BAR_HEIGHT, text, dy: -6 })
+
   if (m === undefined) {
-    return journeyScene({
+    return barModelGrid({
       x: AX_ROAD,
-      y: AY_TWO_LANES,
-      roads,
-      drives: [
-        { road: LANE, frames: [[0, ROAD_FROM]], vehicle: 'bike' },
-        { road: UPPER, frames: [[0, ROAD_FROM]], vehicle: 'bike', ghost: true },
-      ],
-      clock: time.clock,
-      labels: [hourLabel, ...time.labels],
+      y: AY_BARS,
+      bars: [bar(HOUR_BAR, SHADE_HOUR), bar(KM_BAR, SHADE_KM)],
+      labels: [above(HOUR_BAR, '1 hour = 60 minutes'), above(KM_BAR, `in 1 hour: ${speed} km`)],
     })
   }
+  const frac = fracText(m, 60)
   const d = (speed * m) / 60
-  return journeyScene({
+  const whole = m === 60
+  const result = whole ? `the whole ${speed} km` : `${frac} of ${speed} km = ${one(d)} km`
+  return barModelGrid({
     x: AX_ROAD,
-    y: AY_TWO_LANES,
-    roads,
-    drives: [
-      { road: LANE, frames: [[0, ROAD_FROM], [m * SEC_PER_MINUTE, along(d, speed)]], vehicle: 'bike' },
-      { road: UPPER, frames: [[0, ROAD_FROM], [60 * SEC_PER_MINUTE, ROAD_TO]], vehicle: 'bike', ghost: true },
-    ],
+    y: AY_BARS,
+    bars: [bar(HOUR_BAR, SHADE_HOUR), bar(KM_BAR, SHADE_KM)],
     labels: [
-      hourLabel,
-      caption(LANE, m === 60
-        ? `60 minutes = 1 hour: ${speed} km`
-        : `${m} minutes = ${fracText(m, 60)} of an hour: ${one(d)} km`),
-      ...time.labels,
+      above(HOUR_BAR, whole ? '60 minutes: the whole hour' : `${m} minutes = ${frac} of the hour`),
+      ...inside(HOUR_BAR, String(each)),
+      above(KM_BAR, `in 1 hour: ${speed} km`),
+      ...inside(KM_BAR, one(speed / parts)),
+      { x: fitLabel(30, result, AX_ROAD), y: KM_BAR, text: result, dy: 15 },
     ],
-    clock: time.clock,
   })
 }
 
-/**
- * Section 3's graph, in MINUTES: the hour's line dashed, and the ride drawn
- * along it until it stops — read off both axes where it does.
- */
-/** Section 3's time axis, in minutes, on the graph and on the clock. */
-const RIDE_MINUTES: RenderedAxis = { min: 0, max: 60, step: 5, label: 'time (minutes)' }
-
-function rideGraph(speed: number, m: number | undefined): RenderedGrid {
-  const x = RIDE_MINUTES
-  const y = kmAxis(speed)
-  if (m === undefined) {
-    return distanceTimeGrid({ x, y, traces: [{ points: [[0, 0], [60, speed]], style: 'dashed' }] })
-  }
-  const d = (speed * m) / 60
-  const stop = m * SEC_PER_MINUTE
-  return distanceTimeGrid({
-    x,
-    y,
-    traces: [
-      { points: [[0, 0], [60, speed]], times: [0, 60 * SEC_PER_MINUTE], style: 'dashed' },
-      { points: [[0, 0], [m, d]], times: [0, stop], style: 'live' },
-    ],
-    legs: [
-      { from: [m, 0], to: [m, d], appear: stop },
-      { from: [0, d], to: [m, d], appear: stop },
-    ],
-    now: clockFor(x, 15, 'minutes', 60, SEC_PER_MINUTE).now,
-  })
-}
-
-/**
- * Section 4: the van out to town and home again, with a faint one driving the
- * whole trip at the AVERAGE speed in the lane above. They set off together and
- * get home together — which is what an average speed is.
- */
 /** Section 4's time axis: long enough for the slowest way home. */
 const tripHours = (each: number, out: number) => hoursAxis(each / out + each / 20, 1)
 
@@ -418,7 +396,7 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
       x: AX_ROAD,
       y: AY_TWO_LANES,
       roads: [road],
-      drives: [{ road: LANE, frames: [[0, ROAD_FROM], [t1 * SEC_PER_HOUR_TRIP, ROAD_TO]] }],
+      drives: [{ road: LANE, frames: [[0, ROAD_FROM], [t1 * SEC_PER_HOUR_TRIP, ROAD_TO]], vehicle: 'van' }],
       clock: time.clock,
       labels: [caption(LANE, `out at ${out} km/h`), ...ends, ...time.labels],
     })
@@ -431,8 +409,8 @@ function tripScene(each: number, out: number, back: number | undefined): Rendere
     y: AY_TWO_LANES,
     roads: [road, { y: UPPER, from: ROAD_FROM, to: ROAD_TO }],
     drives: [
-      { road: LANE, frames: [[0, ROAD_FROM], [t1 * s, ROAD_TO], [total * s, ROAD_FROM]] },
-      { road: UPPER, frames: [[0, ROAD_FROM], [(total / 2) * s, ROAD_TO], [total * s, ROAD_FROM]], ghost: true },
+      { road: LANE, frames: [[0, ROAD_FROM], [t1 * s, ROAD_TO], [total * s, ROAD_FROM]], vehicle: 'van' },
+      { road: UPPER, frames: [[0, ROAD_FROM], [(total / 2) * s, ROAD_TO], [total * s, ROAD_FROM]], vehicle: 'van', ghost: true },
     ],
     labels: [
       caption(LANE, `out at ${out} km/h, back at ${back} km/h`),
@@ -487,11 +465,11 @@ function stageEachHour(p: Params): Stage {
   const share = distance / t
   return {
     title: 'Distance in each hour',
-    ask: `A coach travels ${distance} km in ${t} hours, at a steady speed the whole way. `
+    ask: `A car travels ${distance} km in ${t} hours, at a steady speed the whole way. `
       + 'How far does it go in each hour?',
-    axes: axesOf(coachGraph(distance, [], 0)),
+    axes: axesOf(carGraph(distance, [], 0)),
     predict: {
-      prompt: 'In each hour, the coach goes…',
+      prompt: 'In each hour, the car goes…',
       on: {
         kind: 'choice',
         options: [`${share} km`, `${distance * t} km`, `1/${share} km`],
@@ -509,17 +487,17 @@ function stageEachHour(p: Params): Stage {
       explain: [
         `The speed is steady, so every hour covers the same distance: share the ${distance} km `
           + `equally between the ${t} hours.`,
-        `${distance} ÷ ${t} = ${share}, so the coach goes ${share} km in each hour.`,
+        `${distance} ÷ ${t} = ${share}, so the car goes ${share} km in each hour.`,
       ],
     },
     control: {
       name: 'hours',
       verb: 'try',
-      scene: (drawn, current, before) => coachScene(distance, drawn, current, before),
-      render: (drawn, current, before) => coachGraph(distance, drawn, current, before),
-      prompt: `Looking at that ${distance} km journey, what happens to the speed of the coach if `
+      scene: (drawn, current, before) => carScene(distance, drawn, current, before),
+      render: (drawn, current, before) => carGraph(distance, drawn, current, before),
+      prompt: `Looking at that ${distance} km journey, what happens to the speed of the car if `
         + 'it takes different amounts of time? Try different values for the hours the journey '
-        + 'takes and watch the speed of the coach, and how steep its line on the graph is.',
+        + 'takes and watch the speed of the car, and how steep its line on the graph is.',
       hint: 'Any whole number of hours from 1 to 6.',
       domain: { min: 1, max: 6, step: 1 },
       suggest: [2, 6],
@@ -675,9 +653,10 @@ function stageFromSpeed(p: Params): Stage {
     naming: {
       label: 'Worth knowing',
       term: 'the formula triangle',
-      means: 'Many people remember it as a triangle, D on top and S and T underneath. Cover '
-        + 'the one you want and the other two tell you what to do: D = S × T, S = D ÷ T, '
-        + 'T = D ÷ S.',
+      means: 'Many people remember it as a triangle: D for distance on top, S for speed and T '
+        + 'for time underneath. Cover the one you want, and the other two tell you what to do — '
+        + 'side by side, multiply them; one over the other, divide.',
+      triangle: { top: 'D', left: 'S', right: 'T' },
       elsewhere: 'A sat-nav’s arrival time is this, worked out again and again: the distance '
         + 'left divided by your speed, updated every time you slow down.',
       onThePaper: 'A train travels 210 km at 70 km/h. How long does the journey take?',
@@ -692,11 +671,13 @@ function stageFromSpeed(p: Params): Stage {
   }
 }
 
-// ─── Stage 3: minutes are not decimals ───────────────────────────────────────
+// ─── Stage 3: minutes are a fraction of an hour ──────────────────────────────
 //
 // The error that costs the most marks: 20 minutes keyed in as 0.2 hours. It
-// is a units mistake hiding as a decimals one, and a graph in MINUTES makes
-// the hour's 60 of them visible.
+// is a units mistake hiding as a decimals one, and it is not about motion at
+// all — it is a fraction of an amount. So this section drops the road and the
+// graph for the bar model students already use for "find 1/3 of 24": the
+// hour's 60 minutes and the hour's kilometres, cut into the same parts.
 
 /** [speed, minutes]: speeds are multiples of 12, so every 5 minutes is a whole km. */
 const S3 = [[24, 20], [36, 40], [48, 15], [60, 45]] as const
@@ -705,10 +686,10 @@ function stageMinutes(p: Params): Stage {
   const [speed, m] = S3[p.s3]
   const d = (speed * m) / 60
   return {
-    title: 'Minutes are not decimals',
+    title: 'Minutes as a fraction of an hour',
     ask: `Journeys are often given in minutes, not hours. A cyclist rides at ${speed} km/h for `
       + `${m} minutes. How far do they go?`,
-    axes: axesOf(rideGraph(speed, undefined)),
+    axes: axesOf(hourBars(speed, undefined)),
     predict: {
       prompt: `In ${m} minutes, the cyclist goes…`,
       on: {
@@ -733,10 +714,9 @@ function stageMinutes(p: Params): Stage {
     control: {
       name: 'minutes',
       verb: 'try',
-      scene: (drawn, current) => rideScene(speed, drawn[current]),
-      render: (drawn, current) => rideGraph(speed, drawn[current]),
-      prompt: `Keep the speed at ${speed} km/h and change how many minutes the ride lasts. The `
-        + 'faint cyclist rides for a whole hour, so you can see what fraction of it yours took.',
+      render: (drawn, current) => hourBars(speed, drawn[current]),
+      prompt: `Keep the speed at ${speed} km/h and change how many minutes the ride lasts. Watch `
+        + `what fraction of the hour the minutes are, and the same fraction of the hour’s ${speed} km.`,
       hint: 'Any number of minutes from 5 to 60, in fives.',
       domain: { min: 5, max: 60, step: 5 },
       suggest: [30, 45],
@@ -769,9 +749,10 @@ function stageMinutes(p: Params): Stage {
           misconception: ['', 'converted_with_the_wrong_factor'],
         },
       ],
-      because: 'Minutes do not count in tenths of an hour, so they are not its decimal part. '
-        + '30 minutes is a half, 0.5; 45 minutes is three quarters, 0.75; 20 minutes is a third, '
-        + '0.333… — never 0.2.',
+      because: 'Minutes are a fraction of an hour, out of 60: 20 minutes is {20/60} = {1/3} of '
+        + 'an hour, so a 20-minute ride goes {1/3} of an hour’s distance. They do not count in '
+        + 'tenths, so they are not the hour’s decimal part: 30 minutes is 0.5, 45 minutes is '
+        + '0.75, 20 minutes is 0.333… — never 0.2.',
       algebraLead: 'In symbols, for a ride of M minutes:',
       algebra: 'hours = {M/60}\n'
         + '  distance = speed × {M/60}',

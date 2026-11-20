@@ -47,11 +47,19 @@ describe('every investigation’s bar models', () => {
   // is short, its ends and every tenth where it is long.
   const allBars = () => {
     const out: { where: string; grid: RenderedGrid }[] = []
+    // A section's figure is drawn from the numbers its question and prompt
+    // show, so once per distinct pair: compound units reads one parameter per
+    // section, and every other draw only built the same bars again (it took
+    // this test past its time limit).
+    const seen = new Set<string>()
     for (const one of Object.values(investigations)) {
       for (const p of allDraws(one.parameters)) {
         one.build(p).forEach((stage, i) => {
           const c = stage.control
           if (!c?.render) return
+          const key = `${one.skillId}:${i}:${stage.ask}:${c.prompt}`
+          if (seen.has(key)) return
+          seen.add(key)
           const { min, max, step } = c.domain
           const all: number[] = []
           for (let v = min; v <= max + 1e-9; v += step) all.push(+v.toFixed(6))

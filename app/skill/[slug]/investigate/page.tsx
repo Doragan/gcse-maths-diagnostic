@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import GridCanvas from '../../../../components/practice/GridCanvas'
 import BankQuestion from '../../../../components/practice/BankQuestion'
+import FormulaTriangle from '../../../../components/practice/FormulaTriangle'
 import { skillsById } from '../../../../lib/skills/skillGraph'
 import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
@@ -779,6 +780,7 @@ export default function InvestigatePage() {
                                   <span>{prose(stage.naming.term)}</span>
                                 </p>
                                 <p style={styles.namingMeans}>{prose(stage.naming.means)}</p>
+                                {stage.naming.triangle && <FormulaTriangle {...stage.naming.triangle} />}
                                 <p style={styles.namingElse}>{prose(stage.naming.elsewhere)}</p>
                                 <p style={styles.namingPaper}>
                                   <span style={styles.namingPaperLabel}>On the paper</span>
