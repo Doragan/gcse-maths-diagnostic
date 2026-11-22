@@ -310,6 +310,19 @@ describe('section 3: a fraction of the hour is that fraction of the distance', (
     }
   })
 
+  it('says which bar is minutes and which is km, and never writes the same numbers in both', () => {
+    // At 60 km/h a minute was a kilometre, so both bars read 5 5 5 … and could
+    // not be told apart (review, 2026-11-22).
+    for (const { where, speed, m, grid } of bars()) {
+      const words = (grid.labels ?? []).map(l => l.text)
+      expect(words, where).toContain('min')
+      expect(words, where).toContain('km')
+      const parts = 60 / gcd(m, 60)
+      expect(speed / parts, `${where}: a part of the hour and a part of the distance read the same`)
+        .not.toBe(60 / parts)
+    }
+  })
+
   it('writes one part of the distance in each part, and the answer under it', () => {
     for (const { where, speed, m, grid } of bars()) {
       const parts = 60 / gcd(m, 60)
@@ -318,6 +331,42 @@ describe('section 3: a fraction of the hour is that fraction of the distance', (
       const d = (speed * m) / 60
       expect(words.join(' | '), where).toMatch(m === 60 ? `the whole ${speed} km` : `= ${d} km`)
     }
+  })
+})
+
+describe('pace and direction', () => {
+  it('takes five to seven seconds over the longest journey a section allows', () => {
+    // Under four was too quick to follow the vehicle, the clock and the line
+    // at once (review, 2026-11-22).
+    const longest = new Map<number, number>()
+    for (const { section, scene, drawn } of journeys()) {
+      if (drawn.length === 0) continue
+      const end = clock(scene.background, 'data-clock="dot"', 'cx')!.at(-1)!
+      longest.set(section, Math.max(longest.get(section) ?? 0, end))
+    }
+    expect([...longest.keys()].sort()).toEqual([0, 1, 3])
+    for (const [section, secs] of longest) {
+      expect(secs, `section ${section + 1}`).toBeGreaterThanOrEqual(5)
+      expect(secs, `section ${section + 1}`).toBeLessThanOrEqual(7)
+    }
+  })
+
+  it('drives section 4 one way, A to B to C, without turning round', () => {
+    let checked = 0
+    for (const { where, scene, section, drawn } of journeys()) {
+      if (section !== 3 || drawn.length === 0) continue
+      expect(scene.background, where).not.toMatch(/attributeName="opacity"[^>]*values="1;1;0"/)
+      for (const m of scene.background.matchAll(/data-drive="(?:live|ghost)"[^>]*><animate attributeName="x" [^>]*values="([^"]+)"/g)) {
+        const xs = m[1].split(';').map(Number)
+        for (let k = 1; k < xs.length; k++) expect(xs[k], where).toBeGreaterThan(xs[k - 1])
+      }
+      const words = (scene.labels ?? []).map(l => l.text)
+      expect(words, where).toContain('A')
+      expect(words.some(w => w.startsWith('B, ')), where).toBe(true)
+      expect(words.some(w => w.startsWith('C, ')), where).toBe(true)
+      checked++
+    }
+    expect(checked).toBeGreaterThan(20)
   })
 })
 
