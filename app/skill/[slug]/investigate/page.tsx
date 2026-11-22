@@ -180,8 +180,18 @@ export default function InvestigatePage() {
   const [states, setStates] = useState<StageState[]>([])
   /** Which section is on screen. */
   const [current, setCurrent] = useState(0)
-  /** The closing card, which "Finish" on the last section scrolls to. */
+  /** The closing card, which "Finish" on the last section brings up and scrolls to. */
   const finishRef = useRef<HTMLElement>(null)
+  /**
+   * Whether "Finish" has been pressed. The card used to appear as soon as the
+   * last rule was right — directly under the Finish button, at the foot of the
+   * page — so pressing Finish scrolled to something already on screen, and
+   * looked like a button that did nothing.
+   */
+  const [finished, setFinished] = useState(false)
+  useEffect(() => {
+    if (finished) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [finished])
   /**
    * A student who has asked their device for less motion gets each figure in
    * its finished state, without the bar growing or shrinking into place.
@@ -874,8 +884,11 @@ export default function InvestigatePage() {
                       title={ready ? undefined : 'Finish the rule and have a go at the check first'}
                       disabled={!ready}
                       onClick={() => {
-                        if (last) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                        else {
+                        if (last) {
+                          // A second press still goes there: the effect only runs on the first.
+                          if (finished) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          setFinished(true)
+                        } else {
                           setCurrent(onScreen + 1)
                           window.scrollTo({ top: 0 })
                         }
@@ -894,7 +907,7 @@ export default function InvestigatePage() {
           )
         })}
 
-        {allDone && (
+        {allDone && finished && (
           <section ref={finishRef} style={{ ...styles.card, borderColor: colors.primary }}>
             <p style={styles.h}>Now try it on real questions</p>
             <p style={styles.prompt}>
