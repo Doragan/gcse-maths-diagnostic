@@ -41,13 +41,34 @@ import type { BarFill, BarModel } from '../../lib/skills/investigationFigures'
  */
 const Q_SHARE = '2471f835-e678-4793-9f29-bcd3d94724a8'
 
-// Sections 2–4 wait on questions drafted for them (scripts/draft-ratio.ts),
-// inserted UNPUBLISHED 2026-11-22 and wired in once they are published:
-//   section 2  1af11a98-9049-4937-b626-e1c01d18609f  one share known (d2)
-//   section 3  a99e08d4-0f23-49af-8c90-6ae67f2764b7  a ratio as a fraction (d2)
-//   section 4  2755b440-c12c-4922-ae48-4b39c118f8eb  three people, a difference (d3)
-// Until then the investigation is under construction, which is the only state
-// in which a section may close without a check.
+/**
+ * "Amy and Ben share some money in the ratio a : b. Ben gets £X. How much does
+ * Amy get?" (d2, numeric) — written for section 2 (scripts/draft-ratio.ts).
+ *
+ * Its traps are the five wrong ways in: keeping the gap in pounds, the whole
+ * amount, one part, Ben's share divided by Amy's number, and Ben's share
+ * shared out as if it were all the money (added at review).
+ */
+const Q_ONE_SHARE = '1af11a98-9049-4937-b626-e1c01d18609f'
+/**
+ * "Red and blue counters in the ratio a : b. What fraction of the counters are
+ * red?" (d2, fraction) — written for section 3.
+ *
+ * Its first trap is red/blue, the ratio written as a fraction: the commonest
+ * ratio trap on the papers, and the one this section exists to undo.
+ */
+const Q_AS_FRACTION = 'a99e08d4-0f23-49af-8c90-6ae67f2764b7'
+
+/**
+ * "Amy, Ben and Cara share some money in the ratio a : b : c. Cara gets £X more
+ * than Amy. How much does Ben get?" (d3, numeric) — written for section 4.
+ *
+ * Seven traps: the difference shared as if it were the total, taken as one
+ * part, one part itself, the total, and — added at review — the £X read as
+ * Amy's, Cara's or Ben's own share. Its six scenarios keep all eight answers
+ * apart.
+ */
+const Q_DIFFERENCE = '2755b440-c12c-4922-ae48-4b39c118f8eb'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -422,6 +443,14 @@ function stageOneShare(p: Params): Stage {
           ? `So one part is ${money(each)} again.`
           : `So ${gap} parts are ${money(gap * each)}, and one part is ${money(each)} again.`}`,
     },
+    check: [
+      {
+        questionId: Q_ONE_SHARE,
+        because: 'The section exactly: a two-part ratio and one share, and the other share to '
+          + 'find. Its traps are the gap kept in pounds, the whole amount, one part, dividing by '
+          + 'the wrong number, and the known share shared out as if it were the total.',
+      },
+    ],
   }
 }
 
@@ -525,6 +554,14 @@ function stageFractions(p: Params): Stage {
       body: 'Backwards works the same way. If {2/5} of a class are boys, then 2 in every 5 are '
         + 'boys and the other 3 are girls — so boys to girls is 2 : 3, not 2 : 5.',
     },
+    check: [
+      {
+        questionId: Q_AS_FRACTION,
+        because: 'The section exactly, on counters instead of a class: a ratio, and the fraction '
+          + 'of the whole that one part makes. Its first trap is the ratio written as a fraction '
+          + '— part to part where part to whole is asked for.',
+      },
+    ],
   }
 }
 
@@ -631,6 +668,14 @@ function stageDifference(p: Params): Stage {
       algebra: 'one part = {D/(c − a)}\n'
         + '  second share = b × {D/(c − a)}',
     },
+    check: [
+      {
+        questionId: Q_DIFFERENCE,
+        because: 'The section exactly: three people, a difference between two shares, and a '
+          + 'third share to find. Its traps are the difference treated as the total, as one part, '
+          + 'or as somebody’s whole share, and stopping at one part or at the total.',
+      },
+    ],
   }
 }
 
@@ -653,7 +698,7 @@ export const ratioInvestigation: Investigation = {
     ],
   },
   underConstruction: 'This one is new and still being worked on. The maths is right, but the '
-    + 'wording may still change, and sections 2 to 4 are waiting for their questions.',
+    + 'wording and the questions at the end of each section may still change.',
   parameters: {
     // One authored scenario per section, by index, so every number divides
     // exactly and the space stays small enough for the tests to walk.
