@@ -180,13 +180,14 @@ export default function InvestigatePage() {
   const [states, setStates] = useState<StageState[]>([])
   /** Which section is on screen. */
   const [current, setCurrent] = useState(0)
-  /** The closing card, which "Finish" on the last section brings up and scrolls to. */
+  /** The finished view, which "Finish" on the last section opens. */
   const finishRef = useRef<HTMLElement>(null)
   /**
-   * Whether "Finish" has been pressed. The card used to appear as soon as the
-   * last rule was right — directly under the Finish button, at the foot of the
-   * page — so pressing Finish scrolled to something already on screen, and
-   * looked like a button that did nothing.
+   * Whether "Finish" has been pressed: the sections give way to a finished
+   * view, and the page goes to it. Scrolling to a card under the button was
+   * not enough — at the foot of the page there was nowhere to scroll, so the
+   * button looked as if it did nothing (review, 2026-11-22). The pips still
+   * lead back into any section.
    */
   const [finished, setFinished] = useState(false)
   useEffect(() => {
@@ -388,15 +389,15 @@ export default function InvestigatePage() {
               <button
                 key={i}
                 disabled={!reachable}
-                onClick={() => { setCurrent(i); window.scrollTo({ top: 0 }) }}
-                aria-current={i === onScreen ? 'step' : undefined}
+                onClick={() => { setFinished(false); setCurrent(i); window.scrollTo({ top: 0 }) }}
+                aria-current={!finished && i === onScreen ? 'step' : undefined}
                 aria-label={`Section ${i + 1}: ${resolved.stages[i].title}${states[i]?.done ? ', done' : ''}`}
                 // The number alone says nothing about where it goes; the title
                 // does, on hover.
                 title={`${i + 1}. ${resolved.stages[i].title}`}
                 style={{
                   ...styles.pip,
-                  ...(i === onScreen ? styles.pipNow : {}),
+                  ...(!finished && i === onScreen ? styles.pipNow : {}),
                   ...(states[i]?.done ? styles.pipDone : {}),
                   cursor: reachable ? 'pointer' : 'not-allowed',
                   opacity: reachable ? 1 : 0.5,
@@ -407,7 +408,7 @@ export default function InvestigatePage() {
             )
           })}
           <span style={styles.pipCount}>
-            Section {onScreen + 1} of {resolved.stages.length}
+            {finished ? 'Finished' : `Section ${onScreen + 1} of ${resolved.stages.length}`}
           </span>
         </nav>
 
@@ -415,7 +416,7 @@ export default function InvestigatePage() {
           const st = states[i]
           const step = stepNumbers(stage)
           const locked = i > 0 && !states[i - 1].done
-          if (i !== onScreen) return null
+          if (finished || i !== onScreen) return null
           return (
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
               {/* A real heading, so a screen reader can move between stages. */}
@@ -884,11 +885,8 @@ export default function InvestigatePage() {
                       title={ready ? undefined : 'Finish the rule and have a go at the check first'}
                       disabled={!ready}
                       onClick={() => {
-                        if (last) {
-                          // A second press still goes there: the effect only runs on the first.
-                          if (finished) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                          setFinished(true)
-                        } else {
+                        if (last) setFinished(true)
+                        else {
                           setCurrent(onScreen + 1)
                           window.scrollTo({ top: 0 })
                         }
@@ -909,9 +907,19 @@ export default function InvestigatePage() {
 
         {allDone && finished && (
           <section ref={finishRef} style={{ ...styles.card, borderColor: colors.primary }}>
+            <p style={styles.finishedHead}>You have finished {resolved.title}</p>
+            <p style={styles.outcomesHead}>You can now:</p>
+            <ul style={styles.ticks}>
+              {investigation.outcomes.points.map((o, i) => (
+                <li key={i} style={styles.tick}>
+                  <span aria-hidden="true" style={styles.tickMark}>✓</span>
+                  <span>{prose(o)}</span>
+                </li>
+              ))}
+            </ul>
             <p style={styles.h}>Now try it on real questions</p>
             <p style={styles.prompt}>
-              Nothing above this point counted towards your progress. These do — they are
+              Nothing in the investigation counted towards your progress. These do — they are
               marked the same way every other question is.
             </p>
             <div style={styles.row}>
@@ -960,6 +968,13 @@ const styles: Record<string, React.CSSProperties> = {
   outcome: {
     fontSize: font.base, color: colors.textSecondary, lineHeight: 1.5, marginBottom: '3px',
   },
+  finishedHead: { fontSize: font.xl, fontWeight: '700', margin: 0, color: colors.textPrimary },
+  ticks: { margin: '0 0 6px', padding: 0, listStyleType: 'none' },
+  tick: {
+    display: 'flex', gap: '8px', fontSize: font.base, color: colors.textPrimary,
+    lineHeight: 1.5, marginBottom: '4px',
+  },
+  tickMark: { color: colors.successText, fontWeight: '700' },
   construction: {
     border: `1px solid ${colors.warningBorder}`,
     background: colors.warningLight,
