@@ -25,9 +25,10 @@ import type { BarModel, Clock, Drive, MeasureLeg, Road, Trace } from '../../lib/
 //      journey: 20 minutes is a third of the hour, so the ride goes a third of
 //      the hour's distance. Never 0.2 of it, the error that costs the most
 //      marks on paper.
-//   4. A journey in two parts — 60 km/h then 30 km/h over the same distance,
-//      and the average is 40, not 45. A steady van driving at the average
-//      arrives at the same moment. There and back is the same sum.
+//   4. A journey in two parts — the average speed is pulled towards the speed
+//      the van spends LONGER at, not halfway between: 60 then 30 over the
+//      same distance averages 40, not 45. A steady van driving at the
+//      average arrives at the same moment. There and back is the same sum.
 //
 // Density is not a section of its own. It is the same "per" with grams and
 // cubic centimetres, so it appears as section 1's second check (with a note
@@ -394,25 +395,30 @@ function hourBars(speed: number, m: number | undefined): RenderedGrid {
   })
 }
 
-/** Section 4's time axis: long enough for the slowest second half. */
-const tripHours = (each: number, first: number) => hoursAxis(each / first + each / 20, 1)
+/** Section 4's journey: [km from A to B, its speed, km from B to C]. */
+type Legs = readonly [number, number, number]
+
+/** Section 4's time axis: long enough for the slowest second part. */
+const tripHours = ([d1, s1, d2]: Legs) => hoursAxis(d1 / s1 + d2 / 20, 1)
 
 /**
- * Section 4: the van drives from A to B, then on from B to C, the same
- * distance each — one way, as most two-part journeys on the paper are — with
- * a faint van driving the whole way at the AVERAGE speed in the lane above.
- * They set off together and reach C together, which is what an average speed
- * is.
+ * Section 4: the van drives from A to B, then on from B to C — one way, as
+ * most two-part journeys on the paper are, and the two parts need not be the
+ * same length — with a faint van driving the whole way at the AVERAGE speed
+ * in the lane above. They set off together and reach C together, which is
+ * what an average speed is.
  */
-function tripScene(each: number, first: number, second: number | undefined): RenderedGrid {
-  const t1 = each / first
+function tripScene(legs: Legs, second: number | undefined): RenderedGrid {
+  const [d1, s1, d2] = legs
+  const total = d1 + d2
+  const t1 = d1 / s1
   const s = SEC_PER_HOUR_TRIP
-  const time = clockFor(tripHours(each, first), 1, 'hours', second === undefined ? t1 : t1 + each / second, s)
-  const mid = along(each, 2 * each)
+  const time = clockFor(tripHours(legs), 1, 'hours', second === undefined ? t1 : t1 + d2 / second, s)
+  const mid = along(d1, total)
   const places = [
     under(ROAD_FROM, LANE, 'A'),
-    under(mid, LANE, `B, ${each} km`),
-    under(ROAD_TO, LANE, `C, ${2 * each} km`),
+    under(mid, LANE, `B, ${d1} km`),
+    under(ROAD_TO, LANE, `C, ${total} km`),
   ]
   const road: Road = { y: LANE, from: ROAD_FROM, to: ROAD_TO, faint: [mid] }
   if (second === undefined) {
@@ -422,23 +428,24 @@ function tripScene(each: number, first: number, second: number | undefined): Ren
       roads: [road],
       drives: [{ road: LANE, frames: [[0, ROAD_FROM], [t1 * s, mid]], vehicle: 'van' }],
       clock: time.clock,
-      labels: [caption(LANE, `A to B at ${first} km/h`), ...places, ...time.labels],
+      labels: [caption(LANE, `A to B at ${s1} km/h`), ...places, ...time.labels],
     })
   }
-  const total = t1 + each / second
-  const avg = (2 * each) / total
+  const hrs = t1 + d2 / second
+  const avg = total / hrs
+  // When the steady van passes B: it covers the same share of the time as of
+  // the distance. Kept as a key so the two clocks share every one.
+  const atB = (hrs * d1) / total
   return journeyScene({
     x: AX_ROAD,
     y: AY_TWO_LANES,
     roads: [road, { y: UPPER, from: ROAD_FROM, to: ROAD_TO, faint: [mid] }],
     drives: [
-      { road: LANE, frames: [[0, ROAD_FROM], [t1 * s, mid], [total * s, ROAD_TO]], vehicle: 'van' },
-      // Through B half way through the time too: the line is straight either
-      // way, but the two clocks then share every key.
-      { road: UPPER, frames: [[0, ROAD_FROM], [(total / 2) * s, mid], [total * s, ROAD_TO]], vehicle: 'van', ghost: true },
+      { road: LANE, frames: [[0, ROAD_FROM], [t1 * s, mid], [hrs * s, ROAD_TO]], vehicle: 'van' },
+      { road: UPPER, frames: [[0, ROAD_FROM], [atB * s, mid], [hrs * s, ROAD_TO]], vehicle: 'van', ghost: true },
     ],
     labels: [
-      caption(LANE, `${first} km/h to B, then ${second} km/h to C`),
+      caption(LANE, `${s1} km/h to B, then ${second} km/h to C`),
       caption(UPPER, `steady ${one(avg)} km/h (the dashed line)`),
       ...places,
       ...time.labels,
@@ -448,30 +455,33 @@ function tripScene(each: number, first: number, second: number | undefined): Ren
 }
 
 /**
- * Section 4's graph: distance from A, steep for the first half and flatter
- * for the second when it is slower. The dashed line goes straight from the
- * start to the finish — the steady van — and its steepness is the average.
+ * Section 4's graph: distance from A, one slope for each part. The dashed
+ * line goes straight from the start to the finish — the steady van — and its
+ * steepness is the average.
+ *
+ * Only the journey being tried. Earlier tries all share the first part and
+ * then fan out from B, and one tried at the first part's speed reads as that
+ * part's line carried on past the change — which is confusing (review,
+ * 2026-11-22). The scene shows one journey, and so does the graph.
  */
-function tripGraph(each: number, first: number, drawn: readonly number[], current: number): RenderedGrid {
-  const t1 = each / first
-  const x = tripHours(each, first)
-  const y = kmAxis(2 * each, 'distance from A (km)')
+function tripGraph(legs: Legs, second: number | undefined): RenderedGrid {
+  const [d1, s1, d2] = legs
+  const total = d1 + d2
+  const t1 = d1 / s1
+  const x = tripHours(legs)
+  const y = kmAxis(total, 'distance from A (km)')
   const s = SEC_PER_HOUR_TRIP
-  const second = drawn[current]
-  const traces: Trace[] = others(drawn, current)
-    .map(w => ({ points: [[0, 0], [t1, each], [t1 + each / w, 2 * each]], style: 'ghost' }))
   if (second === undefined) {
-    traces.push({ points: [[0, 0], [t1, each]], times: [0, t1 * s], style: 'live' })
+    const traces: Trace[] = [{ points: [[0, 0], [t1, d1]], times: [0, t1 * s], style: 'live' }]
     return distanceTimeGrid({ x, y, traces, now: clockFor(x, 1, 'hours', t1, s).now })
   }
-  const total = t1 + each / second
-  traces.push({
-    points: [[0, 0], [total / 2, each], [total, 2 * each]],
-    times: [0, (total / 2) * s, total * s],
-    style: 'dashed',
-  })
-  traces.push({ points: [[0, 0], [t1, each], [total, 2 * each]], times: [0, t1 * s, total * s], style: 'live' })
-  return distanceTimeGrid({ x, y, traces, now: clockFor(x, 1, 'hours', total, s).now })
+  const hrs = t1 + d2 / second
+  const atB = (hrs * d1) / total
+  const traces: Trace[] = [
+    { points: [[0, 0], [atB, d1], [hrs, total]], times: [0, atB * s, hrs * s], style: 'dashed' },
+    { points: [[0, 0], [t1, d1], [hrs, total]], times: [0, t1 * s, hrs * s], style: 'live' },
+  ]
+  return distanceTimeGrid({ x, y, traces, now: clockFor(x, 1, 'hours', hrs, s).now })
 }
 
 // ─── Stage 1: distance in each hour ──────────────────────────────────────────
@@ -799,70 +809,85 @@ function stageMinutes(p: Params): Stage {
 
 // ─── Stage 4: a journey in two parts ─────────────────────────────────────────
 //
-// The surprise, as percentage change's "up, then down" is there: the same
-// distance at each of two speeds, so the slow half takes longer and pulls the
-// average towards it. 60 then 30 averages 40, not 45.
+// The surprise, as percentage change's "up, then down" is there: the average
+// of two speeds is not the average speed. Each speed counts for as long as
+// the van spends at it, so the average is pulled towards the speed it spends
+// LONGER at — which is not always the slower one, nor the one it drives
+// further at, once the two parts are different lengths.
 //
 // One way, A to B to C, because that is how most two-part journeys appear on
 // the paper; a there-and-back trip is the same sum, which the aside says and
 // the check (Q_ROUND_TRIP, written for this section) then asks.
 
-/** Each half of the journey, in km. Every speed below divides it. */
-const EACH = 120
-/** [first, second] for the prediction: every average comes out whole. */
-const S4 = [[60, 30], [40, 120], [60, 20], [40, 60]] as const
+/**
+ * [km A to B, its speed, km B to C, the speed asked about]. Every average
+ * comes out whole and every total divides by 6 for the graph's scale, and the
+ * four are chosen to pull apart the three things the average might follow:
+ *   - equal parts, the classic: 60 then 30 averages 40, not 45;
+ *   - further at the FASTER speed, but longer at the slower: 36, not 40;
+ *   - longer at the faster speed: 36, ABOVE the average of the speeds, 35;
+ *   - further and longer at the faster speed: 60, not 55.
+ */
+const S4 = [[120, 60, 120, 30], [60, 20, 120, 60], [120, 40, 60, 30], [40, 40, 140, 70]] as const
 
 function stageTwoParts(p: Params): Stage {
-  const [first, second] = S4[p.s4]
-  const t1 = EACH / first
-  const t2 = EACH / second
-  const avg = (2 * EACH) / (t1 + t2)
-  const mean = (first + second) / 2
+  const [d1, s1, d2, s2] = S4[p.s4]
+  const legs: Legs = [d1, s1, d2]
+  const t1 = d1 / s1
+  const t2 = d2 / s2
+  const total = d1 + d2
+  const avg = total / (t1 + t2)
+  const mean = (s1 + s2) / 2
+  // Which speed the average sits nearer, named without saying why: the why is
+  // the rule's second blank.
+  const longer = t1 > t2 ? s1 : s2
+  const other = longer === s1 ? s2 : s1
   return {
     title: 'A journey in two parts',
-    ask: `A van drives ${EACH} km from A to B at ${first} km/h, then another ${EACH} km from B `
-      + `to C at ${second} km/h. What is its average speed for the whole journey?`,
-    axes: axesOf(tripGraph(EACH, first, [], 0)),
+    ask: `A van drives ${d1} km from A to B at ${s1} km/h, then ${d2} km from B to C at `
+      + `${s2} km/h. What is its average speed for the whole journey?`,
+    axes: axesOf(tripGraph(legs, undefined)),
     predict: {
       prompt: 'The average speed for the whole journey is…',
       on: {
         kind: 'choice',
-        options: [`${avg} km/h`, `${mean} km/h`, `${first + second} km/h`],
+        options: [`${avg} km/h`, `${mean} km/h`, `${s1 + s2} km/h`],
         correct: 0,
         wrong: [
           '',
           'That is the average of the two speeds, and almost everybody says it. But the van '
-            + 'does not spend the same time at each speed — the slower half takes longer, so '
-            + 'it counts for more. The working is below.',
-          `${first} + ${second} is faster than the van ever goes. An average speed has to sit `
+            + 'does not spend the same time at each speed, so they do not count equally. The '
+            + 'working is below.',
+          `${s1} + ${s2} is faster than the van ever goes. An average speed has to sit `
             + 'between the speeds it is made of.',
         ],
       },
       right: `${avg} km/h — and most people say ${mean}.`,
       explain: [
-        `A to B: ${EACH} km at ${first} km/h takes ${EACH} ÷ ${first} = ${hours(t1)}.`,
-        `B to C: ${EACH} km at ${second} km/h takes ${EACH} ÷ ${second} = ${hours(t2)}.`,
-        `Whole journey: ${2 * EACH} km in ${hours(t1 + t2)}, so ${2 * EACH} ÷ ${one(t1 + t2)} = `
-          + `${avg} km/h.`,
+        `A to B: ${d1} km at ${s1} km/h takes ${d1} ÷ ${s1} = ${hours(t1)}.`,
+        `B to C: ${d2} km at ${s2} km/h takes ${d2} ÷ ${s2} = ${hours(t2)}.`,
+        `Whole journey: ${total} km in ${hours(t1 + t2)}, so ${total} ÷ ${one(t1 + t2)} = `
+          + `${avg} km/h — closer to ${longer} km/h than to ${other} km/h.`,
       ],
     },
     control: {
       name: 'second speed',
       verb: 'try',
-      scene: (drawn, current) => tripScene(EACH, first, drawn[current]),
-      render: (drawn, current) => tripGraph(EACH, first, drawn, current),
-      prompt: `Keep A to B at ${first} km/h and change the speed from B to C. The faint van `
-        + 'drives the whole way at the average speed.',
+      scene: (drawn, current) => tripScene(legs, drawn[current]),
+      render: (drawn, current) => tripGraph(legs, drawn[current]),
+      prompt: `Keep A to B the same — ${d1} km at ${s1} km/h — and change the speed for the `
+        + `${d2} km from B to C. The faint van drives the whole way at the average speed. `
+        + 'Watch which part of the journey takes longer.',
       hint: 'Any speed from 20 to 120 km/h, in twenties.',
       domain: { min: 20, max: 120, step: 20 },
       suggest: [20, 120],
       label: v => `then ${v} km/h`,
       coverage: drawn => {
         if (new Set(drawn).size < 2) return 'Try a second speed from B to C.'
-        // The one case where halving the speeds works: the same speed both
-        // halves, so the same time on each. Worth seeing once.
-        if (!drawn.includes(first)) {
-          return `Now drive from B to C at ${first} km/h — the same speed the whole way — and `
+        // The one case where the average is plainly that speed: the same
+        // speed the whole way. Worth seeing once.
+        if (!drawn.includes(s1)) {
+          return `Now drive from B to C at ${s1} km/h — the same speed the whole way — and `
             + 'see what the average does.'
         }
         return null
@@ -871,8 +896,8 @@ function stageTwoParts(p: Params): Stage {
     conclude: {
       sentence: [
         'Average speed is the total distance divided by ',
-        ', so it ends up closer to the ',
-        ' speed.',
+        ', so it ends up closer to the speed the van ',
+        '.',
       ],
       slots: [
         {
@@ -887,23 +912,24 @@ function stageTwoParts(p: Params): Stage {
           misconception: ['', 'averaged_the_rates'],
         },
         {
-          options: ['slower', 'faster'],
+          options: ['spends longer at', 'drives further at'],
           correct: 0,
           diagnosis: [
             '',
-            'On the graph, the slow half is the flatter, LONGER part of the line, so more of '
-            + 'the journey’s time is spent going slowly — and the average is pulled towards that '
-            + 'speed.',
+            'Distance is not what counts — time is. On the graph, the part of the line that '
+            + 'stretches further across the TIME axis is the one the dashed line stays closer '
+            + 'to, whichever part climbs further.',
           ],
-          misconception: ['', 'averaged_the_rates'],
+          misconception: ['', ''],
         },
       ],
-      because: 'The journey spends longer at the slower speed — twice as long when the speed '
-        + 'halves — so the slow half counts for more. Adding the two speeds and halving only '
-        + 'works when you spend the same TIME at each, not the same distance: drive both halves '
-        + 'at the same speed and it does.',
-      algebraLead: 'In symbols, for D km at a km/h and then D km at b km/h:',
-      algebra: 'average = {2D/(D ÷ a + D ÷ b)}',
+      because: 'An average speed is the total distance over the total time, so each speed '
+        + 'counts for as long as the van spends at it. Spend longer at one speed and the average '
+        + 'is pulled towards it. Over the same distance the slower speed always takes longer, '
+        + 'which is why the average usually sits below the halfway point — but not always. '
+        + 'Adding the two speeds and halving only works when the two TIMES are the same.',
+      algebraLead: 'In symbols, for p km at a km/h and then q km at b km/h:',
+      algebra: 'average = {total distance/total time} = {(p + q)/(p ÷ a + q ÷ b)}',
     },
     naming: {
       label: 'Worth knowing',
@@ -913,16 +939,16 @@ function stageTwoParts(p: Params): Stage {
         + 'the same distance at each, and it is not.',
       elsewhere: 'It is why a traffic jam ruins an average speed: the minutes spent crawling '
         + 'count for far more than the motorway miles either side.',
-      onThePaper: 'A car travels 60 km at 60 km/h, then 60 km at 30 km/h. Work out its average '
+      onThePaper: 'A car travels 60 km at 60 km/h, then 90 km at 30 km/h. Work out its average '
         + 'speed for the whole journey.',
     },
     aside: {
       head: 'What about there and back?',
-      body: 'The same sum. Driving to a town and home again is a journey in two parts of the same '
-        + 'distance, so the average is still the total distance divided by the total time — which '
-        + 'way the second part goes makes no difference. Nor does it matter if the two parts are '
-        + 'different lengths, or given as times: add up all the distance, add up all the time, '
-        + 'and divide.',
+      body: 'The same sum. Driving to a town and home again is a journey in two parts — the '
+        + 'same distance each way — so the average is still the total distance divided by the '
+        + 'total time, whichever way the second part goes. And when the paper gives a part as a '
+        + 'time instead of a distance, the rule is the same: add up all the distance, add up all '
+        + 'the time, and divide.',
     },
     check: [
       {
