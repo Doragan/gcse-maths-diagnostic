@@ -34,12 +34,22 @@ const B3 = '[7,5,5,4,3,3][sel]'
 // ── Section 4: three people and a difference ────────────────────────────────
 // [Amy, Ben, Cara, how much more Cara gets]. Cara always has more parts than
 // Amy, and the difference divides by the gap.
-const A4 = '[2,1,3,2,1,4][sel]'
-const B4 = '[3,3,2,5,3,3][sel]'
-const C4 = '[5,4,6,4,6,7][sel]'
-const D4 = '[12,9,15,8,20,9][sel]'
+//
+// Chosen (2026-11-22, when the reviewer asked for the "£X is someone's share"
+// traps) so that all EIGHT answers differ on every set: the right one, the
+// four first traps, and the £X read as Amy's, Cara's or Ben's share. That
+// rules out Amy's number equalling the gap (£X as Amy's share would be right),
+// Ben's number equalling the gap (Ben's share would BE the £X), and Amy on 1
+// (£X as Amy's share would equal "£X is one part").
+const A4 = '[2,2,2,3,3,4][sel]'
+const B4 = '[3,4,5,6,4,5][sel]'
+const C4 = '[6,5,6,5,8,6][sel]'
+const D4 = '[12,15,12,10,30,12][sel]'
 const GAP4 = `(${C4}-${A4})`
 const PART4 = `(${D4}/${GAP4})`
+/** The working the three "someone's share" traps all end on. */
+const FIX4 = `one part is £{{${D4}}} ÷ {{${GAP4}}} = £{{${PART4}}}, and Ben gets {{${B4}}} × £{{${PART4}}} `
+  + `= £{{${B4}*${PART4}}}.`
 
 const base = {
   skill_ids: ['ratio'],
@@ -89,6 +99,16 @@ const QUESTIONS = [
         misconception: 'ratio_order_reversed',
         response: `That divides Ben's share by Amy's number. Ben's £{{${X2}}} is HIS {{${B2}}} parts, `
           + `so divide by {{${B2}}}: one part is £{{${PART2}}}, and Amy gets £{{${A2}*${PART2}}}.`,
+      },
+      {
+        // Added at review (2026-11-22): Ben's share shared out as if it were
+        // the whole amount, so Amy gets a/(a + b) of it. To the penny, as a
+        // student would write it — it is rarely whole.
+        answer_template: `£{{Math.round(${A2}*${X2}/(${A2}+${B2})*100)/100}}`,
+        misconception: 'part_used_as_whole',
+        response: `That shares Ben's £{{${X2}}} out between Amy and Ben, as if it were all the money. `
+          + `But £{{${X2}}} is only Ben's share — his {{${B2}}} parts. So one part is £{{${X2}}} ÷ {{${B2}}} `
+          + `= £{{${PART2}}}, and Amy's {{${A2}}} parts are {{${A2}}} × £{{${PART2}}} = £{{${A2}*${PART2}}}.`,
       },
     ],
   },
@@ -172,6 +192,25 @@ const QUESTIONS = [
         misconception: 'answered_a_different_quantity',
         response: `That is all the money shared out. Ben gets only his own {{${B4}}} parts: `
           + `{{${B4}}} × £{{${PART4}}} = £{{${B4}*${PART4}}}.`,
+      },
+      // Added at review (2026-11-22): the £X read as one person's share. No
+      // misconception id fits "mistook what the given amount is", and a wrong
+      // tag would mislead the teacher view, so these three carry none.
+      {
+        answer_template: `£{{${B4}*${D4}/${A4}}}`,
+        response: `That treats the £{{${D4}}} as Amy's share. But it is how much MORE Cara gets than Amy `
+          + `— the gap between their shares, which is {{${C4}}} − {{${A4}}} = {{${GAP4}}} parts. So ${FIX4}`,
+      },
+      {
+        answer_template: `£{{${B4}*${D4}/${C4}}}`,
+        response: `That treats the £{{${D4}}} as Cara's share. But it is only how much MORE she gets than `
+          + `Amy — her extra {{${C4}}} − {{${A4}}} = {{${GAP4}}} parts. So ${FIX4}`,
+      },
+      {
+        answer_template: `£{{${D4}}}`,
+        response: `That gives the £{{${D4}}} as Ben's share, but the question never says what Ben gets. `
+          + `The £{{${D4}}} is how much more Cara gets than Amy — Cara's extra {{${C4}}} − {{${A4}}} = `
+          + `{{${GAP4}}} parts. So ${FIX4}`,
       },
     ],
   },
