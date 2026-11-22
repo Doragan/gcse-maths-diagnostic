@@ -4,6 +4,7 @@ import {
 } from './understandingStraightLineGraphs'
 import { percentageChangeInvestigation } from './percentageChange'
 import { compoundUnitsInvestigation } from './compoundUnits'
+import { ratioInvestigation } from './ratio'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored investigations.
@@ -28,6 +29,7 @@ export const investigations: Record<string, Investigation> = {
     understandingStraightLineGraphsInvestigation,
   [percentageChangeInvestigation.skillId]: percentageChangeInvestigation,
   [compoundUnitsInvestigation.skillId]: compoundUnitsInvestigation,
+  [ratioInvestigation.skillId]: ratioInvestigation,
 }
 
 export const getInvestigation = (skillId: string): Investigation | null =>
