@@ -978,8 +978,6 @@ export const compoundUnitsInvestigation: Investigation = {
       'explain why the average speed of a two-part journey is not the average of its two speeds',
     ],
   },
-  underConstruction: 'This one is new and still being worked on. The maths is right, but the '
-    + 'wording and the questions at the end of each section may still change.',
   parameters: {
     // One authored scenario per section, by index, so every number divides
     // exactly and the space stays small enough for the tests to walk.

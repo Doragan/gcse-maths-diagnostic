@@ -734,8 +734,8 @@ describe('section checks', () => {
   it('closes every section with at least one question', () => {
     for (const inv of every()) {
       // Only while it is marked under construction may an investigation leave a
-      // section's check to come: compound units' last section waits on a
-      // question being written and published. Taking the notice off makes
+      // section's check to come (compound units' last section once waited on
+      // a question being written and published). Taking the notice off makes
       // this bite again.
       if (inv.underConstruction) continue
       inv.build(allDraws(inv.parameters)[0]).forEach((stage, i) => {
