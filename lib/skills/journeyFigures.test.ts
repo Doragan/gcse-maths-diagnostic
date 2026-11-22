@@ -370,6 +370,39 @@ describe('pace and direction', () => {
   })
 })
 
+describe('section 4: two parts, not always the same length', () => {
+  it('draws only the journey being tried, and its steady comparison', () => {
+    // Earlier tries share the first part and fan out from B; one at the first
+    // speed read as the first part's line carried on (review, 2026-11-22).
+    for (const { where, graph, section } of journeys()) {
+      if (section !== 3) continue
+      expect(graph.background, where).not.toMatch(/data-trace="ghost"/)
+    }
+  })
+
+  it('pulls the average towards the speed spent LONGER at, which is not always the slower', () => {
+    const seen = new Set<string>()
+    const cases: { where: string; avg: number; slow: number; fast: number; longer: number }[] = []
+    for (const p of allDraws(inv.parameters)) {
+      const stage = inv.build(p)[3]
+      if (seen.has(stage.ask)) continue
+      seen.add(stage.ask)
+      const [d1, s1, d2, s2] = stage.ask.match(/\d+/g)!.map(Number)
+      const avg = Number((stage.predict!.on as { options: readonly string[] }).options[0].match(/\d+/)![0])
+      expect(avg, stage.ask).toBeCloseTo((d1 + d2) / (d1 / s1 + d2 / s2), 9)
+      const longer = d1 / s1 > d2 / s2 ? s1 : s2
+      const other = longer === s1 ? s2 : s1
+      expect(Math.abs(avg - longer), stage.ask).toBeLessThan(Math.abs(avg - other))
+      cases.push({ where: stage.ask, avg, slow: Math.min(s1, s2), fast: Math.max(s1, s2), longer })
+    }
+    // The set has to tell the three readings apart, or the rule is untested.
+    expect(cases.some(c => c.longer === c.fast), 'no version spends longer at the faster speed').toBe(true)
+    expect(cases.some(c => c.avg > (c.slow + c.fast) / 2), 'no version averages above the halfway point').toBe(true)
+    const legs = [...seen].map(a => a.match(/\d+/g)!.map(Number))
+    expect(legs.some(([d1, , d2]) => d1 !== d2), 'every version has equal parts').toBe(true)
+  })
+})
+
 describe('which way a vehicle faces', () => {
   const AX = { min: 0, max: 60, step: 6, label: '' }
   const AY = { min: 0, max: 12, step: 6, label: '' }
