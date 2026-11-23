@@ -45,7 +45,8 @@ describe('the rows of boxes', () => {
   it('gives every person as many boxes as their number, all the same size', () => {
     let checked = 0
     for (const { where, section, ask, grid } of figures()) {
-      if (section === 2) continue
+      // Sections 2 and 4 draw rows; 1 and 3 draw one bar (tested below).
+      if (section === 0 || section === 2) continue
       const ratio = ask.match(/ratio ([\d :]+)\./)![1].split(' : ').map(Number)
       const rows = rects(grid)
       expect(rows.map(r => r[2]), where).toEqual(ratio.map(n => n * 6))
@@ -58,21 +59,35 @@ describe('the rows of boxes', () => {
       }
       checked++
     }
-    expect(checked).toBeGreaterThan(100)
+    expect(checked).toBeGreaterThan(60)
   })
 
-  it('writes the same value in every box, and shares that add back to the amount', () => {
+  it('in section 1, cuts ONE bar of the whole amount into equal parts, coloured by whose they are', () => {
+    // The amount stays put and the split changes, so the bar keeps its length
+    // and more parts are visibly smaller parts (review, 2026-11-23).
+    let checked = 0
     for (const { where, section, v, ask, grid } of figures()) {
       if (section !== 0) continue
-      const ratio = ask.match(/ratio ([\d :]+)\./)![1].split(' : ').map(Number)
+      // The amount and Amy's number come from the question; Ben's is the value tried.
+      const [, amount, ratioA] = ask.match(/£(\d+) in the ratio (\d+) : \d+/)!.map(Number)
+      const parts = ratioA + v
+      const [whole, amy, ben] = rects(grid)
+      expect(whole[2], `${where}: the bar is not the whole width`).toBe(60)
+      expect(amy[2], `${where}: Amy's colour`).toBeCloseTo((60 * ratioA) / parts, 3)
+      expect(ben[0] + ben[2], `${where}: Ben's colour does not reach the end`).toBeCloseTo(60, 3)
+      // Only the cuts inside the bar are drawn, so its two ends are added here.
+      const cuts = [0, ...new Set([...dividers(grid).values()].flat()), 60].sort((p, q) => p - q)
+      expect(cuts.length, `${where}: not cut into ${parts} parts`).toBe(parts + 1)
+      for (let k = 1; k < cuts.length; k++) expect(cuts[k] - cuts[k - 1], where).toBeCloseTo(60 / parts, 3)
+      // The shares, under their colours, add back to the amount.
       const words = (grid.labels ?? []).map(l => l.text)
-      const each = v / ratio.reduce((s, n) => s + n, 0)
-      const inBoxes = words.filter(w => /^£[\d.]+$/.test(w) && Math.abs(pounds(w) - each) < 0.005)
-      expect(inBoxes.length, where).toBeGreaterThanOrEqual(ratio.reduce((s, n) => s + n, 0))
-      const shares = ratio.map(n => n * each)
-      for (const s of shares) expect(words.some(w => /^£/.test(w) && Math.abs(pounds(w) - s) < 0.005), `${where}: no share of £${s}`).toBe(true)
-      expect(shares.reduce((s, n) => s + n, 0), where).toBeCloseTo(v, 6)
+      const share = (who: string) => pounds(words.find(w => w.startsWith(`${who} £`))!.split(' ')[1])
+      expect(share('Amy'), where).toBeCloseTo((amount * ratioA) / parts, 2)
+      expect(share('Ben'), where).toBeCloseTo((amount * v) / parts, 2)
+      expect(share('Amy') + share('Ben'), where).toBeCloseTo(amount, 1)
+      checked++
     }
+    expect(checked).toBe(36)
   })
 
   it('in section 3, shades the first share of one bar and writes fractions that make a whole', () => {
