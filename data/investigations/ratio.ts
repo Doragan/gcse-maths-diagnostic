@@ -203,6 +203,11 @@ function oneBar(first: number, second: number | undefined, names: readonly [stri
 //
 // Starts where every student already is: sharing equally. A ratio is sharing
 // into parts that are all the same size, just not the same NUMBER of them each.
+//
+// The picture is the WHOLE amount as one bar, cut into equal parts and coloured
+// by whose they are — sharing out, rather than two rows that never show the
+// whole (review, 2026-11-23). The amount stays put and the student changes the
+// split: the bar keeps its length, so more parts are visibly smaller parts.
 
 /**
  * [Amy's number, Ben's number, the amount] for the prediction. Never a 2 for
@@ -211,6 +216,50 @@ function oneBar(first: number, second: number | undefined, names: readonly [stri
  */
 const S1 = [[3, 5, 40], [4, 7, 55], [5, 4, 45], [3, 7, 60]] as const
 
+const AY_SPLIT: RenderedAxis = { min: 0, max: 24, step: 6, label: '' }
+/** Seconds: the bar is there, cut into parts; then Amy's parts colour in, then Ben's. */
+const COLOUR_AMY = 0.3
+const COLOUR_BEN = 0.9
+
+/**
+ * The whole amount as one bar the width of the figure, cut into a + b equal
+ * parts, Amy's coloured darker and Ben's lighter, each share written under
+ * its own colour and the working under that.
+ */
+function splitBar(total: number, a: number, b: number): RenderedGrid {
+  const y = 10
+  const height = 6
+  const parts = a + b
+  const w = AX.max / parts
+  const each = total / parts
+  const head = `${money(total)} shared in the ratio ${a} : ${b}`
+  const amy = `Amy ${money(a * each)}`
+  const ben = `Ben ${money(b * each)}`
+  const working = `${a} + ${b} = ${parts} parts, so one part is ${money(total)} ÷ ${parts} = ${money(each)}`
+  return barModelGrid({
+    x: AX,
+    y: AY_SPLIT,
+    bars: [{
+      y,
+      height,
+      pieces: [
+        // The whole amount first, already cut into its parts…
+        { from: 0, to: AX.max, fill: 'empty' },
+        // …then whose they are.
+        { from: 0, to: a * w, fill: 'shaded', appear: COLOUR_AMY },
+        { from: a * w, to: AX.max, fill: 'light', appear: COLOUR_BEN },
+      ],
+      dividers: Array.from({ length: parts + 1 }, (_, k) => k * w),
+    }],
+    labels: [
+      { x: fitLabel(30, head, AX), y: y + height, text: head, dy: -6 },
+      { x: fitLabel((a * w) / 2, amy, AX), y, text: amy, dy: 15 },
+      { x: fitLabel((a * w + AX.max) / 2, ben, AX), y, text: ben, dy: 15 },
+      { x: fitLabel(30, working, AX), y, text: working, dy: 29 },
+    ],
+  })
+}
+
 function stageShare(p: Params): Stage {
   const [a, b, total] = S1[p.s1]
   const parts = a + b
@@ -218,7 +267,7 @@ function stageShare(p: Params): Stage {
   return {
     title: 'Sharing an amount',
     ask: `Amy and Ben share ${money(total)} in the ratio ${a} : ${b}. How much does each of them get?`,
-    axes: rowAxes(2),
+    axes: { x: AX, y: AY_SPLIT },
     predict: {
       prompt: 'Amy and Ben get…',
       on: {
@@ -247,35 +296,24 @@ function stageShare(p: Params): Stage {
       ],
     },
     control: {
-      name: 'amount',
+      name: 'Ben’s number',
       verb: 'try',
-      render: (drawn, current) => {
-        const v = drawn[current]
-        if (v === undefined) {
-          return shareRows({
-            people: [{ parts: a }, { parts: b }],
-            above: `the ratio ${a} : ${b}`,
-            working: [`${a} + ${b} = ${parts} equal parts`],
-          })
-        }
-        return shareRows({
-          people: [{ parts: a, each: v / parts }, { parts: b, each: v / parts }],
-          above: `${money(v)} in the ratio ${a} : ${b}`,
-          working: [`${a} + ${b} = ${parts} parts, so one part is ${money(v)} ÷ ${parts} = ${money(v / parts)}`],
-        })
-      },
-      prompt: `Keep the ratio ${a} : ${b} and share a different amount. Watch what stays the `
-        + 'same, and what changes.',
-      hint: `Any amount from ${money(parts)} to ${money(10 * parts)}, in steps of ${money(parts)}.`,
-      domain: { min: parts, max: 10 * parts, step: parts },
-      suggest: [2 * parts, 7 * parts],
-      label: v => `${money(v)} in ${a} : ${b}`,
-      row: v => [money(v), money(v / parts), money((a * v) / parts), money((b * v) / parts)],
+      // Until a split is tried, the one in the question.
+      render: (drawn, current) => splitBar(total, a, drawn[current] ?? b),
+      prompt: `Keep the ${money(total)} and Amy's ${a}, and change Ben's number in the ratio. `
+        + 'Watch how many parts the bar is cut into, and what each one is worth.',
+      hint: 'Any whole number from 1 to 9.',
+      domain: { min: 1, max: 9, step: 1 },
+      // The two ends, never the split in the question (Ben's number there is 4, 5 or 7).
+      suggest: [1, 9],
+      label: v => `${a} : ${v}`,
+      row: v => [`${a} : ${v}`, String(a + v), money(total / (a + v)), money((a * total) / (a + v)),
+        money((v * total) / (a + v))],
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Share a second amount, so you can see what stays the same.'
+        ? 'Try a second split, so you can see what changes with the number of parts.'
         : null),
     },
-    observe: { headers: ['amount', 'each part', 'Amy', 'Ben'] },
+    observe: { headers: ['ratio', 'parts', 'each part', 'Amy', 'Ben'] },
     conclude: {
       sentence: ['To share an amount in a ratio, first ', ', then divide the amount by that to find ', '.'],
       slots: [
@@ -284,8 +322,8 @@ function stageShare(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'Dividing by each number gives shares that do not add up to the amount. Every box '
-            + 'in the picture is the same size, so count all the boxes first — that is what the '
+            'Dividing by each number gives shares that do not add up to the amount. Every part '
+            + 'of the bar is the same size, so count all the parts first — that is what the '
             + 'amount is shared between.',
           ],
           misconception: ['', 'part_used_as_whole'],
@@ -295,7 +333,7 @@ function stageShare(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'Dividing by the number of parts gives the size of ONE box — the same for both of '
+            'Dividing by the number of parts gives the size of ONE part — the same for both of '
             + 'them. Each person then gets as many of those as their number in the ratio.',
           ],
           misconception: ['', 'stopped_at_an_intermediate'],
@@ -303,20 +341,22 @@ function stageShare(p: Params): Stage {
       ],
       because: 'A ratio shares into parts that are all the same size — it just gives some people '
         + 'more of them. Adding the numbers counts the parts; dividing the amount by that gives one '
-        + 'part; and each share is that many parts. Change the amount and the parts change size, '
-        + `but there are still ${parts} of them, so the shares stay in the same ratio.`,
-      algebraLead: 'In symbols, sharing an amount A in the ratio a : b:',
-      algebra: 'one part = {A/(a + b)}\n'
-        + '  first share = a × {A/(a + b)}, second share = b × {A/(a + b)}',
+        + 'part; and each share is that many parts. Change the split and the same amount is cut '
+        + 'into a different number of parts, so each part changes size — but the parts are always '
+        + 'equal, and always add back up to the whole amount.',
     },
     naming: {
       label: 'Definition',
       term: 'a ratio',
       means: `A ratio compares how many parts each person gets. ${a} : ${b} means ${a} parts for `
-        + `every ${b} — the parts are all the same size, whatever the amount.`,
-      elsewhere: 'Recipes and building sites run on ratios: squash mixed 1 : 5 with water, '
-        + 'concrete mixed 1 : 2 : 4 cement, sand and gravel. Double the batch and the ratio does '
-        + 'not change — only the size of a part does.',
+        + `Amy for every ${b} for Ben, and every part is the same size. The word is Latin: a `
+        + 'ratio was a reckoning, a working-out, from reri, "to reckon". English kept it in rate, '
+        + 'rational and reason — and in ration, a fixed share handed out to each person, which is '
+        + 'a ratio at work.',
+      elsewhere: 'Recipes run on ratios. Squash mixed 1 : 5 with water is 50 ml of squash to 250 '
+        + 'ml of water for a glass, and 200 ml to 1,000 ml for a jug — four times as much of each, '
+        + 'and still 1 : 5. Only the size of a part has changed, from 50 ml to 200 ml, which is '
+        + 'why the jug tastes the same as the glass.',
       onThePaper: 'Share £72 in the ratio 5 : 3.',
     },
     check: [
