@@ -10,7 +10,7 @@ import { skillsById } from '../../../../lib/skills/skillGraph'
 import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
-  resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry,
+  resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry, triedValue, splitPair,
   sentenceState, stageComplete, stepNumbers,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
@@ -303,7 +303,7 @@ export default function InvestigatePage() {
   function draw(i: number, stage: Stage, raw: string) {
     const why = rejectValue(stage, raw)
     if (why) { update(i, { entryError: why }); return }
-    const v = Number(raw.trim())
+    const v = triedValue(stage, raw)
     const st = states[i]
     const next = addValue(st.drawn, v)
     const isNew = next.drawn.length > st.drawn.length
@@ -557,7 +557,46 @@ export default function InvestigatePage() {
                         </>
                       )}
 
-                      {!stage.control.pick && (
+                      {/* A ratio: two boxes either side of the colon, held in
+                          `typed` as "first:second" until it is tried. */}
+                      {!stage.control.pick && stage.control.pair && (() => {
+                        const pair = stage.control.pair
+                        const [f = '', s = ''] = st.typed.split(':')
+                        const box = (id: string, value: string, set: (v: string) => string, label: string) => (
+                          <input
+                            id={id}
+                            aria-label={label}
+                            type="number"
+                            inputMode="numeric"
+                            value={value}
+                            min={stage.control!.domain.min}
+                            max={stage.control!.domain.max}
+                            step={stage.control!.domain.step}
+                            onChange={e => update(i, { typed: set(e.target.value) })}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') { e.preventDefault(); draw(i, stage, st.typed) }
+                            }}
+                            style={{ ...styles.numberInput, width: '64px' }}
+                          />
+                        )
+                        return (
+                          <div style={styles.row}>
+                            <label htmlFor={`v-${i}-a`} style={styles.varLabel}>
+                              {pair.first} : {pair.second} =
+                            </label>
+                            {box(`v-${i}-a`, f, v => `${v}:${s}`, pair.first)}
+                            <span aria-hidden="true" style={styles.varLabel}>:</span>
+                            {box(`v-${i}-b`, s, v => `${f}:${v}`, pair.second)}
+                            <button
+                              style={{ ...primaryButton, width: 'auto' }}
+                              onClick={() => draw(i, stage, st.typed)}
+                            >
+                              {drawsIt(stage) ? 'Draw it' : 'Try it'}
+                            </button>
+                          </div>
+                        )
+                      })()}
+                      {!stage.control.pick && !stage.control.pair && (
                       <div style={styles.row}>
                         <label htmlFor={`v-${i}`} style={styles.varLabel}>
                           {stage.control.name} =
@@ -598,9 +637,11 @@ export default function InvestigatePage() {
                             <button
                               key={v}
                               style={styles.chip}
-                              onClick={() => draw(i, stage, String(v))}
+                              onClick={() => draw(i, stage, stage.control!.pair ? splitPair(v).join(':') : String(v))}
                             >
-                              {stage.control!.name} = {String(v).replace('-', '−')}
+                              {stage.control!.pair
+                                ? stage.control!.label(v)
+                                : <>{stage.control!.name} = {String(v).replace('-', '−')}</>}
                             </button>
                           ))}
                         </div>

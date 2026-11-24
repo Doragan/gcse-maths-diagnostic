@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { barModelGrid, labelHalfWidth } from './investigationFigures'
 import { gridGeometry } from '../questions/gridSvg'
 import { percentageChangeInvestigation as inv } from '../../data/investigations/percentageChange'
-import { allDraws } from './investigation'
+import { allDraws, controlValues } from './investigation'
 import { investigations } from '../../data/investigations'
 import type { RenderedGrid } from '../questions/gridDraw'
 
@@ -98,10 +98,9 @@ describe('every investigation’s bar models', () => {
           const key = `${one.skillId}:${i}:${stage.ask}:${c.prompt}`
           if (seen.has(key)) return
           seen.add(key)
-          const { min, max, step } = c.domain
-          const all: number[] = []
-          for (let v = min; v <= max + 1e-9; v += step) all.push(+v.toFixed(6))
-          const values = all.length <= 25 ? all : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
+          // A ratio control's pairs are walked in full: 81 of them is short.
+          const all = controlValues(c)
+          const values = c.pair || all.length <= 25 ? all : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
           for (const v of values) {
             const grid = c.render([v], 0)
             if (grid.showGrid !== false) continue

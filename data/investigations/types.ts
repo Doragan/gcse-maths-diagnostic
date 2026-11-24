@@ -156,6 +156,16 @@ export type Control = {
    * show what c does, so the rule stays shut until a negative one is drawn.
    */
   coverage: (drawn: readonly number[]) => string | null
+  /**
+   * Two numbers instead of one — a ratio, typed as `first : second` in two
+   * boxes. `domain` then applies to each of them.
+   *
+   * Stored as ONE number, first × 100 + second (joinPair / splitPair in
+   * lib/skills/investigation.ts), so the history, the table, the chips and
+   * `coverage` all keep working on numbers. Every function given a value
+   * here gets the joined number and splits it.
+   */
+  pair?: { first: string; second: string }
 }
 
 /** The commitment, made before anything moves. */

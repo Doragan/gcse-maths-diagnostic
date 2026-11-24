@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   allDraws, drawParams, resolveInvestigation, resolveAt, predictionCorrect, concludeGate,
   rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
+  controlValues, joinPair, splitPair, triedValue,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
 import { BLOOM_VERBS, NOT_MEASURABLE, bloomLevel } from './bloom'
@@ -186,10 +187,9 @@ describe('every legal draw builds a usable investigation', () => {
           // Every value of a short domain; for a long one (1–100%, on every
           // draw) the ends, their neighbours, and every tenth — walking all of
           // it ran past the suite's timeout once percentage change drew bars.
-          const { min, max, step } = c.domain
-          const all: number[] = []
-          for (let v = min; v <= max + 1e-9; v += step) all.push(+v.toFixed(6))
-          const values = all.length <= 25
+          // A ratio control's pairs are walked in full: 81 of them is short.
+          const all = controlValues(c)
+          const values = c.pair || all.length <= 25
             ? all
             : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
           for (const v of values) {
@@ -340,11 +340,11 @@ describe('authoring rules', () => {
       if (stage.control.rows) {
         // A table about PAIRS: rows appear only once there are two values, and
         // every one of them still has to line up with the headers.
-        const sample = [stage.control.domain.min, stage.control.domain.min + stage.control.domain.step]
+        const sample = controlValues(stage.control).slice(0, 2)
         expect(stage.control.rows([sample[0]]), `${where} tabulates a lone value`).toHaveLength(0)
         for (const row of stage.control.rows(sample)) expect(row, where).toHaveLength(width)
       } else {
-        expect(stage.control.row!(stage.control.domain.min), where).toHaveLength(width)
+        expect(stage.control.row!(controlValues(stage.control)[0]), where).toHaveLength(width)
       }
     }
   })
@@ -363,9 +363,7 @@ describe('authoring rules', () => {
     for (const { skillId, stage, i } of stagesOfEvery()) {
       const c = stage.control
       if (!c) continue
-      const all: number[] = []
-      for (let v = c.domain.min; v <= c.domain.max; v += c.domain.step) all.push(v)
-      expect(concludeGate(stage, all), `${skillId} stage ${i + 1} cannot be satisfied`).toBeNull()
+      expect(concludeGate(stage, controlValues(c)), `${skillId} stage ${i + 1} cannot be satisfied`).toBeNull()
     }
   })
 })
@@ -412,6 +410,40 @@ describe('typed values', () => {
       .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[1]
     expect(rejectValue(m, '2.5')).toBeNull()
     expect(rejectValue(m, '2.25')).toMatch(/steps of/i)
+  })
+})
+
+describe('a control that takes a ratio', () => {
+  // Two numbers in two boxes, kept as one so the history, table and coverage
+  // rules all still work on numbers.
+  const stage = {
+    control: { name: 'ratio', pair: { first: 'boys', second: 'girls' }, domain: { min: 1, max: 9, step: 1 } },
+  } as unknown as Stage
+
+  it('keeps both numbers in one value, and gets them back', () => {
+    expect(joinPair(3, 5)).toBe(305)
+    expect(splitPair(305)).toEqual([3, 5])
+    expect(splitPair(joinPair(9, 1))).toEqual([9, 1])
+    expect(triedValue(stage, '3:5')).toBe(305)
+    expect(triedValue(stage, ' 7 : 2 ')).toBe(702)
+  })
+
+  it('walks every pair the domain allows', () => {
+    const all = controlValues(stage.control!)
+    expect(all).toHaveLength(81)
+    expect(all[0]).toBe(101)
+    expect(all.at(-1)).toBe(909)
+  })
+
+  it('asks for both numbers, and checks each against the domain by name', () => {
+    expect(rejectValue(stage, '3:5')).toBeNull()
+    expect(rejectValue(stage, '3:')).toMatch(/boys and for girls/)
+    expect(rejectValue(stage, ':')).toMatch(/boys and for girls/)
+    expect(rejectValue(stage, '0:5')).toMatch(/Keep boys between 1 and 9/)
+    expect(rejectValue(stage, '3:12')).toMatch(/Keep girls between 1 and 9/)
+    // No line to keep on any axes here.
+    expect(rejectValue(stage, '3:12')).not.toMatch(/line/)
+    expect(rejectValue(stage, '3:2.5')).toMatch(/Whole numbers only for girls/)
   })
 })
 
@@ -659,7 +691,7 @@ describe('figures are a shape that fits a screen', () => {
           // on plain paper — a bar model's value is a speed or a percentage,
           // not a position on the figure.
           if (!c?.render || !stage.axes) return
-          if (c.render([c.domain.min], 0).showAxes === false) return
+          if (c.render([controlValues(c)[0]], 0).showAxes === false) return
           const { x, y } = stage.axes
           const lo = Math.min(y.min, x.min)
           const hi = Math.max(y.max, x.max)
@@ -1041,9 +1073,8 @@ describe('student-facing copy', () => {
             // The ends and the middle, not every value: a cell's wording is the
             // same template whatever the value, and walking 1–100 on every draw
             // ran past the suite's timeout.
-            const { min, max, step } = c.domain
-            const mid = min + Math.floor((max - min) / step / 2) * step
-            for (const v of [min, mid, max]) {
+            const all = controlValues(c)
+            for (const v of [all[0], all[Math.floor(all.length / 2)], all[all.length - 1]]) {
               plain.push(...(c.row?.(v) ?? []), c.label?.(v) ?? '')
             }
           }

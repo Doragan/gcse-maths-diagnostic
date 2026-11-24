@@ -1,6 +1,6 @@
 import { checkGridDraw, type GridPoint } from '../questions/gridDraw'
 import type {
-  Investigation, Params, ParameterSpec, ResolvedInvestigation, Stage,
+  Control, Investigation, Params, ParameterSpec, ResolvedInvestigation, Stage,
 } from '../../data/investigations/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -166,19 +166,59 @@ export function concludeGate(stage: Stage, drawn: readonly number[]): string | n
 }
 
 /** Why a typed value cannot be drawn, or null when it can. */
+/** A pair control's two numbers as the one value its history stores. */
+export const joinPair = (first: number, second: number): number => first * 100 + second
+/** The two numbers back out of a pair control's value. */
+export const splitPair = (v: number): [number, number] => [Math.floor(v / 100), v % 100]
+
+/** Every value a control allows: each number of its domain, or each pair of them. */
+export function controlValues(control: Control): number[] {
+  const { min, max, step } = control.domain
+  const one: number[] = []
+  for (let v = min; v <= max + 1e-9; v += step) one.push(+v.toFixed(6))
+  return control.pair ? one.flatMap(f => one.map(s => joinPair(f, s))) : one
+}
+
+/**
+ * The value a typed entry stands for, once rejectValue has passed it. A pair
+ * control's entry is "first:second", from its two boxes.
+ */
+export function triedValue(stage: Stage, raw: string): number {
+  if (!stage.control?.pair) return Number(raw.trim())
+  const [f, s] = raw.split(':').map(x => Number(x.trim()))
+  return joinPair(f, s)
+}
+
 export function rejectValue(stage: Stage, raw: string): string | null {
   const control = stage.control
   if (!control) return 'Nothing to change on this one.'
+  if (control.pair) {
+    const [f = '', s = ''] = raw.split(':')
+    const { first, second } = control.pair
+    if (f.trim() === '' || s.trim() === '') return `Type a number for ${first} and for ${second}.`
+    for (const [name, part] of [[first, f], [second, s]] as const) {
+      const why = rejectNumber({ ...control, name }, part.trim())
+      if (why) return why
+    }
+    return null
+  }
   const trimmed = raw.trim()
   if (trimmed === '') return `Type a number for ${control.name} first.`
 
+  return rejectNumber(control, trimmed)
+}
+
+/** One number checked against a control's domain, named as `control.name`. */
+function rejectNumber(control: Control, trimmed: string): string | null {
   const v = Number(trimmed)
   if (!Number.isFinite(v)) return `${trimmed} is not a number.`
 
   const { min, max, step } = control.domain
   if (v < min || v > max) {
-    return `Keep ${control.name} between ${fmtNum(min)} and ${fmtNum(max)}, `
-      + 'so the line stays on these axes.'
+    // The reason only where there is a line to keep on the axes: a bar model
+    // or a ratio has none, and the clause read as nonsense there.
+    const why = control.render && (control.verb ?? 'draw') === 'draw' ? ', so the line stays on these axes' : ''
+    return `Keep ${control.name} between ${fmtNum(min)} and ${fmtNum(max)}${why}.`
   }
   // Rounded before comparing: 0.1 + 0.2 arithmetic makes an exact multiple
   // test reject values the domain plainly allows.
