@@ -5,6 +5,8 @@ import Link from 'next/link'
 import SiteNav from '../components/SiteNav'
 import { dashboardPath, useAccountNav } from '../lib/useAccountNav'
 import { trackEvent } from '../lib/analytics'
+import { investigatePath } from '../lib/skills/slug'
+import { HOME_INVESTIGATION_SKILL } from '../lib/homeInvestigation'
 import { renderOne, type DemoQ, type Rendered } from '../lib/demoQuestions'
 import { checkAnswer } from '../lib/questions/answerChecker'
 import { skillsById } from '../lib/skills/skillGraph'
@@ -483,13 +485,26 @@ export default function Landing({ demoPool, demoQuestion }: {
           </div>
 
           {/* Diagnostic demoted to a quiet secondary option */}
-          <p style={{ margin: '0 0 24px' }}>
+          <p style={{ margin: '0 0 10px' }}>
             <Link
               href="/student/diagnostic"
               onClick={() => trackEvent('hero_diagnostic_clicked')}
               style={{ fontSize: font.sm, color: 'rgba(255,255,255,0.7)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
             >
               Or take the 5-minute skill check →
+            </Link>
+          </p>
+
+          {/* A second quiet option, same treatment as the skill check: a way into one
+              investigation from the front door. They were otherwise reachable only from
+              briefing pages. */}
+          <p style={{ margin: '0 0 24px' }}>
+            <Link
+              href={investigatePath(HOME_INVESTIGATION_SKILL)}
+              onClick={() => trackEvent('hero_investigation_clicked', { skill: HOME_INVESTIGATION_SKILL })}
+              style={{ fontSize: font.sm, color: 'rgba(255,255,255,0.7)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+            >
+              Or explore how straight-line graphs work →
             </Link>
           </p>
 
