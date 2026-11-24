@@ -27,8 +27,17 @@ export type SkillEntry =
  * wins rather than the first investigated one: `skill_ids` is ordered by the
  * author, so its head is the skill the question is mainly about.
  */
-export function entryForSkills(skillIds: readonly string[]): SkillEntry | null {
-  const investigated = skillIds.find(hasInvestigation)
+export function entryForSkills(
+  skillIds: readonly string[],
+  /**
+   * Skills whose investigation this student has already finished
+   * (lib/investigationCompletions.ts). One they have done is not offered again
+   * — the briefing is, where there is one (docs/audit/32 D3). Empty for a
+   * student who is not signed in.
+   */
+  finished: ReadonlySet<string> = new Set(),
+): SkillEntry | null {
+  const investigated = skillIds.find(id => hasInvestigation(id) && !finished.has(id))
   if (investigated) return { kind: 'investigation', skillId: investigated }
   const briefed = skillIds.find(hasBriefing)
   if (briefed) return { kind: 'briefing', skillId: briefed }

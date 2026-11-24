@@ -17,6 +17,7 @@ import ReportIssueButton from '../../../../components/practice/ReportIssueButton
 import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
+import { finishedInvestigations } from '../../../../lib/investigationCompletions'
 import { entryForSkills } from '../../../../lib/skills/skillEntry'
 import { trackEvent } from '../../../../lib/analytics'
 import TeachingPrompt from '../../../../components/practice/TeachingPrompt'
@@ -237,6 +238,15 @@ function QuestionPage() {
   const [shareLabel, setShareLabel] = useState('Share this question')
   const [options, setOptions] = useState<string[]>([])
   const [studentId, setStudentId] = useState<string | null>(null)
+  /**
+   * Investigations this student has finished, so the card after a wrong answer
+   * does not offer one again (docs/audit/32 D3). Empty when signed out.
+   */
+  const [finished, setFinished] = useState<ReadonlySet<string>>(new Set())
+  useEffect(() => {
+    if (!studentId) return
+    finishedInvestigations(studentId).then(ids => setFinished(new Set(ids)))
+  }, [studentId])
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false)
   const [priorSkillAttempts, setPriorSkillAttempts] = useState<{ correct: boolean }[]>([])
   const [newlyMasteredSkill, setNewlyMasteredSkill] = useState<string | null>(null)
@@ -1206,8 +1216,8 @@ function QuestionPage() {
               An investigation wins over a briefing where the skill has both:
               a wrong answer is the moment a missing concept shows, and the
               briefing is written for someone who already has it. */}
-          {!feedback.correct && entryForSkills(question.skill_ids) && (
-            <TeachingPrompt entry={entryForSkills(question.skill_ids)!} questionId={question.id} />
+          {!feedback.correct && entryForSkills(question.skill_ids, finished) && (
+            <TeachingPrompt entry={entryForSkills(question.skill_ids, finished)!} questionId={question.id} />
           )}
 
           {/* Animated skill progress dots */}
