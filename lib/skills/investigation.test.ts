@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   allDraws, drawParams, resolveInvestigation, resolveAt, predictionCorrect, concludeGate,
   rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
-  controlValues, joinPair, splitPair, triedValue,
+  controlValues, joinInputs, splitInputs, triedValue,
 } from './investigation'
 import { clipLine, lineEquation } from './investigationFigures'
 import { BLOOM_VERBS, NOT_MEASURABLE, bloomLevel } from './bloom'
@@ -189,7 +189,7 @@ describe('every legal draw builds a usable investigation', () => {
           // it ran past the suite's timeout once percentage change drew bars.
           // A ratio control's pairs are walked in full: 81 of them is short.
           const all = controlValues(c)
-          const values = c.pair || all.length <= 25
+          const values = c.inputs || all.length <= 25
             ? all
             : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
           for (const v of values) {
@@ -414,36 +414,65 @@ describe('typed values', () => {
 })
 
 describe('a control that takes a ratio', () => {
-  // Two numbers in two boxes, kept as one so the history, table and coverage
+  // A number in each box, kept as one so the history, table and coverage
   // rules all still work on numbers.
-  const stage = {
-    control: { name: 'ratio', pair: { first: 'boys', second: 'girls' }, domain: { min: 1, max: 9, step: 1 } },
+  const two = {
+    control: { name: 'ratio', inputs: ['boys', 'girls'], domain: { min: 1, max: 9, step: 1 } },
+  } as unknown as Stage
+  const three = {
+    control: {
+      name: 'ratio',
+      inputs: ['Amy', 'Ben', 'Cara'],
+      domain: { min: 1, max: 7, step: 1 },
+      valid: (v: number) => {
+        const [a, , c] = splitInputs(v, 3)
+        return c > a ? null : 'Give Cara more parts than Amy.'
+      },
+    },
   } as unknown as Stage
 
-  it('keeps both numbers in one value, and gets them back', () => {
-    expect(joinPair(3, 5)).toBe(305)
-    expect(splitPair(305)).toEqual([3, 5])
-    expect(splitPair(joinPair(9, 1))).toEqual([9, 1])
-    expect(triedValue(stage, '3:5')).toBe(305)
-    expect(triedValue(stage, ' 7 : 2 ')).toBe(702)
+  it('keeps every number in one value, and gets them back', () => {
+    expect(joinInputs([3, 5])).toBe(305)
+    expect(splitInputs(305, 2)).toEqual([3, 5])
+    expect(splitInputs(joinInputs([9, 1]), 2)).toEqual([9, 1])
+    expect(joinInputs([2, 3, 5])).toBe(20305)
+    expect(splitInputs(20305, 3)).toEqual([2, 3, 5])
+    expect(triedValue(two, '3:5')).toBe(305)
+    expect(triedValue(two, ' 7 : 2 ')).toBe(702)
+    expect(triedValue(three, '2:3:5')).toBe(20305)
   })
 
-  it('walks every pair the domain allows', () => {
-    const all = controlValues(stage.control!)
+  it('walks every set the domain allows, and only the valid ones', () => {
+    const all = controlValues(two.control!)
     expect(all).toHaveLength(81)
     expect(all[0]).toBe(101)
     expect(all.at(-1)).toBe(909)
+    // Cara above Amy: 21 of the 49 (Amy, Cara) pairs, times 7 for Ben.
+    const valid = controlValues(three.control!)
+    expect(valid).toHaveLength(21 * 7)
+    for (const v of valid) {
+      const [a, , c] = splitInputs(v, 3)
+      expect(c).toBeGreaterThan(a)
+    }
   })
 
-  it('asks for both numbers, and checks each against the domain by name', () => {
-    expect(rejectValue(stage, '3:5')).toBeNull()
-    expect(rejectValue(stage, '3:')).toMatch(/boys and for girls/)
-    expect(rejectValue(stage, ':')).toMatch(/boys and for girls/)
-    expect(rejectValue(stage, '0:5')).toMatch(/Keep boys between 1 and 9/)
-    expect(rejectValue(stage, '3:12')).toMatch(/Keep girls between 1 and 9/)
+  it('asks for every number, and checks each against the domain by name', () => {
+    expect(rejectValue(two, '3:5')).toBeNull()
+    expect(rejectValue(two, '3:')).toMatch(/each of boys and girls/)
+    expect(rejectValue(two, ':')).toMatch(/each of boys and girls/)
+    expect(rejectValue(two, '0:5')).toMatch(/Keep boys between 1 and 9/)
+    expect(rejectValue(two, '3:12')).toMatch(/Keep girls between 1 and 9/)
     // No line to keep on any axes here.
-    expect(rejectValue(stage, '3:12')).not.toMatch(/line/)
-    expect(rejectValue(stage, '3:2.5')).toMatch(/Whole numbers only for girls/)
+    expect(rejectValue(two, '3:12')).not.toMatch(/line/)
+    expect(rejectValue(two, '3:2.5')).toMatch(/Whole numbers only for girls/)
+    expect(rejectValue(three, '2:3')).toMatch(/each of Amy, Ben and Cara/)
+    expect(rejectValue(three, '2:3:8')).toMatch(/Keep Cara between 1 and 7/)
+  })
+
+  it('refuses a set that breaks the rule the boxes keep together', () => {
+    expect(rejectValue(three, '2:3:5')).toBeNull()
+    expect(rejectValue(three, '5:3:2')).toBe('Give Cara more parts than Amy.')
+    expect(rejectValue(three, '4:3:4')).toBe('Give Cara more parts than Amy.')
   })
 })
 

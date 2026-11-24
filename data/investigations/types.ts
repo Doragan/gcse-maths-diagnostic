@@ -157,15 +157,21 @@ export type Control = {
    */
   coverage: (drawn: readonly number[]) => string | null
   /**
-   * Two numbers instead of one — a ratio, typed as `first : second` in two
-   * boxes. `domain` then applies to each of them.
+   * Several numbers instead of one — a ratio, typed `a : b` or `a : b : c`
+   * in a box each, named here in order. `domain` then applies to each.
    *
-   * Stored as ONE number, first × 100 + second (joinPair / splitPair in
-   * lib/skills/investigation.ts), so the history, the table, the chips and
+   * Stored as ONE number, two decimal digits a box (joinInputs / splitInputs
+   * in lib/skills/investigation.ts), so the history, the table, the chips and
    * `coverage` all keep working on numbers. Every function given a value
    * here gets the joined number and splits it.
    */
-  pair?: { first: string; second: string }
+  inputs?: readonly string[]
+  /**
+   * A rule the boxes must keep TOGETHER, which no one box's domain can say —
+   * Cara needing more parts than Amy. null when the value is fine, else what
+   * to tell the student. Values it refuses are not part of the control.
+   */
+  valid?: (v: number) => string | null
 }
 
 /** The commitment, made before anything moves. */

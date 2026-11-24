@@ -166,41 +166,51 @@ export function concludeGate(stage: Stage, drawn: readonly number[]): string | n
 }
 
 /** Why a typed value cannot be drawn, or null when it can. */
-/** A pair control's two numbers as the one value its history stores. */
-export const joinPair = (first: number, second: number): number => first * 100 + second
-/** The two numbers back out of a pair control's value. */
-export const splitPair = (v: number): [number, number] => [Math.floor(v / 100), v % 100]
+/** A several-box control's numbers as the one value its history stores: two digits a box. */
+export const joinInputs = (values: readonly number[]): number => values.reduce((v, x) => v * 100 + x, 0)
+/** The numbers back out of a several-box control's value. */
+export function splitInputs(v: number, n: number): number[] {
+  const out: number[] = []
+  for (let k = 0; k < n; k++) { out.unshift(v % 100); v = Math.floor(v / 100) }
+  return out
+}
 
-/** Every value a control allows: each number of its domain, or each pair of them. */
+/** Every value a control allows: each number of its domain, or each set of them that is valid. */
 export function controlValues(control: Control): number[] {
   const { min, max, step } = control.domain
   const one: number[] = []
   for (let v = min; v <= max + 1e-9; v += step) one.push(+v.toFixed(6))
-  return control.pair ? one.flatMap(f => one.map(s => joinPair(f, s))) : one
+  if (!control.inputs) return one
+  let sets: number[][] = [[]]
+  for (let k = 0; k < control.inputs.length; k++) sets = sets.flatMap(s => one.map(x => [...s, x]))
+  return sets.map(joinInputs).filter(v => !control.valid?.(v))
 }
 
 /**
- * The value a typed entry stands for, once rejectValue has passed it. A pair
- * control's entry is "first:second", from its two boxes.
+ * The value a typed entry stands for, once rejectValue has passed it. A
+ * several-box control's entry is its boxes joined with ":", in order.
  */
 export function triedValue(stage: Stage, raw: string): number {
-  if (!stage.control?.pair) return Number(raw.trim())
-  const [f, s] = raw.split(':').map(x => Number(x.trim()))
-  return joinPair(f, s)
+  if (!stage.control?.inputs) return Number(raw.trim())
+  return joinInputs(raw.split(':').map(x => Number(x.trim())))
 }
+
+/** "boys and girls", "Amy, Ben and Cara". */
+const listOf = (names: readonly string[]) =>
+  names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
 
 export function rejectValue(stage: Stage, raw: string): string | null {
   const control = stage.control
   if (!control) return 'Nothing to change on this one.'
-  if (control.pair) {
-    const [f = '', s = ''] = raw.split(':')
-    const { first, second } = control.pair
-    if (f.trim() === '' || s.trim() === '') return `Type a number for ${first} and for ${second}.`
-    for (const [name, part] of [[first, f], [second, s]] as const) {
-      const why = rejectNumber({ ...control, name }, part.trim())
+  if (control.inputs) {
+    const names = control.inputs
+    const parts = raw.split(':')
+    if (names.some((_, k) => (parts[k] ?? '').trim() === '')) return `Type a number for each of ${listOf(names)}.`
+    for (let k = 0; k < names.length; k++) {
+      const why = rejectNumber({ ...control, name: names[k] }, parts[k].trim())
       if (why) return why
     }
-    return null
+    return control.valid?.(triedValue(stage, raw)) ?? null
   }
   const trimmed = raw.trim()
   if (trimmed === '') return `Type a number for ${control.name} first.`

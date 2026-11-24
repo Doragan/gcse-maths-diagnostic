@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { gridGeometry, buildGridSvg, buildGridFrame, buildLabelsLayer, CELL, PAD } from './gridSvg'
+import { gridGeometry, buildGridSvg, buildGridFrame, buildLabelsLayer, labelExtent, CELL, PAD } from './gridSvg'
 import type { RenderedAxis, RenderedGrid } from './gridDraw'
 
 const ax = (min: number, max: number, step = 1, label = ''): RenderedAxis => ({ min, max, step, label })
@@ -298,6 +298,49 @@ describe('author labels', () => {
     const geo = gridGeometry(ax(0, 8), ax(0, 6))
     expect(buildLabelsLayer(grid(undefined), geo)).toBe('')
     expect(buildLabelsLayer(grid([]), geo)).toBe('')
+  })
+
+  it('draws {n/d} as a stacked fraction: numerator raised and underlined, denominator under it', () => {
+    const geo = gridGeometry(ax(0, 8), ax(0, 6))
+    const svg = buildLabelsLayer(grid([{ x: 4, y: 3, text: 'boys {3/8} more' }]), geo)
+    expect(svg).toContain('<tspan>boys </tspan>')
+    // Never the braces or the slash as written.
+    expect(svg).not.toMatch(/\{|3\/8/)
+    const num = svg.match(/<tspan[^>]*dy="(-?[\d.]+)"[^>]*text-decoration="underline"[^>]*>3<\/tspan>/)!
+    const den = svg.match(/<tspan[^>]*dx="(-[\d.]+)" dy="([\d.]+)"[^>]*>8<\/tspan>/)!
+    expect(Number(num[1]), 'the numerator is raised').toBeLessThan(0)
+    expect(Number(den[2]), 'the denominator drops below the baseline').toBeGreaterThan(-Number(num[1]))
+    expect(Number(den[1]), 'the denominator steps back under the numerator').toBeLessThan(0)
+    // And the words after it come back up to the baseline.
+    const back = Number(num[1]) + Number(den[2])
+    expect(svg).toContain(`<tspan dy="${-back}"> more</tspan>`)
+  })
+
+  it('pads the shorter of numerator and denominator, so the line spans both', () => {
+    const geo = gridGeometry(ax(0, 8), ax(0, 6))
+    const svg = buildLabelsLayer(grid([{ x: 4, y: 3, text: '{1/10}' }]), geo)
+    const spans = [...svg.matchAll(/<tspan[^>]*>([^<]*)<\/tspan>/g)].map(m => m[1])
+    expect(spans[0].length).toBe(spans[1].length)
+    expect(spans[0]).toContain(' ')
+  })
+
+  it('lets the browser centre a label with a fraction on its point', () => {
+    // One text element anchored in the middle: the fonts differ by device, and
+    // pieces placed at estimated widths left gaps between words and fractions.
+    const geo = gridGeometry(ax(0, 8), ax(0, 6))
+    const svg = buildLabelsLayer(grid([{ x: 4, y: 3, text: 'girls {5/8}' }]), geo)
+    expect(svg.match(/<text /g)).toHaveLength(1)
+    expect(svg).toContain(`<text x="${geo.px(4)}" y="${geo.py(3)}" text-anchor="middle"`)
+  })
+
+  it('measures a stacked fraction as narrower and taller than its characters', () => {
+    const plain = labelExtent('3/8')
+    const stacked = labelExtent('{3/8}')
+    expect(stacked.width).toBeLessThan(plain.width)
+    expect(stacked.above).toBeGreaterThan(plain.above)
+    expect(stacked.below).toBeGreaterThan(plain.below)
+    // A label with no fraction is measured and drawn exactly as before.
+    expect(plain.width).toBeCloseTo(3 * 6.2, 6)
   })
 })
 

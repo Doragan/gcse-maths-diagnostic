@@ -100,7 +100,7 @@ describe('every investigation’s bar models', () => {
           seen.add(key)
           // A ratio control's pairs are walked in full: 81 of them is short.
           const all = controlValues(c)
-          const values = c.pair || all.length <= 25 ? all : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
+          const values = c.inputs || all.length <= 25 ? all : all.filter((_, k) => k <= 1 || k >= all.length - 2 || k % 10 === 0)
           for (const v of values) {
             const grid = c.render([v], 0)
             if (grid.showGrid !== false) continue

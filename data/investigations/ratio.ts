@@ -1,7 +1,7 @@
 import type { Investigation, Params, Stage } from './types'
 import type { GridLabel, RenderedAxis, RenderedGrid } from '../../lib/questions/gridDraw'
 import { barModelGrid, fitLabel, labelHalfWidth } from '../../lib/skills/investigationFigures'
-import { joinPair, splitPair } from '../../lib/skills/investigation'
+import { joinInputs, splitInputs } from '../../lib/skills/investigation'
 import type { BarFill, BarModel } from '../../lib/skills/investigationFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -63,8 +63,8 @@ const Q_AS_FRACTION = 'a99e08d4-0f23-49af-8c90-6ae67f2764b7'
  * "2/5 of the counters are red, the rest blue. Write down the ratio of red to
  * blue." (d2, ratio) — written for section 3's other direction.
  *
- * What lets the section's aside on going back from a fraction to a ratio stay:
- * a reviewer asked for no aside that no check then tests. Traps: the fraction
+ * What lets section 3's card on going back from a fraction to a ratio stay:
+ * a reviewer asked for nothing brought up that no check then tests. Traps: the fraction
  * written as a ratio (2 : 5), the right numbers reversed (3 : 2), and the
  * blue counters against the whole (3 : 5).
  */
@@ -106,7 +106,11 @@ function fracMark(n: number, d: number): string {
 // underneath.
 
 const AX: RenderedAxis = { min: 0, max: 60, step: 6, label: '' }
-const BOX = 6
+/**
+ * One part's width in the rows, in axis units: 33.6 viewBox units, room for a
+ * value with pence ("£2.40" takes 31) now that section 4's ratio can be any.
+ */
+const BOX = 7.2
 const ROW_HEIGHT = 5
 /** Top of the first row, and the drop to the next. */
 const ROW_TOP = { 2: 22, 3: 30 } as const
@@ -207,11 +211,16 @@ function wholeBar(opts: {
   const { first, second } = opts
   const parts = first + second
   const w = AXW.max / parts
+  // Stacked fractions ({n/d}) stand taller than a line of words, so lines that
+  // carry them are spaced further apart.
+  const tall = [...opts.under, ...opts.working].some(t => t.includes('{'))
+  const underDy = tall ? 18 : 15
+  const lineDy = (k: number) => (tall ? 42 + 22 * k : 29 + 14 * k)
   const labels: GridLabel[] = [
     { x: fitLabel(AXW.max / 2, opts.above, AXW), y: BAR_Y + BAR_H, text: opts.above, dy: -6 },
-    { x: fitLabel((first * w) / 2, opts.under[0], AXW), y: BAR_Y, text: opts.under[0], dy: 15 },
-    { x: fitLabel((first * w + AXW.max) / 2, opts.under[1], AXW), y: BAR_Y, text: opts.under[1], dy: 15 },
-    ...opts.working.map((t, k) => ({ x: fitLabel(AXW.max / 2, t, AXW), y: BAR_Y, text: t, dy: 29 + 14 * k })),
+    { x: fitLabel((first * w) / 2, opts.under[0], AXW), y: BAR_Y, text: opts.under[0], dy: underDy },
+    { x: fitLabel((first * w + AXW.max) / 2, opts.under[1], AXW), y: BAR_Y, text: opts.under[1], dy: underDy },
+    ...opts.working.map((t, k) => ({ x: fitLabel(AXW.max / 2, t, AXW), y: BAR_Y, text: t, dy: lineDy(k) })),
   ]
   if (opts.each !== undefined) {
     for (let k = 0; k < parts; k++) {
@@ -539,27 +548,28 @@ function stageFractions(p: Params): Stage {
     control: {
       name: 'ratio',
       verb: 'try',
-      pair: { first: 'boys', second: 'girls' },
+      inputs: ['boys', 'girls'],
       // Until a ratio is tried, the one in the question.
       render: (drawn, current) => {
-        const [f, s] = drawn[current] === undefined ? [boys, girls] : splitPair(drawn[current])
+        const [f, s] = drawn[current] === undefined ? [boys, girls] : splitInputs(drawn[current], 2)
         const n = f + s
         return wholeBar({
           first: f,
           second: s,
           above: `boys : girls = ${f} : ${s}`,
-          under: [`boys ${f}/${n}`, `girls ${s}/${n}`],
-          working: [`${f} + ${s} = ${n} parts in all, and ${f}/${n} + ${s}/${n} = ${n}/${n} = 1`],
+          // Stacked fractions, as the page writes them ({n/d}).
+          under: [`boys {${f}/${n}}`, `girls {${s}/${n}}`],
+          working: [`${f} + ${s} = ${n} parts in all, and {${f}/${n}} + {${s}/${n}} = {${n}/${n}} = 1`],
         })
       },
       prompt: 'Change both numbers in the ratio of boys to girls. Watch what the fractions are out '
         + 'of, and what they add up to.',
       hint: 'Any whole number from 1 to 9 for each of them.',
       domain: { min: 1, max: 9, step: 1 },
-      suggest: [joinPair(1, 1), joinPair(2, 7)],
-      label: v => splitPair(v).join(' : '),
+      suggest: [joinInputs([1, 1]), joinInputs([2, 7])],
+      label: v => splitInputs(v, 2).join(' : '),
       row: v => {
-        const [f, s] = splitPair(v)
+        const [f, s] = splitInputs(v, 2)
         return [`${f} : ${s}`, String(f + s), `${f}/${f + s}`, `${s}/${f + s}`]
       },
       coverage: drawn => (new Set(drawn).size < 2
@@ -598,21 +608,21 @@ function stageFractions(p: Params): Stage {
       algebra: 'first share = {a/(a + b)} of the whole\n'
         + '  second share = {b/(a + b)} of the whole',
     },
+    // ONE card for both: the names for the two comparisons just made, then the
+    // same idea run backwards. A "Worth knowing" card restating the rule and a
+    // separate aside straight after it read as clutter, and the card's naming
+    // as new information (review, 2026-11-24).
     naming: {
       label: 'Worth knowing',
       term: 'part to part, and part to whole',
-      means: `The ratio ${boys} : ${girls} is part to part: boys compared with girls. The fraction `
-        + `${fracMark(boys, whole)} is part to whole: boys compared with the whole class. Same `
-        + 'class, two different comparisons.',
-      elsewhere: 'A recipe that says "1 part squash to 4 parts water" makes a drink that is '
-        + '{1/5} squash, not {1/4}.',
-      onThePaper: 'Red and blue counters are in the ratio 2 : 7. What fraction of the counters are red?',
-    },
-    aside: {
-      head: 'And from a fraction to a ratio?',
-      body: 'Backwards works the same way. If {2/5} of a class are boys, then 2 in every 5 are '
-        + 'boys and the other 3 are girls — so boys to girls is 2 : 3, not 2 : 5. The second '
-        + 'question below asks it this way round.',
+      means: `Those are the two comparisons you have just been making. The ratio ${boys} : `
+        + `${girls} is part to part — boys with girls. The fraction ${fracMark(boys, whole)} is `
+        + 'part to whole — boys with the whole class.',
+      elsewhere: 'It works backwards too. If {2/5} of a class are boys, then 2 in every 5 are boys '
+        + 'and the other 3 are girls — so boys to girls is 2 : 3, not 2 : 5. The second question '
+        + 'below asks it this way round.',
+      onThePaper: 'Red and blue counters are in the ratio 2 : 7. What fraction of the counters are '
+        + 'red? / {2/5} of the counters are red. Write down the ratio of red to blue counters.',
     },
     check: [
       {
@@ -623,8 +633,8 @@ function stageFractions(p: Params): Stage {
       },
       {
         questionId: Q_FRACTION_TO_RATIO,
-        because: 'The aside, tested: a fraction of the whole, and the ratio it comes from. Its '
-          + 'first trap is the fraction written as a ratio — part to whole where part to part is '
+        because: 'The card’s other direction, tested: a fraction of the whole, and the ratio it '
+          + 'comes from. Its first trap is the fraction written as a ratio — part to whole where part to part is '
           + 'asked for, the section’s trap the other way round.',
       },
     ],
@@ -675,34 +685,49 @@ function stageDifference(p: Params): Stage {
       ],
     },
     control: {
-      name: 'difference',
+      name: 'ratio',
       verb: 'try',
+      // The whole ratio, not just the difference (review, 2026-11-24): with
+      // the ratio fixed, all a student could change was the size of a part.
+      // Now the difference stays the question's and the ratio moves, so what
+      // changes is how many parts that difference is.
+      inputs: ['Amy', 'Ben', 'Cara'],
+      domain: { min: 1, max: 7, step: 1 },
+      valid: v => {
+        const [x, , z] = splitInputs(v, 3)
+        return z > x ? null : `Give Cara more parts than Amy, so that she gets the ${money(diff)} more.`
+      },
       render: (drawn, current) => {
-        const v = drawn[current]
-        const people = [a, b, c].map(parts => ({ parts, each: v === undefined ? undefined : v / gap }))
+        const [x, y, z] = drawn[current] === undefined ? [a, b, c] : splitInputs(drawn[current], 3)
+        const more = z - x
+        const one = diff / more
         return shareRows({
-          people,
-          above: v === undefined ? `the ratio ${a} : ${b} : ${c}` : `Cara gets ${money(v)} more than Amy`,
-          working: v === undefined
-            ? [`Cara has ${gap} more parts than Amy`]
-            : [`Cara has ${c} − ${a} = ${gap} more parts than Amy`, `${gap} parts = ${money(v)}, so one part is ${money(v / gap)}`],
-          // From the end of Amy's row down through Cara's: Cara's boxes past
+          people: [x, y, z].map(parts => ({ parts, each: one })),
+          above: `Cara gets ${money(diff)} more than Amy, in ${x} : ${y} : ${z}`,
+          working: [
+            `Cara has ${z} − ${x} = ${more} more ${more === 1 ? 'part' : 'parts'} than Amy`,
+            `${more === 1 ? '1 part is' : `${more} parts are`} ${money(diff)}, so one part is ${money(one)}`,
+          ],
+          // From the end of Amy's row down through Cara's: Cara's parts past
           // the line are the difference.
-          guide: { at: a, from: 0, to: 2 },
+          guide: { at: x, from: 0, to: 2 },
         })
       },
-      prompt: `Keep the ratio ${a} : ${b} : ${c} and change how much more Cara gets. Watch the `
-        + 'parts past the dashed line.',
-      hint: `Any amount from ${money(gap)} to ${money(10 * gap)}, in steps of ${money(gap)}.`,
-      domain: { min: gap, max: 10 * gap, step: gap },
-      suggest: [2 * gap, 5 * gap],
-      label: v => `Cara gets ${money(v)} more`,
-      row: v => [money(v), money(v / gap), money((b * v) / gap), money((whole * v) / gap)],
+      prompt: `Keep Cara's ${money(diff)} more than Amy, and change the whole ratio. Watch how many `
+        + 'parts the difference is, and what one part is worth.',
+      hint: 'Any whole numbers from 1 to 7, with more for Cara than for Amy.',
+      suggest: [joinInputs([1, 2, 3]), joinInputs([2, 5, 6])],
+      label: v => splitInputs(v, 3).join(' : '),
+      row: v => {
+        const [x, y, z] = splitInputs(v, 3)
+        const one = diff / (z - x)
+        return [`${x} : ${y} : ${z}`, String(z - x), money(one), money(y * one), money((x + y + z) * one)]
+      },
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Try a second difference, so you can see what one part depends on.'
+        ? 'Try a second ratio, so you can see what one part depends on.'
         : null),
     },
-    observe: { headers: ['Cara’s extra', 'each part', 'Ben gets', 'altogether'] },
+    observe: { headers: ['Amy : Ben : Cara', 'Cara’s extra parts', 'each part', 'Ben gets', 'altogether'] },
     conclude: {
       sentence: ['The difference between two shares is ', ', so divide it by ', ' to find one part.'],
       slots: [
@@ -730,9 +755,6 @@ function stageDifference(p: Params): Stage {
       because: 'Whatever you are told — the total, one share, or the gap between two — it is some '
         + 'number of equal parts. Count which parts it is, divide to get one part, and every share '
         + 'follows. With three people it is just the same, with a third person’s parts as well.',
-      algebraLead: 'Using algebra, in the ratio a : b : c with the third share D more than the first:',
-      algebra: 'one part = {D/(c − a)}\n'
-        + '  second share = b × {D/(c − a)}',
     },
     check: [
       {

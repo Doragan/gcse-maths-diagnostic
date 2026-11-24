@@ -227,12 +227,95 @@ export function buildSolutionLayer(grid: RenderedGrid, geo: GridGeometry): strin
  * Drawn LAST by buildGridSvg, so a label naming a vertex sits over the shape
  * rather than under it.
  */
+// ─── Labels ──────────────────────────────────────────────────────────────────
+//
+// A label is one line of text centred on its point. `{n/d}` inside it is drawn
+// as a STACKED fraction — numerator over a line over denominator — the way the
+// prose renderer draws fractions on the page, so a figure and the words around
+// it write a fraction the same way (review, 2026-11-24).
+
+const LABEL_FONT = 11
+const LABEL_CHAR_W = 6.2
+const FRAC_FONT = 9.5
+const FRAC_CHAR_W = 5.4
+const FRACTION = /\{([^{}/]+)\/([^{}/]+)\}/g
+
+type LabelPiece = { text: string } | { num: string; den: string }
+
+function labelPieces(text: string): LabelPiece[] {
+  const out: LabelPiece[] = []
+  let at = 0
+  for (const m of text.matchAll(FRACTION)) {
+    if (m.index! > at) out.push({ text: text.slice(at, m.index) })
+    out.push({ num: m[1], den: m[2] })
+    at = m.index! + m[0].length
+  }
+  if (at < text.length) out.push({ text: text.slice(at) })
+  return out
+}
+
+const pieceWidth = (p: LabelPiece) => ('text' in p
+  ? p.text.length * LABEL_CHAR_W
+  : Math.max(p.num.length, p.den.length) * FRAC_CHAR_W + 4)
+
+/**
+ * How much room a label takes, in viewBox units: its width, and how far it
+ * reaches above and below its baseline. A stacked fraction is taller than a
+ * line of text, which anything keeping labels apart has to know.
+ */
+export function labelExtent(text: string): { width: number; above: number; below: number } {
+  const pieces = labelPieces(text)
+  const width = pieces.reduce((s, p) => s + pieceWidth(p), 0)
+  return pieces.some(p => 'num' in p)
+    ? { width, above: 14, below: 7 }
+    : { width, above: 9, below: 2 }
+}
+
+/** A digit's width at FRAC_FONT: system fonts set digits all one width, about 0.54 em. */
+const FRAC_DIGIT = FRAC_FONT * 0.54
+/** U+2007 FIGURE SPACE is exactly one digit wide, so it pads a number without shifting it. */
+const FIGURE_SPACE = ' '
+const padTo = (s: string, n: number) => {
+  const extra = n - s.length
+  return FIGURE_SPACE.repeat(Math.floor(extra / 2)) + s + FIGURE_SPACE.repeat(Math.ceil(extra / 2))
+}
+
+function labelSvg(text: string, cx: number, base: number): string {
+  const ink = `fill="${colors.textPrimary}"`
+  const pieces = labelPieces(text)
+  if (!pieces.some(p => 'num' in p)) {
+    return `<text x="${cx}" y="${base}" text-anchor="middle" font-size="${LABEL_FONT}" ${ink}>${escXml(text)}</text>`
+  }
+  // ONE text element the browser lays out and centres on its real width — the
+  // fonts differ by device, and placing pieces at estimated widths left gaps
+  // (words came out 30% narrower than estimated on Windows). A fraction rides
+  // in the flow: the numerator raised and underlined (the underline is the
+  // fraction line), then the denominator lowered and stepped back under it.
+  // Both are padded to the same width with figure spaces, so the line spans
+  // the wider of the two and the step back is exact.
+  const spans: string[] = []
+  let shift = 0
+  for (const p of pieces) {
+    if ('text' in p) {
+      spans.push(`<tspan${shift ? ` dy="${-shift}"` : ''}>${escXml(p.text)}</tspan>`)
+      shift = 0
+      continue
+    }
+    const n = Math.max(p.num.length, p.den.length)
+    spans.push(
+      `<tspan font-size="${FRAC_FONT}" dy="${-shift - 6}" text-decoration="underline">${escXml(padTo(p.num, n))}</tspan>`,
+      `<tspan font-size="${FRAC_FONT}" dx="${-+(n * FRAC_DIGIT).toFixed(2)}" dy="11.5">${escXml(padTo(p.den, n))}</tspan>`,
+    )
+    shift = 5.5
+  }
+  return `<text x="${cx}" y="${base}" text-anchor="middle" font-size="${LABEL_FONT}" xml:space="preserve" ${ink}>`
+    + `${spans.join('')}</text>`
+}
+
 export function buildLabelsLayer(grid: RenderedGrid, geo: GridGeometry): string {
   if (!grid.labels?.length) return ''
   return grid.labels
-    .map(l =>
-      `<text x="${geo.px(l.x) + (l.dx ?? 0)}" y="${geo.py(l.y) + (l.dy ?? 0)}" ` +
-      `text-anchor="middle" font-size="11" fill="${colors.textPrimary}">${escXml(l.text)}</text>`)
+    .map(l => labelSvg(l.text, geo.px(l.x) + (l.dx ?? 0), geo.py(l.y) + (l.dy ?? 0)))
     .join('')
 }
 
