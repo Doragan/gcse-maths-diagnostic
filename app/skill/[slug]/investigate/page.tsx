@@ -16,6 +16,8 @@ import {
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
 import type { GridPoint, RenderedGrid } from '../../../../lib/questions/gridDraw'
 import { trackEvent } from '../../../../lib/analytics'
+import { getCachedStudentId } from '../../../../lib/auth'
+import { recordInvestigationCompletion } from '../../../../lib/investigationCompletions'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../../../lib/styles'
 
 /**
@@ -196,6 +198,13 @@ export default function InvestigatePage() {
    * has not finished twice (docs/audit/32, increment 1).
    */
   const finishLogged = useRef(false)
+  /**
+   * The signed-in student, if there is one: Finish records the investigation
+   * as done for them (docs/audit/32 D3). Null for anyone signed out or not a
+   * student, who write nothing — the page works exactly as before for them.
+   */
+  const [studentId, setStudentId] = useState<string | null>(null)
+  useEffect(() => { getCachedStudentId().then(setStudentId) }, [])
   /**
    * Whether the student has opened the top section again after it folded.
    * It folds once section 1 is complete (docs/audit/32, D2): the lead and the
@@ -969,6 +978,7 @@ export default function InvestigatePage() {
                           if (!finishLogged.current) {
                             finishLogged.current = true
                             trackEvent('investigation_finish', { skill: resolved.skillId })
+                            if (studentId) recordInvestigationCompletion(studentId, resolved.skillId)
                           }
                           setFinished(true)
                         } else {

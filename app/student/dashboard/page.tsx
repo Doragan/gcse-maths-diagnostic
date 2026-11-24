@@ -13,6 +13,8 @@ import { skills } from '../../../data/skills'
 import { fetchPublishedSkillIds, isPractisable } from '../../../lib/skills/publishedSkills'
 import { isPaidStudent } from '../../../lib/entitlements'
 import { fetchMyClassGrant } from '../../../lib/classGrant'
+import { finishedInvestigations } from '../../../lib/investigationCompletions'
+import { investigatePath } from '../../../lib/skills/slug'
 import FeedbackWidget from '../../../components/FeedbackWidget'
 import FounderUpgradeModal from '../../../components/FounderUpgradeModal'
 import ProgressChart from '../../../components/ProgressChart'
@@ -84,6 +86,12 @@ export default function StudentDashboardPage() {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [pendingAssignments, setPendingAssignments] = useState(0)
+  /**
+   * Investigations finished, most recent first (docs/audit/32 D3). Skill ids,
+   * named through skillsById rather than the investigation registry, which
+   * carries every investigation's whole content and would load it all here.
+   */
+  const [finishedInv, setFinishedInv] = useState<string[]>([])
   // Practice-reminder email opt-in (lives in auth user_metadata). Read once on
   // load, toggled here — the off-switch matching the signup checkbox + the
   // unsubscribe link.
@@ -108,6 +116,9 @@ export default function StudentDashboardPage() {
       // getStudentProfile(), so it has to fetch the class grant itself. Same
       // batch, no extra latency: the RPC identifies the caller and depends on
       // nothing else here.
+      // Started now and set when it lands: nothing below waits on it.
+      finishedInvestigations(user.id).then(setFinishedInv)
+
       const [{ data: p }, { data: attempts }, activeClassMembership] = await Promise.all([
         supabase.from('students').select('*').eq('id', user.id).single(),
         supabase
@@ -695,6 +706,30 @@ export default function StudentDashboardPage() {
           })}
         </div>
       </div>
+
+      {/* Investigations finished. Only when there are some: an empty list
+          would advertise a thing to collect, which they are not. */}
+      {finishedInv.length > 0 && (
+        <div style={card}>
+          <h2 style={{ ...sectionTitle, margin: '0 0 4px' }}>Investigations you’ve finished</h2>
+          <p style={{ fontSize: font.sm, color: colors.textHint, margin: '0 0 12px' }}>
+            Rules you worked out for yourself. Open one again any time.
+          </p>
+          <ul style={{ margin: 0, padding: 0, listStyleType: 'none', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {finishedInv.map(id => (
+              <li key={id}>
+                <a
+                  href={investigatePath(id)}
+                  style={{ fontSize: font.base, color: colors.primary, fontWeight: 600, textDecoration: 'none' }}
+                >
+                  <span aria-hidden="true" style={{ color: colors.successText, marginRight: '6px' }}>✓</span>
+                  {skillsById[id]?.name ?? id}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Progress-over-time — every student gets the mastered-skills line.
           Premium adds the cumulative accuracy line and activity bars. */}

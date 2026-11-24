@@ -23,6 +23,24 @@ describe('entryForSkills', () => {
       .toEqual({ kind: 'investigation', skillId: INVESTIGATED })
   })
 
+  it('does not offer an investigation the student has already finished', () => {
+    // docs/audit/32 D3: the briefing where there is one, else nothing.
+    const both = investigatedSkillIds().find(id => briefedSkillIds().includes(id))
+    if (both) {
+      expect(entryForSkills([both], new Set([both]))).toEqual({ kind: 'briefing', skillId: both })
+    }
+    const onlyInvestigated = investigatedSkillIds().find(id => !briefedSkillIds().includes(id))
+    if (onlyInvestigated) {
+      expect(entryForSkills([onlyInvestigated], new Set([onlyInvestigated]))).toBeNull()
+    }
+    // A finished one does not hide another skill's investigation in the same question.
+    const [a, b] = investigatedSkillIds()
+    expect(entryForSkills([a, b], new Set([a]))).toEqual({ kind: 'investigation', skillId: b })
+    // Finishing something else changes nothing.
+    expect(entryForSkills([INVESTIGATED], new Set(['not_a_skill'])))
+      .toEqual({ kind: 'investigation', skillId: INVESTIGATED })
+  })
+
   it('prefers an investigated skill over a merely briefed one in the same question', () => {
     expect(entryForSkills([BRIEFED_ONLY, INVESTIGATED]))
       .toEqual({ kind: 'investigation', skillId: INVESTIGATED })
