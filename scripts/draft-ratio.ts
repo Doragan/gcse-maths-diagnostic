@@ -51,6 +51,12 @@ const PART4 = `(${D4}/${GAP4})`
 const FIX4 = `one part is £{{${D4}}} ÷ {{${GAP4}}} = £{{${PART4}}}, and Ben gets {{${B4}}} × £{{${PART4}}} `
   + `= £{{${B4}*${PART4}}}.`
 
+// ── Section 3, second check: from a fraction back to a ratio ────────────────
+// [red as a fraction of all the counters]: each in its lowest terms, so the
+// ratio red : blue is too, and no trap renders as the answer.
+const N5 = '[2,3,4,1,5,3][sel]'
+const D5 = '[5,8,7,4,9,10][sel]'
+
 const base = {
   skill_ids: ['ratio'],
   kind: 'mastery',
@@ -211,6 +217,50 @@ const QUESTIONS = [
         response: `That gives the £{{${D4}}} as Ben's share, but the question never says what Ben gets. `
           + `The £{{${D4}}} is how much more Cara gets than Amy — Cara's extra {{${C4}}} − {{${A4}}} = `
           + `{{${GAP4}}} parts. So ${FIX4}`,
+      },
+    ],
+  },
+  {
+    // Section 3, second check (added 2026-11-24, at review): from a fraction
+    // of the whole BACK to a ratio — the other direction of the section's
+    // idea, which a paper asks as often. Every fraction is in its lowest
+    // terms, so every answer already is too.
+    ...base,
+    id: '02fc16a0-8ec3-4ae8-bd94-630553c05fef',
+    difficulty: 2,
+    question_type: 'numeric',
+    answer_type: 'ratio',
+    tolerance: null,
+    requires_simplest: true,
+    question_template: `<p>In a bag of red and blue counters, <strong>{{frac(${N5}, ${D5})}}</strong> of the `
+      + 'counters are red. The rest are blue.</p>'
+      + '<p>Write down the ratio of red counters to blue counters.</p>',
+    answer_template: `{{${N5}}}:{{${D5}-${N5}}}`,
+    // "1 is red", not "1 are red" (the reviewer's edit before publishing).
+    explanation: `{{frac(${N5}, ${D5})}} are red, so in every {{${D5}}} counters, {{${N5}}} `
+      + `{{${N5}===1?'is':'are'}} red.<br>`
+      + `The rest are blue: {{${D5}}} − {{${N5}}} = {{${D5}-${N5}}} in every {{${D5}}}.<br>`
+      + `So red : blue = <strong>{{${N5}}} : {{${D5}-${N5}}}</strong> — the part compared with the other `
+      + 'part, not with the whole.',
+    traps: [
+      {
+        answer_template: `{{${N5}}}:{{${D5}}}`,
+        misconception: 'part_used_as_whole',
+        response: `{{${N5}}} : {{${D5}}} compares the red counters with ALL the counters — it is the `
+          + `fraction written as a ratio. A ratio of red to blue compares red with blue: the other `
+          + `{{${D5}}} − {{${N5}}} = {{${D5}-${N5}}} are blue, so {{${N5}}} : {{${D5}-${N5}}}.`,
+      },
+      {
+        answer_template: `{{${D5}-${N5}}}:{{${N5}}}`,
+        misconception: 'ratio_order_reversed',
+        response: `The right two numbers in the wrong order: that is blue to red. The question asks `
+          + `for red to blue, so the red counters come first: {{${N5}}} : {{${D5}-${N5}}}.`,
+      },
+      {
+        answer_template: `{{${D5}-${N5}}}:{{${D5}}}`,
+        misconception: 'answered_a_different_quantity',
+        response: `That is the blue counters compared with all of them. A ratio of red to blue `
+          + `compares the {{${N5}}} red with the {{${D5}-${N5}}} blue: {{${N5}}} : {{${D5}-${N5}}}.`,
       },
     ],
   },
