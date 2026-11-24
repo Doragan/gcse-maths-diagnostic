@@ -196,6 +196,13 @@ export default function InvestigatePage() {
    * has not finished twice (docs/audit/32, increment 1).
    */
   const finishLogged = useRef(false)
+  /**
+   * Whether the student has opened the top section again after it folded.
+   * It folds once section 1 is complete (docs/audit/32, D2): the lead and the
+   * outcomes do their work while a student decides whether to start, and
+   * after that every later section opened under them.
+   */
+  const [introOpen, setIntroOpen] = useState(false)
   useEffect(() => {
     if (finished) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [finished])
@@ -345,6 +352,8 @@ export default function InvestigatePage() {
       : st)))
   }
 
+  // Section 1 complete on the same rule that unlocks section 2.
+  const introFolded = !!states[0] && stageComplete(resolved.stages[0], states[0].done, answeredMap(states[0]))
   const allDone = states.length > 0 && states[states.length - 1].done
 
   // One section at a time. A "page" the student moves through rather than a
@@ -373,13 +382,33 @@ export default function InvestigatePage() {
         <header>
           <p style={styles.eyebrow}>Investigation · {skill.topic}</p>
           <h1 style={styles.title}>{resolved.title}</h1>
-          <p style={styles.lede}>{prose(investigation.outcomes.lead)}</p>
-          <p style={styles.outcomesHead}>By the end of this you will be able to:</p>
-          <ul style={styles.outcomes}>
-            {investigation.outcomes.points.map((o, i) => (
-              <li key={i} style={styles.outcome}>{prose(o)}</li>
-            ))}
-          </ul>
+          {/* Folded to one line once section 1 is complete, and opened again
+              on a tap. The title stays: it says where the student is. */}
+          {(!introFolded || introOpen) && (
+            <div id="investigation-intro">
+              <p style={styles.lede}>{prose(investigation.outcomes.lead)}</p>
+              <p style={styles.outcomesHead}>By the end of this you will be able to:</p>
+              <ul style={styles.outcomes}>
+                {investigation.outcomes.points.map((o, i) => (
+                  <li key={i} style={styles.outcome}>{prose(o)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {introFolded && (
+            <button
+              type="button"
+              aria-expanded={introOpen}
+              aria-controls="investigation-intro"
+              style={styles.introToggle}
+              onClick={() => {
+                if (!introOpen) trackEvent('investigation_intro_open', { skill: resolved.skillId })
+                setIntroOpen(!introOpen)
+              }}
+            >
+              {introOpen ? 'Hide this ▴' : 'What you\u2019ll be able to do ▾'}
+            </button>
+          )}
         </header>
 
         <nav style={styles.pips} aria-label="Progress">
@@ -1011,6 +1040,10 @@ export default function InvestigatePage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
+  introToggle: {
+    background: 'none', border: 'none', padding: 0, margin: '8px 0 0', cursor: 'pointer',
+    fontSize: font.base, color: colors.primary, fontWeight: '600', textAlign: 'left',
+  },
   outcomesHead: {
     fontSize: font.base, color: colors.textSecondary, margin: '10px 0 4px',
   },
