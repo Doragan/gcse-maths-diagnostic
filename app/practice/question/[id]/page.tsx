@@ -18,9 +18,8 @@ import FeedbackWidget from '../../../../components/FeedbackWidget'
 import { buildOptions, renderMcOptions } from '../../../../lib/questions/multipleChoice'
 import { getCachedStudentId } from '../../../../lib/auth'
 import { entryForSkills } from '../../../../lib/skills/skillEntry'
-import { getInvestigation } from '../../../../data/investigations'
-import { skillPath, investigatePath } from '../../../../lib/skills/slug'
 import { trackEvent } from '../../../../lib/analytics'
+import TeachingPrompt from '../../../../components/practice/TeachingPrompt'
 import { appendPendingAttempt } from '../../../../lib/pendingPractice'
 import { readJoinedSession, bumpSessionAnswered } from '../../../../lib/classSessions'
 import ClassSessionBanner from '../../../../components/practice/ClassSessionBanner'
@@ -1207,47 +1206,9 @@ function QuestionPage() {
               An investigation wins over a briefing where the skill has both:
               a wrong answer is the moment a missing concept shows, and the
               briefing is written for someone who already has it. */}
-          {!feedback.correct && entryForSkills(question.skill_ids) && (() => {
-            const entry = entryForSkills(question.skill_ids)!
-            const briefedId = entry.skillId
-            const briefedName = skillsById[briefedId]?.name ?? 'this skill'
-            const isInvestigation = entry.kind === 'investigation'
-            return (
-              <div style={{
-                padding: '14px 16px',
-                borderRadius: radius.lg,
-                background: colors.card,
-                border: `1px solid ${colors.border}`,
-                borderLeft: `3px solid ${colors.primary}`,
-              }}>
-                <p style={{ fontSize: font.sm, fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 6px', color: colors.primaryHover }}>
-                  New
-                </p>
-                <p style={{ fontSize: font.base, color: colors.textPrimary, margin: '0 0 10px' }}>
-                  {isInvestigation
-                    ? `There's an investigation for this one — you draw the graphs yourself and
-                       work out the rule, rather than being told it.`
-                    : `We've written an exam briefing on ${briefedName.toLowerCase()} — how to spot
-                       the question, what it gets confused with, and how to check yourself.`}
-                </p>
-                <a
-                  href={isInvestigation ? investigatePath(briefedId) : skillPath(briefedId)}
-                  onClick={() => trackEvent(
-                    isInvestigation ? 'investigation_prompt_click' : 'skill_briefing_prompt_click',
-                    { skill: briefedId, from: 'question_feedback' },
-                  )}
-                  style={{ fontSize: font.base, color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
-                >
-                  {/* The investigation's own title, not the skill name: skill
-                      names are long and read badly lowercased mid-sentence,
-                      and the title says what the student will actually do. */}
-                  {isInvestigation
-                    ? `Start “${getInvestigation(briefedId)?.title ?? 'the investigation'}” →`
-                    : `Read the ${briefedName.toLowerCase()} briefing →`}
-                </a>
-              </div>
-            )
-          })()}
+          {!feedback.correct && entryForSkills(question.skill_ids) && (
+            <TeachingPrompt entry={entryForSkills(question.skill_ids)!} questionId={question.id} />
+          )}
 
           {/* Animated skill progress dots */}
           {question.skill_ids.length > 0 && (() => {
