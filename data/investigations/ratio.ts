@@ -59,6 +59,16 @@ const Q_ONE_SHARE = '1af11a98-9049-4937-b626-e1c01d18609f'
  * ratio trap on the papers, and the one this section exists to undo.
  */
 const Q_AS_FRACTION = 'a99e08d4-0f23-49af-8c90-6ae67f2764b7'
+/**
+ * "2/5 of the counters are red, the rest blue. Write down the ratio of red to
+ * blue." (d2, ratio) — written for section 3's other direction.
+ *
+ * What lets the section's aside on going back from a fraction to a ratio stay:
+ * a reviewer asked for no aside that no check then tests. Traps: the fraction
+ * written as a ratio (2 : 5), the right numbers reversed (3 : 2), and the
+ * blue counters against the whole (3 : 5).
+ */
+const Q_FRACTION_TO_RATIO = '02fc16a0-8ec3-4ae8-bd94-630553c05fef'
 
 /**
  * "Amy, Ben and Cara share some money in the ratio a : b : c. Cara gets £X more
@@ -598,12 +608,24 @@ function stageFractions(p: Params): Stage {
         + '{1/5} squash, not {1/4}.',
       onThePaper: 'Red and blue counters are in the ratio 2 : 7. What fraction of the counters are red?',
     },
+    aside: {
+      head: 'And from a fraction to a ratio?',
+      body: 'Backwards works the same way. If {2/5} of a class are boys, then 2 in every 5 are '
+        + 'boys and the other 3 are girls — so boys to girls is 2 : 3, not 2 : 5. The second '
+        + 'question below asks it this way round.',
+    },
     check: [
       {
         questionId: Q_AS_FRACTION,
         because: 'The section exactly, on counters instead of a class: a ratio, and the fraction '
           + 'of the whole that one part makes. Its first trap is the ratio written as a fraction '
           + '— part to part where part to whole is asked for.',
+      },
+      {
+        questionId: Q_FRACTION_TO_RATIO,
+        because: 'The aside, tested: a fraction of the whole, and the ratio it comes from. Its '
+          + 'first trap is the fraction written as a ratio — part to whole where part to part is '
+          + 'asked for, the section’s trap the other way round.',
       },
     ],
   }

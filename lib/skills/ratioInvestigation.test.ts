@@ -161,10 +161,13 @@ describe('what the sections ask about', () => {
   it('brings up no kind of question that is not then tested', () => {
     // Sections 2 and 3 once had asides on a known difference and on going from
     // a fraction back to a ratio, which no check then asked (review,
-    // 2026-11-23). A difference is section 4's; the other is not tested yet.
+    // 2026-11-23). A difference is section 4's, so section 2 has none; the
+    // fraction-to-ratio aside came back with a question of its own (02fc16a0).
     const stages = inv.build(allDraws(inv.parameters)[0])
     expect(stages[1].aside, 'section 2').toBeUndefined()
-    expect(stages[2].aside, 'section 3').toBeUndefined()
+    expect(stages[2].aside?.head, 'section 3').toMatch(/fraction to a ratio/)
+    expect(stages[2].check?.map(c => c.questionId), 'section 3 does not test its aside')
+      .toContain('02fc16a0-8ec3-4ae8-bd94-630553c05fef')
   })
 
   it('has no algebra in sections 1 and 2, and says "Using algebra" where there is some', () => {

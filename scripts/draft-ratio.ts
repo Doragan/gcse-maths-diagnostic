@@ -236,7 +236,9 @@ const QUESTIONS = [
       + 'counters are red. The rest are blue.</p>'
       + '<p>Write down the ratio of red counters to blue counters.</p>',
     answer_template: `{{${N5}}}:{{${D5}-${N5}}}`,
-    explanation: `{{frac(${N5}, ${D5})}} are red, so in every {{${D5}}} counters, {{${N5}}} are red.<br>`
+    // "1 is red", not "1 are red" (the reviewer's edit before publishing).
+    explanation: `{{frac(${N5}, ${D5})}} are red, so in every {{${D5}}} counters, {{${N5}}} `
+      + `{{${N5}===1?'is':'are'}} red.<br>`
       + `The rest are blue: {{${D5}}} − {{${N5}}} = {{${D5}-${N5}}} in every {{${D5}}}.<br>`
       + `So red : blue = <strong>{{${N5}}} : {{${D5}-${N5}}}</strong> — the part compared with the other `
       + 'part, not with the whole.',
