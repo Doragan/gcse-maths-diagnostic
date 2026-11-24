@@ -6,9 +6,9 @@ import { CELL } from '../questions/gridSvg'
 import type { RenderedGrid } from '../questions/gridDraw'
 
 /**
- * Sharing in a ratio. Sections 1–3 draw the WHOLE as one bar cut into equal
- * parts and coloured by whose they are; section 4 draws a row of parts per
- * person, to show a difference. The argument rests on the parts being equal
+ * Sharing in a ratio. Sections 1 and 3 draw the WHOLE as one bar cut into
+ * equal parts and coloured by whose they are; sections 2 and 4 draw a row of
+ * parts per person, to show a difference. The argument rests on the parts being equal
  * and the shares adding back up, so both are checked on what is drawn, for
  * every value every section allows.
  */
@@ -77,21 +77,67 @@ describe('section 1: one bar of the amount, and the split changed', () => {
   })
 })
 
-describe('section 2: one bar, with Ben’s share known', () => {
-  it('keeps Ben’s share, and finds Amy’s and the total from one part of it', () => {
+/** The dashed guide's x, if one is drawn. */
+const guideX = (g: RenderedGrid) =>
+  [...g.background.matchAll(/<line x1="([\d.]+)"[^>]*stroke-opacity="0\.6" stroke-width="[\d.]+" stroke-dasharray/g)]
+    .map(m => Number(m[1]))
+
+describe('section 2: a row of parts each, with Ben’s share known and Amy’s number changed', () => {
+  const PART = 7.2
+
+  it('keeps one part the same, and shows the gap between the shares in parts and in pounds', () => {
     let checked = 0
-    for (const { where, section, v, ask, grid } of figures()) {
+    for (const { where, section, v: x, ask, grid } of figures()) {
       if (section !== 1) continue
-      const [, a, , known] = ask.match(/ratio (\d+) : (\d+)\. Ben gets £(\d+)/)!.map(Number)
-      expectWholeBar(where, grid, a, a + v)
-      expect(shareOf(grid, 'Ben'), where).toBe(known)
-      expect(shareOf(grid, 'Amy'), where).toBeCloseTo((a * known) / v, 2)
-      const total = words(grid).find(w => w.startsWith('altogether'))!
-      expect(pounds(total.split(': ')[1]), where).toBeCloseTo(((a + v) * known) / v, 2)
+      const [, , b, known] = ask.match(/ratio (\d+) : (\d+)\. Ben gets £(\d+)/)!.map(Number)
+      const each = known / b
+      // A row each, as many parts as their number, every part the same size.
+      expect(rects(grid).map(r => +r[2].toFixed(4)), where).toEqual([x, b].map(n => +(n * PART).toFixed(4)))
+      for (const xs of dividers(grid).values()) {
+        const sorted = [...new Set(xs)].sort((p, q) => p - q)
+        for (let k = 1; k < sorted.length; k++) expect(sorted[k] - sorted[k - 1], where).toBeCloseTo(PART, 6)
+      }
+      // One part is Ben's share over HIS parts, written in every part, and fits.
+      const inParts = (grid.labels ?? []).filter(l => l.text === `£${each}`)
+      expect(inParts.length, `${where}: not every part has its value`).toBeGreaterThanOrEqual(x + b)
+      const partPx = (rects(grid)[1][2] / b) * (CELL / grid.x.step)
+      for (const l of inParts) expect(2 * labelHalfWidth(l.text), where).toBeLessThanOrEqual(partPx - 1)
+      // Both shares written after their rows.
+      expect(words(grid), where).toContain(`£${known}`)
+      expect(words(grid), where).toContain(`£${x * each}`)
+      // The gap: the dashed line ends the shorter row, and the working says
+      // how many parts are past it and what they are worth.
+      if (x === b) {
+        expect(guideX(grid), where).toEqual([])
+        expect(words(grid).some(w => /no difference/.test(w)), where).toBe(true)
+      } else {
+        expect(guideX(grid).map(g => +g.toFixed(4)), where).toEqual([+(Math.min(x, b) * PART).toFixed(4)])
+        const line = words(grid).find(w => / more parts?: /.test(w))!
+        const [, who, n, money] = line.match(/^(Amy|Ben) has (\d+) more parts?: .*£([\d.]+) more$/)!
+        expect(who, where).toBe(b > x ? 'Ben' : 'Amy')
+        expect(Number(n), where).toBe(Math.abs(b - x))
+        expect(Number(money), where).toBeCloseTo(Math.abs(b - x) * each, 2)
+      }
+      // Nothing written runs past the figure.
+      const widthPx = grid.x.max * (CELL / grid.x.step)
+      for (const w of words(grid)) expect(2 * labelHalfWidth(w), `${where}: "${w}"`).toBeLessThanOrEqual(widthPx)
       checked++
     }
-    // 7 + 8 + 6 + 5 splits over the four questions.
-    expect(checked).toBe(26)
+    // Amy's number 1 to 7, in each of the four questions.
+    expect(checked).toBe(4 * 7)
+  })
+
+  it('has the same "each part" on every row of the table, and the difference in parts and pounds', () => {
+    for (const p of allDraws(inv.parameters).slice(0, 8)) {
+      const stage = inv.build(p)[1]
+      const [, , b, known] = stage.ask.match(/ratio (\d+) : (\d+)\. Ben gets £(\d+)/)!.map(Number)
+      const rows = controlValues(stage.control!).map(v => stage.control!.row!(v))
+      expect(new Set(rows.map(r => r[1])), stage.ask).toEqual(new Set([`£${known / b}`]))
+      for (const [k, r] of rows.entries()) {
+        const x = k + 1
+        expect(r[3], stage.ask).toBe(x === b ? 'none' : `${Math.abs(b - x)} ${Math.abs(b - x) === 1 ? 'part' : 'parts'} = £${(Math.abs(b - x) * known) / b}`)
+      }
+    }
   })
 })
 
@@ -101,10 +147,11 @@ describe('the value in every part', () => {
     // reads as one number across two parts.
     let checked = 0
     // Every split tried, and the question's own split before any is.
-    const asked = allDraws(inv.parameters).flatMap(p => inv.build(p).slice(0, 2).map((stage, section) =>
+    // Section 1's bar only: section 2 is drawn as rows, and checked above.
+    const asked = allDraws(inv.parameters).flatMap(p => inv.build(p).slice(0, 1).map((stage, section) =>
       ({ where: `${stage.ask} — as asked`, section, grid: stage.control!.render!([], 0) })))
     for (const { where, section, grid } of [...figures(), ...asked]) {
-      if (section > 1) continue
+      if (section > 0) continue
       const parts = [...new Set([...dividers(grid).values()].flat())].length + 1
       const partPx = (grid.x.max / parts) * (CELL / grid.x.step)
       const inParts = (grid.labels ?? []).filter(l => /^£[\d.]+$/.test(l.text))
@@ -116,7 +163,7 @@ describe('the value in every part', () => {
       }
       checked++
     }
-    expect(checked).toBeGreaterThan(51)
+    expect(checked).toBeGreaterThan(25)
   })
 })
 
@@ -190,7 +237,8 @@ describe('what the sections ask about', () => {
   it('brings up no kind of question that is not then tested', () => {
     // Sections 2 and 3 once had asides on a known difference and on going from
     // a fraction back to a ratio, which no check then asked (review,
-    // 2026-11-23). A difference is section 4's, so section 2 has none. Going
+    // 2026-11-23). Finding parts FROM a known difference is section 4's, so section 2 has no
+    // aside on it — its rows only show the gap its own trap is about. Going
     // back from a fraction is in section 3's one card (review, 2026-11-24),
     // with a question of its own (02fc16a0).
     const stages = inv.build(allDraws(inv.parameters)[0])

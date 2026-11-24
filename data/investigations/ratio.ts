@@ -22,7 +22,8 @@ import type { BarFill, BarModel } from '../../lib/skills/investigationFigures'
 //   1. Sharing an amount — add the numbers to count the parts, divide the
 //      amount by that. Not £3 and £5, not half each.
 //   2. Knowing one share — the share you know is THAT person's parts, so
-//      divide by their number, not by the total of the ratio.
+//      divide by their number, not by the total of the ratio; and the gap
+//      between two shares is parts, not pounds.
 //   3. Ratios and fractions — in 3 : 5 the first share is 3/8 of the whole,
 //      not 3/5: the most common ratio trap on the papers.
 //   4. Three people, and a difference — the difference between two shares is
@@ -169,6 +170,29 @@ function shareRows(opts: {
 
 /** The axes the rows are drawn on, for a stage's `axes`. */
 const rowAxes = (n: 2 | 3) => ({ x: AX, y: { min: 0, max: n === 2 ? 30 : 36, step: 6, label: '' } })
+
+/** The most parts one row holds with its share still written after it. */
+const ROW_MAX = 7
+
+const partsWord = (n: number) => (n === 1 ? 'part' : 'parts')
+
+/**
+ * Who gets more and by how much, in parts and then in pounds: "Ben has 2 more
+ * parts: 2 × £6 = £12 more". Amy is `x` parts and Ben `y`, at `each` a part.
+ */
+function gapLine(x: number, y: number, each: number): string {
+  if (x === y) return 'The same number of parts, so no difference'
+  const more = Math.abs(y - x)
+  const who = y > x ? 'Ben' : 'Amy'
+  const sum = more === 1 ? '' : `${more} × ${money(each)} = `
+  return `${who} has ${more} more ${partsWord(more)}: ${sum}${money(more * each)} more`
+}
+
+/** The difference for the table: "2 parts = £12", or "none" for level shares. */
+function gapCell(x: number, y: number, each: number): string {
+  const more = Math.abs(y - x)
+  return more === 0 ? 'none' : `${more} ${partsWord(more)} = ${money(more * each)}`
+}
 
 // ─── One bar of the whole ────────────────────────────────────────────────────
 //
@@ -389,9 +413,16 @@ function stageShare(p: Params): Stage {
 // the total. The trap is to treat the ratio's numbers as amounts and work by
 // adding or taking away.
 //
-// The same picture and the same move as section 1 — the student changes the
-// split — so the only new thing is what is known: Ben's share, fixed, cut into
-// his parts. The other share AND the total then both come out of one part.
+// A row of parts each, as in section 4, not section 1's one bar (review,
+// 2026-11-24): the two sections' try-its were the same control on the same
+// picture, and the bar never showed the trap this section is for — keeping
+// the gap between the numbers as pounds. Rows show the gap: the dashed line
+// ends the shorter row, and the parts past it are the difference.
+//
+// The student changes AMY's number, not Ben's. Ben's share and his parts stay
+// put, so one part never changes — the "each part" column is the same on every
+// row — while Amy's share, the difference and the total all move a whole part
+// at a time. One more in the ratio is one more PART, never one more pound.
 
 /** [Amy's number, Ben's number, Ben's share]. Every prediction option distinct. */
 const S2 = [[3, 5, 25], [2, 7, 28], [4, 5, 30], [5, 3, 24]] as const
@@ -404,7 +435,7 @@ function stageOneShare(p: Params): Stage {
     title: 'Knowing one share',
     ask: `Amy and Ben share some money in the ratio ${a} : ${b}. Ben gets ${money(known)}. `
       + 'How much does Amy get?',
-    axes: barAxes,
+    axes: rowAxes(2),
     predict: {
       prompt: 'Amy gets…',
       on: {
@@ -425,41 +456,40 @@ function stageOneShare(p: Params): Stage {
         `Ben's ${money(known)} is his ${b} parts, so one part is ${money(known)} ÷ ${b} = `
           + `${money(each)}.`,
         `Amy has ${a} parts: ${a} × ${money(each)} = ${money(a * each)}.`,
+        `${gapLine(a, b, each)} — not ${money(Math.abs(b - a))}.`,
       ],
     },
     control: {
-      name: 'Ben’s number',
+      name: 'Amy’s number',
       verb: 'try',
       render: (drawn, current) => {
-        const v = drawn[current] ?? b
-        const one = known / v
-        return wholeBar({
-          first: a,
-          second: v,
-          each: one,
-          above: `Ben gets ${money(known)} in the ratio ${a} : ${v}`,
-          under: [`Amy ${money(a * one)}`, `Ben ${money(known)}`],
+        const x = drawn[current] ?? a
+        return shareRows({
+          people: [{ parts: x, each }, { parts: b, each }],
+          above: `Ben gets ${money(known)} in the ratio ${x} : ${b}`,
           working: [
-            `Ben's ${v} parts are ${money(known)}, so one part is ${money(known)} ÷ ${v} = ${money(one)}`,
-            `altogether, ${a + v} parts: ${money((a + v) * one)}`,
+            `Ben's ${b} parts are ${money(known)}, so one part is ${money(each)}`,
+            gapLine(x, b, each),
           ],
+          // Down from the end of the shorter row: the parts past it are the
+          // difference. Level rows have none, and no line.
+          guide: x === b ? undefined : { at: Math.min(x, b), from: 0, to: 1 },
         })
       },
-      prompt: `Keep Ben's ${money(known)} and Amy's ${a}, and change Ben's number in the ratio. `
-        + 'Watch which number his share is divided by — and what that tells you about Amy, and '
-        + 'about the whole amount.',
-      hint: `Any whole number from 1 to ${benUpTo(a)}.`,
-      domain: { min: 1, max: benUpTo(a), step: 1 },
-      // Never the split in the question (Ben's number there is 3, 5 or 7), and
-      // never past the top of the domain.
-      suggest: [1, Math.min(6, benUpTo(a))],
-      label: v => `${a} : ${v}`,
-      row: v => [`${a} : ${v}`, money(known / v), money((a * known) / v), money(((a + v) * known) / v)],
+      prompt: `Keep Ben's ${money(known)} and his ${b} parts, and change Amy's number in the `
+        + 'ratio. Watch what one part is worth, and how far apart their two shares are.',
+      hint: `Any whole number from 1 to ${ROW_MAX}.`,
+      domain: { min: 1, max: ROW_MAX, step: 1 },
+      // Never the question's own number for Amy (2 to 5), one each side of
+      // Ben's, so the gap is seen both ways round.
+      suggest: [1, ROW_MAX],
+      label: v => `${v} : ${b}`,
+      row: v => [`${v} : ${b}`, money(each), money(v * each), gapCell(v, b, each), money((v + b) * each)],
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Try a second split, so you can see what Ben’s share is divided by.'
+        ? 'Try a second number for Amy, so you can see what one more part is worth.'
         : null),
     },
-    observe: { headers: ['ratio', 'each part', 'Amy gets', 'altogether'] },
+    observe: { headers: ['ratio', 'each part', 'Amy gets', 'difference', 'altogether'] },
     conclude: {
       sentence: ['When you know one share, divide it by ', ' to find one part, then ', '.'],
       slots: [
@@ -478,9 +508,8 @@ function stageOneShare(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'The numbers in a ratio count parts, not pounds, so the gap between two shares is '
-            + 'never just the gap between the numbers. Every part is worth the same, so multiply '
-            + 'it by how many of them you need.',
+            `In ${a} : ${b}, ${gapLine(a, b, each)} — not ${money(Math.abs(b - a))}. The numbers `
+            + 'in a ratio count parts, not pounds, so multiply one part by how many of them you need.',
           ],
           misconception: ['', ''],
         },
