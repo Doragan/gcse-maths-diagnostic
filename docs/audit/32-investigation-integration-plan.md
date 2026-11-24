@@ -1,16 +1,19 @@
 # Investigations — fitting them into the rest of the site
 
-Scope written 2026-11-24, after the fourth investigation (ratio). It answers one
-question: **write a fifth, or make the four we have reachable and measurable
-first?** The answer is the second, and this note says what that means in order.
+Scope written 2026-11-24, after the fourth investigation (ratio). It asked
+**write a fifth, or make the four we have reachable and measurable first?** —
+and the answer, after review, is **both, alongside each other**: authoring
+continues (it is still the best use of the time we have — reviewer,
+2026-11-24), and the small integration increments in §4 run beside it so that
+what gets written is found, finished and measured.
 
 `31-tutorial-content-plan.md` designed the layer. Its §9 said *do not author
 investigations 3–20 before the shell has been measured*, and its §10 set the
 bar: *a null result after a few dozen completions means stop at two*. We are at
 four, with no completions by an outside student. Nothing here says the four are
 wrong — they were each reviewed section by section and are good — but the
-evidence §10 asked for does not exist yet, and every further one costs about a
-week of review rounds.
+evidence §10 asked for does not exist yet. §4's first two increments are what
+produce it, and they are small enough not to hold authoring up.
 
 ---
 
@@ -88,11 +91,21 @@ missing idea than one slip — but measure the first version before changing it.
 
 ### D2 — Get the student to the first prediction faster
 
-Half leave before predicting. **Recommendation:** on arrival, show the section's
-question and its prediction near the top, and collapse the outcomes list behind
-"What you'll be able to do" (it stays for teachers and for the finished view,
-which already ticks them off). Measure the open → predict rate before and after;
-it is the cheapest change here with the largest share of the funnel behind it.
+Half leave before predicting.
+
+**Decided (reviewer, 2026-11-24): keep the top section as it is on arrival, and
+fold it away once the first section is finished.** The lead and the outcomes do
+real work for a student deciding whether to start — they say what this is and
+what they will be able to do — so they stay where they are. Once section 1 is
+done they have done that job, and every later section opens under them; so
+from then on they collapse to a one-line header ("Speed, Distance and Time ·
+what you'll be able to do ▾") that opens again on a tap. The finished view
+still ticks the outcomes off.
+
+That leaves the open → predict drop where it was, so the measurement matters:
+read open → predict before and after. If half still leave before predicting,
+the next thing to try is shortening section 1's own run-up — the question and
+the prediction — rather than the top section.
 
 ### D3 — Signed-in students: remember it
 
@@ -135,14 +148,47 @@ this reach they are an acquisition and teaching asset, not a revenue line, and
 gating them would make the measurement in §5 impossible. Revisit once D3 exists
 (something to gate on) and completions are in the tens a week.
 
-### D6 — When to write the fifth
+### D6 — Which to write next
 
-**Recommendation:** not until D1 and D2 have shipped and run for long enough to
-read, and then choose by **exam marks × how often students get that skill
-wrong in practice** — the wrong-answer prompt is the door, so the skills that
-send most students through it are where a new investigation earns its week.
-The marks ranking alone (`project_investigation_targets`) chose well but cannot
-see traffic.
+**Decided (reviewer, 2026-11-24): keep writing.** Authoring is not gated on
+this plan; there is no better use of the time.
+
+**Recommendation for choosing:** exam marks, as now
+(`project_investigation_targets`), and — once increment 1 has run long enough
+to read — **how often students get that skill wrong in practice**: the
+wrong-answer prompt is the door, so the skills that send most students through
+it are where a new investigation earns its week. And with D7 in view, prefer
+skills that sit next to one another in the teaching order, so that a stretch
+of a track gets investigations rather than scattered single skills.
+
+### D7 — The long term: a progress track
+
+**The reviewer's direction (2026-11-24):** a student works on a skill, then
+the next skill or skills along a track. Not built now, and much more has to be
+written first — but it is where these pieces are heading, so the increments
+should not close it off.
+
+What already exists for it:
+- **The order.** `data/skills.ts` prerequisites encode the GCSE teaching order
+  (`project_prereq_graph_is_teaching_order`), and `prerequisiteTreeWithin`
+  already contains it per course — Foundation and Higher are each a track.
+- **Where a student is.** Mastery per skill, which the track reads to say
+  "done" and "next".
+- **What to do at a stop.** Practice exists for every skill. Teaching does
+  not: **25 of 164 skills have a briefing and 4 have an investigation.** That
+  is the "much more written" — a track is only as good as its thinnest
+  stretch, and today most stops would be practice alone.
+
+What it would add: a track view (where you are, what is next), the "next
+skill" offered at the end of a skill's practice and at the end of an
+investigation's finished view, and per-stop content in a fixed order —
+investigation to build the idea, briefing to shape it for the exam, practice
+to make it stick.
+
+What the increments here owe it: D3's completion record (the track needs to
+know an investigation was done, separately from mastery); and the finished
+view's "Try some questions" is where "Next on your track →" would later sit,
+so it should stay one card that can take another button.
 
 ## 4. Increments, in order
 
@@ -150,22 +196,23 @@ see traffic.
    investigation's own lead, not a straight-lines sentence); an
    `investigation_prompt_shown` event; an `investigation_finish` event on the
    Finish button. Small; no behaviour change.
-2. **The run-up.** D2: question and prediction first, outcomes collapsed.
-   Ship, then read open → predict for a few weeks.
+2. **The run-up.** D2: the top section folds to one line once section 1 is
+   done. Ship, then read open → predict and section 1 → section 2 for a few
+   weeks.
 3. **Remember it.** D3: the completion row for signed-in students; stop
    offering a finished investigation; show it on the student dashboard.
 4. **The lesson starter.** D4, scoped against a named teacher.
-5. **Then the fifth investigation**, chosen as in D6.
+5. **Later: the progress track** (D7), once enough of a track has content.
 
-The ratio investigation's review finishes first (it is mid-review and nearly
-done); it is not blocked by any of this.
+Alongside all of these, **authoring continues** (D6), starting once the ratio
+investigation's review is done.
 
 ## 5. How we will know
 
 | question | read it from | worry if |
 |---|---|---|
 | Is the door working? | prompt shown → clicked (after increment 1) | under 5% |
-| Is the run-up fixed? | opened → first prediction | still under 50% after increment 2 |
+| Is the run-up fixed? | opened → first prediction; section 1 → section 2 | under 50% after increment 2 — then try shortening section 1's own run-up |
 | Do they finish? | started → `investigation_finish` | zero after a month of increment 2 |
 | Does it transfer? | `investigation_transfer` correct rate vs the same skill's first-attempt rate | no difference after a few dozen completions — 31 §10's stop rule |
 | Do teachers use it? | sessions started "with the investigation" | none after the named lesson |
@@ -175,10 +222,10 @@ the one that decides whether investigations are worth writing at all.
 
 ## Explicitly not in scope
 
-Writing more investigations before increment 2 has been read; any investigation
-writing mastery; a browsable investigations catalogue; server-rendering the
-pages for search (worth doing only if D6's traffic shows search matters);
-gating them (D5).
+Any investigation writing mastery; a browsable investigations catalogue;
+server-rendering the pages for search (worth doing only if D6's traffic shows
+search matters); gating them (D5); building the progress track now (D7 — it
+waits on content).
 
 ## Pointers
 
