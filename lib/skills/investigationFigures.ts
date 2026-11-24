@@ -1,5 +1,5 @@
 import type { RenderedGrid, RenderedAxis, GridLabel } from '../questions/gridDraw'
-import { CELL, PAD } from '../questions/gridSvg'
+import { CELL, PAD, labelExtent } from '../questions/gridSvg'
 import { colors } from '../styles'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -325,9 +325,6 @@ function animate(attr: string, frames: readonly [number, number][]): string {
 /** Opacity 0 until `at`, then a quick fade to 1. */
 const fadeIn = (at: number) => animate('opacity', at > 0 ? [[0, 0], [at, 0], [at + 0.25, 1]] : [[0, 0], [0.25, 1]])
 
-/** Average width of a label character at the canvas's font size, in viewBox units. */
-const LABEL_CHAR = 6.2
-
 /**
  * An x for a centred label that keeps every character on the figure.
  *
@@ -337,7 +334,7 @@ const LABEL_CHAR = 6.2
  */
 export function fitLabel(x: number, text: string, axis: RenderedAxis): number {
   const k = axis.step / CELL
-  const half = (text.length * LABEL_CHAR / 2) * k
+  const half = (labelExtent(text).width / 2) * k
   const lo = axis.min - (PAD.left - 4) * k + half
   const hi = axis.max + (PAD.right - 4) * k - half
   return Math.min(Math.max(x, lo), hi)
@@ -345,7 +342,8 @@ export function fitLabel(x: number, text: string, axis: RenderedAxis): number {
 
 /** Half a label's width in viewBox units, for tests and for placing one beside a line. */
 export function labelHalfWidth(text: string): number {
-  return text.length * LABEL_CHAR / 2
+  // Measured, not counted: a stacked {n/d} is narrower than its characters.
+  return labelExtent(text).width / 2
 }
 
 export function barModelGrid(opts: {

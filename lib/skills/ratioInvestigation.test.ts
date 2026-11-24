@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { ratioInvestigation as inv } from '../../data/investigations/ratio'
-import { allDraws, controlValues, splitPair } from './investigation'
+import { allDraws, controlValues, splitInputs } from './investigation'
 import { labelHalfWidth } from './investigationFigures'
 import { CELL } from '../questions/gridSvg'
 import type { RenderedGrid } from '../questions/gridDraw'
@@ -125,12 +125,13 @@ describe('section 3: both numbers of the ratio', () => {
     let checked = 0
     for (const { where, section, v, grid } of figures()) {
       if (section !== 2) continue
-      const [f, s] = splitPair(v)
+      const [f, s] = splitInputs(v, 2)
       const n = f + s
       expectWholeBar(where, grid, f, n)
-      expect(words(grid), where).toContain(`boys ${f}/${n}`)
-      expect(words(grid), where).toContain(`girls ${s}/${n}`)
-      expect(words(grid).join(' | '), where).toContain(`${f}/${n} + ${s}/${n} = ${n}/${n} = 1`)
+      // Stacked fractions in the diagram, as on the rest of the page (review, 2026-11-24).
+      expect(words(grid), where).toContain(`boys {${f}/${n}}`)
+      expect(words(grid), where).toContain(`girls {${s}/${n}}`)
+      expect(words(grid).join(' | '), where).toContain(`{${f}/${n}} + {${s}/${n}} = {${n}/${n}} = 1`)
       checked++
     }
     // Every pair from 1 : 1 to 9 : 9, in each of the four classes.
@@ -138,22 +139,50 @@ describe('section 3: both numbers of the ratio', () => {
   })
 })
 
-describe('section 4: a row of parts per person', () => {
+describe('section 4: a row of parts per person, the whole ratio changed', () => {
+  const PART = 7.2
+
   it('gives every person as many parts as their number, all the same size', () => {
     let checked = 0
-    for (const { where, section, ask, grid } of figures()) {
+    for (const { where, section, v, grid } of figures()) {
       if (section !== 3) continue
-      const ratio = ask.match(/ratio ([\d :]+)\./)![1].split(' : ').map(Number)
-      expect(rects(grid).map(r => r[2]), where).toEqual(ratio.map(n => n * 6))
+      const ratio = splitInputs(v, 3)
+      expect(rects(grid).map(r => +r[2].toFixed(4)), where).toEqual(ratio.map(n => +(n * PART).toFixed(4)))
       for (const xs of dividers(grid).values()) {
         // Once each: the dashed guide starts level with Cara's row and stands
         // on one of her dividers.
         const sorted = [...new Set(xs)].sort((a, b) => a - b)
-        for (let k = 1; k < sorted.length; k++) expect(sorted[k] - sorted[k - 1], where).toBeCloseTo(6, 6)
+        for (let k = 1; k < sorted.length; k++) expect(sorted[k] - sorted[k - 1], where).toBeCloseTo(PART, 6)
       }
       checked++
     }
-    expect(checked).toBeGreaterThan(30)
+    // Every ratio with Cara above Amy, 1 to 7 each: 21 × 7, in four questions.
+    expect(checked).toBe(4 * 21 * 7)
+  })
+
+  it('finds one part from the difference, and writes it in every part where it fits', () => {
+    for (const { where, section, v, ask, grid } of figures()) {
+      if (section !== 3) continue
+      const [x, y, z] = splitInputs(v, 3)
+      expect(z, `${where}: Cara does not have more parts than Amy`).toBeGreaterThan(x)
+      const diff = Number(ask.match(/Cara gets £(\d+) more/)![1])
+      const one = diff / (z - x)
+      const inParts = (grid.labels ?? []).filter(l => /^£[\d.]+$/.test(l.text) && Math.abs(pounds(l.text) - one) < 0.005)
+      expect(inParts.length, `${where}: not every part has its value`).toBeGreaterThanOrEqual(x + y + z)
+      // Measured off the drawing — Amy's row over her parts — not assumed.
+      const partPx = (rects(grid)[0][2] / x) * (CELL / grid.x.step)
+      for (const l of inParts) {
+        expect(2 * labelHalfWidth(l.text), `${where}: "${l.text}" does not fit a part`).toBeLessThanOrEqual(partPx - 1)
+      }
+    }
+  })
+
+  it('refuses a ratio where Cara does not get more than Amy', () => {
+    const stage = inv.build(allDraws(inv.parameters)[0])[3]
+    // 5 : 3 : 2 and 3 : 2 : 3 give Cara no more than Amy; 2 : 3 : 5 does.
+    expect(stage.control!.valid!(50302)).toMatch(/more parts than Amy/)
+    expect(stage.control!.valid!(30203)).toMatch(/more parts than Amy/)
+    expect(stage.control!.valid!(20305)).toBeNull()
   })
 })
 
@@ -161,19 +190,22 @@ describe('what the sections ask about', () => {
   it('brings up no kind of question that is not then tested', () => {
     // Sections 2 and 3 once had asides on a known difference and on going from
     // a fraction back to a ratio, which no check then asked (review,
-    // 2026-11-23). A difference is section 4's, so section 2 has none; the
-    // fraction-to-ratio aside came back with a question of its own (02fc16a0).
+    // 2026-11-23). A difference is section 4's, so section 2 has none. Going
+    // back from a fraction is in section 3's one card (review, 2026-11-24),
+    // with a question of its own (02fc16a0).
     const stages = inv.build(allDraws(inv.parameters)[0])
     expect(stages[1].aside, 'section 2').toBeUndefined()
-    expect(stages[2].aside?.head, 'section 3').toMatch(/fraction to a ratio/)
-    expect(stages[2].check?.map(c => c.questionId), 'section 3 does not test its aside')
+    expect(stages[2].aside, 'section 3 has its card AND an aside again').toBeUndefined()
+    expect(stages[2].naming?.elsewhere, 'section 3').toMatch(/works backwards/)
+    expect(stages[2].check?.map(c => c.questionId), 'section 3 does not test going backwards')
       .toContain('02fc16a0-8ec3-4ae8-bd94-630553c05fef')
   })
 
-  it('has no algebra in sections 1 and 2, and says "Using algebra" where there is some', () => {
+  it('has algebra only in section 3, under "Using algebra"', () => {
     const stages = inv.build(allDraws(inv.parameters)[0])
     expect(stages[0].conclude.algebra).toBeUndefined()
     expect(stages[1].conclude.algebra).toBeUndefined()
+    expect(stages[3].conclude.algebra).toBeUndefined()
     for (const s of stages) if (s.conclude.algebraLead) expect(s.conclude.algebraLead, s.title).toMatch(/^Using algebra/)
   })
 
