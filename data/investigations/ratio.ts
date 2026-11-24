@@ -1,6 +1,7 @@
 import type { Investigation, Params, Stage } from './types'
 import type { GridLabel, RenderedAxis, RenderedGrid } from '../../lib/questions/gridDraw'
 import { barModelGrid, fitLabel, labelHalfWidth } from '../../lib/skills/investigationFigures'
+import { joinPair, splitPair } from '../../lib/skills/investigation'
 import type { BarFill, BarModel } from '../../lib/skills/investigationFigures'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -78,12 +79,6 @@ function money(n: number): string {
   return Number.isInteger(r) ? `£${r}` : `£${r.toFixed(2)}`
 }
 const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
-/** n/d as plain text, with its simplest form after it when there is one. */
-function fraction(n: number, d: number): string {
-  const g = gcd(n, d)
-  if (g === 1) return `${n}/${d}`
-  return d / g === 1 ? `${n}/${d} = ${n / g}` : `${n}/${d} = ${n / g}/${d / g}`
-}
 /** n/d as prose markup: stacked, in lowest terms. */
 function fracMark(n: number, d: number): string {
   const g = gcd(n, d)
@@ -161,41 +156,74 @@ function shareRows(opts: {
 /** The axes the rows are drawn on, for a stage's `axes`. */
 const rowAxes = (n: 2 | 3) => ({ x: AX, y: { min: 0, max: n === 2 ? 30 : 36, step: 6, label: '' } })
 
-/** Section 3: the two rows joined into one bar — the whole class — with the first share shaded. */
-const AY_ONE: RenderedAxis = { min: 0, max: 24, step: 6, label: '' }
-function oneBar(first: number, second: number | undefined, names: readonly [string, string]): RenderedGrid {
-  const y = 10
-  const height = 6
-  if (second === undefined) {
-    return barModelGrid({
-      x: AX,
-      y: AY_ONE,
-      bars: [{ y, height, pieces: [{ from: 0, to: first * BOX, fill: 'shaded' }], dividers: Array.from({ length: first + 1 }, (_, j) => j * BOX) }],
-      labels: [{ x: fitLabel(30, `${names[0]}: ${first} parts`, AX), y: y + height, text: `${names[0]}: ${first} parts`, dy: -6 }],
-    })
-  }
-  const whole = first + second
-  const head = `${names[0]} : ${names[1]} = ${first} : ${second}, so ${whole} parts in all`
-  const lines = [
-    `${names[0]}: ${first} of the ${whole} parts = ${fraction(first, whole)}`,
-    `${names[1]}: ${second} of the ${whole} parts = ${fraction(second, whole)}`,
+// ─── One bar of the whole ────────────────────────────────────────────────────
+//
+// Sections 1–3 draw the WHOLE as one bar, cut into equal parts and coloured by
+// whose they are — sharing out, which two rows never showed (review,
+// 2026-11-23).
+//
+// Every part carries its value, so a part must be wide enough for "£3.75"
+// (31 viewBox units). Two things make that true at once: the bar is a little
+// wider than the rows (12 squares, 336 units — any wider and the page shrinks
+// the whole figure to fit, words and all), and sections 1 and 2 never cut it
+// into more than MAX_PARTS, at 33.6 units a part.
+
+const AXW: RenderedAxis = { min: 0, max: 72, step: 6, label: '' }
+const MAX_PARTS = 10
+/** How far Ben's number may go when Amy's is `a`, keeping the bar to MAX_PARTS. */
+const benUpTo = (a: number) => MAX_PARTS - a
+const AY_BAR: RenderedAxis = { min: 0, max: 24, step: 6, label: '' }
+const barAxes = { x: AXW, y: AY_BAR }
+const BAR_Y = 10
+const BAR_H = 6
+/** Seconds: the bar is there, cut into parts; then the first person's colour, then the second's. */
+const COLOUR_FIRST = 0.3
+const COLOUR_SECOND = 0.9
+
+/**
+ * The whole as one bar the width of the figure, cut into first + second equal
+ * parts, the first person's darker and the second's lighter. `each`, when
+ * given, is written in every part; `under` names each colour beneath it; and
+ * `working` goes under that, a line each.
+ */
+function wholeBar(opts: {
+  first: number
+  second: number
+  each?: number
+  above: string
+  under: readonly [string, string]
+  working: readonly string[]
+}): RenderedGrid {
+  const { first, second } = opts
+  const parts = first + second
+  const w = AXW.max / parts
+  const labels: GridLabel[] = [
+    { x: fitLabel(AXW.max / 2, opts.above, AXW), y: BAR_Y + BAR_H, text: opts.above, dy: -6 },
+    { x: fitLabel((first * w) / 2, opts.under[0], AXW), y: BAR_Y, text: opts.under[0], dy: 15 },
+    { x: fitLabel((first * w + AXW.max) / 2, opts.under[1], AXW), y: BAR_Y, text: opts.under[1], dy: 15 },
+    ...opts.working.map((t, k) => ({ x: fitLabel(AXW.max / 2, t, AXW), y: BAR_Y, text: t, dy: 29 + 14 * k })),
   ]
+  if (opts.each !== undefined) {
+    for (let k = 0; k < parts; k++) {
+      labels.push({ x: (k + 0.5) * w, y: BAR_Y + BAR_H / 2, text: money(opts.each), dy: 4 })
+    }
+  }
   return barModelGrid({
-    x: AX,
-    y: AY_ONE,
+    x: AXW,
+    y: AY_BAR,
     bars: [{
-      y,
-      height,
+      y: BAR_Y,
+      height: BAR_H,
       pieces: [
-        { from: 0, to: first * BOX, fill: 'shaded' },
-        { from: first * BOX, to: whole * BOX, fill: 'light' },
+        // The whole first, already cut into its parts…
+        { from: 0, to: AXW.max, fill: 'empty' },
+        // …then whose they are.
+        { from: 0, to: first * w, fill: 'shaded', appear: COLOUR_FIRST },
+        { from: first * w, to: AXW.max, fill: 'light', appear: COLOUR_SECOND },
       ],
-      dividers: Array.from({ length: whole + 1 }, (_, j) => j * BOX),
+      dividers: Array.from({ length: parts + 1 }, (_, k) => k * w),
     }],
-    labels: [
-      { x: fitLabel(30, head, AX), y: y + height, text: head, dy: -6 },
-      ...lines.map((t, k) => ({ x: fitLabel(30, t, AX), y, text: t, dy: k === 0 ? 15 : 29 })),
-    ],
+    labels,
   })
 }
 
@@ -204,10 +232,8 @@ function oneBar(first: number, second: number | undefined, names: readonly [stri
 // Starts where every student already is: sharing equally. A ratio is sharing
 // into parts that are all the same size, just not the same NUMBER of them each.
 //
-// The picture is the WHOLE amount as one bar, cut into equal parts and coloured
-// by whose they are — sharing out, rather than two rows that never show the
-// whole (review, 2026-11-23). The amount stays put and the student changes the
-// split: the bar keeps its length, so more parts are visibly smaller parts.
+// The amount stays put and the student changes the split: the bar keeps its
+// length, so more parts are visibly smaller parts, each with its value in it.
 
 /**
  * [Amy's number, Ben's number, the amount] for the prediction. Never a 2 for
@@ -216,50 +242,6 @@ function oneBar(first: number, second: number | undefined, names: readonly [stri
  */
 const S1 = [[3, 5, 40], [4, 7, 55], [5, 4, 45], [3, 7, 60]] as const
 
-const AY_SPLIT: RenderedAxis = { min: 0, max: 24, step: 6, label: '' }
-/** Seconds: the bar is there, cut into parts; then Amy's parts colour in, then Ben's. */
-const COLOUR_AMY = 0.3
-const COLOUR_BEN = 0.9
-
-/**
- * The whole amount as one bar the width of the figure, cut into a + b equal
- * parts, Amy's coloured darker and Ben's lighter, each share written under
- * its own colour and the working under that.
- */
-function splitBar(total: number, a: number, b: number): RenderedGrid {
-  const y = 10
-  const height = 6
-  const parts = a + b
-  const w = AX.max / parts
-  const each = total / parts
-  const head = `${money(total)} shared in the ratio ${a} : ${b}`
-  const amy = `Amy ${money(a * each)}`
-  const ben = `Ben ${money(b * each)}`
-  const working = `${a} + ${b} = ${parts} parts, so one part is ${money(total)} ÷ ${parts} = ${money(each)}`
-  return barModelGrid({
-    x: AX,
-    y: AY_SPLIT,
-    bars: [{
-      y,
-      height,
-      pieces: [
-        // The whole amount first, already cut into its parts…
-        { from: 0, to: AX.max, fill: 'empty' },
-        // …then whose they are.
-        { from: 0, to: a * w, fill: 'shaded', appear: COLOUR_AMY },
-        { from: a * w, to: AX.max, fill: 'light', appear: COLOUR_BEN },
-      ],
-      dividers: Array.from({ length: parts + 1 }, (_, k) => k * w),
-    }],
-    labels: [
-      { x: fitLabel(30, head, AX), y: y + height, text: head, dy: -6 },
-      { x: fitLabel((a * w) / 2, amy, AX), y, text: amy, dy: 15 },
-      { x: fitLabel((a * w + AX.max) / 2, ben, AX), y, text: ben, dy: 15 },
-      { x: fitLabel(30, working, AX), y, text: working, dy: 29 },
-    ],
-  })
-}
-
 function stageShare(p: Params): Stage {
   const [a, b, total] = S1[p.s1]
   const parts = a + b
@@ -267,7 +249,7 @@ function stageShare(p: Params): Stage {
   return {
     title: 'Sharing an amount',
     ask: `Amy and Ben share ${money(total)} in the ratio ${a} : ${b}. How much does each of them get?`,
-    axes: { x: AX, y: AY_SPLIT },
+    axes: barAxes,
     predict: {
       prompt: 'Amy and Ben get…',
       on: {
@@ -299,13 +281,25 @@ function stageShare(p: Params): Stage {
       name: 'Ben’s number',
       verb: 'try',
       // Until a split is tried, the one in the question.
-      render: (drawn, current) => splitBar(total, a, drawn[current] ?? b),
+      render: (drawn, current) => {
+        const v = drawn[current] ?? b
+        const one = total / (a + v)
+        return wholeBar({
+          first: a,
+          second: v,
+          each: one,
+          above: `${money(total)} shared in the ratio ${a} : ${v}`,
+          under: [`Amy ${money(a * one)}`, `Ben ${money(v * one)}`],
+          working: [`${a} + ${v} = ${a + v} parts, so one part is ${money(total)} ÷ ${a + v} = ${money(one)}`],
+        })
+      },
       prompt: `Keep the ${money(total)} and Amy's ${a}, and change Ben's number in the ratio. `
         + 'Watch how many parts the bar is cut into, and what each one is worth.',
-      hint: 'Any whole number from 1 to 9.',
-      domain: { min: 1, max: 9, step: 1 },
-      // The two ends, never the split in the question (Ben's number there is 4, 5 or 7).
-      suggest: [1, 9],
+      hint: `Any whole number from 1 to ${benUpTo(a)}.`,
+      domain: { min: 1, max: benUpTo(a), step: 1 },
+      // Never the split in the question (Ben's number there is 4, 5 or 7), and
+      // never past the top of the domain.
+      suggest: [1, Math.min(6, benUpTo(a))],
       label: v => `${a} : ${v}`,
       row: v => [`${a} : ${v}`, String(a + v), money(total / (a + v)), money((a * total) / (a + v)),
         money((v * total) / (a + v))],
@@ -373,8 +367,12 @@ function stageShare(p: Params): Stage {
 // ─── Stage 2: knowing one share ──────────────────────────────────────────────
 //
 // The reverse, which the papers ask nearly as often: one share is given, not
-// the total. The trap is to treat the ratio's numbers as amounts and work
-// by adding or taking away.
+// the total. The trap is to treat the ratio's numbers as amounts and work by
+// adding or taking away.
+//
+// The same picture and the same move as section 1 — the student changes the
+// split — so the only new thing is what is known: Ben's share, fixed, cut into
+// his parts. The other share AND the total then both come out of one part.
 
 /** [Amy's number, Ben's number, Ben's share]. Every prediction option distinct. */
 const S2 = [[3, 5, 25], [2, 7, 28], [4, 5, 30], [5, 3, 24]] as const
@@ -383,14 +381,11 @@ function stageOneShare(p: Params): Stage {
   const [a, b, known] = S2[p.s2]
   const each = known / b
   const additive = known + (a - b)
-  // For the aside: whoever has more parts gets more, and by how many parts.
-  const gap = Math.abs(a - b)
-  const [more, fewer] = a > b ? ['Amy', 'Ben'] : ['Ben', 'Amy']
   return {
     title: 'Knowing one share',
     ask: `Amy and Ben share some money in the ratio ${a} : ${b}. Ben gets ${money(known)}. `
       + 'How much does Amy get?',
-    axes: rowAxes(2),
+    axes: barAxes,
     predict: {
       prompt: 'Amy gets…',
       on: {
@@ -414,35 +409,38 @@ function stageOneShare(p: Params): Stage {
       ],
     },
     control: {
-      name: 'Ben’s share',
+      name: 'Ben’s number',
       verb: 'try',
       render: (drawn, current) => {
-        const v = drawn[current]
-        if (v === undefined) {
-          return shareRows({
-            people: [{ parts: a }, { parts: b }],
-            above: `the ratio ${a} : ${b}`,
-            working: [`Ben has ${b} parts`],
-          })
-        }
-        return shareRows({
-          people: [{ parts: a, each: v / b }, { parts: b, each: v / b }],
-          above: `Ben gets ${money(v)}`,
-          working: [`Ben's ${b} parts are ${money(v)}, so one part is ${money(v)} ÷ ${b} = ${money(v / b)}`],
+        const v = drawn[current] ?? b
+        const one = known / v
+        return wholeBar({
+          first: a,
+          second: v,
+          each: one,
+          above: `Ben gets ${money(known)} in the ratio ${a} : ${v}`,
+          under: [`Amy ${money(a * one)}`, `Ben ${money(known)}`],
+          working: [
+            `Ben's ${v} parts are ${money(known)}, so one part is ${money(known)} ÷ ${v} = ${money(one)}`,
+            `altogether, ${a + v} parts: ${money((a + v) * one)}`,
+          ],
         })
       },
-      prompt: `Keep the ratio ${a} : ${b} and change how much Ben gets. Watch which number you `
-        + 'divide his share by.',
-      hint: `Any amount from ${money(b)} to ${money(10 * b)}, in steps of ${money(b)}.`,
-      domain: { min: b, max: 10 * b, step: b },
-      suggest: [2 * b, 6 * b],
-      label: v => `Ben gets ${money(v)}`,
-      row: v => [money(v), money(v / b), money((a * v) / b), money(((a + b) * v) / b)],
+      prompt: `Keep Ben's ${money(known)} and Amy's ${a}, and change Ben's number in the ratio. `
+        + 'Watch which number his share is divided by — and what that tells you about Amy, and '
+        + 'about the whole amount.',
+      hint: `Any whole number from 1 to ${benUpTo(a)}.`,
+      domain: { min: 1, max: benUpTo(a), step: 1 },
+      // Never the split in the question (Ben's number there is 3, 5 or 7), and
+      // never past the top of the domain.
+      suggest: [1, Math.min(6, benUpTo(a))],
+      label: v => `${a} : ${v}`,
+      row: v => [`${a} : ${v}`, money(known / v), money((a * known) / v), money(((a + v) * known) / v)],
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Try a second share for Ben, so you can see what stays the same.'
+        ? 'Try a second split, so you can see what Ben’s share is divided by.'
         : null),
     },
-    observe: { headers: ['Ben gets', 'each part', 'Amy gets', 'altogether'] },
+    observe: { headers: ['ratio', 'each part', 'Amy gets', 'altogether'] },
     conclude: {
       sentence: ['When you know one share, divide it by ', ' to find one part, then ', '.'],
       slots: [
@@ -451,37 +449,27 @@ function stageOneShare(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            'Ben’s share is only his own boxes, not all of them. Dividing it by every part '
+            'Ben’s share is only his own parts, not all of them. Dividing it by every part '
             + 'shares Ben’s money out between Amy and Ben again.',
           ],
           misconception: ['', 'part_used_as_whole'],
         },
         {
-          options: ['multiply by the other person’s number', 'add or take away the difference between the numbers'],
+          options: ['multiply by however many parts you want', 'add or take away the difference between the numbers'],
           correct: 0,
           diagnosis: [
             '',
             'The numbers in a ratio count parts, not pounds, so the gap between two shares is '
-            + 'never just the gap between the numbers. Each of the other person’s boxes is worth '
-            + 'one part, so multiply.',
+            + 'never just the gap between the numbers. Every part is worth the same, so multiply '
+            + 'it by how many of them you need.',
           ],
           misconception: ['', ''],
         },
       ],
-      because: 'Every box is the same size, so whoever’s share you know, it tells you what one '
-        + 'box is worth: their share divided by their number of boxes. Everything else — the '
-        + 'other share, the total — is that box counted as many times as you need.',
-      algebraLead: 'In symbols, in the ratio a : b with the second share B known:',
-      algebra: 'one part = {B/b}\n'
-        + '  first share = a × {B/b}',
-    },
-    aside: {
-      head: 'And if you know the difference?',
-      body: `If you are told instead that ${more} gets ${money(gap * each)} more than ${fewer}, `
-        + `that difference is a number of parts too: ${Math.max(a, b)} − ${Math.min(a, b)} = `
-        + `${gap}. ${gap === 1
-          ? `So one part is ${money(each)} again.`
-          : `So ${gap} parts are ${money(gap * each)}, and one part is ${money(each)} again.`}`,
+      because: 'Every part is the same size, so whoever’s share you know tells you what one part '
+        + 'is worth: their share divided by their number of parts. Everything else is that part '
+        + 'counted as many times as you need — the other person’s number of parts for their '
+        + 'share, or all of the parts for the total.',
     },
     check: [
       {
@@ -498,7 +486,11 @@ function stageOneShare(p: Params): Stage {
 //
 // The commonest ratio trap on the papers: reading 3 : 5 as "3 out of 5". A
 // ratio compares the parts with EACH OTHER; a fraction compares one part with
-// the WHOLE. The joined bar shows the whole at once.
+// the WHOLE. One bar shows the whole at once.
+//
+// The student types the whole ratio — both numbers — rather than one side of
+// it (review, 2026-11-23): changing one number at a time was not much of an
+// investigation, and the bar keeps the figure's width however many parts.
 
 /** [boys, girls] for the prediction: no option's fraction equals another's. */
 const S3 = [[3, 5], [2, 7], [4, 5], [3, 4]] as const
@@ -510,7 +502,7 @@ function stageFractions(p: Params): Stage {
     title: 'Ratios and fractions',
     ask: `In a class, the ratio of boys to girls is ${boys} : ${girls}. What fraction of the class `
       + 'are boys?',
-    axes: { x: AX, y: AY_ONE },
+    axes: barAxes,
     predict: {
       prompt: 'The fraction of the class that are boys is…',
       on: {
@@ -530,26 +522,43 @@ function stageFractions(p: Params): Stage {
         `${boys} : ${girls} means ${boys} boys for every ${girls} girls: ${boys} + ${girls} = `
           + `${whole} children in every group.`,
         `${boys} of every ${whole} are boys, so the boys are ${fracMark(boys, whole)} of the class.`,
+        `The girls are the other ${girls} of every ${whole}: {${girls}/${whole}}. Together, `
+          + `{${boys}/${whole}} + {${girls}/${whole}} = {${whole}/${whole}} = 1 — the whole class.`,
       ],
     },
     control: {
-      name: 'girls',
+      name: 'ratio',
       verb: 'try',
-      render: (drawn, current) => oneBar(boys, drawn[current], ['boys', 'girls']),
-      prompt: `Keep the boys at ${boys} and change the girls’ number in the ratio. Watch what `
-        + 'the fractions are out of.',
-      hint: 'Any whole number from 1 to 7.',
-      domain: { min: 1, max: 7, step: 1 },
-      suggest: [1, 6],
-      label: v => `${boys} : ${v}`,
-      row: v => [`${boys} : ${v}`, String(boys + v), `${boys}/${boys + v}`, `${v}/${boys + v}`],
+      pair: { first: 'boys', second: 'girls' },
+      // Until a ratio is tried, the one in the question.
+      render: (drawn, current) => {
+        const [f, s] = drawn[current] === undefined ? [boys, girls] : splitPair(drawn[current])
+        const n = f + s
+        return wholeBar({
+          first: f,
+          second: s,
+          above: `boys : girls = ${f} : ${s}`,
+          under: [`boys ${f}/${n}`, `girls ${s}/${n}`],
+          working: [`${f} + ${s} = ${n} parts in all, and ${f}/${n} + ${s}/${n} = ${n}/${n} = 1`],
+        })
+      },
+      prompt: 'Change both numbers in the ratio of boys to girls. Watch what the fractions are out '
+        + 'of, and what they add up to.',
+      hint: 'Any whole number from 1 to 9 for each of them.',
+      domain: { min: 1, max: 9, step: 1 },
+      suggest: [joinPair(1, 1), joinPair(2, 7)],
+      label: v => splitPair(v).join(' : '),
+      row: v => {
+        const [f, s] = splitPair(v)
+        return [`${f} : ${s}`, String(f + s), `${f}/${f + s}`, `${s}/${f + s}`]
+      },
       coverage: drawn => (new Set(drawn).size < 2
-        ? 'Try a second number of girls, so you can see what the fractions are out of.'
+        ? 'Try a second ratio, so you can see what the fractions are out of.'
         : null),
     },
     observe: { headers: ['boys : girls', 'parts in all', 'boys', 'girls'] },
     conclude: {
-      sentence: ['A fraction of the whole has ', ' on the bottom, so the two fractions ', '.'],
+      sentence: ['A fraction of the whole has ', ' on the bottom, and ', ' on top.'],
       slots: [
         {
           options: ['all the parts added together', 'the other number in the ratio'],
@@ -557,25 +566,25 @@ function stageFractions(p: Params): Stage {
           diagnosis: [
             '',
             'The other number compares the boys with the girls, which is what the ratio already '
-            + 'does. A fraction of the CLASS is out of everybody in it — every box in the bar.',
+            + 'does. A fraction of the CLASS is out of everybody in it — every part in the bar.',
           ],
           misconception: ['', 'part_used_as_whole'],
         },
         {
-          options: ['add up to 1', 'are the ratio written as a fraction'],
+          options: ['that person’s own number', 'the other person’s number'],
           correct: 0,
           diagnosis: [
             '',
-            'In the bar, the shaded boxes and the light ones make up the whole of it. So the two '
-            + 'fractions make the whole class between them — one whole.',
+            'That gives the other person’s fraction: in 3 : 5, five eighths are girls. The boys’ '
+            + 'fraction counts the boys’ parts — their own number in the ratio.',
           ],
-          misconception: ['', ''],
+          misconception: ['', 'answered_a_different_quantity'],
         },
       ],
       because: 'A ratio compares one part with another; a fraction compares a part with the whole. '
-        + 'The whole is every part added together, so in a : b the first share is a out of a + b — '
-        + 'and the two fractions between them make the whole class.',
-      algebraLead: 'In symbols, for the ratio a : b:',
+        + 'The whole is every part added together, so in a : b the first share is a out of a + b, '
+        + 'the second is b out of a + b — and the two fractions between them make the whole: 1.',
+      algebraLead: 'Using algebra, for the ratio a : b:',
       algebra: 'first share = {a/(a + b)} of the whole\n'
         + '  second share = {b/(a + b)} of the whole',
     },
@@ -588,11 +597,6 @@ function stageFractions(p: Params): Stage {
       elsewhere: 'A recipe that says "1 part squash to 4 parts water" makes a drink that is '
         + '{1/5} squash, not {1/4}.',
       onThePaper: 'Red and blue counters are in the ratio 2 : 7. What fraction of the counters are red?',
-    },
-    aside: {
-      head: 'And from a fraction to a ratio?',
-      body: 'Backwards works the same way. If {2/5} of a class are boys, then 2 in every 5 are '
-        + 'boys and the other 3 are girls — so boys to girls is 2 : 3, not 2 : 5.',
     },
     check: [
       {
@@ -666,7 +670,7 @@ function stageDifference(p: Params): Stage {
         })
       },
       prompt: `Keep the ratio ${a} : ${b} : ${c} and change how much more Cara gets. Watch the `
-        + 'boxes past the dashed line.',
+        + 'parts past the dashed line.',
       hint: `Any amount from ${money(gap)} to ${money(10 * gap)}, in steps of ${money(gap)}.`,
       domain: { min: gap, max: 10 * gap, step: gap },
       suggest: [2 * gap, 5 * gap],
@@ -685,7 +689,7 @@ function stageDifference(p: Params): Stage {
           correct: 0,
           diagnosis: [
             '',
-            `Past the dashed line, Cara's extra is ${gap} boxes, not one. The difference is as `
+            `Past the dashed line, Cara's extra is ${gap} parts, not one. The difference is as `
             + 'many parts as one person has more than the other.',
           ],
           misconception: ['', 'stopped_at_an_intermediate'],
@@ -703,8 +707,8 @@ function stageDifference(p: Params): Stage {
       ],
       because: 'Whatever you are told — the total, one share, or the gap between two — it is some '
         + 'number of equal parts. Count which parts it is, divide to get one part, and every share '
-        + 'follows. With three people it is the same, with one more row of boxes.',
-      algebraLead: 'In symbols, in the ratio a : b : c with the third share D more than the first:',
+        + 'follows. With three people it is just the same, with a third person’s parts as well.',
+      algebraLead: 'Using algebra, in the ratio a : b : c with the third share D more than the first:',
       algebra: 'one part = {D/(c − a)}\n'
         + '  second share = b × {D/(c − a)}',
     },

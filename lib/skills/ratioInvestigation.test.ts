@@ -1,13 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { ratioInvestigation as inv } from '../../data/investigations/ratio'
-import { allDraws } from './investigation'
+import { allDraws, controlValues, splitPair } from './investigation'
+import { labelHalfWidth } from './investigationFigures'
+import { CELL } from '../questions/gridSvg'
 import type { RenderedGrid } from '../questions/gridDraw'
 
 /**
- * Sharing in a ratio: the picture is a row of equal boxes per person, and the
- * whole argument rests on the boxes being the SAME SIZE in every row and the
- * shares adding back to the amount. Checked on what is drawn, for every value
- * every section allows.
+ * Sharing in a ratio. Sections 1–3 draw the WHOLE as one bar cut into equal
+ * parts and coloured by whose they are; section 4 draws a row of parts per
+ * person, to show a difference. The argument rests on the parts being equal
+ * and the shares adding back up, so both are checked on what is drawn, for
+ * every value every section allows.
  */
 
 /** Every section, every value its control allows, once per scenario. */
@@ -19,7 +22,7 @@ function figures() {
       const c = stage.control
       if (!c?.render || seen.has(`${i}:${stage.ask}`)) return
       seen.add(`${i}:${stage.ask}`)
-      for (let v = c.domain.min; v <= c.domain.max + 1e-9; v += c.domain.step) {
+      for (const v of controlValues(c)) {
         out.push({ where: `section ${i + 1}: ${stage.ask} — ${c.name} = ${v}`, section: i, v, ask: stage.ask, grid: c.render([v], 0) })
       }
     })
@@ -27,7 +30,7 @@ function figures() {
   return out
 }
 
-/** The pieces drawn, as [x, y, width] — one per person's row in sections 1, 2 and 4. */
+/** The pieces drawn, as [x, y, width]. */
 const rects = (g: RenderedGrid) =>
   [...g.background.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)].map(m => m.slice(1).map(Number))
 /** Divider positions, grouped by the row they cut. */
@@ -40,83 +43,144 @@ const dividers = (g: RenderedGrid) => {
   return byRow
 }
 const pounds = (t: string) => Number(t.replace('£', ''))
+const words = (g: RenderedGrid) => (g.labels ?? []).map(l => l.text)
+/** The amount written after a name under its colour: "Amy £15" → 15. */
+const shareOf = (g: RenderedGrid, who: string) => pounds(words(g).find(w => w.startsWith(`${who} £`))!.split(' ')[1])
 
-describe('the rows of boxes', () => {
-  it('gives every person as many boxes as their number, all the same size', () => {
+/** One bar of the whole: full width, cut into `parts` equal parts, the first `first` of them dark. */
+function expectWholeBar(where: string, grid: RenderedGrid, first: number, parts: number) {
+  const width = grid.x.max
+  const [whole, dark, light] = rects(grid)
+  expect(whole[2], `${where}: the bar is not the whole width`).toBe(width)
+  expect(dark[2], `${where}: the first colour`).toBeCloseTo((width * first) / parts, 3)
+  expect(light[0] + light[2], `${where}: the second colour does not reach the end`).toBeCloseTo(width, 3)
+  // Only the cuts inside the bar are drawn, so its two ends are added here.
+  const cuts = [0, ...new Set([...dividers(grid).values()].flat()), width].sort((p, q) => p - q)
+  expect(cuts.length, `${where}: not cut into ${parts} parts`).toBe(parts + 1)
+  for (let k = 1; k < cuts.length; k++) expect(cuts[k] - cuts[k - 1], where).toBeCloseTo(width / parts, 3)
+}
+
+describe('section 1: one bar of the amount, and the split changed', () => {
+  it('cuts the whole amount into equal parts, and the shares add back up to it', () => {
+    let checked = 0
+    for (const { where, section, v, ask, grid } of figures()) {
+      if (section !== 0) continue
+      const [, amount, a] = ask.match(/£(\d+) in the ratio (\d+) : \d+/)!.map(Number)
+      expectWholeBar(where, grid, a, a + v)
+      expect(shareOf(grid, 'Amy'), where).toBeCloseTo((amount * a) / (a + v), 2)
+      expect(shareOf(grid, 'Ben'), where).toBeCloseTo((amount * v) / (a + v), 2)
+      expect(shareOf(grid, 'Amy') + shareOf(grid, 'Ben'), where).toBeCloseTo(amount, 1)
+      checked++
+    }
+    // Ben's number runs to 10 − Amy's: 7 + 6 + 5 + 7 splits over the four questions.
+    expect(checked).toBe(25)
+  })
+})
+
+describe('section 2: one bar, with Ben’s share known', () => {
+  it('keeps Ben’s share, and finds Amy’s and the total from one part of it', () => {
+    let checked = 0
+    for (const { where, section, v, ask, grid } of figures()) {
+      if (section !== 1) continue
+      const [, a, , known] = ask.match(/ratio (\d+) : (\d+)\. Ben gets £(\d+)/)!.map(Number)
+      expectWholeBar(where, grid, a, a + v)
+      expect(shareOf(grid, 'Ben'), where).toBe(known)
+      expect(shareOf(grid, 'Amy'), where).toBeCloseTo((a * known) / v, 2)
+      const total = words(grid).find(w => w.startsWith('altogether'))!
+      expect(pounds(total.split(': ')[1]), where).toBeCloseTo(((a + v) * known) / v, 2)
+      checked++
+    }
+    // 7 + 8 + 6 + 5 splits over the four questions.
+    expect(checked).toBe(26)
+  })
+})
+
+describe('the value in every part', () => {
+  it('writes each part’s value in it, and it fits inside the part', () => {
+    // The bar was widened so it would: a value spilling into the next part
+    // reads as one number across two parts.
+    let checked = 0
+    // Every split tried, and the question's own split before any is.
+    const asked = allDraws(inv.parameters).flatMap(p => inv.build(p).slice(0, 2).map((stage, section) =>
+      ({ where: `${stage.ask} — as asked`, section, grid: stage.control!.render!([], 0) })))
+    for (const { where, section, grid } of [...figures(), ...asked]) {
+      if (section > 1) continue
+      const parts = [...new Set([...dividers(grid).values()].flat())].length + 1
+      const partPx = (grid.x.max / parts) * (CELL / grid.x.step)
+      const inParts = (grid.labels ?? []).filter(l => /^£[\d.]+$/.test(l.text))
+      expect(inParts.length, `${where}: not every part has its value`).toBe(parts)
+      expect(new Set(inParts.map(l => l.text)).size, `${where}: the parts are not all worth the same`).toBe(1)
+      for (const l of inParts) {
+        expect(2 * labelHalfWidth(l.text), `${where}: "${l.text}" does not fit a part ${partPx.toFixed(1)} wide`)
+          .toBeLessThanOrEqual(partPx - 1)
+      }
+      checked++
+    }
+    expect(checked).toBeGreaterThan(51)
+  })
+})
+
+describe('section 3: both numbers of the ratio', () => {
+  it('cuts one bar into all the parts, and writes fractions that make a whole', () => {
+    let checked = 0
+    for (const { where, section, v, grid } of figures()) {
+      if (section !== 2) continue
+      const [f, s] = splitPair(v)
+      const n = f + s
+      expectWholeBar(where, grid, f, n)
+      expect(words(grid), where).toContain(`boys ${f}/${n}`)
+      expect(words(grid), where).toContain(`girls ${s}/${n}`)
+      expect(words(grid).join(' | '), where).toContain(`${f}/${n} + ${s}/${n} = ${n}/${n} = 1`)
+      checked++
+    }
+    // Every pair from 1 : 1 to 9 : 9, in each of the four classes.
+    expect(checked).toBe(4 * 81)
+  })
+})
+
+describe('section 4: a row of parts per person', () => {
+  it('gives every person as many parts as their number, all the same size', () => {
     let checked = 0
     for (const { where, section, ask, grid } of figures()) {
-      // Sections 2 and 4 draw rows; 1 and 3 draw one bar (tested below).
-      if (section === 0 || section === 2) continue
+      if (section !== 3) continue
       const ratio = ask.match(/ratio ([\d :]+)\./)![1].split(' : ').map(Number)
-      const rows = rects(grid)
-      expect(rows.map(r => r[2]), where).toEqual(ratio.map(n => n * 6))
-      // Every gap between dividers in every row is one box wide.
+      expect(rects(grid).map(r => r[2]), where).toEqual(ratio.map(n => n * 6))
       for (const xs of dividers(grid).values()) {
-        // Once each: section 4's dashed guide starts level with Cara's row
-        // and stands on one of her dividers.
+        // Once each: the dashed guide starts level with Cara's row and stands
+        // on one of her dividers.
         const sorted = [...new Set(xs)].sort((a, b) => a - b)
         for (let k = 1; k < sorted.length; k++) expect(sorted[k] - sorted[k - 1], where).toBeCloseTo(6, 6)
       }
       checked++
     }
-    expect(checked).toBeGreaterThan(60)
-  })
-
-  it('in section 1, cuts ONE bar of the whole amount into equal parts, coloured by whose they are', () => {
-    // The amount stays put and the split changes, so the bar keeps its length
-    // and more parts are visibly smaller parts (review, 2026-11-23).
-    let checked = 0
-    for (const { where, section, v, ask, grid } of figures()) {
-      if (section !== 0) continue
-      // The amount and Amy's number come from the question; Ben's is the value tried.
-      const [, amount, ratioA] = ask.match(/£(\d+) in the ratio (\d+) : \d+/)!.map(Number)
-      const parts = ratioA + v
-      const [whole, amy, ben] = rects(grid)
-      expect(whole[2], `${where}: the bar is not the whole width`).toBe(60)
-      expect(amy[2], `${where}: Amy's colour`).toBeCloseTo((60 * ratioA) / parts, 3)
-      expect(ben[0] + ben[2], `${where}: Ben's colour does not reach the end`).toBeCloseTo(60, 3)
-      // Only the cuts inside the bar are drawn, so its two ends are added here.
-      const cuts = [0, ...new Set([...dividers(grid).values()].flat()), 60].sort((p, q) => p - q)
-      expect(cuts.length, `${where}: not cut into ${parts} parts`).toBe(parts + 1)
-      for (let k = 1; k < cuts.length; k++) expect(cuts[k] - cuts[k - 1], where).toBeCloseTo(60 / parts, 3)
-      // The shares, under their colours, add back to the amount.
-      const words = (grid.labels ?? []).map(l => l.text)
-      const share = (who: string) => pounds(words.find(w => w.startsWith(`${who} £`))!.split(' ')[1])
-      expect(share('Amy'), where).toBeCloseTo((amount * ratioA) / parts, 2)
-      expect(share('Ben'), where).toBeCloseTo((amount * v) / parts, 2)
-      expect(share('Amy') + share('Ben'), where).toBeCloseTo(amount, 1)
-      checked++
-    }
-    expect(checked).toBe(36)
-  })
-
-  it('in section 3, shades the first share of one bar and writes fractions that make a whole', () => {
-    for (const { where, section, v, grid } of figures()) {
-      if (section !== 2) continue
-      const [shaded, light] = rects(grid)
-      const words = (grid.labels ?? []).map(l => l.text)
-      const first = shaded[2] / 6
-      expect(light[2] / 6, where).toBe(v)
-      expect(words.some(w => w.includes(`${first} of the ${first + v} parts`)), where).toBe(true)
-      expect(words.some(w => w.includes(`${v} of the ${first + v} parts`)), where).toBe(true)
-    }
+    expect(checked).toBeGreaterThan(30)
   })
 })
 
-describe('section 2’s aside on a difference', () => {
-  it('says the person with more parts gets more, and counts the parts in good English', () => {
-    // It once said Ben got more in 5 : 3, and "1 parts are" in 4 : 5.
-    const seen = new Set<string>()
-    for (const p of allDraws(inv.parameters)) {
-      const stage = inv.build(p)[1]
-      if (seen.has(stage.ask)) continue
-      seen.add(stage.ask)
-      const [a, b] = stage.ask.match(/ratio (\d+) : (\d+)/)!.slice(1).map(Number)
-      const body = stage.aside!.body
-      expect(body, stage.ask).toMatch(a > b ? /Amy gets £[\d.]+ more than Ben/ : /Ben gets £[\d.]+ more than Amy/)
-      expect(body, stage.ask).not.toMatch(/\b1 parts\b/)
+describe('what the sections ask about', () => {
+  it('brings up no kind of question that is not then tested', () => {
+    // Sections 2 and 3 once had asides on a known difference and on going from
+    // a fraction back to a ratio, which no check then asked (review,
+    // 2026-11-23). A difference is section 4's; the other is not tested yet.
+    const stages = inv.build(allDraws(inv.parameters)[0])
+    expect(stages[1].aside, 'section 2').toBeUndefined()
+    expect(stages[2].aside, 'section 3').toBeUndefined()
+  })
+
+  it('has no algebra in sections 1 and 2, and says "Using algebra" where there is some', () => {
+    const stages = inv.build(allDraws(inv.parameters)[0])
+    expect(stages[0].conclude.algebra).toBeUndefined()
+    expect(stages[1].conclude.algebra).toBeUndefined()
+    for (const s of stages) if (s.conclude.algebraLead) expect(s.conclude.algebraLead, s.title).toMatch(/^Using algebra/)
+  })
+
+  it('calls them parts, never boxes', () => {
+    for (const p of allDraws(inv.parameters).slice(0, 4)) {
+      for (const s of inv.build(p)) {
+        const text = JSON.stringify([s.ask, s.predict, s.conclude, s.naming, s.aside, s.control?.prompt, s.control?.hint])
+        expect(text, s.title).not.toMatch(/\bbox/i)
+      }
     }
-    expect(seen.size).toBe(4)
   })
 })
 
