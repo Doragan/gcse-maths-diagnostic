@@ -377,6 +377,14 @@ export type Investigation = {
   skillId: string
   title: string
   /**
+   * What the student will DO in it, finishing "There's an investigation for
+   * this one — …" on the card after a wrong answer (components/practice/
+   * TeachingPrompt.tsx). One sentence, in the second person, ending with a
+   * full stop. Per investigation because the card used to say "you draw the
+   * graphs yourself" under every one, and only the first draws graphs.
+   */
+  invite: string
+  /**
    * What this is and what they will be able to do, said TO them.
    *
    * The second thing on the page, so it is doing the work an opening does:

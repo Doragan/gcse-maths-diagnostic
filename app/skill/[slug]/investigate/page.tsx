@@ -190,6 +190,12 @@ export default function InvestigatePage() {
    * lead back into any section.
    */
   const [finished, setFinished] = useState(false)
+  /**
+   * Whether this visit has already recorded investigation_finish. Once per
+   * visit: a student who goes back into a section and presses Finish again
+   * has not finished twice (docs/audit/32, increment 1).
+   */
+  const finishLogged = useRef(false)
   useEffect(() => {
     if (finished) finishRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [finished])
@@ -930,8 +936,13 @@ export default function InvestigatePage() {
                       title={ready ? undefined : 'Finish the rule and have a go at the check first'}
                       disabled={!ready}
                       onClick={() => {
-                        if (last) setFinished(true)
-                        else {
+                        if (last) {
+                          if (!finishLogged.current) {
+                            finishLogged.current = true
+                            trackEvent('investigation_finish', { skill: resolved.skillId })
+                          }
+                          setFinished(true)
+                        } else {
                           setCurrent(onScreen + 1)
                           window.scrollTo({ top: 0 })
                         }

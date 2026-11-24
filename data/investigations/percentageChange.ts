@@ -831,6 +831,7 @@ function stageBothWays(p: Params): Stage {
 export const percentageChangeInvestigation: Investigation = {
   skillId: 'percentage_change',
   title: 'What a Percentage Change Really Does',
+  invite: 'you try percentage changes yourself and work out what they really do, rather than being told.',
   outcomes: {
     // What the topic is FOR, not what it is made of. "Every percentage change
     // is one multiplication" is the DESTINATION of section 2 — true, useful,

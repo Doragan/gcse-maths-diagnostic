@@ -964,6 +964,7 @@ function stageTwoParts(p: Params): Stage {
 export const compoundUnitsInvestigation: Investigation = {
   skillId: 'compound_units',
   title: 'Speed, Distance and Time',
+  invite: 'you watch journeys play out on a road and a graph, and work out the rules yourself, rather than being told them.',
   outcomes: {
     lead: 'Speed, density, a price per kilogram: each is one quantity per another, and the '
       + 'word "per" does all the work. These are compound units, and the one everybody meets '

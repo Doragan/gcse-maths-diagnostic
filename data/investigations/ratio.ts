@@ -770,6 +770,7 @@ function stageDifference(p: Params): Stage {
 export const ratioInvestigation: Investigation = {
   skillId: 'ratio',
   title: 'Sharing in a Ratio',
+  invite: 'you share amounts out on a bar yourself and work out the rule, rather than being told it.',
   outcomes: {
     lead: 'A ratio says how something is shared: two parts for you for every three for me, one '
       + 'scoop of squash to five of water. It is worth more marks on the GCSE papers than any '

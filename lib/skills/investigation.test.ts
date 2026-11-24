@@ -945,6 +945,21 @@ describe('the handover', () => {
   })
 })
 
+describe('the card after a wrong answer', () => {
+  it('invites the student in its own words, for every investigation', () => {
+    // "There's an investigation for this one — <invite>". It said "you draw
+    // the graphs yourself" under all four, and only one draws graphs
+    // (docs/audit/32, increment 1).
+    const invites = every().map(inv => inv.invite)
+    for (const inv of every()) {
+      expect(inv.invite, inv.skillId).toMatch(/^you /)
+      expect(inv.invite, inv.skillId).toMatch(/\.$/)
+      expect(inv.invite.length, inv.skillId).toBeLessThanOrEqual(140)
+    }
+    expect(new Set(invites).size, 'two investigations share an invite').toBe(invites.length)
+  })
+})
+
 describe('student-facing copy', () => {
   it('names every stage with a short heading of its own', () => {
     // Shown as "Stage 4 · Up, then down" and on the section buttons, where

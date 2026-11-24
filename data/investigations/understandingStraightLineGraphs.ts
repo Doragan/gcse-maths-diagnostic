@@ -608,6 +608,7 @@ function stageThree(p: Params): Stage {
 export const understandingStraightLineGraphsInvestigation: Investigation = {
   skillId: 'understanding_straight_line_graphs',
   title: 'Understanding Straight Line Graphs',
+  invite: 'you draw the graphs yourself and work out the rule, rather than being told it.',
   outcomes: {
     lead: 'Straight lines are written y = mx + c, and those two letters are the whole of it: '
       + 'one decides where the line sits, the other how steep it is. Lines like these are how a '
