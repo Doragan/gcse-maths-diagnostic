@@ -5,6 +5,7 @@ import {
 import { percentageChangeInvestigation } from './percentageChange'
 import { compoundUnitsInvestigation } from './compoundUnits'
 import { ratioInvestigation } from './ratio'
+import { proportionInvestigation } from './proportion'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry of authored investigations.
@@ -30,6 +31,7 @@ export const investigations: Record<string, Investigation> = {
   [percentageChangeInvestigation.skillId]: percentageChangeInvestigation,
   [compoundUnitsInvestigation.skillId]: compoundUnitsInvestigation,
   [ratioInvestigation.skillId]: ratioInvestigation,
+  [proportionInvestigation.skillId]: proportionInvestigation,
 }
 
 export const getInvestigation = (skillId: string): Investigation | null =>
