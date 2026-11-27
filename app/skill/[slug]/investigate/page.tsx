@@ -7,11 +7,11 @@ import GridCanvas from '../../../../components/practice/GridCanvas'
 import BankQuestion from '../../../../components/practice/BankQuestion'
 import FormulaTriangle from '../../../../components/practice/FormulaTriangle'
 import { skillsById } from '../../../../lib/skills/skillGraph'
-import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
+import { slugToSkillId, skillPath, investigatePath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
   resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry, triedValue, splitInputs, inputBase,
-  sentenceState, stageComplete, stepNumbers, parseSectionEntry, sectionOpen, nextSection,
+  sentenceState, stageComplete, stepNumbers, parseSectionEntry, sectionOpen, nextSection, parseBoardMode, boardScale,
   type SectionEntry,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
@@ -161,6 +161,9 @@ const blankStage = (): StageState => ({
 /** Which of a stage's checks have been attempted, in the shape stageComplete wants. */
 const answeredMap = (st: StageState): Record<number, boolean> => st.checks
 
+/** The board's option letters: a class calls out B more easily than "the second one". */
+const LETTERS = 'ABCDEFGH'
+
 export default function InvestigatePage() {
   const router = useRouter()
   const params = useParams()
@@ -188,6 +191,35 @@ export default function InvestigatePage() {
    * student, from ?section=&from= (docs/audit/33). Null for the normal start.
    */
   const [entry, setEntry] = useState<SectionEntry | null>(null)
+  /**
+   * Board mode, from ?board=1: a teacher putting a section in front of a class
+   * (docs/audit/34, increment 1). Lettered options and a Reveal instead of a
+   * pick, no section checks, projector scale, every section open.
+   */
+  const [board, setBoard] = useState(false)
+  // A ref as well, for `track`, which effects call before state settles.
+  const boardRef = useRef(false)
+  /**
+   * How much bigger the board draws the page: as much as 1.35×, never more
+   * than the window holds. A fixed 1.35× ran 1,026px wide and cut off the right
+   * of every section in a window narrower than that (seen in review).
+   */
+  const [boardZoom, setBoardZoom] = useState(1)
+  useEffect(() => {
+    if (!board) return
+    const fit = () => setBoardZoom(boardScale(window.innerWidth))
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [board])
+  /**
+   * The student-journey events, which a class on the board must not add to:
+   * a teacher driving a section for thirty pupils is not one student doing it,
+   * and counted as one it would skew every figure docs/audit/32 reads.
+   */
+  const track: typeof trackEvent = (name, props) => {
+    if (!boardRef.current) trackEvent(name, props)
+  }
   /** The finished view, which "Finish" on the last section opens. */
   const finishRef = useRef<HTMLElement>(null)
   /**
@@ -241,12 +273,16 @@ export default function InvestigatePage() {
     setStates(r.stages.map(blankStage))
     // Read here rather than with useSearchParams, which would need a Suspense
     // boundary: this effect already runs once, on the client, per draw.
+    const b = parseBoardMode(window.location.search)
+    boardRef.current = b
+    setBoard(b)
+    if (b) trackEvent('investigation_board_open', { skill: r.skillId, stages: r.stages.length })
     const e = parseSectionEntry(window.location.search, r.stages.length)
     setEntry(e)
     if (e) setCurrent(e.section)
-    trackEvent('investigation_start', { skill: r.skillId, stages: r.stages.length })
+    track('investigation_start', { skill: r.skillId, stages: r.stages.length })
     if (e) {
-      trackEvent('investigation_section_entry', {
+      track('investigation_section_entry', {
         skill: r.skillId, stage: e.section + 1, question: e.from, from: e.from ? 'question' : 'link',
       })
     }
@@ -292,7 +328,7 @@ export default function InvestigatePage() {
     if (st.predicted || st.placed.length === 0) return
     const right = predictionCorrect(stage, st.placed)
     update(i, { predicted: true, predictRight: right })
-    trackEvent('investigation_predict', {
+    track('investigation_predict', {
       skill: resolved!.skillId, stage: i + 1, kind: 'grid', correct: right,
     })
   }
@@ -303,7 +339,7 @@ export default function InvestigatePage() {
     const on = stage.predict.on
     const right = on.kind === 'choice' && st.picked === on.correct
     update(i, { predicted: true, predictRight: right })
-    trackEvent('investigation_predict', {
+    track('investigation_predict', {
       skill: resolved!.skillId, stage: i + 1, kind: 'choice', correct: right,
     })
   }
@@ -329,7 +365,7 @@ export default function InvestigatePage() {
       entryError: missed ? pick.offLine : '',
     })
     if (!missed && onLine.length > st(i).drawn.length) {
-      trackEvent('investigation_draw', {
+      track('investigation_draw', {
         skill: resolved!.skillId, stage: i + 1, control: stage.control?.name,
         value: onLine[onLine.length - 1].x, nth: onLine.length,
       })
@@ -347,7 +383,7 @@ export default function InvestigatePage() {
     const isNew = next.drawn.length > st.drawn.length
     update(i, { ...next, ...showTry(st.drawn, st.current, st.before, next.current), entryError: '', typed: '' })
     if (isNew) {
-      trackEvent('investigation_draw', {
+      track('investigation_draw', {
         skill: resolved!.skillId, stage: i + 1, control: stage.control?.name, value: v,
         nth: next.drawn.length,
       })
@@ -360,7 +396,7 @@ export default function InvestigatePage() {
     const slots = { ...st.slots, [slot]: option }
     const state = sentenceState(stage, slots)
     update(i, { slots, done: state.correct })
-    trackEvent('investigation_conclude', {
+    track('investigation_conclude', {
       skill: resolved!.skillId,
       stage: i + 1,
       slot,
@@ -378,10 +414,13 @@ export default function InvestigatePage() {
   }
 
   // Each section complete on the rule that unlocks the next one.
-  const complete = resolved.stages.map((s, i) => !!states[i] && stageComplete(s, states[i].done, answeredMap(states[i])))
+  // On the board a section completes on its rule: the class has no checks to
+  // answer, so waiting on them would leave every section shut.
+  const complete = resolved.stages.map((s, i) => !!states[i]
+    && (board ? states[i].done : stageComplete(s, states[i].done, answeredMap(states[i]))))
   // Folded once section 1 is complete — or from the start for a student who
   // came straight to one section: the outcomes are for the whole investigation.
-  const introFolded = complete[0] || entry !== null
+  const introFolded = complete[0] || entry !== null || board
   // EVERY section, not the last one: a student who arrived at the last section
   // directly has not finished by completing it.
   const allDone = complete.length > 0 && complete.every(Boolean)
@@ -394,15 +433,24 @@ export default function InvestigatePage() {
 
   return (
     <main style={styles.page}>
-      <div style={styles.wrap}>
-        <button
-          style={{ ...secondaryButton, width: 'auto', alignSelf: 'flex-start' }}
-          onClick={() => router.push(skillPath(resolved.skillId))}
-        >
-          ← Briefing
-        </button>
+      {/* Projector scale on the board: the whole page, figures and all, so the back row can read it. */}
+      <div style={board ? { ...styles.wrap, zoom: boardZoom } : styles.wrap}>
+        {board ? (
+          // What the room sees is the section; this line is for the teacher.
+          <p style={styles.boardNote}>
+            On the board — the class answers by hand or on mini-whiteboards.{' '}
+            <a href={investigatePath(resolved.skillId)} style={styles.boardLeave}>Leave board view</a>
+          </p>
+        ) : (
+          <button
+            style={{ ...secondaryButton, width: 'auto', alignSelf: 'flex-start' }}
+            onClick={() => router.push(skillPath(resolved.skillId))}
+          >
+            ← Briefing
+          </button>
+        )}
 
-        {investigation.underConstruction && (
+        {!board && investigation.underConstruction && (
           <div style={styles.construction} role="note">
             <strong style={styles.constructionHead}>Under construction</strong>
             {investigation.underConstruction}
@@ -432,7 +480,7 @@ export default function InvestigatePage() {
               aria-controls="investigation-intro"
               style={styles.introToggle}
               onClick={() => {
-                if (!introOpen) trackEvent('investigation_intro_open', { skill: resolved.skillId })
+                if (!introOpen) track('investigation_intro_open', { skill: resolved.skillId })
                 setIntroOpen(!introOpen)
               }}
             >
@@ -447,7 +495,8 @@ export default function InvestigatePage() {
             // pips cannot become a way round a check. Going BACK is what this
             // is for: a student on section 3 who wants to re-read what c did
             // had only a Back button at the foot of a long section.
-            const reachable = sectionOpen(i, i > 0 && complete[i - 1], entry)
+            // Every section, on the board: the teacher chooses what the class sees.
+            const reachable = board || sectionOpen(i, i > 0 && complete[i - 1], entry)
             return (
               <button
                 key={i}
@@ -478,7 +527,7 @@ export default function InvestigatePage() {
         {resolved.stages.map((stage, i) => {
           const st = states[i]
           const step = stepNumbers(stage)
-          const locked = !sectionOpen(i, i > 0 && states[i - 1].done, entry)
+          const locked = !board && !sectionOpen(i, i > 0 && states[i - 1].done, entry)
           if (finished || i !== onScreen) return null
           // The section this visit came straight to, before the one ahead of
           // it is done: its opening may not lean on a section not yet seen.
@@ -488,7 +537,7 @@ export default function InvestigatePage() {
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
               {/* A real heading, so a screen reader can move between stages. */}
               <h2 style={styles.stageN}>Stage {i + 1} · {stage.title}</h2>
-              {entry?.section === i && (
+              {!board && entry?.section === i && (
                 <p style={styles.checkNote} role="note">
                   {entry.from
                     ? `This section is about the mistake in that question: ${stage.title.toLowerCase()}. `
@@ -554,6 +603,49 @@ export default function InvestigatePage() {
                           <GridCanvas grid={stage.figure} value={[]} readOnly />
                         </figure>
                       )}
+                      {board ? (() => {
+                        // The class calls out a letter; nobody here picks. Reveal
+                        // marks the right option and puts each wrong one's reason
+                        // under it — what the room argues about next.
+                        const on = stage.predict.on
+                        return (
+                          <>
+                            <div style={styles.choices}>
+                              {on.options.map((opt, k) => {
+                                const shown = st.predicted
+                                const right = k === on.correct
+                                return (
+                                  <div
+                                    key={k}
+                                    style={{
+                                      ...styles.choice,
+                                      cursor: 'default',
+                                      borderColor: shown && right ? colors.successBorder : colors.border,
+                                      background: shown && right ? colors.successLight : colors.card,
+                                    }}
+                                  >
+                                    <strong style={styles.letter}>{LETTERS[k]}</strong>{opt}
+                                    {shown && !right && on.wrong[k] && (
+                                      <span style={styles.boardWhy}>{prose(on.wrong[k])}</span>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                            {!st.predicted && (
+                              <div style={styles.row}>
+                                <button
+                                  style={{ ...primaryButton, width: 'auto' }}
+                                  onClick={() => update(i, { picked: on.correct, predicted: true, predictRight: true })}
+                                >
+                                  Reveal the answer
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )
+                      })() : (
+                      <>
                       <div style={styles.choices}>
                         {stage.predict.on.options.map((opt, k) => (
                           <button
@@ -581,6 +673,8 @@ export default function InvestigatePage() {
                           </button>
                         </div>
                       )}
+                      </>
+                      )}
                     </>
                   )}
 
@@ -591,7 +685,11 @@ export default function InvestigatePage() {
                       background: st.predictRight ? colors.successLight : colors.cardAlt,
                       borderColor: st.predictRight ? colors.successBorder : colors.border,
                     }}>
-                      <strong>{st.predictRight ? 'Yes. ' : 'Not quite. '}</strong>
+                      <strong>
+                        {board && stage.predict.on.kind === 'choice'
+                          ? `The answer is ${LETTERS[stage.predict.on.correct]}. `
+                          : st.predictRight ? 'Yes. ' : 'Not quite. '}
+                      </strong>
                       {prose(st.predictRight ? stage.predict.right : wrongResponse(stage, st.picked))}
                     </p>
                   )}
@@ -954,7 +1052,8 @@ export default function InvestigatePage() {
                             {/* 4 · the check. Questions from the bank, so a
                                 wrong answer gets the author's own trap
                                 explanation rather than a restatement. */}
-                            {(stage.check ?? []).length > 0 && (
+                            {/* None on the board: the class answers by hand. */}
+                            {!board && (stage.check ?? []).length > 0 && (
                               <>
                                 {/* A section whose only check is a challenge
                                     gets no heading: "Check you have it" over
@@ -983,7 +1082,7 @@ export default function InvestigatePage() {
                                       onUnavailable={() => markAnswered(i, c)}
                                       onAnswered={o => {
                                         markAnswered(i, c)
-                                        trackEvent('investigation_check', {
+                                        track('investigation_check', {
                                           skill: resolved!.skillId,
                                           stage: i + 1,
                                           check: c + 1,
@@ -1017,7 +1116,7 @@ export default function InvestigatePage() {
                       the foot of the last section — the button a student
                       finishing up was most likely to click next. */}
                   {(() => {
-                    const ready = stageComplete(stage, st.done, answeredMap(st))
+                    const ready = board ? st.done : stageComplete(stage, st.done, answeredMap(st))
                     const target = nextSection(onScreen, complete.map((c, k) => (k === onScreen ? ready : c)))
                     const last = target === 'finish'
                     // Sent here by a wrong answer: the way back to that
@@ -1033,7 +1132,7 @@ export default function InvestigatePage() {
                     {retry && ready && (
                       <a
                         href={`/practice/question/${retry}`}
-                        onClick={() => trackEvent('investigation_retry', {
+                        onClick={() => track('investigation_retry', {
                           skill: resolved.skillId, stage: i + 1, question: retry,
                         })}
                         style={{ ...primaryButton, width: 'auto', textDecoration: 'none' }}
@@ -1056,15 +1155,15 @@ export default function InvestigatePage() {
                         if (target === 'finish') {
                           if (!finishLogged.current) {
                             finishLogged.current = true
-                            trackEvent('investigation_finish', { skill: resolved.skillId })
-                            if (studentId) recordInvestigationCompletion(studentId, resolved.skillId)
+                            track('investigation_finish', { skill: resolved.skillId })
+                            if (studentId && !board) recordInvestigationCompletion(studentId, resolved.skillId)
                           }
                           setFinished(true)
                         } else {
                           setCurrent(target)
                           window.scrollTo({ top: 0 })
                         }
-                        trackEvent('investigation_section_done', {
+                        track('investigation_section_done', {
                           skill: resolved.skillId, stage: i + 1,
                           ...(entry?.section === i ? { from: entry.from ? 'question' : 'link' } : {}),
                         })
@@ -1102,7 +1201,7 @@ export default function InvestigatePage() {
               <button
                 style={{ ...primaryButton, width: 'auto' }}
                 onClick={() => {
-                  trackEvent('investigation_transfer', {
+                  track('investigation_transfer', {
                     skill: resolved.skillId,
                     questions: resolved.transferQuestionIds.length,
                   })
@@ -1167,6 +1266,8 @@ const styles: Record<string, React.CSSProperties> = {
   constructionHead: { display: 'block', marginBottom: '3px' },
   page: { minHeight: '100vh', background: colors.background, padding: '24px 16px 64px' },
   wrap: { maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '18px' },
+  boardNote: { fontSize: font.sm, color: colors.textSecondary, margin: 0 },
+  boardLeave: { color: colors.primary, fontWeight: '600', textDecoration: 'none' },
   eyebrow: {
     fontSize: font.sm, fontWeight: '700', letterSpacing: '0.09em', textTransform: 'uppercase',
     color: colors.textHint, margin: 0,
@@ -1233,6 +1334,8 @@ const styles: Record<string, React.CSSProperties> = {
     background: colors.card, color: colors.textPrimary,
   },
   choices: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  letter: { display: 'inline-block', minWidth: '1.6em', color: colors.primaryHover },
+  boardWhy: { display: 'block', marginTop: '6px', fontSize: font.sm, color: colors.textSecondary, lineHeight: '1.5' },
   choice: {
     width: '100%', textAlign: 'left', padding: '10px 13px', fontSize: font.base,
     fontFamily: 'inherit', border: '1px solid', borderRadius: radius.sm, cursor: 'pointer',

@@ -239,6 +239,10 @@ export default function DashboardPage() {
             <span style={styles.actionTitle}>Set a mini-exam</span>
             <span style={styles.actionNote}>Marks and exam readiness</span>
           </button>
+          <button onClick={() => router.push('/dashboard/teach')} style={styles.action}>
+            <span style={styles.actionTitle}>Teach on the board</span>
+            <span style={styles.actionNote}>A section for the class to predict together</span>
+          </button>
           <button onClick={() => router.push('/mark')} style={styles.action}>
             <span style={styles.actionTitle}>Mark a paper</span>
             <span style={styles.actionNote}>Feedback sheets, no sign-in</span>

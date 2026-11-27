@@ -3,7 +3,7 @@ import {
   allDraws, drawParams, resolveInvestigation, resolveAt, predictionCorrect, concludeGate,
   rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
   controlValues, joinInputs, splitInputs, triedValue, baseFor, inputBase,
-  parseSectionEntry, sectionOpen, nextSection,
+  parseSectionEntry, sectionOpen, nextSection, parseBoardMode, boardScale,
 } from './investigation'
 import { numbersIn } from './checkValues'
 import { clipLine, lineEquation } from './investigationFigures'
@@ -455,6 +455,23 @@ describe('arriving at one section (docs/audit/33)', () => {
     for (const bad of ['?section=0', '?section=5', '?section=2.5', '?section=two', '', '?from=' + Q]) {
       expect(parseSectionEntry(bad, 4), bad).toBeNull()
     }
+  })
+
+  it('turns on board mode only for board=1 (docs/audit/34)', () => {
+    expect(parseBoardMode('?section=2&board=1')).toBe(true)
+    expect(parseBoardMode('?board=1')).toBe(true)
+    // Anything else is a student's page: a stray parameter must not hand one
+    // the teacher's view, with its checks gone and its events silenced.
+    for (const not of ['', '?board=0', '?board=true', '?board', '?section=2', '?board=11']) {
+      expect(parseBoardMode(not), not).toBe(false)
+    }
+  })
+
+  it('draws the board as big as the window allows, up to 1.35×, and never wider', () => {
+    expect(boardScale(1920)).toBe(1.35)
+    expect(boardScale(1024)).toBeCloseTo(1.305, 3)
+    expect(boardScale(1024) * 760 + 32).toBeLessThanOrEqual(1024)
+    expect(boardScale(700)).toBe(1)
   })
 
   it('opens every section up to the one arrived at, and later ones as before', () => {
