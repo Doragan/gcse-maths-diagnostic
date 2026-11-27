@@ -164,18 +164,20 @@ const QUESTIONS = [
           + `But Priya runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches, and only `
           + `whole batches count: {{Math.floor(${FEWEST})}}.`,
       },
+      // Each response quotes its numbers to the SAME places as its trap, so a
+      // student who typed 4.3 reads 4.3 back, not 4.29 (review, 2026-11-27).
       ...[2, 1].map(dp => ({
         answer_template: `{{+${FEWEST}.toFixed(${dp})}}`,
-        response: `{{+${FEWEST}.toFixed(2)}} batches is when Priya runs out of {{${SHORT}}} — the right `
-          + 'ingredient. But the question asks for WHOLE batches, and a batch she cannot finish is not a '
-          + `batch, so round down: {{Math.floor(${FEWEST})}}.`,
+        response: `{{+${FEWEST}.toFixed(${dp})}} is how many batches there is enough {{${SHORT}}} for — `
+          + 'the right ingredient. But the question asks for WHOLE batches, and a batch Priya cannot '
+          + `finish is not a batch, so round down: {{Math.floor(${FEWEST})}}.`,
       })),
       ...[2, 1].map(dp => ({
         answer_template: `{{+${MOST}.toFixed(${dp})}}`,
         misconception: 'answered_a_different_quantity',
-        response: `{{+${MOST}.toFixed(2)}} batches is when Priya would run out of {{${OTHER}}}, not `
-          + `rounded. But she runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches, and `
-          + `only whole batches count: {{Math.floor(${FEWEST})}}.`,
+        response: `{{+${MOST}.toFixed(${dp})}} is how many batches there is enough {{${OTHER}}} for. But `
+          + `Priya runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(${dp})}} batches, and only `
+          + `whole batches count: {{Math.floor(${FEWEST})}}.`,
       })),
     ],
   },
