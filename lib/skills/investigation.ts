@@ -464,3 +464,20 @@ export function sectionForQuestion(
   if (authored == null) return null
   return authored >= 1 && authored <= titles.length ? authored - 1 : null
 }
+
+/**
+ * Board mode, from ?board=1: a section put in front of a class on a projector
+ * (docs/audit/34, increment 1). Exactly "1", so a stray parameter never
+ * quietly turns a student's page into a teacher's.
+ */
+export const parseBoardMode = (search: string): boolean => new URLSearchParams(search).get('board') === '1'
+
+/**
+ * How much bigger board mode draws the page in a window `width` px wide: up to
+ * 1.35×, so the back row can read it, but never wider than the window, so a
+ * section is never cut off at the right. The page is 760px wide, plus 32px of
+ * gutter; below that it stays at 1×.
+ */
+export function boardScale(width: number): number {
+  return Math.max(1, Math.min(1.35, (width - 32) / 760))
+}

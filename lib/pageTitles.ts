@@ -169,6 +169,8 @@ const RULES: [RegExp, string, string?][] = [
   // /^\/dashboard\/[^/]+$/ perfectly well, so without this it would be titled
   // "Student overview" and normalised to `/dashboard/[id]` — wrong in the tab
   // and silently merged with a different route in analytics.
+  // Above the bare-id catch-all below, which would otherwise call it "Student overview".
+  [/^\/dashboard\/teach$/, 'Teach on the board'],
   [/^\/dashboard\/students\/[^/]+$/, 'Student', '/dashboard/students/[id]'],
   [/^\/dashboard\/students$/, 'My students'],
   [/^\/dashboard\/[^/]+$/, 'Student overview', '/dashboard/[id]'],
