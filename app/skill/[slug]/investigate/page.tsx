@@ -920,6 +920,9 @@ export default function InvestigatePage() {
                                     )}
                                     <BankQuestion
                                       questionId={check.questionId}
+                                      // Not the numbers this section just
+                                      // worked, or the answer is on screen.
+                                      avoidNumbersOf={stage.ask}
                                       // A check that cannot load must not
                                       // trap the student on the section.
                                       onUnavailable={() => markAnswered(i, c)}

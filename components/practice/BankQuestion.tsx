@@ -8,6 +8,7 @@ import {
 import { checkAnswer, checkerAdvice } from '../../lib/questions/answerChecker'
 import { isScalarAnswerType, type FractionForm, type ScalarAnswerType } from '../../lib/questions/answerTypes'
 import { colors, font, radius, primaryButton, secondaryButton } from '../../lib/styles'
+import { REDRAWS, repeatsNumbers } from '../../lib/skills/checkValues'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // One question from the bank, rendered and marked wherever it is needed.
@@ -66,10 +67,17 @@ type Props = {
   onUnavailable?: () => void
   /** Offered after an answer: the same question on fresh numbers. */
   allowAnother?: boolean
+  /**
+   * Text whose numbers this question must not simply repeat — an
+   * investigation section's own question, worked through just above the check.
+   * A draw whose every number is in it is redrawn (lib/skills/checkValues.ts),
+   * on the first roll and on every "Try another".
+   */
+  avoidNumbersOf?: string
 }
 
 export default function BankQuestion({
-  questionId, onAnswered, onUnavailable, allowAnother = true,
+  questionId, onAnswered, onUnavailable, allowAnother = true, avoidNumbersOf,
 }: Props) {
   const [row, setRow] = useState<Row | null>(null)
   // Held in a ref so the load effect does not re-run when the caller passes a
@@ -77,6 +85,9 @@ export default function BankQuestion({
   // in an effect rather than during render, which React forbids.
   const onUnavailableRef = useRef(onUnavailable)
   useEffect(() => { onUnavailableRef.current = onUnavailable })
+  // A ref for the same reason: a new string must not re-fetch the question.
+  const avoidRef = useRef(avoidNumbersOf)
+  useEffect(() => { avoidRef.current = avoidNumbersOf })
   const [failed, setFailed] = useState(false)
   const [rendered, setRendered] = useState<RenderedQuestion | null>(null)
   const [typed, setTyped] = useState('')
@@ -101,13 +112,17 @@ export default function BankQuestion({
    * the first version of this component did.
    */
   const roll = useCallback((q: Row) => {
-    setRendered(renderQuestion(
+    const draw = () => renderQuestion(
       q.question_template,
       q.answer_template,
       q.traps ?? [],
       q.explanation,
       q.parameters ?? {},
-    ))
+    )
+    let next = draw()
+    const avoid = avoidRef.current
+    for (let k = 0; avoid && k < REDRAWS && repeatsNumbers(next.question, avoid); k++) next = draw()
+    setRendered(next)
     setTyped('')
     setVerdict(null)
   }, [])
