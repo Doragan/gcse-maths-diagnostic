@@ -11,7 +11,8 @@ import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
   resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry, triedValue, splitInputs,
-  sentenceState, stageComplete, stepNumbers,
+  sentenceState, stageComplete, stepNumbers, parseSectionEntry, sectionOpen, nextSection,
+  type SectionEntry,
 } from '../../../../lib/skills/investigation'
 import type { Stage, ResolvedInvestigation } from '../../../../data/investigations/types'
 import type { GridPoint, RenderedGrid } from '../../../../lib/questions/gridDraw'
@@ -182,6 +183,11 @@ export default function InvestigatePage() {
   const [states, setStates] = useState<StageState[]>([])
   /** Which section is on screen. */
   const [current, setCurrent] = useState(0)
+  /**
+   * The section this visit opened at directly, and the question that sent the
+   * student, from ?section=&from= (docs/audit/33). Null for the normal start.
+   */
+  const [entry, setEntry] = useState<SectionEntry | null>(null)
   /** The finished view, which "Finish" on the last section opens. */
   const finishRef = useRef<HTMLElement>(null)
   /**
@@ -233,7 +239,17 @@ export default function InvestigatePage() {
     const r = resolveInvestigation(investigation)
     setResolved(r)
     setStates(r.stages.map(blankStage))
+    // Read here rather than with useSearchParams, which would need a Suspense
+    // boundary: this effect already runs once, on the client, per draw.
+    const e = parseSectionEntry(window.location.search, r.stages.length)
+    setEntry(e)
+    if (e) setCurrent(e.section)
     trackEvent('investigation_start', { skill: r.skillId, stages: r.stages.length })
+    if (e) {
+      trackEvent('investigation_section_entry', {
+        skill: r.skillId, stage: e.section + 1, question: e.from, from: e.from ? 'question' : 'link',
+      })
+    }
     // Keyed on the skill, so a different investigation re-draws and the same
     // one never re-rolls under a student mid-way.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -361,9 +377,14 @@ export default function InvestigatePage() {
       : st)))
   }
 
-  // Section 1 complete on the same rule that unlocks section 2.
-  const introFolded = !!states[0] && stageComplete(resolved.stages[0], states[0].done, answeredMap(states[0]))
-  const allDone = states.length > 0 && states[states.length - 1].done
+  // Each section complete on the rule that unlocks the next one.
+  const complete = resolved.stages.map((s, i) => !!states[i] && stageComplete(s, states[i].done, answeredMap(states[i])))
+  // Folded once section 1 is complete — or from the start for a student who
+  // came straight to one section: the outcomes are for the whole investigation.
+  const introFolded = complete[0] || entry !== null
+  // EVERY section, not the last one: a student who arrived at the last section
+  // directly has not finished by completing it.
+  const allDone = complete.length > 0 && complete.every(Boolean)
 
   // One section at a time. A "page" the student moves through rather than a
   // Next route: every number in the investigation is drawn once per visit, and
@@ -426,9 +447,7 @@ export default function InvestigatePage() {
             // pips cannot become a way round a check. Going BACK is what this
             // is for: a student on section 3 who wants to re-read what c did
             // had only a Back button at the foot of a long section.
-            const prev = states[i - 1]
-            const reachable = i === 0 || (!!prev
-              && stageComplete(resolved.stages[i - 1], prev.done, answeredMap(prev)))
+            const reachable = sectionOpen(i, i > 0 && complete[i - 1], entry)
             return (
               <button
                 key={i}
@@ -459,13 +478,26 @@ export default function InvestigatePage() {
         {resolved.stages.map((stage, i) => {
           const st = states[i]
           const step = stepNumbers(stage)
-          const locked = i > 0 && !states[i - 1].done
+          const locked = !sectionOpen(i, i > 0 && states[i - 1].done, entry)
           if (finished || i !== onScreen) return null
+          // The section this visit came straight to, before the one ahead of
+          // it is done: its opening may not lean on a section not yet seen.
+          const cold = entry?.section === i && !(i > 0 && states[i - 1].done)
+          const ask = cold && stage.coldAsk ? stage.coldAsk : stage.ask
           return (
             <section key={i} style={{ ...styles.card, opacity: locked ? 0.5 : 1 }}>
               {/* A real heading, so a screen reader can move between stages. */}
               <h2 style={styles.stageN}>Stage {i + 1} · {stage.title}</h2>
-              <p style={styles.ask}>{prose(stage.ask)}</p>
+              {entry?.section === i && (
+                <p style={styles.checkNote} role="note">
+                  {entry.from
+                    ? `This section is about the mistake in that question: ${stage.title.toLowerCase()}. `
+                    : `You've come straight to this section: ${stage.title.toLowerCase()}. `}
+                  The rest of the investigation is here if you want it, under the numbered buttons
+                  above.
+                </p>
+              )}
+              <p style={styles.ask}>{prose(ask)}</p>
 
               {locked ? (
                 <p style={styles.hint}>
@@ -922,7 +954,7 @@ export default function InvestigatePage() {
                                       questionId={check.questionId}
                                       // Not the numbers this section just
                                       // worked, or the answer is on screen.
-                                      avoidNumbersOf={stage.ask}
+                                      avoidNumbersOf={ask}
                                       // A check that cannot load must not
                                       // trap the student on the section.
                                       onUnavailable={() => markAnswered(i, c)}
@@ -963,13 +995,34 @@ export default function InvestigatePage() {
                       finishing up was most likely to click next. */}
                   {(() => {
                     const ready = stageComplete(stage, st.done, answeredMap(st))
-                    const last = onScreen === resolved.stages.length - 1
+                    const target = nextSection(onScreen, complete.map((c, k) => (k === onScreen ? ready : c)))
+                    const last = target === 'finish'
+                    // Sent here by a wrong answer: the way back to that
+                    // question, on fresh numbers, is the point of the visit
+                    // (docs/audit/33, D3), so it leads and the rest follows.
+                    const retry = entry?.from && entry.section === i ? entry.from : null
+                    const onward = last ? 'Finish →'
+                      : retry ? 'Carry on with the investigation →'
+                      : target === onScreen + 1 ? 'Next section →'
+                      : `Back to section ${target + 1} →`
                     return (
+                    <span style={styles.row}>
+                    {retry && ready && (
+                      <a
+                        href={`/practice/question/${retry}`}
+                        onClick={() => trackEvent('investigation_retry', {
+                          skill: resolved.skillId, stage: i + 1, question: retry,
+                        })}
+                        style={{ ...primaryButton, width: 'auto', textDecoration: 'none' }}
+                      >
+                        Try that question again →
+                      </a>
+                    )}
                     <button
                       // A disabled control that looks enabled reads as a
                       // broken button, not as a step still to finish.
                       style={{
-                        ...primaryButton,
+                        ...(retry ? secondaryButton : primaryButton),
                         width: 'auto',
                         opacity: ready ? 1 : 0.45,
                         cursor: ready ? 'pointer' : 'not-allowed',
@@ -977,7 +1030,7 @@ export default function InvestigatePage() {
                       title={ready ? undefined : 'Finish the rule and have a go at the check first'}
                       disabled={!ready}
                       onClick={() => {
-                        if (last) {
+                        if (target === 'finish') {
                           if (!finishLogged.current) {
                             finishLogged.current = true
                             trackEvent('investigation_finish', { skill: resolved.skillId })
@@ -985,16 +1038,18 @@ export default function InvestigatePage() {
                           }
                           setFinished(true)
                         } else {
-                          setCurrent(onScreen + 1)
+                          setCurrent(target)
                           window.scrollTo({ top: 0 })
                         }
                         trackEvent('investigation_section_done', {
                           skill: resolved.skillId, stage: i + 1,
+                          ...(entry?.section === i ? { from: entry.from ? 'question' : 'link' } : {}),
                         })
                       }}
                     >
-                      {last ? 'Finish →' : 'Next section →'}
+                      {onward}
                     </button>
+                    </span>
                     )
                   })()}
                 </div>

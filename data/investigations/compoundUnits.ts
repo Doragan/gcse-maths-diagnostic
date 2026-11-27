@@ -612,6 +612,7 @@ function stageFromSpeed(p: Params): Stage {
     title: 'From a speed to a distance',
     ask: `Now the other way round. A lorry drives at a steady ${speed} km/h for ${h} hours. `
       + 'How far does it go?',
+    coldAsk: `A lorry drives at a steady ${speed} km/h for ${h} hours. How far does it go?`,
     axes: axesOf(lorryGraph(speed, [], 0)),
     predict: {
       prompt: `In ${h} hours, the lorry goes…`,
