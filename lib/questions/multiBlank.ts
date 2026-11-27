@@ -45,6 +45,26 @@ export type MultiBlankResult = {
   blanks: BlankResult[]
 }
 
+/**
+ * A sibling's answer read as the number a follow-through builds on.
+ *
+ * Its unit is allowed and ignored: "21 cm", "21cm", "£21", "21%" and
+ * "21 m/s" are all 21. A bare Number() made them NaN, so a student who
+ * wrote the unit on the earlier blank, as they are told to, lost
+ * follow-through on every later one. That unit is judged on its own blank,
+ * not here.
+ *
+ * Strict otherwise: an optional currency sign, ONE number, then nothing but
+ * unit characters. "dunno", a bare "cm", "1,200" and "2 or 3" stay unusable,
+ * as before, so the follow-through never builds on a value we had to guess.
+ */
+function siblingValue(raw: string): number | null {
+  const m = raw.match(/^[£$€]?\s*(-?\d+(?:\.\d+)?)\s*[a-zA-Z%²³/]*$/)
+  if (!m) return null
+  const n = Number(m[1])
+  return Number.isFinite(n) ? n : null
+}
+
 /** Sibling references inside an ECF formula: [[A]], [[B]], … */
 const ECF_REF = /\[\[\s*([^\]]+?)\s*\]\]/g
 
@@ -69,8 +89,8 @@ function resolveEcf(
     // Self-reference would make the blank trivially "correct" whatever it says.
     if (label === self || !studentByLabel.has(label)) { usable = false; return '0' }
     const raw = (studentByLabel.get(label) ?? '').trim()
-    const n = Number(raw)
-    if (raw === '' || !Number.isFinite(n)) { usable = false; return '0' }
+    const n = siblingValue(raw)
+    if (n === null) { usable = false; return '0' }
     if (!correctByLabel.get(label)) followsAnError = true
     // Parenthesised so a negative or multi-term answer can't rebind operators
     // around it ('[[F]] - 4' with F = -3 must be (-3) - 4, not -3 - 4 read as

@@ -118,6 +118,16 @@ describe('units on a multi_blank mini-exam part', () => {
     expect(b.marksEarned).toBe(2)
   })
 
+  it('follows through when both blanks carry their units, as a student is told to write them', () => {
+    // The common case: A wrong but written properly ("21 cm"). It used to
+    // switch follow-through off, so B scored 0 confirmed instead of 2.
+    const { earned, b } = grade(['21 cm', '31 cm'])
+    expect(b.correct).toBe(true)
+    expect(b.followThrough).toBe(true)
+    expect(b.marksEarned).toBe(2)
+    expect(earned).toBe(2)
+  })
+
   it('leaves a banded part alone — the band prices the count of right blanks', () => {
     const banded = multi([{ min_correct: 1, marks: 1 }, { min_correct: 2, marks: 4 }])
     expect(grade(['20', '30'], banded).earned).toBe(4)
