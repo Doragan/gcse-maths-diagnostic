@@ -46,6 +46,9 @@ const WORST = `Math.max(${TOTAL_A},${TOTAL_B})`
 const WIN_PRICE = `(${A_WINS}?${PA3}:${PB3})`
 const WIN_SIZE = `(${A_WINS}?${A3}:${B3})`
 const LOSE_SIZE = `(${A_WINS}?${B3}:${A3})`
+/** The worse pack: its letter and its own price. */
+const LOSE = `(${A_WINS}?'B':'A')`
+const LOSE_PRICE = `(${A_WINS}?${PB3}:${PA3})`
 
 // ── Section 4: whole batches ────────────────────────────────────────────────
 // [oats per batch, butter per batch, oats in stock, butter in stock], grams.
@@ -101,20 +104,51 @@ const QUESTIONS = [
       {
         answer_template: pounds(WORST),
         misconception: 'answered_a_different_quantity',
-        response: `That is what {{${N3}}} rolls cost in the pack that is WORSE value. Bought as pack A they `
+        response: `${pounds(WORST)} is what {{${N3}}} rolls cost in the pack that is WORSE value. Bought as pack A they `
           + `cost ${pounds(TOTAL_A)}, and as pack B ${pounds(TOTAL_B)} — so pack {{${WIN}}} is better `
           + `value, and Sam pays ${pounds(BEST)}.`,
       },
       {
         answer_template: pounds(WIN_PRICE),
         misconception: 'stopped_one_step_early',
-        response: `That is ONE pack {{${WIN}}} — the right pack, but it holds only {{${WIN_SIZE}}} rolls. `
+        response: `${pounds(WIN_PRICE)} is ONE pack {{${WIN}}} — the right pack, but it holds only {{${WIN_SIZE}}} rolls. `
           + `Sam needs {{${N3}}}, which is {{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
       },
       {
         answer_template: pounds(`${N3}/${LOSE_SIZE}*${WIN_PRICE}`),
-        response: `That buys {{${N3}/${LOSE_SIZE}}} packs of {{${WIN}}} — as many as Sam would need of pack `
-          + `{{${A_WINS}?'B':'A'}}. Pack {{${WIN}}} holds {{${WIN_SIZE}}} rolls, so {{${N3}}} rolls is `
+        response: `${pounds(`${N3}/${LOSE_SIZE}*${WIN_PRICE}`)} is {{${N3}/${LOSE_SIZE}}} packs of {{${WIN}}} — as many as Sam would need of pack `
+          + `{{${LOSE}}}. Pack {{${WIN}}} holds {{${WIN_SIZE}}} rolls, so {{${N3}}} rolls is `
+          + `{{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
+      },
+      // Added at review (2026-11-27): one pack of the WRONG pack, and more
+      // wrong numbers of packs — the worse pack bought as many times as the
+      // better one would need, and a pack bought for every roll, of either.
+      {
+        answer_template: pounds(LOSE_PRICE),
+        misconception: 'answered_a_different_quantity',
+        response: `${pounds(LOSE_PRICE)} is ONE pack {{${LOSE}}} — and pack {{${LOSE}}} is the worse value. {{${N3}}} rolls `
+          + `cost ${pounds(TOTAL_A)} as pack A and ${pounds(TOTAL_B)} as pack B, so Sam buys pack `
+          + `{{${WIN}}}: {{${N3}/${WIN_SIZE}}} packs, ${pounds(BEST)}.`,
+      },
+      {
+        answer_template: pounds(`${N3}/${WIN_SIZE}*${LOSE_PRICE}`),
+        misconception: 'answered_a_different_quantity',
+        response: `${pounds(`${N3}/${WIN_SIZE}*${LOSE_PRICE}`)} is {{${N3}/${WIN_SIZE}}} packs of {{${LOSE}}}, the worse value — and {{${N3}/${WIN_SIZE}}} `
+          // "hold N rolls, not 12" rather than "only": the worse pack can be
+          // the bigger one, and then the count overshoots (set 5: 50, not 20).
+          + `packs of {{${LOSE}}} hold {{${N3}/${WIN_SIZE}*${LOSE_SIZE}}} rolls, not {{${N3}}}. Sam buys pack {{${WIN}}}, `
+          + `{{${WIN_SIZE}}} rolls a pack: {{${N3}/${WIN_SIZE}}} packs, ${pounds(BEST)}.`,
+      },
+      {
+        answer_template: pounds(`${N3}*${WIN_PRICE}`),
+        response: `${pounds(`${N3}*${WIN_PRICE}`)} is {{${N3}}} packs of {{${WIN}}} — a pack for every roll. But each pack holds `
+          + `{{${WIN_SIZE}}} rolls, so {{${N3}}} rolls is {{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
+      },
+      {
+        answer_template: pounds(`${N3}*${LOSE_PRICE}`),
+        misconception: 'answered_a_different_quantity',
+        response: `${pounds(`${N3}*${LOSE_PRICE}`)} is {{${N3}}} packs of {{${LOSE}}} — a pack for every roll, of the worse-value pack. `
+          + `Pack {{${WIN}}} is better value, and holds {{${WIN_SIZE}}} rolls, so Sam needs `
           + `{{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
       },
     ],

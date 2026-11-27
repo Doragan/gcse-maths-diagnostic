@@ -51,9 +51,9 @@ const Q_RECIPE = 'a653ffa7-038e-434e-90a5-d692e9fa8675'
  *
  * It once asked for "the price of one roll in that pack", which named the
  * method the section checks (review, 2026-11-27). Now any way of comparing
- * reaches the answer, and naming the pack alone does not. Its traps are the
- * worse pack's total, one pack of the right one, and the right pack bought as
- * many times as the other would take.
+ * reaches the answer, and naming the pack alone does not. Its seven traps are
+ * the worse pack's total; one pack of either; either pack bought as many times
+ * as the other would take; and a pack for every roll, of either.
  */
 const Q_BEST_BUY = '4dc5016f-c058-4a7e-ba28-020012571dd7'
 /**
@@ -503,7 +503,7 @@ function stageThree(p: Params): Stage {
         questionId: Q_BEST_BUY,
         because: 'The section exactly: two packs, two prices, and a decision about which is better '
           + 'value — without being told to compare the price of one. Its traps are the worse '
-          + 'pack\'s total, one pack of the right one, and the wrong number of packs.',
+          + 'pack\'s total, one pack of either, and the wrong number of packs of either.',
       },
     ],
   }
