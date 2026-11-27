@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { proportionInvestigation as inv } from '../../data/investigations/proportion'
-import { allDraws, controlValues } from './investigation'
+import { allDraws, controlValues, inputBase, joinInputs, splitInputs } from './investigation'
 import { labelHalfWidth } from './investigationFigures'
 import { CELL } from '../questions/gridSvg'
 import type { RenderedGrid } from '../questions/gridDraw'
@@ -24,8 +24,8 @@ function stages(section: number) {
 const rects = (g: RenderedGrid) =>
   [...g.background.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)].map(m => m.slice(1).map(Number))
 const words = (g: RenderedGrid) => (g.labels ?? []).map(l => l.text)
-/** A number as the page prints it, thousands comma and all. */
-const num = (s: string) => Number(s.replace(/,/g, ''))
+/** A number as the page prints it, thousands comma, unit and all: "1,500 g" → 1500. */
+const num = (s: string) => Number(s.replace(/[^\d.]/g, ''))
 const BOX = 7.2
 const boxPx = BOX * (CELL / 6)
 const figureWidthPx = (g: RenderedGrid) => (g.x.max - g.x.min) * (CELL / g.x.step)
@@ -181,17 +181,43 @@ describe('section 3: best buys', () => {
   })
 })
 
-describe('section 4: the most you can make', () => {
-  it('takes the smaller number of batches, rounded down', () => {
+describe('section 4: the most you can make, from both stocks', () => {
+  /** Section 4's numbers, read off its question: per batch and in stock. */
+  const read = (ask: string) => {
+    const [, fl, bu, F, B] = ask
+      .match(/uses ([\d,]+) g of flour and ([\d,]+) g of butter\. Sam has ([\d,]+) g of flour and ([\d,]+) g of butter/)!
+      .map(num)
+    return { fl, bu, F, B }
+  }
+
+  it('takes the smaller number of batches, rounded down, for every pair of stocks', () => {
+    // Collected, not expected one by one: 22,500 pairs a scenario.
+    const problems: string[] = []
+    let checked = 0
     for (const stage of stages(3)) {
-      const [, fl, bu, F] = stage.ask
-        .match(/uses ([\d,]+) g of flour and ([\d,]+) g of butter\. Sam has ([\d,]+) g of flour/)!.map(num)
-      for (const v of controlValues(stage.control!)) {
-        const [, byFlour, byButter, whole] = stage.control!.row!(v)
-        expect(Number(byFlour.replace('…', '')), stage.ask).toBeCloseTo(F / fl, 2)
-        expect(Number(byButter.replace('…', '')), stage.ask).toBeCloseTo(v / bu, 2)
-        expect(Number(whole), `${stage.ask} — ${v} g`).toBe(Math.floor(Math.min(F / fl, v / bu)))
+      const { fl, bu } = read(stage.ask)
+      const c = stage.control!
+      for (const v of controlValues(c)) {
+        const [f, b] = splitInputs(v, 2, inputBase(c))
+        const [flour, butter, byFlour, byButter, whole] = c.row!(v)
+        if (num(flour) !== f || num(butter) !== b) problems.push(`${stage.ask}: ${v} reads as ${flour}, ${butter}`)
+        if (Math.abs(Number(byFlour.replace('…', '')) - f / fl) > 0.005) problems.push(`${stage.ask}: ${f} g flour → ${byFlour}`)
+        if (Math.abs(Number(byButter.replace('…', '')) - b / bu) > 0.005) problems.push(`${stage.ask}: ${b} g butter → ${byButter}`)
+        if (Number(whole) !== Math.floor(Math.min(f / fl, b / bu))) problems.push(`${stage.ask}: ${f}, ${b} → ${whole}`)
+        checked++
       }
+    }
+    expect(problems.slice(0, 5)).toEqual([])
+    expect(checked).toBe(4 * 150 * 150)
+  })
+
+  it('keeps grams of 1,500 in a box, and gets both stocks back', () => {
+    const c = stages(3)[0].control!
+    expect(c.inputs).toEqual(['flour', 'butter'])
+    expect(inputBase(c)).toBe(10000)
+    for (const [f, b] of [[10, 10], [1500, 10], [10, 1500], [1500, 1500], [990, 1000]]) {
+      const v = joinInputs([f, b], inputBase(c))
+      expect(splitInputs(v, 2, inputBase(c))).toEqual([f, b])
     }
   })
 
@@ -200,17 +226,25 @@ describe('section 4: the most you can make', () => {
       const on = stage.predict.on
       if (on.kind !== 'choice') throw new Error('section 4 predicts from options')
       expect(new Set(on.options).size, stage.ask).toBe(3)
-      const B = num(stage.ask.match(/and ([\d,]+) g of butter\. How many/)![1])
-      expect(on.options[on.correct], stage.ask).toBe(`${stage.control!.row!(B)[3]} batches`)
+      const { F, B } = read(stage.ask)
+      const c = stage.control!
+      expect(on.options[on.correct], stage.ask).toBe(`${c.row!(joinInputs([F, B], inputBase(c)))[4]} batches`)
     }
   })
 
-  it('opens the rule only once each ingredient has run out first', () => {
+  it('opens the rule only once each ingredient has run out first, and the hints do both', () => {
     for (const stage of stages(3)) {
       const c = stage.control!
-      expect(c.coverage([50]), stage.ask).toMatch(/flour runs out first/)
-      expect(c.coverage([1500]), stage.ask).toMatch(/runs out first/)
-      expect(c.coverage([50, 1500]), stage.ask).toBeNull()
+      const at = (f: number, b: number) => joinInputs([f, b], inputBase(c))
+      expect(c.coverage([at(1500, 10)]), stage.ask).toMatch(/flour run out first/)
+      expect(c.coverage([at(10, 1500)]), stage.ask).toMatch(/butter run out first/)
+      expect(c.coverage([at(1500, 10), at(10, 1500)]), stage.ask).toBeNull()
+      // The two suggestions alone open it, in every scenario, and each makes
+      // at least one batch.
+      expect(c.coverage([...(c.suggest ?? [])]), stage.ask).toBeNull()
+      for (const v of c.suggest ?? []) expect(Number(c.row!(v)[4]), stage.ask).toBeGreaterThanOrEqual(1)
+      // Amounts, so named with their unit rather than set out as a ratio.
+      expect(c.inputUnit, stage.ask).toBe('g')
     }
   })
 })

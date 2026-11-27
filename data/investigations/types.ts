@@ -160,12 +160,20 @@ export type Control = {
    * Several numbers instead of one — a ratio, typed `a : b` or `a : b : c`
    * in a box each, named here in order. `domain` then applies to each.
    *
-   * Stored as ONE number, two decimal digits a box (joinInputs / splitInputs
-   * in lib/skills/investigation.ts), so the history, the table, the chips and
-   * `coverage` all keep working on numbers. Every function given a value
-   * here gets the joined number and splits it.
+   * Stored as ONE number, each box given as many decimal digits as the
+   * domain's largest value needs and never fewer than two (inputBase,
+   * joinInputs / splitInputs in lib/skills/investigation.ts), so the history,
+   * the table, the chips and `coverage` all keep working on numbers. Every
+   * function given a value here gets the joined number and splits it, with
+   * the same base.
    */
   inputs?: readonly string[]
+  /**
+   * With `inputs`: the boxes are separate AMOUNTS in this unit, not a ratio —
+   * each is named and followed by the unit ("flour = [ ] g"), with no colons
+   * between. Proportion's two stocks are not a ratio, and colons said they were.
+   */
+  inputUnit?: string
   /**
    * A rule the boxes must keep TOGETHER, which no one box's domain can say —
    * Cara needing more parts than Amy. null when the value is fine, else what
