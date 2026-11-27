@@ -138,12 +138,24 @@ repair.
 
 Doc 32, D3 offers the **briefing** once an investigation is finished.
 
-**Recommended change:** a specific mistake still goes to its **section**,
-framed as "revisit". A finished investigation tells us the student has *seen*
-the idea, not that it held. The briefing remains the offer when the question
-maps to no section.
+**Decided (reviewer, 2026-11-27): offer both.** Once the investigation is
+finished, the card for a mistake that maps to a section gives the student the
+choice:
 
-**Needs your call:** this partly reverses D3.
+> You've done the ratio investigation. That mistake is the one in **Ratios and
+> fractions**.
+> **Revisit that section →**   **Read the exam briefing →**
+
+- A finished investigation tells us the student has *seen* the idea, not that
+  it held, so the section stays on offer. The briefing is for a student who has
+  the idea and wants it shaped for the exam, so it stays too. The student
+  knows which they need better than we do.
+- Revisiting is the first link, the briefing the second.
+- A question that maps to no section offers the briefing alone, as D3 does today.
+- Both links are logged with the choice made, so we learn which finished
+  students pick.
+
+This extends doc 32's D3 rather than reversing it.
 
 ### D5 — What a section on its own records
 
@@ -176,7 +188,7 @@ stays for questions that map to no section.
 2. **The map and the card.**
    - The question-to-section map for all five investigations: 47 questions, 24 already checks, 23 to map.
    - The audit script for unmapped questions (D1).
-   - The card links to the section and names it (D6), with D4 applied if agreed.
+   - The card links to the section and names it (D6). Once the investigation is finished, it offers the section and the briefing side by side (D4).
    - The card receives the matched trap's misconception for the override.
 3. **Measure the repair.**
    - Events: section entered from a question, and the retry.
