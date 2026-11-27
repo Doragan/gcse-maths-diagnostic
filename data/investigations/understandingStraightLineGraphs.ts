@@ -360,6 +360,7 @@ function stageMeasure(p: Params): Stage {
     title: 'Measuring the gradient',
     ask: `This is ${line}. You know which way it leans — now put a number on it. How much `
       + 'does y go up for each 1 that x goes across?',
+    coldAsk: `This is ${line}. How much does y go up for each 1 that x goes across?`,
     axes,
     // The triangle sits away from the axes, and NEITHER leg is labelled:
     // this figure is the question. "up 3" answers it outright, and "across 1"

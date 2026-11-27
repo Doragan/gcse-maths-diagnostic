@@ -306,6 +306,13 @@ export type Stage = {
   /** What to notice. One sentence, above the figure. */
   ask: string
   /**
+   * `ask` for a student who arrived at this section directly, without the
+   * one before (docs/audit/33, D2) — the same question and the same numbers,
+   * minus the "we now know" or "now the other way" that leans back on a
+   * section they have not seen. Only where `ask` leans back; a test holds that.
+   */
+  coldAsk?: string
+  /**
    * The axes every figure in this stage is drawn on.
    *
    * Absent on a stage that draws nothing — there are no axes to put a table
