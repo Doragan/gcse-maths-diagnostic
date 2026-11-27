@@ -18,32 +18,55 @@ import { writeFileSync } from 'fs'
 const sel = { sel: { type: 'integer', min: 0, max: 5 } }
 
 // ── Section 3: best buy ─────────────────────────────────────────────────────
-// [rolls in A, A's price in pence, rolls in B, B's price in pence]. Every
-// price for one roll is whole pence, the two never tie, and neither trap — the
-// worse pack's roll, the cheaper pack's whole price — renders as the answer.
-// None is a scenario from the investigation's own prediction.
-const A3 = '[4,5,3,6,8,10][sel]'
-const PA3 = '[320,400,270,420,560,650][sel]'
-const B3 = '[6,8,4,4,5,6][sel]'
-const PB3 = '[450,680,340,300,375,420][sel]'
-const ONE_A = `(${PA3}/${A3})`
-const ONE_B = `(${PB3}/${B3})`
-const BEST = `Math.min(${ONE_A},${ONE_B})`
-const WORST = `Math.max(${ONE_A},${ONE_B})`
-const WIN = `(${ONE_A}<${ONE_B}?'A':'B')`
+// Rewritten at review (2026-11-27). It used to say "work out the price of one
+// roll in that pack", which named the method the section is checking. Now Sam
+// needs a number of rolls and buys only the better-value pack: the answer is
+// what Sam pays, which any method of comparing reaches — price per roll, or
+// pricing the same number of rolls both ways — and saying the pack is not
+// enough to score.
+//
+// [rolls in A, A's price in pence, rolls in B, B's price in pence, rolls
+// needed]. The rolls needed is a whole number of packs of EITHER, so both
+// totals exist; the packs never tie; three sets favour A and three B; and no
+// trap renders as the answer. None is a scenario from the investigation.
+const A3 = '[4,3,6,5,8,10][sel]'
+const PA3 = '[320,270,420,400,560,700][sel]'
+const B3 = '[6,4,4,2,6,4][sel]'
+const PB3 = '[450,340,300,170,450,260][sel]'
+const N3 = '[12,12,12,10,24,20][sel]'
+/** What N rolls cost bought as packs of A, and as packs of B, in pence. */
+const TOTAL_A = `(${N3}/${A3}*${PA3})`
+const TOTAL_B = `(${N3}/${B3}*${PB3})`
+const A_WINS = `(${TOTAL_A}<${TOTAL_B})`
+const WIN = `(${A_WINS}?'A':'B')`
+const pounds = (pence: string) => `£{{(${pence}/100).toFixed(2)}}`
+const BEST = `Math.min(${TOTAL_A},${TOTAL_B})`
+const WORST = `Math.max(${TOTAL_A},${TOTAL_B})`
+/** The better pack's own price, size and how many of it Sam buys. */
+const WIN_PRICE = `(${A_WINS}?${PA3}:${PB3})`
+const WIN_SIZE = `(${A_WINS}?${A3}:${B3})`
+const LOSE_SIZE = `(${A_WINS}?${B3}:${A3})`
 
 // ── Section 4: whole batches ────────────────────────────────────────────────
 // [oats per batch, butter per batch, oats in stock, butter in stock], grams.
 // The limiting ingredient never makes a whole number of batches (or rounding
 // up would be right), and the other one makes at least two more than it (or
 // "the other ingredient" and "rounded up" would be the same wrong answer).
-const O4 = '[150,250,120,300,200,180][sel]'
-const U4 = '[100,80,90,125,175,60][sel]'
-const SO4 = '[900,1200,900,1000,1500,700][sel]'
-const SU4 = '[350,600,400,800,600,500][sel]'
+//
+// Re-chosen at review (2026-11-27), when traps were added for the other
+// ingredient rounded up and for both left unrounded: BOTH ingredients' batches
+// now recur, so neither is whole and each reads differently to 1 dp and to
+// 2 dp (3.89 and 3.9) — a value that stops, like 3.5 or 7.5, makes those two
+// traps the same answer, and the harness refuses one as unreachable. Found by
+// search; the limiting ingredient alternates, and the answers run 3 to 5.
+const O4 = '[150,240,180,150,120,180][sel]'
+const U4 = '[90,90,70,60,175,60][sel]'
+const SO4 = '[950,1100,1300,800,650,700][sel]'
+const SU4 = '[350,800,300,500,550,500][sel]'
 const BY_O = `(${SO4}/${O4})`
 const BY_U = `(${SU4}/${U4})`
 const FEWEST = `Math.min(${BY_O},${BY_U})`
+const MOST = `Math.max(${BY_O},${BY_U})`
 const SHORT = `(${BY_O}<${BY_U}?'oats':'butter')`
 const OTHER = `(${BY_O}<${BY_U}?'butter':'oats')`
 
@@ -59,32 +82,40 @@ const QUESTIONS = [
   {
     ...base,
     id: '4dc5016f-c058-4a7e-ba28-020012571dd7',
-    difficulty: 2,
+    difficulty: 3,
     calculator: 'non_calc',
     question_type: 'numeric',
     answer_type: 'numeric',
     tolerance: 0,
-    question_template: '<p>A shop sells kitchen rolls in two packs.</p>'
-      + `<p><strong>Pack A:</strong> {{${A3}}} rolls for <strong>£{{(${PA3}/100).toFixed(2)}}</strong><br>`
-      + `<strong>Pack B:</strong> {{${B3}}} rolls for <strong>£{{(${PB3}/100).toFixed(2)}}</strong></p>`
-      + '<p>Which pack is better value? Work out the price of one roll in that pack, in pence.</p>',
-    answer_template: `{{${BEST}}}p`,
-    explanation: `One roll in pack A: {{${PA3}}}p ÷ {{${A3}}} = {{${ONE_A}}}p.<br>`
-      + `One roll in pack B: {{${PB3}}}p ÷ {{${B3}}} = {{${ONE_B}}}p.<br>`
-      + `A roll is cheaper in pack {{${WIN}}}, so pack {{${WIN}}} is better value: <strong>{{${BEST}}}p</strong> a roll.`,
+    question_template: `<p>Sam needs exactly <strong>{{${N3}}}</strong> kitchen rolls. A shop sells them `
+      + 'in two packs.</p>'
+      + `<p><strong>Pack A:</strong> {{${A3}}} rolls for <strong>${pounds(PA3)}</strong><br>`
+      + `<strong>Pack B:</strong> {{${B3}}} rolls for <strong>${pounds(PB3)}</strong></p>`
+      + '<p>Sam buys only the pack that is better value. How much does Sam pay?</p>',
+    answer_template: pounds(BEST),
+    explanation: `{{${N3}}} rolls as pack A: {{${N3}/${A3}}} packs × ${pounds(PA3)} = ${pounds(TOTAL_A)}.<br>`
+      + `{{${N3}}} rolls as pack B: {{${N3}/${B3}}} packs × ${pounds(PB3)} = ${pounds(TOTAL_B)}.<br>`
+      + `The same number of rolls costs less in pack {{${WIN}}}, so pack {{${WIN}}} is better value, and `
+      + `Sam pays <strong>${pounds(BEST)}</strong>.`,
     traps: [
       {
-        answer_template: `{{${WORST}}}p`,
+        answer_template: pounds(WORST),
         misconception: 'answered_a_different_quantity',
-        response: `That is one roll in the pack that is WORSE value. One roll costs {{${ONE_A}}}p in A `
-          + `and {{${ONE_B}}}p in B, so the better value is the cheaper roll: {{${BEST}}}p, in pack {{${WIN}}}.`,
+        response: `That is what {{${N3}}} rolls cost in the pack that is WORSE value. Bought as pack A they `
+          + `cost ${pounds(TOTAL_A)}, and as pack B ${pounds(TOTAL_B)} — so pack {{${WIN}}} is better `
+          + `value, and Sam pays ${pounds(BEST)}.`,
       },
       {
-        answer_template: `{{Math.min(${PA3},${PB3})}}p`,
-        misconception: 'compared_unlike_quantities',
-        response: `That is the price of the cheaper whole PACK. The packs hold different numbers of rolls, `
-          + `so their prices cannot be compared — compare one roll in each: {{${ONE_A}}}p in A and `
-          + `{{${ONE_B}}}p in B. The better value is {{${BEST}}}p a roll.`,
+        answer_template: pounds(WIN_PRICE),
+        misconception: 'stopped_one_step_early',
+        response: `That is ONE pack {{${WIN}}} — the right pack, but it holds only {{${WIN_SIZE}}} rolls. `
+          + `Sam needs {{${N3}}}, which is {{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
+      },
+      {
+        answer_template: pounds(`${N3}/${LOSE_SIZE}*${WIN_PRICE}`),
+        response: `That buys {{${N3}/${LOSE_SIZE}}} packs of {{${WIN}}} — as many as Sam would need of pack `
+          + `{{${A_WINS}?'B':'A'}}. Pack {{${WIN}}} holds {{${WIN_SIZE}}} rolls, so {{${N3}}} rolls is `
+          + `{{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
       },
     ],
   },
@@ -103,14 +134,17 @@ const QUESTIONS = [
     answer_template: `{{Math.floor(${FEWEST})}}`,
     explanation: `Oats: {{${SO4}}} ÷ {{${O4}}} = {{+${BY_O}.toFixed(2)}} batches.<br>`
       + `Butter: {{${SU4}}} ÷ {{${U4}}} = {{+${BY_U}.toFixed(2)}} batches.<br>`
-      + `The {{${SHORT}}} runs out first, and only whole batches count, so Priya can make `
+      + `Priya runs out of {{${SHORT}}} first, and only whole batches count, so she can make `
       + `<strong>{{Math.floor(${FEWEST})}}</strong> batches.`,
+    // Every response names an ingredient only after "of" or as "enough …", so
+    // it reads right whether it is the oats (plural) or the butter: "the oats
+    // runs out" did not (review, 2026-11-27).
     traps: [
       {
         answer_template: `{{Math.floor(Math.max(${BY_O},${BY_U}))}}`,
         misconception: 'answered_a_different_quantity',
-        response: `That is how many batches the {{${OTHER}}} would make on its own. Every batch needs `
-          + `both, and the {{${SHORT}}} runs out first, after {{+${FEWEST}.toFixed(2)}} batches — so `
+        response: `That is how many batches there is enough {{${OTHER}}} for. Every batch needs both, `
+          + `and Priya runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches — so `
           + `{{Math.floor(${FEWEST})}} whole batches.`,
       },
       {
@@ -118,6 +152,31 @@ const QUESTIONS = [
         response: `That rounds {{+${FEWEST}.toFixed(2)}} up. The last batch would be short of `
           + `{{${SHORT}}}, so it cannot be made: only {{Math.floor(${FEWEST})}} whole batches.`,
       },
+      // Added at review (2026-11-27): the other ingredient rounded UP, and both
+      // ingredients' batches left unrounded. The grader matches a trap only
+      // within the question's tolerance, which is 0 for a whole-number answer,
+      // so each unrounded value is caught as a student writes it — to 2 dp and
+      // to 1 dp. The value sets above keep those two apart.
+      {
+        answer_template: `{{Math.ceil(${MOST})}}`,
+        misconception: 'answered_a_different_quantity',
+        response: `That rounds up {{+${MOST}.toFixed(2)}}, the batches there is enough {{${OTHER}}} for. `
+          + `But Priya runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches, and only `
+          + `whole batches count: {{Math.floor(${FEWEST})}}.`,
+      },
+      ...[2, 1].map(dp => ({
+        answer_template: `{{+${FEWEST}.toFixed(${dp})}}`,
+        response: `{{+${FEWEST}.toFixed(2)}} batches is when Priya runs out of {{${SHORT}}} — the right `
+          + 'ingredient. But the question asks for WHOLE batches, and a batch she cannot finish is not a '
+          + `batch, so round down: {{Math.floor(${FEWEST})}}.`,
+      })),
+      ...[2, 1].map(dp => ({
+        answer_template: `{{+${MOST}.toFixed(${dp})}}`,
+        misconception: 'answered_a_different_quantity',
+        response: `{{+${MOST}.toFixed(2)}} batches is when Priya would run out of {{${OTHER}}}, not `
+          + `rounded. But she runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches, and `
+          + `only whole batches count: {{Math.floor(${FEWEST})}}.`,
+      })),
     ],
   },
 ]
