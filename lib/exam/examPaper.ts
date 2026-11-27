@@ -430,9 +430,13 @@ function gradeBlankGroup(
     const answered = (answers[u.key] ?? '').trim() !== ''
     // Under a banded scheme the first unit carries the part's marks; otherwise
     // each blank earns its own.
+    // A unit slip on a right blank (or a right follow-through) keeps the
+    // method marks and loses the accuracy mark — the same rule gradeUnits
+    // applies to a scalar answer. Banded parts are left alone: a band prices
+    // the count of right blanks, with no accuracy mark of its own to withhold.
     const unitMarks = bands
       ? (i === 0 ? partMarks : 0)
-      : (r.correct ? u.marks : 0)
+      : (r.correct ? (r.unitsIssue ? Math.max(0, u.marks - 1) : u.marks) : 0)
     // A banded part already prices partial success — its bands ARE the method
     // marks — so adding a method estimate on top would pay twice for the same
     // work. Only plain per-blank scoring has a blind spot to fill.
@@ -443,9 +447,8 @@ function gradeBlankGroup(
     unknown += credit.unknown
     results[u.key] = {
       correct: r.correct,
-      message: !answered ? 'Not answered.'
-        : r.followThrough ? 'Correct, following through from your earlier answer.'
-        : r.message,
+      // checkMultiBlank already words a follow-through, unit nudge included.
+      message: !answered ? 'Not answered.' : r.message,
       studentAnswer: answers[u.key] ?? '',
       correctAnswer: u.correctAnswer,
       explanation: u.explanation,

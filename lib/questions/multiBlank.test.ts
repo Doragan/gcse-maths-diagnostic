@@ -125,6 +125,42 @@ describe('checkMultiBlank — errors carried forward', () => {
     expect(ecfPair('dunno', '16').blanks[0].correct).toBe(false)
   })
 
+  // The ECF target used to be a bare number, so a unit was invisible to it.
+  describe('units on a follow-through', () => {
+    const cmPair = (aStudent: string, answer = '14 cm') => checkMultiBlank([
+      blank({ label: 'A', student: aStudent, answer, ecf: '[[F]] - 4' }),
+      blank({ label: 'F', student: '20', answer: '18' }),
+    ])
+
+    it('flags a follow-through that leaves off the unit, and says so', () => {
+      const r = cmPair('16').blanks[0]
+      expect(r.correct).toBe(true)
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBe('missing')
+      expect(r.message).toMatch(/^Correct, following through.*write the units/)
+    })
+
+    it('flags a follow-through in the wrong unit', () => {
+      const r = cmPair('16 mm').blanks[0]
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBe('wrong')
+      expect(r.message).toMatch(/check your units/)
+    })
+
+    it('passes a follow-through with the unit cleanly', () => {
+      const r = cmPair('16 cm').blanks[0]
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBeUndefined()
+      expect(r.message).toBe('Correct, following through from your earlier answer.')
+    })
+
+    it('treats a £ as notation on a follow-through too, as on a plain answer', () => {
+      const r = cmPair('16', '£14').blanks[0]
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBeUndefined()
+    })
+  })
+
   it('ignores an unknown or self-referential label rather than crediting it', () => {
     const unknown = checkMultiBlank([
       blank({ label: 'A', student: '16', answer: '14', ecf: '[[Z]] - 4' }),

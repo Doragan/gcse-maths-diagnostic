@@ -51,3 +51,75 @@ describe('units on a mini-exam', () => {
     expect(gradeUnits([item], { 'area:0': '20' }).earned).toBe(1)
   })
 })
+
+/**
+ * The same rule on a multi_blank part, which is graded on its own path
+ * (gradeBlankGroup) and used to pay a unit slip in full.
+ */
+describe('units on a multi_blank mini-exam part', () => {
+  // A in cm, worth 2; B = A + 10 in cm, worth 2, with follow-through.
+  const multi = (bands?: { min_correct: number; marks: number }[]): QuestionRow => ({
+    ...row('mb', ''),
+    question_type: 'multi_blank',
+    answer_type: 'multi_blank' as never,
+    parts: [{
+      prompt: 'Find both lengths.',
+      skill_ids: ['percentage_change'],
+      answer_template: '',
+      answer_type: 'multi_blank',
+      tolerance: null,
+      requires_simplest: false,
+      traps: [],
+      marks: 4,
+      kind: 'mastery',
+      explanation: '',
+      ...(bands ? { mark_bands: bands } : {}),
+      blanks: [
+        { label: 'A', prompt: 'A', answer_template: '{{a}} cm', answer_type: 'numeric', tolerance: 0.01, requires_simplest: false, traps: [], marks: 2 },
+        { label: 'B', prompt: 'B', answer_template: '{{a+10}} cm', answer_type: 'numeric', tolerance: 0.01, requires_simplest: false, traps: [], marks: 2, ecf_template: '[[A]] + 10' },
+      ],
+    }] as never,
+  })
+  const grade = (answers: [string, string], q = multi()) => {
+    const g = gradeUnits([buildItem(q, 1, DRAW)], { 'mb:0:0': answers[0], 'mb:0:1': answers[1] })
+    return { earned: g.earned, a: g.results['mb:0:0'], b: g.results['mb:0:1'] }
+  }
+
+  it('pays both blanks in full with their units', () => {
+    expect(grade(['20 cm', '30 cm']).earned).toBe(4)
+  })
+
+  it('takes only the accuracy mark from a blank with its unit left off', () => {
+    const { earned, a, b } = grade(['20', '30 cm'])
+    expect(a.correct).toBe(true) // still right for the skill map
+    expect(a.marksEarned).toBe(1)
+    expect(b.marksEarned).toBe(2)
+    expect(earned).toBe(3)
+  })
+
+  it('takes only the accuracy mark from a blank in the wrong unit', () => {
+    const { a } = grade(['20 mm', '30 cm'])
+    expect(a.correct).toBe(true)
+    expect(a.marksEarned).toBe(1)
+  })
+
+  it('takes the accuracy mark from a follow-through with its unit left off', () => {
+    // A is wrong (21, bare), B follows through to 31 — also bare.
+    const { earned, b } = grade(['21', '31'])
+    expect(b.correct).toBe(true)
+    expect(b.message).toMatch(/following through.*write the units/)
+    expect(b.marksEarned).toBe(1)
+    expect(earned).toBe(1)
+  })
+
+  it('pays a follow-through with its unit in full', () => {
+    const { b } = grade(['21', '31 cm'])
+    expect(b.message).toBe('Correct, following through from your earlier answer.')
+    expect(b.marksEarned).toBe(2)
+  })
+
+  it('leaves a banded part alone — the band prices the count of right blanks', () => {
+    const banded = multi([{ min_correct: 1, marks: 1 }, { min_correct: 2, marks: 4 }])
+    expect(grade(['20', '30'], banded).earned).toBe(4)
+  })
+})

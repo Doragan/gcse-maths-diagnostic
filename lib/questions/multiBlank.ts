@@ -83,6 +83,36 @@ function resolveEcf(
   return value
 }
 
+/**
+ * The follow-through value written the way the canonical answer is written:
+ * "19" against a canonical "20 cm²" becomes "19 cm²".
+ *
+ * resolveEcf yields a bare number, and checked against a bare number a unit
+ * is invisible — "19" would pass with no units issue, so the mini-exam paid
+ * the accuracy mark that a real scheme ties to the units. Putting the value
+ * back into the answer's own frame lets checkAnswer judge the unit exactly as
+ * it does for the canonical answer.
+ *
+ * Numeric only, and only when the canonical answer holds exactly ONE number:
+ * then whatever surrounds it is the unit (or a £/%), and swapping that number
+ * is unambiguous. Anything else ("1.5 × 10^3", "1,200 m") keeps the bare
+ * value, which is exactly the old behaviour.
+ */
+function inAnswerFrame(b: BlankCheck, expected: string): string {
+  if (b.answer_type !== 'numeric') return expected
+  const numbers = b.answer.match(/-?\d+(?:\.\d+)?/g)
+  if (!numbers || numbers.length !== 1) return expected
+  return b.answer.replace(numbers[0], expected)
+}
+
+/** The follow-through message, plus the unit nudge when the unit was off. */
+function followThroughMessage(unitsIssue: CheckResult['unitsIssue']): string {
+  const base = 'Correct, following through from your earlier answer'
+  if (unitsIssue === 'missing') return `${base} — but always write the units. An answer without them costs you the final mark in an exam.`
+  if (unitsIssue === 'wrong') return `${base} — but check your units. In an exam a wrong unit costs you the final mark.`
+  return `${base}.`
+}
+
 export function checkMultiBlank(blanks: BlankCheck[]): MultiBlankResult {
   // Pass 1 — mark every blank on its own merits.
   const results: BlankResult[] = blanks.map(b => {
@@ -109,15 +139,18 @@ export function checkMultiBlank(blanks: BlankCheck[]): MultiBlankResult {
     // exactly as they do for the canonical answer. Traps are dropped: a value
     // that legitimately follows through isn't a misconception, so trap
     // feedback would actively mislead.
-    const res = checkAnswer(b.student, expected, b.answer_type, b.tolerance, [], b.requires_simplest, b.answer_template, undefined, b.requires_fraction_form)
+    const res = checkAnswer(b.student, inAnswerFrame(b, expected), b.answer_type, b.tolerance, [], b.requires_simplest, b.answer_template, undefined, b.requires_fraction_form)
     if (!res.correct) continue
     results[i] = {
       label: b.label,
       student: b.student,
       correct: true,
       followThrough: true,
+      // Carried so the mini-exam withholds the accuracy mark, as it does for
+      // a unit slip on a blank that was right outright.
+      ...(res.unitsIssue ? { unitsIssue: res.unitsIssue } : {}),
       trap: null,
-      message: 'Correct, following through from your earlier answer.',
+      message: followThroughMessage(res.unitsIssue),
     }
   }
 
