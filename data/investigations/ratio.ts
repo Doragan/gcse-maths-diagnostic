@@ -837,4 +837,24 @@ export const ratioInvestigation: Investigation = {
     '245fb5b8-cb5a-497e-ae90-1e98f3beadcf',  // ratio share, then a percentage spent (d4)
     'fd9dd6b4-29dc-4e85-9014-09fc4d6ca32b',  // ratio share, then growth (d4)
   ],
+  /**
+   * The sections that teach this skill's other published questions
+   * (docs/audit/33, D1). The checks map themselves.
+   */
+  questionSections: {
+    // Three people and a difference ((a) a fraction, (b) the total).
+    '8fae0cf9-b732-4cb4-a82a-21b7533b9efa': 4,
+    // AP : PB on a line: AP is a fraction of AB — section 3's part to whole.
+    '9657a229-39b6-4e14-8141-dbf358cfcb10': 3,
+    // A share, then something done with it.
+    'fd9dd6b4-29dc-4e85-9014-09fc4d6ca32b': 1,
+    '245fb5b8-cb5a-497e-ae90-1e98f3beadcf': 1,
+    // (a) the fraction one share is, (b) a percentage spent.
+    '8c70c92c-382d-46a5-9b0e-3f34e0313c66': 3,
+    // No section: simplifying a ratio is its own skill, deliberately not a
+    // section, and so are ratios of areas and volumes.
+    '9e709cea-54e8-4d83-a31d-b98ff17b3e82': null,
+    '1e87919a-ac8c-435d-9ac5-c2fc0a4ff05d': null,
+    '38aa836d-cb1c-4f74-9a58-0fd2ac116bac': null,
+  },
 }

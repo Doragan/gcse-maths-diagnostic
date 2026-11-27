@@ -406,3 +406,61 @@ export function nextSection(i: number, complete: readonly boolean[]): number | '
   const gap = complete.findIndex(c => !c)
   return gap === -1 ? 'finish' : gap
 }
+
+// ─── Which section teaches a question ────────────────────────────────────────
+
+/** What an investigation's sections are, read once: titles, checks and rule tags. */
+type SectionFacts = { titles: string[]; checks: Map<string, number>; claims: Map<string, Set<number>> }
+const factsCache = new WeakMap<Investigation, SectionFacts>()
+
+function sectionFacts(inv: Investigation): SectionFacts {
+  const hit = factsCache.get(inv)
+  if (hit) return hit
+  // Titles and checks do not change with the draw; every draw is walked
+  // anyway, so a check that only some draws carry is still found.
+  const draws = allDraws(inv.parameters)
+  const titles = inv.build(draws[0]).map(s => s.title)
+  const checks = new Map<string, number>()
+  const claims = new Map<string, Set<number>>()
+  for (const p of draws) {
+    inv.build(p).forEach((stage, i) => {
+      for (const c of stage.check ?? []) if (!checks.has(c.questionId)) checks.set(c.questionId, i)
+      for (const slot of stage.conclude.slots) {
+        for (const tag of slot.misconception) if (tag) claims.set(tag, (claims.get(tag) ?? new Set()).add(i))
+      }
+    })
+  }
+  const facts = { titles, checks, claims }
+  factsCache.set(inv, facts)
+  return facts
+}
+
+/** Each section's title, in order. */
+export const sectionTitles = (inv: Investigation): readonly string[] => sectionFacts(inv).titles
+
+/**
+ * The section (0-based) that teaches what went wrong on `questionId`, or null
+ * for the investigation from the start (docs/audit/33, D1).
+ *
+ * In order:
+ *   1. the matched trap's misconception, when exactly ONE section's rule is
+ *      tagged with it — the most specific thing known about the mistake;
+ *   2. the question, when it is one of a section's own checks;
+ *   3. the question in the investigation's authored `questionSections`.
+ * Tags alone cannot do the work: most wrong answers carry none, and most tags
+ * belong to several sections (measured in doc 33).
+ */
+export function sectionForQuestion(
+  inv: Investigation,
+  questionId: string,
+  misconception?: string | null,
+): number | null {
+  const { titles, checks, claims } = sectionFacts(inv)
+  const claimed = misconception ? claims.get(misconception) : undefined
+  if (claimed?.size === 1) return [...claimed][0]
+  const check = checks.get(questionId)
+  if (check !== undefined) return check
+  const authored = inv.questionSections?.[questionId]
+  if (authored == null) return null
+  return authored >= 1 && authored <= titles.length ? authored - 1 : null
+}

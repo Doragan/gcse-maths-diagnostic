@@ -450,6 +450,18 @@ export type Investigation = {
    * which is the honest fallback while the bank has nothing suitable.
    */
   transferQuestionIds: readonly string[]
+  /**
+   * Which section teaches each published question on this skill, 1-based,
+   * so that a wrong answer on it can open THAT section (docs/audit/33, D1).
+   *
+   * A section's own checks map to it without being listed here. `null` says,
+   * on purpose, that no section teaches the question — its hard part is
+   * another skill (simplifying a ratio, bounds, similar solids) — and the card
+   * then offers the investigation from the start, as it always did.
+   * scripts/audit-question-sections.ts lists any published question on the
+   * skill that is neither a check nor listed, so none goes unmapped silently.
+   */
+  questionSections?: Readonly<Record<string, number | null>>
 }
 
 /** An investigation with its parameters drawn, ready to render. */

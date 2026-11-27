@@ -685,4 +685,17 @@ export const proportionInvestigation: Investigation = {
     '7a289a0d-e649-49d5-9777-b379d8971de0',  // best buy, then a percentage discount (d4)
     '1c9336cc-b9e4-4e1f-a6f6-f02626063b6a',  // a filling rate, scaled and converted (d4)
   ],
+  /**
+   * The sections that teach this skill's other published questions
+   * (docs/audit/33, D1). The checks map themselves.
+   */
+  questionSections: {
+    // Best buys between two shops.
+    'e83de5b6-b512-4054-a861-b758cc4a247f': 3,
+    '7a289a0d-e649-49d5-9777-b379d8971de0': 3,
+    // Most crowded: comparing per km², a unit price in another coat.
+    'd755a649-bb08-459b-9460-9ed169efffdc': 3,
+    // Bottles every few minutes, for hours: through one, then multiply.
+    '1c9336cc-b9e4-4e1f-a6f6-f02626063b6a': 1,
+  },
 }

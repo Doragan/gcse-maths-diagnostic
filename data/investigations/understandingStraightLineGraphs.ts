@@ -657,4 +657,16 @@ export const understandingStraightLineGraphsInvestigation: Investigation = {
     '4287173a-9ec0-4d43-b9db-43da2230e5b3',  // gradient from two points (d3, multi-part)
     'f6ac7079-92b4-4912-a1e7-66d3e6bbf871',  // rearrange to find the gradient (d4)
   ],
+  /**
+   * The sections that teach this skill's other published questions
+   * (docs/audit/33, D1). The checks map themselves.
+   */
+  questionSections: {
+    // Gradient from ax + by = c: reading off the gradient, as section 3's check does.
+    'f6ac7079-92b4-4912-a1e7-66d3e6bbf871': 3,
+    // (a) the gradient between two points, (b) the equation: (a) is section 3 exactly.
+    '4287173a-9ec0-4d43-b9db-43da2230e5b3': 3,
+    // A perpendicular through a point: the same move as section 2's parallel check.
+    'a0b123af-b920-42ac-8383-69cb7cda4759': 2,
+  },
 }
