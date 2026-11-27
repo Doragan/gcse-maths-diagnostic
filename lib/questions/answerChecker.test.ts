@@ -286,6 +286,29 @@ describe('ratio', () => {
     expect(r.correct).toBe(true)
     expect(r.message).toMatch(/simplif/i)
   })
+  // The flag the mini-exam reads to keep the method marks (examPaper's
+  // methodCredit). Practice is untouched: still wrong, same message.
+  it('flags a right-valued unsimplified ratio or fraction as a simplest-form issue', () => {
+    const ratio = check('4:6', '2:3', 'ratio')
+    expect(ratio.correct).toBe(false)
+    expect(ratio.simplestIssue).toBe(true)
+    const fraction = check('180/504', '5/14', 'fraction')
+    expect(fraction.correct).toBe(false)
+    expect(fraction.simplestIssue).toBe(true)
+    expect(fraction.message).toMatch(/right value.*simplest form/i)
+  })
+  it('does not flag a simplest-form issue anywhere else', () => {
+    // Accepted with a reminder: nothing was withheld, so nothing to flag.
+    expect(checkAnswer('4:6', '2:3', 'ratio', null, [], false).simplestIssue).toBeUndefined()
+    expect(checkAnswer('6/8', '3/4', 'fraction', null, [], false).simplestIssue).toBeUndefined()
+    // Already simplest, or genuinely wrong.
+    expect(check('2:3', '2:3', 'ratio').simplestIssue).toBeUndefined()
+    expect(check('3:2', '2:3', 'ratio').simplestIssue).toBeUndefined()
+    expect(check('5/12', '5/14', 'fraction').simplestIssue).toBeUndefined()
+    // A decimal shows none of the simplifying, so it is a different failure
+    // and keeps no method marks from this route.
+    expect(check('0.75', '3/4', 'fraction').simplestIssue).toBeUndefined()
+  })
   it('accepts the simplified ratio cleanly (no reminder)', () => {
     const r = check('2:3', '2:3', 'ratio')
     expect(r.correct).toBe(true)

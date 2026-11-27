@@ -152,7 +152,12 @@ export type PaperScore = {
 /**
  * Marks a wrong-but-attempted answer may still have earned for method.
  *
- * Three rules, in order:
+ * Four rules, in order:
+ *   - the RIGHT VALUE left unsimplified (`simplestIssue`, on a question that
+ *     demanded simplest form) pays every method mark, confirmed: the value
+ *     proves the whole method, and only the final accuracy mark — the
+ *     simplifying — is withheld. The same shape as a units slip on a right
+ *     answer (see gradeUnits);
  *   - a trap that the author marked as proving method PAYS OUT — that credit is
  *     confirmed, not uncertain, because the trap identifies the exact slip;
  *   - otherwise the marks stay UNKNOWN at the evidence rate for a part that
@@ -166,12 +171,13 @@ export type PaperScore = {
  */
 function methodCredit(
   marks: number,
-  trap: { method_marks?: number } | null,
+  { trap, simplestIssue }: { trap: { method_marks?: number } | null; simplestIssue?: true },
 ): { awarded: number; unknown: number } {
   if (marks <= 1) return { awarded: 0, unknown: 0 }
   // Clamped so a mis-authored trap can never pay more than the part is worth,
   // nor pay for the accuracy mark that needs the right answer.
   const ceiling = marks - 1
+  if (simplestIssue) return { awarded: ceiling, unknown: 0 }
   if (trap && typeof trap.method_marks === 'number') {
     return { awarded: Math.max(0, Math.min(trap.method_marks, ceiling)), unknown: 0 }
   }
@@ -431,7 +437,7 @@ function gradeBlankGroup(
     // marks — so adding a method estimate on top would pay twice for the same
     // work. Only plain per-blank scoring has a blind spot to fill.
     const credit = (!bands && !r.correct && answered)
-      ? methodCredit(u.marks, r.trap)
+      ? methodCredit(u.marks, r)
       : { awarded: 0, unknown: 0 }
     earned += unitMarks + credit.awarded
     unknown += credit.unknown
@@ -548,7 +554,7 @@ export function gradeUnits(
         continue
       }
       // Wrong, but attempted — the only place method marks arise.
-      const credit = methodCredit(u.marks, check.trap)
+      const credit = methodCredit(u.marks, check)
       earned += credit.awarded
       unknown += credit.unknown
       results[u.key] = {
