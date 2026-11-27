@@ -9,6 +9,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { FOUNDER_SEAT_CAP, founderSeatsLeft } from '../founderSeats'
+import { DEMO_SEED_PATTERN, demoSeedStudentIds } from '../demoSeed'
 import {
   summariseStudents,
   summariseTraffic,
@@ -107,7 +108,13 @@ export async function loadDailyDigestInput(
       .range(from, to),
   )
 
-  const activeIds = [...new Set(attempts.map(a => a.student_id))]
+  // Seeded demo students are excluded from every figure below. They carry
+  // backdated attempts, so they do not just inflate a total — they appear as
+  // active users inside the exact windows this report measures. See lib/demoSeed.
+  const seeded = await demoSeedStudentIds(supabase)
+  const realAttempts = attempts.filter(a => !seeded.has(a.student_id))
+
+  const activeIds = [...new Set(realAttempts.map(a => a.student_id))]
   const firstAttemptAt: Record<string, string> = {}
   await inChunks(activeIds, async id => {
     const first = await practiceEdge(supabase, id, true)
@@ -117,11 +124,15 @@ export async function loadDailyDigestInput(
   const { count: totalStudents, error: countErr } = await supabase
     .from('students')
     .select('id', { count: 'exact', head: true })
+    .not('display_name', 'ilike', DEMO_SEED_PATTERN)
   if (countErr) throw new Error(countErr.message)
 
+  // No seeded student currently carries paid_until, but the seed is free to
+  // change and a phantom payer in this list would be read as revenue.
   const { data: paidRows, error: paidErr } = await supabase
     .from('students')
     .select('id, paid_until')
+    .not('display_name', 'ilike', DEMO_SEED_PATTERN)
     .gt('paid_until', now.toISOString())
     .order('paid_until', { ascending: true })
     .order('id', { ascending: true })
@@ -143,7 +154,7 @@ export async function loadDailyDigestInput(
   return {
     dateLabel,
     traffic: summariseTraffic(events, todayStartMs),
-    students: summariseStudents(attempts, firstAttemptAt, todayStartMs),
+    students: summariseStudents(realAttempts, firstAttemptAt, todayStartMs),
     totalStudents: totalStudents ?? 0,
     paidCount: (paidRows ?? []).length,
     paid,
