@@ -18,19 +18,34 @@ import { writeFileSync } from 'fs'
 const sel = { sel: { type: 'integer', min: 0, max: 5 } }
 
 // ── Section 3: best buy ─────────────────────────────────────────────────────
-// [rolls in A, A's price in pence, rolls in B, B's price in pence]. Every
-// price for one roll is whole pence, the two never tie, and neither trap — the
-// worse pack's roll, the cheaper pack's whole price — renders as the answer.
-// None is a scenario from the investigation's own prediction.
-const A3 = '[4,5,3,6,8,10][sel]'
-const PA3 = '[320,400,270,420,560,650][sel]'
-const B3 = '[6,8,4,4,5,6][sel]'
-const PB3 = '[450,680,340,300,375,420][sel]'
-const ONE_A = `(${PA3}/${A3})`
-const ONE_B = `(${PB3}/${B3})`
-const BEST = `Math.min(${ONE_A},${ONE_B})`
-const WORST = `Math.max(${ONE_A},${ONE_B})`
-const WIN = `(${ONE_A}<${ONE_B}?'A':'B')`
+// Rewritten at review (2026-11-27). It used to say "work out the price of one
+// roll in that pack", which named the method the section is checking. Now Sam
+// needs a number of rolls and buys only the better-value pack: the answer is
+// what Sam pays, which any method of comparing reaches — price per roll, or
+// pricing the same number of rolls both ways — and saying the pack is not
+// enough to score.
+//
+// [rolls in A, A's price in pence, rolls in B, B's price in pence, rolls
+// needed]. The rolls needed is a whole number of packs of EITHER, so both
+// totals exist; the packs never tie; three sets favour A and three B; and no
+// trap renders as the answer. None is a scenario from the investigation.
+const A3 = '[4,3,6,5,8,10][sel]'
+const PA3 = '[320,270,420,400,560,700][sel]'
+const B3 = '[6,4,4,2,6,4][sel]'
+const PB3 = '[450,340,300,170,450,260][sel]'
+const N3 = '[12,12,12,10,24,20][sel]'
+/** What N rolls cost bought as packs of A, and as packs of B, in pence. */
+const TOTAL_A = `(${N3}/${A3}*${PA3})`
+const TOTAL_B = `(${N3}/${B3}*${PB3})`
+const A_WINS = `(${TOTAL_A}<${TOTAL_B})`
+const WIN = `(${A_WINS}?'A':'B')`
+const pounds = (pence: string) => `£{{(${pence}/100).toFixed(2)}}`
+const BEST = `Math.min(${TOTAL_A},${TOTAL_B})`
+const WORST = `Math.max(${TOTAL_A},${TOTAL_B})`
+/** The better pack's own price, size and how many of it Sam buys. */
+const WIN_PRICE = `(${A_WINS}?${PA3}:${PB3})`
+const WIN_SIZE = `(${A_WINS}?${A3}:${B3})`
+const LOSE_SIZE = `(${A_WINS}?${B3}:${A3})`
 
 // ── Section 4: whole batches ────────────────────────────────────────────────
 // [oats per batch, butter per batch, oats in stock, butter in stock], grams.
@@ -59,32 +74,40 @@ const QUESTIONS = [
   {
     ...base,
     id: '4dc5016f-c058-4a7e-ba28-020012571dd7',
-    difficulty: 2,
+    difficulty: 3,
     calculator: 'non_calc',
     question_type: 'numeric',
     answer_type: 'numeric',
     tolerance: 0,
-    question_template: '<p>A shop sells kitchen rolls in two packs.</p>'
-      + `<p><strong>Pack A:</strong> {{${A3}}} rolls for <strong>£{{(${PA3}/100).toFixed(2)}}</strong><br>`
-      + `<strong>Pack B:</strong> {{${B3}}} rolls for <strong>£{{(${PB3}/100).toFixed(2)}}</strong></p>`
-      + '<p>Which pack is better value? Work out the price of one roll in that pack, in pence.</p>',
-    answer_template: `{{${BEST}}}p`,
-    explanation: `One roll in pack A: {{${PA3}}}p ÷ {{${A3}}} = {{${ONE_A}}}p.<br>`
-      + `One roll in pack B: {{${PB3}}}p ÷ {{${B3}}} = {{${ONE_B}}}p.<br>`
-      + `A roll is cheaper in pack {{${WIN}}}, so pack {{${WIN}}} is better value: <strong>{{${BEST}}}p</strong> a roll.`,
+    question_template: `<p>Sam needs exactly <strong>{{${N3}}}</strong> kitchen rolls. A shop sells them `
+      + 'in two packs.</p>'
+      + `<p><strong>Pack A:</strong> {{${A3}}} rolls for <strong>${pounds(PA3)}</strong><br>`
+      + `<strong>Pack B:</strong> {{${B3}}} rolls for <strong>${pounds(PB3)}</strong></p>`
+      + '<p>Sam buys only the pack that is better value. How much does Sam pay?</p>',
+    answer_template: pounds(BEST),
+    explanation: `{{${N3}}} rolls as pack A: {{${N3}/${A3}}} packs × ${pounds(PA3)} = ${pounds(TOTAL_A)}.<br>`
+      + `{{${N3}}} rolls as pack B: {{${N3}/${B3}}} packs × ${pounds(PB3)} = ${pounds(TOTAL_B)}.<br>`
+      + `The same number of rolls costs less in pack {{${WIN}}}, so pack {{${WIN}}} is better value, and `
+      + `Sam pays <strong>${pounds(BEST)}</strong>.`,
     traps: [
       {
-        answer_template: `{{${WORST}}}p`,
+        answer_template: pounds(WORST),
         misconception: 'answered_a_different_quantity',
-        response: `That is one roll in the pack that is WORSE value. One roll costs {{${ONE_A}}}p in A `
-          + `and {{${ONE_B}}}p in B, so the better value is the cheaper roll: {{${BEST}}}p, in pack {{${WIN}}}.`,
+        response: `That is what {{${N3}}} rolls cost in the pack that is WORSE value. Bought as pack A they `
+          + `cost ${pounds(TOTAL_A)}, and as pack B ${pounds(TOTAL_B)} — so pack {{${WIN}}} is better `
+          + `value, and Sam pays ${pounds(BEST)}.`,
       },
       {
-        answer_template: `{{Math.min(${PA3},${PB3})}}p`,
-        misconception: 'compared_unlike_quantities',
-        response: `That is the price of the cheaper whole PACK. The packs hold different numbers of rolls, `
-          + `so their prices cannot be compared — compare one roll in each: {{${ONE_A}}}p in A and `
-          + `{{${ONE_B}}}p in B. The better value is {{${BEST}}}p a roll.`,
+        answer_template: pounds(WIN_PRICE),
+        misconception: 'stopped_one_step_early',
+        response: `That is ONE pack {{${WIN}}} — the right pack, but it holds only {{${WIN_SIZE}}} rolls. `
+          + `Sam needs {{${N3}}}, which is {{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
+      },
+      {
+        answer_template: pounds(`${N3}/${LOSE_SIZE}*${WIN_PRICE}`),
+        response: `That buys {{${N3}/${LOSE_SIZE}}} packs of {{${WIN}}} — as many as Sam would need of pack `
+          + `{{${A_WINS}?'B':'A'}}. Pack {{${WIN}}} holds {{${WIN_SIZE}}} rolls, so {{${N3}}} rolls is `
+          + `{{${N3}/${WIN_SIZE}}} packs: ${pounds(BEST)}.`,
       },
     ],
   },

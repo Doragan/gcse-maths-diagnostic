@@ -45,10 +45,15 @@ const Q_PENS = 'f7e179b6-8dbe-4e55-9d08-d42bc35781be'
  */
 const Q_RECIPE = 'a653ffa7-038e-434e-90a5-d692e9fa8675'
 /**
- * "Pack A: a rolls for £x. Pack B: b rolls for £y. Work out the price of one
- * roll in the pack that is better value." (d2, numeric, pence) — written for
- * section 3 (scripts/draft-proportion.ts). Its traps are the worse pack's
- * price for one and the cheaper pack's whole price.
+ * "Sam needs exactly N kitchen rolls. Pack A: a rolls for £x. Pack B: b rolls
+ * for £y. Sam buys only the better-value pack. How much does Sam pay?" (d3,
+ * numeric) — written for section 3 (scripts/draft-proportion.ts).
+ *
+ * It once asked for "the price of one roll in that pack", which named the
+ * method the section checks (review, 2026-11-27). Now any way of comparing
+ * reaches the answer, and naming the pack alone does not. Its traps are the
+ * worse pack's total, one pack of the right one, and the right pack bought as
+ * many times as the other would take.
  */
 const Q_BEST_BUY = '4dc5016f-c058-4a7e-ba28-020012571dd7'
 /**
@@ -495,9 +500,9 @@ function stageThree(p: Params): Stage {
     check: [
       {
         questionId: Q_BEST_BUY,
-        because: 'The section exactly: two packs, two prices, and the price of one in the better '
-          + 'one. Its traps are the worse pack\'s price for one and the cheaper pack\'s whole '
-          + 'price.',
+        because: 'The section exactly: two packs, two prices, and a decision about which is better '
+          + 'value — without being told to compare the price of one. Its traps are the worse '
+          + 'pack\'s total, one pack of the right one, and the wrong number of packs.',
       },
     ],
   }
