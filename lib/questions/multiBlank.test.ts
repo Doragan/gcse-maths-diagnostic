@@ -125,6 +125,72 @@ describe('checkMultiBlank — errors carried forward', () => {
     expect(ecfPair('dunno', '16').blanks[0].correct).toBe(false)
   })
 
+  // The ECF target used to be a bare number, so a unit was invisible to it.
+  describe('units on a follow-through', () => {
+    const cmPair = (aStudent: string, answer = '14 cm') => checkMultiBlank([
+      blank({ label: 'A', student: aStudent, answer, ecf: '[[F]] - 4' }),
+      blank({ label: 'F', student: '20', answer: '18' }),
+    ])
+
+    it('flags a follow-through that leaves off the unit, and says so', () => {
+      const r = cmPair('16').blanks[0]
+      expect(r.correct).toBe(true)
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBe('missing')
+      expect(r.message).toMatch(/^Correct, following through.*write the units/)
+    })
+
+    it('flags a follow-through in the wrong unit', () => {
+      const r = cmPair('16 mm').blanks[0]
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBe('wrong')
+      expect(r.message).toMatch(/check your units/)
+    })
+
+    it('passes a follow-through with the unit cleanly', () => {
+      const r = cmPair('16 cm').blanks[0]
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBeUndefined()
+      expect(r.message).toBe('Correct, following through from your earlier answer.')
+    })
+
+    it('follows through from a sibling the student wrote WITH its unit', () => {
+      // Used to read "20 cm" as NaN and switch follow-through off entirely.
+      for (const f of ['20 cm', '20cm', '20 cm²', '£20', '20%', '20 m/s', ' 20 ']) {
+        const r = checkMultiBlank([
+          blank({ label: 'A', student: '16 cm', answer: '14 cm', ecf: '[[F]] - 4' }),
+          blank({ label: 'F', student: f, answer: '18 cm' }),
+        ]).blanks[0]
+        expect(r.followThrough, f).toBe(true)
+      }
+    })
+
+    it('still refuses a sibling that is not a number once units are gone', () => {
+      // Each A is what a too-loose read of F would make consistent (F − 4), so
+      // the test fails if any of these is read as a number at all.
+      const misreads: [string, string][] = [
+        ['cm', '-4'],             // read as 0
+        ['dunno cm', '-4'],
+        ['1,200 cm', '1196'],     // read as 1200
+        ['2 or 3', '-2'],         // read as its first number
+        ['20 cm 5', '16'],        // read as its first number
+      ]
+      for (const [f, a] of misreads) {
+        const r = checkMultiBlank([
+          blank({ label: 'A', student: a, answer: '14', ecf: '[[F]] - 4' }),
+          blank({ label: 'F', student: f, answer: '18' }),
+        ]).blanks[0]
+        expect(r.followThrough, f).toBeUndefined()
+      }
+    })
+
+    it('treats a £ as notation on a follow-through too, as on a plain answer', () => {
+      const r = cmPair('16', '£14').blanks[0]
+      expect(r.followThrough).toBe(true)
+      expect(r.unitsIssue).toBeUndefined()
+    })
+  })
+
   it('ignores an unknown or self-referential label rather than crediting it', () => {
     const unknown = checkMultiBlank([
       blank({ label: 'A', student: '16', answer: '14', ecf: '[[Z]] - 4' }),

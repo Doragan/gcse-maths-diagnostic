@@ -131,3 +131,125 @@ describe('multi_blank in exam mode — banded marks', () => {
     expect(items[0].units[1].marks).toBe(0)
   })
 })
+
+/**
+ * Right value, not in simplest form, on a question that demanded it.
+ *
+ * 54ab9bbb (4 marks, P(exactly two red) without replacement): 180/504 for 5/14
+ * proves the whole method — only the cancelling is missing — so an examiner
+ * pays M3 and withholds the A1. It used to score like a blind wrong answer:
+ * 0 confirmed, plus only the unknown share.
+ */
+describe('exam mode — right value left unsimplified', () => {
+  const fractionQ = (over: Partial<QuestionRow> = {}): QuestionRow => ({
+    id: 'qs',
+    skill_ids: ['probability_without_replacement'],
+    difficulty: 3,
+    calculator: 'na',
+    kind: 'mastery',
+    marks: 4,
+    question_type: 'fraction',
+    question_template: 'Find P(exactly two red).',
+    answer_template: '5/14',
+    answer_type: 'fraction',
+    tolerance: null,
+    requires_simplest: true,
+    // With replacement instead of without: a real slip, one method mark.
+    traps: [{ answer_template: '25/98', response: 'You replaced the counter.', method_marks: 1 }],
+    explanation: '',
+    image_url: null,
+    parameters: {} as never,
+    parts: null,
+    ...over,
+  })
+  const grade = (row: QuestionRow, answer: string) => {
+    const g = gradeUnits([buildItem(row, 1)], { [`${row.id}:0`]: answer })
+    return { ...g, r: g.results[`${row.id}:0`] }
+  }
+
+  it('pays every method mark and withholds only the accuracy mark', () => {
+    const { earned, unknown, r } = grade(fractionQ(), '180/504')
+    expect(r.correct).toBe(false) // still wrong for practice and the skill map
+    expect(r.message).toMatch(/simplest form/i)
+    expect(earned).toBe(3)
+    expect(r.marksEarned).toBe(3)
+    expect(r.methodAwarded).toBe(3)
+    // Confirmed, not a guess: nothing is left uncertain.
+    expect(unknown).toBe(0)
+    expect(r.marksUnknown).toBeUndefined()
+  })
+
+  it('still pays full marks for the simplified answer', () => {
+    const { earned, unknown, r } = grade(fractionQ(), '5/14')
+    expect(r.correct).toBe(true)
+    expect(earned).toBe(4)
+    expect(unknown).toBe(0)
+  })
+
+  it('pays nothing on a 1-mark part — the only mark is the simplified answer', () => {
+    const { earned, unknown, r } = grade(fractionQ({ marks: 1 }), '180/504')
+    expect(earned).toBe(0)
+    expect(unknown).toBe(0)
+    expect(r.methodAwarded).toBeUndefined()
+  })
+
+  it('pays full marks, with the reminder, where simplest form was not demanded', () => {
+    const { earned, unknown, r } = grade(fractionQ({ requires_simplest: false }), '180/504')
+    expect(r.correct).toBe(true)
+    expect(r.message).toMatch(/simplif/i)
+    expect(earned).toBe(4)
+    expect(unknown).toBe(0)
+  })
+
+  it('pays a trap value given unsimplified its own method marks, not marks − 1', () => {
+    // 50/196 is the with-replacement trap 25/98, uncancelled. The value is the
+    // trap's, not the answer's, so the trap's verdict on the method stands.
+    const { earned, unknown, r } = grade(fractionQ(), '50/196')
+    expect(r.message).toBe('You replaced the counter.')
+    expect(earned).toBe(1)
+    expect(r.methodAwarded).toBe(1)
+    expect(unknown).toBe(0)
+  })
+
+  it('treats an unsimplified ratio the same way', () => {
+    const ratioQ = fractionQ({
+      question_type: 'ratio', answer_type: 'ratio', answer_template: '2:3', marks: 3, traps: [],
+    })
+    const { earned, unknown, r } = grade(ratioQ, '24:36')
+    expect(r.correct).toBe(false)
+    expect(earned).toBe(2)
+    expect(unknown).toBe(0)
+  })
+
+  it('applies to a multi_blank blank too', () => {
+    const multi: QuestionRow = fractionQ({
+      id: 'qm',
+      question_type: 'multi_blank',
+      answer_template: '',
+      answer_type: 'multi_blank' as never,
+      traps: [],
+      parts: [{
+        prompt: 'Fill in both.',
+        skill_ids: ['probability_without_replacement'],
+        answer_template: '',
+        answer_type: 'multi_blank',
+        tolerance: null,
+        requires_simplest: true,
+        traps: [],
+        marks: 3,
+        kind: 'mastery',
+        explanation: '',
+        blanks: [
+          { label: 'A', prompt: 'P(two red)', answer_template: '5/14', answer_type: 'fraction', tolerance: null, requires_simplest: true, traps: [], marks: 2 },
+          { label: 'B', prompt: 'P(none red)', answer_template: '1/14', answer_type: 'fraction', tolerance: null, requires_simplest: true, traps: [], marks: 1 },
+        ],
+      }] as never,
+    })
+    const { results, earned, unknown } = gradeUnits([buildItem(multi, 1)], { 'qm:0:0': '180/504', 'qm:0:1': '1/14' })
+    expect(results['qm:0:0'].correct).toBe(false)
+    expect(results['qm:0:0'].marksEarned).toBe(1) // 2-mark blank, accuracy withheld
+    expect(results['qm:0:0'].methodAwarded).toBe(1)
+    expect(earned).toBe(2)
+    expect(unknown).toBe(0)
+  })
+})

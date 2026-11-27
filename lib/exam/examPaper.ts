@@ -152,7 +152,12 @@ export type PaperScore = {
 /**
  * Marks a wrong-but-attempted answer may still have earned for method.
  *
- * Three rules, in order:
+ * Four rules, in order:
+ *   - the RIGHT VALUE left unsimplified (`simplestIssue`, on a question that
+ *     demanded simplest form) pays every method mark, confirmed: the value
+ *     proves the whole method, and only the final accuracy mark — the
+ *     simplifying — is withheld. The same shape as a units slip on a right
+ *     answer (see gradeUnits);
  *   - a trap that the author marked as proving method PAYS OUT — that credit is
  *     confirmed, not uncertain, because the trap identifies the exact slip;
  *   - otherwise the marks stay UNKNOWN at the evidence rate for a part that
@@ -166,12 +171,13 @@ export type PaperScore = {
  */
 function methodCredit(
   marks: number,
-  trap: { method_marks?: number } | null,
+  { trap, simplestIssue }: { trap: { method_marks?: number } | null; simplestIssue?: true },
 ): { awarded: number; unknown: number } {
   if (marks <= 1) return { awarded: 0, unknown: 0 }
   // Clamped so a mis-authored trap can never pay more than the part is worth,
   // nor pay for the accuracy mark that needs the right answer.
   const ceiling = marks - 1
+  if (simplestIssue) return { awarded: ceiling, unknown: 0 }
   if (trap && typeof trap.method_marks === 'number') {
     return { awarded: Math.max(0, Math.min(trap.method_marks, ceiling)), unknown: 0 }
   }
@@ -424,22 +430,25 @@ function gradeBlankGroup(
     const answered = (answers[u.key] ?? '').trim() !== ''
     // Under a banded scheme the first unit carries the part's marks; otherwise
     // each blank earns its own.
+    // A unit slip on a right blank (or a right follow-through) keeps the
+    // method marks and loses the accuracy mark — the same rule gradeUnits
+    // applies to a scalar answer. Banded parts are left alone: a band prices
+    // the count of right blanks, with no accuracy mark of its own to withhold.
     const unitMarks = bands
       ? (i === 0 ? partMarks : 0)
-      : (r.correct ? u.marks : 0)
+      : (r.correct ? (r.unitsIssue ? Math.max(0, u.marks - 1) : u.marks) : 0)
     // A banded part already prices partial success — its bands ARE the method
     // marks — so adding a method estimate on top would pay twice for the same
     // work. Only plain per-blank scoring has a blind spot to fill.
     const credit = (!bands && !r.correct && answered)
-      ? methodCredit(u.marks, r.trap)
+      ? methodCredit(u.marks, r)
       : { awarded: 0, unknown: 0 }
     earned += unitMarks + credit.awarded
     unknown += credit.unknown
     results[u.key] = {
       correct: r.correct,
-      message: !answered ? 'Not answered.'
-        : r.followThrough ? 'Correct, following through from your earlier answer.'
-        : r.message,
+      // checkMultiBlank already words a follow-through, unit nudge included.
+      message: !answered ? 'Not answered.' : r.message,
       studentAnswer: answers[u.key] ?? '',
       correctAnswer: u.correctAnswer,
       explanation: u.explanation,
@@ -548,7 +557,7 @@ export function gradeUnits(
         continue
       }
       // Wrong, but attempted — the only place method marks arise.
-      const credit = methodCredit(u.marks, check.trap)
+      const credit = methodCredit(u.marks, check)
       earned += credit.awarded
       unknown += credit.unknown
       results[u.key] = {

@@ -36,6 +36,18 @@ export type CheckResult = {
    * does not carry the unit the question asked for cannot have that mark.
    */
   unitsIssue?: 'missing' | 'wrong'
+  /**
+   * The value is right but not in its simplest form ("180/504" for 5/14, or
+   * "4:6" for 2:3), on a question that demanded simplest form.
+   *
+   * Unlike unitsIssue the answer is NOT `correct`: simplifying is the assessed
+   * skill there, so practice and the skill map refuse it exactly as before.
+   * The flag exists for EXAM scoring, which pays every method mark and
+   * withholds only the final accuracy mark — the right value proves the whole
+   * method, as an examiner would see it. Without the flag the mini-exam could
+   * not tell this apart from a blind wrong answer.
+   */
+  simplestIssue?: true
 }
 
 // ── Expression equivalence helpers ───────────────────────────────────────────
@@ -1579,6 +1591,8 @@ export function checkAnswer(
   if (isUnsimplified && requireSimplest) {
     return {
       correct: false,
+      // Still wrong for practice; the mini-exam keeps the method marks.
+      simplestIssue: true,
       trap:    null,
       // Ratios get a reason; fractions keep the original wording.
       message: answerType === 'ratio' ? unsimplifiedRatioMessage(normStudent) : NOT_SIMPLEST,
