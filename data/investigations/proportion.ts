@@ -59,8 +59,9 @@ const Q_BEST_BUY = '4dc5016f-c058-4a7e-ba28-020012571dd7'
 /**
  * "One batch uses f g of oats and b g of butter. Priya has F g and B g. What
  * is the greatest number of whole batches she can make?" (d2, numeric) —
- * written for section 4. Its traps are the other ingredient's batches and
- * rounding up.
+ * written for section 4. Its traps are the other ingredient's batches, rounding
+ * up, and — added at review (2026-11-27) — the other ingredient rounded up,
+ * and either ingredient's batches left unrounded (to 1 dp and to 2 dp).
  */
 const Q_BATCHES = 'b5a1cec5-2d8e-443a-9742-8dab8db7d69e'
 
@@ -609,7 +610,8 @@ function stageFour(p: Params): Stage {
       {
         questionId: Q_BATCHES,
         because: 'The section exactly: two ingredients, two stocks, and the greatest number of '
-          + 'whole batches. Its traps are the other ingredient\'s batches and rounding up.',
+          + 'whole batches. Its traps are the other ingredient\'s batches, rounding up (either '
+          + 'ingredient), and the batches left unrounded.',
       },
     ],
   }

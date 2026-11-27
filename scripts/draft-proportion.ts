@@ -52,13 +52,21 @@ const LOSE_SIZE = `(${A_WINS}?${B3}:${A3})`
 // The limiting ingredient never makes a whole number of batches (or rounding
 // up would be right), and the other one makes at least two more than it (or
 // "the other ingredient" and "rounded up" would be the same wrong answer).
-const O4 = '[150,250,120,300,200,180][sel]'
-const U4 = '[100,80,90,125,175,60][sel]'
-const SO4 = '[900,1200,900,1000,1500,700][sel]'
-const SU4 = '[350,600,400,800,600,500][sel]'
+//
+// Re-chosen at review (2026-11-27), when traps were added for the other
+// ingredient rounded up and for both left unrounded: BOTH ingredients' batches
+// now recur, so neither is whole and each reads differently to 1 dp and to
+// 2 dp (3.89 and 3.9) — a value that stops, like 3.5 or 7.5, makes those two
+// traps the same answer, and the harness refuses one as unreachable. Found by
+// search; the limiting ingredient alternates, and the answers run 3 to 5.
+const O4 = '[150,240,180,150,120,180][sel]'
+const U4 = '[90,90,70,60,175,60][sel]'
+const SO4 = '[950,1100,1300,800,650,700][sel]'
+const SU4 = '[350,800,300,500,550,500][sel]'
 const BY_O = `(${SO4}/${O4})`
 const BY_U = `(${SU4}/${U4})`
 const FEWEST = `Math.min(${BY_O},${BY_U})`
+const MOST = `Math.max(${BY_O},${BY_U})`
 const SHORT = `(${BY_O}<${BY_U}?'oats':'butter')`
 const OTHER = `(${BY_O}<${BY_U}?'butter':'oats')`
 
@@ -126,14 +134,17 @@ const QUESTIONS = [
     answer_template: `{{Math.floor(${FEWEST})}}`,
     explanation: `Oats: {{${SO4}}} ÷ {{${O4}}} = {{+${BY_O}.toFixed(2)}} batches.<br>`
       + `Butter: {{${SU4}}} ÷ {{${U4}}} = {{+${BY_U}.toFixed(2)}} batches.<br>`
-      + `The {{${SHORT}}} runs out first, and only whole batches count, so Priya can make `
+      + `Priya runs out of {{${SHORT}}} first, and only whole batches count, so she can make `
       + `<strong>{{Math.floor(${FEWEST})}}</strong> batches.`,
+    // Every response names an ingredient only after "of" or as "enough …", so
+    // it reads right whether it is the oats (plural) or the butter: "the oats
+    // runs out" did not (review, 2026-11-27).
     traps: [
       {
         answer_template: `{{Math.floor(Math.max(${BY_O},${BY_U}))}}`,
         misconception: 'answered_a_different_quantity',
-        response: `That is how many batches the {{${OTHER}}} would make on its own. Every batch needs `
-          + `both, and the {{${SHORT}}} runs out first, after {{+${FEWEST}.toFixed(2)}} batches — so `
+        response: `That is how many batches there is enough {{${OTHER}}} for. Every batch needs both, `
+          + `and Priya runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches — so `
           + `{{Math.floor(${FEWEST})}} whole batches.`,
       },
       {
@@ -141,6 +152,31 @@ const QUESTIONS = [
         response: `That rounds {{+${FEWEST}.toFixed(2)}} up. The last batch would be short of `
           + `{{${SHORT}}}, so it cannot be made: only {{Math.floor(${FEWEST})}} whole batches.`,
       },
+      // Added at review (2026-11-27): the other ingredient rounded UP, and both
+      // ingredients' batches left unrounded. The grader matches a trap only
+      // within the question's tolerance, which is 0 for a whole-number answer,
+      // so each unrounded value is caught as a student writes it — to 2 dp and
+      // to 1 dp. The value sets above keep those two apart.
+      {
+        answer_template: `{{Math.ceil(${MOST})}}`,
+        misconception: 'answered_a_different_quantity',
+        response: `That rounds up {{+${MOST}.toFixed(2)}}, the batches there is enough {{${OTHER}}} for. `
+          + `But Priya runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches, and only `
+          + `whole batches count: {{Math.floor(${FEWEST})}}.`,
+      },
+      ...[2, 1].map(dp => ({
+        answer_template: `{{+${FEWEST}.toFixed(${dp})}}`,
+        response: `{{+${FEWEST}.toFixed(2)}} batches is when Priya runs out of {{${SHORT}}} — the right `
+          + 'ingredient. But the question asks for WHOLE batches, and a batch she cannot finish is not a '
+          + `batch, so round down: {{Math.floor(${FEWEST})}}.`,
+      })),
+      ...[2, 1].map(dp => ({
+        answer_template: `{{+${MOST}.toFixed(${dp})}}`,
+        misconception: 'answered_a_different_quantity',
+        response: `{{+${MOST}.toFixed(2)}} batches is when Priya would run out of {{${OTHER}}}, not `
+          + `rounded. But she runs out of {{${SHORT}}} first, after {{+${FEWEST}.toFixed(2)}} batches, and `
+          + `only whole batches count: {{Math.floor(${FEWEST})}}.`,
+      })),
     ],
   },
 ]
