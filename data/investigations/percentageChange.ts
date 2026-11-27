@@ -885,4 +885,25 @@ export const percentageChangeInvestigation: Investigation = {
     '245fb5b8-cb5a-497e-ae90-1e98f3beadcf',  // ratio share, then 20% spent (d4)
     '7a289a0d-e649-49d5-9777-b379d8971de0',  // comparing two shops (d4)
   ],
+  /**
+   * The sections that teach this skill's other published questions
+   * (docs/audit/33, D1). The checks map themselves. Ratio questions with a
+   * percentage step usually open ratio first: a question's own skill order
+   * decides which investigation is offered.
+   */
+  questionSections: {
+    // A best buy with a percentage off: the percentage step is a decrease.
+    '7a289a0d-e649-49d5-9777-b379d8971de0': 3,
+    // Compound interest: a change applied again and again — section 4's idea.
+    '359bbf82-c357-4773-bb87-962b4b08a88b': 4,
+    // A percentage off against a fraction off.
+    'd195ed12-2cc9-4925-9dd6-9506e2d4a55c': 3,
+    // A radius up by p%, the area up by more: changes that multiply, as the pond check.
+    '7536046f-b58f-49f2-8461-b3725bd4a3a8': 4,
+    // (b) the percentage increase from old and new values, as section 2's season-ticket check.
+    '4325c702-af42-4197-9f65-d58251fbdf00': 2,
+    // Ratio shares, then a percentage spent: the percentage step is a decrease.
+    '8c70c92c-382d-46a5-9b0e-3f34e0313c66': 3,
+    '245fb5b8-cb5a-497e-ae90-1e98f3beadcf': 3,
+  },
 }

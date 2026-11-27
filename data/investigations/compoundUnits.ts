@@ -1000,4 +1000,30 @@ export const compoundUnitsInvestigation: Investigation = {
     '127a4998-4aa0-41e9-8a60-3f365936ab67', // mass from density, cuboid (d3)
     '558967df-a83f-4820-b124-bae1f5fc5770', // speed from a distance-time graph (d4)
   ],
+  /**
+   * The sections that teach this skill's other published questions
+   * (docs/audit/33, D1). The checks map themselves. Density is section 1's
+   * rate (mass ÷ volume, like distance ÷ time) and section 2's step back
+   * (rate × amount, like speed × time).
+   */
+  questionSections: {
+    // A speed read off a distance–time graph.
+    '558967df-a83f-4820-b124-bae1f5fc5770': 1,
+    // A cuboid's mass from its density: rate × amount.
+    '48c6804a-a4d8-44b7-ad8b-1e46c2e549df': 2,
+    '127a4998-4aa0-41e9-8a60-3f365936ab67': 2,
+    // Most crowded: people per km², a rate to compare.
+    'd755a649-bb08-459b-9460-9ed169efffdc': 1,
+    // Two densities to work out and compare.
+    '67de4d8a-0e0b-4e83-b1d3-15ef567382f9': 1,
+    // A flow rate over minutes, in litres: the time and unit conversion.
+    '1f4e3b55-ae7c-4117-b094-1b4be223b9d7': 3,
+    // A sphere's volume from its mass and density: amount = total ÷ rate.
+    '40908778-5687-47dc-b97c-84ef230cd1f6': 2,
+    // A two-part journey's average speed.
+    'abc93b14-32f9-42bc-8e78-e82ffaffb8e3': 4,
+    // No section: the hard part is bounds, or similar solids.
+    '8ac2ff8f-108c-46c8-b83d-6b90549c2044': null,
+    'badfd8eb-5fe8-43d3-af66-3b652c21d82c': null,
+  },
 }

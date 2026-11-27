@@ -67,6 +67,8 @@ type FeedbackState = {
   correct: boolean
   message: string
   explanation: string
+  /** The misconception the matched trap named, if any: it picks the section the card offers (docs/audit/33). */
+  misconception?: string | null
 }
 
 // ── Session-lived caches (module scope survives client-side navigations) ──────
@@ -746,6 +748,7 @@ function QuestionPage() {
       correct: result.correct,
       message: result.message,
       explanation: rendered.explanation,
+      misconception: result.trap?.misconception ?? null,
     })
     detectMastery(result.correct)
     recordAttempt(result.correct, result.trap?.misconception ?? null)
@@ -1121,6 +1124,7 @@ function QuestionPage() {
 						correct: result.correct,
 						message: result.message,
 						explanation: rendered.explanation,
+						misconception: result.trap?.misconception ?? null,
 					  })
 					  detectMastery(result.correct)
 					  recordAttempt(result.correct, result.trap?.misconception ?? null)
@@ -1216,9 +1220,13 @@ function QuestionPage() {
               An investigation wins over a briefing where the skill has both:
               a wrong answer is the moment a missing concept shows, and the
               briefing is written for someone who already has it. */}
-          {!feedback.correct && entryForSkills(question.skill_ids, finished) && (
-            <TeachingPrompt entry={entryForSkills(question.skill_ids, finished)!} questionId={question.id} />
-          )}
+          {!feedback.correct && (() => {
+            // The section that teaches THIS mistake, where one does (docs/audit/33).
+            const entry = entryForSkills(question.skill_ids, finished, {
+              questionId: question.id, misconception: feedback.misconception,
+            })
+            return entry && <TeachingPrompt entry={entry} questionId={question.id} />
+          })()}
 
           {/* Animated skill progress dots */}
           {question.skill_ids.length > 0 && (() => {
