@@ -815,8 +815,8 @@ export const ratioInvestigation: Investigation = {
       'explain why, in the ratio 3 : 5, the first share is three eighths of the whole and not three fifths',
     ],
   },
-  underConstruction: 'This one is new and still being worked on. The maths is right, but the '
-    + 'wording and the questions at the end of each section may still change.',
+  // Signed off by the reviewer 2026-11-27, after four review rounds (#281,
+  // #283, #285, #290), and taken out of construction.
   parameters: {
     // One authored scenario per section, by index, so every number divides
     // exactly and the space stays small enough for the tests to walk.
