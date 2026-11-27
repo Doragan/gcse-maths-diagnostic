@@ -10,7 +10,7 @@ import { skillsById } from '../../../../lib/skills/skillGraph'
 import { slugToSkillId, skillPath } from '../../../../lib/skills/slug'
 import { getInvestigation } from '../../../../data/investigations'
 import {
-  resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry, triedValue, splitInputs,
+  resolveInvestigation, predictionCorrect, concludeGate, rejectValue, addValue, showTry, triedValue, splitInputs, inputBase,
   sentenceState, stageComplete, stepNumbers, parseSectionEntry, sectionOpen, nextSection,
   type SectionEntry,
 } from '../../../../lib/skills/investigation'
@@ -633,10 +633,16 @@ export default function InvestigatePage() {
                         </>
                       )}
 
-                      {/* A ratio: a box for each number, colons between, held
-                          in `typed` as "a:b:c" until it is tried. */}
+                      {/* Several boxes, held in `typed` as "a:b:c" until tried:
+                          a ratio, with colons between, or — given an
+                          `inputUnit` — separate amounts, each named and with
+                          its unit, since two stocks are not a ratio. */}
                       {!stage.control.pick && stage.control.inputs && (() => {
                         const names = stage.control.inputs
+                        const unit = stage.control.inputUnit
+                        // Wide enough for the domain's biggest number: 64px
+                        // held one or two digits and clipped "1500".
+                        const width = `${Math.max(64, 16 + 14 * String(stage.control.domain.max).length)}px`
                         const typed = names.map((_, k) => st.typed.split(':')[k] ?? '')
                         const setBox = (k: number, v: string) => typed.map((t, j) => (j === k ? v : t)).join(':')
                         const box = (k: number) => (
@@ -654,9 +660,31 @@ export default function InvestigatePage() {
                             onKeyDown={e => {
                               if (e.key === 'Enter') { e.preventDefault(); draw(i, stage, st.typed) }
                             }}
-                            style={{ ...styles.numberInput, width: '64px' }}
+                            style={{ ...styles.numberInput, width }}
                           />
                         )
+                        const tryButton = (
+                          <button
+                            style={{ ...primaryButton, width: 'auto' }}
+                            onClick={() => draw(i, stage, st.typed)}
+                          >
+                            {drawsIt(stage) ? 'Draw it' : 'Try it'}
+                          </button>
+                        )
+                        if (unit) {
+                          return (
+                            <div style={styles.row}>
+                              {names.map((name, k) => (
+                                <span key={k} style={styles.row}>
+                                  <label htmlFor={`v-${i}-${k}`} style={styles.varLabel}>{name} =</label>
+                                  {box(k)}
+                                  <span style={styles.unit}>{unit}</span>
+                                </span>
+                              ))}
+                              {tryButton}
+                            </div>
+                          )
+                        }
                         return (
                           <div style={styles.row}>
                             <label htmlFor={`v-${i}-0`} style={styles.varLabel}>
@@ -665,12 +693,7 @@ export default function InvestigatePage() {
                             {names.flatMap((_, k) => (k === 0
                               ? [box(k)]
                               : [<span key={`c${k}`} aria-hidden="true" style={styles.varLabel}>:</span>, box(k)]))}
-                            <button
-                              style={{ ...primaryButton, width: 'auto' }}
-                              onClick={() => draw(i, stage, st.typed)}
-                            >
-                              {drawsIt(stage) ? 'Draw it' : 'Try it'}
-                            </button>
+                            {tryButton}
                           </div>
                         )
                       })()}
@@ -716,7 +739,7 @@ export default function InvestigatePage() {
                               key={v}
                               style={styles.chip}
                               onClick={() => draw(i, stage, stage.control!.inputs
-                                ? splitInputs(v, stage.control!.inputs.length).join(':')
+                                ? splitInputs(v, stage.control!.inputs.length, inputBase(stage.control!)).join(':')
                                 : String(v))}
                             >
                               {stage.control!.inputs
@@ -1203,6 +1226,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: radius.sm,
   },
   varLabel: { fontSize: font.lg, fontWeight: '700', fontStyle: 'italic', color: colors.textPrimary },
+  unit: { fontSize: font.base, color: colors.textSecondary },
   numberInput: {
     width: '5.5rem', padding: '8px 10px', fontSize: font.base, fontFamily: 'inherit',
     border: `1px solid ${colors.primary}`, borderRadius: radius.sm,

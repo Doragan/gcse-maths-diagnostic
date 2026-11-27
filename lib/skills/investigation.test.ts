@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   allDraws, drawParams, resolveInvestigation, resolveAt, predictionCorrect, concludeGate,
   rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
-  controlValues, joinInputs, splitInputs, triedValue,
+  controlValues, joinInputs, splitInputs, triedValue, baseFor, inputBase,
   parseSectionEntry, sectionOpen, nextSection,
 } from './investigation'
 import { numbersIn } from './checkValues'
@@ -305,6 +305,33 @@ describe('authoring rules', () => {
     }
   })
 
+  it('never repeats the working in a wrong prediction\'s verdict', () => {
+    // The verdict says what the picked answer WAS; "How to work it out" shows
+    // straight after it, for right and wrong alike (#246). Proportion's first
+    // draft put the working in both, and it printed twice (review, 2026-11-27).
+    // A calculation — "£6 ÷ 4 = £1.50" — that appears in both is the tell.
+    const calc = /[£\d][\d.,£%]*\s*[÷×]\s*[\d.,£%]+\s*=\s*[£\d][\d.,£%…]*/g
+    const tidy = (x: string) => x.replace(/\s+/g, ' ').replace(/[.,]+$/, '')
+    const problems: string[] = []
+    for (const inv of every()) {
+      const seen = new Set<string>()
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          if (seen.has(stage.ask)) return
+          seen.add(stage.ask)
+          const on = stage.predict.on
+          const working = new Set(stage.predict.explain.flatMap(e => e.match(calc) ?? []).map(tidy))
+          for (const w of on.kind === 'choice' ? on.wrong : [on.wrong]) {
+            for (const m of w.match(calc) ?? []) {
+              if (working.has(tidy(m))) problems.push(`${inv.skillId} stage ${i + 1}: "${tidy(m)}" in "${w}"`)
+            }
+          }
+        })
+      }
+    }
+    expect(problems).toEqual([])
+  })
+
   it('resolves every misconception id it tags against the taxonomy', () => {
     // Null is legal and '' means null here; a typo is not, because a tagged
     // wrong answer reaches the teacher's Common mistakes surface.
@@ -494,6 +521,27 @@ describe('a control that takes a ratio', () => {
     expect(triedValue(two, '3:5')).toBe(305)
     expect(triedValue(two, ' 7 : 2 ')).toBe(702)
     expect(triedValue(three, '2:3:5')).toBe(20305)
+  })
+
+  it('gives a box as many digits as its biggest number needs, and never fewer than two', () => {
+    // Two digits a box once capped every box at 99, which grams cannot live
+    // with (proportion section 4 takes stocks up to 1,500 g).
+    expect(baseFor(9)).toBe(100)
+    expect(baseFor(99)).toBe(100)
+    expect(baseFor(100)).toBe(1000)
+    expect(baseFor(1500)).toBe(10000)
+    const grams = {
+      control: { name: 'what Sam has', inputs: ['flour', 'butter'], domain: { min: 10, max: 1500, step: 10 } },
+    } as unknown as Stage
+    expect(triedValue(grams, '1500:10')).toBe(15000010)
+    expect(splitInputs(triedValue(grams, '1500:10'), 2, inputBase(grams.control!))).toEqual([1500, 10])
+    expect(splitInputs(triedValue(grams, '10:1500'), 2, inputBase(grams.control!))).toEqual([10, 1500])
+    // Every pair comes back as itself, so no two pairs share a value.
+    const all = controlValues(grams.control!)
+    expect(all).toHaveLength(150 * 150)
+    expect(new Set(all).size).toBe(all.length)
+    // A ratio's boxes are unchanged.
+    expect(inputBase(two.control!)).toBe(100)
   })
 
   it('walks every set the domain allows, and only the valid ones', () => {

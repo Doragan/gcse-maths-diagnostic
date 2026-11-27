@@ -166,12 +166,23 @@ export function concludeGate(stage: Stage, drawn: readonly number[]): string | n
 }
 
 /** Why a typed value cannot be drawn, or null when it can. */
-/** A several-box control's numbers as the one value its history stores: two digits a box. */
-export const joinInputs = (values: readonly number[]): number => values.reduce((v, x) => v * 100 + x, 0)
+/**
+ * How much one box is worth in a several-box control's stored value: room for
+ * the largest number its domain allows, and never less than two digits a box.
+ *
+ * Fixed at two digits once, which capped every box at 99 — fine for a ratio,
+ * and no use for grams (proportion section 4 takes two stocks up to 1,500 g).
+ */
+export const baseFor = (max: number): number => Math.max(100, 10 ** String(Math.ceil(max)).length)
+export const inputBase = (control: Pick<Control, 'domain'>): number => baseFor(control.domain.max)
+
+/** A several-box control's numbers as the one value its history stores: `base` a box. */
+export const joinInputs = (values: readonly number[], base = 100): number =>
+  values.reduce((v, x) => v * base + x, 0)
 /** The numbers back out of a several-box control's value. */
-export function splitInputs(v: number, n: number): number[] {
+export function splitInputs(v: number, n: number, base = 100): number[] {
   const out: number[] = []
-  for (let k = 0; k < n; k++) { out.unshift(v % 100); v = Math.floor(v / 100) }
+  for (let k = 0; k < n; k++) { out.unshift(v % base); v = Math.floor(v / base) }
   return out
 }
 
@@ -183,7 +194,8 @@ export function controlValues(control: Control): number[] {
   if (!control.inputs) return one
   let sets: number[][] = [[]]
   for (let k = 0; k < control.inputs.length; k++) sets = sets.flatMap(s => one.map(x => [...s, x]))
-  return sets.map(joinInputs).filter(v => !control.valid?.(v))
+  const base = inputBase(control)
+  return sets.map(s => joinInputs(s, base)).filter(v => !control.valid?.(v))
 }
 
 /**
@@ -192,7 +204,7 @@ export function controlValues(control: Control): number[] {
  */
 export function triedValue(stage: Stage, raw: string): number {
   if (!stage.control?.inputs) return Number(raw.trim())
-  return joinInputs(raw.split(':').map(x => Number(x.trim())))
+  return joinInputs(raw.split(':').map(x => Number(x.trim())), inputBase(stage.control))
 }
 
 /** "boys and girls", "Amy, Ben and Cara". */

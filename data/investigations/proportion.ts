@@ -2,6 +2,7 @@ import type { Investigation, Params, Stage } from './types'
 import type { GridLabel, RenderedAxis, RenderedGrid } from '../../lib/questions/gridDraw'
 import { barModelGrid, fitLabel, labelHalfWidth } from '../../lib/skills/investigationFigures'
 import type { BarFill, BarModel } from '../../lib/skills/investigationFigures'
+import { baseFor, joinInputs, splitInputs } from '../../lib/skills/investigation'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Proportion — the fifth investigation.
@@ -172,11 +173,14 @@ function stageOne(p: Params): Stage {
         kind: 'choice',
         options: [money(m * each), money(total + (m - n)), money(each)],
         correct: 0,
+        // What the picked answer WAS, opening with it — the working is in
+        // `explain`, shown straight after, and saying it here too printed it
+        // twice (review lessons, 2026-11-27).
         wrong: [
           '',
-          `That adds ${money(m - n)} for the ${m - n} extra pens, as if each pen cost £1. A pen `
-            + `here costs ${money(total)} ÷ ${n} = ${money(each)}, so ${m - n} more pens cost `
-            + `${m - n} times that.`,
+          `${money(total + (m - n))} adds ${money(m - n)} for the ${m - n} extra pens, as if each pen `
+            // "Not £1", never "more than £1": one set's pens are 80p (seen live).
+            + `cost £1. They are ${money(each)} each here, so every extra pen adds ${money(each)}.`,
           `${money(each)} is ONE pen — the right thing to find first. ${m} pens cost ${m} times it.`,
         ],
       },
@@ -293,11 +297,10 @@ function stageTwo(p: Params): Stage {
         correct: 0,
         wrong: [
           '',
-          `That adds an egg for each of the ${m - n} extra people. But the recipe does not use `
-            + `one egg a person — ${n} people share ${eggs}. ${m} people is ${dec(times)} times as `
-            + `many, so it needs ${dec(times)} times the eggs.`,
-          `That is ${eggs} eggs for EACH of ${m} people. The ${eggs} eggs are for all ${n} of them `
-            + 'together.',
+          `${eggs + m - n} eggs adds an egg for each of the ${m - n} extra people. But the recipe `
+            + `does not use one egg a person — ${n} people share ${eggs} eggs.`,
+          `${eggs * m} eggs is ${eggs} eggs for EACH of ${m} people. The ${eggs} eggs are for all `
+            + `${n} of them together.`,
         ],
       },
       right: `${dec(eggsFor(m))} eggs — ${dec(times)} times the recipe.`,
@@ -517,22 +520,29 @@ function stageThree(p: Params): Stage {
 // first ingredient to run out decides, and a batch you cannot finish is not a
 // batch.
 //
-// Table only: the student changes how much butter there is, and the table
-// shows each ingredient's batches side by side — so they see the smaller one
-// win, then the other one take over.
+// Table only. The student changes BOTH stocks, flour and butter, in tens of
+// grams (review lessons, 2026-11-27: one quantity in 50s was the preset steps
+// and the single knob the earlier tutorials' reviews took out). The table
+// shows each ingredient's batches side by side, so they make one run out
+// first, then the other. Tens, not single grams: two boxes of 1,500 values
+// would be 2.25 million pairs for the tests to walk; tens are 22,500.
 
 /** [flour per batch, butter per batch, flour in stock, butter in stock], all grams. */
 const S4 = [[200, 150, 1000, 500], [250, 100, 1500, 450], [300, 125, 1100, 900], [150, 200, 800, 1500]] as const
+const STOCK = { min: 10, max: 1500, step: 10 }
+const STOCK_BASE = baseFor(STOCK.max)
 
 function stageFour(p: Params): Stage {
   const [fl, bu, F, B] = S4[p.s4]
-  const byFlour = F / fl
-  const byButter = (b: number) => b / bu
-  const most = (b: number) => Math.floor(Math.min(byFlour, byButter(b)))
-  const limits = (b: number) => (byButter(b) < byFlour ? 'butter' : 'flour')
-  const answer = most(B)
-  const other = Math.floor(Math.max(byFlour, byButter(B)))
-  const short = limits(B)
+  const batches = (f: number, b: number) => ({ flour: f / fl, butter: b / bu })
+  const whole = (f: number, b: number) => Math.floor(Math.min(f / fl, b / bu))
+  /** The ingredient that runs out first; flour on a tie, when both do at once. */
+  const short = (f: number, b: number): 'flour' | 'butter' => (b / bu < f / fl ? 'butter' : 'flour')
+  const stocks = (v: number) => splitInputs(v, 2, STOCK_BASE) as [number, number]
+  const answer = whole(F, B)
+  const other = Math.floor(Math.max(F / fl, B / bu))
+  const runsOut = short(F, B)
+  const lasts = runsOut === 'butter' ? 'flour' : 'butter'
   return {
     title: 'The most you can make',
     ask: `One batch of biscuits uses ${grams(fl)} of flour and ${grams(bu)} of butter. Sam has `
@@ -543,41 +553,58 @@ function stageFour(p: Params): Stage {
         kind: 'choice',
         options: [`${answer} batches`, `${other} batches`, `${answer + 1} batches`],
         correct: 0,
+        // What the picked answer WAS, opening with it; the working follows in
+        // `explain` (review lessons, 2026-11-27).
         wrong: [
           '',
-          `That is what the ${short === 'butter' ? 'flour' : 'butter'} would make. But every batch `
-            + `needs both, and the ${short} runs out after ${dec(Math.min(byFlour, byButter(B)))} `
-            + 'batches.',
-          `That rounds ${dec(Math.min(byFlour, byButter(B)))} up. The last batch would be short of `
-            + `${short}, so it cannot be made.`,
+          `${other} batches is what the ${lasts} would make on its own. But every batch needs both, `
+            + `and the ${runsOut} runs out first.`,
+          `${answer + 1} batches rounds up. The last batch would be short of ${runsOut}, so it `
+            + 'cannot be made.',
         ],
       },
-      right: `${answer} batches — the ${short} runs out first.`,
+      right: `${answer} batches — the ${runsOut} runs out first.`,
       // Every line ends on a word: "= 3.67…." printed a doubled stop.
       explain: [
-        `The flour makes ${F} ÷ ${fl} = ${dec(byFlour)} batches.`,
-        `The butter makes ${B} ÷ ${bu} = ${dec(byButter(B))} batches.`,
-        `The ${short} runs out first, so Sam can make ${answer} whole batches.`,
+        `The flour makes ${F} ÷ ${fl} = ${dec(batches(F, B).flour)} batches.`,
+        `The butter makes ${B} ÷ ${bu} = ${dec(batches(F, B).butter)} batches.`,
+        `The ${runsOut} runs out first, so Sam can make ${answer} whole batches.`,
       ],
     },
     control: {
-      name: 'butter',
-      prompt: `Keep Sam's ${grams(F)} of flour, and change how much butter there is. Watch which `
-        + 'ingredient decides how many batches.',
-      hint: 'Any amount from 50 g to 1,500 g, in 50s.',
-      domain: { min: 50, max: 1500, step: 50 },
-      suggest: [1500, 100],
-      label: v => grams(v),
-      row: v => [grams(v), dec(byFlour), dec(byButter(v)), String(most(v))],
+      name: 'what Sam has',
+      inputs: ['flour', 'butter'],
+      inputUnit: 'g',
+      prompt: 'Change how much flour and how much butter Sam has. Watch which ingredient decides '
+        + 'how many batches — and what happens to a batch there is not quite enough for.',
+      hint: 'Any amounts from 10 g to 1,500 g, in tens.',
+      domain: STOCK,
+      // One where the butter runs out first, one where the flour does, in
+      // every scenario, and at least one batch from each: 1,500 g of flour
+      // against 300 g of butter, and 300 g of flour against 1,500 g of butter.
+      // (100 g of butter made 0 batches where a batch takes 125 g — seen live.)
+      suggest: [joinInputs([1500, 300], STOCK_BASE), joinInputs([300, 1500], STOCK_BASE)],
+      label: v => {
+        const [f, b] = stocks(v)
+        return `${grams(f)} flour, ${grams(b)} butter`
+      },
+      row: v => {
+        const [f, b] = stocks(v)
+        return [grams(f), grams(b), dec(f / fl), dec(b / bu), String(whole(f, b))]
+      },
       coverage: drawn => {
-        const short = new Set(drawn.map(limits))
-        if (short.size === 2) return null
-        return short.has('butter')
-          ? 'Now try enough butter that the flour runs out first.'
-          : 'Now try little enough butter that it runs out first.'
+        const first = new Set(drawn.map(v => short(...stocks(v))))
+        if (first.size === 2) return null
+        return first.has('butter')
+          ? 'Now make the flour run out first.'
+          : 'Now make the butter run out first.'
       },
     },
-    observe: { headers: ['butter', 'batches the flour makes', 'batches the butter makes', 'whole batches'] },
+    observe: {
+      // Short, in the working's own words ("The flour makes 5.33… batches"):
+      // the long ones made the table 640px wide on a 302px phone column.
+      headers: ['flour', 'butter', 'flour makes', 'butter makes', 'whole batches'],
+    },
     conclude: {
       sentence: ['The most you can make is decided by ', ', and you can only make ', '.'],
       slots: [
