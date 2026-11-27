@@ -3,7 +3,9 @@ import {
   allDraws, drawParams, resolveInvestigation, resolveAt, predictionCorrect, concludeGate,
   rejectValue, addValue, showTry, sentenceState, checksAttempted, stageComplete, stepNumbers,
   controlValues, joinInputs, splitInputs, triedValue,
+  parseSectionEntry, sectionOpen, nextSection,
 } from './investigation'
+import { numbersIn } from './checkValues'
 import { clipLine, lineEquation } from './investigationFigures'
 import { BLOOM_VERBS, NOT_MEASURABLE, bloomLevel } from './bloom'
 import { investigations, getInvestigation, hasInvestigation } from '../../data/investigations'
@@ -410,6 +412,58 @@ describe('typed values', () => {
       .build(allDraws(investigations['understanding_straight_line_graphs'].parameters)[0])[1]
     expect(rejectValue(m, '2.5')).toBeNull()
     expect(rejectValue(m, '2.25')).toMatch(/steps of/i)
+  })
+})
+
+describe('arriving at one section (docs/audit/33)', () => {
+  const Q = '2471f835-e678-4793-9f29-bcd3d94724a8'
+
+  it('reads the section and the question from the URL, and nothing else', () => {
+    expect(parseSectionEntry(`?section=3&from=${Q}`, 4)).toEqual({ section: 2, from: Q })
+    expect(parseSectionEntry('?section=1', 4)).toEqual({ section: 0, from: null })
+    // A "from" that is not a question id is dropped: it becomes a link back.
+    expect(parseSectionEntry('?section=2&from=javascript:alert(1)', 4)).toEqual({ section: 1, from: null })
+    expect(parseSectionEntry('?section=2&from=../../admin', 4)).toEqual({ section: 1, from: null })
+    // Out of range, not whole, or missing: the normal start.
+    for (const bad of ['?section=0', '?section=5', '?section=2.5', '?section=two', '', '?from=' + Q]) {
+      expect(parseSectionEntry(bad, 4), bad).toBeNull()
+    }
+  })
+
+  it('opens every section up to the one arrived at, and later ones as before', () => {
+    const at3 = { section: 2, from: Q }
+    expect([0, 1, 2, 3].map(i => sectionOpen(i, false, null))).toEqual([true, false, false, false])
+    expect([0, 1, 2, 3].map(i => sectionOpen(i, false, at3))).toEqual([true, true, true, false])
+    expect(sectionOpen(3, true, at3)).toBe(true)
+  })
+
+  it('goes to the next section, and finishes only when every section is complete', () => {
+    expect(nextSection(0, [true, false, false, false])).toBe(1)
+    expect(nextSection(2, [true, true, true, false])).toBe(3)
+    expect(nextSection(3, [true, true, true, true])).toBe('finish')
+    // Came straight to the last section and completed only it: not finished.
+    expect(nextSection(3, [false, false, false, true])).toBe(0)
+    expect(nextSection(3, [true, false, true, true])).toBe(1)
+  })
+
+  it('gives every section that leans on the one before an opening that does not', () => {
+    // A student sent straight to the section has not seen the one before.
+    const leans = /\b(we now know|you (already )?know which|now the other way|the other way round|as before|in section \d|the last section)\b/i
+    for (const inv of every()) {
+      const seen = new Set<string>()
+      for (const p of allDraws(inv.parameters)) {
+        inv.build(p).forEach((stage, i) => {
+          if (i === 0 || seen.has(stage.ask)) return
+          seen.add(stage.ask)
+          const where = `${inv.skillId} stage ${i + 1}`
+          if (leans.test(stage.ask)) expect(stage.coldAsk, `${where} leans back with no coldAsk`).toBeTruthy()
+          if (!stage.coldAsk) return
+          expect(stage.coldAsk, `${where}: the coldAsk leans back too`).not.toMatch(leans)
+          // The same question on the same numbers, only without the lean.
+          expect(new Set(numbersIn(stage.coldAsk)), where).toEqual(new Set(numbersIn(stage.ask)))
+        })
+      }
+    }
   })
 })
 

@@ -439,6 +439,9 @@ function stageIncrease(p: Params): Stage {
       + `${money(start * q / 100)}, and we could add those together to calculate your new pay. `
       + `But there is a quicker route. What single number could you multiply ${money(start)} `
       + 'by to land on the new pay in one step?',
+    coldAsk: `Your pay of ${money(start)} goes up by ${q}%. The rise is ${money(start * q / 100)}, `
+      + 'and you could add that on to find your new pay. But there is a quicker route. What single '
+      + `number could you multiply ${money(start)} by to land on the new pay in one step?`,
     predict: {
       prompt: 'Multiply by…',
       on: {
@@ -573,6 +576,8 @@ function stageDecrease(p: Params): Stage {
     title: 'A decrease in one step',
     ask: `Now the other way. ${money(start)} goes DOWN by ${q}%. What is the single number to `
       + 'multiply by this time?',
+    coldAsk: `${money(start)} goes DOWN by ${q}%. What single number could you multiply `
+      + `${money(start)} by to land on what is left in one step?`,
     predict: {
       prompt: 'Multiply by…',
       on: {

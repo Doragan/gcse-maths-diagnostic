@@ -345,3 +345,52 @@ export function stepNumbers(stage: Stage): {
     check: (stage.check ?? []).length ? ++n : 0,
   }
 }
+
+// ─── Arriving at one section ─────────────────────────────────────────────────
+//
+// A wrong answer can open the ONE section that teaches its mistake, rather than
+// the whole investigation from the start (docs/audit/33). The page reads that
+// from its URL: ?section=3&from=<the question's id>.
+
+/** A section opened directly: which (0-based), and the question that sent the student, if any. */
+export type SectionEntry = { section: number; from: string | null }
+
+const QUESTION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * The section a URL's query asks for, or null for the normal start.
+ *
+ * `section` is 1-based, as the page numbers them. Anything out of range, or not
+ * a whole number, is the normal start rather than an error. `from` is kept only
+ * when it is a question id: it becomes a link back, so nothing else is trusted.
+ */
+export function parseSectionEntry(search: string, stageCount: number): SectionEntry | null {
+  const query = new URLSearchParams(search)
+  const n = Number(query.get('section'))
+  if (!Number.isInteger(n) || n < 1 || n > stageCount) return null
+  const from = query.get('from')
+  return { section: n - 1, from: from && QUESTION_ID.test(from) ? from : null }
+}
+
+/**
+ * Whether section `i` may be opened: the first always, any whose previous
+ * section is complete, and — when the student arrived at a section directly —
+ * every section up to that one, so the earlier ones can be read but are not
+ * required (docs/audit/33, D2). Sections after it open as they always have.
+ */
+export function sectionOpen(i: number, previousComplete: boolean, entry: SectionEntry | null): boolean {
+  return i === 0 || previousComplete || (entry !== null && i <= entry.section)
+}
+
+/**
+ * Where the button at the foot of a complete section goes: the next section,
+ * or from the last one, the first section not yet complete — and 'finish' only
+ * when every section is. "Last section done" used to mean finished, which a
+ * student who came straight to the last section would have been, having done
+ * none of the others.
+ */
+export function nextSection(i: number, complete: readonly boolean[]): number | 'finish' {
+  if (i + 1 < complete.length) return i + 1
+  const gap = complete.findIndex(c => !c)
+  return gap === -1 ? 'finish' : gap
+}
